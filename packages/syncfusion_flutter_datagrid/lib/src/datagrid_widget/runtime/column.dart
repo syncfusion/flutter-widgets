@@ -1961,7 +1961,7 @@ class FilterCondition {
 class DataGridFilterHelper {
   /// Creates the [DataGridFilterHelper] for [SfDataGrid].
   DataGridFilterHelper(this._dataGridStateDetails) {
-    checkboxFilterHelper = DataGridCheckboxFilterHelper();
+    checkboxFilterHelper = DataGridCheckboxFilterHelper(_dataGridStateDetails);
     advancedFilterHelper = DataGridAdvancedFilterHelper(_dataGridStateDetails);
   }
 
@@ -2112,7 +2112,7 @@ class DataGridFilterHelper {
   }
 
   /// Format the given cell value to the string data type to display.
-  String getDisplayValue(Object? value) {
+  String getDisplayValue(Object? value, [String? dateMask]) {
     if (value != null) {
       // Should return if the value defines the blank filter.
       if (value == '(Blanks)') {
@@ -2125,10 +2125,33 @@ class DataGridFilterHelper {
           return value is! String ? value.toString() : value;
         case AdvancedFilterType.date:
           final DateTime date = value as DateTime;
-          return date.toString().split(' ').first;
+
+          if (dateMask == null || dateMask.isEmpty) {
+            return date.toString().split(' ').first;
+          }
+
+          final String formattedDate = formatDate(date, dateMask);
+          return formattedDate;
       }
     }
     return '';
+  }
+
+  /// Format dateTime based on mask.
+  static String formatDate(DateTime date, String mask) {
+    final Map<String, String> replacements = <String, String>{
+      'dd': date.day.toString().padLeft(2, '0'),
+      'MM': date.month.toString().padLeft(2, '0'),
+      'yyyy': date.year.toString(),
+      'yy': date.year.toString().substring(2, 4),
+    };
+
+    String formattedDate = mask;
+    replacements.forEach((String key, String value) {
+      formattedDate = formattedDate.replaceAll(key, value);
+    });
+
+    return formattedDate;
   }
 
   /// Format the given string value to the actual cell value with same data type.
@@ -2724,9 +2747,14 @@ class DataGridFilterHelper {
 /// A class [DataGridCheckboxFilterHelper] that holds the helper properties
 /// for the checkbox filter.
 class DataGridCheckboxFilterHelper {
+  /// Creates `DataGridCheckboxFilterHelper` for `SfDataGrid`.
+  DataGridCheckboxFilterHelper(this._dataGridStateDetails);
+
   /// Holds all the cell values of corresponding filter column as a
   /// `FilterElement` collection.
   List<FilterElement> items = <FilterElement>[];
+
+  final DataGridStateDetails _dataGridStateDetails;
 
   /// Holds the searched check box items.
   List<FilterElement> _searchedItems = <FilterElement>[];
@@ -2789,12 +2817,19 @@ class DataGridCheckboxFilterHelper {
       return;
     }
 
-    _searchedItems = filterCheckboxItems
-        .where((FilterElement element) => element.value
+    _searchedItems = filterCheckboxItems.where((FilterElement element) {
+      if (element.value is DateTime) {
+        final DateTime date = element.value as DateTime;
+        final String formattedDate = DataGridFilterHelper.formatDate(
+            date, _dataGridStateDetails().localizations.dateFormat);
+        return formattedDate.toLowerCase().contains(searchText.toLowerCase());
+      } else {
+        return element.value
             .toString()
             .toLowerCase()
-            .contains(searchText.toLowerCase()))
-        .toList();
+            .contains(searchText.toLowerCase());
+      }
+    }).toList();
 
     for (final FilterElement element in _searchedItems) {
       element.isSelected = true;

@@ -1825,7 +1825,8 @@ class _CheckboxFilterMenu extends StatelessWidget {
     if (filterHelper.items.isNotEmpty) {
       final FilterElement element = filterHelper.items[index];
       final String displayText = dataGridConfiguration.dataGridFilterHelper!
-          .getDisplayValue(element.value);
+          .getDisplayValue(
+              element.value, dataGridConfiguration.localizations.dateFormat);
       return _FilterPopupMenuTile(
           style: style,
           height: isMobile ? style.fontSize! + 34 : style.fontSize! + 26,
@@ -2054,7 +2055,8 @@ class _AdvancedFilterPopupMenu extends StatelessWidget {
               .map<DropdownMenuItem<Object>>((FilterElement value) =>
                   DropdownMenuItem<Object>(
                       value: value.value,
-                      child: Text(helper.getDisplayValue(value.value))))
+                      child: Text(helper.getDisplayValue(value.value,
+                          dataGridConfiguration.localizations.dateFormat))))
               .toList(),
           onChanged: enableDropdownButton(isTopButton) ? setValue : null,
         ),

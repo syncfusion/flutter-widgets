@@ -23,6 +23,9 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Na';
 
   @override
@@ -369,6 +372,9 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'በኋላ';
 
   @override
@@ -707,6 +713,9 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'بعد، بعدما';
@@ -1052,6 +1061,9 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'sonra';
@@ -1401,6 +1413,9 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Пасля';
 
   @override
@@ -1745,6 +1760,9 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'След';
@@ -2094,6 +2112,9 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'পরে';
 
   @override
@@ -2437,6 +2458,9 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Poslije';
@@ -2784,6 +2808,9 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Després';
@@ -3134,6 +3161,9 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Po';
 
   @override
@@ -3480,6 +3510,9 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Efter';
 
   @override
@@ -3824,6 +3857,9 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Nach';
@@ -4173,6 +4209,9 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Μετά';
@@ -4527,6 +4566,9 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'After';
 
   @override
@@ -4871,6 +4913,9 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Después';
@@ -5219,6 +5264,9 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Pärast';
 
   @override
@@ -5563,6 +5611,9 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Ondoren';
@@ -5912,6 +5963,9 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'بعد از';
 
   @override
@@ -6255,6 +6309,9 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Jälkeen';
@@ -6603,6 +6660,9 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Pagkatapos';
@@ -6956,6 +7016,9 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Après';
 
   @override
@@ -7305,6 +7368,9 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Despois';
 
   @override
@@ -7648,6 +7714,9 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'પછી';
@@ -7996,6 +8065,9 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'לאחר';
 
   @override
@@ -8339,6 +8411,9 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'बाद में';
@@ -8688,6 +8763,9 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Nakon';
 
   @override
@@ -9032,6 +9110,9 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Után';
@@ -9383,6 +9464,9 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'հետո';
 
   @override
@@ -9729,6 +9813,9 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Setelah';
@@ -10079,6 +10166,9 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Eftir';
 
   @override
@@ -10423,6 +10513,9 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Dopo';
@@ -10772,6 +10865,9 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'後';
 
   @override
@@ -11111,6 +11207,9 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'შემდეგ';
@@ -11456,6 +11555,9 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Кейін';
@@ -11804,6 +11906,9 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'បន្ទាប់ពី';
 
   @override
@@ -12148,6 +12253,9 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => '\u{ca8}\u{c82}\u{ca4}\u{cb0}';
@@ -12570,6 +12678,9 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'후에';
 
   @override
@@ -12908,6 +13019,9 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Кийин';
@@ -13256,6 +13370,9 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'ຫຼັງຈາກ';
 
   @override
@@ -13600,6 +13717,9 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Po to';
@@ -13947,6 +14067,9 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Pēc';
 
   @override
@@ -14292,6 +14415,9 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'По';
@@ -14643,6 +14769,9 @@ class SfLocalizationsMl extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'ശേഷം';
 
   @override
@@ -14992,6 +15121,9 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Дараа нь';
 
   @override
@@ -15336,6 +15468,9 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'नंतर';
@@ -15685,6 +15820,9 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Selepas';
 
   @override
@@ -16031,6 +16169,9 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'ပြီးနောက်';
@@ -16382,6 +16523,9 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Etter';
 
   @override
@@ -16726,6 +16870,9 @@ class SfLocalizationsNe extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'पछि';
@@ -17077,6 +17224,9 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Na';
 
   @override
@@ -17423,6 +17573,9 @@ class SfLocalizationsNo extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Etter';
 
   @override
@@ -17767,6 +17920,9 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'ପରେ';
@@ -18119,6 +18275,9 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'ਤੋਂ ਬਾਅਦ';
 
   @override
@@ -18466,6 +18625,9 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Później';
 
   @override
@@ -18809,6 +18971,9 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'وروسته';
@@ -19158,6 +19323,9 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => r"dd/MM/yyyy";
+
+  @override
   String get afterDataGridFilteringLabel => r'Depois';
 
   @override
@@ -19504,6 +19672,9 @@ class SfLocalizationsPtPt extends SfLocalizationsPt {
         );
 
   @override
+  String get dateFormat => "dd/MM/yyyy";
+
+  @override
   String get pdfEnterPageNumberLabel => r'Digite o número da página';
 }
 
@@ -19515,6 +19686,9 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'După';
@@ -19864,6 +20038,9 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'После';
 
   @override
@@ -20208,6 +20385,9 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'පසු';
@@ -20556,6 +20736,9 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Po';
 
   @override
@@ -20901,6 +21084,9 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Po';
 
   @override
@@ -21244,6 +21430,9 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Pas';
@@ -21593,6 +21782,9 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'После';
@@ -21952,6 +22144,9 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Efter';
 
   @override
@@ -22299,6 +22494,9 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Baada ya';
 
   @override
@@ -22643,6 +22841,9 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'பிறகு';
@@ -22997,6 +23198,9 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'తర్వాత';
 
   @override
@@ -23349,6 +23553,9 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'หลังจาก';
 
   @override
@@ -23691,6 +23898,9 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Pagkatapos';
@@ -24044,6 +24254,9 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Sonrasında';
 
   @override
@@ -24394,6 +24607,9 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'після';
 
   @override
@@ -24738,6 +24954,9 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'کے بعد';
@@ -25086,6 +25305,9 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'Keyin';
 
   @override
@@ -25430,6 +25652,9 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Sau';
@@ -25777,6 +26002,9 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
         );
 
   @override
+  String get dateFormat => "yyyy-MM-dd";
+
+  @override
   String get afterDataGridFilteringLabel => r'后';
 
   @override
@@ -26115,6 +26343,9 @@ class SfLocalizationsZhHans extends SfLocalizationsZh {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -26125,6 +26356,9 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'後';
@@ -26371,6 +26605,9 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get dateFormat => "yyyy-MM-dd";
 
   @override
   String get afterDataGridFilteringLabel => r'Ngemva';
