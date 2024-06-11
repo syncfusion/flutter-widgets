@@ -148,10 +148,6 @@ class SfBarcodeThemeData with Diagnosticable {
     TextStyle? textStyle,
   }) {
     brightness = brightness ?? Brightness.light;
-    final bool isLight = brightness == Brightness.light;
-    backgroundColor ??= Colors.transparent;
-    barColor ??= isLight ? const Color(0xFF212121) : const Color(0xFFE0E0E0);
-    textColor ??= isLight ? const Color(0xFF212121) : const Color(0xFFE0E0E0);
 
     return SfBarcodeThemeData(
       backgroundColor: backgroundColor,

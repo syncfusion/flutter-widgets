@@ -3249,6 +3249,42 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
       );
 
       _children[index] = view;
+    } else if (timeZoneLoaded || widget.calendar.timeZone != '') {
+      view = _CalendarView(
+        widget.calendar,
+        widget.view,
+        visibleDates,
+        widget.width,
+        widget.height,
+        widget.agendaSelectedDate,
+        widget.locale,
+        widget.calendarTheme,
+        widget.themeData,
+        view.regions,
+        view.blackoutDates,
+        _focusNode,
+        widget.removePicker,
+        widget.calendar.allowViewNavigation,
+        widget.controller,
+        widget.resourcePanelScrollController,
+        widget.resourceCollection,
+        widget.textScaleFactor,
+        widget.isMobilePlatform,
+        widget.minDate,
+        widget.maxDate,
+        widget.localizations,
+        widget.timelineMonthWeekNumberNotifier,
+        _dragDetails,
+        (UpdateCalendarStateDetails details) {
+          _updateCalendarViewStateDetails(details);
+        },
+        (UpdateCalendarStateDetails details) {
+          _getCalendarViewStateDetails(details);
+        },
+        key: viewKey,
+      );
+
+      _children[index] = view;
     }
 
     return view;
@@ -8641,6 +8677,7 @@ class _CalendarViewState extends State<_CalendarView>
               widget.calendarTheme.todayHighlightColor,
           _isRTL,
           _currentTimeNotifier,
+          widget.calendar.timeZone ?? '',
         ),
         size: Size(width, height),
       ),
@@ -12803,15 +12840,16 @@ class _CustomNeverScrollableScrollPhysics extends NeverScrollableScrollPhysics {
 
 class _CurrentTimeIndicator extends CustomPainter {
   _CurrentTimeIndicator(
-      this.timeIntervalSize,
-      this.timeRulerSize,
-      this.timeSlotViewSettings,
-      this.isTimelineView,
-      this.visibleDates,
-      this.todayHighlightColor,
-      this.isRTL,
-      ValueNotifier<int> repaintNotifier)
-      : super(repaint: repaintNotifier);
+    this.timeIntervalSize,
+    this.timeRulerSize,
+    this.timeSlotViewSettings,
+    this.isTimelineView,
+    this.visibleDates,
+    this.todayHighlightColor,
+    this.isRTL,
+    ValueNotifier<int> repaintNotifier,
+    this.timeZone,
+  ) : super(repaint: repaintNotifier);
   final double timeIntervalSize;
   final TimeSlotViewSettings timeSlotViewSettings;
   final bool isTimelineView;
@@ -12819,6 +12857,7 @@ class _CurrentTimeIndicator extends CustomPainter {
   final double timeRulerSize;
   final Color? todayHighlightColor;
   final bool isRTL;
+  final String timeZone;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -12828,6 +12867,11 @@ class _CurrentTimeIndicator extends CustomPainter {
     final int totalMinutes = (hours * 60) + minutes;
     final int viewStartMinutes = (timeSlotViewSettings.startHour * 60).toInt();
     final int viewEndMinutes = (timeSlotViewSettings.endHour * 60).toInt();
+    DateTime getLocationDateTime = DateTime.now();
+
+    if (!timeZoneLoaded && timeZone == null) {
+      return;
+    }
     if (totalMinutes < viewStartMinutes || totalMinutes > viewEndMinutes) {
       return;
     }
@@ -12847,8 +12891,17 @@ class _CurrentTimeIndicator extends CustomPainter {
 
     final double minuteHeight = timeIntervalSize /
         CalendarViewHelper.getTimeInterval(timeSlotViewSettings);
+
+    if (timeZoneLoaded && timeZone != '') {
+      getLocationDateTime = AppointmentHelper.convertTimezone(now, timeZone);
+    } else {
+      getLocationDateTime = DateTime.now();
+    }
+
     final double currentTimePosition = CalendarViewHelper.getTimeToPosition(
-        Duration(hours: hours, minutes: minutes),
+        Duration(
+            hours: getLocationDateTime.hour,
+            minutes: getLocationDateTime.minute),
         timeSlotViewSettings,
         minuteHeight);
     final Paint painter = Paint()

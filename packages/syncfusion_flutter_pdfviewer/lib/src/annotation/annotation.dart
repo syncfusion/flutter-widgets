@@ -177,10 +177,12 @@ extension AnnotationExtension on Annotation {
           final PdfTextMarkupAnnotation pdfTextMarkupAnnotation =
               PdfTextMarkupAnnotation(annotation.bounds, name, pdfColor);
           pdfTextMarkupAnnotation.textMarkupAnnotationType = type;
-          if (annotation.author != null && annotation.author!.isNotEmpty)
+          if (annotation.author != null && annotation.author!.isNotEmpty) {
             pdfTextMarkupAnnotation.author = annotation.author!;
-          if (annotation.subject != null && annotation.subject!.isNotEmpty)
+          }
+          if (annotation.subject != null && annotation.subject!.isNotEmpty) {
             pdfTextMarkupAnnotation.subject = annotation.subject!;
+          }
 
           pdfAnnotation = pdfTextMarkupAnnotation;
           pdfTextMarkupAnnotation.boundsCollection.addAll(boundsCollection);

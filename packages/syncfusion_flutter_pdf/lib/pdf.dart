@@ -230,7 +230,9 @@ export 'src/pdf/implementation/security/digital_signature/pdf_certificate.dart'
     show PdfCertificate;
 export 'src/pdf/implementation/security/digital_signature/pdf_external_signer.dart';
 export 'src/pdf/implementation/security/digital_signature/pdf_signature.dart'
-    show PdfSignature;
+    show PdfSignature, RevocationType;
+export 'src/pdf/implementation/security/digital_signature/time_stamp_server/time_stamp_server.dart'
+    show TimestampServer;
 export 'src/pdf/implementation/security/enum.dart';
 export 'src/pdf/implementation/security/pdf_security.dart'
     show PdfPermissions, PdfSecurity;

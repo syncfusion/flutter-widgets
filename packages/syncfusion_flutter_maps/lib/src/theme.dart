@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
-/// [SfMapsThemeDataM2] this class provides material2 themeData.
-/// SfMapsThemeDataM2 class extends the 'SfMapsThemeData' class and customize
-/// the appearance of a mapping component based on th color scheme obtained from
+/// [MapsThemeData] this class provides themeData.
+/// MapsThemeData class extends the 'SfMapsThemeData' class and customize
+/// the appearance of a mapping component based on th colorScheme obtained from
 /// the provided [BuildContext].
-class SfMapsThemeDataM2 extends SfMapsThemeData {
+class MapsThemeData extends SfMapsThemeData {
   /// This a constructor that takes a [BuildContext] as a parameter.This context
-  /// is used for obtaining the color scheme of the current theme.
-  SfMapsThemeDataM2(this.context);
+  /// is used for obtaining the colorScheme of the current theme.
+  MapsThemeData(this.context);
 
   /// Property that stores the provided [BuildContext]
-  /// context is later used to obtain the color scheme.
+  /// context is later used to obtain the colorScheme.
   final BuildContext context;
 
   /// A late-initialized property representing the color scheme obtained from
   /// the current theme using the provided [BuildContext]
-  late final ColorScheme colorScheme = Theme.of(context).colorScheme;
+  late final SfColorScheme colorScheme = SfTheme.colorScheme(context);
 
   /// Specifies the sub layer color of the maps widgets.
   Color get subLayerColor => colorScheme.brightness == Brightness.light
@@ -32,129 +32,44 @@ class SfMapsThemeDataM2 extends SfMapsThemeData {
   double get subLayerStrokeWidth =>
       colorScheme.brightness == Brightness.light ? 0.5 : 0.25;
 
+  // TODO(Aswini): Dark color not appiled properly.
   @override
-  Color? get layerColor => (colorScheme.brightness == Brightness.light
-      ? colorScheme.onSurface.withOpacity(0.11)
-      : colorScheme.onSurface.withOpacity(0.24));
-
-  @override
-  Color? get layerStrokeColor => (colorScheme.brightness == Brightness.light
-      ? colorScheme.onSurface.withOpacity(0.18)
-      : colorScheme.onSurface.withOpacity(0.43));
+  Color? get layerColor => colorScheme.onSurface[29];
 
   @override
-  Color? get markerIconColor => (colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(98, 0, 238, 1)
-      : const Color.fromRGBO(187, 134, 252, 1));
+  Color? get layerStrokeColor => colorScheme.onSurface[47];
 
   @override
-  Color? get bubbleColor => (colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(98, 0, 238, 0.5)
-      : const Color.fromRGBO(187, 134, 252, 0.8));
+  Color? get markerIconColor => colorScheme.primary[98];
 
   @override
-  Color? get bubbleStrokeColor => Colors.transparent;
+  Color? get bubbleColor => colorScheme.useMaterial3
+      ? colorScheme.brightness == Brightness.light
+          ? const Color.fromRGBO(255, 180, 0, 0.4)
+          : const Color.fromRGBO(201, 88, 142, 0.4)
+      : colorScheme.brightness == Brightness.light
+          ? const Color.fromRGBO(98, 0, 238, 0.5)
+          : const Color.fromRGBO(187, 134, 252, 0.8);
+
+  // TODO(Aswini): Dark color not appiled properly.
+  @override
+  Color? get bubbleStrokeColor => colorScheme.transparent[255];
 
   @override
-  Color? get selectionColor => (colorScheme.brightness == Brightness.light
-      ? colorScheme.onSurface.withOpacity(0.53)
-      : colorScheme.onSurface.withOpacity(0.85));
+  Color? get selectionColor => colorScheme.outlineVariant[255];
 
   @override
-  Color? get selectionStrokeColor => (colorScheme.brightness == Brightness.light
-      ? colorScheme.onPrimary.withOpacity(0.29)
-      : colorScheme.surface.withOpacity(0.56));
+  Color? get selectionStrokeColor => colorScheme.onPrimary[75];
 
   @override
-  Color? get tooltipColor => (colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(117, 117, 117, 1)
-      : const Color.fromRGBO(245, 245, 245, 1));
+  Color? get tooltipColor => colorScheme.onSurface[256];
 
   @override
-  Color? get toggledItemColor => (colorScheme.brightness == Brightness.light
-      ? colorScheme.onPrimary
-      : colorScheme.onSurface.withOpacity(0.09));
+  Color? get tooltipStrokeColor => colorScheme.inverseSurface[257];
 
   @override
-  Color? get toggledItemStrokeColor =>
-      (colorScheme.brightness == Brightness.light
-          ? colorScheme.onSurface.withOpacity(0.37)
-          : colorScheme.onSurface.withOpacity(0.17));
-}
-
-/// [SfMapsThemeDataM3] this class provides material3 themeData.
-/// SfMapsThemeDataM2 class extends the 'SfMapsThemeData' class and customize
-/// the appearance of a mapping component based on th color scheme obtained from
-/// the provided [BuildContext].
-class SfMapsThemeDataM3 extends SfMapsThemeData {
-  /// This a constructor that takes a [BuildContext] as a parameter.This context
-  /// is used for obtaining the color scheme of the current theme.
-  SfMapsThemeDataM3(this.context);
-
-  /// Property that stores the provided [BuildContext]
-  /// context is later used to obtain the color scheme.
-  final BuildContext context;
-
-  /// A late-initialized property representing the color scheme obtained from
-  /// the current theme using the provided [BuildContext]
-  late final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-  /// Specifies the sub layer color of the maps widgets.
-  Color get subLayerColor => colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(198, 198, 198, 1)
-      : const Color.fromRGBO(71, 71, 71, 1);
-
-  /// Specifies the sub layer stroke color of the maps widgets.
-  Color get subLayerStrokeColor => colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(145, 145, 145, 1)
-      : const Color.fromRGBO(133, 133, 133, 1);
-
-  /// Specifies the sub layer width of the maps widgets.
-  double get subLayerStrokeWidth =>
-      colorScheme.brightness == Brightness.light ? 0.5 : 0.25;
+  Color? get toggledItemColor => colorScheme.onSurface[24];
 
   @override
-  Color? get layerColor => (colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(231, 224, 236, 1)
-      : const Color.fromRGBO(54, 50, 59, 1));
-
-  @override
-  Color? get layerStrokeColor => (colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(202, 196, 208, 1)
-      : const Color.fromRGBO(73, 69, 79, 1));
-
-  @override
-  Color? get markerIconColor => colorScheme.primary;
-
-  @override
-  Color? get bubbleColor => (colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(255, 180, 0, 0.4)
-      : const Color.fromRGBO(201, 88, 142, 0.4));
-
-  @override
-  Color? get bubbleStrokeColor => const Color.fromRGBO(255, 255, 255, 0.4);
-
-  @override
-  Color? get selectionColor => (colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(202, 196, 208, 1)
-      : const Color.fromRGBO(73, 69, 79, 1));
-
-  @override
-  Color? get selectionStrokeColor => (colorScheme.brightness == Brightness.light
-      ? colorScheme.onPrimary.withOpacity(0.29)
-      : const Color.fromRGBO(73, 69, 79, 1));
-
-  @override
-  Color? get tooltipColor => colorScheme.inverseSurface;
-
-  @override
-  Color? get toggledItemColor => (colorScheme.brightness == Brightness.light
-      ? colorScheme.onPrimary
-      : colorScheme.onSurface.withOpacity(0.09));
-
-  @override
-  Color? get toggledItemStrokeColor =>
-      (colorScheme.brightness == Brightness.light
-          ? colorScheme.onSurface.withOpacity(0.37)
-          : colorScheme.onSurface.withOpacity(0.17));
+  Color? get toggledItemStrokeColor => colorScheme.onSurface[95];
 }

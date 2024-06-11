@@ -558,11 +558,15 @@ class ColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       return;
     }
 
-    final RRect? paintRRect =
-        series.parent!.isLegendToggled && _oldSegmentRect != null
-            ? performLegendToggleAnimation(
-                series, segmentRect!, _oldSegmentRect!, series.borderRadius)
-            : RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+    RRect? paintRRect;
+    if (series.parent!.isLegendToggled &&
+        _oldSegmentRect != null &&
+        series.animationType != AnimationType.loading) {
+      paintRRect = performLegendToggleAnimation(
+          series, segmentRect!, _oldSegmentRect!, series.borderRadius);
+    } else {
+      paintRRect = RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+    }
 
     if (paintRRect == null || paintRRect.isEmpty) {
       return;

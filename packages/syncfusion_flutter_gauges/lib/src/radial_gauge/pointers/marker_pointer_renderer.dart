@@ -48,6 +48,7 @@ class RenderMarkerPointer extends RenderBox {
     required ValueNotifier<int> repaintNotifier,
     required SfGaugeThemeData gaugeThemeData,
     required ThemeData themeData,
+    required SfColorScheme colorScheme,
   })  : _value = value,
         _markerType = markerType,
         _color = color,
@@ -67,7 +68,8 @@ class RenderMarkerPointer extends RenderBox {
         _pointerAnimationController = pointerAnimationController,
         _repaintNotifier = repaintNotifier,
         _gaugeThemeData = gaugeThemeData,
-        _themeData = themeData;
+        _themeData = themeData,
+        _colorScheme = colorScheme;
 
   final double _margin = 15;
   dart_ui.Image? _image;
@@ -216,6 +218,17 @@ class RenderMarkerPointer extends RenderBox {
       return;
     }
     _themeData = value;
+    markNeedsPaint();
+  }
+
+  /// Gets the colors of SfColorScheme
+  SfColorScheme get colorScheme => _colorScheme;
+  SfColorScheme _colorScheme;
+  set colorScheme(SfColorScheme value) {
+    if (value == _colorScheme) {
+      return;
+    }
+    _colorScheme = value;
     markNeedsPaint();
   }
 
@@ -638,15 +651,13 @@ class RenderMarkerPointer extends RenderBox {
     final Paint paint = Paint()
       ..color = color ??
           gaugeThemeData.markerColor ??
-          (_themeData.useMaterial3
-              ? _themeData.colorScheme.onSurfaceVariant
-              : _themeData.colorScheme.secondaryContainer.withOpacity(0.8))
+          colorScheme.secondaryContainer[205]!
       ..style = PaintingStyle.fill;
     const Color shadowColor = Colors.black;
 
     Paint? overlayPaint;
     if ((isHovered != null && isHovered!) &&
-        overlayColor != Colors.transparent) {
+        overlayColor != colorScheme.transparent) {
       overlayPaint = Paint()
         ..color = overlayColor ??
             color?.withOpacity(0.12) ??
@@ -730,16 +741,11 @@ class RenderMarkerPointer extends RenderBox {
   /// To render the MarkerShape.Text
   void _drawText(Canvas canvas, Paint paint, Offset startPosition,
       double pointerAngle, SfGaugeThemeData gaugeThemeData) {
-    final bool isDarkTheme = _themeData.brightness == Brightness.dark;
     final TextStyle markerTextStyle = _themeData.textTheme.bodySmall!.copyWith(
       color: textStyle.color ??
           _gaugeThemeData.markerTextStyle?.color ??
           _gaugeThemeData.axisLabelColor ??
-          (_themeData.useMaterial3
-              ? _themeData.colorScheme.onSurface
-              : (isDarkTheme
-                  ? _themeData.colorScheme.onSurface
-                  : _themeData.colorScheme.onSurface.withOpacity(0.72))),
+          colorScheme.onSurface[184],
       fontSize: textStyle.fontSize ?? _gaugeThemeData.markerTextStyle?.fontSize,
       fontFamily:
           textStyle.fontFamily ?? _gaugeThemeData.markerTextStyle?.fontFamily,

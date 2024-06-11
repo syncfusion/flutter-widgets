@@ -455,7 +455,8 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
         }
       }
       final PdfTemplate template = PdfTemplate(width, height);
-      setMatrix(PdfTemplateHelper.getHelper(template).content);
+      PdfAnnotationHelper.setMatrixToZeroRotation(
+          PdfTemplateHelper.getHelper(template).content);
       final PdfGraphics graphics = template.graphics!;
       graphics.setTransparency(opacity, mode: PdfBlendMode.multiply);
       if (boundsCollection.length > 1) {

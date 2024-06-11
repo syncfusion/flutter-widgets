@@ -287,9 +287,9 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
     }
 
-    if (dataCount >= period && period > 0) {
-      _signalLineActualValues.clear();
-      _yValues.clear();
+    _signalLineActualValues.clear();
+    _yValues.clear();
+    if (dataCount >= period && period > 0 && signalLineWidth > 0) {
       _calculateSignalLineValues();
     }
 
@@ -351,8 +351,8 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     xMin = xMinimum.isInfinite ? xMin : xMinimum;
     xMax = xMaximum.isInfinite ? xMax : xMaximum;
-    yMin = min(yMin, yMinimum);
-    yMax = max(yMax, yMaximum);
+    yMin = yMinimum.isInfinite ? yMin : yMinimum;
+    yMax = yMaximum.isInfinite ? yMax : yMaximum;
   }
 
   List<num> _splice<num>(List<num> list, int index, num? elements) {
@@ -407,7 +407,8 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     num? nearPointX;
     num? nearPointY;
     int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
       nearPointX ??= points[0].dx;
       nearPointY ??= yAxis!.visibleRange!.minimum;
 
@@ -444,8 +445,7 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     return CartesianChartPoint<D>(
       x: xRawValues[pointIndex + period - 1],
       xValue: xValues[pointIndex + period - 1],
-      y: yAxis!.pixelToPoint(yAxis!.paintBounds,
-          signalLinePoints[pointIndex].dx, signalLinePoints[pointIndex].dy),
+      y: _signalLineActualValues[pointIndex].dy,
     );
   }
 

@@ -98,7 +98,9 @@ abstract class Asn1 extends Asn1Encode {
     this.bytes!.add(getTagValue(_tag));
     write(bytes.length);
     this.bytes!.addAll(bytes);
-    return this.bytes;
+    final List<int> result = this.bytes!.toList();
+    this.bytes!.clear();
+    return result;
   }
 
   /// internal method
@@ -294,6 +296,44 @@ abstract class Asn1 extends Asn1Encode {
         bs[off + 1].toUnsigned(8) << 16 |
         bs[off + 2].toUnsigned(8) << 8 |
         bs[off + 3].toUnsigned(8);
+  }
+
+  /// internal method
+  static int beToUInt64(List<int> bs, int off) {
+    final int hi = beToUInt32(bs, off);
+    final int lo = beToUInt32(bs, off + 4);
+    return (hi.toUnsigned(64) << 32) | lo.toUnsigned(64);
+  }
+
+  /// internal method
+  static void uInt64ToBe(int n, List<int> bs, int off) {
+    uInt32ToBe((n >> 32).toUnsigned(32), bs, off);
+    uInt32ToBe(n.toUnsigned(32), bs, off + 4);
+  }
+
+  /// internal method
+  static BigInt leToUInt32(List<int> bs, int off) {
+    return BigInt.from(bs[off].toUnsigned(32) |
+        bs[off + 1].toUnsigned(32) << 8 |
+        bs[off + 2].toUnsigned(32) << 16 |
+        bs[off + 3].toUnsigned(32) << 24);
+  }
+
+  /// internal method
+  static void uInt32ToLe(BigInt n, List<int> bs, int off) {
+    bs[off] = n.toUnsigned(8).toInt();
+    bs[off + 1] = (n >> 8).toUnsigned(8).toInt();
+    bs[off + 2] = (n >> 16).toUnsigned(8).toInt();
+    bs[off + 3] = (n >> 24).toUnsigned(8).toInt();
+  }
+
+  /// internal method
+  static Asn1 fromByteArray(List<int> data) {
+    try {
+      return Asn1Stream(PdfStreamReader(data)).readAsn1()!;
+    } catch (e) {
+      throw Exception('Invalid entry');
+    }
   }
 }
 
@@ -497,6 +537,7 @@ class Asn1Sequence extends Asn1 {
   //Fields
   /// internal field
   List<dynamic>? objects;
+  Asn1SequenceHelper? _parser;
 
   /// internal field
   int get count {
@@ -505,7 +546,7 @@ class Asn1Sequence extends Asn1 {
 
   /// internal property
   IAsn1Collection get parser {
-    return Asn1SequenceHelper(this);
+    return _parser ??= Asn1SequenceHelper(this);
   }
 
   /// internal property
@@ -630,7 +671,13 @@ class Asn1Sequence extends Asn1 {
     final List<int> stream = <int>[];
     for (final dynamic obj in objects!) {
       List<int>? buffer;
-      if (obj is Asn1Null) {
+      if (obj is Asn1Integer) {
+        buffer = obj.asnEncode();
+      } else if (obj is Asn1Boolean) {
+        buffer = obj.asnEncode();
+      } else if (obj is Asn1Identifier) {
+        buffer = obj.asnEncode();
+      } else if (obj is Asn1Null) {
         buffer = obj.asnEncode();
       } else if (obj is Asn1Octet) {
         buffer = obj.asnEncode();
@@ -1026,6 +1073,152 @@ class Asn1DerStream extends DerStream {
     } else {
       this.stream = <int>[];
     }
+  }
+}
+
+/// internal class
+class Asn1Integer extends Asn1 {
+  /// internal constructor
+  Asn1Integer(this._value)
+      : super(<_Asn1UniversalTags>[_Asn1UniversalTags.integer]);
+
+  /// internal field
+  late final int _value;
+
+  /// internal property
+  List<int> _toArray() {
+    return _value < 255 ? <int>[_value] : _getBytesFromLong(_value);
+  }
+
+  /// internal method
+  List<int>? asnEncode() {
+    return super.asn1Encode(_toArray());
+  }
+
+  @override
+  void encode(DerStream derOut) {
+    derOut.writeEncoded(
+        getTagValue(<_Asn1UniversalTags>[_Asn1UniversalTags.integer]), null);
+  }
+
+  List<int> _getBytesFromLong(int value) {
+    final List<int> bytes = <int>[];
+    for (int i = 0; i < 8; i++) {
+      bytes.add((value >> (i * 8)) & 0xFF);
+    }
+    return bytes;
+  }
+}
+
+/// internal class
+class Asn1Boolean extends Asn1 {
+  /// internal constructor
+  Asn1Boolean(this._value)
+      : super(<_Asn1UniversalTags>[_Asn1UniversalTags.boolean]);
+
+  /// internal field
+  late final bool _value;
+
+  /// internal method
+  List<int> _toArray() {
+    return _value ? <int>[0xff] : <int>[0];
+  }
+
+  /// internal method
+  List<int>? asnEncode() {
+    return super.asn1Encode(_toArray());
+  }
+
+  @override
+  void encode(DerStream derOut) {
+    derOut.writeEncoded(
+        getTagValue(<_Asn1UniversalTags>[_Asn1UniversalTags.boolean]),
+        _toArray());
+  }
+}
+
+/// internal class
+class Asn1Identifier extends Asn1 {
+  /// internal constructor
+  Asn1Identifier(this._id)
+      : super(<_Asn1UniversalTags>[_Asn1UniversalTags.objectIdentifier]);
+
+  /// internal field
+  late final String _id;
+
+  /// internal method
+  List<int> _toArray() {
+    final List<String> parts = _id.split('.');
+    final int firstPart = int.parse(parts[0]);
+    final int secondPart = int.parse(parts[1]);
+    final List<int> bytes = <int>[];
+    _appendField(firstPart * 40 + secondPart, bytes);
+    for (int i = 2; i < parts.length; i++) {
+      final String part = parts[i];
+      if (part.length < 18) {
+        _appendField(int.parse(part), bytes);
+      } else {
+        _appendFieldFromString(part, bytes);
+      }
+    }
+    return bytes;
+  }
+
+  void _appendField(int value, List<int> bytes) {
+    if (value >= (1 << 7)) {
+      if (value >= (1 << 14)) {
+        if (value >= (1 << 21)) {
+          if (value >= (1 << 28)) {
+            if (value >= (1 << 35)) {
+              if (value >= (1 << 42)) {
+                if (value >= (1 << 49)) {
+                  if (value >= (1 << 56)) {
+                    bytes.add(((value >> 56) | 0x80).toUnsigned(8));
+                  }
+                  bytes.add(((value >> 49) | 0x80).toUnsigned(8));
+                }
+                bytes.add(((value >> 42) | 0x80).toUnsigned(8));
+              }
+              bytes.add(((value >> 35) | 0x80).toUnsigned(8));
+            }
+            bytes.add(((value >> 28) | 0x80).toUnsigned(8));
+          }
+          bytes.add(((value >> 21) | 0x80).toUnsigned(8));
+        }
+        bytes.add(((value >> 14) | 0x80).toUnsigned(8));
+      }
+      bytes.add(((value >> 7) | 0x80).toUnsigned(8));
+    }
+    bytes.add((value & 0x7f).toUnsigned(8));
+  }
+
+  void _appendFieldFromString(String value, List<int> bytes) {
+    int byteCount;
+    byteCount = ((utf8.encode(value).length) + 6) ~/ 7;
+    if (byteCount == 0) {
+      bytes.add(0);
+    } else {
+      int tmpValue = int.parse(value);
+      final List<int> tmp = List<int>.filled(byteCount, 0);
+      for (int i = byteCount - 1; i >= 0; i--) {
+        tmp[i] = (tmpValue & 0x7F) | 0x80;
+        tmpValue = tmpValue >> 7;
+      }
+      tmp[byteCount - 1] &= 0x7F;
+      bytes.addAll(tmp);
+    }
+  }
+
+  /// internal method
+  List<int>? asnEncode() {
+    return super.asn1Encode(_toArray());
+  }
+
+  @override
+  void encode(DerStream derOut) {
+    derOut.writeEncoded(
+        getTagValue(<_Asn1UniversalTags>[_Asn1UniversalTags.objectIdentifier]),
+        _toArray());
   }
 }
 

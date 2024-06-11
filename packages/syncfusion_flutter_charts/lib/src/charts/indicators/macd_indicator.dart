@@ -373,8 +373,8 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   late num _bottom;
   late List<double>? _dashArray;
 
-  final List<Offset> _macdActualValues = <Offset>[];
-  final List<Offset> _signalActualValues = <Offset>[];
+  final List<Offset> _macdLineActualValues = <Offset>[];
+  final List<Offset> _signalLineActualValues = <Offset>[];
   final List<Offset> _histogramActualValues = <Offset>[];
   final List<Offset> _macdPoints = <Offset>[];
   final Path _macdPath = Path();
@@ -494,8 +494,8 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
     }
 
-    _macdActualValues.clear();
-    _signalActualValues.clear();
+    _macdLineActualValues.clear();
+    _signalLineActualValues.clear();
     _histogramActualValues.clear();
     _macdPoints.clear();
 
@@ -524,8 +524,8 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     xMin = _xMinimum.isInfinite ? xMin : _xMinimum;
     xMax = _xMaximum.isInfinite ? xMax : _xMaximum;
-    yMin = min(yMin, _yMinimum);
-    yMax = max(yMax, _yMaximum);
+    yMin = _yMinimum.isInfinite ? yMin : _yMinimum;
+    yMax = _yMaximum.isInfinite ? yMax : _yMaximum;
 
     populateChartPoints();
   }
@@ -541,9 +541,9 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     final num initialEMA = sum / period;
     emaValues.add(initialEMA);
     num emaAvg = initialEMA;
-    for (int j = period.toInt();
-        j < (valueField == 'close' ? dataCount : _yValues.length);
-        j++) {
+    final int start = period.toInt();
+    final int end = valueField == 'close' ? dataCount : _yValues.length;
+    for (int j = start; j < end; j++) {
       emaAvg = (_fieldValue(j, valueField) - emaAvg) * emaPercent + emaAvg;
       emaValues.add(emaAvg);
     }
@@ -570,39 +570,43 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   }
 
   void _calculateMACDValues(List<num> macdPoints) {
-    int dataMACDIndex = longPeriod - 1;
-    int macdIndex = 0;
-    while (dataMACDIndex < dataCount) {
-      final double x = xValues[dataMACDIndex].toDouble();
-      final double y = macdPoints[macdIndex].toDouble();
+    if (macdLineWidth > 0) {
+      int dataMACDIndex = longPeriod - 1;
+      int macdIndex = 0;
+      while (dataMACDIndex < dataCount) {
+        final double x = xValues[dataMACDIndex].toDouble();
+        final double y = macdPoints[macdIndex].toDouble();
 
-      _xMinimum = min(_xMinimum, x);
-      _xMaximum = max(_xMaximum, x);
-      _yMinimum = min(_yMinimum, y);
-      _yMaximum = max(_yMaximum, y);
+        _xMinimum = min(_xMinimum, x);
+        _xMaximum = max(_xMaximum, x);
+        _yMinimum = min(_yMinimum, y);
+        _yMaximum = max(_yMaximum, y);
 
-      _yValues.add(y);
-      _macdActualValues.add(Offset(x, y));
+        _yValues.add(y);
+        _macdLineActualValues.add(Offset(x, y));
 
-      dataMACDIndex++;
-      macdIndex++;
+        dataMACDIndex++;
+        macdIndex++;
+      }
     }
   }
 
   void _calculateSignalValues(List<num> signalEma) {
-    int index = longPeriod + period - 2;
-    int signalIndex = 0;
-    while (index < dataCount) {
-      final double x = xValues[index].toDouble();
-      final double y = signalEma[signalIndex].toDouble();
-      _xMinimum = min(_xMinimum, x);
-      _xMaximum = max(_xMaximum, x);
-      _yMinimum = min(_yMinimum, y);
-      _yMaximum = max(_yMaximum, y);
-      _signalActualValues.add(Offset(x, y));
+    if (signalLineWidth > 0) {
+      int index = longPeriod + period - 2;
+      int signalIndex = 0;
+      while (index < dataCount) {
+        final double x = xValues[index].toDouble();
+        final double y = signalEma[signalIndex].toDouble();
+        _xMinimum = min(_xMinimum, x);
+        _xMaximum = max(_xMaximum, x);
+        _yMinimum = min(_yMinimum, y);
+        _yMaximum = max(_yMaximum, y);
+        _signalLineActualValues.add(Offset(x, y));
 
-      index++;
-      signalIndex++;
+        index++;
+        signalIndex++;
+      }
     }
   }
 
@@ -660,13 +664,13 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       chartPoints.add(point);
     }
 
-    if (_macdActualValues.isNotEmpty) {
-      final int length = _macdActualValues.length;
+    if (_macdLineActualValues.isNotEmpty) {
+      final int length = _macdLineActualValues.length;
       for (int i = 0; i < length; i++) {
         final CartesianChartPoint<D> point = CartesianChartPoint<D>(
           x: xRawValues[i],
-          xValue: _macdActualValues[i].dx,
-          y: _macdActualValues[i].dy,
+          xValue: _macdLineActualValues[i].dx,
+          y: _macdLineActualValues[i].dy,
         );
         _macdChartPoints.add(point);
       }
@@ -769,7 +773,8 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     num? nearPointX;
     num? nearPointY;
     int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
       nearPointX ??= points[0].dx;
       nearPointY ??= yAxis!.visibleRange!.minimum;
 
@@ -820,11 +825,9 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
                   pointIndex + (_macdPoints.length - xValues.length).abs()]
               : _histogramActualValues[pointIndex].dx,
       y: type == 'macd'
-          ? yAxis!.pixelToPoint(yAxis!.paintBounds,
-              signalLinePoints[pointIndex].dx, signalLinePoints[pointIndex].dy)
+          ? _signalLineActualValues[pointIndex].dy
           : type == 'macdLine'
-              ? yAxis!.pixelToPoint(yAxis!.paintBounds,
-                  _macdPoints[pointIndex].dx, _macdPoints[pointIndex].dy)
+              ? _macdLineActualValues[pointIndex].dy
               : _histogramActualValues[pointIndex].dy,
     );
   }
@@ -868,23 +871,22 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     signalLinePoints.clear();
     _macdPath.reset();
 
-    if (_macdActualValues.isNotEmpty) {
-      _transformCollections(_macdActualValues, _macdPoints);
+    if (_macdLineActualValues.isNotEmpty) {
+      _transformCollections(_macdLineActualValues, _macdPoints);
     }
 
-    if (_signalActualValues.isNotEmpty) {
-      _transformCollections(_signalActualValues, signalLinePoints);
-    }
-
-    num sbsMin = -0.35;
-    num sbsMax = 0.35;
-    if (dependent != null) {
-      sbsMin = (dependent! as SbsSeriesMixin<T, D>).sbsInfo.minimum;
-      sbsMax = (dependent! as SbsSeriesMixin<T, D>).sbsInfo.maximum;
+    if (_signalLineActualValues.isNotEmpty) {
+      _transformCollections(_signalLineActualValues, signalLinePoints);
     }
 
     if (_histogramActualValues.isNotEmpty) {
       _bottom = xAxis!.crossesAt ?? max(yAxis!.visibleRange!.minimum, 0);
+      num sbsMin = -0.35;
+      num sbsMax = 0.35;
+      if (dependent != null && dependent! is SbsSeriesMixin<T, D>) {
+        sbsMin = (dependent! as SbsSeriesMixin<T, D>).sbsInfo.minimum;
+        sbsMax = (dependent! as SbsSeriesMixin<T, D>).sbsInfo.maximum;
+      }
 
       final int histoLength = _histogramActualValues.length;
       for (int i = 0; i < histoLength; i++) {
@@ -936,6 +938,7 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (macdType == MacdType.both || macdType == MacdType.line) {
       if (_macdPoints.isNotEmpty) {
         final Paint paint = Paint()
+          ..isAntiAlias = true
           ..color = macdLineColor
           ..strokeWidth = macdLineWidth
           ..style = PaintingStyle.stroke;
@@ -948,7 +951,7 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
             _macdPath.lineTo(_macdPoints[i].dx, _macdPoints[i].dy);
           }
 
-          context.canvas.drawPath(_macdPath, paint);
+          drawDashes(context.canvas, _dashArray, paint, path: _macdPath);
         }
       }
     }
@@ -975,9 +978,9 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   @override
   void dispose() {
     _bounds.clear();
-    _macdActualValues.clear();
+    _macdLineActualValues.clear();
     _macdPoints.clear();
-    _signalActualValues.clear();
+    _signalLineActualValues.clear();
     _histogramActualValues.clear();
     signalLinePoints.clear();
     _macdPath.reset();

@@ -31,6 +31,7 @@ import '../renderers/one_dimensional/upca_renderer.dart';
 import '../renderers/one_dimensional/upce_renderer.dart';
 import '../renderers/two_dimensional/datamatrix_renderer.dart';
 import '../renderers/two_dimensional/qr_code_renderer.dart';
+import '../theme.dart';
 import '../two_dimensional/datamatrix_symbology.dart';
 import '../two_dimensional/qr_code_symbology.dart';
 
@@ -274,9 +275,18 @@ class _SfBarcodeGeneratorState extends State<SfBarcodeGenerator> {
 
   SfBarcodeThemeData _updateThemeData(
       ThemeData themeData, SfBarcodeThemeData barcodeThemeData) {
+    final SfBarcodeThemeData effectiveThemeData = BarcodeThemeData(context);
     barcodeThemeData = barcodeThemeData.copyWith(
+        backgroundColor: barcodeThemeData.backgroundColor ??
+            widget.backgroundColor ??
+            effectiveThemeData.backgroundColor,
+        barColor: barcodeThemeData.barColor ??
+            widget.barColor ??
+            effectiveThemeData.barColor,
         textStyle: themeData.textTheme.bodyMedium!
-            .copyWith(color: barcodeThemeData.textColor)
+            .copyWith(
+                color:
+                    barcodeThemeData.textColor ?? effectiveThemeData.textColor)
             .merge(barcodeThemeData.textStyle)
             .merge(widget.textStyle));
     return barcodeThemeData;

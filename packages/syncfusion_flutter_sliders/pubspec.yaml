@@ -1,7 +1,17 @@
 name: syncfusion_flutter_sliders
 description: A Flutter Sliders library for creating highly customizable and UI-rich slider, range slider, and range selector widgets for filtering purposes.
-version: 24.2.9
+version: 25.2.6
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_sliders
+
+screenshots:
+  - description: 'This screenshot shows slider and range slider image.'
+    path: screenshots/slider.png
+  - description: 'This screenshot shows vertical slider and range slider image.'
+    path: screenshots/vertical_slider.png
+  - description: 'This screenshot shows range selector image.'
+    path: screenshots/range_selector_screenshot.png
+  - description: 'This demo shows charts zooming while manipulating the range selector.'
+    path: screenshots/range_selector_zooming.gif
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
@@ -9,11 +19,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   intl: '>=0.18.1 <0.20.0'
-
   syncfusion_flutter_core:
-      path: ../syncfusion_flutter_core
+    path: ../syncfusion_flutter_core
       
 dev_dependencies:
   flutter_test:

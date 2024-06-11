@@ -5888,9 +5888,8 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
   SfDateRangePickerThemeData _getPickerThemeData(
       SfDateRangePickerThemeData pickerTheme, ThemeData themeData) {
     final ColorScheme colorScheme = themeData.colorScheme;
-    final SfDateRangePickerThemeData effectiveThemeData = themeData.useMaterial3
-        ? SfDateRangePickerThemeDataM3(context)
-        : SfDateRangePickerThemeDataM2(context);
+    final SfDateRangePickerThemeData effectiveThemeData =
+        SfDateRangePickerThemeKey(context);
     return pickerTheme.copyWith(
         brightness: themeData.brightness,
         backgroundColor:

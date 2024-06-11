@@ -623,7 +623,7 @@ class PngDecoder extends ImageDecoder {
   void _setMask(PdfStream imageStream) {
     if (_maskData != null && _maskData!.isNotEmpty) {
       final PdfStream stream = PdfStream();
-      stream.dataStream = _maskData;
+      stream.data = _maskData;
       stream[PdfDictionaryProperties.type] =
           PdfName(PdfDictionaryProperties.xObject);
       stream[PdfDictionaryProperties.subtype] =
@@ -674,7 +674,7 @@ class PngDecoder extends ImageDecoder {
   @override
   PdfStream getImageDictionary() {
     final PdfStream imageStream = PdfStream();
-    imageStream.dataStream = _decodedImageData;
+    imageStream.data = _decodedImageData;
     if (isDecode && _ideateDecode) {
       imageStream.compress = true;
     } else {

@@ -1,6 +1,6 @@
 name: syncfusion_flutter_xlsio
 description: Flutter XlsIO is a Dart library for creating Excel documents with formulas, charts, images, hyperlinks, autofit rows and columns, and more.
-version: 24.2.9
+version: 25.2.6
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_xlsio
 
 environment:
@@ -16,7 +16,7 @@ dependencies:
   crypto: ">=3.0.0 <4.0.0"
   jiffy: ">=6.1.0 <7.0.0"
   syncfusion_officecore: 
-      path: ../syncfusion_officecore
+    path: ../syncfusion_officecore
       
 dev_dependencies:
   flutter_test:

@@ -167,11 +167,15 @@ namespace pdfviewer
   {
     const auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
     auto pageIndex = arguments->find(flutter::EncodableValue("index"));
-    auto currentScale = arguments->find(flutter::EncodableValue("scale"));
+    auto widthArgs = arguments->find(flutter::EncodableValue("width"));
+    auto heightArgs = arguments->find(flutter::EncodableValue("height"));
     auto documentID = arguments->find(flutter::EncodableValue("documentID"));
+
     auto id = std::get<std::string>(documentID->second);
-    auto scale = std::get<double>(currentScale->second);
+    auto height = std::get<int>(heightArgs->second);
+    auto width = std::get<int>(widthArgs->second);
     auto index = std::get<int>(pageIndex->second);
+
     std::shared_ptr<PdfDocument> documentPtr = getPdfDocument(id);
     if (documentPtr == nullptr)
     {
@@ -180,70 +184,24 @@ namespace pdfviewer
     }
     FPDF_DOCUMENT document = documentPtr->pdfDocument;
     FPDF_PAGE page = FPDF_LoadPage(document, index - 1);
-    if (scale < 1.75)
-    {
-      scale = 1.75;
-    }
-    int pageWidth = (int)(FPDF_GetPageWidthF(page) * scale);
-    int pageHeight = (int)(FPDF_GetPageHeightF(page) * scale);
+   
     // Create empty bitmap and render page onto it
-    auto bitmap = FPDFBitmap_Create(pageWidth, pageHeight, 0);
-    FPDFBitmap_FillRect(bitmap, 0, 0, pageWidth, pageHeight, 0xFFFFFFFF);
-    FPDF_RenderPageBitmap(bitmap, page, 0, 0, pageWidth, pageHeight, 0, FPDF_LCD_TEXT);
+    auto bitmap = FPDFBitmap_Create(width, height, 0);
+    FPDFBitmap_FillRect(bitmap, 0, 0, width, height, 0xFFFFFFFF);
+    FPDF_RenderPageBitmap(bitmap, page, 0, 0, width, height, 0, FPDF_LCD_TEXT);
 
-    // Convert bitmap into RGBA format
     uint8_t *scanArg = static_cast<uint8_t *>(FPDFBitmap_GetBuffer(bitmap));
-    auto bitmapStride = FPDFBitmap_GetStride(bitmap);
+     
+    // Calculate the total size of the pixel buffer
+    size_t bufferSize = width * height * 4; 
+    std::vector<uint8_t> imageData(scanArg, scanArg + bufferSize);
 
-    // Convert to image format
-    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR tokenGDI;
-    Gdiplus::GdiplusStartup(&tokenGDI, &gdiplusStartupInput, NULL);
-
-    // Get the CLSID of the image encoder.
-    CLSID pngClsid;
-    GetPNGImageID(&pngClsid);
-
-    // Create gdi+ bitmap from raw image data
-    auto gdiBitmap =
-        new Gdiplus::Bitmap(pageWidth, pageHeight, bitmapStride, PixelFormat32bppRGB, scanArg);
-
-    // Create stream for converted image
-    IStream *stream = nullptr;
-    CreateStreamOnHGlobal(NULL, TRUE, &stream);
-
-    // Encode image onto stream
-    auto gdiStatus = gdiBitmap->Save(stream, &pngClsid, NULL);
-    if (gdiStatus == Gdiplus::OutOfMemory)
-    {
-      throw std::exception("Image encode failed due to out of memory");
-    }
-    else if (gdiStatus != Gdiplus::Ok)
-    {
-      throw std::exception("Image endode failed");
-    }
-
-    // Get raw memory of stream
-    HGLOBAL global = NULL;
-    GetHGlobalFromStream(stream, &global);
-
-    // copy IStream to buffer
-    size_t bufferSize = GlobalSize(global);
-    std::vector<uint8_t> imageData;
-    imageData.resize(bufferSize);
-
-    // lock & unlock memory
-    LPVOID lockImage = GlobalLock(global);
-    memcpy(&imageData[0], lockImage, bufferSize);
-    GlobalUnlock(global);
-
-    // Close stream
-    stream->Release();
-
-    // Cleanup gid+
-    delete gdiBitmap;
-    Gdiplus::GdiplusShutdown(tokenGDI);
-
+    //convert BRGA format to ARGB format
+    for (size_t i = 0; i < bufferSize; i += 4) {
+      uint8_t temp = imageData[i]; 
+      imageData[i] = imageData[i + 2];  
+      imageData[i + 2] = temp;  
+    }  
     FPDFBitmap_Destroy(bitmap);
     FPDF_ClosePage(page);
 
@@ -279,59 +237,18 @@ namespace pdfviewer
     auto bitmap = FPDFBitmap_Create(width, height, 0);
     FPDFBitmap_FillRect(bitmap, 0, 0, width, height, 0xFFFFFFFF);
     FPDF_RenderPageBitmapWithMatrix(bitmap, page, &matrix, &rect, 0);
-
-    // Convert bitmap into RGBA format
     uint8_t *scanArg = static_cast<uint8_t *>(FPDFBitmap_GetBuffer(bitmap));
-    auto bitmapStride = FPDFBitmap_GetStride(bitmap);
-
-    // Convert to image format
-    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR tokenGDI;
-    Gdiplus::GdiplusStartup(&tokenGDI, &gdiplusStartupInput, NULL);
-
-    // Get the CLSID of the image encoder.
-    CLSID pngClsid;
-    GetPNGImageID(&pngClsid);
-
-    // Create gdi+ bitmap from raw image data
-    auto gdiBitmap =
-        new Gdiplus::Bitmap(width, height, bitmapStride, PixelFormat32bppRGB, scanArg);
-
-    // Create stream for converted image
-    IStream *stream = nullptr;
-    CreateStreamOnHGlobal(NULL, TRUE, &stream);
-
-    // Encode image onto stream
-    auto gdiStatus = gdiBitmap->Save(stream, &pngClsid, NULL);
-    if (gdiStatus == Gdiplus::OutOfMemory)
-    {
-      throw std::exception("Image encode failed due to out of memory");
-    }
-    else if (gdiStatus != Gdiplus::Ok)
-    {
-      throw std::exception("Image endode failed");
-    }
-
-    // Get raw memory of stream
-    HGLOBAL global = NULL;
-    GetHGlobalFromStream(stream, &global);
-
-    // copy IStream to buffer
-    size_t bufferSize = GlobalSize(global);
-    std::vector<uint8_t> imageData;
-    imageData.resize(bufferSize);
-
-    // lock & unlock memory
-    LPVOID lockImage = GlobalLock(global);
-    memcpy(&imageData[0], lockImage, bufferSize);
-    GlobalUnlock(global);
-
-    // Close stream
-    stream->Release();
-
-    // Cleanup gid+
-    delete gdiBitmap;
-    Gdiplus::GdiplusShutdown(tokenGDI);
+     
+    // Calculate the total size of the pixel buffer
+    size_t bufferSize = width * height * 4; 
+    std::vector<uint8_t> imageData(scanArg, scanArg + bufferSize);
+    
+    //convert BRGA format to ARGB format
+    for (size_t i = 0; i < bufferSize; i += 4) {
+      uint8_t temp = imageData[i]; 
+      imageData[i] = imageData[i + 2];  
+      imageData[i + 2] = temp;  
+    }  
 
     FPDFBitmap_Destroy(bitmap);
     FPDF_ClosePage(page);
@@ -355,7 +272,7 @@ namespace pdfviewer
     {
       GetPagesWidth(method_call, std::move(result));
     }
-    else if (method_call.method_name().compare("getImage") == 0)
+    else if (method_call.method_name().compare("getPage") == 0)
     {
       GetPdfPageImage(method_call, std::move(result));
     }

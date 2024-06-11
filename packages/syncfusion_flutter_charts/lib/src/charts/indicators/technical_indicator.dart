@@ -664,7 +664,9 @@ abstract class IndicatorRenderer<T, D> extends RenderBox
   ChartLegendRenderCallback? onLegendItemRender;
   ChartIndicatorRenderCallback? onRenderDetailsUpdate;
 
-  final Paint _fillPaint = Paint()..isAntiAlias = true;
+  final Paint _fillPaint = Paint()
+    ..isAntiAlias = true
+    ..style = PaintingStyle.fill;
   final Paint _strokePaint = Paint()
     ..isAntiAlias = true
     ..style = PaintingStyle.stroke
@@ -1070,7 +1072,7 @@ abstract class IndicatorRenderer<T, D> extends RenderBox
       return <LegendItem>[
         ChartLegendItem(
           text: legendItemText ?? name ?? defaultLegendItemText(),
-          iconType: effectiveLegendIconType(),
+          iconType: toLegendShapeMarkerType(legendIconType, this),
           iconColor: effectiveLegendIconColor(),
           iconBorderWidth: 2,
           seriesIndex: index,

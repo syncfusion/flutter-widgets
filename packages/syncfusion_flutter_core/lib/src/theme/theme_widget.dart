@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'barcodes_theme.dart';
 import 'calendar_theme.dart';
 import 'charts_theme.dart';
+import 'color_scheme.dart';
 import 'datagrid_theme.dart';
 import 'datapager_theme.dart';
 import 'daterangepicker_theme.dart';
@@ -40,7 +42,7 @@ import 'treemap_theme.dart';
 /// }
 /// ```
 class SfTheme extends StatelessWidget {
-  /// Creating an argument constructor of SfTheme class.
+  /// Creating an argument constructor of [SfTheme] class.
   const SfTheme({
     Key? key,
     this.data,
@@ -90,15 +92,12 @@ class SfTheme extends StatelessWidget {
   /// }
   /// ```
   final SfThemeData? data;
-  //ignore: unused_field
-  static final SfThemeData _kFallbackTheme = SfThemeData.fallback();
 
   /// The data from the closest [SfTheme] instance that encloses the given
   /// context.
   ///
   /// Defaults to [SfThemeData.fallback] if there is no [SfTheme] in the given
   /// build context.
-  ///
   static SfThemeData of(BuildContext context) {
     final _SfInheritedTheme? inheritedTheme =
         context.dependOnInheritedWidgetOfExactType<_SfInheritedTheme>();
@@ -106,6 +105,106 @@ class SfTheme extends StatelessWidget {
         (Theme.of(context).colorScheme.brightness == Brightness.light
             ? SfThemeData.light()
             : SfThemeData.dark());
+  }
+
+  /// Returns [SfColorScheme] based on the [useMaterial3].
+  static SfColorScheme colorScheme(BuildContext context) {
+    final ThemeData themeData = Theme.of(context);
+    if (themeData.useMaterial3) {
+      return SfColorScheme.m3(
+        useMaterial3: themeData.useMaterial3,
+        brightness: themeData.brightness,
+        primary: themeData.colorScheme.primary,
+        onPrimary: themeData.colorScheme.onPrimary,
+        primaryContainer: themeData.colorScheme.primaryContainer,
+        secondaryContainer: themeData.colorScheme.secondaryContainer,
+        surface: themeData.colorScheme.surface,
+        onSurface: themeData.colorScheme.onSurface,
+        surfaceVariant: themeData.colorScheme.surfaceContainerHighest,
+        onSurfaceVariant: themeData.colorScheme.onSurfaceVariant,
+        inverseSurface: themeData.colorScheme.inverseSurface,
+        onInverseSurface: themeData.colorScheme.onInverseSurface,
+        outline: themeData.colorScheme.outline,
+        outlineVariant: themeData.colorScheme.outlineVariant,
+        textColor: themeData.colorScheme.onSurface,
+        splashColor: themeData.splashColor,
+        hoverColor: themeData.hoverColor,
+        highlightColor: themeData.highlightColor,
+        valueIndicatorColor: Colors.transparent,
+        transparent: Colors.transparent,
+        scrim: themeData.colorScheme.scrim,
+        palettes: _palettesM3(themeData),
+      );
+    } else {
+      return SfColorScheme.m2(
+        useMaterial3: themeData.useMaterial3,
+        brightness: themeData.brightness,
+        primary: themeData.colorScheme.primary,
+        onPrimary: themeData.colorScheme.onPrimary,
+        primaryContainer: themeData.colorScheme.primaryContainer,
+        secondaryContainer: themeData.colorScheme.secondaryContainer,
+        surface: themeData.colorScheme.surface,
+        onSurface: themeData.colorScheme.onSurface,
+        surfaceVariant: themeData.colorScheme.surfaceContainerHighest,
+        onSurfaceVariant: themeData.colorScheme.onSurfaceVariant,
+        inverseSurface: themeData.colorScheme.inverseSurface,
+        onInverseSurface: themeData.colorScheme.onInverseSurface,
+        outline: themeData.colorScheme.outline,
+        outlineVariant: themeData.colorScheme.outlineVariant,
+        textColor: themeData.colorScheme.onSurface,
+        splashColor: themeData.splashColor,
+        hoverColor: themeData.hoverColor,
+        highlightColor: themeData.highlightColor,
+        valueIndicatorColor: Colors.transparent,
+        transparent: Colors.transparent,
+        palettes: _palettesM2(),
+      );
+    }
+  }
+
+  static List<Color> _palettesM3(ThemeData themeData) {
+    if (themeData.colorScheme.brightness == Brightness.light) {
+      return const <Color>[
+        Color.fromRGBO(6, 174, 224, 1),
+        Color.fromRGBO(99, 85, 199, 1),
+        Color.fromRGBO(49, 90, 116, 1),
+        Color.fromRGBO(255, 180, 0, 1),
+        Color.fromRGBO(150, 60, 112, 1),
+        Color.fromRGBO(33, 150, 245, 1),
+        Color.fromRGBO(71, 59, 137, 1),
+        Color.fromRGBO(236, 92, 123, 1),
+        Color.fromRGBO(59, 163, 26, 1),
+        Color.fromRGBO(236, 131, 23, 1)
+      ];
+    } else {
+      return const <Color>[
+        Color.fromRGBO(255, 245, 0, 1),
+        Color.fromRGBO(51, 182, 119, 1),
+        Color.fromRGBO(218, 150, 70, 1),
+        Color.fromRGBO(201, 88, 142, 1),
+        Color.fromRGBO(77, 170, 255, 1),
+        Color.fromRGBO(255, 157, 69, 1),
+        Color.fromRGBO(178, 243, 46, 1),
+        Color.fromRGBO(185, 60, 228, 1),
+        Color.fromRGBO(48, 167, 6, 1),
+        Color.fromRGBO(207, 142, 14, 1)
+      ];
+    }
+  }
+
+  static List<Color> _palettesM2() {
+    return const <Color>[
+      Color.fromRGBO(75, 135, 185, 1),
+      Color.fromRGBO(192, 108, 132, 1),
+      Color.fromRGBO(246, 114, 128, 1),
+      Color.fromRGBO(248, 177, 149, 1),
+      Color.fromRGBO(116, 180, 155, 1),
+      Color.fromRGBO(0, 168, 181, 1),
+      Color.fromRGBO(73, 76, 162, 1),
+      Color.fromRGBO(255, 205, 96, 1),
+      Color.fromRGBO(255, 240, 219, 1),
+      Color.fromRGBO(238, 238, 238, 1)
+    ];
   }
 
   @override

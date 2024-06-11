@@ -1529,9 +1529,8 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
     SfRangeSelectorThemeData rangeSelectorThemeData =
         SfRangeSelectorTheme.of(context)!;
     final bool isMaterial3 = themeData.useMaterial3;
-    final SfRangeSelectorThemeData effectiveThemeData = isMaterial3
-        ? SfRangeSelectorThemeDataM3(context)
-        : SfRangeSelectorThemeDataM2(context);
+    final SfRangeSelectorThemeData effectiveThemeData =
+        RangeSelectorThemeData(context);
     final Color labelColor = isMaterial3
         ? themeData.colorScheme.onSurfaceVariant
         : widget.enabled

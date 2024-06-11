@@ -473,9 +473,10 @@ class StepAreaSegment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    for (int i = 0; i < points.length; i++) {
-      if (Rect.fromCenter(
-              center: points[i], width: tooltipPadding, height: tooltipPadding)
+    final MarkerSettings marker = series.markerSettings;
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
+      if (tooltipTouchBounds(points[i], marker.width, marker.height)
           .contains(position)) {
         return true;
       }
@@ -493,6 +494,11 @@ class StepAreaSegment<T, D> extends ChartSegment {
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
+    pointDistance = series.markerSettings.width / 2;
     pointIndex ??= _findNearestChartPointIndex(points, position!);
     if (pointIndex != -1) {
       final Offset position = points[pointIndex];

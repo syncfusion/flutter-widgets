@@ -585,9 +585,10 @@ class SplineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   SplineSegment<T, D> createSegment() => SplineSegment<T, D>();
 
   @override
-  ShapeMarkerType effectiveLegendIconType() => dashArray != null
-      ? ShapeMarkerType.splineSeriesWithDashArray
-      : ShapeMarkerType.splineSeries;
+  ShapeMarkerType effectiveLegendIconType() =>
+      dashArray != null && !dashArray!.every((double value) => value <= 0)
+          ? ShapeMarkerType.splineSeriesWithDashArray
+          : ShapeMarkerType.splineSeries;
 
   @override
   double legendIconBorderWidth() {
@@ -728,9 +729,10 @@ class SplineSegment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    for (int i = 0; i < points.length; i++) {
-      if (Rect.fromCenter(
-              center: points[i], width: tooltipPadding, height: tooltipPadding)
+    final MarkerSettings marker = series.markerSettings;
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
+      if (tooltipTouchBounds(points[i], marker.width, marker.height)
           .contains(position)) {
         return true;
       }
@@ -757,13 +759,24 @@ class SplineSegment<T, D> extends ChartSegment {
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
+    pointDistance = series.markerSettings.width / 2;
     final int nearestPointIndex =
         position == null ? 0 : _nearestPointIndex(points, position);
     if (nearestPointIndex != -1) {
       pointIndex ??= (position == null || nearestPointIndex == 0
           ? currentSegmentIndex
           : currentSegmentIndex + 1);
-      final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+      CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+      List<Color?> markerColors = <Color?>[fillPaint.color];
+      if (chartPoint.y != null && chartPoint.y!.isNaN) {
+        pointIndex += 1;
+        chartPoint = _chartPoint(pointIndex);
+        markerColors = <Color?>[series.segments[pointIndex].fillPaint.color];
+      }
       final ChartMarker marker = series.markerAt(pointIndex);
       final double markerHeight =
           series.markerSettings.isVisible ? marker.height / 2 : 0;
@@ -774,7 +787,9 @@ class SplineSegment<T, D> extends ChartSegment {
         secondaryPosition:
             series.localToGlobal(preferredPos.translate(0, markerHeight)),
         text: series.tooltipText(chartPoint),
-        header: series.name,
+        header: series.parent!.tooltipBehavior!.shared
+            ? series.tooltipHeaderText(chartPoint)
+            : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -782,7 +797,7 @@ class SplineSegment<T, D> extends ChartSegment {
         seriesIndex: series.index,
         segmentIndex: currentSegmentIndex,
         pointIndex: pointIndex,
-        markerColors: <Color?>[fillPaint.color],
+        markerColors: markerColors,
         markerType: marker.type,
       );
     }
@@ -1585,9 +1600,10 @@ class SplineAreaSegment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    for (int i = 0; i < points.length; i++) {
-      if (Rect.fromCenter(
-              center: points[i], width: tooltipPadding, height: tooltipPadding)
+    final MarkerSettings marker = series.markerSettings;
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
+      if (tooltipTouchBounds(points[i], marker.width, marker.height)
           .contains(position)) {
         return true;
       }
@@ -1605,6 +1621,11 @@ class SplineAreaSegment<T, D> extends ChartSegment {
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
+    pointDistance = series.markerSettings.width / 2;
     pointIndex ??= _findNearestChartPointIndex(points, position!);
     if (pointIndex != -1) {
       final Offset position = points[pointIndex];
@@ -1628,7 +1649,9 @@ class SplineAreaSegment<T, D> extends ChartSegment {
         secondaryPosition:
             series.localToGlobal(preferredPos.translate(0, markerHeight)),
         text: series.tooltipText(chartPoint),
-        header: series.name,
+        header: series.parent!.tooltipBehavior!.shared
+            ? series.tooltipHeaderText(chartPoint)
+            : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -2533,9 +2556,10 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    for (int i = 0; i < points.length; i++) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
       final Offset a = points[i];
-      final Offset b = i + 1 < points.length ? points[i + 1] : a;
+      final Offset b = i + 1 < length ? points[i + 1] : a;
       final Rect rect = Rect.fromPoints(a, b);
       final Rect paddedRect = rect.inflate(tooltipPadding);
       if (paddedRect.contains(position)) {
@@ -2557,6 +2581,10 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
     pointIndex ??= _findNearestChartPointIndex(points, position!);
     if (pointIndex != -1) {
       final Offset position = points[pointIndex];

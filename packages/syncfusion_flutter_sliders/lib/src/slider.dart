@@ -1266,10 +1266,8 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
   SfSliderThemeData _getSliderThemeData(ThemeData themeData, bool isActive) {
     SfSliderThemeData sliderThemeData = SfSliderTheme.of(context);
 
-    ///An instance for material 2 and material 3 classes
-    final SfSliderThemeData effectiveThemeData = themeData.useMaterial3
-        ? SfSliderThemeDataM3(context)
-        : SfSliderThemeDataM2(context);
+    /// An instance for SlidersThemeData class
+    final SfSliderThemeData effectiveThemeData = SlidersThemeData(context);
     final bool isMaterial3 = themeData.useMaterial3;
     final Color labelColor = isMaterial3
         ? themeData.colorScheme.onSurfaceVariant

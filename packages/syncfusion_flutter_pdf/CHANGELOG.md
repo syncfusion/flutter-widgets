@@ -1,5 +1,49 @@
 ## Unreleased
 
+**Features**
+
+* Provided support for adding timestamp and LTV in PDF signature.
+
+## [25.2.6] - 05/28/2024
+
+**Bugs**
+
+* Resolved the issue where flattening some form fields was not working in a specific PDF document.
+
+## [25.2.5] - 05/21/2024
+
+**Bugs**
+
+* Preservation issues no longer occur when drawing on a page with negative crop box x and y coordinates.
+
+## [25.1.42] - 04/30/2024
+
+**Bugs**
+
+* Extracting text from an encrypted PDF document will no longer significantly increase file size and corrupt the document.
+
+## [25.1.41] - 04/23/2024
+
+**Bugs**
+
+* The existing signature no longer becomes invalid when adding a second signature to the PDF document.
+
+## [25.1.39] - 04/09/2024
+
+**Bugs**
+
+* RangeError will no longer occur while extracting text lines from the PDF document.
+
+## [25.1.37] - 03/26/2024
+
+**Bugs**
+
+* Preservation issue will no longer occur while flattening the signature field in the PDF document.
+
+* The issue with the invalid signature has been resolved when signing the PDF document.
+
+## [25.1.35] - 03/15/2024
+
 **Breaking changes**
 
 * The `sign` method in the `IPdfExternalSigner` class has been changed to an asynchronous type, and the `signSync` method has been added for synchronous signing.

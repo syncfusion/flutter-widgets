@@ -3,24 +3,18 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
-import '../../sparkline/utils/helper.dart';
 import '../axis/axis.dart';
-import '../axis/category_axis.dart';
-import '../axis/datetime_axis.dart';
-import '../axis/datetime_category_axis.dart';
-import '../axis/logarithmic_axis.dart';
-import '../axis/numeric_axis.dart';
+
 import '../base.dart';
 import '../common/callbacks.dart';
-import '../common/interactive_tooltip.dart';
 import '../interactions/behavior.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
+import '../utils/zooming_helper.dart';
 
 /// Customizes the zooming options.
 ///
@@ -35,6 +29,7 @@ import '../utils/typedef.dart';
 /// `maximumZoomLevel`.
 ///
 /// _Note:_ This is only applicable for `SfCartesianChart`.
+
 class ZoomPanBehavior extends ChartBehavior {
   /// Creating an argument constructor of ZoomPanBehavior class.
   ZoomPanBehavior({
@@ -299,18 +294,23 @@ class ZoomPanBehavior extends ChartBehavior {
   /// ```
   final Color? selectionRectColor;
 
-  late bool _isZoomIn, _isZoomOut;
-  Path? _rectPath;
-
-  bool? _isPinching = false;
+  // Holds the previous moved position of panning.
   Offset? _previousMovedPosition;
-  Offset? _zoomStartPosition;
-  List<PointerEvent> _touchStartPositions = <PointerEvent>[];
-  List<PointerEvent> _touchMovePositions = <PointerEvent>[];
-  List<_ZoomAxisRange> _zoomAxes = <_ZoomAxisRange>[];
 
-  /// Holds the value of zooming rect.
+  // Holds the overall zoom level.
+  double _currentZoomLevel = 1.0;
+
+  // Holds the zooming rect start position.
+  Offset? _zoomRectStartPosition;
+
+  // Holds the current scale value of pinching.
+  double? _previousScale;
+
+  // Holds the value of zooming rect.
   Rect _zoomingRect = Rect.zero;
+
+  // Holds the path of the zooming rect.
+  Path? _rectPath;
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
@@ -358,25 +358,117 @@ class ZoomPanBehavior extends ChartBehavior {
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
     if (event is PointerScrollEvent || event is PointerPanZoomUpdateEvent) {
-      _handlePanZoomUpdate(event);
+      _performMouseWheelZooming(event);
     }
-    if (event is PointerDownEvent) {
-      _startPinchZooming(event);
+  }
+
+  /// Called when pointer tap has contacted the screen double time in behavior.
+  @override
+  void handleDoubleTap(Offset position) {
+    if (enableDoubleTapZooming) {
+      _zoomInAndOut(0.25, origin: position);
     }
-    if (event is PointerMoveEvent) {
-      _performPinchZoomUpdate(event);
+  }
+
+  /// Called when the pointers in contact with the screen
+  /// and initial scale of 1.0.
+  @override
+  void handleScaleStart(ScaleStartDetails details) {
+    if (!enablePinching) {
+      return;
     }
-    if (event is PointerUpEvent) {
-      _endPinchZooming(event);
+    _previousScale = null;
+    _updateZoomStartDetails();
+  }
+
+  /// Called when the pointers in contact with the screen have indicated
+  /// a new scale.
+  @override
+  void handleScaleUpdate(ScaleUpdateDetails details) {
+    if (details.pointerCount == 1 || !enablePinching) {
+      return;
     }
+    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
+    if (parent == null) {
+      return;
+    }
+    final RenderCartesianAxes? axes = parent.cartesianAxes;
+
+    if (axes == null) {
+      return;
+    }
+    if (details.pointerCount == 2) {
+      parent.hideInteractiveTooltip();
+      _pinchZoom(axes, parent, details, details.localFocalPoint);
+    }
+  }
+
+  /// Called when the pointers are no longer in contact with the screen.
+  @override
+  void handleScaleEnd(ScaleEndDetails details) {
+    if (!enablePinching) {
+      return;
+    }
+    _previousScale = null;
+    _updateZoomEndDetails();
+  }
+
+  void handleHorizontalDragStart(DragStartDetails details) {
+    if (!enablePanning) {
+      return;
+    }
+    _previousMovedPosition = null;
+    _updateZoomStartDetails();
+  }
+
+  void handleHorizontalDragUpdate(DragUpdateDetails details) {
+    if (!enablePanning) {
+      return;
+    }
+    _dragUpdate(details.localPosition);
+  }
+
+  void handleHorizontalDragEnd(DragEndDetails details) {
+    if (!enablePanning) {
+      return;
+    }
+    _previousMovedPosition = null;
+    _updateZoomEndDetails();
+  }
+
+  void handleVerticalDragStart(DragStartDetails details) {
+    if (!enablePanning) {
+      return;
+    }
+    _previousMovedPosition = null;
+    _updateZoomStartDetails();
+  }
+
+  void handleVerticalDragUpdate(DragUpdateDetails details) {
+    if (!enablePanning) {
+      return;
+    }
+    _dragUpdate(details.localPosition);
+  }
+
+  void handleVerticalDragEnd(DragEndDetails details) {
+    if (!enablePanning) {
+      return;
+    }
+    _previousMovedPosition = null;
+    _updateZoomEndDetails();
   }
 
   /// Called when a long press gesture by a primary button has been
   /// recognized in behavior.
   @override
   void handleLongPressStart(LongPressStartDetails details) {
-    if (enableSelectionZooming) {
-      _longPressStart(parentBox!.globalToLocal(details.globalPosition));
+    if (parentBox == null || !enableSelectionZooming) {
+      return;
+    }
+    final Offset position = parentBox!.globalToLocal(details.globalPosition);
+    if (_zoomRectStartPosition != position) {
+      _zoomRectStartPosition = position;
     }
   }
 
@@ -384,232 +476,224 @@ class ZoomPanBehavior extends ChartBehavior {
   /// recognized in behavior.
   @override
   void handleLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
-    if (enableSelectionZooming) {
-      final Offset position = parentBox!.globalToLocal(details.globalPosition);
-      _doSelectionZooming(position.dx, position.dy);
-      parentBox!.markNeedsPaint();
+    if (parentBox == null || !enableSelectionZooming) {
+      return;
     }
+    final Offset position = parentBox!.globalToLocal(details.globalPosition);
+    _doSelectionZooming(details, position.dx, position.dy);
+    parentBox!.markNeedsPaint();
   }
 
   /// Called when the pointer stops contacting the screen after a long-press
   /// by a primary button in behavior.
   @override
   void handleLongPressEnd(LongPressEndDetails details) {
-    if (enableSelectionZooming) {
-      _longPressEnd();
-      parentBox!.markNeedsPaint();
-    }
-  }
-
-  /// Called when pointer tap has contacted the screen double time in behavior.
-  @override
-  void handleDoubleTap(Offset position) {
-    final RenderBehaviorArea parent = parentBox as RenderBehaviorArea;
-    final Offset localPosition = parentBox!.globalToLocal(position);
-    if (enableDoubleTapZooming) {
-      parent.hideInteractiveTooltip();
-      _doubleTap(localPosition, parentBox!.paintBounds);
-    }
-  }
-
-  /// Called when the pointers in contact with the screen,
-  /// and initial scale of 1.0.
-  @override
-  void handleScaleStart(ScaleStartDetails details) {
-    _startPanning();
-  }
-
-  /// Called when the pointers in contact with the screen have indicated
-  /// a new scale.
-  @override
-  void handleScaleUpdate(ScaleUpdateDetails details) {
-    _performPanning(details);
-  }
-
-  /// Called when the pointers are no longer in contact with the screen.
-  @override
-  void handleScaleEnd(ScaleEndDetails details) {
-    _endPanning();
-  }
-
-  void _handlePanZoomUpdate(PointerEvent details) {
-    if (parentBox!.attached && enableMouseWheelZooming) {
-      final Offset localPosition = parentBox!.globalToLocal(details.position);
-      final Rect paintBounds = parentBox!.paintBounds;
-      _performMouseWheelZooming(
-          details, localPosition.dx, localPosition.dy, paintBounds);
-    }
-  }
-
-  void _performPinchZoomUpdate(PointerMoveEvent event) {
-    final RenderBehaviorArea parent = parentBox as RenderBehaviorArea;
-    if (parent.performZoomThroughTouch && enablePinching) {
-      _zoom(event);
-    }
-  }
-
-  void _performPanning(ScaleUpdateDetails details) {
-    if (enablePanning) {
-      _pan(
-          parentBox!.globalToLocal(details.focalPoint), parentBox!.paintBounds);
-    }
-  }
-
-  void _zoom(PointerMoveEvent event) {
-    Rect? pinchRect;
-    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (parent == null) {
+    if (parentBox == null || !enableSelectionZooming) {
       return;
     }
-    final RenderCartesianAxes? axes = parent.cartesianAxes;
-    if (axes == null) {
-      return;
+    if (_zoomRectStartPosition != null && _zoomingRect.width != 0) {
+      _drawSelectionZoomRect(_zoomingRect);
     }
-    final Rect clipRect = parent.paintBounds;
-    num selectionMin, selectionMax, rangeMin, rangeMax, value, axisTrans;
-    double currentFactor, currentPosition, maxZoomFactor, currentZoomFactor;
-    int count = 0;
-    if (enablePinching && _touchStartPositions.length == 2) {
-      _isPinching = true;
-      final int pointerID = event.pointer;
-      bool addPointer = true;
-      for (int i = 0; i < _touchMovePositions.length; i++) {
-        if (_touchMovePositions[i].pointer == pointerID) {
-          addPointer = false;
-        }
-      }
-      if (_touchMovePositions.length < 2 && addPointer) {
-        _touchMovePositions.add(event);
-      }
-      if (_touchMovePositions.length == 2) {
-        if (_touchMovePositions[0].pointer == event.pointer) {
-          _touchMovePositions[0] = event;
-        }
-        if (_touchMovePositions[1].pointer == event.pointer) {
-          _touchMovePositions[1] = event;
-        }
-        Offset touchStart0, touchEnd0, touchStart1, touchEnd1;
-        _calculateZoomAxesRange(axes);
-        final Rect containerRect = Offset.zero & clipRect.size;
-        touchStart0 = _touchStartPositions[0].position - containerRect.topLeft;
-        touchEnd0 = _touchMovePositions[0].position - containerRect.topLeft;
-        touchStart1 = _touchStartPositions[1].position - containerRect.topLeft;
-        touchEnd1 = _touchMovePositions[1].position - containerRect.topLeft;
-        final double scaleX = (touchEnd0.dx - touchEnd1.dx).abs() /
-            (touchStart0.dx - touchStart1.dx).abs();
-        final double scaleY = (touchEnd0.dy - touchEnd1.dy).abs() /
-            (touchStart0.dy - touchStart1.dy).abs();
-        final double clipX = ((clipRect.left - touchEnd0.dx) / scaleX) +
-            min(touchStart0.dx, touchStart1.dx);
-        final double clipY = ((clipRect.top - touchEnd0.dy) / scaleY) +
-            min(touchStart0.dy, touchStart1.dy);
-        pinchRect = Rect.fromLTWH(
-            clipX, clipY, clipRect.width / scaleX, clipRect.height / scaleY);
-      }
-    }
-    axes.visitChildren((RenderObject child) {
-      if (child is RenderChartAxis && pinchRect != null) {
-        child.zoomingInProgress = true;
-        if ((child.isVertical && zoomMode != ZoomMode.x) ||
-            (!child.isVertical && zoomMode != ZoomMode.y)) {
-          if (!child.isVertical) {
-            value = pinchRect.left - clipRect.left;
-            axisTrans = clipRect.width / _zoomAxes[count].delta!;
-            rangeMin = value / axisTrans + _zoomAxes[count].min!;
-            value = pinchRect.left + pinchRect.width - clipRect.left;
-            rangeMax = value / axisTrans + _zoomAxes[count].min!;
-          } else {
-            value = pinchRect.top - clipRect.top;
-            axisTrans = clipRect.height / _zoomAxes[count].delta!;
-            rangeMin = (value * -1 + clipRect.height) / axisTrans +
-                _zoomAxes[count].min!;
-            value = pinchRect.top + pinchRect.height - clipRect.top;
-            rangeMax = (value * -1 + clipRect.height) / axisTrans +
-                _zoomAxes[count].min!;
-          }
-          selectionMin = min(rangeMin, rangeMax);
-          selectionMax = max(rangeMin, rangeMax);
-          currentPosition = (selectionMin - _zoomAxes[count].actualMin!) /
-              _zoomAxes[count].actualDelta!;
-          currentFactor =
-              (selectionMax - selectionMin) / _zoomAxes[count].actualDelta!;
-          child.controller.zoomPosition =
-              currentPosition < 0 ? 0 : currentPosition;
-          currentZoomFactor = currentFactor > 1 ? 1 : currentFactor;
-          maxZoomFactor = maximumZoomLevel;
-          child.controller.zoomFactor = currentZoomFactor < maxZoomFactor
-              ? maxZoomFactor
-              : currentZoomFactor;
-          parent.hideInteractiveTooltip();
-        }
-        if (parent.onZooming != null) {
-          _bindZoomEvent(child, parent.onZooming!);
-        }
-      }
-      count++;
-    });
+    _zoomRectStartPosition = null;
+    _zoomingRect = Rect.zero;
+    parentBox!.markNeedsPaint();
   }
 
-  void _pan(Offset currentPosition, Rect plotAreaBound) {
-    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (parent == null) {
-      return;
-    }
-    final RenderCartesianAxes? axes = parent.cartesianAxes;
-    if (axes == null) {
-      return;
-    }
+  // Method to perform pan zooming.
+  void _pan(
+      RenderCartesianAxes axes, RenderBehaviorArea parent, Offset position) {
     double currentZoomPosition;
-    num currentScale, value;
+    double calcZoomPosition;
     if (_previousMovedPosition != null) {
+      final Offset translatePosition = _previousMovedPosition! - position;
       axes.visitChildren((RenderObject child) {
-        if (child is RenderChartAxis) {
-          child.zoomingInProgress = true;
-          if ((child.isVertical && zoomMode != ZoomMode.x) ||
-              (!child.isVertical && zoomMode != ZoomMode.y)) {
+        if (child is RenderChartAxis && child.controller.zoomFactor != 1) {
+          if (_canZoom(child)) {
+            child.zoomingInProgress = true;
+            _previousScale ??= _toScaleValue(child.controller.zoomFactor);
             currentZoomPosition = child.controller.zoomPosition;
-            currentScale =
-                max(1 / _minMax(child.controller.zoomFactor, 0, 1), 1);
-            if (child.isVertical) {
-              value = (_previousMovedPosition!.dy - currentPosition.dy) /
-                  plotAreaBound.height /
-                  currentScale;
-              currentZoomPosition = _minMax(
-                  child.isInversed
-                      ? child.controller.zoomPosition + value
-                      : child.controller.zoomPosition - value,
-                  0,
-                  1 - child.controller.zoomFactor);
-              if (currentZoomPosition != child.controller.zoomPosition) {
-                child.controller.zoomPosition = currentZoomPosition;
-                parent.hideInteractiveTooltip();
-              }
-            } else {
-              value = (_previousMovedPosition!.dx - currentPosition.dx) /
-                  plotAreaBound.width /
-                  currentScale;
-              currentZoomPosition = _minMax(
-                  child.isInversed
-                      ? child.controller.zoomPosition - value
-                      : child.controller.zoomPosition + value,
-                  0,
-                  1 - child.controller.zoomFactor);
-              if (currentZoomPosition != child.controller.zoomPosition) {
-                child.controller.zoomPosition = currentZoomPosition;
-                parent.hideInteractiveTooltip();
-              }
+            calcZoomPosition = _toPanValue(
+                child.paintBounds,
+                translatePosition,
+                child.controller.zoomPosition,
+                _previousScale!,
+                child.isVertical,
+                child.isInversed);
+            currentZoomPosition =
+                _minMax(calcZoomPosition, 0, 1 - child.controller.zoomFactor);
+            if (currentZoomPosition != child.controller.zoomPosition) {
+              child.controller.zoomPosition = currentZoomPosition;
             }
-          }
-          if (parent.onZooming != null) {
-            _bindZoomEvent(child, parent.onZooming!);
+            if (parent.onZooming != null) {
+              _bindZoomEvent(child, parent.onZooming!);
+            }
           }
         }
       });
     }
-    _previousMovedPosition = currentPosition;
+    _previousMovedPosition = position;
   }
 
-  void _doubleTap(Offset position, Rect plotAreaBounds) {
+  // Method to perform pinch zooming
+  void _pinchZoom(RenderCartesianAxes axes, RenderBehaviorArea parent,
+      ScaleUpdateDetails details, Offset location) {
+    axes.visitChildren((RenderObject child) {
+      if (child is RenderChartAxis) {
+        if (_canZoom(child)) {
+          child.zoomingInProgress = true;
+          final double maxZoomLevel = _toScaleValue(maximumZoomLevel);
+          final double origin =
+              _calculateOrigin(child, child.paintBounds, location);
+          final double currentScale = zoomMode == ZoomMode.xy
+              ? details.scale
+              : child.isVertical
+                  ? details.verticalScale
+                  : details.horizontalScale;
+          _previousScale ??= _toScaleValue(child.controller.zoomFactor);
+          _currentZoomLevel = _previousScale! * currentScale;
+          if (_currentZoomLevel > maxZoomLevel) {
+            _currentZoomLevel = maxZoomLevel;
+          }
+          _zoom(parent, child, origin, _currentZoomLevel);
+          if (parent.onZooming != null) {
+            _bindZoomEvent(child, parent.onZooming!);
+          }
+        }
+      }
+    });
+  }
+
+  // Method to perform mouse wheel zooming.
+  void _performMouseWheelZooming(PointerEvent event) {
+    if (enableMouseWheelZooming) {
+      int direction = 0;
+      if (event is PointerScrollEvent) {
+        direction = event.scrollDelta.dy > 0 ? -1 : 1;
+      } else if (event is PointerPanZoomUpdateEvent) {
+        direction = event.panDelta.dy > 0 ? 1 : -1;
+      }
+
+      _zoomInAndOut(0.25 * direction, origin: event.position);
+    }
+  }
+
+  // Method to find the scale value for current zoom factor.
+  double _toScaleValue(double zoomFactor) {
+    return max(1 / _minMax(zoomFactor, 0, 1), 1);
+  }
+
+  double _toPanValue(Rect bounds, Offset position, double zoomPosition,
+      double scale, bool isVertical, bool isInversed) {
+    double value = (isVertical
+            ? position.dy / bounds.height
+            : position.dx / bounds.width) /
+        scale;
+    if (isVertical && isInversed || !isVertical && !isInversed) {
+      value = zoomPosition + value;
+    } else {
+      value = zoomPosition - value;
+    }
+    return value;
+  }
+
+  // Method to find the chart needs zooming or not.
+  bool _canZoom(RenderChartAxis axis) {
+    final bool canDirectionalZoom = zoomMode == ZoomMode.xy;
+
+    if ((axis.isVertical && zoomMode == ZoomMode.y) ||
+        (!axis.isVertical && zoomMode == ZoomMode.x) ||
+        canDirectionalZoom) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Method to find the origin value based on touch position.
+  double _calculateOrigin(
+      RenderChartAxis axis, Rect bounds, Offset? manipulation) {
+    if (manipulation == null) {
+      return 0.5;
+    }
+    double origin;
+    final double plotOffset = axis.plotOffset;
+
+    if (axis.isVertical) {
+      origin = axis.isInversed
+          ? ((manipulation.dy - plotOffset) / bounds.height)
+          : 1 - ((manipulation.dy - plotOffset) / bounds.height);
+    } else {
+      origin = axis.isInversed
+          ? 1.0 - ((manipulation.dx - plotOffset) / bounds.width)
+          : (manipulation.dx - plotOffset) / bounds.width;
+    }
+
+    return origin;
+  }
+
+  // Method to update the zoom values.
+  void _zoom(RenderBehaviorArea parent, RenderChartAxis axis,
+      double originPoint, double cumulativeZoomLevel) {
+    double currentZoomPosition;
+    double currentZoomFactor;
+    if (cumulativeZoomLevel == 1) {
+      currentZoomFactor = 1;
+      currentZoomPosition = 0;
+    } else {
+      currentZoomFactor = _minMax(1 / cumulativeZoomLevel, 0, 1);
+      currentZoomPosition = axis.controller.zoomPosition +
+          ((axis.controller.zoomFactor - currentZoomFactor) * originPoint);
+    }
+
+    if (axis.controller.zoomFactor != currentZoomFactor) {
+      axis.controller.zoomFactor = currentZoomFactor;
+    }
+    if (axis.controller.zoomPosition != currentZoomPosition) {
+      axis.controller.zoomPosition =
+          _minMax(currentZoomPosition, 0, 1 - axis.controller.zoomFactor);
+    }
+  }
+
+  double _minMax(double value, double min, double max) {
+    return value > max ? max : (value < min ? min : value);
+  }
+
+  void _dragUpdate(Offset position) {
+    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
+    if (parent == null) {
+      return;
+    }
+    parent.hideInteractiveTooltip();
+    final RenderCartesianAxes? axes = parent.cartesianAxes;
+
+    if (axes == null) {
+      return;
+    }
+    _pan(axes, parent, position);
+  }
+
+  void _updateZoomStartDetails() {
+    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
+    if (parent == null) {
+      return;
+    }
+    if (enablePanning || enablePinching) {
+      parent.hideInteractiveTooltip();
+    }
+    final RenderCartesianAxes? axes = parent.cartesianAxes;
+    if (axes == null) {
+      return;
+    }
+    if (parent.onZoomStart != null) {
+      axes.visitChildren((RenderObject child) {
+        if (child is RenderChartAxis) {
+          _bindZoomEvent(child, parent.onZoomStart!);
+        }
+      });
+    }
+  }
+
+  void _updateZoomEndDetails() {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent == null) {
       return;
@@ -618,268 +702,61 @@ class ZoomPanBehavior extends ChartBehavior {
     if (axes == null) {
       return;
     }
-    axes.visitChildren((RenderObject child) {
-      if (child is RenderChartAxis) {
-        child.zoomingInProgress = true;
-        if (parent.onZoomStart != null) {
-          _bindZoomEvent(child, parent.onZoomStart!);
-        }
-        if ((child.isVertical && zoomMode != ZoomMode.x) ||
-            (!child.isVertical && zoomMode != ZoomMode.y)) {
-          double zoomFactor = child.controller.zoomFactor;
-          final double cumulative = max(
-              max(1 / _minMax(child.controller.zoomFactor, 0, 1), 1) + (0.25),
-              1);
-          if (cumulative >= 1) {
-            double origin = child.isVertical
-                ? 1 - (position.dy / plotAreaBounds.height)
-                : position.dx / plotAreaBounds.width;
-            origin = origin > 1
-                ? 1
-                : origin < 0
-                    ? 0
-                    : origin;
-            zoomFactor = cumulative == 1 ? 1 : _minMax(1 / cumulative, 0, 1);
-            final double zoomPosition = (cumulative == 1)
-                ? 0
-                : child.controller.zoomPosition +
-                    ((child.controller.zoomFactor - zoomFactor) * origin);
-            if (child.controller.zoomPosition != zoomPosition ||
-                child.controller.zoomFactor != zoomFactor) {
-              zoomFactor = (zoomPosition + zoomFactor) > 1
-                  ? (1 - zoomPosition)
-                  : zoomFactor;
-            }
-
-            child.controller.zoomPosition = zoomPosition;
-            child.controller.zoomFactor = zoomFactor;
-            parent.hideInteractiveTooltip();
-          }
-          final double maxZoomFactor = maximumZoomLevel;
-          if (zoomFactor < maxZoomFactor) {
-            child.controller.zoomFactor = maxZoomFactor;
-            child.controller.zoomPosition = 0.0;
-            zoomFactor = maxZoomFactor;
-          }
-        }
-        if (parent.onZoomEnd != null) {
+    if (parent.onZoomEnd != null) {
+      axes.visitChildren((RenderObject child) {
+        if (child is RenderChartAxis) {
           _bindZoomEvent(child, parent.onZoomEnd!);
         }
-      }
-    });
+      });
+    }
   }
 
-  /// Below method is for mouse wheel Zooming.
-  void _performMouseWheelZooming(
-      PointerEvent event, double mouseX, double mouseY, Rect plotAreaBounds) {
+  void _zoomInAndOut(double zoomLevel, {Offset? origin}) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent == null) {
       return;
     }
-    final RenderCartesianAxes? axes = parent.cartesianAxes;
-    if (axes == null) {
+    parent.hideInteractiveTooltip();
+    final RenderCartesianAxes? cartesianAxes = parent.cartesianAxes;
+    if (cartesianAxes == null) {
       return;
     }
-    double direction = 0.0;
-    if (event is PointerScrollEvent) {
-      direction = (event.scrollDelta.dy / 120) > 0 ? -1 : 1;
-    } else if (event is PointerPanZoomUpdateEvent) {
-      direction = event.panDelta.dy == 0
-          ? 0
-          : (event.panDelta.dy / 120) > 0
-              ? 1
-              : -1;
-    }
-    double origin = 0.5;
-    double cumulative, zoomFactor, zoomPosition, maxZoomFactor;
-    axes.visitChildren((RenderObject child) {
+
+    final Rect clipRect = parent.paintBounds;
+    cartesianAxes.visitChildren((RenderObject child) {
       if (child is RenderChartAxis) {
-        child.zoomingInProgress = true;
-        if (parent.onZoomStart != null) {
-          _bindZoomEvent(child, parent.onZoomStart!);
-        }
-        if ((child.isVertical && zoomMode != ZoomMode.x) ||
-            (!child.isVertical && zoomMode != ZoomMode.y)) {
-          cumulative = max(
-              max(1 / _minMax(child.controller.zoomFactor, 0, 1), 1) +
-                  (0.25 * direction),
-              1);
-          if (cumulative >= 1) {
-            origin = child.isVertical
-                ? 1 - (mouseY / plotAreaBounds.height)
-                : mouseX / plotAreaBounds.width;
-            origin = origin > 1
-                ? 1
-                : origin < 0
-                    ? 0
-                    : origin;
-            zoomFactor = ((cumulative == 1) ? 1 : _minMax(1 / cumulative, 0, 1))
-                .toDouble();
-            zoomPosition = (cumulative == 1)
-                ? 0
-                : child.controller.zoomPosition +
-                    ((child.controller.zoomFactor - zoomFactor) * origin);
-            if (child.controller.zoomPosition != zoomPosition ||
-                child.controller.zoomFactor != zoomFactor) {
-              zoomFactor = (zoomPosition + zoomFactor) > 1
-                  ? (1 - zoomPosition)
-                  : zoomFactor;
-            }
-            child.controller.zoomPosition = zoomPosition < 0
-                ? 0
-                : zoomPosition > 1
-                    ? 1
-                    : zoomPosition;
-            child.controller.zoomFactor = zoomFactor < 0
-                ? 0
-                : zoomFactor > 1
-                    ? 1
-                    : zoomFactor;
-            maxZoomFactor = maximumZoomLevel;
-            if (zoomFactor < maxZoomFactor) {
-              child.controller.zoomFactor = maxZoomFactor;
-              zoomFactor = maxZoomFactor;
-            }
-            parent.hideInteractiveTooltip();
-            if (parent.onZoomEnd != null) {
-              _bindZoomEvent(child, parent.onZoomEnd!);
-            }
-            if (child.controller.zoomFactor.toInt() == 1 &&
-                child.controller.zoomPosition.toInt() == 0 &&
-                parent.onZoomReset != null) {
-              _bindZoomEvent(child, parent.onZoomReset!);
-            }
+        if (_canZoom(child)) {
+          final double originPoint = _calculateOrigin(child, clipRect, origin);
+          child.zoomingInProgress = true;
+          if (parent.onZoomStart != null) {
+            _bindZoomEvent(child, parent.onZoomStart!);
+          }
+
+          final double maxZoomLevel = _toScaleValue(maximumZoomLevel);
+          _currentZoomLevel = _toScaleValue(child.controller.zoomFactor);
+          _currentZoomLevel = _currentZoomLevel + zoomLevel;
+          if (_currentZoomLevel > maxZoomLevel) {
+            _currentZoomLevel = maxZoomLevel;
+          }
+
+          _zoom(parent, child, originPoint, _currentZoomLevel);
+
+          if (parent.onZoomEnd != null) {
+            _bindZoomEvent(child, parent.onZoomEnd!);
           }
         }
       }
     });
-  }
-
-  /// Below method for drawing selection rectangle.
-  void _doSelectionZooming(double currentX, double currentY) {
-    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (parent == null) {
-      return;
-    }
-    if (_isPinching != true && _zoomStartPosition != null) {
-      final Offset start = _zoomStartPosition!;
-      final Rect clipRect = parent.paintBounds;
-      final Offset startPosition = Offset(
-          (start.dx < clipRect.left) ? clipRect.left : start.dx,
-          (start.dy < clipRect.top) ? clipRect.top : start.dy);
-      final Offset currentMousePosition = Offset(
-          (currentX > clipRect.right)
-              ? clipRect.right
-              : ((currentX < clipRect.left) ? clipRect.left : currentX),
-          (currentY > clipRect.bottom)
-              ? clipRect.bottom
-              : ((currentY < clipRect.top) ? clipRect.top : currentY));
-      _rectPath = Path();
-      if (zoomMode == ZoomMode.x) {
-        _rectPath!.moveTo(startPosition.dx, clipRect.top);
-        _rectPath!.lineTo(startPosition.dx, clipRect.bottom);
-        _rectPath!.lineTo(currentMousePosition.dx, clipRect.bottom);
-        _rectPath!.lineTo(currentMousePosition.dx, clipRect.top);
-        _rectPath!.close();
-      } else if (zoomMode == ZoomMode.y) {
-        _rectPath!.moveTo(clipRect.left, startPosition.dy);
-        _rectPath!.lineTo(clipRect.left, currentMousePosition.dy);
-        _rectPath!.lineTo(clipRect.right, currentMousePosition.dy);
-        _rectPath!.lineTo(clipRect.right, startPosition.dy);
-        _rectPath!.close();
-      } else {
-        _rectPath!.moveTo(startPosition.dx, startPosition.dy);
-        _rectPath!.lineTo(startPosition.dx, currentMousePosition.dy);
-        _rectPath!.lineTo(currentMousePosition.dx, currentMousePosition.dy);
-        _rectPath!.lineTo(currentMousePosition.dx, startPosition.dy);
-        _rectPath!.close();
-      }
-      _zoomingRect = _rectPath!.getBounds();
-    }
   }
 
   /// Increases the magnification of the plot area.
   void zoomIn() {
-    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (parent == null) {
-      return;
-    }
-
-    parent.hideInteractiveTooltip();
-    final RenderCartesianAxes? cartesianAxes = parent.cartesianAxes;
-    if (cartesianAxes == null) {
-      return;
-    }
-    _isZoomIn = true;
-    _isZoomOut = false;
-    // TODO(YuvarajG): Need to have variable to notify zooming inprogress
-    // _stateProperties.zoomProgress = true;
-    bool? needZoom;
-    RenderChartAxis? child = cartesianAxes.firstChild;
-    while (child != null) {
-      if ((child.isVertical && zoomMode != ZoomMode.x) ||
-          (!child.isVertical && zoomMode != ZoomMode.y)) {
-        if (child.controller.zoomFactor <= 1.0 &&
-            child.controller.zoomFactor > 0.0) {
-          if (child.controller.zoomFactor - 0.1 < 0) {
-            needZoom = false;
-            break;
-          } else {
-            _updateZoomFactorAndZoomPosition(child);
-            needZoom = true;
-          }
-        }
-        if (parent.onZooming != null) {
-          _bindZoomEvent(child, parent.onZooming!);
-        }
-      }
-      final CartesianAxesParentData childParentData =
-          child.parentData! as CartesianAxesParentData;
-      child = childParentData.nextSibling;
-    }
-    if (needZoom ?? false) {
-      (parentBox as RenderBehaviorArea?)?.invalidate();
-    }
+    _zoomInAndOut(0.1);
   }
 
   /// Decreases the magnification of the plot area.
   void zoomOut() {
-    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (parent == null) {
-      return;
-    }
-
-    parent.hideInteractiveTooltip();
-    final RenderCartesianAxes? cartesianAxes = parent.cartesianAxes;
-    if (cartesianAxes == null) {
-      return;
-    }
-    _isZoomIn = false;
-    _isZoomOut = true;
-    // TODO(YuvarajG): Need to have variable to notify zooming inprogress
-    // _stateProperties.zoomProgress = true;
-    RenderChartAxis? child = cartesianAxes.firstChild;
-    while (child != null) {
-      if ((child.isVertical && zoomMode != ZoomMode.x) ||
-          (!child.isVertical && zoomMode != ZoomMode.y)) {
-        if (child.controller.zoomFactor < 1.0 &&
-            child.controller.zoomFactor > 0.0) {
-          _updateZoomFactorAndZoomPosition(child);
-          child.controller.zoomFactor = child.controller.zoomFactor > 1.0
-              ? 1.0
-              : (child.controller.zoomFactor < 0.0
-                  ? 0.0
-                  : child.controller.zoomFactor);
-        }
-        if (parent.onZooming != null) {
-          _bindZoomEvent(child, parent.onZooming!);
-        }
-      }
-      final CartesianAxesParentData childParentData =
-          child.parentData! as CartesianAxesParentData;
-      child = childParentData.nextSibling;
-    }
-    (parentBox as RenderBehaviorArea?)?.invalidate();
+    _zoomInAndOut(-0.1);
   }
 
   /// Changes the zoom level using zoom factor.
@@ -891,32 +768,21 @@ class ZoomPanBehavior extends ChartBehavior {
     if (parent == null) {
       return;
     }
-
     parent.hideInteractiveTooltip();
     final RenderCartesianAxes? cartesianAxes = parent.cartesianAxes;
     if (cartesianAxes == null) {
       return;
     }
-    _isZoomIn = false;
-    _isZoomOut = true;
-    // TODO(YuvarajG): Need to have variable to notify zooming inprogress
-    // _stateProperties.zoomProgress = true;
-    RenderChartAxis? child = cartesianAxes.firstChild;
-    if (zoomFactor.clamp(0.0, 1.0) == zoomFactor) {
-      while (child != null) {
-        if ((child.isVertical && zoomMode != ZoomMode.x) ||
-            (!child.isVertical && zoomMode != ZoomMode.y)) {
-          child.controller.zoomFactor = zoomFactor;
+    cartesianAxes.visitChildren((RenderObject child) {
+      if (child is RenderChartAxis) {
+        if (_canZoom(child)) {
+          child.controller.zoomFactor = max(zoomFactor, maximumZoomLevel);
           if (parent.onZooming != null) {
             _bindZoomEvent(child, parent.onZooming!);
           }
         }
-        final CartesianAxesParentData childParentData =
-            child.parentData! as CartesianAxesParentData;
-        child = childParentData.nextSibling;
       }
-      (parentBox as RenderBehaviorArea?)?.invalidate();
-    }
+    });
   }
 
   /// Zooms the chart for a given rectangle value.
@@ -944,7 +810,7 @@ class ZoomPanBehavior extends ChartBehavior {
         : parent.axisFromObject(axis);
 
     if (axisDetails != null) {
-      axisDetails.controller.zoomFactor = zoomFactor;
+      axisDetails.controller.zoomFactor = max(zoomFactor, maximumZoomLevel);
       axisDetails.controller.zoomPosition = zoomPosition;
     }
     parent.invalidate();
@@ -965,54 +831,27 @@ class ZoomPanBehavior extends ChartBehavior {
       return;
     }
     direction = direction.toLowerCase();
-    RenderChartAxis? child = cartesianAxes.firstChild;
-    while (child != null) {
-      if (child.isVertical) {
-        if (direction == 'bottom') {
-          child.controller.zoomPosition = (child.controller.zoomPosition > 0 &&
-                  child.controller.zoomPosition <= 1.0)
-              ? child.controller.zoomPosition - 0.1
-              : child.controller.zoomPosition;
-          child.controller.zoomPosition = child.controller.zoomPosition < 0.0
-              ? 0.0
-              : child.controller.zoomPosition;
+    cartesianAxes.visitChildren((RenderObject child) {
+      if (child is RenderChartAxis) {
+        final double currentZoomFactor = child.controller.zoomFactor;
+        final double increaseZoomPosition =
+            child.controller.zoomPosition + (child.isInversed ? -0.1 : 0.1);
+        final double decreaseZoomPosition =
+            child.controller.zoomPosition + (child.isInversed ? 0.1 : -0.1);
+        if ((child.isVertical && direction == 'bottom') ||
+            (!child.isVertical && direction == 'left')) {
+          child.controller.zoomPosition =
+              _minMax(decreaseZoomPosition, 0, 1 - currentZoomFactor);
+        } else if ((child.isVertical && direction == 'top') ||
+            (!child.isVertical && direction == 'right')) {
+          child.controller.zoomPosition =
+              _minMax(increaseZoomPosition, 0, 1 - currentZoomFactor);
         }
-        if (direction == 'top') {
-          child.controller.zoomPosition = (child.controller.zoomPosition >= 0 &&
-                  child.controller.zoomPosition < 1)
-              ? child.controller.zoomPosition + 0.1
-              : child.controller.zoomPosition;
-          child.controller.zoomPosition = child.controller.zoomPosition > 1.0
-              ? 1.0
-              : child.controller.zoomPosition;
-        }
-      } else {
-        if (direction == 'left') {
-          child.controller.zoomPosition = (child.controller.zoomPosition > 0 &&
-                  child.controller.zoomPosition <= 1.0)
-              ? child.controller.zoomPosition - 0.1
-              : child.controller.zoomPosition;
-          child.controller.zoomPosition = child.controller.zoomPosition < 0.0
-              ? 0.0
-              : child.controller.zoomPosition;
-        }
-        if (direction == 'right') {
-          child.controller.zoomPosition = (child.controller.zoomPosition >= 0 &&
-                  child.controller.zoomPosition < 1)
-              ? child.controller.zoomPosition + 0.1
-              : child.controller.zoomPosition;
-          child.controller.zoomPosition = child.controller.zoomPosition > 1.0
-              ? 1.0
-              : child.controller.zoomPosition;
+        if (parent.onZooming != null) {
+          _bindZoomEvent(child, parent.onZooming!);
         }
       }
-      if (parent.onZooming != null) {
-        _bindZoomEvent(child, parent.onZooming!);
-      }
-      final CartesianAxesParentData childParentData =
-          child.parentData! as CartesianAxesParentData;
-      child = childParentData.nextSibling;
-    }
+    });
     parent.invalidate();
   }
 
@@ -1028,18 +867,16 @@ class ZoomPanBehavior extends ChartBehavior {
     if (cartesianAxes == null) {
       return;
     }
-    RenderChartAxis? child = cartesianAxes.firstChild;
-    while (child != null) {
-      child.controller.zoomFactor = 1.0;
-      child.controller.zoomPosition = 0.0;
-      if (parent.onZoomReset != null) {
-        _bindZoomEvent(child, parent.onZoomReset!);
+
+    cartesianAxes.visitChildren((RenderObject child) {
+      if (child is RenderChartAxis) {
+        child.controller.zoomFactor = 1.0;
+        child.controller.zoomPosition = 0.0;
+        if (parent.onZoomReset != null) {
+          _bindZoomEvent(child, parent.onZoomReset!);
+        }
       }
-      final CartesianAxesParentData childParentData =
-          child.parentData! as CartesianAxesParentData;
-      child = childParentData.nextSibling;
-    }
-    parent.invalidate();
+    });
   }
 
   ZoomPanArgs _bindZoomEvent(
@@ -1064,7 +901,49 @@ class ZoomPanBehavior extends ChartBehavior {
     return zoomPanArgs;
   }
 
-  /// Below method for zooming selected portion.
+  void _doSelectionZooming(
+      LongPressMoveUpdateDetails details, double currentX, double currentY) {
+    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
+    if (parent == null) {
+      return;
+    }
+    if (_zoomRectStartPosition != null) {
+      final Rect clipRect = parent.paintBounds;
+      final Offset startPosition = Offset(
+        max(_zoomRectStartPosition!.dx, clipRect.left),
+        max(_zoomRectStartPosition!.dy, clipRect.top),
+      );
+      Offset currentMousePosition =
+          startPosition + details.localOffsetFromOrigin;
+      final double currentX =
+          _minMax(currentMousePosition.dx, clipRect.left, clipRect.right);
+      final double currentY =
+          _minMax(currentMousePosition.dy, clipRect.top, clipRect.bottom);
+      currentMousePosition = Offset(currentX, currentY);
+      _rectPath = Path();
+      if (zoomMode == ZoomMode.x) {
+        _rectPath!.moveTo(startPosition.dx, clipRect.top);
+        _rectPath!.lineTo(startPosition.dx, clipRect.bottom);
+        _rectPath!.lineTo(currentMousePosition.dx, clipRect.bottom);
+        _rectPath!.lineTo(currentMousePosition.dx, clipRect.top);
+        _rectPath!.close();
+      } else if (zoomMode == ZoomMode.y) {
+        _rectPath!.moveTo(clipRect.left, startPosition.dy);
+        _rectPath!.lineTo(clipRect.left, currentMousePosition.dy);
+        _rectPath!.lineTo(clipRect.right, currentMousePosition.dy);
+        _rectPath!.lineTo(clipRect.right, startPosition.dy);
+        _rectPath!.close();
+      } else {
+        _rectPath!.moveTo(startPosition.dx, startPosition.dy);
+        _rectPath!.lineTo(startPosition.dx, currentMousePosition.dy);
+        _rectPath!.lineTo(currentMousePosition.dx, currentMousePosition.dy);
+        _rectPath!.lineTo(currentMousePosition.dx, startPosition.dy);
+        _rectPath!.close();
+      }
+      _zoomingRect = _rectPath!.getBounds();
+    }
+  }
+
   void _drawSelectionZoomRect(Rect zoomRect) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent == null) {
@@ -1082,35 +961,28 @@ class ZoomPanBehavior extends ChartBehavior {
         if (parent.onZoomStart != null) {
           _bindZoomEvent(child, parent.onZoomStart!);
         }
+        final Rect clipRect = child.paintBounds;
         if (child.isVertical) {
           if (zoomMode != ZoomMode.x) {
-            child.controller.zoomPosition += (1 -
-                    ((zoomRect.height +
-                                (zoomRect.top - child.paintBounds.top)) /
-                            (child.paintBounds.height))
-                        .abs()) *
-                child.controller.zoomFactor;
-            child.controller.zoomFactor *=
-                zoomRect.height / child.paintBounds.height;
-
+            final double zoomRectHeightFromTop =
+                zoomRect.height + (zoomRect.top - clipRect.top);
+            child.controller.zoomPosition +=
+                (1 - (zoomRectHeightFromTop / clipRect.height).abs()) *
+                    child.controller.zoomFactor;
+            child.controller.zoomFactor *= zoomRect.height / clipRect.height;
             child.controller.zoomFactor =
-                child.controller.zoomFactor >= maximumZoomLevel
-                    ? child.controller.zoomFactor
-                    : maximumZoomLevel;
+                max(child.controller.zoomFactor, maximumZoomLevel);
           }
         } else {
           if (zoomMode != ZoomMode.y) {
+            final double zoomRectWidthFromLeft = zoomRect.left - clipRect.left;
             child.controller.zoomPosition +=
-                ((zoomRect.left - child.paintBounds.left) /
-                            (child.paintBounds.width))
-                        .abs() *
+                (zoomRectWidthFromLeft / clipRect.width).abs() *
                     child.controller.zoomFactor;
             child.controller.zoomFactor *=
                 zoomRect.width / child.paintBounds.width;
             child.controller.zoomFactor =
-                child.controller.zoomFactor >= maximumZoomLevel
-                    ? child.controller.zoomFactor
-                    : maximumZoomLevel;
+                max(child.controller.zoomFactor, maximumZoomLevel);
           }
         }
         if (parent.onZoomEnd != null) {
@@ -1122,8 +994,99 @@ class ZoomPanBehavior extends ChartBehavior {
     _rectPath = Path();
   }
 
-  double _minMax(double value, double min, double max) {
-    return value > max ? max : (value < min ? min : value);
+  void _drawTooltipConnector(
+      RenderCartesianAxes axes,
+      RenderBehaviorArea? parent,
+      Offset startPosition,
+      Offset endPosition,
+      Canvas canvas,
+      Rect plotAreaBounds,
+      Offset plotAreaOffset) {
+    RRect? startTooltipRect, endTooltipRect;
+    String startValue, endValue;
+    Size startLabelSize, endLabelSize;
+    Rect startLabelRect, endLabelRect;
+    TextStyle textStyle =
+        parent!.chartThemeData!.selectionZoomingTooltipTextStyle!;
+    final Paint labelFillPaint = Paint()
+      ..color = axes.chartThemeData.crosshairBackgroundColor!
+      ..isAntiAlias = true;
+
+    final Paint labelStrokePaint = Paint()
+      ..color = axes.chartThemeData.crosshairBackgroundColor!
+      ..isAntiAlias = true
+      ..style = PaintingStyle.stroke;
+
+    axes.visitChildren((RenderObject child) {
+      if (child is RenderChartAxis) {
+        if (child.interactiveTooltip.enable) {
+          textStyle = textStyle.merge(child.interactiveTooltip.textStyle);
+          labelFillPaint.color = (child.interactiveTooltip.color ??
+              axes.chartThemeData.crosshairBackgroundColor)!;
+          labelStrokePaint.color = (child.interactiveTooltip.borderColor ??
+              axes.chartThemeData.crosshairBackgroundColor)!;
+          labelStrokePaint.strokeWidth = child.interactiveTooltip.borderWidth;
+          final Paint connectorLinePaint = Paint()
+            ..color = (child.interactiveTooltip.connectorLineColor ??
+                axes.chartThemeData.selectionTooltipConnectorLineColor)!
+            ..strokeWidth = child.interactiveTooltip.connectorLineWidth
+            ..style = PaintingStyle.stroke;
+
+          final Path startLabelPath = Path();
+          final Path endLabelPath = Path();
+          startValue = tooltipValue(startPosition, child, plotAreaBounds);
+          endValue = tooltipValue(endPosition, child, plotAreaBounds);
+
+          if (startValue.isNotEmpty && endValue.isNotEmpty) {
+            startLabelSize = measureText(startValue, textStyle);
+            endLabelSize = measureText(endValue, textStyle);
+            startLabelRect =
+                calculateRect(child, startPosition, startLabelSize);
+            endLabelRect = calculateRect(child, endPosition, endLabelSize);
+            if (child.isVertical &&
+                startLabelRect.width != endLabelRect.width) {
+              final String axisPosition =
+                  child.opposedPosition ? 'right' : 'left';
+              (startLabelRect.width > endLabelRect.width)
+                  ? endLabelRect =
+                      validateRect(startLabelRect, endLabelRect, axisPosition)
+                  : startLabelRect =
+                      validateRect(endLabelRect, startLabelRect, axisPosition);
+            }
+            startTooltipRect = calculateTooltipRect(
+                canvas,
+                labelFillPaint,
+                labelStrokePaint,
+                startLabelPath,
+                startPosition,
+                startLabelRect,
+                startTooltipRect,
+                startValue,
+                startLabelSize,
+                plotAreaBounds,
+                textStyle,
+                child,
+                plotAreaOffset);
+            endTooltipRect = calculateTooltipRect(
+                canvas,
+                labelFillPaint,
+                labelStrokePaint,
+                endLabelPath,
+                endPosition,
+                endLabelRect,
+                endTooltipRect,
+                endValue,
+                endLabelSize,
+                plotAreaBounds,
+                textStyle,
+                child,
+                plotAreaOffset);
+            drawConnector(canvas, connectorLinePaint, startTooltipRect!,
+                endTooltipRect!, startPosition, endPosition, child);
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -1164,9 +1127,10 @@ class ZoomPanBehavior extends ChartBehavior {
 
       final Offset plotAreaOffset =
           (parent.parentData! as BoxParentData).offset;
-      //Selection zooming tooltip rendering
+      // Selection zooming tooltip rendering
       _drawTooltipConnector(
           cartesianAxes,
+          parent,
           _zoomingRect.topLeft,
           _zoomingRect.bottomRight,
           context.canvas,
@@ -1174,652 +1138,4 @@ class ZoomPanBehavior extends ChartBehavior {
           plotAreaOffset);
     }
   }
-
-  void _calculateZoomAxesRange(RenderCartesianAxes axes) {
-    _ZoomAxisRange range;
-    axes.visitChildren((RenderObject child) {
-      range = _ZoomAxisRange();
-      if (child is RenderChartAxis) {
-        if (child.actualRange != null) {
-          range.actualMin = child.actualRange!.minimum.toDouble();
-          range.actualDelta = child.actualRange!.delta.toDouble();
-        }
-        range.min = child.visibleRange!.minimum.toDouble();
-        range.delta = child.visibleRange!.delta.toDouble();
-        _zoomAxes.add(range);
-      }
-    });
-  }
-
-  /// Returns the tooltip label on zooming.
-  String _tooltipValue(
-      Offset position, RenderChartAxis axis, Rect plotAreaBounds) {
-    final num value = axis.isVertical
-        ? axis.pixelToPoint(axis.paintBounds, position.dx, position.dy)
-        : axis.pixelToPoint(axis.paintBounds, position.dx - plotAreaBounds.left,
-            position.dy - plotAreaBounds.top);
-
-    dynamic result = _interactiveTooltipLabel(value, axis);
-    if (axis.interactiveTooltip.format != null) {
-      final String stringValue =
-          axis.interactiveTooltip.format!.replaceAll('{value}', result);
-      result = stringValue;
-    }
-    return result.toString();
-  }
-
-  /// Validate the rect by comparing small and large rect.
-  Rect _validateRect(Rect largeRect, Rect smallRect, String axisPosition) =>
-      Rect.fromLTRB(
-          axisPosition == 'left'
-              ? (smallRect.left - (largeRect.width - smallRect.width))
-              : smallRect.left,
-          smallRect.top,
-          axisPosition == 'right'
-              ? (smallRect.right + (largeRect.width - smallRect.width))
-              : smallRect.right,
-          smallRect.bottom);
-
-  /// Calculate the interactive tooltip rect, based on the zoomed axis position.
-  Rect _calculateRect(RenderChartAxis axis, Offset position, Size labelSize) {
-    const double paddingForRect = 10;
-    final Rect axisBound =
-        (axis.parentData! as BoxParentData).offset & axis.size;
-    final double arrowLength = axis.interactiveTooltip.arrowLength;
-    double left, top;
-    final double width = labelSize.width + paddingForRect;
-    final double height = labelSize.height + paddingForRect;
-
-    if (axis.isVertical) {
-      top = position.dy - height / 2;
-      if (axis.opposedPosition) {
-        left = axisBound.left + arrowLength;
-      } else {
-        left = axisBound.left - width - arrowLength;
-      }
-    } else {
-      left = position.dx - width / 2;
-      if (axis.opposedPosition) {
-        top = axisBound.top - height - arrowLength;
-      } else {
-        top = axisBound.top + arrowLength;
-      }
-    }
-    return Rect.fromLTWH(left, top, width, height);
-  }
-
-  /// To draw tooltip connector.
-  void _drawTooltipConnector(
-      RenderCartesianAxes axes,
-      Offset startPosition,
-      Offset endPosition,
-      Canvas canvas,
-      Rect plotAreaBounds,
-      Offset plotAreaOffset) {
-    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    RRect? startTooltipRect, endTooltipRect;
-    String startValue, endValue;
-    Size startLabelSize, endLabelSize;
-    Rect startLabelRect, endLabelRect;
-    TextStyle textStyle =
-        parent!.chartThemeData!.selectionZoomingTooltipTextStyle!;
-    final Paint labelFillPaint = Paint()
-      ..color = axes.chartThemeData.crosshairBackgroundColor!
-      ..isAntiAlias = true;
-
-    final Paint labelStrokePaint = Paint()
-      ..color = axes.chartThemeData.crosshairBackgroundColor!
-      ..isAntiAlias = true
-      ..style = PaintingStyle.stroke;
-
-    axes.visitChildren((RenderObject child) {
-      if (child is RenderChartAxis) {
-        if (child.interactiveTooltip.enable) {
-          textStyle = textStyle.merge(child.interactiveTooltip.textStyle);
-          labelFillPaint.color = (child.interactiveTooltip.color ??
-              axes.chartThemeData.crosshairBackgroundColor)!;
-          labelStrokePaint.color = (child.interactiveTooltip.borderColor ??
-              axes.chartThemeData.crosshairBackgroundColor)!;
-          labelStrokePaint.strokeWidth = child.interactiveTooltip.borderWidth;
-          final Paint connectorLinePaint = Paint()
-            ..color = (child.interactiveTooltip.connectorLineColor ??
-                axes.chartThemeData.selectionTooltipConnectorLineColor)!
-            ..strokeWidth = child.interactiveTooltip.connectorLineWidth
-            ..style = PaintingStyle.stroke;
-
-          final Path startLabelPath = Path();
-          final Path endLabelPath = Path();
-          startValue = _tooltipValue(startPosition, child, plotAreaBounds);
-          endValue = _tooltipValue(endPosition, child, plotAreaBounds);
-
-          if (startValue.isNotEmpty && endValue.isNotEmpty) {
-            startLabelSize = measureText(startValue, textStyle);
-            endLabelSize = measureText(endValue, textStyle);
-            startLabelRect =
-                _calculateRect(child, startPosition, startLabelSize);
-            endLabelRect = _calculateRect(child, endPosition, endLabelSize);
-            if (child.isVertical &&
-                startLabelRect.width != endLabelRect.width) {
-              final String axisPosition =
-                  child.opposedPosition ? 'right' : 'left';
-              (startLabelRect.width > endLabelRect.width)
-                  ? endLabelRect =
-                      _validateRect(startLabelRect, endLabelRect, axisPosition)
-                  : startLabelRect =
-                      _validateRect(endLabelRect, startLabelRect, axisPosition);
-            }
-            startTooltipRect = _drawTooltip(
-                canvas,
-                labelFillPaint,
-                labelStrokePaint,
-                startLabelPath,
-                startPosition,
-                startLabelRect,
-                startTooltipRect,
-                startValue,
-                startLabelSize,
-                plotAreaBounds,
-                textStyle,
-                child,
-                plotAreaOffset);
-            endTooltipRect = _drawTooltip(
-                canvas,
-                labelFillPaint,
-                labelStrokePaint,
-                endLabelPath,
-                endPosition,
-                endLabelRect,
-                endTooltipRect,
-                endValue,
-                endLabelSize,
-                plotAreaBounds,
-                textStyle,
-                child,
-                plotAreaOffset);
-            _drawConnector(canvas, connectorLinePaint, startTooltipRect!,
-                endTooltipRect!, startPosition, endPosition, child);
-          }
-        }
-      }
-    });
-  }
-
-  /// To draw connectors.
-  void _drawConnector(
-      Canvas canvas,
-      Paint connectorLinePaint,
-      RRect startTooltipRect,
-      RRect endTooltipRect,
-      Offset startPosition,
-      Offset endPosition,
-      RenderChartAxis axis) {
-    final InteractiveTooltip tooltip = axis.interactiveTooltip;
-    if (!axis.isVertical && !axis.opposedPosition) {
-      startPosition =
-          Offset(startPosition.dx, startTooltipRect.top - tooltip.arrowLength);
-      endPosition =
-          Offset(endPosition.dx, endTooltipRect.top - tooltip.arrowLength);
-    } else if (!axis.isVertical && axis.opposedPosition) {
-      startPosition = Offset(
-          startPosition.dx, startTooltipRect.bottom + tooltip.arrowLength);
-      endPosition =
-          Offset(endPosition.dx, endTooltipRect.bottom + tooltip.arrowLength);
-    } else if (axis.isVertical && !axis.opposedPosition) {
-      startPosition = Offset(
-          startTooltipRect.right + tooltip.arrowLength, startPosition.dy);
-      endPosition =
-          Offset(endTooltipRect.right + tooltip.arrowLength, endPosition.dy);
-    } else {
-      startPosition =
-          Offset(startTooltipRect.left - tooltip.arrowLength, startPosition.dy);
-      endPosition =
-          Offset(endTooltipRect.left - tooltip.arrowLength, endPosition.dy);
-    }
-    drawDashedPath(canvas, connectorLinePaint, startPosition, endPosition,
-        tooltip.connectorLineDashArray);
-  }
-
-  /// To draw tooltip.
-  RRect _drawTooltip(
-      Canvas canvas,
-      Paint fillPaint,
-      Paint strokePaint,
-      Path path,
-      Offset position,
-      Rect labelRect,
-      RRect? rect,
-      String value,
-      Size labelSize,
-      Rect plotAreaBound,
-      TextStyle textStyle,
-      RenderChartAxis axis,
-      Offset plotAreaOffset) {
-    final Offset parentDataOffset = (axis.parentData! as BoxParentData).offset;
-    final Offset axisOffset =
-        parentDataOffset.translate(-plotAreaOffset.dx, -plotAreaOffset.dy);
-    final Rect axisRect = axisOffset & axis.size;
-    labelRect = _validateRectBounds(labelRect, axisRect);
-    labelRect = axis.isVertical
-        ? _validateRectYPosition(labelRect, plotAreaBound)
-        : _validateRectXPosition(labelRect, plotAreaBound);
-    path.reset();
-    rect = RRect.fromRectAndRadius(
-        labelRect, Radius.circular(axis.interactiveTooltip.borderRadius));
-    path.addRRect(rect);
-    _calculateNeckPositions(
-        canvas, fillPaint, strokePaint, path, position, rect, axis);
-    drawText(
-      canvas,
-      value,
-      Offset((rect.left + rect.width / 2) - labelSize.width / 2,
-          (rect.top + rect.height / 2) - labelSize.height / 2),
-      textStyle,
-    );
-    return rect;
-  }
-
-  /// To calculate tooltip neck positions.
-  void _calculateNeckPositions(
-      Canvas canvas,
-      Paint fillPaint,
-      Paint strokePaint,
-      Path path,
-      Offset position,
-      RRect rect,
-      RenderChartAxis axis) {
-    final InteractiveTooltip tooltip = axis.interactiveTooltip;
-    double x1, x2, x3, x4, y1, y2, y3, y4;
-    if (!axis.isVertical && !axis.opposedPosition) {
-      x1 = position.dx;
-      y1 = rect.top - tooltip.arrowLength;
-      x2 = (rect.right - rect.width / 2) + tooltip.arrowWidth;
-      y2 = rect.top;
-      x3 = (rect.left + rect.width / 2) - tooltip.arrowWidth;
-      y3 = rect.top;
-      x4 = position.dx;
-      y4 = rect.top - tooltip.arrowLength;
-    } else if (!axis.isVertical && axis.opposedPosition) {
-      x1 = position.dx;
-      y1 = rect.bottom + tooltip.arrowLength;
-      x2 = (rect.right - rect.width / 2) + tooltip.arrowWidth;
-      y2 = rect.bottom;
-      x3 = (rect.left + rect.width / 2) - tooltip.arrowWidth;
-      y3 = rect.bottom;
-      x4 = position.dx;
-      y4 = rect.bottom + tooltip.arrowLength;
-    } else if (axis.isVertical && !axis.opposedPosition) {
-      x1 = rect.right;
-      y1 = rect.top + rect.height / 2 - tooltip.arrowWidth;
-      x2 = rect.right;
-      y2 = rect.bottom - rect.height / 2 + tooltip.arrowWidth;
-      x3 = rect.right + tooltip.arrowLength;
-      y3 = position.dy;
-      x4 = rect.right + tooltip.arrowLength;
-      y4 = position.dy;
-    } else {
-      x1 = rect.left;
-      y1 = rect.top + rect.height / 2 - tooltip.arrowWidth;
-      x2 = rect.left;
-      y2 = rect.bottom - rect.height / 2 + tooltip.arrowWidth;
-      x3 = rect.left - tooltip.arrowLength;
-      y3 = position.dy;
-      x4 = rect.left - tooltip.arrowLength;
-      y4 = position.dy;
-    }
-    _drawTooltipArrowhead(
-        canvas, path, fillPaint, strokePaint, x1, y1, x2, y2, x3, y3, x4, y4);
-  }
-
-  /// Below method is for zoomIn and zoomOut public methods.
-  void _updateZoomFactorAndZoomPosition(RenderChartAxis axis) {
-    final Rect axisClipRect = axis.paintBounds;
-    double? zoomFactor, zoomPosition;
-    final num direction = _isZoomIn
-        ? 1
-        : _isZoomOut
-            ? -1
-            : 1;
-    final num cumulative = max(
-        max(1 / _minMax(axis.controller.zoomFactor, 0, 1), 1) +
-            (0.1 * direction),
-        1);
-    if (cumulative >= 1) {
-      num origin = axis.isVertical
-          ? 1 -
-              ((axisClipRect.top + axisClipRect.height / 2) /
-                  axisClipRect.height)
-          : (axisClipRect.left + axisClipRect.width / 2) / axisClipRect.width;
-      origin = origin > 1
-          ? 1
-          : origin < 0
-              ? 0
-              : origin;
-      zoomFactor =
-          ((cumulative == 1) ? 1 : _minMax(1 / cumulative, 0, 1)).toDouble();
-      zoomPosition = (cumulative == 1)
-          ? 0
-          : axis.controller.zoomPosition +
-              ((axis.controller.zoomFactor - zoomFactor) * origin);
-      if (axis.controller.zoomPosition != zoomPosition ||
-          axis.controller.zoomFactor != zoomFactor) {
-        zoomFactor =
-            (zoomPosition + zoomFactor) > 1 ? (1 - zoomPosition) : zoomFactor;
-      }
-
-      axis.controller.zoomPosition = zoomPosition;
-      axis.controller.zoomFactor = zoomFactor;
-    }
-  }
-
-  void _startPinchZooming(PointerEvent event) {
-    if (_touchStartPositions.length < 2) {
-      _touchStartPositions.add(event);
-    }
-
-    if (_touchStartPositions.length == 2) {
-      final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-      if (parent != null &&
-          parent.onZoomStart != null &&
-          parent.cartesianAxes != null) {
-        parent.hideInteractiveTooltip();
-        final RenderCartesianAxes axes = parent.cartesianAxes!;
-
-        axes.visitChildren((RenderObject child) {
-          if (child is RenderChartAxis) {
-            _bindZoomEvent(child, parent.onZoomStart!);
-          }
-        });
-      }
-    }
-  }
-
-  // ignore: unused_element
-  void _endPinchZooming(PointerUpEvent event) {
-    if (_touchStartPositions.length == 2 && _touchMovePositions.length == 2) {
-      final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-      if (parent != null && parent.cartesianAxes != null) {
-        final RenderCartesianAxes axes = parent.cartesianAxes!;
-
-        axes.visitChildren((RenderObject child) {
-          if (child is RenderChartAxis) {
-            if (parent.onZoomEnd != null) {
-              _bindZoomEvent(child, parent.onZoomEnd!);
-            }
-          }
-        });
-      }
-    }
-
-    _zoomAxes = <_ZoomAxisRange>[];
-    _touchMovePositions = <PointerEvent>[];
-    _touchStartPositions = <PointerEvent>[];
-    _isPinching = false;
-  }
-
-  void _startPanning() {
-    _previousMovedPosition = null;
-  }
-
-  void _endPanning() {
-    _previousMovedPosition = null;
-  }
-
-  void _longPressStart(Offset position) {
-    if (_zoomStartPosition != position) {
-      _zoomStartPosition = position;
-    }
-  }
-
-  void _longPressEnd() {
-    if (_zoomStartPosition != null && _zoomingRect.width != 0) {
-      _drawSelectionZoomRect(_zoomingRect);
-    }
-    _zoomStartPosition = null;
-    _zoomingRect = Rect.zero;
-  }
-}
-
-/// This method will validate whether the tooltip exceeds the screen or not.
-Rect _validateRectBounds(Rect tooltipRect, Rect boundary) {
-  Rect validatedRect = tooltipRect;
-  double difference = 0;
-
-  /// Padding between the corners.
-  const double padding = 0.5;
-
-  // Move the tooltip if it's outside of the boundary.
-  if (tooltipRect.left < boundary.left) {
-    difference = (boundary.left - tooltipRect.left) + padding;
-    validatedRect = validatedRect.translate(difference, 0);
-  }
-  if (tooltipRect.right > boundary.right) {
-    difference = (tooltipRect.right - boundary.right) + padding;
-    validatedRect = validatedRect.translate(-difference, 0);
-  }
-  if (tooltipRect.top < boundary.top) {
-    difference = (boundary.top - tooltipRect.top) + padding;
-    validatedRect = validatedRect.translate(0, difference);
-  }
-
-  if (tooltipRect.bottom > boundary.bottom) {
-    difference = (tooltipRect.bottom - boundary.bottom) + padding;
-    validatedRect = validatedRect.translate(0, -difference);
-  }
-  return validatedRect;
-}
-
-/// Gets the x position of validated rect.
-Rect _validateRectYPosition(Rect labelRect, Rect axisClipRect) {
-  Rect validatedRect = labelRect;
-  if (labelRect.bottom >= axisClipRect.bottom) {
-    validatedRect = Rect.fromLTRB(
-        labelRect.left,
-        labelRect.top - (labelRect.bottom - axisClipRect.bottom),
-        labelRect.right,
-        axisClipRect.bottom);
-  } else if (labelRect.top <= axisClipRect.top) {
-    validatedRect = Rect.fromLTRB(labelRect.left, axisClipRect.top,
-        labelRect.right, labelRect.bottom + (axisClipRect.top - labelRect.top));
-  }
-  return validatedRect;
-}
-
-/// Gets the x position of validated rect.
-Rect _validateRectXPosition(Rect labelRect, Rect axisClipRect) {
-  Rect validatedRect = labelRect;
-  if (labelRect.right >= axisClipRect.right) {
-    validatedRect = Rect.fromLTRB(
-        labelRect.left - (labelRect.right - axisClipRect.right),
-        labelRect.top,
-        axisClipRect.right,
-        labelRect.bottom);
-  } else if (labelRect.left <= axisClipRect.left) {
-    validatedRect = Rect.fromLTRB(
-        axisClipRect.left,
-        labelRect.top,
-        labelRect.right + (axisClipRect.left - labelRect.left),
-        labelRect.bottom);
-  }
-  return validatedRect;
-}
-
-/// Draw tooltip arrow head.
-void _drawTooltipArrowhead(
-    Canvas canvas,
-    Path backgroundPath,
-    Paint fillPaint,
-    Paint strokePaint,
-    double x1,
-    double y1,
-    double x2,
-    double y2,
-    double x3,
-    double y3,
-    double x4,
-    double y4) {
-  backgroundPath.moveTo(x1, y1);
-  backgroundPath.lineTo(x2, y2);
-  backgroundPath.lineTo(x3, y3);
-  backgroundPath.lineTo(x4, y4);
-  backgroundPath.lineTo(x1, y1);
-  fillPaint.isAntiAlias = true;
-  canvas.drawPath(backgroundPath, strokePaint);
-  canvas.drawPath(backgroundPath, fillPaint);
-}
-
-/// To get interactive tooltip label.
-dynamic _interactiveTooltipLabel(dynamic value, RenderChartAxis axis) {
-  if (axis.visibleLabels.isEmpty) {
-    return '';
-  }
-
-  final int labelsLength = axis.visibleLabels.length;
-  if (axis is RenderCategoryAxis) {
-    value = value < 0 ? 0 : value;
-    value = axis.labels[(value.round() >= axis.labels.length
-            ? (value.round() > axis.labels.length
-                ? axis.labels.length - 1
-                : value - 1)
-            : value.round())
-        .round()];
-  } else if (axis is RenderDateTimeCategoryAxis) {
-    value = value < 0 ? 0 : value;
-    value = axis.labels[(value.round() >= axis.labels.length
-            ? (value.round() > axis.labels.length
-                ? axis.labels.length - 1
-                : value - 1)
-            : value.round())
-        .round()];
-  } else if (axis is RenderDateTimeAxis) {
-    final num interval = axis.visibleRange!.minimum.ceil();
-    final num previousInterval = (axis.visibleLabels.isNotEmpty)
-        ? axis.visibleLabels[labelsLength - 1].value
-        : interval;
-    final DateFormat dateFormat = axis.dateFormat ??
-        _dateTimeLabelFormat(axis, interval.toInt(), previousInterval.toInt());
-    value =
-        dateFormat.format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
-  } else {
-    value = axis is RenderLogarithmicAxis ? pow(10, value) : value;
-    value = _labelValue(value, axis, axis.interactiveTooltip.decimalPlaces);
-  }
-  return value;
-}
-
-/// To get the label format of the date-time axis.
-DateFormat _dateTimeLabelFormat(RenderChartAxis axis,
-    [int? interval, int? prevInterval]) {
-  DateFormat? format;
-  final bool notDoubleInterval =
-      (axis.interval != null && axis.interval! % 1 == 0) ||
-          axis.interval == null;
-  DateTimeIntervalType? actualIntervalType;
-  num? minimum;
-  if (axis is RenderDateTimeAxis) {
-    actualIntervalType = axis.visibleIntervalType;
-    minimum = axis.visibleRange!.minimum;
-  } else if (axis is RenderDateTimeCategoryAxis) {
-    minimum = axis.visibleRange!.minimum;
-    actualIntervalType = axis.visibleIntervalType;
-  }
-  switch (actualIntervalType) {
-    case DateTimeIntervalType.years:
-      format = notDoubleInterval ? DateFormat.y() : DateFormat.MMMd();
-      break;
-    case DateTimeIntervalType.months:
-      format = (minimum == interval || interval == prevInterval)
-          ? _firstLabelFormat(actualIntervalType)
-          : _dateTimeFormat(actualIntervalType, interval, prevInterval);
-
-      break;
-    case DateTimeIntervalType.days:
-      format = (minimum == interval || interval == prevInterval)
-          ? _firstLabelFormat(actualIntervalType)
-          : _dateTimeFormat(actualIntervalType, interval, prevInterval);
-      break;
-    case DateTimeIntervalType.hours:
-      format = DateFormat.j();
-      break;
-    case DateTimeIntervalType.minutes:
-      format = DateFormat.Hm();
-      break;
-    case DateTimeIntervalType.seconds:
-      format = DateFormat.ms();
-      break;
-    case DateTimeIntervalType.milliseconds:
-      final DateFormat dateFormat = DateFormat('ss.SSS');
-      format = dateFormat;
-      break;
-    case DateTimeIntervalType.auto:
-      break;
-    // ignore: no_default_cases
-    default:
-      break;
-  }
-  return format!;
-}
-
-/// Gets the the actual label value for tooltip and data label etc.
-String _labelValue(dynamic value, dynamic axis, [int? showDigits]) {
-  if (value.toString().split('.').length > 1) {
-    final String str = value.toString();
-    final List list = str.split('.');
-    value = double.parse(value.toStringAsFixed(showDigits ?? 3));
-    value = (list[1] == '0' ||
-            list[1] == '00' ||
-            list[1] == '000' ||
-            list[1] == '0000' ||
-            list[1] == '00000' ||
-            list[1] == '000000' ||
-            list[1] == '0000000')
-        ? value.round()
-        : value;
-  }
-  final dynamic text = axis is NumericAxis && axis.numberFormat != null
-      ? axis.numberFormat!.format(value)
-      : value;
-  return ((axis.labelFormat != null && axis.labelFormat != '')
-      ? axis.labelFormat.replaceAll(RegExp('{value}'), text.toString())
-      : text.toString()) as String;
-}
-
-/// Calculate the dateTime format.
-DateFormat? _dateTimeFormat(DateTimeIntervalType? actualIntervalType,
-    int? interval, int? prevInterval) {
-  final DateTime minimum = DateTime.fromMillisecondsSinceEpoch(interval!);
-  final DateTime maximum = DateTime.fromMillisecondsSinceEpoch(prevInterval!);
-  DateFormat? format;
-  final bool isIntervalDecimal = interval % 1 == 0;
-  if (actualIntervalType == DateTimeIntervalType.months) {
-    format = minimum.year == maximum.year
-        ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
-        : DateFormat('yyy MMM');
-  } else if (actualIntervalType == DateTimeIntervalType.days) {
-    format = minimum.month != maximum.month
-        ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
-        : DateFormat.d();
-  }
-
-  return format;
-}
-
-/// Returns the first label format for date time values.
-DateFormat? _firstLabelFormat(DateTimeIntervalType? actualIntervalType) {
-  DateFormat? format;
-
-  if (actualIntervalType == DateTimeIntervalType.months) {
-    format = DateFormat('yyy MMM');
-  } else if (actualIntervalType == DateTimeIntervalType.days) {
-    format = DateFormat.MMMd();
-  } else if (actualIntervalType == DateTimeIntervalType.minutes) {
-    format = DateFormat.Hm();
-  }
-
-  return format;
-}
-
-/// Represents the zoom axis range class.
-class _ZoomAxisRange {
-  /// Holds the value of actual minimum, actual delta, minimum and delta value.
-  double? actualMin, actualDelta, min, delta;
 }

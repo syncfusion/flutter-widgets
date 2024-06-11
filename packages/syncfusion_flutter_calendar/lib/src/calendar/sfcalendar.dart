@@ -2757,6 +2757,7 @@ class _SfCalendarState extends State<SfCalendar>
   void initState() {
     _textScaleFactor = 1;
     _timeZoneLoaded = false;
+    timeZoneLoaded = _timeZoneLoaded;
     _showHeader = false;
     _calendarViewWidth = 0;
     initializeDateFormatting();
@@ -3837,9 +3838,8 @@ class _SfCalendarState extends State<SfCalendar>
   SfCalendarThemeData _getThemeDataValue(
       SfCalendarThemeData calendarThemeData, ThemeData themeData) {
     final ColorScheme colorScheme = themeData.colorScheme;
-    final SfCalendarThemeData effectiveThemeData = themeData.useMaterial3
-        ? SfCalendarThemeDataM3(context)
-        : SfCalendarThemeDataM2(context);
+    final SfCalendarThemeData effectiveThemeData =
+        SfCalendarThemeColors(context);
     final bool isMaterial3 = themeData.useMaterial3;
     return calendarThemeData.copyWith(
         backgroundColor: calendarThemeData.backgroundColor ??
@@ -3976,6 +3976,7 @@ class _SfCalendarState extends State<SfCalendar>
         await rootBundle.load('packages/timezone/data/latest_all.tzf');
     initializeDatabase(byteData.buffer.asUint8List());
     _timeZoneLoaded = true;
+    timeZoneLoaded = true;
     return true;
   }
 
@@ -4008,8 +4009,7 @@ class _SfCalendarState extends State<SfCalendar>
       }
 
       final List<CalendarAppointment> tempVisibleAppointment =
-          // ignore: await_only_futures
-          await AppointmentHelper.getVisibleAppointments(
+          AppointmentHelper.getVisibleAppointments(
               viewStartDate,
               viewEndDate,
               _appointments,
@@ -4018,12 +4018,14 @@ class _SfCalendarState extends State<SfCalendar>
                   CalendarViewHelper.isTimelineView(_view));
       if (CalendarViewHelper.isCollectionEqual(
           _visibleAppointments, tempVisibleAppointment)) {
-        if (mounted) {
-          setState(() {
-            // Updates the calendar widget because it trigger to change the
-            // header view text.
-          });
-        }
+        SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+          if (mounted) {
+            setState(() {
+              // Updates the calendar widget because it trigger to change the
+              // header view text.
+            });
+          }
+        });
 
         return;
       }
@@ -4037,11 +4039,13 @@ class _SfCalendarState extends State<SfCalendar>
 
     //// mounted property in state return false when the state disposed,
     //// restrict the async method set state after the state disposed.
-    if (mounted) {
-      setState(() {
-        /* Updates the visible appointment collection */
-      });
-    }
+    SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+      if (mounted) {
+        setState(() {
+          /* Updates the visible appointment collection */
+        });
+      }
+    });
   }
 
   void _updateViewHeaderHover() {

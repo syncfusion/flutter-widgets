@@ -506,6 +506,7 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
   RenderObject createRenderObject(BuildContext context) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final ThemeData themeData = Theme.of(context);
+    final SfColorScheme colorScheme = SfTheme.colorScheme(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
     final RadialAxisInheritedWidget ancestor = context
         .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
@@ -540,13 +541,15 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
         animationType: animationType,
         repaintNotifier: radialAxisScope.repaintNotifier,
         gaugeThemeData: gaugeTheme,
-        themeData: themeData);
+        themeData: themeData,
+        colorScheme: colorScheme);
   }
 
   @override
   void updateRenderObject(
       BuildContext context, RenderNeedlePointer renderObject) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
+    final SfColorScheme colorScheme = SfTheme.colorScheme(context);
     final ThemeData themeData = Theme.of(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
     final RadialAxisInheritedWidget ancestor = context
@@ -580,6 +583,7 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
           radialAxisScope.isRadialGaugeAnimationEnabled
       ..gaugeThemeData = gaugeTheme
       ..themeData = themeData
+      ..colorScheme = colorScheme
       ..value = value.clamp(ancestor.minimum, ancestor.maximum);
     super.updateRenderObject(context, renderObject);
   }

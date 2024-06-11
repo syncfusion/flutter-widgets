@@ -173,12 +173,12 @@ class StackedColumn100SeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
   Offset dataLabelPosition(ChartElementParentData current,
       ChartDataLabelAlignment alignment, Size size) {
     final num x = current.x! + (sbsInfo.maximum + sbsInfo.minimum) / 2;
-    final num stackValue = yValues[current.dataPointIndex];
+    final double bottomValue = bottomValues[current.dataPointIndex].toDouble();
     double y = current.y!.toDouble();
     if (alignment == ChartDataLabelAlignment.bottom) {
-      y = y - stackValue;
+      y = bottomValue;
     } else if (alignment == ChartDataLabelAlignment.middle) {
-      y = (y + (y - stackValue)) / 2;
+      y = (y + bottomValue) / 2;
     }
     return _calculateDataLabelPosition(x, y, alignment, size);
   }
@@ -231,7 +231,7 @@ class StackedColumn100SeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
       ..series = this
       ..x = xValues[index]
       ..top = topValues[index]
-      ..bottom = bottom == 0 ? bottomValues[index] : bottom
+      ..bottom = xAxis!.crossesAt ?? bottomValues[index]
       .._actualBottom = bottom
       ..isEmpty = isEmpty(index);
   }

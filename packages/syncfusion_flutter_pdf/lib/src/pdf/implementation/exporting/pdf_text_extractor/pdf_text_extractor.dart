@@ -545,42 +545,47 @@ class PdfTextExtractor {
         !text.codeUnits.any((int element) => element > 255) &&
         text[0] == glyphs[index].toUnicode) {
       for (int i = index, j = 0; j < text.length; i++, j++) {
-        final Glyph textGlyph = glyphs[i];
-        if (text[j] == ' ') {
-          if (tempString.isNotEmpty) {
-            words.add(tempString);
+        try {
+          final Glyph textGlyph = glyphs[i];
+          if (text[j] == ' ') {
+            if (tempString.isNotEmpty) {
+              words.add(tempString);
+            }
+            if (j == 0 || (j != text.length - 1 && text[j - 1] == ' ')) {
+              words.add('');
+            }
+            if (j + 1 >= text.length) {
+              words.add('');
+            }
+            previousRect = null;
+            tempString = '';
+            continue;
           }
-          if (j == 0 || (j != text.length - 1 && text[j - 1] == ' ')) {
-            words.add('');
-          }
-          if (j + 1 >= text.length) {
-            words.add('');
-          }
-          previousRect = null;
-          tempString = '';
-          continue;
-        }
-        final Rect currentRect = textGlyph.boundingRect;
-        if (previousRect != null) {
-          if ((previousRect.left + previousRect.width - currentRect.left)
-                  .abs() >
-              1.5) {
-            isSplit = true;
+          final Rect currentRect = textGlyph.boundingRect;
+          if (previousRect != null) {
+            if ((previousRect.left + previousRect.width - currentRect.left)
+                    .abs() >
+                1.5) {
+              isSplit = true;
+            } else {
+              tempString += text[j];
+            }
           } else {
             tempString += text[j];
           }
-        } else {
-          tempString += text[j];
-        }
-        if (isSplit) {
-          words.add(tempString);
-          isSplit = false;
-          previousRect = null;
-          tempString = '';
-          i--;
-          j--;
-        } else {
-          previousRect = currentRect;
+          if (isSplit) {
+            words.add(tempString);
+            isSplit = false;
+            previousRect = null;
+            tempString = '';
+            i--;
+            j--;
+          } else {
+            previousRect = currentRect;
+          }
+        } catch (e) {
+          words = text.split(' ');
+          return words;
         }
       }
       if (tempString.isNotEmpty) {
@@ -1187,7 +1192,7 @@ class PdfTextExtractor {
         final double cLeft =
             PdfPageHelper.getHelper(_currentPage!).mediaBox.left;
         final double ctop = PdfPageHelper.getHelper(_currentPage!).mediaBox.top;
-        final double x = bounds.left - ((cLeft < 0 && ctop < 0) ? 0 : cLeft);
+        final double x = bounds.left - cLeft;
         final double y = bounds.top + ctop;
         return Rect.fromLTWH(x, y, bounds.width, bounds.height);
       }

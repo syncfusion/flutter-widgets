@@ -2001,8 +2001,8 @@ class PdfGraphicsHelper {
         final double cropY = (cropBox![1]! as PdfNumber).value!.toDouble();
         final double cropW = (cropBox![2]! as PdfNumber).value!.toDouble();
         final double cropH = (cropBox![3]! as PdfNumber).value!.toDouble();
-        if (cropX > 0 ||
-            cropY > 0 ||
+        if (cropX != 0 ||
+            cropY != 0 ||
             base.size.width == cropW ||
             base.size.height == cropH) {
           base.translateTransform(cropX, -cropH);

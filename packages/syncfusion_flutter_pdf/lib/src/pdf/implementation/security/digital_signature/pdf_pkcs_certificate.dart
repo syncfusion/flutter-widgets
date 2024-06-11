@@ -14,6 +14,7 @@ import 'cryptography/buffered_block_padding_base.dart';
 import 'cryptography/cipher_block_chaining_mode.dart';
 import 'cryptography/cipher_utils.dart';
 import 'cryptography/ipadding.dart';
+import 'cryptography/message_digest_utils.dart';
 import 'cryptography/pkcs1_encoding.dart';
 import 'cryptography/rsa_algorithm.dart';
 import 'cryptography/signature_utilities.dart';
@@ -644,6 +645,11 @@ class PdfPKCSCertificate {
       }
     });
     return x509Certificates;
+  }
+
+  /// internal method
+  List<X509Certificates> getChainCertificates() {
+    return _chainCertificates.values.toList();
   }
 }
 
@@ -3405,8 +3411,85 @@ class _SubjectKeyID extends Asn1Encode {
     return sha1.convert(publicKey.publicKey!.data!).bytes;
   }
 
+  /// internal method
+  static PublicKeyInformation createSubjectKeyID(CipherParameter publicKey) {
+    if (publicKey is RsaKeyParam) {
+      final PublicKeyInformation information = PublicKeyInformation(
+          Algorithms(PkcsObjectId.rsaEncryption, DerNull.value),
+          RsaPublicKey(publicKey.modulus, publicKey.exponent).getAsn1());
+      return information;
+    } else {
+      throw ArgumentError.value(publicKey, 'publicKey', 'Invalid Key');
+    }
+  }
+
   @override
   Asn1 getAsn1() {
     return DerOctet(_bytes!);
+  }
+}
+
+/// Internal class
+class CertificateIdentity {
+  /// Internal constructor
+  CertificateIdentity(String hashAlgorithm, X509Certificate issuerCert,
+      DerInteger serialNumber) {
+    final Algorithms algorithms =
+        Algorithms(DerObjectID(hashAlgorithm), DerNull.value);
+    try {
+      final String algorithm = algorithms.id!.id!;
+      final X509Name? issuerName = SingnedCertificate.getCertificate(
+              Asn1.fromByteArray(issuerCert.getTbsCertificate()!))!
+          .subject;
+      MessageDigestFinder utilities = MessageDigestFinder();
+      final List<int> issuerNameHash =
+          utilities.getDigest(algorithm, issuerName!.getEncoded()!);
+      final CipherParameter issuerKey = issuerCert.getPublicKey();
+      final PublicKeyInformation info =
+          _SubjectKeyID.createSubjectKeyID(issuerKey);
+      utilities = MessageDigestFinder();
+      final List<int> issuerKeyHash =
+          utilities.getDigest(algorithm, info.publicKey!.getBytes()!);
+      id = CertificateIdentityHelper(
+          hash: algorithms,
+          issuerName: DerOctet(issuerNameHash),
+          issuerKey: DerOctet(issuerKeyHash),
+          serialNumber: serialNumber);
+    } catch (e) {
+      throw Exception('Invalid certificate ID');
+    }
+  }
+
+  /// Internal field
+  CertificateIdentityHelper? id;
+
+  /// Internal constant
+  static const String sha1 = '1.3.14.3.2.26';
+}
+
+/// Internal class
+class CertificateIdentityHelper extends Asn1Encode {
+  /// Internal constructor
+  CertificateIdentityHelper(
+      {Algorithms? hash,
+      Asn1Octet? issuerName,
+      Asn1Octet? issuerKey,
+      DerInteger? serialNumber}) {
+    _hash = hash;
+    _issuerName = issuerName;
+    _issuerKey = issuerKey;
+    _serialNumber = serialNumber;
+  }
+
+  /// Internal field
+  Algorithms? _hash;
+  Asn1Octet? _issuerName;
+  Asn1Octet? _issuerKey;
+  DerInteger? _serialNumber;
+
+  @override
+  Asn1 getAsn1() {
+    return DerSequence(
+        array: <Asn1Encode>[_hash!, _issuerName!, _issuerKey!, _serialNumber!]);
   }
 }

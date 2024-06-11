@@ -226,7 +226,8 @@ class PdfRectangleAnnotationHelper extends PdfAnnotationHelper {
             rectangleAnnotation.bounds.height);
         final PdfTemplate template =
             PdfTemplateHelper.fromRect(nativeRectangle.rect);
-        helper.setMatrix(PdfTemplateHelper.getHelper(template).content);
+        PdfAnnotationHelper.setMatrixToZeroRotation(
+            PdfTemplateHelper.getHelper(template).content);
         if (borderIntensity > 0 && borderStyle == 'C') {
           PdfTemplateHelper.getHelper(template).writeTransformation = false;
         }
@@ -268,7 +269,8 @@ class PdfRectangleAnnotationHelper extends PdfAnnotationHelper {
           rectangleAnnotation.bounds.width, rectangleAnnotation.bounds.height);
       final PdfTemplate template = PdfTemplate(
           rectangleAnnotation.bounds.width, rectangleAnnotation.bounds.height);
-      helper.setMatrix(PdfTemplateHelper.getHelper(template).content);
+      PdfAnnotationHelper.setMatrixToZeroRotation(
+          PdfTemplateHelper.getHelper(template).content);
       final PaintParams paintParams = PaintParams();
       final PdfGraphics graphics = template.graphics!;
       if (rectangleAnnotation.border.width > 0 &&

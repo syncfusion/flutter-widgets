@@ -374,8 +374,7 @@ class ColumnSizer {
 
     // Set width based on Column.Width
     final List<GridColumn> widthColumns = dataGridConfiguration.columns
-        .skipWhile((GridColumn column) => !column.visible)
-        .where((GridColumn column) => !column.width.isNaN)
+        .where((GridColumn column) => column.visible && !column.width.isNaN)
         .toList();
     for (final GridColumn column in widthColumns) {
       totalColumnSize +=
@@ -385,8 +384,8 @@ class ColumnSizer {
 
     // Set width based on fitByCellValue mode
     final List<GridColumn> fitByCellValueColumns = dataGridConfiguration.columns
-        .skipWhile((GridColumn column) => !column.visible)
         .where((GridColumn column) =>
+            column.visible &&
             column.columnWidthMode == ColumnWidthMode.fitByCellValue &&
             column.width.isNaN)
         .toList();
@@ -406,8 +405,8 @@ class ColumnSizer {
     // Set width based on fitByColumnName mode
     final List<GridColumn> fitByColumnNameColumns = dataGridConfiguration
         .columns
-        .skipWhile((GridColumn column) => !column.visible)
         .where((GridColumn column) =>
+            column.visible &&
             column.columnWidthMode == ColumnWidthMode.fitByColumnName &&
             column.width.isNaN)
         .toList();
@@ -429,9 +428,8 @@ class ColumnSizer {
         dataGridConfiguration.shrinkWrapColumns
             ? <GridColumn>[]
             : dataGridConfiguration.columns
-                .skipWhile(
-                    (GridColumn column) => calculatedColumns.contains(column))
                 .where((GridColumn col) =>
+                    !calculatedColumns.contains(col) &&
                     col.columnWidthMode == ColumnWidthMode.lastColumnFill &&
                     !_isLastFillColum(col))
                 .toList();
@@ -655,6 +653,9 @@ class ColumnSizer {
             dataGridConfiguration, visibleLines.lastBodyVisibleIndex);
         break;
     }
+    if (startRowIndex <= 0 && endRowIndex <= 0) {
+      return column._actualWidth;
+    }
 
     for (int rowIndex = startRowIndex; rowIndex <= endRowIndex; rowIndex++) {
       autoFitWidth = max(_getCellWidth(column, rowIndex), autoFitWidth);
@@ -857,12 +858,13 @@ class ColumnSizer {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     final int columnIndex = dataGridConfiguration.columns.indexOf(column);
+    final int index = grid_helper.resolveToScrollColumnIndex(
+        dataGridConfiguration, columnIndex);
     if (column.width < column._actualWidth) {
       return columnWidth;
     }
 
-    final double width =
-        dataGridConfiguration.container.columnWidths[columnIndex];
+    final double width = dataGridConfiguration.container.columnWidths[index];
     return _checkWidthConstraints(column, columnWidth, width);
   }
 
@@ -1157,15 +1159,13 @@ class ColumnSizer {
           fontFamily: 'Roboto',
           fontWeight: FontWeight.w500,
           fontSize: 14,
-          color:
-              dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87));
+          color: dataGridConfiguration.colorScheme!.onSurface[222]);
     } else {
       return TextStyle(
           fontFamily: 'Roboto',
           fontWeight: FontWeight.w400,
           fontSize: 14,
-          color:
-              dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87));
+          color: dataGridConfiguration.colorScheme!.onSurface[222]);
     }
   }
 

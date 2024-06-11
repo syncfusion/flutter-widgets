@@ -136,9 +136,10 @@ class StackedLineSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
   StackedLineSegment<T, D> createSegment() => StackedLineSegment<T, D>();
 
   @override
-  ShapeMarkerType effectiveLegendIconType() => dashArray != null
-      ? ShapeMarkerType.stackedLineSeriesWithDashArray
-      : ShapeMarkerType.stackedLineSeries;
+  ShapeMarkerType effectiveLegendIconType() =>
+      dashArray != null && !dashArray!.every((double value) => value <= 0)
+          ? ShapeMarkerType.stackedLineSeriesWithDashArray
+          : ShapeMarkerType.stackedLineSeries;
 
   /// Changes the series color and border width.
   @override
@@ -229,9 +230,10 @@ class StackedLineSegment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    for (int i = 0; i < points.length; i++) {
-      if (Rect.fromCenter(
-              center: points[i], width: tooltipPadding, height: tooltipPadding)
+    final MarkerSettings marker = series.markerSettings;
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
+      if (tooltipTouchBounds(points[i], marker.width, marker.height)
           .contains(position)) {
         return true;
       }
@@ -259,13 +261,24 @@ class StackedLineSegment<T, D> extends ChartSegment {
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
+    pointDistance = series.markerSettings.width / 2;
     final int nearestPointIndex =
         position == null ? 0 : _nearestPointIndex(points, position);
     if (nearestPointIndex != -1) {
       pointIndex ??= (position == null || nearestPointIndex == 0
           ? currentSegmentIndex
           : currentSegmentIndex + 1);
-      final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+      CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+      List<Color?> markerColors = <Color?>[fillPaint.color];
+      if (chartPoint.y != null && chartPoint.y!.isNaN) {
+        pointIndex += 1;
+        chartPoint = _chartPoint(pointIndex);
+        markerColors = <Color?>[series.segments[pointIndex].fillPaint.color];
+      }
       final ChartMarker marker = series.markerAt(pointIndex);
       final double markerHeight =
           series.markerSettings.isVisible ? marker.height / 2 : 0;
@@ -286,7 +299,7 @@ class StackedLineSegment<T, D> extends ChartSegment {
         seriesIndex: series.index,
         segmentIndex: currentSegmentIndex,
         pointIndex: pointIndex,
-        markerColors: <Color?>[fillPaint.color],
+        markerColors: markerColors,
         markerType: marker.type,
       );
     }

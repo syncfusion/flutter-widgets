@@ -958,6 +958,7 @@ class PyramidSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
+    yValues.clear();
     if (yPaths == null) {
       yPaths = <ChartValueMapper<T, num>>[];
       chaoticYLists = <List<num>>[];
@@ -1048,9 +1049,10 @@ class PyramidSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
 
   void _calculatePyramidValues() {
     _sumOfY = 0;
+    final int segmentsCount = segments.length;
     for (int i = 0; i < dataCount; i++) {
       bool isVisible = true;
-      if (segments.isNotEmpty) {
+      if (i < segmentsCount) {
         isVisible = segmentAt(i).isVisible;
       }
       final num yValue = isVisible ? yValues[i] : 0;

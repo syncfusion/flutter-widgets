@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
 
   syncfusion_flutter_core:
-      path: ../syncfusion_flutter_core
+    path: ../syncfusion_flutter_core
       
   collection: ">=1.9.0 <=2.0.0"
 
@@ -27,19 +27,3 @@ flutter:
       - family: FilterIcon
         fonts:
           - asset: assets/font/FilterIcon.ttf
-      
-screenshots:
-  - description: 'This screenshot shows the DataGrid widget which displays the employee data.'
-    path: screenshots/flutter-datagrid-getting-started.png
-  - description: 'This screenshot shows the DataGrid widget which displays the NBA sports league data.'
-    path: screenshots/flutter-datagrid-mobile-view.png
-  - description: 'This screenshot shows the Excel-like filtering is performed in the DataGrid widget.'
-    path: screenshots/flutter-datagrid-filtering.png
-  - description: 'This screenshot shows the different column types in the DataGrid widget.'
-    path: screenshots/flutter-datagrid-column-types.png
-  - description: 'This screenshot shows the stacked headers in the DataGrid widget.'
-    path: screenshots/flutter-datagrid-stacked-headers.png
-  - description: 'This screenshot shows the summary calculation for specific columns in DataGrid widget.'
-    path: screenshots/flutter-datagrid-summaries.png
-  - description: 'This screenshot shows the paging is applied in the DataGrid widget.'
-    path: screenshots/flutter-datagrid-paging.png

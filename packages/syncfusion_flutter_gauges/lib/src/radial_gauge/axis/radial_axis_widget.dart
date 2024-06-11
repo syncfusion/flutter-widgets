@@ -33,6 +33,8 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
     final MinorTickStyle minorTickStyle = axis.minorTickStyle;
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final ThemeData themeData = Theme.of(context);
+    final SfColorScheme colorScheme = SfTheme.colorScheme(context);
+
     RadialAxisRenderer? renderer;
 
     if (axis.onCreateAxisRenderer != null) {
@@ -91,6 +93,7 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
         repaintNotifier: radialGaugeScope.repaintNotifier,
         gaugeThemeData: gaugeTheme,
         themeData: themeData,
+        colorScheme: colorScheme,
         ranges: axis.ranges,
         renderer: renderer,
         backgroundImage: axis.backgroundImage,
@@ -107,6 +110,8 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
     final MinorTickStyle minorTickStyle = axis.minorTickStyle;
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final ThemeData themeData = Theme.of(context);
+    final SfColorScheme colorScheme = SfTheme.colorScheme(context);
+
     RadialAxisRenderer? renderer;
 
     if (axis.onCreateAxisRenderer != null) {
@@ -165,6 +170,7 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
       ..axisElementsAnimation = radialGaugeScope.animation1
       ..gaugeThemeData = gaugeTheme
       ..themeData = themeData
+      ..colorScheme = colorScheme
       ..renderer = renderer
       ..imageStream =
           axis.backgroundImage?.resolve(createLocalImageConfiguration(context))
@@ -224,6 +230,7 @@ class RenderRadialAxisWidget extends RenderBox {
       List<double>? minorTickDashArray,
       required SfGaugeThemeData gaugeThemeData,
       required ThemeData themeData,
+      required SfColorScheme colorScheme,
       RadialAxisRenderer? renderer,
       List<GaugeRange>? ranges,
       Animation<double>? axisElementsAnimation,
@@ -284,6 +291,7 @@ class RenderRadialAxisWidget extends RenderBox {
         _renderer = renderer,
         _repaintNotifier = repaintNotifier,
         _themeData = themeData,
+        _colorScheme = colorScheme,
         _backgroundImage = backgroundImage {
     _isLabelsOutside = labelPosition == ElementsPosition.outside;
     _isTicksOutside = tickPosition == ElementsPosition.outside;
@@ -414,6 +422,18 @@ class RenderRadialAxisWidget extends RenderBox {
       return;
     }
     _themeData = value;
+    markNeedsPaint();
+  }
+
+  /// Gets the colors of SfColorScheme
+  SfColorScheme get colorScheme => _colorScheme;
+  SfColorScheme _colorScheme;
+
+  set colorScheme(SfColorScheme value) {
+    if (value == _colorScheme) {
+      return;
+    }
+    _colorScheme = value;
     markNeedsPaint();
   }
 
@@ -2386,16 +2406,14 @@ class RenderRadialAxisWidget extends RenderBox {
     return path;
   }
 
-  Paint _getPaint(SweepGradient? gradient, bool isFill) {
-    final bool isDarkTheme = _themeData.brightness == Brightness.dark;
+  Paint _getPaint(
+    SweepGradient? gradient,
+    bool isFill,
+  ) {
     final Paint paint = Paint()
       ..color = axisLineColor ??
           _gaugeThemeData.axisLineColor ??
-          (_themeData.useMaterial3
-              ? _themeData.colorScheme.surfaceVariant
-              : (isDarkTheme
-                  ? _themeData.colorScheme.onSurface.withOpacity(0.24)
-                  : _themeData.colorScheme.onSurface.withOpacity(0.12)))
+          colorScheme.onSurface[35]!
       ..style = !isFill ? PaintingStyle.stroke : PaintingStyle.fill
       ..strokeWidth = _actualAxisWidth;
     if (gradient != null) {
@@ -2477,11 +2495,7 @@ class RenderRadialAxisWidget extends RenderBox {
   /// Method to draw the major ticks
   void _drawMajorTicks(Canvas canvas, bool isDarkTheme) {
     double length = _majorTickOffsets.length.toDouble();
-    final Color colorSchemeMajorTickColor = _themeData.useMaterial3
-        ? _themeData.colorScheme.outlineVariant
-        : (isDarkTheme
-            ? _themeData.colorScheme.onSurface.withOpacity(0.27)
-            : _themeData.colorScheme.onSurface.withOpacity(0.18));
+    final Color colorSchemeMajorTickColor = colorScheme.onSurface[46]!;
     if (_axisElementsAnimation != null) {
       length = _majorTickOffsets.length * _axisElementsAnimation!.value;
     }
@@ -2540,11 +2554,7 @@ class RenderRadialAxisWidget extends RenderBox {
   /// Method to draw the minor ticks.
   void _drawMinorTicks(Canvas canvas, bool isDarkTheme) {
     double length = _minorTickOffsets.length.toDouble();
-    final Color colorSchemeMinorTickColor = _themeData.useMaterial3
-        ? _themeData.colorScheme.outlineVariant
-        : (isDarkTheme
-            ? _themeData.colorScheme.onSurface.withOpacity(0.33)
-            : _themeData.colorScheme.onSurface.withOpacity(0.28));
+    final Color colorSchemeMinorTickColor = colorScheme.onSurface[71]!;
     if (_axisElementsAnimation != null) {
       length = _minorTickOffsets.length * _axisElementsAnimation!.value;
     }
@@ -2591,11 +2601,7 @@ class RenderRadialAxisWidget extends RenderBox {
         final Color labelColor = label.labelStyle.color ??
             _gaugeThemeData.axisLabelTextStyle?.color ??
             _gaugeThemeData.axisLabelColor ??
-            (_themeData.useMaterial3
-                ? _themeData.colorScheme.onSurface
-                : (isDarkTheme
-                    ? _themeData.colorScheme.onSurface
-                    : _themeData.colorScheme.onSurface.withOpacity(0.72)));
+            colorScheme.onSurface[184]!;
         final TextStyle axisLabelTextStyle =
             _themeData.textTheme.bodySmall!.copyWith(
           color: ranges != null && ranges!.isNotEmpty && useRangeColorForAxis

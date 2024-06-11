@@ -1,29 +1,15 @@
 name: syncfusion_flutter_calendar
 description: The Flutter Calendar widget has nine built-in configurable views that provide basic functionalities for scheduling and representing appointments/events efficiently.
-version: 24.2.9
+version: 25.2.7
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_calendar
 
 screenshots:
-  - description: 'This screenshot shows the week view with appointment.'
-    path: screenshots/flutter-calendar-week-appointments.jpg
-  - description: 'This screenshot shows the month view with appointment.'
-    path: screenshots/flutter-calendar-month-appointments.jpg
-  - description: 'This screenshot shows the timeline month view with appointment.'
-    path: screenshots/flutter-calendar-timeline-month-appointments.png
-  - description: 'This screenshot shows the special regions.'
-    path: screenshots/flutter-calendar-special-time-regions.png
-  - description: 'This screenshot shows the recurrence appointment on view.'
-    path: screenshots/flutter-calendar-recurring-appointments.jpg
-  - description: 'This screenshot shows the appointment view builder.'
-    path: screenshots/flutter-calendar-appointment-view-builder.png
-  - description: 'This screenshot shows the schedule view.'
-    path: screenshots/flutter-calendar-schedule-view.png
-  - description: 'This screenshot shows the resource view.'
-    path: screenshots/flutter-calendar-resource-view.png
-  - description: 'This screenshot shows the appointment drag-and-drop and resize.'
-    path: screenshots/flutter-calendar-resize-drag-drop.gif
-  - description: 'This screenshot shows the quick navigation.'
-    path: screenshots/flutter-calendar-quick-navigation.png
+  - description: 'This screenshot shows the agenda view and recurrence view.'
+    path: screenshots/flutter-calendar-agenda-view-recurrence-view.png
+  - description: 'This screenshot shows the resource view and month cell customization.'
+    path: screenshots/flutter-calendar-resource-view-month-cell-customization.png
+  - description: 'This screenshot shows the load more feature in calendar.'
+    path: screenshots/flutter-calendar-load-more.gif
 
 environment:
   sdk: '>=2.17.0 <4.0.0'
@@ -31,12 +17,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  timezone: 0.9.2
+  timezone: 0.9.3
   syncfusion_flutter_core:
-      path: ../syncfusion_flutter_core
+    path: ../syncfusion_flutter_core
 
   syncfusion_flutter_datepicker:
-      path: ../syncfusion_flutter_datepicker
+    path: ../syncfusion_flutter_datepicker
 
   intl: '>=0.18.1 <0.20.0'
 

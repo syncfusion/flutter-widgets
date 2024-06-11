@@ -325,6 +325,11 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
     }
 
+    _calculateCenterAndSignalValues();
+    populateChartPoints();
+  }
+
+  void _calculateCenterAndSignalValues() {
     if (dataCount >= period && period > 0) {
       _signalLineActualValues.clear();
       _centerLineActualValues.clear();
@@ -333,38 +338,41 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       num xMaximum = double.negativeInfinity;
       num yMinimum = double.infinity;
       num yMaximum = double.negativeInfinity;
+      final bool isCenterLineVisible = centerLineWidth > 0;
+      final bool isSignalLineVisible = signalLineWidth > 0;
 
-      num? value;
-      final int length = period;
       for (int i = 0; i < dataCount; i++) {
         final double x = xValues[i].toDouble();
-        xMinimum = min(xMinimum, x);
-        xMaximum = max(xMaximum, x);
-        yMinimum = min(yMinimum, 100);
-        yMaximum = max(yMaximum, 100);
-        _centerLineActualValues.add(Offset(x, 100));
-
-        if (!(i < length)) {
-          value = (_closeValues[i]) / (_closeValues[i - length]) * 100;
-          if (value.isNaN) {
-            continue;
-          }
-          final double y = value.toDouble();
+        if (isCenterLineVisible) {
           xMinimum = min(xMinimum, x);
           xMaximum = max(xMaximum, x);
-          yMinimum = min(yMinimum, y);
-          yMaximum = max(yMaximum, y);
-          _signalLineActualValues.add(Offset(x, y));
+          yMinimum = min(yMinimum, 100);
+          yMaximum = max(yMaximum, 100);
+          _centerLineActualValues.add(Offset(x, 100));
+        }
+
+        if (isSignalLineVisible) {
+          if (!(i < period)) {
+            final num value =
+                (_closeValues[i]) / (_closeValues[i - period]) * 100;
+            if (value.isNaN) {
+              continue;
+            }
+            final double y = value.toDouble();
+            xMinimum = min(xMinimum, x);
+            xMaximum = max(xMaximum, x);
+            yMinimum = min(yMinimum, y);
+            yMaximum = max(yMaximum, y);
+            _signalLineActualValues.add(Offset(x, y));
+          }
         }
       }
 
       xMin = xMinimum.isInfinite ? xMin : xMinimum;
       xMax = xMaximum.isInfinite ? xMax : xMaximum;
-      yMin = min(yMin, yMinimum);
-      yMax = max(yMax, yMaximum);
+      yMin = yMinimum.isInfinite ? yMin : yMinimum;
+      yMax = yMaximum.isInfinite ? yMax : yMaximum;
     }
-
-    populateChartPoints();
   }
 
   @override
@@ -463,7 +471,8 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     num? nearPointX;
     num? nearPointY;
     int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
       nearPointX ??= points[0].dx;
       nearPointY ??= yAxis!.visibleRange!.minimum;
 
@@ -505,12 +514,8 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           ? xValues[pointIndex + period]
           : xValues[pointIndex],
       y: type == 'momentum'
-          ? yAxis!.pixelToPoint(yAxis!.paintBounds,
-              signalLinePoints[pointIndex].dx, signalLinePoints[pointIndex].dy)
-          : yAxis!.pixelToPoint(
-              yAxis!.paintBounds,
-              _centerLinePoints[pointIndex].dx,
-              _centerLinePoints[pointIndex].dy),
+          ? _signalLineActualValues[pointIndex].dy
+          : _centerLineActualValues[pointIndex].dy,
     );
   }
 
@@ -564,6 +569,7 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     if (_centerLinePoints.isNotEmpty) {
       final Paint paint = Paint()
+        ..isAntiAlias = true
         ..color = centerLineColor
         ..strokeWidth = centerLineWidth
         ..style = PaintingStyle.stroke;
@@ -578,8 +584,7 @@ class MomentumIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           _centerLinePath.lineTo(
               _centerLinePoints[i].dx, _centerLinePoints[i].dy);
         }
-
-        context.canvas.drawPath(_centerLinePath, paint);
+        drawDashes(context.canvas, _dashArray, paint, path: _centerLinePath);
       }
     }
 

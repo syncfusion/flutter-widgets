@@ -712,7 +712,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
     Color? backgroundColor;
 
     Color getDefaultRowBackgroundColor() {
-      return Colors.transparent.withOpacity(0.0001);
+      return dataGridConfiguration.colorScheme!.transparent;
     }
 
     void drawSpannedRowBackgroundColor(Color backgroundColor) {
@@ -1261,47 +1261,6 @@ class RenderVirtualizingCellsWidget extends RenderBox
     }
   }
 
-  void _drawTableSummaryRowBorder(DataGridConfiguration dataGridConfiguration,
-      PaintingContext context, Offset offset) {
-    Rect getRowRect() {
-      final double extentWidth = dataGridConfiguration.container.extentWidth;
-      final Rect rect = _getRowRect(dataGridConfiguration, offset);
-
-      if (dataRow.rowType == RowType.tableSummaryRow) {
-        final double left = (extentWidth < dataGridConfiguration.viewWidth &&
-                dataGridConfiguration.textDirection == TextDirection.rtl)
-            ? constraints.maxWidth -
-                min(extentWidth, dataGridConfiguration.viewWidth) -
-                offset.dx
-            : offset.dx;
-        return Rect.fromLTWH(left, rect.top, extentWidth, rect.height);
-      } else {
-        return Rect.fromLTWH(rect.left, rect.top,
-            min(extentWidth, dataGridConfiguration.viewWidth), rect.height);
-      }
-    }
-
-    if (dataGridConfiguration.gridLinesVisibility == GridLinesVisibility.none ||
-        dataGridConfiguration.gridLinesVisibility ==
-            GridLinesVisibility.horizontal) {
-      return;
-    }
-
-    if (dataRow.rowType == RowType.tableSummaryRow ||
-        dataRow.rowType == RowType.tableSummaryCoveredRow) {
-      final BorderSide border = BorderSide(
-          width:
-              dataGridConfiguration.dataGridThemeHelper!.gridLineStrokeWidth!,
-          color: dataGridConfiguration.dataGridThemeHelper!.gridLineColor!);
-
-      if (dataGridConfiguration.textDirection == TextDirection.ltr) {
-        paintBorder(context.canvas, getRowRect(), right: border);
-      } else {
-        paintBorder(context.canvas, getRowRect(), left: border);
-      }
-    }
-  }
-
   @override
   void paint(PaintingContext context, Offset offset) {
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
@@ -1334,9 +1293,6 @@ class RenderVirtualizingCellsWidget extends RenderBox
       }
       child = childParentData.nextSibling;
     }
-
-    // To draw the right border to the table summary row.
-    _drawTableSummaryRowBorder(dataGridConfiguration, context, offset);
 
     if (dataGridConfiguration.isDesktop) {
       _drawCurrentRowBorder(context, offset);
@@ -1500,8 +1456,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
           fontFamily: 'Roboto',
           fontWeight: FontWeight.w400,
           fontSize: 14,
-          color:
-              dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87));
+          color: dataGridConfiguration.colorScheme!.onSurface[222]);
       if (dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle !=
               rowStyle &&
           dataRow.rowType != RowType.captionSummaryCoveredRow) {
@@ -1537,8 +1492,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
           fontFamily: 'Roboto',
           fontWeight: FontWeight.w400,
           fontSize: 14,
-          color:
-              dataGridConfiguration.colorScheme!.onSurface.withOpacity(0.87));
+          color: dataGridConfiguration.colorScheme!.onSurface[222]);
       if (dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle !=
               rowStyle &&
           dataRow.rowType != RowType.captionSummaryCoveredRow) {

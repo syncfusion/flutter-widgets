@@ -427,7 +427,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
   SfLocalizations? _localizations;
 
   SfChartThemeData _updateThemeData(
-      BuildContext context, SfChartThemeData effectiveChartThemeData) {
+      BuildContext context, ChartThemeData effectiveChartThemeData) {
     SfChartThemeData chartThemeData = SfChartTheme.of(context);
     chartThemeData = chartThemeData.copyWith(
       backgroundColor: widget.backgroundColor ??
@@ -524,9 +524,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
   @override
   Widget build(BuildContext context) {
     _themeData = Theme.of(context);
-    final SfChartThemeData effectiveChartThemeData = _themeData.useMaterial3
-        ? SfChartThemeDataM3(context)
-        : SfChartThemeDataM2(context);
+    final ChartThemeData effectiveChartThemeData = ChartThemeData(context);
     _chartThemeData = _updateThemeData(context, effectiveChartThemeData);
     final core.LegendPosition legendPosition =
         effectiveLegendPosition(widget.legend);
@@ -534,8 +532,6 @@ class SfPyramidChartState extends State<SfPyramidChart>
         effectiveLegendOrientation(legendPosition, widget.legend);
     Widget current = core.LegendLayout(
       key: _legendKey,
-      backgroundImage: widget.backgroundImage,
-      backgroundColor: widget.backgroundColor,
       padding: EdgeInsets.zero,
       showLegend: widget.legend.isVisible,
       legendPosition: legendPosition,
@@ -579,7 +575,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
             vsync: this,
             localizations: _localizations,
             legendKey: _legendKey,
-            backgroundColor: widget.backgroundColor,
+            backgroundColor: null,
             borderWidth: widget.borderWidth,
             legend: widget.legend,
             onLegendItemRender: widget.onLegendItemRender,
@@ -587,10 +583,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
             onLegendTapped: widget.onLegendTapped,
             onTooltipRender: widget.onTooltipRender,
             onDataLabelTapped: widget.onDataLabelTapped,
-            palette: widget.palette ??
-                (_themeData.useMaterial3
-                    ? (effectiveChartThemeData as SfChartThemeDataM3).palette
-                    : (effectiveChartThemeData as SfChartThemeDataM2).palette),
+            palette: widget.palette ?? effectiveChartThemeData.palette,
             selectionMode: SelectionType.point,
             selectionGesture: widget.selectionGesture,
             enableMultiSelection: widget.enableMultiSelection,
@@ -636,7 +629,13 @@ class SfPyramidChartState extends State<SfPyramidChart>
     return RepaintBoundary(
       child: Container(
         decoration: BoxDecoration(
-          color: widget.backgroundColor,
+          image: widget.backgroundImage != null
+              ? DecorationImage(
+                  image: widget.backgroundImage!,
+                  fit: BoxFit.fill,
+                )
+              : null,
+          color: _chartThemeData.backgroundColor,
           border: Border.all(
             color: widget.borderColor,
             width: widget.borderWidth,

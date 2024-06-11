@@ -457,15 +457,15 @@ class RadialBarSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
       point.isVisible = false;
       return labelLocation;
     }
-    if (size.width > 0 && size.height > 0)
+    if (size.width > 0 && size.height > 0) {
       point.labelRect = Rect.fromLTWH(
           labelLocation.dx - labelPadding,
           labelLocation.dy - labelPadding,
           size.width + (2 * labelPadding),
           size.height + (2 * labelPadding));
-    else
+    } else {
       point.labelRect = Rect.zero;
-
+    }
     return labelLocation;
   }
 

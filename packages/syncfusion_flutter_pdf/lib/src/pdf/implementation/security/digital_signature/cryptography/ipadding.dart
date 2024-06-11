@@ -140,6 +140,9 @@ class ISigner {
   List<int>? generateSignature() => null;
 
   /// internal method
+  bool validateSignature(List<int> bytes) => false;
+
+  /// internal method
   void reset() {}
 }
 

@@ -901,7 +901,8 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     }
 
     void processKeys() {
-      if (keyEvent.runtimeType == KeyDownEvent) {
+      if (keyEvent.runtimeType == KeyDownEvent ||
+          keyEvent.runtimeType == KeyRepeatEvent) {
         _rowSelectionManager.handleKeyEvent(keyEvent);
         if (HardwareKeyboard.instance.isControlPressed) {
           dataGridConfiguration.isControlKeyPressed = true;

@@ -537,20 +537,54 @@ abstract class ChartSeries<T, D>
   /// ```
   final SortingOrder sortingOrder;
 
-  /// Visibility of the series.
+  /// Visibility of the series, which applies only during load time.
   ///
   /// Default to `true`.
-  ///
-  /// Also refer [SortingOrder].
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
   ///   return SfCartesianChart(
-  ///     series: <BarSeries<SalesData, num>>[
-  ///       BarSeries<SalesData, num>(
+  ///     series: <CartesianSeries<SalesData, num>>[
+  ///       LineSeries<SalesData, num>(
   ///         initialIsVisible: false
   ///       ),
   ///     ],
+  ///   );
+  /// }
+  /// ```
+  /// Use the onRendererCreated callback, as shown in the code below, to update the visibility
+  /// dynamically.
+  ///
+  /// ```dart
+  /// ChartSeriesController? controller;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           series: <CartesianSeries<SalesData, num>>[
+  ///             LineSeries<SalesData, num>(
+  ///               dataSource: data,
+  ///               xValueMapper: (SalesData sales, _) => sales.year,
+  ///               yValueMapper: (SalesData sales, _) => sales.sales,
+  ///               onRendererCreated: (ChartSeriesController seriesController) {
+  ///                 controller = seriesController;
+  ///               },
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (controller != null) {
+  ///               controller!.isVisible = true;
+  ///             }
+  ///           },
+  ///           child: const Text('Update Series Visibility'),
+  ///         ),
+  ///       ],
+  ///     ),
   ///   );
   /// }
   /// ```
@@ -865,7 +899,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
   List<T>? get dataSource => _dataSource;
   List<T>? _dataSource;
   set dataSource(List<T>? value) {
-    if (value == null || value.isEmpty) {
+    if ((value == null || value.isEmpty) && !listEquals(_dataSource, value)) {
       _dataCount = 0;
       segments.clear();
       markNeedsUpdate();
@@ -1134,8 +1168,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
   bool get _selectionEnabled =>
       selectionBehavior != null && selectionBehavior!.enable;
 
-  @protected
-  bool _isVisible() => true;
+  bool isVisible() => true;
 
   @override
   void setupParentData(covariant RenderObject child) {
@@ -1709,9 +1742,17 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
     } while (swapped);
   }
 
-  bool _compareNumIsAscending(num a, num b) => a < b;
+  bool _compareNumIsAscending(num? a, num? b) {
+    a ??= double.negativeInfinity;
+    b ??= double.negativeInfinity;
+    return a < b;
+  }
 
-  bool _compareNumIsDescending(num a, num b) => a > b;
+  bool _compareNumIsDescending(num? a, num? b) {
+    a ??= double.negativeInfinity;
+    b ??= double.negativeInfinity;
+    return a > b;
+  }
 
   bool _compareDateIsAscending(DateTime a, DateTime b) => a.isBefore(b);
 
@@ -1776,14 +1817,16 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
     Color color;
     Color strokeColor;
     double strokeWidth;
+    final Color effColor = effectiveColor(segment.currentSegmentIndex);
     if (segment.isEmpty) {
-      color = emptyPointSettings.color;
+      color = (isLineType && emptyPointSettings.mode == EmptyPointMode.zero)
+          ? fillColor ?? effColor
+          : emptyPointSettings.color;
       // The purpose of isLineType is to set a default border color for
       // both line-type series and financial-type series.
       strokeColor = isLineType ? color : emptyPointSettings.borderColor;
       strokeWidth = emptyPointSettings.borderWidth;
     } else {
-      final Color effColor = effectiveColor(segment.currentSegmentIndex);
       color = fillColor ?? effColor;
       strokeColor = borderColor ?? effColor;
       strokeWidth = borderWidth;
@@ -1839,7 +1882,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
 
   Color effectiveColor(int segmentIndex) {
     Color? pointColor;
-    if (pointColorMapper != null) {
+    if (pointColorMapper != null && pointColors.isNotEmpty) {
       pointColor = pointColors[segmentIndex];
     }
     return pointColor ?? color ?? paletteColor;
@@ -1881,7 +1924,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
         onPointTap != null ||
         onPointDoubleTap != null;
     bool isSeriesHit = false;
-    if (_isVisible() &&
+    if (isVisible() &&
         (_tooltipEnabled || _selectionEnabled || hasTouchCallback)) {
       if (hitInsideSegment(position)) {
         isSeriesHit = true;
@@ -1928,7 +1971,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
 
   void handlePointerHover(PointerHoverEvent details) {
     final Offset localPosition = globalToLocal(details.position);
-    if (_interactiveSegment != null && _isVisible()) {
+    if (_interactiveSegment != null && isVisible()) {
       const bool hasSelection = false;
       final bool hasTooltip = _tooltipEnabled &&
           parent!.tooltipBehavior!.activationMode == ActivationMode.singleTap;
@@ -2062,10 +2105,11 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
         );
       }
 
-      if (hasTooltip) {
+      if (hasTooltip && !parent!.isTooltipActivated) {
         final TooltipInfo? info = tooltipInfo(position: position);
         if (info != null) {
           parent!.behaviorArea?.raiseTooltip(info, kind);
+          parent!.isTooltipActivated = true;
         }
       }
     }
@@ -2169,6 +2213,11 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
 
   @nonVirtual
   bool isEmpty(int segmentIndex) {
+    // Handle sortedIndex for finding the empty point segment,
+    // when segment rearrange with sorting.
+    segmentIndex = sortedIndexes != null && sortedIndexes.isNotEmpty
+        ? sortedIndexes[segmentIndex]
+        : segmentIndex;
     int start = 0;
     int end = emptyPointIndexes.length - 1;
     while (start <= end) {
@@ -2304,7 +2353,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
   @override
   @mustCallSuper
   void performLayout() {
-    if (!_isVisible() ||
+    if (!isVisible() ||
         constraints.maxWidth <= 0.0 ||
         constraints.maxHeight <= 0.0) {
       return;
@@ -2402,7 +2451,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
   @override
   @nonVirtual
   void paint(PaintingContext context, Offset offset) {
-    if (!_isVisible() || size.isEmpty) {
+    if (!isVisible() || size.isEmpty) {
       return;
     }
 
@@ -3179,6 +3228,9 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
 
   @override
   Widget? childForSlot(SeriesSlot slot) {
+    if (dataSource == null) {
+      return null;
+    }
     switch (slot) {
       case SeriesSlot.dataLabel:
         return dataLabelSettings.isVisible
@@ -3270,7 +3322,7 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
 
   @override
   set dataSource(List<T>? value) {
-    if (value == null || value.isEmpty) {
+    if ((value == null || value.isEmpty) && !listEquals(_dataSource, value)) {
       _dataCount = 0;
       segments.clear();
       markNeedsUpdate();
@@ -3375,7 +3427,7 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
   }
 
   @override
-  bool _isVisible() => controller.isVisible;
+  bool isVisible() => controller.isVisible;
 
   @override
   List<LegendItem>? buildLegendItems(int index) {
@@ -3577,6 +3629,19 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     } else if (xAxis is RenderDateTimeCategoryAxis) {
       (xAxis! as RenderDateTimeCategoryAxis).updateXValues();
     }
+
+    if (!_canFindLinearVisibleIndexes) {
+      return;
+    }
+
+    for (int i = 0; i < dataCount; i++) {
+      if (_canFindLinearVisibleIndexes) {
+        _canFindLinearVisibleIndexes = isValueLinear(i, xValues[i], xValues);
+        if (!_canFindLinearVisibleIndexes) {
+          return;
+        }
+      }
+    }
   }
 
   @protected
@@ -3741,7 +3806,8 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     }
 
     final RenderCartesianChartPlotArea? plotArea = parent;
-    if (yAxis != null &&
+    if (controller.isVisible &&
+        yAxis != null &&
         yAxis!.anchorRangeToVisiblePoints &&
         plotArea != null &&
         plotArea.zoomPanBehavior != null &&
@@ -4562,6 +4628,7 @@ mixin RealTimeUpdateMixin<T, D> on ChartSeriesRenderer<T, D> {
   }
 
   void _removeXValueAt(int index) {
+    _chaoticRawXValues.removeAt(index);
     if (xRawValues.length > index) {
       xRawValues.removeAt(index);
     }
@@ -4775,7 +4842,7 @@ mixin CartesianRealTimeUpdateMixin<T, D> on CartesianSeriesRenderer<T, D> {
       }
 
       for (int j = 0; j < fPathLength; j++) {
-        final Object? fValue = fPaths![j](current, j);
+        final Object? fValue = fPaths![j](current, index);
         chaoticFLists![j].insert(index, fValue);
       }
     }
@@ -4884,7 +4951,7 @@ mixin CartesianRealTimeUpdateMixin<T, D> on CartesianSeriesRenderer<T, D> {
       }
 
       for (int j = 0; j < fPathLength; j++) {
-        chaoticFLists![j][index] = fPaths![j](current, j);
+        chaoticFLists![j][index] = fPaths![j](current, index);
       }
     }
   }
@@ -5041,6 +5108,14 @@ mixin SbsSeriesMixin<T, D> on CartesianSeriesRenderer<T, D> {
       return;
     }
 
+    _calculateSbsInfo();
+
+    if (this is! WaterfallSeriesRenderer) {
+      populateChartPoints();
+    }
+  }
+
+  void _calculateSbsInfo() {
     if (canFindLinearVisibleIndexes) {
       _sortedXValues = xValues;
     } else {
@@ -5081,10 +5156,6 @@ mixin SbsSeriesMixin<T, D> on CartesianSeriesRenderer<T, D> {
     }
 
     primaryAxisAdjacentDataPointsMinDiff = minDelta.isInfinite ? 1 : minDelta;
-
-    if (this is! WaterfallSeriesRenderer) {
-      populateChartPoints();
-    }
   }
 
   DoubleRange _sbsRange(RenderChartAxis axis) {
@@ -5105,6 +5176,16 @@ mixin SbsSeriesMixin<T, D> on CartesianSeriesRenderer<T, D> {
 
   @override
   DoubleRange range(RenderChartAxis axis) {
+    final RenderCartesianChartPlotArea? plotArea = parent;
+    if (axis == yAxis &&
+        axis.anchorRangeToVisiblePoints &&
+        plotArea != null &&
+        plotArea.zoomPanBehavior != null &&
+        plotArea.zoomPanBehavior!.zoomMode == ZoomMode.x &&
+        _yVisibleRange != null) {
+      return _yVisibleRange!.copyWith();
+    }
+
     final DoubleRange actualRange = _sbsRange(axis).copyWith();
     if (trendlineContainer == null) {
       return actualRange;
@@ -5977,11 +6058,15 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
 
   @override
   void _resetYLists() {
+    _resetStackedYLists();
+    super._resetYLists();
+  }
+
+  void _resetStackedYLists() {
     topValues.clear();
     bottomValues.clear();
     _percentageValues.clear();
     _stackYValues.clear();
-    super._resetYLists();
   }
 
   @nonVirtual
@@ -6036,10 +6121,6 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       }
 
       current = yDependant;
-
-      if (current == null) {
-        continue;
-      }
 
       if (!current.controller.isVisible || current.dataCount == 0) {
         continue;
@@ -6313,7 +6394,6 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
-    _resetYLists();
     super.populateDataSource(
         yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
 
@@ -6382,7 +6462,9 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   ]) {
     super.updateDataPoints(removedIndexes, addedIndexes, replacedIndexes,
         yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
-    _resetYLists();
+
+    /// Clear `stackedYLists` alone instead of resetting `YLists`.
+    _resetStackedYLists();
 
     /// Calculate [StackYValues] based on empty point modes with yValues.
     _applyDropOrGapEmptyPointModes(this);
@@ -8752,9 +8834,9 @@ abstract class CircularSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
             size.height + (2 * labelPadding));
         bool isDataLabelCollide =
             findingCollision(point.labelRect, renderDataLabelRegions);
-        // TODO(Lavanya): Recheck here.
         if (dataLabelSettings.labelIntersectAction ==
-            LabelIntersectAction.hide) {
+                LabelIntersectAction.hide ||
+            dataLabelSettings.overflowMode == OverflowMode.hide) {
           point.isVisible = !isDataLabelCollide;
         }
 
@@ -8781,32 +8863,37 @@ abstract class CircularSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
             point.text = isDataLabelCollide ? point.text : labelText;
           } else if (dataLabelSettings.overflowMode == OverflowMode.trim &&
               !point.text!.contains('...')) {
-            point.text = segmentOverflowTrimmedText(
-                this,
-                point.text!,
-                size,
-                point,
-                point.labelRect,
-                center,
-                labelLocation,
-                dataLabelSettings.overflowMode,
-                dataLabelStyle);
-            label = point.text!;
-            final Size trimmedTextSize = measureText(label, dataLabelStyle);
-            labelLocation = calculateOffset(point.midAngle!,
-                (point.innerRadius! + point.outerRadius!) / 2, point.center!);
-            labelLocation = Offset(
-                labelLocation.dx -
-                    (trimmedTextSize.width / 2) +
-                    (angle == 0 ? 0 : trimmedTextSize.width / 2),
-                labelLocation.dy -
-                    (trimmedTextSize.height / 2) +
-                    (angle == 0 ? 0 : trimmedTextSize.height / 2));
-            point.labelRect = Rect.fromLTWH(
-                labelLocation.dx - labelPadding,
-                labelLocation.dy - labelPadding,
-                trimmedTextSize.width + (2 * labelPadding),
-                trimmedTextSize.height + (2 * labelPadding));
+            if (!isDataLabelCollide) {
+              point.text = segmentOverflowTrimmedText(
+                  this,
+                  point.text!,
+                  size,
+                  point,
+                  point.labelRect,
+                  center,
+                  labelLocation,
+                  dataLabelSettings.overflowMode,
+                  dataLabelStyle);
+              label = point.text!;
+              final Size trimmedTextSize = measureText(label, dataLabelStyle);
+              labelLocation = calculateOffset(point.midAngle!,
+                  (point.innerRadius! + point.outerRadius!) / 2, point.center!);
+              labelLocation = Offset(
+                  labelLocation.dx -
+                      (trimmedTextSize.width / 2) +
+                      (angle == 0 ? 0 : trimmedTextSize.width / 2),
+                  labelLocation.dy -
+                      (trimmedTextSize.height / 2) +
+                      (angle == 0 ? 0 : trimmedTextSize.height / 2));
+              point.labelLocation = labelLocation;
+              point.labelRect = Rect.fromLTWH(
+                  labelLocation.dx - labelPadding,
+                  labelLocation.dy - labelPadding,
+                  trimmedTextSize.width + (2 * labelPadding),
+                  trimmedTextSize.height + (2 * labelPadding));
+            } else {
+              point.isVisible = false;
+            }
           }
         }
 
@@ -8926,7 +9013,7 @@ abstract class CircularSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
         dataLabelSettings.labelPosition, chartThemeData, themeData, segment);
     TextStyle effectiveTextStyle = saturatedTextStyle(surfaceColor, style);
     final CircularChartPoint point = dataLabelPositioned.point!;
-    if (!point.isVisible || !segments[index].isVisible) {
+    if (!point.isVisible || !segments[index].isVisible || point.text == '') {
       return;
     }
 
@@ -9135,6 +9222,7 @@ abstract class BoxAndWhiskerSeriesRendererBase<T, D>
     _dataCount = _chaoticXValues.length;
     _canFindLinearVisibleIndexes = _hasLinearDataSource;
     _doSortingIfNeeded(chaoticYLists, yLists, chaoticFLists, fLists);
+    super._calculateSbsInfo();
     populateChartPoints();
     _updateXValuesForCategoryTypeAxes();
   }
@@ -9481,6 +9569,415 @@ abstract class BoxAndWhiskerSeriesRendererBase<T, D>
   void dispose() {
     _chaoticYValues.clear();
     yValues.clear();
+    super.dispose();
+  }
+}
+
+abstract class HistogramSeriesRendererBase<T, D>
+    extends XyDataSeriesRenderer<T, D>
+    with SbsSeriesMixin<T, D>, ClusterSeriesMixin, SegmentAnimationMixin<T, D> {
+  double? get binInterval => _binInterval;
+  double? _binInterval;
+  set binInterval(double? value) {
+    if (_binInterval != value) {
+      _binInterval = value;
+      markNeedsLayout();
+    }
+  }
+
+  bool get showNormalDistributionCurve => _showNormalDistributionCurve;
+  bool _showNormalDistributionCurve = false;
+  set showNormalDistributionCurve(bool value) {
+    if (_showNormalDistributionCurve != value) {
+      _showNormalDistributionCurve = value;
+      markNeedsLayout();
+    }
+  }
+
+  Color get curveColor => _curveColor;
+  Color _curveColor = Colors.blue;
+  set curveColor(Color value) {
+    if (_curveColor != value) {
+      _curveColor = value;
+      markNeedsSegmentsPaint();
+    }
+  }
+
+  double get curveWidth => _curveWidth;
+  double _curveWidth = 2.0;
+  set curveWidth(double value) {
+    if (_curveWidth != value) {
+      _curveWidth = value;
+      markNeedsSegmentsPaint();
+    }
+  }
+
+  List<double>? get curveDashArray => _curveDashArray;
+  List<double>? _curveDashArray;
+  set curveDashArray(List<double>? value) {
+    if (_curveDashArray != value) {
+      _curveDashArray = value;
+      markNeedsLayout();
+    }
+  }
+
+  Color get trackBorderColor => _trackBorderColor;
+  Color _trackBorderColor = Colors.transparent;
+  set trackBorderColor(Color value) {
+    if (_trackBorderColor != value) {
+      _trackBorderColor = value;
+      markNeedsSegmentsPaint();
+    }
+  }
+
+  Color get trackColor => _trackColor;
+  Color _trackColor = Colors.grey;
+  set trackColor(Color value) {
+    if (_trackColor != value) {
+      _trackColor = value;
+      markNeedsSegmentsPaint();
+    }
+  }
+
+  double get trackBorderWidth => _trackBorderWidth;
+  double _trackBorderWidth = 1.0;
+  set trackBorderWidth(double value) {
+    if (_trackBorderWidth != value) {
+      _trackBorderWidth = value;
+      markNeedsSegmentsPaint();
+    }
+  }
+
+  double get trackPadding => _trackPadding;
+  double _trackPadding = 0.0;
+  set trackPadding(double value) {
+    if (_trackPadding != value) {
+      _trackPadding = value;
+      markNeedsLayout();
+    }
+  }
+
+  bool get isTrackVisible => _isTrackVisible;
+  bool _isTrackVisible = false;
+  set isTrackVisible(bool value) {
+    if (_isTrackVisible != value) {
+      _isTrackVisible = value;
+      markNeedsLayout();
+    }
+  }
+
+  BorderRadius get borderRadius => _borderRadius;
+  BorderRadius _borderRadius = BorderRadius.zero;
+  set borderRadius(BorderRadius value) {
+    if (_borderRadius != value) {
+      _borderRadius = value;
+      markNeedsLayout();
+    }
+  }
+
+  Color get borderColor => _borderColor;
+  Color _borderColor = Colors.transparent;
+  set borderColor(Color value) {
+    if (_borderColor != value) {
+      _borderColor = value;
+      markNeedsSegmentsPaint();
+    }
+  }
+
+  /// It holds the actual Histogram [X] and [Y] values.
+  final List<num> _histogramXValues = <num>[];
+  final List<num> _histogramYValues = <num>[];
+
+  /// It holds the raw Y value from the [super.yValueMapper].
+  final List<num> _yRawValues = <num>[];
+
+  /// It holds actual [_histogramXValues] count.
+  int _histoXLength = 0;
+  num _deviation = 0.0;
+  num _mean = 0.0;
+  num binWidth = 0.0;
+
+  final Path _distributionPath = Path();
+
+  void _resetDataHolders() {
+    _histoXLength = 0;
+    _yRawValues.clear();
+    _histogramXValues.clear();
+    _histogramYValues.clear();
+    _distributionPath.reset();
+  }
+
+  @override
+  bool _canPopulateDataPoints(
+      List<ChartValueMapper<T, num>>? yPaths, List<List<num>>? yLists) {
+    return dataSource != null &&
+        dataSource!.isNotEmpty &&
+        yPaths != null &&
+        yPaths.isNotEmpty &&
+        yLists != null &&
+        yLists.isNotEmpty;
+  }
+
+  void _populateDataSource() {
+    _resetDataHolders();
+    if (dataSource == null ||
+        dataSource!.isEmpty ||
+        super.yValueMapper == null) {
+      return;
+    }
+
+    final int length = dataSource!.length;
+    for (int i = 0; i < length; i++) {
+      final T current = dataSource![i];
+      final num? yValue = super.yValueMapper!(current, i);
+      if (yValue == null || yValue.isNaN) {
+        _yRawValues.add(0);
+      } else {
+        _yRawValues.add(yValue);
+      }
+    }
+
+    // Calculate the actual Histogram [X] and [Y] values.
+    _calculateStandardDeviation();
+    _histoXLength = _histogramXValues.length;
+  }
+
+  // Overrided the populateDataSource and used the _histogramXValues length only.
+  // Bacause the dataSource count and _histogramXValues count different.
+  @override
+  void populateDataSource([
+    List<ChartValueMapper<T, num>>? yPaths,
+    List<List<num>>? chaoticYLists,
+    List<List<num>>? yLists,
+    List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
+    List<List<Object?>>? fLists,
+  ]) {
+    _populateDataSource();
+
+    if (yPaths == null) {
+      yPaths = <ChartValueMapper<T, num>>[];
+      chaoticYLists = <List<num>>[];
+      yLists = <List<num>>[];
+    }
+
+    if (yValueMapper != null) {
+      yPaths.add(yValueMapper!);
+      if (sortingOrder == SortingOrder.none) {
+        chaoticYLists?.add(yValues);
+      } else {
+        chaoticYLists?.add(_chaoticYValues);
+        yLists?.add(yValues);
+      }
+    }
+
+    _resetDataSourceHolders();
+    if (!_canPopulateDataPoints(yPaths, chaoticYLists)) {
+      return;
+    }
+
+    if (fPaths == null) {
+      fPaths = <ChartValueMapper<T, Object>>[];
+      chaoticFLists = <List<Object?>>[];
+      fLists = <List<Object?>>[];
+    }
+    _addPointColorMapper(fPaths, chaoticFLists, fLists);
+    _addSortValueMapper(fPaths, chaoticFLists, fLists);
+
+    final int length = dataSource!.length;
+    final int yPathLength = yPaths.length;
+    final int fPathLength = fPaths.length;
+
+    num xMinimum = double.infinity;
+    num xMaximum = double.negativeInfinity;
+    num yMinimum = double.infinity;
+    num yMaximum = double.negativeInfinity;
+    final Function(int, D) preferredXValue = _preferredXValue();
+    final Function(D?, num) addXValue = _addXValueIntoRawAndChaoticXLists;
+
+    for (int i = 0; i < _histoXLength; i++) {
+      final D rawX = _histogramXValues[i] as D;
+      final num currentX = preferredXValue(i, rawX);
+      addXValue(rawX, currentX);
+      xMinimum = min(xMinimum, currentX);
+      xMaximum = max(xMaximum, currentX);
+
+      for (int j = 0; j < yPathLength; j++) {
+        final num yValue = _histogramYValues[i];
+        chaoticYLists![j].add(yValue);
+        yMinimum = min(yMinimum, yValue);
+        yMaximum = max(yMaximum, yValue);
+      }
+
+      final int curIndex = i >= length ? length - 1 : i;
+      final T current = dataSource![curIndex];
+      for (int j = 0; j < fPathLength; j++) {
+        final ChartValueMapper<T, Object> fPath = fPaths[j];
+        final Object? fValue = fPath(current, i);
+        chaoticFLists![j].add(fValue);
+      }
+    }
+
+    xMin = xMinimum;
+    xMax = xMaximum;
+    yMin = yMinimum;
+    yMax = yMaximum;
+    _dataCount = _chaoticXValues.length;
+    _canFindLinearVisibleIndexes = true;
+
+    _copyXAndRawXValues();
+    computeNonEmptyYValues();
+    _populateTrendlineDataSource();
+    if (dataCount < 1) {
+      return;
+    }
+
+    super._calculateSbsInfo();
+  }
+
+  void _copyXAndRawXValues() {
+    xValues.clear();
+    xValues.addAll(_chaoticXValues);
+    xRawValues.clear();
+    xRawValues.addAll(_chaoticRawXValues);
+  }
+
+  @override
+  void computeNonEmptyYValues() {
+    nonEmptyYValues.clear();
+    nonEmptyYValues.addAll(yValues);
+  }
+
+  void _calculateStandardDeviation() {
+    if (_yRawValues.isEmpty) {
+      return;
+    }
+
+    num sumOfY = 0;
+    num sumValue = 0;
+    _mean = 0;
+    final num yLength = _yRawValues.length;
+    for (int i = 0; i < yLength; i++) {
+      final num yValue = _yRawValues[i];
+      sumOfY += yValue;
+      _mean = sumOfY / yLength;
+    }
+
+    for (int i = 0; i < yLength; i++) {
+      final num yValue = _yRawValues[i];
+      sumValue += (yValue - _mean) * (yValue - _mean);
+    }
+
+    _deviation = sqrt(sumValue / (yLength - 1));
+    num minValue = _yRawValues.reduce(min);
+    binWidth = binInterval ?? (3.5 * _deviation) / pow(yLength, 1 / 3);
+
+    for (int i = 0; i < yLength;) {
+      final num count = _yRawValues
+          .where((num y) => y >= minValue && y < (minValue + binWidth))
+          .length;
+      if (count >= 0) {
+        _histogramYValues.add(count);
+        final num x = minValue + binWidth / 2;
+        _histogramXValues.add(x);
+        minValue += binWidth;
+        i += count as int;
+      }
+    }
+  }
+
+  @override
+  num trackballYValue(int index) => _histogramYValues[index];
+
+  @override
+  void onLoadingAnimationUpdate() {
+    super.onLoadingAnimationUpdate();
+    transformValues();
+  }
+
+  @override
+  void transformValues() {
+    super.transformValues();
+    _createNormalDistributionPath();
+  }
+
+  void _createNormalDistributionPath() {
+    if (!showNormalDistributionCurve ||
+        xAxis == null ||
+        yAxis == null ||
+        segments.isEmpty ||
+        xAxis!.visibleRange == null ||
+        yAxis!.visibleRange == null) {
+      return;
+    }
+
+    _distributionPath.reset();
+    final int dataCount = _yRawValues.length;
+    // TODO(Natrayansf): Add comment.
+    const num pointsCount = 500;
+    final num minimum = xAxis!.visibleRange!.minimum;
+    final num maximum = xAxis!.visibleRange!.maximum;
+    final num delta = (maximum - minimum) / (pointsCount - 1);
+
+    for (int i = 0; i < pointsCount; i++) {
+      final num xValue = minimum + i * delta;
+      final num yValue =
+          exp(-pow(xValue - _mean, 2) / (2 * pow(_deviation, 2))) /
+              (_deviation * sqrt(2 * pi));
+      final num dx = yValue * binWidth * dataCount;
+      final double x = pointToPixelX(xValue, dx);
+      final double y = pointToPixelY(xValue, dx);
+      i == 0 ? _distributionPath.moveTo(x, y) : _distributionPath.lineTo(x, y);
+    }
+  }
+
+  @override
+  void updateDataPoints(
+    List<int>? removedIndexes,
+    List<int>? addedIndexes,
+    List<int>? replacedIndexes, [
+    List<ChartValueMapper<T, num>>? yPaths,
+    List<List<num>>? chaoticYLists,
+    List<List<num>>? yLists,
+    List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
+    List<List<Object?>>? fLists,
+  ]) {
+    // For Histogram series, it is not possible to add, remove, or replace
+    // a data point based on the indexes, because the xValues and yValues are
+    // calculated based on the entire range of data. Therefore, we need to
+    // re-calculate the histogram x and y values dynamically.
+    // To achieve this, we directly call the markNeedsUpdate() method.
+    canUpdateOrCreateSegments = true;
+    markNeedsUpdate();
+  }
+
+  @override
+  void onPaint(PaintingContext context, Offset offset) {
+    paintSegments(context, offset);
+    if (showNormalDistributionCurve) {
+      context.canvas.save();
+      final Rect clip = clipRect(paintBounds, segmentAnimationFactor,
+          isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+      context.canvas.clipRect(clip);
+      final Paint strokePaint = Paint()
+        ..color = curveColor
+        ..strokeWidth = curveWidth
+        ..style = PaintingStyle.stroke;
+      curveDashArray == null
+          ? context.canvas.drawPath(_distributionPath, strokePaint)
+          : drawDashes(context.canvas, curveDashArray, strokePaint,
+              path: _distributionPath);
+    }
+    context.canvas.restore();
+    paintMarkers(context, offset);
+    paintDataLabels(context, offset);
+    paintTrendline(context, offset);
+  }
+
+  @override
+  void dispose() {
+    _resetDataHolders();
     super.dispose();
   }
 }

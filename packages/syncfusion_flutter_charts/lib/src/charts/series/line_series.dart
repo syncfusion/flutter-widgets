@@ -9,7 +9,6 @@ import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
-import '../utils/constants.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
 import 'chart_series.dart';
@@ -123,9 +122,10 @@ class LineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }
 
   @override
-  ShapeMarkerType effectiveLegendIconType() => dashArray != null
-      ? ShapeMarkerType.lineSeriesWithDashArray
-      : ShapeMarkerType.lineSeries;
+  ShapeMarkerType effectiveLegendIconType() =>
+      dashArray != null && !dashArray!.every((double value) => value <= 0)
+          ? ShapeMarkerType.lineSeriesWithDashArray
+          : ShapeMarkerType.lineSeries;
 
   /// Changes the series color and border width.
   @override
@@ -231,17 +231,27 @@ class LineSegment<T, D> extends ChartSegment {
   @override
   bool contains(Offset position) {
     if (points.isNotEmpty) {
-      final Rect bounds = Rect.fromCenter(
-          center: points[0], width: tooltipPadding, height: tooltipPadding);
-      return bounds.contains(position);
+      final ChartMarker marker = series.markerAt(currentSegmentIndex);
+      return tooltipTouchBounds(points[0], marker.width, marker.height)
+          .contains(position);
     }
     return false;
   }
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
     pointIndex ??= currentSegmentIndex;
-    final CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+    CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
+    List<Color?> markerColors = <Color?>[fillPaint.color];
+    if (chartPoint.y != null && chartPoint.y!.isNaN) {
+      pointIndex += 1;
+      chartPoint = _chartPoint(pointIndex);
+      markerColors = <Color?>[series.segments[pointIndex].fillPaint.color];
+    }
     final ChartMarker marker = series.markerAt(pointIndex);
     final double markerHeight =
         series.markerSettings.isVisible ? marker.height / 2 : 0;
@@ -262,7 +272,7 @@ class LineSegment<T, D> extends ChartSegment {
       seriesIndex: series.index,
       segmentIndex: currentSegmentIndex,
       pointIndex: pointIndex,
-      markerColors: <Color?>[fillPaint.color],
+      markerColors: markerColors,
       markerType: marker.type,
     );
   }

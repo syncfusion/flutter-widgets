@@ -42,6 +42,7 @@ import 'pdf_polygon_annotation.dart';
 import 'pdf_popup_annotation.dart';
 import 'pdf_rectangle_annotation.dart';
 import 'pdf_text_markup_annotation.dart';
+import 'pdf_text_web_link.dart';
 import 'widget_annotation.dart';
 
 /// Represents the base class for annotation objects.
@@ -662,8 +663,9 @@ class PdfAnnotationHelper {
             .setProperty(PdfName(PdfDictionaryProperties.border), border);
       }
     }
-    if (base is! PdfLinkAnnotation ||
-        (base is PdfLinkAnnotation && !isLoadedAnnotation)) {
+    if ((base is! PdfLinkAnnotation && base is! PdfTextWebLink) ||
+        ((base is PdfLinkAnnotation || base is PdfTextWebLink) &&
+            !isLoadedAnnotation)) {
       final PdfRectangle nativeRectangle = _obtainNativeRectangle();
       if (annotationInnerColor != null &&
           !annotationInnerColor!.isEmpty &&
@@ -1237,7 +1239,7 @@ class PdfAnnotationHelper {
   }
 
   /// internal method
-  void setMatrix(PdfDictionary template) {
+  static void setMatrixToZeroRotation(PdfDictionary template) {
     final PdfArray? bbox = template[PdfDictionaryProperties.bBox] as PdfArray?;
     if (bbox != null) {
       final List<double> elements = <double>[

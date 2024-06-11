@@ -1741,11 +1741,15 @@ class SfDataGridState extends State<SfDataGrid>
   Animation<double>? _swipingAnimation;
   DataGridStateDetails? _dataGridStateDetails;
 
+  /// It maintains the actual columns collection without a check box column to verify the column collection changes in the didUpdateWidget.
+  List<GridColumn>? _actualColumns;
+
   Size? _screenSize;
 
   @override
   void initState() {
     _columns = <GridColumn>[];
+    _actualColumns = <GridColumn>[];
     _dataGridConfiguration = DataGridConfiguration();
     _dataGridStateDetails = _onDataGridStateDetailsChanged;
     _dataGridConfiguration.gridPaint = Paint();
@@ -1775,9 +1779,9 @@ class SfDataGridState extends State<SfDataGrid>
   }
 
   void _onDataGridThemeDataChanged(
-      SfDataGridThemeData? newThemeData, ColorScheme? newColorScheme) {
+      SfDataGridThemeData? newThemeData, SfColorScheme? newColorScheme) {
     // Refreshes the data grid rows when the `SfDataGridThemeData` or
-    // `ThemeData.colorScheme` is changed at runtime.
+    // `SfColorScheme.colorScheme` is changed at runtime.
     if (_dataGridThemeData == newThemeData &&
         _dataGridConfiguration.colorScheme == newColorScheme) {
       return;
@@ -2002,6 +2006,12 @@ class SfDataGridState extends State<SfDataGrid>
     if (!listEquals<GridColumn>(_columns, widget.columns)) {
       if (_columns != null) {
         _columns!
+          ..clear()
+          ..addAll(widget.columns);
+      }
+
+      if (_actualColumns != null) {
+        _actualColumns!
           ..clear()
           ..addAll(widget.columns);
       }
@@ -2368,6 +2378,12 @@ class SfDataGridState extends State<SfDataGrid>
       }
     }
 
+    if (_actualColumns != null) {
+      _actualColumns!
+        ..clear()
+        ..addAll(widget.columns);
+    }
+
     for (final DataRowBase dataRow in _rowGenerator.items) {
       if (!clearEditing && dataRow.isEditing) {
         return;
@@ -2643,7 +2659,7 @@ class SfDataGridState extends State<SfDataGrid>
     final bool isDataSourceChanged =
         !listEquals<DataGridRow>(oldWidget.source.rows, widget.source.rows);
     final bool isColumnsChanged =
-        !listEquals<GridColumn>(_columns, widget.columns);
+        !listEquals<GridColumn>(_actualColumns, widget.columns);
     // Issue:
     // FLUT-5815 - Range error occurs while doing column manipulations at
     // runtime and calling setstate to refresh the changes.
@@ -3203,6 +3219,8 @@ class SfDataGridState extends State<SfDataGrid>
   @override
   void didChangeDependencies() {
     final ThemeData themeData = Theme.of(context);
+    final SfColorScheme colorScheme = SfTheme.colorScheme(context);
+
     _dataGridConfiguration.isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
@@ -3220,8 +3238,7 @@ class SfDataGridState extends State<SfDataGrid>
 
     _onDataGridTextDirectionChanged(Directionality.of(context));
 
-    _onDataGridThemeDataChanged(
-        SfDataGridTheme.of(context), themeData.colorScheme);
+    _onDataGridThemeDataChanged(SfDataGridTheme.of(context), colorScheme);
     _onDataGridTextScaleFactorChanged(
         MediaQuery.textScalerOf(context).scale(1));
     _updateVisualDensity(themeData.visualDensity);
@@ -3417,6 +3434,11 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
 
   /// Holds the collection of [DataGridRow] to be displayed in the [SfDataPager] page.
   List<DataGridRow> _paginatedRows = <DataGridRow>[];
+
+  /// To check whether the listener is added to the source.
+  bool _hasListeners() {
+    return super.hasListeners;
+  }
 
   /// Helps to suspend the multiple update on SfDataGrid using with
   /// SfDataPager.
@@ -3617,7 +3639,7 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
           return compareResult;
         } else {
           final List<SortColumnDetails> remainingSortColumns = sortedColumns
-              .skipWhile((SortColumnDetails value) => value == sortColumn)
+              .where((SortColumnDetails value) => value != sortColumn)
               .toList(growable: false);
           return _compareValues(remainingSortColumns, a, b);
         }
@@ -4902,7 +4924,9 @@ void setPageCount(DataPagerDelegate delegate, double pageCount) {
   /// current page.
   if (oldPageCount != pageCount) {
     WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
-      source.notifyListeners();
+      if (source._hasListeners()) {
+        source.notifyListeners();
+      }
     });
   }
 
@@ -4972,108 +4996,78 @@ class DataGridThemeHelper {
 
   DataGridThemeHelper(
       SfDataGridThemeData dataGridThemeData, BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final SfDataGridThemeData defaults = SfDataGridTheme.of(context);
-    final _SfDataGridThemeDataM2 sfDataGridThemeDataM2 =
-        _SfDataGridThemeDataM2(context, dataGridThemeData);
-    final _SfDataGridThemeDataM3 sfDataGridThemeDataM3 =
-        _SfDataGridThemeDataM3(context, dataGridThemeData);
-    final SfDataGridThemeData effectiveDataGridThemeData =
-        theme.useMaterial3 ? sfDataGridThemeDataM3 : sfDataGridThemeDataM2;
-    headerColor =
-        defaults.headerColor ?? effectiveDataGridThemeData.headerColor;
-    gridLineColor =
-        defaults.gridLineColor ?? effectiveDataGridThemeData.gridLineColor;
-    gridLineStrokeWidth = defaults.gridLineStrokeWidth ??
-        effectiveDataGridThemeData.gridLineStrokeWidth;
-    frozenPaneElevation = defaults.frozenPaneElevation ??
-        effectiveDataGridThemeData.frozenPaneElevation;
-    frozenPaneLineWidth = defaults.frozenPaneLineWidth ??
-        effectiveDataGridThemeData.frozenPaneLineWidth;
+    final _SfDataGridThemeData sfDataGridThemeData =
+        _SfDataGridThemeData(context, dataGridThemeData);
+
+    headerColor = defaults.headerColor ?? sfDataGridThemeData.headerColor;
+    gridLineColor = defaults.gridLineColor ?? sfDataGridThemeData.gridLineColor;
+    gridLineStrokeWidth =
+        defaults.gridLineStrokeWidth ?? sfDataGridThemeData.gridLineStrokeWidth;
+    frozenPaneElevation =
+        defaults.frozenPaneElevation ?? sfDataGridThemeData.frozenPaneElevation;
+    frozenPaneLineWidth =
+        defaults.frozenPaneLineWidth ?? sfDataGridThemeData.frozenPaneLineWidth;
     selectionColor =
-        defaults.selectionColor ?? effectiveDataGridThemeData.selectionColor;
-    headerHoverColor = defaults.headerHoverColor ??
-        effectiveDataGridThemeData.headerHoverColor;
-    rowHoverColor =
-        defaults.rowHoverColor ?? effectiveDataGridThemeData.rowHoverColor;
-    sortIconColor =
-        defaults.sortIconColor ?? effectiveDataGridThemeData.sortIconColor;
-    frozenPaneLineColor = defaults.frozenPaneLineColor ??
-        effectiveDataGridThemeData.frozenPaneLineColor;
+        defaults.selectionColor ?? sfDataGridThemeData.selectionColor;
+    headerHoverColor =
+        defaults.headerHoverColor ?? sfDataGridThemeData.headerHoverColor;
+    rowHoverColor = defaults.rowHoverColor ?? sfDataGridThemeData.rowHoverColor;
+    sortIconColor = defaults.sortIconColor ?? sfDataGridThemeData.sortIconColor;
+    frozenPaneLineColor =
+        defaults.frozenPaneLineColor ?? sfDataGridThemeData.frozenPaneLineColor;
     columnResizeIndicatorColor = defaults.columnResizeIndicatorColor ??
-        effectiveDataGridThemeData.columnResizeIndicatorColor;
+        sfDataGridThemeData.columnResizeIndicatorColor;
     columnResizeIndicatorStrokeWidth =
         defaults.columnResizeIndicatorStrokeWidth ??
-            effectiveDataGridThemeData.columnResizeIndicatorStrokeWidth;
-    currentCellStyle = defaults.currentCellStyle ??
-        effectiveDataGridThemeData.currentCellStyle;
+            sfDataGridThemeData.columnResizeIndicatorStrokeWidth;
+    currentCellStyle =
+        defaults.currentCellStyle ?? sfDataGridThemeData.currentCellStyle;
 
-    rowHoverTextStyle = defaults.rowHoverTextStyle ??
-        effectiveDataGridThemeData.rowHoverTextStyle;
-    sortIcon = defaults.sortIcon ?? effectiveDataGridThemeData.sortIcon;
-    filterIcon = defaults.filterIcon ?? effectiveDataGridThemeData.filterIcon;
+    rowHoverTextStyle =
+        defaults.rowHoverTextStyle ?? sfDataGridThemeData.rowHoverTextStyle;
+    sortIcon = defaults.sortIcon ?? sfDataGridThemeData.sortIcon;
+    filterIcon = defaults.filterIcon ?? sfDataGridThemeData.filterIcon;
     filterIconColor =
-        defaults.filterIconColor ?? effectiveDataGridThemeData.filterIconColor;
+        defaults.filterIconColor ?? sfDataGridThemeData.filterIconColor;
     filterIconHoverColor = defaults.filterIconHoverColor ??
-        effectiveDataGridThemeData.filterIconHoverColor;
+        sfDataGridThemeData.filterIconHoverColor;
     sortOrderNumberColor = defaults.sortOrderNumberColor ??
-        effectiveDataGridThemeData.sortOrderNumberColor;
+        sfDataGridThemeData.sortOrderNumberColor;
     sortOrderNumberBackgroundColor = defaults.sortOrderNumberBackgroundColor ??
-        effectiveDataGridThemeData.sortOrderNumberBackgroundColor;
-    _filterPopupTextStyle = effectiveDataGridThemeData.filterPopupTextStyle;
+        sfDataGridThemeData.sortOrderNumberBackgroundColor;
+    _filterPopupTextStyle = sfDataGridThemeData.filterPopupTextStyle;
 
     _filterPopupDisabledTextStyle =
-        effectiveDataGridThemeData.filterPopupDisabledTextStyle;
+        sfDataGridThemeData.filterPopupDisabledTextStyle;
 
     filterPopupTextStyle = _filterPopupTextStyle!.merge(
         defaults.filterPopupTextStyle ??
-            effectiveDataGridThemeData.filterPopupTextStyle);
+            sfDataGridThemeData.filterPopupTextStyle);
     filterPopupDisabledTextStyle = _filterPopupDisabledTextStyle!
         .merge(defaults.filterPopupDisabledTextStyle);
 
     columnDragIndicatorColor = defaults.columnDragIndicatorColor ??
-        effectiveDataGridThemeData.columnDragIndicatorColor;
+        sfDataGridThemeData.columnDragIndicatorColor;
     columnDragIndicatorStrokeWidth = defaults.columnDragIndicatorStrokeWidth ??
-        effectiveDataGridThemeData.columnDragIndicatorStrokeWidth;
+        sfDataGridThemeData.columnDragIndicatorStrokeWidth;
     groupExpanderIcon = defaults.groupExpanderIcon;
-    indentColumnWidth = defaults.indentColumnWidth ??
-        effectiveDataGridThemeData.indentColumnWidth!;
-    indentColumnColor = defaults.indentColumnColor ??
-        effectiveDataGridThemeData.indentColumnColor;
-    filterPopupIconColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.filterPopupIconColor
-        : sfDataGridThemeDataM2.filterPopupIconColor;
-    filterPopupDisableIconColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.filterPopupDisableIconColor
-        : sfDataGridThemeDataM2.filterPopupDisableIconColor;
-    filterPopupBorderColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.filterPopupBorderColor
-        : sfDataGridThemeDataM2.filterPopupBorderColor;
-    filterPopupBackgroundColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.filterPopupBackgroundColor
-        : sfDataGridThemeDataM2.filterPopupBackgroundColor;
-    filterPopupTextColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.filterPopupTextColor
-        : sfDataGridThemeDataM2.filterPopupTextColor;
-    filterPopupOuterColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.filterPopupBackgroundColor
-        : theme.brightness == Brightness.light
-            ? const Color(0xFFFAFAFA)
-            : const Color(0xFF303030);
-    feedBackWidgetColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.feedBackWidgetColor
-        : theme.brightness == Brightness.light
-            ? const Color(0xFFFAFAFA)
-            : const Color(0xFF303030);
-    captionSummaryRowColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.captionSummaryRowColor
-        : sfDataGridThemeDataM2.captionSummaryRowColor;
-    captionSummaryRowHoverColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.captionSummaryRowHoverColor
-        : sfDataGridThemeDataM2.captionSummaryRowHoverColor;
-    tableSummaryRowColor = theme.useMaterial3
-        ? sfDataGridThemeDataM3.tableSummaryRowColor
-        : sfDataGridThemeDataM2.tableSummaryRowColor;
+    indentColumnWidth =
+        defaults.indentColumnWidth ?? sfDataGridThemeData.indentColumnWidth;
+    indentColumnColor =
+        defaults.indentColumnColor ?? sfDataGridThemeData.indentColumnColor;
+    filterPopupIconColor = sfDataGridThemeData.filterPopupIconColor;
+    filterPopupDisableIconColor =
+        sfDataGridThemeData.filterPopupDisableIconColor;
+    filterPopupBorderColor = sfDataGridThemeData.filterPopupBorderColor;
+    filterPopupBackgroundColor = sfDataGridThemeData.filterPopupBackgroundColor;
+    filterPopupTextColor = sfDataGridThemeData.filterPopupTextColor;
+    filterPopupOuterColor = sfDataGridThemeData.filterPopupOuterColor;
+    feedBackWidgetColor = sfDataGridThemeData.feedBackWidgetColor;
+    captionSummaryRowColor = sfDataGridThemeData.captionSummaryRowColor!;
+    captionSummaryRowHoverColor =
+        sfDataGridThemeData.captionSummaryRowHoverColor!;
+    tableSummaryRowColor = sfDataGridThemeData.tableSummaryRowColor;
   }
 
 // ignore: public_member_api_docs
@@ -5272,155 +5266,11 @@ class DataGridThemeHelper {
 }
 
 ///
-/// Defines the theme data for the [SfDataGrid] widget for Material 3 design.
+/// Defines the theme data for the [SfDataGrid] widget.
 ///
-class _SfDataGridThemeDataM3 extends SfDataGridThemeData {
-  /// Constructs the [_SfDataGridThemeDataM3]
-  _SfDataGridThemeDataM3(this.context, this.dataGridThemeData);
-
-  //// The build context.
-  final BuildContext context;
-
-  /// The data grid theme data.
-  final SfDataGridThemeData dataGridThemeData;
-
-  /// The color scheme derived from the current theme context.
-  late final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-  @override
-  Color get gridLineColor => colorScheme.outlineVariant;
-
-  @override
-  double get gridLineStrokeWidth => 1;
-
-  @override
-  Color get selectionColor => colorScheme.primaryContainer;
-
-  @override
-  DataGridCurrentCellStyle get currentCellStyle => DataGridCurrentCellStyle(
-      borderColor: colorScheme.primary, borderWidth: 2.0);
-
-  @override
-  double get frozenPaneLineWidth => 2;
-
-  @override
-  Color get frozenPaneLineColor => colorScheme.outline;
-
-  @override
-  Color get sortIconColor => colorScheme.onSurfaceVariant;
-
-  @override
-  Color get headerHoverColor => colorScheme.primary.withOpacity(0.08);
-
-  @override
-  double get frozenPaneElevation => 5;
-
-  @override
-  Color get headerColor => colorScheme.surface.withOpacity(0.0001);
-
-  @override
-  Color get columnResizeIndicatorColor => colorScheme.primary;
-
-  @override
-  double get columnResizeIndicatorStrokeWidth => 2;
-
-  @override
-  Color get rowHoverColor => colorScheme.primary.withOpacity(0.08);
-
-  @override
-  TextStyle get rowHoverTextStyle => TextStyle(
-      fontFamily: 'Roboto',
-      fontWeight: FontWeight.w400,
-      fontSize: 14,
-      color: colorScheme.onSurface.withOpacity(0.87));
-
-  @override
-  Widget? get sortIcon => dataGridThemeData.sortIcon;
-
-  @override
-  Widget? get filterIcon => dataGridThemeData.filterIcon;
-
-  @override
-  Color? get filterIconColor => dataGridThemeData.filterIconColor;
-
-  @override
-  Color? get filterIconHoverColor => dataGridThemeData.filterIconHoverColor;
-
-  @override
-  Color? get sortOrderNumberColor => dataGridThemeData.sortOrderNumberColor;
-
-  @override
-  Color? get sortOrderNumberBackgroundColor =>
-      dataGridThemeData.sortOrderNumberBackgroundColor;
-
-  @override
-  TextStyle get filterPopupTextStyle => TextStyle(
-      fontSize: 14.0,
-      color: colorScheme.onSurface.withOpacity(0.89),
-      fontFamily: 'Roboto',
-      fontWeight: FontWeight.normal);
-
-  @override
-  TextStyle get filterPopupDisabledTextStyle => TextStyle(
-      fontSize: 14.0,
-      color: colorScheme.onSurface.withOpacity(0.38),
-      fontFamily: 'Roboto',
-      fontWeight: FontWeight.normal);
-
-  @override
-  Color get columnDragIndicatorColor => colorScheme.primary;
-
-  @override
-  double get columnDragIndicatorStrokeWidth => 2;
-
-  @override
-  Widget? get groupExpanderIcon => dataGridThemeData.groupExpanderIcon;
-
-  @override
-  double get indentColumnWidth => 40;
-
-  @override
-  Color get indentColumnColor => colorScheme.primary.withOpacity(0.08);
-
-  /// Provides the icon color.
-  Color get filterPopupIconColor => colorScheme.onSurfaceVariant;
-
-  /// Provides the disable icon color.
-  Color get filterPopupDisableIconColor =>
-      colorScheme.onSurface.withOpacity(0.38);
-
-  /// Provides the border color.
-  Color get filterPopupBorderColor => colorScheme.onSurface.withOpacity(0.12);
-
-  /// Provides the background color.
-  Color get filterPopupBackgroundColor =>
-      colorScheme.brightness == Brightness.light
-          ? const Color(0xFFEEE8F4)
-          : const Color(0xFF302D38);
-
-  /// Provides the text color.
-  Color get filterPopupTextColor => const Color(0xFF49454F);
-
-  /// Provides the feedBack widgetcolor.
-  Color get feedBackWidgetColor => colorScheme.surface;
-
-  /// Provides the caption summaryrow color.
-  Color get captionSummaryRowColor => colorScheme.primary.withOpacity(0.08);
-
-  /// Provides the caption summaryrow hover color.
-  Color get captionSummaryRowHoverColor =>
-      colorScheme.primary.withOpacity(0.12);
-
-  /// Provides the table summary row color.
-  Color get tableSummaryRowColor => colorScheme.primary.withOpacity(0.08);
-}
-
-///
-/// Defines the theme data for the [SfDataGrid] widget for Material 2 design.
-///
-class _SfDataGridThemeDataM2 extends SfDataGridThemeData {
-  /// Constructs the [_SfDataGridThemeDataM2]
-  _SfDataGridThemeDataM2(this.context, this.dataGridThemeData);
+class _SfDataGridThemeData extends SfDataGridThemeData {
+  /// Constructs the [_SfDataGridThemeData]
+  _SfDataGridThemeData(this.context, this.dataGridThemeData);
 
   /// The build context.
   final BuildContext context;
@@ -5428,39 +5278,39 @@ class _SfDataGridThemeDataM2 extends SfDataGridThemeData {
   /// The data grid theme data.
   final SfDataGridThemeData dataGridThemeData;
 
-  /// The color scheme derived from the current theme context.
-  late final ColorScheme colorScheme = Theme.of(context).colorScheme;
+  /// The color scheme derived from the current  SfTheme context.
+  late final SfColorScheme colorScheme = SfTheme.colorScheme(context);
 
   @override
-  Color get gridLineColor => colorScheme.onSurface.withOpacity(0.12);
+  Color? get gridLineColor => colorScheme.onSurface[33];
 
   @override
   double get gridLineStrokeWidth => 1;
 
   @override
-  Color get selectionColor => colorScheme.onSurface.withOpacity(0.08);
+  Color? get selectionColor => colorScheme.onSurface[19];
 
   @override
   DataGridCurrentCellStyle get currentCellStyle => DataGridCurrentCellStyle(
-      borderColor: colorScheme.onSurface.withOpacity(0.26), borderWidth: 1.0);
+      borderColor: colorScheme.onSurface[66]!, borderWidth: 1.0);
 
   @override
   double get frozenPaneLineWidth => 2;
 
   @override
-  Color get frozenPaneLineColor => colorScheme.onSurface.withOpacity(0.38);
+  Color? get frozenPaneLineColor => colorScheme.onSurface[98];
 
   @override
-  Color get sortIconColor => colorScheme.onSurface.withOpacity(0.6);
+  Color? get sortIconColor => colorScheme.onSurface[154];
 
   @override
-  Color get headerHoverColor => colorScheme.onSurface.withOpacity(0.04);
+  Color? get headerHoverColor => colorScheme.onSurface[10];
 
   @override
   double get frozenPaneElevation => 5;
 
   @override
-  Color get headerColor => colorScheme.surface.withOpacity(0.0001);
+  Color? get headerColor => colorScheme.surface[0];
 
   @override
   Color get columnResizeIndicatorColor => colorScheme.primary;
@@ -5469,14 +5319,14 @@ class _SfDataGridThemeDataM2 extends SfDataGridThemeData {
   double get columnResizeIndicatorStrokeWidth => 2;
 
   @override
-  Color get rowHoverColor => colorScheme.onSurface.withOpacity(0.04);
+  Color? get rowHoverColor => colorScheme.onSurface[10];
 
   @override
   TextStyle get rowHoverTextStyle => TextStyle(
       fontFamily: 'Roboto',
       fontWeight: FontWeight.w400,
       fontSize: 14,
-      color: colorScheme.onSurface.withOpacity(0.87));
+      color: colorScheme.onSurface[222]);
 
   @override
   Widget? get sortIcon => dataGridThemeData.sortIcon;
@@ -5500,14 +5350,14 @@ class _SfDataGridThemeDataM2 extends SfDataGridThemeData {
   @override
   TextStyle get filterPopupTextStyle => TextStyle(
       fontSize: 14.0,
-      color: colorScheme.onSurface.withOpacity(0.89),
+      color: colorScheme.onSurface[227],
       fontFamily: 'Roboto',
       fontWeight: FontWeight.normal);
 
   @override
   TextStyle get filterPopupDisabledTextStyle => TextStyle(
       fontSize: 14.0,
-      color: colorScheme.onSurface.withOpacity(0.38),
+      color: colorScheme.onSurface[97],
       fontFamily: 'Roboto',
       fontWeight: FontWeight.normal);
 
@@ -5524,32 +5374,35 @@ class _SfDataGridThemeDataM2 extends SfDataGridThemeData {
   double get indentColumnWidth => 40;
 
   @override
-  Color get indentColumnColor => colorScheme.onSurface.withOpacity(0.04);
+  Color? get indentColumnColor => colorScheme.onSurface[10];
 
   /// Provides the icon color.
-  Color get filterPopupIconColor => colorScheme.onSurface.withOpacity(0.6);
+  Color? get filterPopupIconColor => colorScheme.onSurface[154];
 
   /// Provides the disable icon color.
-  Color get filterPopupDisableIconColor =>
-      colorScheme.onSurface.withOpacity(0.38);
+  Color? get filterPopupDisableIconColor => colorScheme.onSurface[97];
 
   /// Provides the border color.
-  Color get filterPopupBorderColor => colorScheme.onSurface.withOpacity(0.12);
+  Color? get filterPopupBorderColor => colorScheme.onSurface[31];
 
   /// Provides the background color.
-  Color get filterPopupBackgroundColor =>
-      colorScheme.onSurface.withOpacity(0.001);
+  Color? get filterPopupBackgroundColor => colorScheme.onSurface[0];
 
   /// Provides the text color.
-  Color get filterPopupTextColor => colorScheme.onSurface.withOpacity(0.89);
+  Color? get filterPopupTextColor => colorScheme.onSurface[228];
 
   /// Provides the caption summaryrow color.
-  Color get captionSummaryRowColor => colorScheme.onSurface.withOpacity(0.04);
+  Color? get captionSummaryRowColor => colorScheme.onSurface[10];
 
   /// Provides the caption summary row hover color.
-  Color get captionSummaryRowHoverColor =>
-      colorScheme.onSurface.withOpacity(0.08);
+  Color? get captionSummaryRowHoverColor => colorScheme.onSurface[20];
 
   /// Provides the table summary row color.
-  Color get tableSummaryRowColor => Colors.transparent;
+  Color get tableSummaryRowColor => colorScheme.transparent;
+
+  /// Provides the filter popup outer widgetcolor.
+  Color get filterPopupOuterColor => colorScheme.surface[251]!;
+
+  /// Provides the feedBack widgetcolor.
+  Color get feedBackWidgetColor => colorScheme.surface[250]!;
 }

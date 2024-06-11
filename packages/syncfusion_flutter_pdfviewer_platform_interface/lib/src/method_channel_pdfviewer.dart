@@ -28,13 +28,14 @@ class MethodChannelPdfViewer extends PdfViewerPlatform {
     return _channel.invokeMethod('getPagesWidth', documentID);
   }
 
-  /// Gets the image's bytes information of the specified page.
+  /// Gets the image bytes of the specified page from the document at the specified width and height.
   @override
-  Future<Uint8List?> getImage(
-      int pageNumber, double currentScale, String documentID) async {
-    return _channel.invokeMethod<Uint8List>('getImage', <String, dynamic>{
+  Future<Uint8List?> getPage(
+      int pageNumber, int width, int height, String documentID) async {
+    return _channel.invokeMethod<Uint8List>('getPage', <String, dynamic>{
       'index': pageNumber,
-      'scale': currentScale,
+      'width': width,
+      'height': height,
       'documentID': documentID
     });
   }

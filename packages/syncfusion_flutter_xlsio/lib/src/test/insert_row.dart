@@ -1,0 +1,354 @@
+// ignore: depend_on_referenced_packages
+import 'package:flutter_test/flutter_test.dart';
+import '../../xlsio.dart';
+import 'xlsio_workbook.dart';
+
+// ignore: public_member_api_docs
+void xlsioInsertRow() {
+  group('InsertRow', () {
+    test('Text', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      final Range range = sheet.getRangeByName('A1');
+      range.setText('Hello');
+      final Range range1 = sheet.getRangeByName('B2');
+      range1.setText('World');
+      final Range range2 = sheet.getRangeByName('C3');
+      range2.setText('Universe');
+      final Range range3 = sheet.getRangeByName('D4:E5');
+      range3.setText('Zee');
+      sheet.insertRow(1, 4);
+      final Range range4 = sheet.getRangeByName('A1');
+      range4.setText('Berry');
+      sheet.insertRow(8, 2);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowText.xlsx');
+      workbook.dispose();
+    });
+    test('Number', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      final Range range = sheet.getRangeByName('B1');
+      range.setNumber(1648);
+      final Range range1 = sheet.getRangeByName('B2');
+      range1.setNumber(378);
+      final Range range2 = sheet.getRangeByName('C3');
+      range2.setNumber(-738);
+      final Range range3 = sheet.getRangeByName('D4:E5');
+      range3.setNumber(449);
+      sheet.insertRow(2, 2);
+      final Range range4 = sheet.getRangeByName('A1');
+      range4.setNumber(32891);
+      sheet.insertRow(7, 2);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowNumber.xlsx');
+      workbook.dispose();
+    });
+    test('DateTime', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      final Range range = sheet.getRangeByName('A1');
+      range.setDateTime(DateTime(2020, 7, 7, 1));
+      final Range range1 = sheet.getRangeByName('B4');
+      range1.setDateTime(DateTime(1997, 11, 22));
+      final Range range2 = sheet.getRangeByName('C6');
+      range2.setDateTime(DateTime.now());
+      final Range range3 = sheet.getRangeByName('D3');
+      range3.setDateTime(DateTime(1995, 5, 5));
+      sheet.insertRow(3, 6);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowDateTime.xlsx');
+      workbook.dispose();
+    });
+    test('Formula', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      sheet.getRangeByIndex(1, 1).number = 10;
+      sheet.getRangeByIndex(2, 1).number = 20;
+      final Range range = sheet.getRangeByIndex(3, 1);
+      range.formula = '=A1+A2';
+      sheet.insertRow(3);
+      sheet.insertRow(2);
+      final Range range1 = sheet.getRangeByIndex(4, 1);
+      range1.formula = '=A1+A3';
+      final Range range2 = sheet.getRangeByName('A7');
+      range2.setFormula('=MIN(A1:A6)');
+      sheet.insertRow(1);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowFormula.xlsx');
+      workbook.dispose();
+    });
+    test('Cellstyle', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      final Style style = workbook.styles.add('style');
+      style.backColor = '#009900';
+      style.fontName = 'Ink Free';
+      style.fontSize = 18;
+      style.fontColor = '#4CDCC7';
+      style.italic = true;
+      style.wrapText = true;
+      style.hAlign = HAlignType.right;
+      style.vAlign = VAlignType.top;
+      style.borders.top.lineStyle = LineStyle.double;
+      style.borders.top.color = '#ED943B';
+      style.numberFormat = '(#,##0)';
+
+      final CellStyle style1 = CellStyle(workbook);
+      style1.backColor = '#93A83A';
+      style1.fontName = 'Colonna MT';
+      style1.fontSize = 14;
+      style1.fontColor = '#A44ABB';
+      style1.italic = true;
+      style1.bold = true;
+      style1.wrapText = true;
+      style1.hAlign = HAlignType.left;
+      style1.vAlign = VAlignType.center;
+      style1.borders.top.lineStyle = LineStyle.thick;
+      style1.borders.top.color = '#779988';
+      style1.numberFormat = '(#,##0.00)';
+      workbook.styles.addStyle(style1);
+
+      final Range range1 = sheet.getRangeByIndex(1, 1);
+      range1.text = 'Z';
+      range1.cellStyle = style;
+      sheet.insertRow(1, 4);
+      final Range range2 = sheet.getRangeByIndex(1, 1);
+      range2.number = 4423;
+      range2.cellStyle = style1;
+      sheet.insertRow(2, 4);
+
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowCellStyle.xlsx');
+      workbook.dispose();
+    });
+    test('BuiltinStyle', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      Range range = sheet.getRangeByName('A1');
+      range.setText('Hello');
+      range.builtInStyle = BuiltInStyles.bad;
+      sheet.insertRow(1, 1);
+      range = sheet.getRangeByIndex(2, 2);
+      range.setNumber(4488);
+      range.builtInStyle = BuiltInStyles.heading1;
+      sheet.insertRow(2, 2);
+      range = sheet.getRangeByName('A1');
+      range.setText('World');
+      range.builtInStyle = BuiltInStyles.accent4;
+      range = sheet.getRangeByIndex(5, 4);
+      range.setNumber(92);
+      range.builtInStyle = BuiltInStyles.checkCell;
+      sheet.insertRow(5, 4);
+      sheet.insertColumn(4, 2);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowBuiltinstyle.xlsx');
+      workbook.dispose();
+    });
+    test('NumberFormat', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      final Range range = sheet.getRangeByName('A1');
+      range.setNumber(2783);
+      range.numberFormat = '#,##0.00';
+      final Range range1 = sheet.getRangeByName('B2');
+      range1.setNumber(22.11);
+      range1.numberFormat = r'([Red]$0.00)';
+      final Range range2 = sheet.getRangeByIndex(3, 3);
+      range2.setNumber(0.09312);
+      range2.numberFormat = '0.000%';
+      final Range range3 = sheet.getRangeByName('A4');
+      range3.setDateTime(DateTime(2014, 10, 12, 20, 5, 5));
+      range3.numberFormat = 'm/d';
+      final Range range4 = sheet.getRangeByIndex(3, 1);
+      range4.setNumber(9.032);
+      range4.numberFormat = r'_($* "-"???_)';
+      final Range range5 = sheet.getRangeByIndex(6, 1);
+      range5.setNumber(11.1);
+      range5.numberFormat = '0.0E+00';
+      final Range range6 = sheet.getRangeByIndex(7, 1);
+      range6.setNumber(21.5);
+      range6.numberFormat = '# ??/16';
+      sheet.insertRow(2, 2);
+      sheet.insertRow(7, 4);
+      sheet.insertRow(10, 2);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowNumberFormat.xlsx');
+      workbook.dispose();
+    });
+    test('Hyperlink', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      final Range range = sheet.getRangeByIndex(1, 1);
+      range.setNumber(1);
+      final Hyperlink link = sheet.hyperlinks
+          .add(range, HyperlinkType.url, 'http://www.syncfusion.com');
+      link.screenTip = 'Click Here to know about Syncfusion';
+      link.textToDisplay = 'Syncfusion';
+      final Range range1 = sheet.getRangeByIndex(2, 4);
+      sheet.hyperlinks.add(range1, HyperlinkType.url, 'http://www.google.com',
+          'Search anything', 'Google');
+      sheet.insertRow(1);
+      sheet.insertRow(3, 2);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowHyperlink.xlsx');
+      workbook.dispose();
+    });
+    test('CellStyle Format', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      final Style style = workbook.styles.add('style');
+      style.backColor = '#A21117';
+      style.fontName = 'Engravers MT';
+      style.fontSize = 18;
+      style.fontColor = '#FF9966';
+      style.italic = true;
+      style.wrapText = true;
+      style.bold = true;
+      style.hAlign = HAlignType.center;
+      style.vAlign = VAlignType.top;
+      style.borders.left.lineStyle = LineStyle.double;
+      style.borders.left.color = '#FF00FF';
+
+      final Style style2 = workbook.styles.add('style2');
+      style2.fontColor = '#5AB2D1';
+      style2.fontName = 'Broadway';
+
+      final Style style3 = workbook.styles.add('style3');
+      style3.wrapText = true;
+      style3.rotation = 180;
+
+      final CellStyle style1 = CellStyle(workbook);
+      style1.backColor = '#44F92B';
+      style1.fontName = 'Viner Hand ITC';
+      style1.fontSize = 20;
+      style1.fontColor = '#9412E4';
+      style1.hAlign = HAlignType.left;
+      style1.vAlign = VAlignType.center;
+      style1.borders.top.lineStyle = LineStyle.medium;
+      style1.borders.top.color = '#779988';
+      style1.numberFormat = '(#,##0.00)';
+      workbook.styles.addStyle(style1);
+
+      final Range range1 = sheet.getRangeByIndex(1, 1);
+      range1.text = 'Z';
+      range1.cellStyle = style;
+      sheet.insertRow(1, 2, ExcelInsertOptions.formatAsAfter);
+
+      final Range range2 = sheet.getRangeByName('B2');
+      range2.number = 1221;
+      range2.cellStyle = style1;
+      sheet.insertRow(2, 4, ExcelInsertOptions.formatAsAfter);
+      sheet.insertRow(7, 2, ExcelInsertOptions.formatAsBefore);
+
+      final Range range3 = sheet.getRangeByIndex(4, 5, 7, 7);
+      range3.text = 'MZ';
+      range3.cellStyle = style2;
+      sheet.insertRow(5, 3, ExcelInsertOptions.formatAsBefore);
+
+      Range range4 = sheet.getRangeByName('F12');
+      range4.text = 'Welcome Everyone';
+      range4.cellStyle = style3;
+      sheet.insertRow(13, 2, ExcelInsertOptions.formatAsBefore);
+      range4 = sheet.getRangeByIndex(13, 6);
+      range4.text = 'Disney World';
+
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowCellStyleFormat.xlsx');
+      workbook.dispose();
+    });
+    test('RowHeight', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+
+      final Range range = sheet.getRangeByName('A1');
+      range.rowHeight = 20;
+      sheet.insertRow(2, 2, ExcelInsertOptions.formatAsBefore);
+      sheet.insertRow(1, 3, ExcelInsertOptions.formatAsAfter);
+      final Range range1 = sheet.getRangeByIndex(3, 5);
+      range1.rowHeight = 30;
+      sheet.insertRow(3, 1, ExcelInsertOptions.formatAsAfter);
+      sheet.insertRow(6, 3, ExcelInsertOptions.formatAsBefore);
+
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowRowHeight.xlsx');
+      workbook.dispose();
+    });
+    test('values', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      sheet.getRangeByIndex(1, 1).number = 10;
+      sheet.getRangeByIndex(2, 1).number = 20;
+      final Range range = sheet.getRangeByIndex(3, 1);
+      range.formula = '=A1+A2';
+      sheet.insertRow(3, 1, ExcelInsertOptions.formatAsBefore);
+      sheet.insertRow(2, 1, ExcelInsertOptions.formatAsAfter);
+      sheet.getRangeByName('B7').text = 'Zee';
+      sheet.insertRow(8, 1, ExcelInsertOptions.formatAsBefore);
+      sheet.getRangeByName('C8').number = 444;
+      sheet.insertRow(1, 1, ExcelInsertOptions.formatAsAfter);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowValues.xlsx');
+      workbook.dispose();
+    });
+    test('BuiltinStyle formats', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      Range range = sheet.getRangeByName('A1');
+      range.setText('Hello');
+      range.builtInStyle = BuiltInStyles.bad;
+      sheet.insertRow(1, 2, ExcelInsertOptions.formatAsAfter);
+      sheet.insertRow(4, 4, ExcelInsertOptions.formatAsBefore);
+      range = sheet.getRangeByIndex(2, 4);
+      range.setNumber(4488);
+      range.builtInStyle = BuiltInStyles.heading1;
+      sheet.insertRow(3, 2, ExcelInsertOptions.formatAsBefore);
+      range = sheet.getRangeByName('A1');
+      range.setText('World');
+      range.builtInStyle = BuiltInStyles.accent4;
+      range = sheet.getRangeByIndex(4, 6);
+      range.setNumber(92);
+      range.builtInStyle = BuiltInStyles.checkCell;
+      sheet.insertRow(5, 2, ExcelInsertOptions.formatAsBefore);
+      sheet.insertRow(4, 4, ExcelInsertOptions.formatAsAfter);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowBuiltInstyleFormat.xlsx');
+      workbook.dispose();
+    });
+    test('NumberFormat', () {
+      final Workbook workbook = Workbook();
+      final Worksheet sheet = workbook.worksheets[0];
+      final Range range = sheet.getRangeByName('A1');
+      range.setNumber(2783);
+      range.numberFormat = '#,##0.00';
+      final Range range1 = sheet.getRangeByName('B2');
+      range1.setNumber(22.11);
+      range1.numberFormat = r'([Red]$0.00)';
+      final Range range2 = sheet.getRangeByIndex(3, 3);
+      range2.setNumber(0.09312);
+      range2.numberFormat = '0.000%';
+      final Range range3 = sheet.getRangeByName('A4');
+      range3.setDateTime(DateTime(2014, 10, 12, 20, 5, 5));
+      range3.numberFormat = 'm/d';
+      final Range range4 = sheet.getRangeByIndex(3, 1);
+      range4.setNumber(9.032);
+      range4.numberFormat = r'_($* "-"???_)';
+      final Range range5 = sheet.getRangeByIndex(6, 1);
+      range5.setNumber(11.1);
+      range5.numberFormat = '0.0E+00';
+      Range range6 = sheet.getRangeByIndex(7, 1);
+      range6.setNumber(21.5);
+      range6.numberFormat = '# ??/16';
+      sheet.insertRow(1, 2, ExcelInsertOptions.formatAsAfter);
+      sheet.insertRow(4, 1, ExcelInsertOptions.formatAsBefore);
+      sheet.insertRow(5, 5, ExcelInsertOptions.formatAsAfter);
+      range6 = sheet.getRangeByName('B4');
+      range6.number = 72;
+      sheet.insertRow(11, 3, ExcelInsertOptions.formatAsAfter);
+      sheet.insertRow(13, 1, ExcelInsertOptions.formatAsBefore);
+      final List<int> bytes = workbook.saveAsStream();
+      saveAsExcel(bytes, 'ExcelInsertRowNumberFormat1.xlsx');
+      workbook.dispose();
+    });
+  });
+}

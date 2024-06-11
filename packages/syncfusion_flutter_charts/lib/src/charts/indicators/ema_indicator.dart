@@ -294,9 +294,9 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
     }
 
-    if (dataCount >= period && period > 0) {
-      _signalLineActualValues.clear();
-      _yValues.clear();
+    _signalLineActualValues.clear();
+    _yValues.clear();
+    if (dataCount >= period && period > 0 && signalLineWidth > 0) {
       _calculateSignalLineValues();
     }
 
@@ -315,15 +315,12 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       sum += _fieldValue(i, valueField);
     }
 
-    final num currentAverage = sum / period;
-
     final double x = xValues[period - 1].toDouble();
-    final double y = currentAverage.toDouble();
+    final double y = (sum / period).toDouble();
     xMinimum = min(xMinimum, x);
     xMaximum = max(xMaximum, x);
     yMinimum = min(yMinimum, y);
     yMaximum = max(yMaximum, y);
-
     _signalLineActualValues.add(Offset(x, y));
 
     int index = period;
@@ -340,15 +337,15 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       xMaximum = max(xMaximum, x);
       yMinimum = min(yMinimum, y);
       yMaximum = max(yMaximum, y);
-
       _signalLineActualValues.add(Offset(x, y));
+
       index++;
     }
 
     xMin = xMinimum.isInfinite ? xMin : xMinimum;
     xMax = xMaximum.isInfinite ? xMax : xMaximum;
-    yMin = min(yMin, yMinimum);
-    yMax = max(yMax, yMaximum);
+    yMin = yMinimum.isInfinite ? yMin : yMinimum;
+    yMax = yMaximum.isInfinite ? yMax : yMaximum;
   }
 
   num _fieldValue(int index, String valueField) {
@@ -439,7 +436,8 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     num? nearPointX;
     num? nearPointY;
     int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
       nearPointX ??= points[0].dx;
       nearPointY ??= yAxis!.visibleRange!.minimum;
 
@@ -476,8 +474,7 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     return CartesianChartPoint<D>(
       x: xRawValues[pointIndex + period - 1],
       xValue: xValues[pointIndex + period - 1],
-      y: yAxis!.pixelToPoint(yAxis!.paintBounds,
-          signalLinePoints[pointIndex].dx, signalLinePoints[pointIndex].dy),
+      y: _signalLineActualValues[pointIndex].dy,
     );
   }
 

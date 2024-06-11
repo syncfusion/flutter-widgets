@@ -185,7 +185,13 @@ class CoreTooltipState extends State<CoreTooltip>
       return;
     }
 
-    _showTimer = Timer(Duration(milliseconds: widget.showDuration), () {
+    _showTimer = Timer(
+        // When the [animationDuration] is 3000 and the [showDuration] is 3000,
+        // the tooltip will start hiding after it completes the scale animation,
+        // without staying in the visual for 3 seconds.
+        // So, [widget.animationDuration] has been considered in [_showTimer].
+        Duration(milliseconds: widget.animationDuration + widget.showDuration),
+        () {
       if (mounted) {
         hide();
         _showTimer = null;
@@ -666,6 +672,7 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    final double animationValue = _state._animation.value;
     if (child == null ||
         _nosePosition == null ||
         _effectivePreferTooltipOnTop == null) {
@@ -674,7 +681,7 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
 
     context.canvas.save();
     context.canvas.translate(_nosePosition!.dx, _nosePosition!.dy);
-    context.canvas.scale(_state._animation.value);
+    context.canvas.scale(animationValue);
     context.canvas.translate(-_nosePosition!.dx, -_nosePosition!.dy);
     // In web HTML rendering, fill color clipped half of its tooltip's size.
     // To avoid this issue we are drawing stroke before fill.
@@ -688,11 +695,17 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
     context.canvas.drawPath(_path, _strokePaint);
     // Drawing fill color.
     context.canvas.drawPath(_path, _fillPaint);
-
+    // Clipping corners and to ignore excess portions.
     context.canvas.clipPath(_path);
-
+    // Drawing tooltip's builder/child.
     final BoxParentData childParentData = child!.parentData! as BoxParentData;
-    context.paintChild(child!, childParentData.offset + offset);
+    // Used [pushTransform] because scrollable widgets are not scaled with
+    // [context.paintChild].
+    context.pushTransform(true, Offset(_nosePosition!.dx, _nosePosition!.dy),
+        Matrix4.diagonal3Values(animationValue, animationValue, 1),
+        (PaintingContext context, Offset translateOffset) {
+      context.paintChild(child!, childParentData.offset + offset);
+    });
 
     context.canvas.restore();
   }

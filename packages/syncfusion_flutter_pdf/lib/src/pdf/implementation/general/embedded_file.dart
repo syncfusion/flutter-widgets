@@ -64,7 +64,7 @@ class EmbeddedFile implements IPdfWrapper {
   void _streamBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
     _stream.clearStream();
     _stream.compress = false;
-    _stream.dataStream = data;
+    _stream.data = data;
     params.size = data.length;
   }
 

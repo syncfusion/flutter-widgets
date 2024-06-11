@@ -1,7 +1,15 @@
 name: syncfusion_flutter_barcodes
 description: Flutter Barcodes generator library is used to generate and display data in the machine-readable, industry-standard 1D and 2D barcodes.
-version: 24.2.9 
+version: 25.2.6
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_barcodes
+
+screenshots:
+  - description: 'This screenshot shows the 6 one dimensional symbology type image.'
+    path: screenshots/syncfusion_flutter_barcodes_code1.png
+  - description: 'This screenshot shows the another 6 one dimensional symbology image.'
+    path: screenshots/syncfusion_flutter_barcodes_code2.png
+  - description: 'This screenshot shows two dimensional symbology of the qrcode and data matrix image.'
+    path: screenshots/qr_code_syncfusion_flutter_barcodes.png
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
@@ -10,7 +18,7 @@ dependencies:
   flutter:
     sdk: flutter
   syncfusion_flutter_core:
-      path: ../syncfusion_flutter_core
+    path: ../syncfusion_flutter_core
 
 dev_dependencies:
   flutter_test:

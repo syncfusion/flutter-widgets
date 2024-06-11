@@ -17,7 +17,6 @@ import '../common/legend.dart';
 import '../common/marker.dart';
 import '../interactions/tooltip.dart';
 import '../series/chart_series.dart';
-import '../utils/constants.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 import '../utils/typedef.dart';
@@ -1045,11 +1044,10 @@ class TrendlineRenderer extends RenderBox {
   int _nearestPointIndex(Offset position) {
     if (_points.isNotEmpty) {
       for (final int segmentIndex in trendSegmentIndexes) {
-        final Rect bounds = Rect.fromCenter(
-            center: _points[segmentIndex],
-            width: tooltipPadding,
-            height: tooltipPadding);
-        if (bounds.contains(position)) {
+        final ChartMarker marker = series!.markerAt(segmentIndex);
+        if (tooltipTouchBounds(
+                _points[segmentIndex], marker.width, marker.height)
+            .contains(position)) {
           return segmentIndex;
         }
       }
@@ -1099,8 +1097,13 @@ class TrendlineRenderer extends RenderBox {
   }
 
   dynamic _xRawValue(num value) {
-    if (xAxis is RenderDateTimeAxis || xAxis is RenderDateTimeCategoryAxis) {
+    if (xAxis is RenderDateTimeAxis) {
       return DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    } else if (xAxis is RenderCategoryAxis ||
+        xAxis is RenderDateTimeCategoryAxis) {
+      if (series != null && series!.xRawValues.isNotEmpty) {
+        return series!.xRawValues[value.toInt()];
+      }
     }
     return value;
   }
@@ -2276,7 +2279,8 @@ class TrendlineRenderer extends RenderBox {
         if (legendItemProvider != null) {
           return legendItemProvider.effectiveLegendIconType();
         }
-        return dashArray != null
+        return dashArray != null &&
+                !dashArray!.every((double value) => value <= 0)
             ? ShapeMarkerType.lineSeriesWithDashArray
             : ShapeMarkerType.lineSeries;
       case LegendIconType.circle:
