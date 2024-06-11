@@ -455,28 +455,29 @@ class RangePointer extends LeafRenderObjectWidget implements GaugePointer {
         .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     return RenderRangePointer(
-        value: value.clamp(ancestor.minimum, ancestor.maximum),
-        enableDragging: enableDragging,
-        onValueChanged: onValueChanged,
-        onValueChangeStart: onValueChangeStart,
-        onValueChangeEnd: onValueChangeEnd,
-        onValueChanging: onValueChanging,
-        cornerStyle: cornerStyle,
-        gradient: gradient,
-        pointerOffset: pointerOffset,
-        sizeUnit: sizeUnit,
-        width: width,
-        dashArray: dashArray,
-        color: color,
-        pointerAnimationController: radialAxisScope.animationController,
-        pointerInterval: radialAxisScope.pointerInterval,
-        enableAnimation: enableAnimation,
-        isRadialGaugeAnimationEnabled:
-            radialAxisScope.isRadialGaugeAnimationEnabled,
-        repaintNotifier: radialAxisScope.repaintNotifier,
-        animationType: animationType,
-        themeData: themeData,
-        gaugeThemeData: gaugeTheme);
+      value: value.clamp(ancestor.minimum, ancestor.maximum),
+      enableDragging: enableDragging,
+      onValueChanged: onValueChanged,
+      onValueChangeStart: onValueChangeStart,
+      onValueChangeEnd: onValueChangeEnd,
+      onValueChanging: onValueChanging,
+      cornerStyle: cornerStyle,
+      gradient: gradient,
+      pointerOffset: pointerOffset,
+      sizeUnit: sizeUnit,
+      width: width,
+      dashArray: dashArray,
+      color: color,
+      pointerAnimationController: radialAxisScope.animationController,
+      pointerInterval: radialAxisScope.pointerInterval,
+      enableAnimation: enableAnimation,
+      isRadialGaugeAnimationEnabled:
+          radialAxisScope.isRadialGaugeAnimationEnabled,
+      repaintNotifier: radialAxisScope.repaintNotifier,
+      animationType: animationType,
+      themeData: themeData,
+      gaugeThemeData: gaugeTheme,
+    );
   }
 
   @override

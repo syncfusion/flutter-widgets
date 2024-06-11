@@ -78,7 +78,10 @@ class DateTimeAxis extends ChartAxis {
     super.autoScrollingMode,
     super.axisLabelFormatter,
     this.onRendererCreated,
-  });
+  }) : assert(
+            (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
+                autoScrollingDelta == null,
+            'Both properties have the same behavior to display the visible data points, use any one of the properties');
 
   /// Formats the date-time axis labels. The default data-time axis label can be
   /// formatted with various built-in date formats.
@@ -153,32 +156,113 @@ class DateTimeAxis extends ChartAxis {
   /// ```
   final DateTime? maximum;
 
-  /// The minimum visible value of the axis. The axis will be rendered from
-  /// this date initially.
+  /// The minimum visible value of the axis. The axis is rendered from this value initially, and
+  /// it applies only during load time. The value will not be updated when zooming or panning.
   ///
   /// Defaults to `null`.
+  ///
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
-  ///           primaryXAxis: DateTimeAxis(initialVisibleMinimum: DateTime(2000)),
+  ///           primaryYAxis: DateTimeAxis(initialVisibleMinimum: DateTime(2019)),
   ///        )
   ///    );
   /// }
   /// ```
+  ///
+  /// Use the [onRendererCreated] callback, as shown in the code below, to update the visible
+  /// minimum value dynamically.
+  ///
+  /// ```dart
+  /// DateTimeAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: DateTimeAxis(
+  ///             initialVisibleMinimum: DateTime(2019),
+  ///             onRendererCreated: (DateTimeAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, DateTime>>[
+  ///             LineSeries<SalesData, DateTime>(
+  ///               dataSource: data,
+  ///               xValueMapper: (SalesData sales, _) => sales.year,
+  ///               yValueMapper: (SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.visibleMinimum = DateTime(2017);
+  ///            }
+  ///           },
+  ///           child: const Text('Update Axis Range'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
   final DateTime? initialVisibleMinimum;
 
-  /// The maximum visible value of the axis. The axis will be rendered
-  /// from this date initially.
+  /// The maximum visible value of the axis. The axis is rendered from this value initially, and
+  /// it applies only during load time. The value will not be updated when zooming or panning.
   ///
   /// Defaults to `null`.
+  ///
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
-  ///          primaryXAxis: DateTimeAxis(initialVisibleMaximum: DateTime(2019)),
-  ///        )
-  ///    );
+  ///           primaryYAxis: DateTimeAxis(initialVisibleMaximum: DateTime(2020)),
+  ///        ));
+  /// }
+  /// ```
+  ///
+  /// Use the [onRendererCreated] callback, as shown in the code below, to update the visible
+  /// maximum value dynamically
+  ///
+  /// ```dart
+  /// DateTimeAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: DateTimeAxis(
+  ///             initialVisibleMaximum: DateTime(2020),
+  ///             onRendererCreated: (DateTimeAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, DateTime>>[
+  ///             LineSeries<SalesData, DateTime>(
+  ///               dataSource: data,
+  ///               xValueMapper: (SalesData sales, _) => sales.year,
+  ///               yValueMapper: (SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.visibleMaximum = DateTime(2024);
+  ///            }
+  ///           },
+  ///           child: const Text('Update Axis Range'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
   /// }
   /// ```
   final DateTime? initialVisibleMaximum;
@@ -427,8 +511,17 @@ class RenderDateTimeAxis extends RenderChartAxis {
   }
 
   void _handleRangeControllerChange() {
-    _updateVisibleMinMax(
-        min: rangeController!.start, max: rangeController!.end);
+    dynamic start = rangeController!.start;
+    dynamic end = rangeController!.end;
+    if (rangeController!.start is! DateTime) {
+      start = DateTime.fromMillisecondsSinceEpoch(
+          (rangeController!.start as num).toInt());
+    }
+    if (rangeController!.end is! DateTime) {
+      end = DateTime.fromMillisecondsSinceEpoch(
+          (rangeController!.end as num).toInt());
+    }
+    _updateVisibleMinMax(min: start, max: end);
   }
 
   void _updateVisibleMinMax({DateTime? min, DateTime? max}) {
@@ -437,6 +530,20 @@ class RenderDateTimeAxis extends RenderChartAxis {
     }
     if (max != null) {
       controller.visibleMaximum = max;
+    }
+  }
+
+  @override
+  void updateRangeControllerValues(DoubleRange newVisibleRange) {
+    final DateTime start =
+        DateTime.fromMillisecondsSinceEpoch(newVisibleRange.minimum.toInt());
+    final DateTime end =
+        DateTime.fromMillisecondsSinceEpoch(newVisibleRange.maximum.toInt());
+    if (rangeController!.start != start) {
+      rangeController!.start = start;
+    }
+    if (rangeController!.end != end) {
+      rangeController!.end = end;
     }
   }
 
@@ -588,6 +695,9 @@ class RenderDateTimeAxis extends RenderChartAxis {
   @override
   DoubleRange updateAutoScrollingDelta(
       int scrollingDelta, DoubleRange actualRange, DoubleRange visibleRange) {
+    if (initialVisibleMaximum != null || initialVisibleMinimum != null) {
+      return visibleRange;
+    }
     final DateTimeIntervalType intervalType =
         autoScrollingDeltaType == DateTimeIntervalType.auto
             ? _visibleIntervalType

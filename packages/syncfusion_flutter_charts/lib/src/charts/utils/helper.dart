@@ -228,7 +228,7 @@ void drawDashes(Canvas canvas, List<double>? dashArray, Paint paint,
   }
 
   bool even = true;
-  if (dashArray != null) {
+  if (dashArray != null && !dashArray.every((double value) => value <= 0)) {
     even = false;
     for (int i = 1; i < dashArray.length; i = i + 2) {
       if (dashArray[i] == 0) {
@@ -963,13 +963,10 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
     }
 
     final int digits = parent!.tooltipBehavior!.decimalPlaces;
-    if (!parent!.tooltipBehavior!.shared) {
-      text = tooltipHeaderText(point, digits);
-    }
-
     final bool isLtr = textDirection == TextDirection.ltr;
     final String? tooltipFormat = parent?.tooltipBehavior?.format;
     if (tooltipFormat != null) {
+      text = tooltipHeaderText(point, digits);
       String tooltipText = tooltipFormat.replaceAll('point.x', text);
 
       if (point.y != null) {
@@ -1043,6 +1040,10 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
       tooltipText = tooltipText.replaceAll('series.name', name);
       text = isLtr ? tooltipText : formatRTLText(tooltipText);
     } else {
+      text = parent!.tooltipBehavior!.shared
+          ? name
+          : tooltipHeaderText(point, digits);
+
       if (point.y != null) {
         text = _formatTooltipLabel(point.y!, digits, text, isLtr);
       }
@@ -2299,4 +2300,42 @@ void animateAllBarSeries(RenderCartesianChartPlotArea plotArea) {
       }
     }
   });
+}
+
+int binarySearch(List<num> xValues, double touchValue, int min, int max) {
+  int closerIndex = 0;
+  double closerDelta = double.maxFinite;
+  while (min <= max) {
+    final int mid = (min + max) ~/ 2;
+    final double xValue = xValues[mid].toDouble();
+    final double delta = (touchValue - xValue).abs();
+    if (delta < closerDelta) {
+      closerDelta = delta;
+      closerIndex = mid;
+    }
+
+    if (touchValue == xValue) {
+      return mid;
+    } else if (touchValue < xValue) {
+      max = mid - 1;
+    } else {
+      min = mid + 1;
+    }
+  }
+  return closerIndex;
+}
+
+Rect tooltipTouchBounds(Offset center, double width, double height) {
+  // The Rect.fromCenter() method divides the width and height by 2.
+  // For smooth touch interaction, keep a 10-pixel padding for touch
+  // and a 4-pixel padding for mouse on all sides.
+  if (isHover) {
+    width = width < 8 ? 8 : width;
+    height = height < 8 ? 8 : height;
+  } else {
+    width = width < 20 ? 20 : width;
+    height = height < 20 ? 20 : height;
+  }
+
+  return Rect.fromCenter(center: center, width: width, height: height);
 }

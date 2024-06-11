@@ -3,7 +3,9 @@ import '../asn1/asn1.dart';
 import '../asn1/asn1_stream.dart';
 import '../asn1/der.dart';
 import '../cryptography/cipher_block_chaining_mode.dart';
+import '../cryptography/ipadding.dart';
 import '../cryptography/signature_utilities.dart';
+import '../pdf_signature_dictionary.dart';
 import '../pkcs/pfx_data.dart';
 import 'x509_name.dart';
 import 'x509_time.dart';
@@ -155,6 +157,13 @@ class X509Extensions extends Asn1Encode {
 
   /// internal field
   static DerObjectID authorityKeyIdentifier = DerObjectID('2.5.29.35');
+
+  /// internal field
+  static DerObjectID crlDistributionPoints = DerObjectID('2.5.29.31');
+
+  /// internal field
+  static DerObjectID authorityInfoAccess = DerObjectID('1.3.6.1.5.5.7.1.1');
+
   //Implementation
   @override
   Asn1 getAsn1() {
@@ -218,6 +227,16 @@ class X509Certificate extends X509ExtensionBase {
   }
 
   /// internal method
+  List<int>? getTbsCertificate() {
+    return c!.tbsCertificate!.getDerEncoded();
+  }
+
+  /// internal method
+  List<int>? getSignature() {
+    return c!.signature!.getBytes();
+  }
+
+  /// internal method
   CipherParameter createKey(PublicKeyInformation keyInfo) {
     CipherParameter result;
     final Algorithms algID = keyInfo.algorithm!;
@@ -233,23 +252,62 @@ class X509Certificate extends X509ExtensionBase {
     }
     return result;
   }
+
+  /// internal method
+  void verify(CipherParameter key) {
+    if (c != null) {
+      final String sigName = c!.signatureAlgorithm!.id!.id!;
+      final SignerUtilities util = SignerUtilities();
+      final ISigner signature = util.getSigner(sigName);
+      checkSignature(key, signature);
+    }
+  }
+
+  /// internal method
+  void checkSignature(CipherParameter publicKey, ISigner signature) {
+    if (!isAlgIDEqual(c!.signatureAlgorithm!, c!.tbsCertificate!.signature!)) {
+      throw Exception('signature algorithm in TBS cert not same as outer cert');
+    }
+    signature.initialize(false, publicKey);
+    final List<int>? b = getTbsCertificate();
+    if (b != null) {
+      signature.blockUpdate(b, 0, b.length);
+      final List<int>? sig = getSignature();
+      if (!signature.validateSignature(sig!)) {
+        throw Exception('Public key presented not for certificate signature');
+      }
+    }
+  }
+
+  /// internal method
+  bool isAlgIDEqual(Algorithms id1, Algorithms id2) {
+    if (!(id1.id == id2.id)) {
+      return false;
+    }
+    final Asn1Encode? p1 = id1.parameters;
+    final Asn1Encode? p2 = id2.parameters;
+    if ((p1 == null) == (p2 == null)) {
+      return p1 == p2;
+    }
+    return p1 == null ? p2!.getAsn1() is Asn1Null : p1.getAsn1() is Asn1Null;
+  }
 }
 
 /// internal class
 class X509CertificateStructure extends Asn1Encode {
   /// internal constructor
   X509CertificateStructure(Asn1Sequence seq) {
-    _tbsCert = _SingnedCertificate.getCertificate(seq[0]);
+    _tbsCert = SingnedCertificate.getCertificate(seq[0]);
     _sigAlgID = Algorithms.getAlgorithms(seq[1]);
     _sig = DerBitString.getDetBitString(seq[2]);
   }
   //Fields
-  _SingnedCertificate? _tbsCert;
+  SingnedCertificate? _tbsCert;
   Algorithms? _sigAlgID;
   DerBitString? _sig;
   //Properties
   /// internal property
-  _SingnedCertificate? get tbsCertificate => _tbsCert;
+  SingnedCertificate? get tbsCertificate => _tbsCert;
 
   /// internal property
   int get version => _tbsCert!.version;
@@ -296,8 +354,10 @@ class X509CertificateStructure extends Asn1Encode {
   }
 }
 
-class _SingnedCertificate extends Asn1Encode {
-  _SingnedCertificate(Asn1Sequence sequence) {
+/// Internal class
+class SingnedCertificate extends Asn1Encode {
+  /// internal constructor
+  SingnedCertificate(Asn1Sequence sequence) {
     int seqStart = 0;
     _sequence = sequence;
     if (sequence[0] is DerTag || sequence[0] is Asn1Tag) {
@@ -332,12 +392,14 @@ class _SingnedCertificate extends Asn1Encode {
       }
     }
   }
-  static _SingnedCertificate? getCertificate(dynamic obj) {
-    if (obj is _SingnedCertificate) {
+
+  /// internal method
+  static SingnedCertificate? getCertificate(dynamic obj) {
+    if (obj is SingnedCertificate) {
       return obj;
     }
     if (obj != null) {
-      return _SingnedCertificate(Asn1Sequence.getSequence(obj)!);
+      return SingnedCertificate(Asn1Sequence.getSequence(obj)!);
     }
     return null;
   }
@@ -356,16 +418,37 @@ class _SingnedCertificate extends Asn1Encode {
   DerBitString? _subjectID;
   X509Extensions? _extensions;
   //Properties
+  /// internal field
   int get version => _version!.value.toSigned(32).toInt() + 1;
+
+  /// internal field
   DerInteger? get serialNumber => _serialNumber;
+
+  /// internal field
   Algorithms? get signature => _signature;
+
+  /// internal field
   X509Name? get issuer => _issuer;
+
+  /// internal field
   X509Time? get startDate => _startDate;
+
+  /// internal field
   X509Time? get endDate => _endDate;
+
+  /// internal field
   X509Name? get subject => _subject;
+
+  /// internal field
   PublicKeyInformation? get subjectPublicKeyInfo => _publicKeyInformation;
+
+  /// internal field
   DerBitString? get issuerUniqueID => _issuerID;
+
+  /// internal field
   DerBitString? get subjectUniqueID => _subjectID;
+
+  /// internal field
   X509Extensions? get extensions => _extensions;
   //Implementation
   @override
@@ -478,11 +561,7 @@ class X509CertificateParser {
   //Implementation
   /// internal method
   X509Certificate? readCertificate(PdfStreamReader inStream) {
-    if (_currentStream == null) {
-      _currentStream = inStream;
-      _sData = null;
-      _sDataObjectCount = 0;
-    } else if (_currentStream != inStream) {
+    if (_currentStream == null || _currentStream != inStream) {
       _currentStream = inStream;
       _sData = null;
       _sDataObjectCount = 0;
@@ -502,6 +581,30 @@ class X509CertificateParser {
     }
     pis.unread(tag);
     return readDerCertificate(Asn1Stream(pis));
+  }
+
+  /// Internal method
+  List<X509Certificate?>? getCertificateChain(PdfStreamReader inStream) {
+    if (_currentStream == null || _currentStream != inStream) {
+      _currentStream = inStream;
+      _sData = null;
+      _sDataObjectCount = 0;
+    }
+    if (_sData != null) {
+      if (_sDataObjectCount != _sData!.objects.length) {
+        return _getCertificateChain();
+      }
+      _sData = null;
+      _sDataObjectCount = 0;
+      return null;
+    }
+    final _PushStream pis = _PushStream(inStream);
+    final int tag = pis.readByte()!;
+    if (tag < 0) {
+      return null;
+    }
+    pis.unread(tag);
+    return _readDerCertificates(Asn1Stream(pis));
   }
 
   /// internal method
@@ -544,6 +647,50 @@ class X509CertificateParser {
       }
     }
     return createX509Certificate(X509CertificateStructure.getInstance(seq));
+  }
+
+  List<X509Certificate?>? _getCertificateChain() {
+    final List<X509Certificate?> certList = <X509Certificate?>[];
+    if (_sData != null) {
+      while (_sDataObjectCount! < _sData!.objects.length) {
+        final dynamic obj = _sData![_sDataObjectCount!];
+        _sDataObjectCount = _sDataObjectCount! + 1;
+        if (obj is Asn1Sequence) {
+          certList.add(
+              createX509Certificate(X509CertificateStructure.getInstance(obj)));
+        }
+      }
+    }
+    return certList.isNotEmpty ? certList : null;
+  }
+
+  /// internal method
+  List<X509Certificate?>? _readDerCertificates(Asn1Stream dIn) {
+    final dynamic seq = dIn.readAsn1();
+    if (seq != null && seq is Asn1Sequence) {
+      if (seq.count > 1 && seq[0] is DerObjectID) {
+        if ((seq[0]! as DerObjectID).id == PkcsObjectId.signedData.id) {
+          if (seq.count >= 2) {
+            final Asn1Sequence signedSequence =
+                Asn1Sequence.getSequence(seq[1] as Asn1Tag?, true)!;
+            bool isContinue = true;
+            // ignore: avoid_function_literals_in_foreach_calls
+            signedSequence.objects!.forEach((dynamic o) {
+              if (isContinue && o is Asn1Tag) {
+                if (o.tagNumber == 0) {
+                  _sData = Asn1Set.getAsn1Set(o, false);
+                  isContinue = false;
+                }
+              }
+            });
+          }
+          return _getCertificateChain();
+        }
+      }
+    }
+    return <X509Certificate?>[
+      createX509Certificate(X509CertificateStructure.getInstance(seq))
+    ];
   }
 
   /// internal method

@@ -39,6 +39,7 @@ class RenderNeedlePointer extends RenderBox {
       required this.isRadialGaugeAnimationEnabled,
       required ValueNotifier<int> repaintNotifier,
       required ThemeData themeData,
+      required SfColorScheme colorScheme,
       required SfGaugeThemeData gaugeThemeData})
       : _value = value,
         _knobStyle = knobStyle,
@@ -53,6 +54,7 @@ class RenderNeedlePointer extends RenderBox {
         _pointerAnimationController = pointerAnimationController,
         _needlePointerRenderer = needlePointerRenderer,
         _themeData = themeData,
+        _colorScheme = colorScheme,
         _gaugeThemeData = gaugeThemeData;
 
   double _actualTailLength = 0;
@@ -190,6 +192,19 @@ class RenderNeedlePointer extends RenderBox {
       return;
     }
     _themeData = value;
+    markNeedsPaint();
+  }
+
+  /// Gets the colors assigned to [RenderNeedlePointer]
+  SfColorScheme get colorScheme => _colorScheme;
+  SfColorScheme _colorScheme;
+
+  /// Sets the colors for [RenderNeedlePointer]
+  set colorScheme(SfColorScheme value) {
+    if (value == _colorScheme) {
+      return;
+    }
+    _colorScheme = value;
     markNeedsPaint();
   }
 
@@ -579,9 +594,7 @@ class RenderNeedlePointer extends RenderBox {
     final Paint paint = Paint()
       ..color = needleColor ??
           _gaugeThemeData.needleColor ??
-          (_themeData.useMaterial3
-              ? _themeData.colorScheme.onSurfaceVariant
-              : _themeData.colorScheme.onSurface)
+          colorScheme.onSurface[255]!
       ..style = PaintingStyle.fill;
 
     final Path path = Path();
@@ -618,9 +631,7 @@ class RenderNeedlePointer extends RenderBox {
     final Paint tailPaint = Paint()
       ..color = tailStyle!.color ??
           _gaugeThemeData.tailColor ??
-          (_themeData.useMaterial3
-              ? _themeData.colorScheme.onSurfaceVariant
-              : _themeData.colorScheme.onSurface);
+          colorScheme.onSurface[255]!;
 
     if (tailStyle!.gradient != null) {
       tailPaint.shader =
@@ -647,9 +658,7 @@ class RenderNeedlePointer extends RenderBox {
       final Paint knobPaint = Paint()
         ..color = knobStyle.color ??
             gaugeThemeData.knobColor ??
-            (_themeData.useMaterial3
-                ? _themeData.colorScheme.onSurfaceVariant
-                : _themeData.colorScheme.onSurface);
+            colorScheme.onSurface[255]!;
 
       canvas.drawCircle(_axisCenter, _actualCapRadius, knobPaint);
 

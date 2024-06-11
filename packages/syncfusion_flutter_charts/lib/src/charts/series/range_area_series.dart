@@ -438,9 +438,10 @@ class RangeAreaSegment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    for (int i = 0; i < points.length; i++) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
       final Offset a = points[i];
-      final Offset b = i + 1 < points.length ? points[i + 1] : a;
+      final Offset b = i + 1 < length ? points[i + 1] : a;
       final Rect rect = Rect.fromPoints(a, b);
       final Rect paddedRect = rect.inflate(tooltipPadding);
       if (paddedRect.contains(position)) {
@@ -462,6 +463,10 @@ class RangeAreaSegment<T, D> extends ChartSegment {
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
     pointIndex ??= _findNearestChartPointIndex(points, position!);
     if (pointIndex != -1) {
       final Offset position = points[pointIndex];

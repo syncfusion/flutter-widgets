@@ -1,4 +1,31 @@
-## Unreleased
+## [Unreleased]
+
+### Features
+
+Added two new indicators in Cartesian Chart:
+
+* Provided Rate of Change Indicator (ROC) support to technical indicators.
+* Provided Weighted Moving Average Indicator (WMA) support to technical indicators.
+
+## [25.2.5] - 09/04/2024
+
+### Improvements:
+
+ZoomPanBehavior:
+
+Added below methods for pointer and gesture events, along with a paint method, to allow for customization of the zooming and panning.
+
+* handleEvent
+* handleDoubleTap
+* handleScaleStart
+* handleScaleUpdate
+* handleScaleEnd
+* handleLongPressStart
+* handleLongPressMoveUpdate
+* handleLongPressEnd
+* onPaint
+
+## [25.1.35] - 15/03/2024
 
 **General**
 

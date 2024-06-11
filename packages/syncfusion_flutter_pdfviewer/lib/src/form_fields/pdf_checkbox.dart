@@ -158,6 +158,17 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
                   pdfCheckboxField.backColor.g,
                   pdfCheckboxField.backColor.b,
                   1),
+          borderColor: pdfCheckboxField.borderColor.isEmpty
+              ? Colors.transparent
+              : Color.fromRGBO(
+                  pdfCheckboxField.borderColor.r,
+                  pdfCheckboxField.borderColor.g,
+                  pdfCheckboxField.borderColor.b,
+                  1),
+          borderWidth: (pdfCheckboxField.borderWidth == 0
+                  ? 1
+                  : pdfCheckboxField.borderWidth) /
+              heightPercentage,
           size: bounds.height / heightPercentage,
         ),
       ),
@@ -176,6 +187,8 @@ class PdfCheckbox extends StatefulWidget {
       required this.heightPercentage,
       required this.selectionPadding,
       required this.fillColor,
+      required this.borderColor,
+      required this.borderWidth,
       this.size = 24.0})
       : super(key: key);
 
@@ -199,6 +212,12 @@ class PdfCheckbox extends StatefulWidget {
 
   /// Checkbox size
   final double size;
+
+  /// Checkbox border color
+  final Color borderColor;
+
+  /// Checkbox border width
+  final double borderWidth;
 
   @override
   _PdfCheckboxState createState() => _PdfCheckboxState();
@@ -227,11 +246,17 @@ class _PdfCheckboxState extends State<PdfCheckbox> {
         child: Container(
           width: widget.size,
           height: widget.size,
-          decoration: BoxDecoration(color: widget.fillColor),
+          decoration: BoxDecoration(
+            color: widget.fillColor,
+            border: Border.all(
+              color: widget.borderColor,
+              width: widget.borderWidth,
+            ),
+          ),
           child: widget.isChecked
               ? Icon(
                   Icons.check_outlined,
-                  size: widget.size,
+                  size: widget.size - widget.borderWidth * 2,
                   color: Colors.black,
                 )
               : Container(),

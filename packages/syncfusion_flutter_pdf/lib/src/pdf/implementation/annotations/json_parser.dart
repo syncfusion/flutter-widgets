@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:convert/convert.dart';
+
 import '../../interfaces/pdf_interface.dart';
 import '../forms/pdf_form.dart';
 import '../io/pdf_constants.dart';
@@ -243,6 +245,9 @@ class JsonParser {
         break;
       case 'caret':
         annotDictionary.setName(PdfDictionaryProperties.subtype, 'Caret');
+        break;
+      case 'watermark':
+        annotDictionary.setName(PdfDictionaryProperties.subtype, 'Watermark');
         break;
       default:
         isValidType = false;
@@ -789,7 +794,7 @@ class JsonParser {
               if (primitive is PdfStream &&
                   value != null &&
                   value is Map<String, dynamic>) {
-                primitive.dataStream = _getStreamData(value);
+                primitive.data = _getStreamData(value);
                 if (!primitive.containsKey(PdfDictionaryProperties.type) &&
                     !primitive.containsKey(PdfDictionaryProperties.subtype)) {
                   primitive.decompress();
@@ -819,6 +824,11 @@ class JsonParser {
             case 'N':
               if (_isNormalAppearanceAdded && primitive is PdfDictionary) {
                 primitive[token] = _parseDictionaryItems(value, primitive);
+              } else if (primitive is PdfDictionary) {
+                _isNormalAppearanceAdded = true;
+                final PdfDictionary dic = PdfDictionary();
+                primitive[token] =
+                    PdfReferenceHolder(_parseDictionaryItems(value, dic));
               } else {
                 _isNormalAppearanceAdded = true;
                 final PdfDictionary dic = PdfDictionary();
@@ -1121,18 +1131,28 @@ class JsonParser {
           annotDictionary[PdfDictionaryProperties.subtype]);
       if (primitive != null && primitive is PdfName && primitive.name != null) {
         final String subtype = primitive.name!;
-        final List<int> raw = getBytes(values);
+        final List<int> raw = List<int>.from(hex.decode(values));
         if (raw.isNotEmpty) {
-          if (subtype == 'sound') {
+          if (subtype.toLowerCase() == 'sound') {
             final PdfStream soundStream = PdfStream();
             soundStream.setName(
                 PdfDictionaryProperties.type, PdfDictionaryProperties.sound);
             dataValues.forEach((String key, String value) {
               switch (key) {
                 case 'bits':
+                  if (!isNullOrEmpty(value)) {
+                    addNumber(soundStream, PdfDictionaryProperties.b, value);
+                  }
+                  break;
                 case 'rate':
+                  if (!isNullOrEmpty(value)) {
+                    addNumber(soundStream, PdfDictionaryProperties.r, value);
+                  }
+                  break;
                 case 'channels':
-                  addNumber(soundStream, key, value);
+                  if (!isNullOrEmpty(value)) {
+                    addNumber(soundStream, PdfDictionaryProperties.c, value);
+                  }
                   break;
                 case 'encoding':
                   if (!isNullOrEmpty(value)) {
@@ -1144,10 +1164,10 @@ class JsonParser {
                   break;
               }
             });
-            soundStream.dataStream = raw;
+            soundStream.data = raw;
             annotDictionary.setProperty(
                 PdfDictionaryProperties.sound, PdfReferenceHolder(soundStream));
-          } else if (subtype == 'FileAttachment') {
+          } else if (subtype.toLowerCase() == 'fileattachment') {
             final PdfDictionary fileDictionary = PdfDictionary();
             final PdfStream fileStream = PdfStream();
             final PdfDictionary param = PdfDictionary();
@@ -1177,8 +1197,7 @@ class JsonParser {
               }
             });
             fileStream.setProperty(PdfDictionaryProperties.params, param);
-            fileStream.dataStream = raw;
-            fileStream.addFilter(PdfDictionaryProperties.flateDecode);
+            fileStream.data = raw;
             final PdfDictionary embeddedFile = PdfDictionary();
             embeddedFile.setProperty(
                 PdfDictionaryProperties.f, PdfReferenceHolder(fileStream));

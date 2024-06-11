@@ -315,7 +315,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
         ? true
         : false;
     final Widget scrollable = Directionality(
-      textDirection: TextDirection.ltr,
+      textDirection: widget.textDirection,
       child: InteractiveScrollViewer(
         widget.child,
         minScale: widget.minScale,

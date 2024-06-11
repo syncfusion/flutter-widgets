@@ -592,15 +592,38 @@ class TooltipBehavior extends ChartBehavior {
       if (shared) {
         String? text;
         String? header;
+        num? baseXValue;
         Offset? position;
-        final List<Color?> markerColors = <Color?>[];
         ChartTooltipInfo? tooltipInfo;
+        final List<Color?> markerColors = <Color?>[];
         final List<ChartTooltipInfo> tooltipInfoList = <ChartTooltipInfo>[];
-        RenderBox? child = parent.plotArea?.firstChild;
+        final RenderBox? firstChild = parent.plotArea?.firstChild;
+        RenderBox? series = firstChild;
+        while (series != null && series.parentData != null) {
+          final ContainerParentDataMixin<RenderBox> seriesParentData =
+              series.parentData! as ContainerParentDataMixin<RenderBox>;
+          // It specifies for cartesian series renderer.
+          if (series is CartesianSeriesRenderer &&
+              series.isVisible() &&
+              series.enableTooltip) {
+            final ChartTooltipInfo? info = series
+                .tooltipInfoFromPointIndex(pointIndex) as ChartTooltipInfo?;
+            if (info != null && series.index == seriesIndex) {
+              baseXValue = (info.point as CartesianChartPoint).xValue;
+              break;
+            }
+          }
+
+          series = seriesParentData.nextSibling;
+        }
+
+        RenderBox? child = firstChild;
         while (child != null && child.parentData != null) {
           final ContainerParentDataMixin<RenderBox> childParentData =
               child.parentData! as ContainerParentDataMixin<RenderBox>;
-          if (child is ChartSeriesRenderer) {
+          if (child is ChartSeriesRenderer &&
+              child.isVisible() &&
+              child.enableTooltip) {
             final ChartTooltipInfo? info = child
                 .tooltipInfoFromPointIndex(pointIndex) as ChartTooltipInfo?;
             if (info != null && info.text != null) {
@@ -608,7 +631,40 @@ class TooltipBehavior extends ChartBehavior {
                 tooltipInfo ??= info;
                 position ??= info.primaryPosition;
               }
-              tooltipInfoList.add(info);
+            }
+
+            // It specifies for circular & funnel & pyramid series renderer.
+            if (baseXValue == null) {
+              if (tooltipInfo?.point.x == info?.point.x) {
+                tooltipInfoList.add(info!);
+              }
+            } else {
+              // It specifies for cartesian series renderer.
+              if (child.canFindLinearVisibleIndexes) {
+                final int binaryIndex = binarySearch(child.xValues,
+                    baseXValue.toDouble(), 0, child.dataCount - 1);
+                if (binaryIndex >= 0) {
+                  final ChartTooltipInfo? info =
+                      child.tooltipInfoFromPointIndex(binaryIndex)
+                          as ChartTooltipInfo?;
+                  if (info != null && info.text != null) {
+                    final num? infoXValue =
+                        (info.point as CartesianChartPoint).xValue;
+                    if (infoXValue != null && baseXValue == infoXValue) {
+                      tooltipInfoList.add(info);
+                    }
+                  }
+                }
+              } else {
+                final int index = child.xValues.indexOf(baseXValue);
+                if (index >= 0) {
+                  final ChartTooltipInfo? info = child
+                      .tooltipInfoFromPointIndex(index) as ChartTooltipInfo?;
+                  if (info != null && info.text != null) {
+                    tooltipInfoList.add(info);
+                  }
+                }
+              }
             }
           }
 
@@ -616,24 +672,14 @@ class TooltipBehavior extends ChartBehavior {
         }
 
         for (final ChartTooltipInfo info in tooltipInfoList) {
-          if (tooltipInfo?.point.x == info.point.x) {
-            if (text == null) {
-              if (info.hasMultipleYValues) {
-                text = '${info.header}\n${info.text}';
-              } else {
-                text = '${info.header}${info.text}';
-              }
-            } else {
-              text += '\n';
-              if (info.hasMultipleYValues) {
-                text += '${info.header}\n${info.text}';
-              } else {
-                text += '${info.header}${info.text}';
-              }
-            }
-            if (info.markerColors.isNotEmpty) {
-              markerColors.add(info.markerColors[0]);
-            }
+          if (text == null) {
+            text = '${info.text}';
+          } else {
+            text += '\n';
+            text += '${info.text}';
+          }
+          if (info.markerColors.isNotEmpty) {
+            markerColors.add(info.markerColors[0]);
           }
         }
 
@@ -657,11 +703,12 @@ class TooltipBehavior extends ChartBehavior {
         }
       } else {
         parent.plotArea?.visitChildren((RenderObject child) {
-          if (child is ChartSeriesRenderer) {
-            final ChartSeriesRenderer render = child;
-            if (render.index == seriesIndex) {
+          if (child is ChartSeriesRenderer &&
+              child.isVisible() &&
+              child.enableTooltip) {
+            if (child.index == seriesIndex) {
               final TooltipInfo? info =
-                  render.tooltipInfoFromPointIndex(pointIndex);
+                  child.tooltipInfoFromPointIndex(pointIndex);
               if (info != null) {
                 parent.showTooltip(info);
               }

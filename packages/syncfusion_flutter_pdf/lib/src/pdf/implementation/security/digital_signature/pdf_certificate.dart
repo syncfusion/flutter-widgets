@@ -37,6 +37,30 @@ class PdfCertificate {
   /// Gets the date and time after which the certificate is not valid.
   DateTime get validFrom => _validFrom!;
 
+  /// Gets the certificate chain in raw bytes.
+  ///
+  /// ```dart
+  /// //Load the certificate from the file
+  /// final PdfCertificate certificate =
+  ///     PdfCertificate(File('PDF.pfx').readAsBytesSync(), 'password');
+  /// //Get the certificate chain
+  /// List<List<int>>? certificateChain = certificate.getCertificateChain();
+  /// ```
+  List<List<int>>? getCertificateChain() {
+    List<List<int>>? certificateChain;
+    try {
+      certificateChain = <List<int>>[];
+      _pkcsCertificate.getChainCertificates().forEach((X509Certificates entry) {
+        final List<int> certificateBytes =
+            entry.certificate!.c!.getDerEncoded()!;
+        certificateChain!.add(certificateBytes);
+      });
+    } catch (e) {
+      return null;
+    }
+    return certificateChain;
+  }
+
   //Implementation
   void _initializeCertificate(List<int> certificateBytes, String password) {
     _distinguishedNameCollection = <String, Map<String, String>>{};

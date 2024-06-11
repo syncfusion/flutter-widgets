@@ -74,7 +74,10 @@ class NumericAxis extends ChartAxis {
     super.multiLevelLabelStyle,
     super.axisLabelFormatter,
     this.onRendererCreated,
-  });
+  }) : assert(
+            (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
+                autoScrollingDelta == null,
+            'Both properties have the same behavior to display the visible data points, use any one of the properties');
 
   /// Formats the numeric axis labels.
   ///
@@ -143,9 +146,8 @@ class NumericAxis extends ChartAxis {
   /// ```
   final double? maximum;
 
-  /// The minimum visible value of the axis.
-  ///
-  /// The axis will be rendered from this value initially.
+  /// The minimum visible value of the axis. The axis is rendered from this value initially, and
+  /// it applies only during load time. The value will not be updated when zooming or panning.
   ///
   /// Defaults to `null`.
   ///
@@ -156,13 +158,54 @@ class NumericAxis extends ChartAxis {
   ///           primaryXAxis: NumericAxis(initialVisibleMinimum: 0),
   ///        )
   ///    );
-  ///}
-  ///```
+  /// }
+  /// ```
+  ///
+  /// Use the [onRendererCreated] callback, as shown in the code below, to update the visible
+  /// minimum value dynamically.
+  ///
+  /// ```dart
+  /// NumericAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: NumericAxis(
+  ///             initialVisibleMinimum: 0,
+  ///             initialVisibleMaximum: 100,
+  ///             onRendererCreated: (NumericAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, num>>[
+  ///             LineSeries<SalesData, num>(
+  ///               dataSource: data,
+  ///               xValueMapper: (SalesData sales, _) => sales.year,
+  ///               yValueMapper: (SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.visibleMinimum = 30;
+  ///              axisController!.visibleMaximum = 70;
+  ///            }
+  ///           },
+  ///           child: const Text('Update Axis Range'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
   final double? initialVisibleMinimum;
 
-  /// The maximum visible value of the axis.
-  ///
-  /// The axis will be rendered till this value initially.
+  /// The maximum visible value of the axis. The axis is rendered from this value initially, and
+  /// it applies only during load time. The value will not be updated when zooming or panning.
   ///
   /// Defaults to `null`.
   ///
@@ -173,8 +216,50 @@ class NumericAxis extends ChartAxis {
   ///           primaryXAxis: NumericAxis(initialVisibleMaximum: 200),
   ///        )
   ///    );
-  ///}
-  ///```
+  /// }
+  /// ```
+  ///
+  /// Use the [onRendererCreated] callback, as shown in the code below, to update the visible
+  /// maximum value dynamically.
+  ///
+  /// ```dart
+  /// NumericAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: NumericAxis(
+  ///             initialVisibleMinimum: 0,
+  ///             initialVisibleMaximum: 200,
+  ///             onRendererCreated: (NumericAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, num>>[
+  ///             LineSeries<SalesData, num>(
+  ///               dataSource: data,
+  ///               xValueMapper: (SalesData sales, _) => sales.year,
+  ///               yValueMapper: (SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.visibleMinimum = 10;
+  ///              axisController!.visibleMaximum = 70;
+  ///            }
+  ///           },
+  ///           child: const Text('Update Axis Range'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
   final double? initialVisibleMaximum;
 
   /// The rounding decimal value of the label.
@@ -415,6 +500,16 @@ class RenderNumericAxis extends RenderChartAxis {
     if (max != null) {
       controller.visibleMaximum = max;
     }
+  }
+
+  @override
+  DoubleRange updateAutoScrollingDelta(
+      int scrollingDelta, DoubleRange actualRange, DoubleRange visibleRange) {
+    if (initialVisibleMaximum != null || initialVisibleMinimum != null) {
+      return visibleRange;
+    }
+    return super
+        .updateAutoScrollingDelta(scrollingDelta, actualRange, visibleRange);
   }
 
   @override

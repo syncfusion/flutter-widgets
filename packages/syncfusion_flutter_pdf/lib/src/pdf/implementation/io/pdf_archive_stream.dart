@@ -54,7 +54,7 @@ class PdfArchiveStream extends PdfStream {
     _saveIndices();
     this[PdfDictionaryProperties.first] = PdfNumber(_writer.position!);
     _saveObjects();
-    dataStream = _writer._buffer;
+    super.data = _writer._buffer;
     this[PdfDictionaryProperties.n] = PdfNumber(_indices!.length);
     this[PdfDictionaryProperties.type] = PdfName('ObjStm');
     super.save(writer);

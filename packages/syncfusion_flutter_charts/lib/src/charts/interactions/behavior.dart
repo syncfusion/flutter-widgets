@@ -389,6 +389,10 @@ class RenderBehaviorArea extends RenderBox
     crosshairBehavior?.handleEvent(event, entry);
     trackballBehavior?.handleEvent(event, entry);
     zoomPanBehavior?.handleEvent(event, entry);
+
+    if (event is PointerDownEvent) {
+      _loadingIndicator?.handlePointerDown(event);
+    }
   }
 
   void handlePointerEnter(PointerEnterEvent details) {
@@ -448,6 +452,36 @@ class RenderBehaviorArea extends RenderBox
   void handleScaleEnd(ScaleEndDetails details) {
     zoomPanBehavior?.handleScaleEnd(details);
     _loadingIndicator?.handleScaleEnd(details);
+  }
+
+  void handleHorizontalDragStart(DragStartDetails details) {
+    zoomPanBehavior?.handleHorizontalDragStart(details);
+    _loadingIndicator?.handleDragStart(details);
+  }
+
+  void handleHorizontalDragUpdate(DragUpdateDetails details) {
+    zoomPanBehavior?.handleHorizontalDragUpdate(details);
+    _loadingIndicator?.handleDragUpdate(details);
+  }
+
+  void handleHorizontalDragEnd(DragEndDetails details) {
+    zoomPanBehavior?.handleHorizontalDragEnd(details);
+    _loadingIndicator?.handleDragEnd(details);
+  }
+
+  void handleVerticalDragStart(DragStartDetails details) {
+    zoomPanBehavior?.handleVerticalDragStart(details);
+    _loadingIndicator?.handleDragStart(details);
+  }
+
+  void handleVerticalDragUpdate(DragUpdateDetails details) {
+    zoomPanBehavior?.handleVerticalDragUpdate(details);
+    _loadingIndicator?.handleDragUpdate(details);
+  }
+
+  void handleVerticalDragEnd(DragEndDetails details) {
+    zoomPanBehavior?.handleVerticalDragEnd(details);
+    _loadingIndicator?.handleDragEnd(details);
   }
 
   void raiseTooltip(TooltipInfo info,
@@ -555,9 +589,9 @@ class RenderBehaviorArea extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    zoomPanBehavior?.onPaint(context, offset, chartThemeData!, themeData!);
     crosshairBehavior?.onPaint(context, offset, chartThemeData!, themeData!);
     trackballBehavior?.onPaint(context, offset, chartThemeData!, themeData!);
+    zoomPanBehavior?.onPaint(context, offset, chartThemeData!, themeData!);
     defaultPaint(context, offset);
   }
 

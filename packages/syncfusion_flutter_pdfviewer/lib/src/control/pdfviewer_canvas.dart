@@ -601,7 +601,7 @@ class CanvasRenderBox extends RenderBox {
                   },
                   style: isMaterial3
                       ? ButtonStyle(
-                          padding: MaterialStateProperty.all(
+                          padding: WidgetStateProperty.all(
                             const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 20),
                           ),
@@ -634,7 +634,7 @@ class CanvasRenderBox extends RenderBox {
                     },
                     style: isMaterial3
                         ? ButtonStyle(
-                            padding: MaterialStateProperty.all(
+                            padding: WidgetStateProperty.all(
                               const EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 20),
                             ),
@@ -1926,8 +1926,15 @@ class CanvasRenderBox extends RenderBox {
                 _destinationPageIndex!,
                 Offset(_totalPageOffset.dx, _totalPageOffset.dy));
           } else {
+            final double xOffSet = textDirection == TextDirection.rtl &&
+                    scrollDirection == PdfScrollDirection.horizontal &&
+                    !isSinglePageView
+                ? (pdfScrollableStateKey.currentWidget! as PdfScrollable)
+                        .maxScrollExtent -
+                    _totalPageOffset.dx
+                : _totalPageOffset.dx;
             pdfViewerController.jumpTo(
-                xOffset: _totalPageOffset.dx, yOffset: _totalPageOffset.dy);
+                xOffset: xOffSet, yOffset: _totalPageOffset.dy);
           }
         });
         _isTOCTapped = false;

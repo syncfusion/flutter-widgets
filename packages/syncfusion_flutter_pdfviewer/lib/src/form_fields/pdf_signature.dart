@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
-
 import '../../pdfviewer.dart';
 import '../common/pdfviewer_helper.dart';
 import 'pdf_form_field.dart';
@@ -154,6 +153,14 @@ class PdfSignatureFormFieldHelper extends PdfFormFieldHelper {
                     pdfSignatureField.backColor.g,
                     pdfSignatureField.backColor.b,
                     1),
+            borderColor: pdfSignatureField.borderColor.isEmpty
+                ? Colors.transparent
+                : Color.fromRGBO(
+                    pdfSignatureField.borderColor.r,
+                    pdfSignatureField.borderColor.g,
+                    pdfSignatureField.borderColor.b,
+                    1),
+            borderWidth: pdfSignatureField.borderWidth / heightPercentage,
             onValueChanged: invokeValueChanged,
             onSignatureFieldTapDown: (TapDownDetails details) {
               if (signatureFormField.readOnly) {
@@ -184,6 +191,8 @@ class PdfSignature extends StatefulWidget {
       this.onValueChanged,
       required this.onSignatureFieldTapUp,
       required this.onSignatureFieldTapDown,
+      required this.borderColor,
+      required this.borderWidth,
       super.key});
 
   /// Signature field bounds.
@@ -210,6 +219,12 @@ class PdfSignature extends StatefulWidget {
   /// Signature field tap down callback.
   final GestureTapDownCallback onSignatureFieldTapDown;
 
+  /// Signature field border color
+  final Color borderColor;
+
+  /// Signature field border width
+  final double borderWidth;
+
   @override
   State<PdfSignature> createState() => _PdfSignatureState();
 }
@@ -223,7 +238,10 @@ class _PdfSignatureState extends State<PdfSignature> {
       child: Container(
         height: widget.bounds.height,
         width: widget.bounds.width,
-        color: widget.fillColor,
+        decoration: BoxDecoration(
+            color: widget.fillColor,
+            border: Border.all(
+                color: widget.borderColor, width: widget.borderWidth)),
         child: widget.signature != null
             ? Image.memory(widget.signature!)
             : Container(),
@@ -576,7 +594,7 @@ List<Widget> _addStrokeColorPalettes(
               },
             ),
             overlayColor: isMaterial3
-                ? const MaterialStatePropertyAll<Color>(Colors.transparent)
+                ? const WidgetStatePropertyAll<Color>(Colors.transparent)
                 : null,
             child: Center(
               child: Stack(

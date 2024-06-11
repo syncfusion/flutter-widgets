@@ -201,6 +201,16 @@ class RowSelectionManager extends SelectionManagerBase {
     record = null;
   }
 
+  /// Check whether the index is outside the shift selected rows range.
+  bool isIndexOutsideRange(
+      int pressedRowIndex, int currentRecordIndex, int index) {
+    if (pressedRowIndex < currentRecordIndex) {
+      return index < pressedRowIndex || index > currentRecordIndex;
+    } else {
+      return index < currentRecordIndex || index > pressedRowIndex;
+    }
+  }
+
   void _processShiftKeySelection(
       RowColumnIndex rowColumnIndex, int currentRecordIndex) {
     final DataGridConfiguration dataGridConfiguration =
@@ -209,6 +219,15 @@ class RowSelectionManager extends SelectionManagerBase {
     List<DataGridRow> removedItems = <DataGridRow>[];
     removedItems = _shiftSelectedRows.toList();
 
+    for (final DataGridRow selectedRow
+        in List<DataGridRow>.from(_selectedRows)) {
+      final int selectedIndex =
+          dataGridConfiguration.source.effectiveRows.indexOf(selectedRow);
+      if (isIndexOutsideRange(
+          _pressedRowIndex, currentRecordIndex, selectedIndex)) {
+        _removeSelection(selectedRow, dataGridConfiguration);
+      }
+    }
     if (dataGridConfiguration.onSelectionChanging != null ||
         dataGridConfiguration.onSelectionChanged != null) {
       addedItems = _getAddedItems(
@@ -229,34 +248,37 @@ class RowSelectionManager extends SelectionManagerBase {
           .toList();
     }
     if (_raiseSelectionChanging(newItems: addedItems, oldItems: removedItems)) {
-      _addSelectionForShiftKey(currentRecordIndex);
+      _addSelectionForShiftKey(currentRecordIndex, removedItems);
       notifyListeners();
       _raiseSelectionChanged(newItems: addedItems, oldItems: removedItems);
     }
   }
 
-  void _addSelectionForShiftKey(int currentRecordIndex) {
+  void _addSelectionForShiftKey(
+      int currentRecordIndex, List<DataGridRow> removedItems) {
     late DataGridRow? record;
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
-    if (_shiftSelectedRows.isNotEmpty) {
-      for (final DataGridRow record in _shiftSelectedRows) {
-        if (record !=
-            selection_helper.getRecord(
-                dataGridConfiguration, _pressedRowIndex)) {
-          _removeSelection(record, dataGridConfiguration);
+    final DataGridRow? pressedRecord =
+        selection_helper.getRecord(dataGridConfiguration, _pressedRowIndex);
+    if (!_selectedRows.contains(pressedRecord)) {
+      _addSelection(pressedRecord, dataGridConfiguration);
+    }
+
+    if (removedItems.isNotEmpty) {
+      for (final DataGridRow items in removedItems) {
+        if (_selectedRows.contains(items)) {
+          _removeSelection(items, dataGridConfiguration);
         }
       }
-      _shiftSelectedRows.removeWhere((DataGridRow record) =>
-          record !=
-          selection_helper.getRecord(dataGridConfiguration, _pressedRowIndex)!);
     }
+
     if (_pressedRowIndex < currentRecordIndex) {
       for (int rowIndex = _pressedRowIndex + 1;
           rowIndex <= currentRecordIndex;
           rowIndex++) {
         record = selection_helper.getRecord(dataGridConfiguration, rowIndex);
-        if (record != null && !_selectedRows.contains(record)) {
+        if (record != null) {
           _shiftSelectedRows.add(record);
           _addSelection(record, dataGridConfiguration);
         }
@@ -266,7 +288,7 @@ class RowSelectionManager extends SelectionManagerBase {
           rowIndex >= currentRecordIndex;
           rowIndex--) {
         record = selection_helper.getRecord(dataGridConfiguration, rowIndex);
-        if (record != null && !_selectedRows.contains(record)) {
+        if (record != null) {
           _shiftSelectedRows.add(record);
           _addSelection(record, dataGridConfiguration);
         }
@@ -572,9 +594,7 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     if (dataGridConfiguration.isShiftKeyPressed &&
-        dataGridConfiguration.selectionMode == SelectionMode.multiple &&
-        _selectedRows.contains(selection_helper.getRecord(
-            dataGridConfiguration, _pressedRowIndex))) {
+        dataGridConfiguration.selectionMode == SelectionMode.multiple) {
       _processShiftKeySelection(rowColumnIndex, recordIndex);
     }
   }
@@ -1395,8 +1415,10 @@ class RowSelectionManager extends SelectionManagerBase {
           nextRowColumnIndex: rowColumnIndex,
           previousRowColumnIndex: previousRowColumnIndex);
       if (isShiftKeyPressed) {
-        _processSelection(
-            dataGridConfiguration, rowColumnIndex, previousRowColumnIndex);
+        _processShiftKeySelection(
+            rowColumnIndex,
+            grid_helper.resolveToRecordIndex(
+                dataGridConfiguration, rowColumnIndex.rowIndex));
       } else {
         notifyListeners();
       }

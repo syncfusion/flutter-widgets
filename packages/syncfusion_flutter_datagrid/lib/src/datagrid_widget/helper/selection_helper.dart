@@ -129,7 +129,8 @@ int getFirstRowIndex(DataGridConfiguration dataGridConfiguration) {
 }
 
 /// Help to get the last row index in data grid
-int getLastRowIndex(DataGridConfiguration dataGridConfiguration) {
+int getLastRowIndex(DataGridConfiguration dataGridConfiguration,
+    [bool isLastRow = false]) {
   if (getRecordsCount(dataGridConfiguration) == 0) {
     return -1;
   }
@@ -141,13 +142,15 @@ int getLastRowIndex(DataGridConfiguration dataGridConfiguration) {
   /// Eg : Total rowCount is 30, we will start the row index from 0 of header
   /// in SfDataGrid. The actual last row index of data grid is 29.
   int index = dataGridConfiguration.container.rowCount - 1;
+
   if (dataGridConfiguration.footer != null) {
     index--;
   }
-
-  if (dataGridConfiguration.tableSummaryRows.isNotEmpty) {
-    index -= grid_helper.getTableSummaryCount(
-        dataGridConfiguration, GridTableSummaryRowPosition.bottom);
+  if (!isLastRow) {
+    if (dataGridConfiguration.tableSummaryRows.isNotEmpty) {
+      index -= grid_helper.getTableSummaryCount(
+          dataGridConfiguration, GridTableSummaryRowPosition.bottom);
+    }
   }
 
   for (int start = index; start >= 0; start--) {

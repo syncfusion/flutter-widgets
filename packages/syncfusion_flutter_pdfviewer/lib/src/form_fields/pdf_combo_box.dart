@@ -112,6 +112,14 @@ class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
                   pdfComboBoxField.backColor.g,
                   pdfComboBoxField.backColor.b,
                   1),
+          borderColor: pdfComboBoxField.borderColor.isEmpty
+              ? Colors.transparent
+              : Color.fromRGBO(
+                  pdfComboBoxField.borderColor.r,
+                  pdfComboBoxField.borderColor.g,
+                  pdfComboBoxField.borderColor.b,
+                  1),
+          borderWidth: pdfComboBoxField.borderWidth / heightPercentage,
           fontSize: (pdfComboBoxField.font?.size ?? 14.0) / heightPercentage,
           onValueChanged: invokeValueChanged,
         ),
@@ -133,6 +141,8 @@ class PdfComboBox extends StatefulWidget {
       this.font,
       this.fontSize,
       this.onValueChanged,
+      required this.borderColor,
+      required this.borderWidth,
       super.key});
 
   /// Combo box bounds.
@@ -162,6 +172,12 @@ class PdfComboBox extends StatefulWidget {
   /// Combo box value changed callback.
   final ValueChanged<String>? onValueChanged;
 
+  /// Combo box border color
+  final Color borderColor;
+
+  /// Combo box border width
+  final double borderWidth;
+
   @override
   State<PdfComboBox> createState() => _PdfComboBoxState();
 }
@@ -169,57 +185,63 @@ class PdfComboBox extends StatefulWidget {
 class _PdfComboBoxState extends State<PdfComboBox> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: widget.fillColor),
-      child: DropdownButton<String>(
-        value: widget.selectedItem.isNotEmpty ? widget.selectedItem : null,
-        items: widget.items.map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Tooltip(
-              excludeFromSemantics: true,
-              message: value,
-              child: Text(
-                value,
-                style: const TextStyle(fontSize: 16.0),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          );
-        }).toList(),
-        isExpanded: true,
-        onChanged: widget.readOnly
-            ? null
-            : (String? newValue) {
-                if (widget.onValueChanged != null && newValue != null) {
-                  widget.onValueChanged!(newValue);
-                }
-              },
-        style: Theme.of(context).textTheme.bodyMedium,
-        selectedItemBuilder: (BuildContext context) {
-          return widget.items.map((String value) {
-            return Padding(
-              padding: EdgeInsets.only(left: 2 / widget.heightPercentage),
-              child: Align(
-                alignment: Alignment.centerLeft,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Container(
+        decoration: BoxDecoration(
+            color: widget.fillColor,
+            border: Border.all(
+                color: widget.borderColor, width: widget.borderWidth)),
+        child: DropdownButton<String>(
+          value: widget.selectedItem.isNotEmpty ? widget.selectedItem : null,
+          items: widget.items.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Tooltip(
+                excludeFromSemantics: true,
+                message: value,
                 child: Text(
                   value,
+                  style: const TextStyle(fontSize: 16.0),
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: widget.fontSize,
-                    color: Colors.black,
-                  ),
                 ),
               ),
             );
-          }).toList();
-        },
-        underline: Container(),
-        menuMaxHeight: 300,
-        icon: Icon(
-          Icons.arrow_drop_down_outlined,
-          size: widget.bounds.height / widget.heightPercentage,
-          color: Colors.black,
+          }).toList(),
+          isExpanded: true,
+          onChanged: widget.readOnly
+              ? null
+              : (String? newValue) {
+                  if (widget.onValueChanged != null && newValue != null) {
+                    widget.onValueChanged!(newValue);
+                  }
+                },
+          style: Theme.of(context).textTheme.bodyMedium,
+          selectedItemBuilder: (BuildContext context) {
+            return widget.items.map((String value) {
+              return Padding(
+                padding: EdgeInsets.only(left: 2 / widget.heightPercentage),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: widget.fontSize,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              );
+            }).toList();
+          },
+          underline: Container(),
+          menuMaxHeight: 300,
+          icon: Icon(
+            Icons.arrow_drop_down_outlined,
+            size: widget.bounds.height / widget.heightPercentage,
+            color: Colors.black,
+          ),
         ),
       ),
     );

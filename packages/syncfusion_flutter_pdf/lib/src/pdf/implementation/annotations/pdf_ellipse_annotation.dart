@@ -260,7 +260,8 @@ class PdfEllipseAnnotationHelper extends PdfAnnotationHelper {
         PdfRectangle(0, 0, annotation.bounds.width, annotation.bounds.height);
     final PdfTemplate template =
         PdfTemplateHelper.fromRect(nativeRectangle.rect);
-    helper.setMatrix(PdfTemplateHelper.getHelper(template).content);
+    PdfAnnotationHelper.setMatrixToZeroRotation(
+        PdfTemplateHelper.getHelper(template).content);
     if (isLoadedAnnotation &&
         helper.dictionary!.containsKey(PdfDictionaryProperties.be)) {
       PdfTemplateHelper.getHelper(template).writeTransformation = false;

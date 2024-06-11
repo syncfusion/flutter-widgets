@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import '../../interfaces/pdf_interface.dart';
@@ -110,6 +111,7 @@ class PdfSignatureField extends PdfField {
     if (_helper.isLoadedField && _signature == null) {
       if (_helper.dictionary!.containsKey(PdfDictionaryProperties.v)) {
         _setSignature(_helper.dictionary![PdfDictionaryProperties.v]);
+        PdfSignatureHelper.getHelper(_signature!).field = this;
       }
     }
     return _signature;
@@ -147,6 +149,21 @@ class PdfSignatureField extends PdfField {
     _helper.appearance = true;
     _helper.borderStyle = value;
   }
+
+  /// Checks whether the signature field is signed or not.
+  ///
+  /// ``` dart
+  /// // Load the existing PDF document.
+  /// PdfDocument document =
+  ///     PdfDocument(inputBytes: File('input.pdf').readAsBytesSync());
+  /// // Create a new PDF document.
+  /// PdfSignatureField field = document.form.fields[0] as PdfSignatureField;
+  /// // Check if field is signed.
+  /// bool isSigned = field.isSigned;
+  /// // Dispose the document.
+  /// document.dispose();
+  /// ```
+  bool get isSigned => _helper.isLoadedSign;
 
   //Implementations
   void _initializeSignature(PdfSignature? value) {
@@ -471,7 +488,8 @@ class PdfSignatureFieldHelper extends PdfFieldHelper {
                 objectDictionary.dataStream!.isNotEmpty &&
                 (isLoadedSign || (!isLoadedSign && !appearance))) {
               final PdfStream stream = objectDictionary;
-              template = PdfTemplateHelper.fromPdfStream(stream);
+              template =
+                  _drawRotatedTemplate(PdfTemplateHelper.fromPdfStream(stream));
               signatureField.page!.graphics
                   .drawPdfTemplate(template, signatureField.bounds.topLeft);
             } else {
@@ -483,6 +501,65 @@ class PdfSignatureFieldHelper extends PdfFieldHelper {
         drawRectangularControl();
       }
     }
+  }
+
+  PdfTemplate _drawRotatedTemplate(PdfTemplate template) {
+    final PdfStream content = PdfTemplateHelper.getHelper(template).content;
+    if (content.containsKey(PdfDictionaryProperties.matrix)) {
+      final IPdfPrimitive? matrix =
+          PdfCrossTable.dereference(content[PdfDictionaryProperties.matrix]);
+      if (matrix != null && matrix is PdfArray) {
+        final int angle = _obtainGraphicsRotation(
+            (matrix.elements[2]! as PdfNumber).value!,
+            (matrix.elements[0]! as PdfNumber).value!);
+        if (angle != 0) {
+          PdfAnnotationHelper.setMatrixToZeroRotation(content);
+          final PdfTemplate rotatedTemplate =
+              PdfTemplate(template.size.width, template.size.height);
+          rotatedTemplate.graphics!.save();
+          if (angle == 90) {
+            rotatedTemplate.graphics!
+                .translateTransform(0, template.size.height);
+            rotatedTemplate.graphics!.rotateTransform(-90);
+            rotatedTemplate.graphics!.drawPdfTemplate(template, Offset.zero,
+                Size(template.size.height, template.size.width));
+          } else if (angle == 180) {
+            rotatedTemplate.graphics!
+                .translateTransform(template.size.width, template.size.height);
+            rotatedTemplate.graphics!.rotateTransform(-180);
+            rotatedTemplate.graphics!
+                .drawPdfTemplate(template, Offset.zero, template.size);
+          } else if (angle == 270) {
+            rotatedTemplate.graphics!
+                .translateTransform(template.size.width, 0);
+            rotatedTemplate.graphics!.rotateTransform(-270);
+            rotatedTemplate.graphics!.drawPdfTemplate(template, Offset.zero,
+                Size(template.size.height, template.size.width));
+          }
+          rotatedTemplate.graphics!.restore();
+          return rotatedTemplate;
+        }
+      }
+    }
+    return template;
+  }
+
+  int _obtainGraphicsRotation(num a, num b) {
+    int angle = 0;
+    final double radians = atan2(a, b);
+    angle = (radians * 180 / pi).round();
+    switch (angle) {
+      case -90:
+        angle = 90;
+        break;
+      case -180:
+        angle = 180;
+        break;
+      case 90:
+        angle = 270;
+        break;
+    }
+    return angle;
   }
 
   /// internal method
@@ -515,6 +592,12 @@ class PdfSignatureFieldHelper extends PdfFieldHelper {
           borderWidth: signatureField.borderWidth,
           shadowBrush: shadowBrush);
       FieldPainter().drawSignature(template.graphics!, params);
+    } else {
+      FieldPainter().drawSignature(
+          template.graphics!,
+          PaintParams(
+              bounds: Rect.fromLTWH(0, 0, signatureField.bounds.width,
+                  signatureField.bounds.height)));
     }
   }
 

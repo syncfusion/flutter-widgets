@@ -10,8 +10,8 @@ class SfPdfViewerThemeDataM2 extends SfPdfViewerThemeData {
   /// The [BuildContext] of the widget.
   final BuildContext context;
 
-  /// The [ColorScheme] of the widget.
-  late final ColorScheme colorScheme = Theme.of(context).colorScheme;
+  /// The [SfColorScheme] of the widget.
+  late final SfColorScheme colorScheme = SfTheme.colorScheme(context);
 
   late final PdfScrollHeadStyle _scrollHeadStyle = PdfScrollHeadStyle(
     backgroundColor: colorScheme.brightness == Brightness.light
@@ -23,24 +23,14 @@ class SfPdfViewerThemeDataM2 extends SfPdfViewerThemeData {
     backgroundColor: colorScheme.brightness == Brightness.light
         ? Colors.white
         : const Color(0xFF212121),
-    closeIconColor: colorScheme.brightness == Brightness.light
-        ? Colors.black.withOpacity(0.54)
-        : Colors.white.withOpacity(0.54),
-    backIconColor: colorScheme.brightness == Brightness.light
-        ? Colors.black.withOpacity(0.54)
-        : Colors.white.withOpacity(0.54),
+    closeIconColor: colorScheme.onSurfaceVariant[138],
+    backIconColor: colorScheme.onSurfaceVariant[138],
     headerBarColor: colorScheme.brightness == Brightness.light
         ? const Color(0xFFFAFAFA)
         : const Color(0xFF424242),
-    navigationIconColor: colorScheme.brightness == Brightness.light
-        ? Colors.black.withOpacity(0.54)
-        : Colors.white.withOpacity(0.54),
-    selectionColor: colorScheme.brightness == Brightness.light
-        ? const Color.fromRGBO(0, 0, 0, 0.08)
-        : const Color.fromRGBO(255, 255, 255, 0.12),
-    titleSeparatorColor: colorScheme.brightness == Brightness.light
-        ? const Color.fromRGBO(0, 0, 0, 0.16)
-        : const Color.fromRGBO(255, 255, 255, 0.16),
+    navigationIconColor: colorScheme.onSurfaceVariant[138],
+    selectionColor: colorScheme.primaryContainer[20],
+    titleSeparatorColor: colorScheme.outlineVariant[41],
   );
 
   late final PdfPaginationDialogStyle _paginationDialogStyle =
@@ -52,25 +42,18 @@ class SfPdfViewerThemeDataM2 extends SfPdfViewerThemeData {
 
   late final PdfHyperlinkDialogStyle _hyperlinkDialogStyle =
       PdfHyperlinkDialogStyle(
-    backgroundColor: colorScheme.brightness == Brightness.light
-        ? Colors.white
-        : const Color(0xFF424242),
-    closeIconColor: colorScheme.brightness == Brightness.light
-        ? Colors.black.withOpacity(0.6)
-        : Colors.white.withOpacity(0.6),
-  );
+          backgroundColor: colorScheme.brightness == Brightness.light
+              ? Colors.white
+              : const Color(0xFF424242),
+          closeIconColor: colorScheme.onSurfaceVariant[153]);
 
   late final PdfPasswordDialogStyle _passwordDialogStyle =
       PdfPasswordDialogStyle(
     backgroundColor: colorScheme.brightness == Brightness.light
         ? Colors.white
         : const Color(0xFF424242),
-    closeIconColor: colorScheme.brightness == Brightness.light
-        ? Colors.black.withOpacity(0.6)
-        : Colors.white.withOpacity(0.6),
-    visibleIconColor: colorScheme.brightness == Brightness.light
-        ? Colors.black.withOpacity(0.6)
-        : Colors.white.withOpacity(0.6),
+    closeIconColor: colorScheme.onSurfaceVariant[153],
+    visibleIconColor: colorScheme.onSurfaceVariant[153],
   );
 
   @override
@@ -102,8 +85,8 @@ class SfPdfViewerThemeDataM3 extends SfPdfViewerThemeData {
   /// The [BuildContext] of the widget.
   final BuildContext context;
 
-  /// The [ColorScheme] of the widget.
-  late final ColorScheme colorScheme = Theme.of(context).colorScheme;
+  /// The [SfColorScheme] of the widget.
+  late final SfColorScheme colorScheme = SfTheme.colorScheme(context);
 
   late final PdfScrollHeadStyle _scrollHeadStyle = PdfScrollHeadStyle(
     backgroundColor: colorScheme.brightness == Brightness.light
@@ -112,21 +95,21 @@ class SfPdfViewerThemeDataM3 extends SfPdfViewerThemeData {
   );
 
   late final PdfScrollStatusStyle _scrollStatusStyle = PdfScrollStatusStyle(
-      backgroundColor: colorScheme.inverseSurface,
-      pageInfoTextStyle: TextStyle(color: colorScheme.onInverseSurface));
+      backgroundColor: colorScheme.inverseSurface[255],
+      pageInfoTextStyle: TextStyle(color: colorScheme.onInverseSurface[255]));
 
   late final PdfBookmarkViewStyle _bookmarkViewStyle = PdfBookmarkViewStyle(
     backgroundColor: colorScheme.brightness == Brightness.light
         ? const Color.fromRGBO(247, 242, 251, 1)
         : const Color.fromRGBO(37, 35, 42, 1),
-    closeIconColor: colorScheme.onSurfaceVariant,
-    backIconColor: colorScheme.onSurfaceVariant,
+    closeIconColor: colorScheme.onSurfaceVariant[138],
+    backIconColor: colorScheme.onSurfaceVariant[138],
     headerBarColor: colorScheme.brightness == Brightness.light
         ? const Color.fromRGBO(247, 242, 251, 1)
         : const Color.fromRGBO(37, 35, 42, 1),
-    navigationIconColor: colorScheme.onSurfaceVariant,
-    selectionColor: colorScheme.primaryContainer,
-    titleSeparatorColor: colorScheme.outlineVariant,
+    navigationIconColor: colorScheme.onSurfaceVariant[138],
+    selectionColor: colorScheme.primaryContainer[20],
+    titleSeparatorColor: colorScheme.outlineVariant[41],
   );
 
   late final PdfPaginationDialogStyle _paginationDialogStyle =
@@ -141,7 +124,7 @@ class SfPdfViewerThemeDataM3 extends SfPdfViewerThemeData {
     backgroundColor: colorScheme.brightness == Brightness.light
         ? const Color.fromRGBO(238, 232, 244, 1)
         : const Color.fromRGBO(48, 45, 56, 1),
-    closeIconColor: colorScheme.onSurfaceVariant,
+    closeIconColor: colorScheme.onSurfaceVariant[153],
   );
 
   late final PdfPasswordDialogStyle _passwordDialogStyle =
@@ -149,8 +132,8 @@ class SfPdfViewerThemeDataM3 extends SfPdfViewerThemeData {
     backgroundColor: colorScheme.brightness == Brightness.light
         ? const Color.fromRGBO(238, 232, 244, 1)
         : const Color.fromRGBO(48, 45, 56, 1),
-    closeIconColor: colorScheme.onSurfaceVariant,
-    visibleIconColor: colorScheme.onSurfaceVariant,
+    closeIconColor: colorScheme.onSurfaceVariant[153],
+    visibleIconColor: colorScheme.onSurfaceVariant[153],
   );
 
   @override

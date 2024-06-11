@@ -242,7 +242,7 @@ class StackedColumnSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
       ..series = this
       ..x = xValues[index]
       ..top = topValues[index]
-      ..bottom = bottom == 0 ? bottomValues[index] : bottom
+      ..bottom = xAxis!.crossesAt ?? bottomValues[index]
       .._actualBottom = bottom
       ..isEmpty = isEmpty(index);
   }

@@ -520,7 +520,8 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
   /// ```
   final String? name;
 
-  /// Zoom factor of an axis.
+  /// Defines the percentage of the visible range from the total range of axis values.
+  /// It applies only during load time and the value will not be updated when zooming or panning.
   ///
   /// Scale the axis based on this value, and it ranges
   /// from 0 to 1.
@@ -536,9 +537,52 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
   ///     );
   /// }
   /// ```
+  ///
+  /// Use the onRendererCreated callback, as shown in the code below, to update the zoom
+  /// factor value dynamically.
+  ///
+  /// ```dart
+  /// NumericAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: NumericAxis(
+  ///             initialZoomFactor: 0.5,
+  ///             onRendererCreated: (NumericAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, num>>[
+  ///             LineSeries<SalesData, num>(
+  ///               dataSource: data,
+  ///               xValueMapper: (_SalesData sales, _) => sales.year,
+  ///               yValueMapper: (_SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.zoomFactor = 0.3;
+  ///            }
+  ///           },
+  ///           child: const Text('Update ZoomFactor'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
   final double initialZoomFactor;
 
-  /// Position of the zoomed axis. The value ranges from 0 to 1.
+  /// Defines the zoom position for the actual range of the axis.
+  /// It applies only during load time and the value will not be updated when zooming or panning.
+  ///
+  /// The value ranges from 0 to 1.
   ///
   /// Defaults to `0`.
   ///
@@ -549,6 +593,46 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
   ///            primaryXAxis: NumericAxis(initialZoomPosition: 0.6),
   ///         )
   ///     );
+  /// }
+  /// ```
+  ///
+  /// Use the onRendererCreated callback, as shown in the code below, to update the zoom
+  /// position value dynamically.
+  ///
+  /// ```dart
+  /// NumericAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: NumericAxis(
+  ///             initialZoomPosition: 0.6,
+  ///             onRendererCreated: (NumericAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, num>>[
+  ///             LineSeries<SalesData, num>(
+  ///               dataSource: data,
+  ///               xValueMapper: (_SalesData sales, _) => sales.year,
+  ///               yValueMapper: (_SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.zoomPosition = 0.2;
+  ///            }
+  ///           },
+  ///           child: const Text('Update ZoomPosition'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
   /// }
   /// ```
   final double initialZoomPosition;
@@ -823,6 +907,12 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
   ///
   /// If the data points are less than the specified `autoScrollingDelta` value,
   /// all those data points will be displayed.
+  ///
+  /// If the axis contains both initialVisibleMinimum or initialVisibleMaximum
+  /// and autoScrollingDelta, the autoScrollingDelta will be restricted.
+  /// Because both properties tends to define visible the number of data points
+  /// in the chart and so initialVisibleMinimum and initialVisibleMaximum
+  /// takes priority over autoScrollingDelta.
   ///
   /// It always shows the recently added data points and scrolling will be reset
   /// to the start or end of the range, based on [autoScrollingMode] property's
@@ -1938,6 +2028,11 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       }
     }
 
+    // Handled range controller when performing panning.
+    if (rangeController != null) {
+      updateRangeControllerValues(newVisibleRange);
+    }
+
     if (parent != null &&
         parent!.onActualRangeChanged != null &&
         (newActualRange != actualRange || newVisibleRange != visibleRange)) {
@@ -1971,6 +2066,7 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     _actualInterval = newActualInterval;
     _visibleRange = newVisibleRange;
     _visibleInterval = newVisibleInterval;
+
     if (attached) {
       invokeLayoutCallback((Object? constraints) {
         for (final AxisDependent dependent in dependents) {
@@ -1986,17 +2082,26 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     switch (autoScrollingMode) {
       case AutoScrollingMode.start:
         final DoubleRange autoScrollRange = DoubleRange(
-            visibleRange.minimum, visibleRange.minimum + scrollingDelta);
+            actualRange.minimum, actualRange.minimum + scrollingDelta);
         controller.zoomFactor = autoScrollRange.delta / actualRange.delta;
         controller.zoomPosition = 0;
         return autoScrollRange;
 
       case AutoScrollingMode.end:
         final DoubleRange autoScrollRange = DoubleRange(
-            visibleRange.maximum - scrollingDelta, visibleRange.maximum);
+            actualRange.maximum - scrollingDelta, actualRange.maximum);
         controller.zoomFactor = autoScrollRange.delta / actualRange.delta;
         controller.zoomPosition = 1 - controller.zoomFactor;
         return autoScrollRange;
+    }
+  }
+
+  void updateRangeControllerValues(DoubleRange newVisibleRange) {
+    if (rangeController!.start != newVisibleRange.minimum) {
+      rangeController!.start = newVisibleRange.minimum;
+    }
+    if (rangeController!.end != newVisibleRange.maximum) {
+      rangeController!.end = newVisibleRange.maximum;
     }
   }
 
@@ -3449,8 +3554,15 @@ class _HorizontalGridLineRenderer extends _GridLineRenderer {
       }
 
       final double plotOffset = associatedAxis.plotOffset;
-      final double y1 = associatedAxis.pointToPixel(minimum) - plotOffset;
-      final double y2 = associatedAxis.pointToPixel(maximum) + plotOffset;
+      double y1 = associatedAxis.pointToPixel(minimum);
+      double y2 = associatedAxis.pointToPixel(maximum);
+      if (associatedAxis.isInversed) {
+        y1 = y1 - plotOffset;
+        y2 = y2 + plotOffset;
+      } else {
+        y1 = y1 + plotOffset;
+        y2 = y2 - plotOffset;
+      }
       for (final double position in positions) {
         final Offset start = offset.translate(position, y1);
         final Offset end = Offset(start.dx, offset.dy + y2);
@@ -3508,8 +3620,15 @@ class _VerticalGridLineRenderer extends _GridLineRenderer {
       }
 
       final double plotOffset = associatedAxis.plotOffset;
-      final double x1 = associatedAxis.pointToPixel(minimum) - plotOffset;
-      final double x2 = associatedAxis.pointToPixel(maximum) + plotOffset;
+      double x1 = associatedAxis.pointToPixel(minimum);
+      double x2 = associatedAxis.pointToPixel(maximum);
+      if (associatedAxis.isInversed) {
+        x1 = x1 + plotOffset;
+        x2 = x2 - plotOffset;
+      } else {
+        x1 = x1 - plotOffset;
+        x2 = x2 + plotOffset;
+      }
       for (final double position in positions) {
         final Offset start = offset.translate(x1, position);
         final Offset end = Offset(offset.dx + x2, start.dy);
@@ -4183,17 +4302,20 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
       }
     }
 
+    final bool isOutSide = axis.labelPosition == ChartDataLabelPosition.outside;
     final List<AxisLabel> axisLabels = axis.visibleLabels;
     for (final AxisLabel label in axisLabels) {
       if (!label.isVisible || label.position == null || label.position!.isNaN) {
         continue;
       }
 
-      Offset position = Offset(
-          labelOffset.dx + label.position!,
-          axis.invertElementsOrder
-              ? labelOffset.dy + (_maxLabelSize - label.labelSize.height)
-              : labelOffset.dy);
+      double dy = labelOffset.dy;
+      if ((axis.invertElementsOrder && isOutSide) ||
+          (!axis.invertElementsOrder && !isOutSide)) {
+        dy += _maxLabelSize - label.labelSize.height;
+      }
+
+      Offset position = Offset(labelOffset.dx + label.position!, dy);
       label.region = Rect.fromLTWH(position.dx, position.dy,
           label.labelSize.width, label.labelSize.height);
       position += offset;
@@ -4456,17 +4578,20 @@ class _VerticalAxisRenderer extends _AxisRenderer {
       }
     }
 
+    final bool isOutSide = axis.labelPosition == ChartDataLabelPosition.outside;
     final List<AxisLabel> axisLabels = axis.visibleLabels;
     for (final AxisLabel label in axisLabels) {
       if (!label.isVisible || label.position == null || label.position!.isNaN) {
         continue;
       }
 
-      Offset position = Offset(
-          axis.invertElementsOrder
-              ? labelOffset.dx + (_maxLabelSize - label.labelSize.width)
-              : labelOffset.dx,
-          labelOffset.dy + label.position!);
+      double dx = labelOffset.dx;
+      if ((axis.invertElementsOrder && isOutSide) ||
+          (!axis.invertElementsOrder && !isOutSide)) {
+        dx += _maxLabelSize - label.labelSize.width;
+      }
+
+      Offset position = Offset(dx, labelOffset.dy + label.position!);
       label.region = Rect.fromLTWH(position.dx, position.dy,
           label.labelSize.width, label.labelSize.height);
       position += offset;
@@ -5731,6 +5856,11 @@ abstract class ChartAxisController {
     _updateZoomPositionTween(_previousZoomPosition, _zoomPosition);
 
     if (axis.rangeController != null) {
+      // We have set false for this properties in startAnimation method,
+      // but rangeController returned here before calling startAnimation method.
+      // So, handled here.
+      _isVisibleMaxChanged = false;
+      _isVisibleMinChanged = false;
       return;
     }
 

@@ -1418,9 +1418,8 @@ class _SfRangeSliderState extends State<SfRangeSlider>
     SfRangeSliderThemeData rangeSliderThemeData =
         SfRangeSliderTheme.of(context)!;
     final bool isMaterial3 = themeData.useMaterial3;
-    final SfRangeSliderThemeData effectiveThemeData = isMaterial3
-        ? SfRangeSliderThemeDataM3(context)
-        : SfRangeSliderThemeDataM2(context);
+    final SfRangeSliderThemeData effectiveThemeData =
+        RangeSliderThemeData(context);
     final Color labelColor = isMaterial3
         ? themeData.colorScheme.onSurfaceVariant
         : isActive

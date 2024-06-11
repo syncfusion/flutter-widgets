@@ -11,6 +11,7 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
 import '../axis/datetime_category_axis.dart';
+import '../axis/logarithmic_axis.dart';
 import '../base.dart';
 import '../common/callbacks.dart';
 import '../common/chart_point.dart';
@@ -478,15 +479,16 @@ class TrackballBehavior extends ChartBehavior {
   /// * pointIndex - index of the point for which the trackball must be shown
   void showByIndex(int pointIndex) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (parent != null && parent.plotArea != null) {
-      final CartesianSeriesRenderer? series =
-          parent.plotArea!.firstChild! as CartesianSeriesRenderer?;
-      if (series != null) {
-        final List<num> visibleIndexes = series.visibleIndexes;
-        if (visibleIndexes.first <= pointIndex &&
-            pointIndex <= visibleIndexes.last) {
-          show(series.xRawValues[pointIndex], 0);
-        }
+    if (parent != null &&
+        parent.plotArea != null &&
+        parent.plotArea!.firstChild != null) {
+      final CartesianSeriesRenderer renderer =
+          parent.plotArea!.firstChild! as CartesianSeriesRenderer;
+      final List<num> visibleIndexes = renderer.visibleIndexes;
+      if (visibleIndexes.isNotEmpty &&
+          visibleIndexes.first <= pointIndex &&
+          pointIndex <= visibleIndexes.last) {
+        show(renderer.xRawValues[pointIndex], 0);
       }
     }
   }
@@ -510,8 +512,10 @@ class TrackballBehavior extends ChartBehavior {
       _handlePointerMove(event);
     } else if (event is PointerHoverEvent) {
       _handlePointerHover(event);
-    } else if (event is PointerCancelEvent || event is PointerUpEvent) {
+    } else if (event is PointerCancelEvent) {
       _hideTrackball(immediately: true);
+    } else if (event is PointerUpEvent) {
+      _hideTrackball();
     }
   }
 
@@ -729,12 +733,6 @@ class TrackballBehavior extends ChartBehavior {
                   .intersect(Rect.fromLTWH(xPos - 1, yPos - 1, 2, 2));
               if (_plotAreaBounds.contains(trackPosition) ||
                   _plotAreaBounds.overlaps(rect)) {
-                final double touchXPos = position.dx;
-                if (trackInfo.seriesIndex == 0 ||
-                    ((leastX - touchXPos).abs() > (xPos - touchXPos).abs())) {
-                  leastX = xPos;
-                }
-
                 _visiblePoints.add(Offset(xPos, yPos));
                 _addChartPointInfo(trackInfo, xPos, yPos);
                 if (isGroupMode && leastX >= _plotAreaBounds.left) {
@@ -745,6 +743,7 @@ class TrackballBehavior extends ChartBehavior {
                   }
                 }
               }
+
               _updateLeastX(leastX, child.dataCount);
               if (child is BarSeriesRenderer ? _isTransposed : _isTransposed) {
                 yPos = leastX;
@@ -785,13 +784,18 @@ class TrackballBehavior extends ChartBehavior {
                   leastX = yPos;
                 }
 
-                _visiblePoints.add(Offset(xPos, yPos));
-                _addChartPointInfo(info, xPos, yPos);
-                if (isGroupMode && leastX >= _plotAreaBounds.left) {
-                  if (_isTransposed) {
-                    yPos = leastX;
-                  } else {
-                    xPos = leastX;
+                final Rect rect = _plotAreaBounds
+                    .intersect(Rect.fromLTWH(xPos - 1, yPos - 1, 2, 2));
+                if (_plotAreaBounds.contains(indicatorPosition) ||
+                    _plotAreaBounds.overlaps(rect)) {
+                  _visiblePoints.add(Offset(xPos, yPos));
+                  _addChartPointInfo(info, xPos, yPos);
+                  if (isGroupMode && leastX >= _plotAreaBounds.left) {
+                    if (_isTransposed) {
+                      yPos = leastX;
+                    } else {
+                      xPos = leastX;
+                    }
                   }
                 }
               }
@@ -805,8 +809,8 @@ class TrackballBehavior extends ChartBehavior {
     _validateLeastPointInfoWithLeastX(leastX);
     _sortTrackballPoints(_isTransposed);
     _triggerTrackballRenderCallback(parent);
-    _applyTooltipDisplayMode(_chartThemeData!, _themeData!,
-        _chartThemeData!.trackballTextStyle!, leastX, position, isRtl);
+    _applyTooltipDisplayMode(
+        _chartThemeData!, _themeData!, leastX, position, isRtl);
   }
 
   void _sortTrackballPoints(bool isTranposed) {
@@ -855,15 +859,14 @@ class TrackballBehavior extends ChartBehavior {
     final RenderChartAxis xAxis = series.xAxis!;
     final RenderChartAxis yAxis = series.yAxis!;
     final Rect bounds = series.paintBounds;
-    final num xValue = xAxis.pixelToPoint(bounds, position.dx, position.dy);
-    final num yValue = yAxis.pixelToPoint(bounds, position.dx, position.dy);
+    num xValue = xAxis.pixelToPoint(bounds, position.dx, position.dy);
+    num yValue = yAxis.pixelToPoint(bounds, position.dx, position.dy);
 
-    if (xAxis is RenderCategoryAxis || xAxis is RenderDateTimeCategoryAxis) {
+    if (series.canFindLinearVisibleIndexes &&
+        ((xAxis is RenderCategoryAxis && xAxis.arrangeByIndex) ||
+            xAxis is RenderDateTimeCategoryAxis)) {
       final DoubleRange range = xAxis.visibleRange!;
-      int index = xValue.round();
-      if (xAxis is RenderCategoryAxis && !xAxis.arrangeByIndex) {
-        index = series.xValues.indexOf(index);
-      }
+      final int index = xValue.round();
       if (index <= range.maximum &&
           index >= range.minimum &&
           index < dataCount &&
@@ -872,9 +875,16 @@ class TrackballBehavior extends ChartBehavior {
       }
       return indexes;
     } else {
+      if (xAxis is RenderLogarithmicAxis) {
+        xValue = xAxis.toPow(xValue);
+      }
+      if (yAxis is RenderLogarithmicAxis) {
+        yValue = yAxis.toPow(yValue);
+      }
+
       if (series.canFindLinearVisibleIndexes) {
         final int binaryIndex =
-            _binarySearch(series.xValues, xValue.toDouble(), 0, dataCount - 1);
+            binarySearch(series.xValues, xValue.toDouble(), 0, dataCount - 1);
         if (binaryIndex >= 0) {
           indexes.add(binaryIndex);
         }
@@ -904,29 +914,6 @@ class TrackballBehavior extends ChartBehavior {
       }
       return indexes;
     }
-  }
-
-  int _binarySearch(List<num> xValues, double touchValue, int min, int max) {
-    var closerIndex = 0;
-    double closerDelta = double.maxFinite;
-    while (min <= max) {
-      final int mid = (min + max) ~/ 2;
-      final double xValue = xValues[mid].toDouble();
-      final double delta = (touchValue - xValue).abs();
-      if (delta < closerDelta) {
-        closerDelta = delta;
-        closerIndex = mid;
-      }
-
-      if (touchValue == xValue) {
-        return mid;
-      } else if (touchValue < xValue) {
-        max = mid - 1;
-      } else {
-        min = mid + 1;
-      }
-    }
-    return closerIndex;
   }
 
   void _addChartPointInfo(
@@ -1044,7 +1031,6 @@ class TrackballBehavior extends ChartBehavior {
   void _applyTooltipDisplayMode(
     SfChartThemeData chartThemeData,
     ThemeData themeData,
-    TextStyle labelStyle,
     double leastX,
     Offset position,
     bool isRtl,
@@ -1058,35 +1044,34 @@ class TrackballBehavior extends ChartBehavior {
       _validateNearestChartPointInfo(leastX, position);
     }
 
-    if (tooltipSettings.enable && builder == null) {
-      if (tooltipSettings.textStyle != null) {
-        labelStyle =
-            _createLabelStyle(FontWeight.normal, tooltipSettings.textStyle!);
-      }
-      const double padding = 5;
+    if (builder == null) {
       final bool markerIsVisible = markerSettings != null &&
           markerSettings!.markerVisibility == TrackballVisibilityMode.visible;
-      final bool markerAutoVisibility = markerSettings != null &&
-          markerSettings!.markerVisibility == TrackballVisibilityMode.auto;
 
-      switch (tooltipDisplayMode) {
-        case TrackballDisplayMode.nearestPoint:
-          _applyNearestPointDisplayMode(padding, labelStyle, markerIsVisible,
-              markerAutoVisibility, isRtl);
-          break;
+      if (tooltipSettings.enable) {
+        final TextStyle labelStyle = _createLabelStyle(
+            FontWeight.normal, _chartThemeData!.trackballTextStyle!);
+        final bool markerAutoVisibility = markerSettings != null &&
+            markerSettings!.markerVisibility == TrackballVisibilityMode.auto;
+        switch (tooltipDisplayMode) {
+          case TrackballDisplayMode.nearestPoint:
+            _applyNearestPointDisplayMode(
+                labelStyle, markerIsVisible, markerAutoVisibility, isRtl);
+            break;
 
-        case TrackballDisplayMode.floatAllPoints:
-          _applyFloatAllPointsDisplayMode(padding, labelStyle, markerIsVisible,
-              markerAutoVisibility, isRtl);
-          break;
+          case TrackballDisplayMode.floatAllPoints:
+            _applyFloatAllPointsDisplayMode(
+                labelStyle, markerIsVisible, markerAutoVisibility, isRtl);
+            break;
 
-        case TrackballDisplayMode.groupAllPoints:
-          _applyGroupAllPointDisplayMode(padding, labelStyle, markerIsVisible,
-              markerAutoVisibility, isRtl);
-          break;
+          case TrackballDisplayMode.groupAllPoints:
+            _applyGroupAllPointDisplayMode(
+                labelStyle, markerIsVisible, markerAutoVisibility, isRtl);
+            break;
 
-        case TrackballDisplayMode.none:
-          break;
+          case TrackballDisplayMode.none:
+            break;
+        }
       }
 
       if (markerIsVisible) {
@@ -1096,7 +1081,6 @@ class TrackballBehavior extends ChartBehavior {
   }
 
   void _applyNearestPointDisplayMode(
-    double defaultPadding,
     TextStyle labelStyle,
     bool markerIsVisible,
     bool markerAutoVisibility,
@@ -1109,8 +1093,8 @@ class TrackballBehavior extends ChartBehavior {
       final Size labelSize = _labelSize(pointInfo.label!, labelStyle);
       final dynamic series = pointInfo.series;
       double width = labelSize.width;
-      if (width < 10) {
-        width = 10;
+      if (width < defaultTooltipWidth) {
+        width = defaultTooltipWidth;
         borderRadius = borderRadius > 5 ? 5 : borderRadius;
       }
       borderRadius = borderRadius > 15 ? 15 : borderRadius;
@@ -1118,8 +1102,8 @@ class TrackballBehavior extends ChartBehavior {
               ? series is IndicatorRenderer ||
                   (series != null && series.markerSettings.isVisible)
               : markerIsVisible)
-          ? (markerSettings!.width / 2) + defaultPadding
-          : defaultPadding;
+          ? (markerSettings!.width / 2) + defaultTrackballPadding
+          : defaultTrackballPadding;
 
       _computeNearestTooltip(pointInfo, labelStyle, width, labelSize.height,
           padding, arrowWidth, arrowLength, borderRadius, isRtl);
@@ -1164,21 +1148,19 @@ class TrackballBehavior extends ChartBehavior {
       ..addPath(nosePath, Offset.zero);
     _tooltipPaths.add(nearestTooltipPath);
 
-    const double markerPadding = 5;
     if (tooltipSettings.canShowMarker) {
-      final Offset markerPosition =
-          _markerPosition(tooltipRRect, width, height, markerPadding, isRtl);
+      final Offset markerPosition = _markerPosition(
+          tooltipRRect, width, height, defaultTrackballPadding, isRtl);
       _computeTooltipMarkers(pointInfo, markerPosition);
     }
 
     if (pointInfo.label != null) {
-      _computeTooltipLabels(pointInfo.label!, width, height, labelStyle,
-          tooltipRRect, markerPadding);
+      _computeTooltipLabels(
+          pointInfo.label!, width, height, labelStyle, tooltipRRect, isRtl);
     }
   }
 
   void _applyFloatAllPointsDisplayMode(
-    double defaultPadding,
     TextStyle labelStyle,
     bool markerIsVisible,
     bool markerAutoVisibility,
@@ -1196,8 +1178,8 @@ class TrackballBehavior extends ChartBehavior {
       final dynamic series = pointInfo.series;
       final Size labelSize = _labelSize(pointInfo.label!, labelStyle);
       double width = labelSize.width;
-      if (width < 10) {
-        width = 10;
+      if (width < defaultTooltipWidth) {
+        width = defaultTooltipWidth;
         borderRadius = borderRadius > 5 ? 5 : borderRadius;
       }
       borderRadius = borderRadius > 15 ? 15 : borderRadius;
@@ -1205,30 +1187,28 @@ class TrackballBehavior extends ChartBehavior {
               ? series is IndicatorRenderer ||
                   (series != null && series.markerSettings.isVisible)
               : markerIsVisible)
-          ? (markerSettings!.width / 2) + defaultPadding
-          : defaultPadding;
+          ? (markerSettings!.width / 2) + defaultTrackballPadding
+          : defaultTrackballPadding;
 
-      if (floatTooltipPosition != null) {
-        final num tooltipTop = floatTooltipPosition.tooltipTop[i];
-        final num tooltipBottom = floatTooltipPosition.tooltipBottom[i];
-        if (_isTransposed
-            ? tooltipTop >= _plotAreaBounds.left &&
-                tooltipBottom <= _plotAreaBounds.right
-            : tooltipTop >= _plotAreaBounds.top &&
-                tooltipBottom <= _plotAreaBounds.bottom) {
-          _computeFloatAllPointTooltip(
-              i,
-              pointInfo,
-              width,
-              labelSize.height,
-              padding,
-              arrowWidth,
-              arrowLength,
-              borderRadius,
-              labelStyle,
-              floatTooltipPosition,
-              isRtl);
-        }
+      final num tooltipTop = floatTooltipPosition.tooltipTop[i];
+      final num tooltipBottom = floatTooltipPosition.tooltipBottom[i];
+      if (_isTransposed
+          ? tooltipTop >= _plotAreaBounds.left &&
+              tooltipBottom <= _plotAreaBounds.right
+          : tooltipTop >= _plotAreaBounds.top &&
+              tooltipBottom <= _plotAreaBounds.bottom) {
+        _computeFloatAllPointTooltip(
+            i,
+            pointInfo,
+            width,
+            labelSize.height,
+            padding,
+            arrowWidth,
+            arrowLength,
+            borderRadius,
+            labelStyle,
+            floatTooltipPosition,
+            isRtl);
       }
     }
   }
@@ -1277,16 +1257,15 @@ class TrackballBehavior extends ChartBehavior {
       ..addPath(nosePath, Offset.zero);
     _tooltipPaths.add(nearestTooltipPath);
 
-    const double markerPadding = 5;
     if (tooltipSettings.canShowMarker) {
-      final Offset markerPosition =
-          _markerPosition(tooltipRRect, width, height, markerPadding, isRtl);
+      final Offset markerPosition = _markerPosition(
+          tooltipRRect, width, height, defaultTrackballPadding, isRtl);
       _computeTooltipMarkers(pointInfo, markerPosition);
     }
 
     if (pointInfo.label != null) {
-      _computeTooltipLabels(pointInfo.label!, width, height, labelStyle,
-          tooltipRRect, markerPadding);
+      _computeTooltipLabels(
+          pointInfo.label!, width, height, labelStyle, tooltipRRect, isRtl);
     }
   }
 
@@ -1305,8 +1284,8 @@ class TrackballBehavior extends ChartBehavior {
       final Size labelSize = _labelSize(label, labelStyle);
       final double height = labelSize.height;
       double width = labelSize.width;
-      if (width < 10) {
-        width = 10;
+      if (width < defaultTooltipWidth) {
+        width = defaultTooltipWidth;
       }
 
       if (label != '' && _visiblePoints.isNotEmpty) {
@@ -1318,7 +1297,7 @@ class TrackballBehavior extends ChartBehavior {
             : closeY - tooltipPaddingForFloatPoint - height / 2);
         tooltipBottom.add(_isTransposed
             ? (closeX + tooltipPaddingForFloatPoint + (width / 2)) +
-                (tooltipSettings.canShowMarker ? 20 : 0)
+                (tooltipSettings.canShowMarker ? trackballTooltipMarkerSize : 0)
             : closeY + tooltipPaddingForFloatPoint + height / 2);
         if (series != null && series.xAxis != null) {
           xAxesInfo.add(series.xAxis!);
@@ -1563,7 +1542,7 @@ class TrackballBehavior extends ChartBehavior {
     return _TooltipPositions(tooltipTop, tooltipBottom);
   }
 
-  void _applyGroupAllPointDisplayMode(double padding, TextStyle labelStyle,
+  void _applyGroupAllPointDisplayMode(TextStyle labelStyle,
       bool markerIsVisible, bool markerAutoVisibility, bool isRtl) {
     double borderRadius = tooltipSettings.borderRadius;
     final ChartPointInfo pointInfo = chartPointInfo[0];
@@ -1573,17 +1552,17 @@ class TrackballBehavior extends ChartBehavior {
     final Size totalLabelSize = _labelSizeForGroupAllPoints(labelStyle);
     final double height = totalLabelSize.height;
     double width = totalLabelSize.width;
-    if (width < 10) {
-      width = 10;
+    if (width < defaultTooltipWidth) {
+      width = defaultTooltipWidth;
       borderRadius = borderRadius > 5 ? 5 : borderRadius;
     }
     borderRadius = borderRadius > 15 ? 15 : borderRadius;
-    padding = (markerAutoVisibility
+    final double padding = (markerAutoVisibility
             ? series is IndicatorRenderer ||
                 (series != null && series.markerSettings.isVisible)
             : markerIsVisible)
-        ? (markerSettings!.width / 2) + padding
-        : padding;
+        ? (markerSettings!.width / 2) + defaultTrackballPadding
+        : defaultTrackballPadding;
 
     final Rect tooltipRect = _tooltipRect(xPosition, yPosition, width, height);
     final double labelRectWidth = tooltipRect.width;
@@ -1611,29 +1590,30 @@ class TrackballBehavior extends ChartBehavior {
     if (tooltipRRect != RRect.zero) {
       _tooltipPaths.add(Path()..addRRect(tooltipRRect));
       _computeGroupTooltipLabels(
-          alignPosition, tooltipRRect, totalLabelSize, labelStyle);
+          alignPosition, tooltipRRect, totalLabelSize, labelStyle, isRtl);
     }
   }
 
   void _computeGroupTooltipLabels(Offset alignPosition, RRect tooltipRRect,
-      Size totalLabelSize, TextStyle labelStyle) {
+      Size totalLabelSize, TextStyle textStyle, bool isRtl) {
     bool hasIndicator = false;
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent != null && parent.indicatorArea != null) {
       hasIndicator = true;
     }
-    const double markerPadding = 5;
-    final double markerSize = tooltipSettings.canShowMarker ? 20 : 0;
+
+    final bool canShowMarker = tooltipSettings.canShowMarker;
+    final double markerSize = canShowMarker ? trackballTooltipMarkerSize : 0;
+    const double halfMarkerSize = trackballTooltipMarkerSize / 2;
     // It specifies for marker position calculation.
-    double totalLabelHeight = tooltipRRect.top + markerPadding;
+    double totalLabelHeight = tooltipRRect.top + defaultTrackballPadding;
     // It specifies for label position calculation with label style.
     double eachTextHeight = 0;
 
     final String? header = chartPointInfo[0].header;
     if (header != null && header != '') {
-      const double headerPadding = 10;
-      final TextStyle boldStyle =
-          labelStyle.copyWith(fontWeight: FontWeight.bold);
+      const double headerPadding = defaultTooltipWidth;
+      final TextStyle boldStyle = _createLabelStyle(FontWeight.bold, textStyle);
       final Size headerSize = measureText(header, boldStyle);
       final double headerHeight = headerSize.height;
       totalLabelHeight += headerHeight;
@@ -1655,37 +1635,50 @@ class TrackballBehavior extends ChartBehavior {
     }
 
     // Empty text size consideration between the header and series text.
-    final Size emptyTextSize = measureText('', labelStyle);
+    final Size emptyTextSize = measureText('', textStyle);
     final double emptyTextHeight = emptyTextSize.height;
     totalLabelHeight += emptyTextHeight;
     eachTextHeight += emptyTextHeight;
 
-    final bool canShowMarker = tooltipSettings.canShowMarker;
     final bool hasFormat = tooltipSettings.format != null;
-    final double rectLeftWithPadding = tooltipRRect.left + markerPadding;
-    final double x = rectLeftWithPadding + markerSize;
-    final double y = tooltipRRect.top + markerPadding;
-    final double markerX = rectLeftWithPadding + (markerSize / 2);
+    double padding = defaultTrackballPadding;
+    if (isRtl && !canShowMarker) {
+      if (hasFormat) {
+        padding += halfMarkerSize;
+      } else {
+        padding = halfMarkerSize;
+      }
+    } else if (!isRtl && !canShowMarker && !hasFormat) {
+      padding += padding;
+    }
+
+    final double rectLeftWithPadding = tooltipRRect.left + padding;
+    final double rectRightWithPadding = tooltipRRect.right - padding;
+    final double markerX = isRtl
+        ? rectRightWithPadding - halfMarkerSize
+        : rectLeftWithPadding + halfMarkerSize;
+    final double x = isRtl
+        ? rectRightWithPadding - markerSize
+        : rectLeftWithPadding + markerSize;
+    final double y = tooltipRRect.top + defaultTrackballPadding;
     final int length = chartPointInfo.length;
     for (int i = 0; i < length; i++) {
       final ChartPointInfo pointInfo = chartPointInfo[i];
       final String text = pointInfo.label!;
-      final Size actualLabelSize = measureText(text, labelStyle);
+      final Size actualLabelSize = measureText(text, textStyle);
       final double actualLabelHeight = actualLabelSize.height;
       totalLabelHeight += actualLabelHeight;
-      if (!hasFormat) {
-        // Apply gap between xYDataSeries and other series types.
-        if (text.contains('\n')) {
-          totalLabelHeight += markerPadding;
-        }
+      // Apply gap between xYDataSeries and SBS series types.
+      if (!hasFormat && text.contains('\n')) {
+        totalLabelHeight += defaultTrackballPadding;
       }
 
       // Marker position calculation.
       if (canShowMarker) {
         Offset markerPosition;
         if (text.contains('\n') && hasIndicator) {
-          markerPosition = Offset(
-              markerX, totalLabelHeight - actualLabelHeight + markerPadding);
+          markerPosition = Offset(markerX,
+              totalLabelHeight - actualLabelHeight + defaultTrackballPadding);
         } else {
           markerPosition =
               Offset(markerX, totalLabelHeight - actualLabelHeight / 2);
@@ -1697,13 +1690,13 @@ class TrackballBehavior extends ChartBehavior {
       // Label style and position calculation.
       final double dy = y + eachTextHeight;
       if (hasFormat) {
-        final double dx = canShowMarker ? x : x + markerPadding;
-        _computeFormatTooltipLabels(dx, dy, text, labelStyle);
+        final double dx = canShowMarker ? x : x + defaultTrackballPadding;
+        _computeFormatTooltipLabels(dx, dy, text, textStyle, isRtl);
       } else {
-        _computeDefaultTooltipLabels(x, dy, text, labelStyle);
-        // Apply gap between xYDataSeries and other series types.
+        _computeDefaultTooltipLabels(x, dy, text, textStyle, isRtl);
+        // Apply gap between xYDataSeries and SBS series types.
         if (text.contains('\n')) {
-          eachTextHeight += markerPadding;
+          eachTextHeight += defaultTrackballPadding;
         }
       }
       eachTextHeight += actualLabelHeight;
@@ -1714,24 +1707,30 @@ class TrackballBehavior extends ChartBehavior {
     if (text != '') {
       if (text.contains('<b>') && text.contains('</b>')) {
         text = text.replaceAll('<b>', '').replaceAll('</b>', '');
-        return measureText(
-            text, textStyle.copyWith(fontWeight: FontWeight.bold));
+        return measureText(text, _createLabelStyle(FontWeight.bold, textStyle));
       }
     }
     return measureText(text, textStyle);
   }
 
-  Size _labelSizeForGroupAllPoints(TextStyle labelStyle) {
-    if (chartPointInfo.isEmpty) {
-      return Size.zero;
-    }
-
+  Size _labelSizeForGroupAllPoints(TextStyle textStyle) {
     double width = 0;
     double height = 0;
+    final bool hasFormat = tooltipSettings.format != null;
+    final TextStyle boldStyle = _createLabelStyle(FontWeight.bold, textStyle);
+    TextStyle labelStyle = boldStyle;
+    if (hasFormat) {
+      final String format = tooltipSettings.format!;
+      if ((!format.contains('<b>') || !format.contains('</b>')) &&
+          (format.contains(':') && format.split(':').length != 2)) {
+        labelStyle = textStyle;
+      }
+    }
+
     // Header text size.
     final String? header = chartPointInfo[0].header;
     if (header != null) {
-      final Size headerSize = _labelSize(header, labelStyle);
+      final Size headerSize = _labelSize(header, boldStyle);
       if (headerSize.width > width) {
         width = headerSize.width;
       }
@@ -1745,7 +1744,6 @@ class TrackballBehavior extends ChartBehavior {
     }
     height += emptyTextSize.height;
 
-    final bool hasFormat = tooltipSettings.format != null;
     final int length = chartPointInfo.length;
     for (int i = 0; i < length; i++) {
       final String? label = chartPointInfo[i].label;
@@ -1755,11 +1753,9 @@ class TrackballBehavior extends ChartBehavior {
           width = labelSize.width;
         }
         height += labelSize.height;
-        // Apply gap between xYDataSeries and other series types.
-        if (!hasFormat) {
-          if (label.contains('\n')) {
-            height += 5;
-          }
+        // Apply gap between xYDataSeries and SBS series types.
+        if (!hasFormat && label.contains('\n')) {
+          height += defaultTrackballPadding;
         }
       }
     }
@@ -1803,21 +1799,24 @@ class TrackballBehavior extends ChartBehavior {
 
   Offset _markerPosition(RRect tooltipRRect, double labelWidth,
       double labelHeight, double markerPadding, bool isRtl) {
+    final double padding = labelWidth / 2 + markerPadding;
     return Offset(
       (tooltipRRect.left + tooltipRRect.width / 2) +
-          (isRtl
-              ? labelWidth / 2 - markerPadding
-              : -labelWidth / 2 - markerPadding),
+          (isRtl ? padding : -padding),
       tooltipRRect.top + tooltipRRect.height / 2,
     );
   }
 
   Rect _tooltipRect(double x, double y, double width, double height) {
     if (tooltipSettings.canShowMarker) {
-      const double padding = 20 + 17; // markerSize + widthPadding.
-      return Rect.fromLTWH(x, y, width + padding, height + 10);
+      return Rect.fromLTWH(
+          x,
+          y,
+          width + (trackballTooltipMarkerSize + trackballTooltipPadding),
+          height + defaultTooltipWidth);
     } else {
-      return Rect.fromLTWH(x, y, width + 15, height + 10);
+      return Rect.fromLTWH(x, y, width + trackballTooltipMarkerSize,
+          height + defaultTooltipWidth);
     }
   }
 
@@ -2128,159 +2127,197 @@ class TrackballBehavior extends ChartBehavior {
           type: markerSettings!.shape,
         );
       }
-      marker.borderWidth = marker.borderWidth / 2;
       marker.position =
           Offset(marker.x - marker.width / 2, marker.y - marker.height / 2);
       source.add(marker);
     }
   }
 
-  void _computeTooltipLabels(String text, double width, double height,
-      TextStyle textStyle, RRect tooltipRRect, double markerPadding) {
-    final double markerSize = tooltipSettings.canShowMarker ? 20 : 0;
-    final double x = tooltipRRect.left + markerPadding + markerSize;
-    final double y = tooltipRRect.top + markerPadding;
+  void _computeTooltipLabels(
+    String text,
+    double width,
+    double height,
+    TextStyle textStyle,
+    RRect tooltipRRect,
+    bool isRtl,
+  ) {
+    final bool canShowMarker = tooltipSettings.canShowMarker;
+    final double markerSize = canShowMarker ? trackballTooltipMarkerSize : 0;
+    final double padding = canShowMarker ? 0 : defaultTrackballPadding;
+    final double markerSizeWithPadding = defaultTrackballPadding + markerSize;
+    final double x = isRtl
+        ? tooltipRRect.right - markerSizeWithPadding - padding
+        : tooltipRRect.left + markerSizeWithPadding + padding;
+    final double y = tooltipRRect.top + defaultTrackballPadding;
     if (tooltipSettings.format != null) {
-      _computeFormatTooltipLabels(x, y, text, textStyle);
+      _computeFormatTooltipLabels(x, y, text, textStyle, isRtl);
     } else {
-      // It specifies for range, financial type series.
+      // It represents for SBS type series.
       if (text.contains('\n') || text.contains(':')) {
-        _computeDefaultTooltipLabels(x, y, text, textStyle);
+        _computeDefaultTooltipLabels(x, y, text, textStyle, isRtl);
       } else {
-        // It specifies for xYDataSeriesRenderer.
-        final double markerPadding = tooltipSettings.canShowMarker ? 5 : 0;
-        _tooltipLabels.add(_TooltipLabels(
-          text,
-          textStyle.copyWith(fontWeight: FontWeight.bold),
-          Offset((tooltipRRect.left + tooltipRRect.width / 2) + markerPadding,
-                  tooltipRRect.top + tooltipRRect.height / 2)
-              .translate(-width / 2, -height / 2),
-        ));
+        // It represents for xYDataSeries.
+        final TextStyle boldStyle =
+            _createLabelStyle(FontWeight.bold, textStyle);
+        final Offset offset =
+            Offset(isRtl ? x - measureText(text, boldStyle).width : x, y);
+        _tooltipLabels.add(_TooltipLabels(text, boldStyle, offset));
       }
     }
   }
 
   void _computeDefaultTooltipLabels(
-      double x, double y, String text, TextStyle textStyle) {
-    final TextStyle boldStyle = textStyle.copyWith(fontWeight: FontWeight.bold);
+      double x, double y, String text, TextStyle textStyle, bool isRtl) {
+    final TextStyle boldStyle = _createLabelStyle(FontWeight.bold, textStyle);
     double eachTextHeight = 0;
     final List<String> labels = text.split('\n');
     final int labelsLength = labels.length;
     for (int i = 0; i < labelsLength; i++) {
       final String label = labels[i];
+      double dx = x;
       final double dy = y + eachTextHeight;
       if (label.contains(':')) {
         final List<String> parts = label.split(':');
-        final String leftText = '${parts[0]}:';
-        final Size leftSize = measureText(leftText, textStyle);
-        _tooltipLabels.add(_TooltipLabels(leftText, textStyle, Offset(x, dy)));
-        if (parts.length > 1) {
-          final String rightText = parts[1];
-          _tooltipLabels.add(_TooltipLabels(
-              rightText, boldStyle, Offset(x + leftSize.width, dy)));
+        if (parts.length == 2) {
+          final String leftText = '${parts[0]}:';
+          final Size leftSize = measureText(leftText, textStyle);
+          final String rightText = isRtl ? ' ${parts[1]}' : parts[1];
+          final Size rightSize = measureText(rightText, textStyle);
+          eachTextHeight += isRtl ? rightSize.height : leftSize.height;
+          if (isRtl) {
+            dx -= rightSize.width;
+            _tooltipLabels
+                .add(_TooltipLabels(rightText, textStyle, Offset(dx, dy)));
+            dx -= leftSize.width;
+            _tooltipLabels
+                .add(_TooltipLabels(leftText, boldStyle, Offset(dx, dy)));
+          } else {
+            _tooltipLabels
+                .add(_TooltipLabels(leftText, textStyle, Offset(dx, dy)));
+            dx += leftSize.width;
+            _tooltipLabels
+                .add(_TooltipLabels(rightText, boldStyle, Offset(dx, dy)));
+          }
         }
-        eachTextHeight += leftSize.height;
       } else {
-        _tooltipLabels.add(_TooltipLabels(label, boldStyle, Offset(x, dy)));
-        eachTextHeight += measureText(label, textStyle).height;
+        final Size labelSize = measureText(label, boldStyle);
+        if (isRtl) {
+          dx -= labelSize.width;
+        }
+        _tooltipLabels.add(_TooltipLabels(label, boldStyle, Offset(dx, dy)));
+        eachTextHeight += labelSize.height;
       }
     }
   }
 
   void _computeFormatTooltipLabels(
-      double x, double y, String text, TextStyle textStyle) {
+      double x, double y, String text, TextStyle textStyle, bool isRtl) {
     if (text.contains('\n')) {
-      _multiLineLabelFormat(x, y, text, textStyle);
+      _multiLineLabelFormat(x, y, text, textStyle, isRtl);
     } else {
-      _singleLineLabelFormat(x, y, text, textStyle);
-    }
-  }
-
-  void _singleLineLabelFormat(
-      double x, double y, String label, TextStyle textStyle) {
-    final TextStyle boldStyle = textStyle.copyWith(fontWeight: FontWeight.bold);
-    double dx = x;
-    if (label.contains('<b>') && label.contains('</b>')) {
-      final List<String> boldParts = label.split('<b>');
-      Size textSize = Size.zero;
-      for (final String text in boldParts) {
-        if (text.contains('</b>')) {
-          final List<String> parts = text.split('</b>');
-          if (parts.length == 2) {
-            final String boldText = parts[0];
-            if (boldText != '') {
-              _tooltipLabels
-                  .add(_TooltipLabels(boldText, boldStyle, Offset(dx, y)));
-              textSize = measureText(boldText, textStyle);
-              dx += textSize.width;
-            }
-            final String normalText = parts[1];
-            if (normalText != '') {
-              _tooltipLabels
-                  .add(_TooltipLabels(normalText, textStyle, Offset(dx, y)));
-              textSize = measureText(normalText, textStyle);
-              dx += textSize.width;
-            }
-          }
-        } else {
-          _tooltipLabels.add(_TooltipLabels(text, textStyle, Offset(dx, y)));
-          textSize = measureText(text, textStyle);
-          dx += textSize.width;
-        }
+      // If the text contains a single colon and is not already formatted with
+      // bold tags, apply the default labelStyle. Otherwise, use the single line
+      // label format.
+      if (text.split(':').length == 2 &&
+          (!(text.contains('<b>') && text.contains('</b>')))) {
+        _computeDefaultTooltipLabels(x, y, text, textStyle, isRtl);
+      } else {
+        _singleLineLabelFormat(x, y, text, textStyle, isRtl);
       }
-    } else if (label.contains(':')) {
-      _computeDefaultTooltipLabels(x, y, label, textStyle);
-    } else {
-      _tooltipLabels.add(_TooltipLabels(label, textStyle, Offset(x, y)));
     }
   }
 
   void _multiLineLabelFormat(
-      double x, double y, String label, TextStyle textStyle) {
-    final TextStyle boldStyle = textStyle.copyWith(fontWeight: FontWeight.bold);
-    double dx = x;
+      double x, double y, String label, TextStyle textStyle, bool isRtl) {
     double dy = y;
     final List<String> multiLines = label.split('\n');
     for (final String text in multiLines) {
-      if (text.contains('<b>') && text.contains('</b>')) {
-        final List<String> boldParts = text.split('<b>');
-        Size boldPartSize = Size.zero;
-        for (final String boldPart in boldParts) {
-          if (boldPart != '') {
-            if (boldPart.contains('</b>')) {
-              final List<String> parts = boldPart.split('</b>');
-              if (parts.length == 2) {
-                final String boldText = parts[0];
-                if (boldText != '') {
-                  _tooltipLabels
-                      .add(_TooltipLabels(boldText, boldStyle, Offset(dx, dy)));
-                  boldPartSize = measureText(boldText, textStyle);
-                  dx += boldPartSize.width;
-                }
-                final String normalText = parts[1];
-                if (normalText != '') {
-                  _tooltipLabels.add(
-                      _TooltipLabels(normalText, textStyle, Offset(dx, dy)));
-                  boldPartSize = measureText(normalText, textStyle);
-                  dx += boldPartSize.width;
-                }
+      // If the text contains a single colon and is not already formatted with
+      // bold tags, apply the default labelStyle. Otherwise, use the single line
+      // label format.
+      if (text.split(':').length == 2 &&
+          (!(text.contains('<b>') && text.contains('</b>')))) {
+        _computeDefaultTooltipLabels(x, dy, text, textStyle, isRtl);
+      } else {
+        _singleLineLabelFormat(x, dy, text, textStyle, isRtl);
+      }
+      final Size textSize = measureText(text, textStyle);
+      dy += textSize.height;
+    }
+  }
+
+  void _singleLineLabelFormat(
+      double x, double y, String label, TextStyle textStyle, bool isRtl) {
+    final TextStyle boldStyle = _createLabelStyle(FontWeight.bold, textStyle);
+    double dx = x;
+    if (label.contains('<b>') && label.contains('</b>')) {
+      if (isRtl) {
+        final List<String> boldParts = label.split('</b>');
+        final int length = boldParts.length;
+        final int boldPartsStart = length - 1;
+        for (int i = boldPartsStart; i >= 0; --i) {
+          final String text = boldParts[i];
+          if (text == '') {
+            continue;
+          }
+
+          if (text.contains('<b>') || text.contains('</b>')) {
+            final List<String> parts = text.split('<b>');
+            final int length = parts.length;
+            final int partsStart = length - 1;
+            for (int j = partsStart; j >= 0; --j) {
+              final String part = parts[j];
+              if (part == '') {
+                continue;
               }
-            } else {
+
+              final TextStyle currentStyle =
+                  j == partsStart ? boldStyle : textStyle;
+              final Size textSize = measureText(part, currentStyle);
+              dx -= textSize.width;
               _tooltipLabels
-                  .add(_TooltipLabels(boldPart, textStyle, Offset(dx, dy)));
-              boldPartSize = measureText(boldPart, textStyle);
-              dx += boldPartSize.width;
+                  .add(_TooltipLabels(part, currentStyle, Offset(dx, y)));
             }
-            boldPartSize = measureText(boldPart, textStyle);
+          } else {
+            dx -= measureText(text, textStyle).width;
+            _tooltipLabels.add(_TooltipLabels(text, textStyle, Offset(dx, y)));
           }
         }
-        dx = x;
-        dy += boldPartSize.height;
       } else {
-        _tooltipLabels.add(_TooltipLabels(text, textStyle, Offset(dx, dy)));
-        final Size textSize = measureText(text, textStyle);
-        dy += textSize.height;
+        final List<String> boldParts = label.split('<b>');
+        final int length = boldParts.length;
+        for (int i = 0; i < length; i++) {
+          final String text = boldParts[i];
+          if (text == '') {
+            continue;
+          }
+
+          if (text.contains('<b>') || text.contains('</b>')) {
+            final List<String> parts = text.split('</b>');
+            final int length = parts.length;
+            for (int j = 0; j < length; j++) {
+              final String part = parts[j];
+              if (part == '') {
+                continue;
+              }
+
+              final TextStyle currentStyle = j == 0 ? boldStyle : textStyle;
+              final Size textSize = measureText(part, currentStyle);
+              _tooltipLabels
+                  .add(_TooltipLabels(part, currentStyle, Offset(dx, y)));
+              dx += textSize.width;
+            }
+          } else {
+            _tooltipLabels.add(_TooltipLabels(text, textStyle, Offset(dx, y)));
+            dx += measureText(text, textStyle).width;
+          }
+        }
       }
+    } else {
+      final TextStyle style = !label.contains(':') ? boldStyle : textStyle;
+      final Size labelSize = measureText(label, style);
+      dx = isRtl ? x - labelSize.width : x;
+      _tooltipLabels.add(_TooltipLabels(label, style, Offset(dx, y)));
     }
   }
 
@@ -2401,7 +2438,9 @@ class TrackballBehavior extends ChartBehavior {
   void _drawMarkers(PaintingContext context, SfChartThemeData chartThemeData,
       List<ChartMarker> markers) {
     if (markers.isNotEmpty) {
-      final Paint fillPaint = Paint()..isAntiAlias = true;
+      final Paint fillPaint = Paint()
+        ..isAntiAlias = true
+        ..style = PaintingStyle.fill;
       final Paint strokePaint = Paint()
         ..isAntiAlias = true
         ..style = PaintingStyle.stroke;
@@ -2452,7 +2491,7 @@ class TrackballBehavior extends ChartBehavior {
       text: TextSpan(text: text, style: style),
       textAlign: isRtl ? TextAlign.right : TextAlign.left,
       maxLines: getMaxLinesContent(text),
-      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      textDirection: TextDirection.ltr,
     );
     textPainter
       ..layout()

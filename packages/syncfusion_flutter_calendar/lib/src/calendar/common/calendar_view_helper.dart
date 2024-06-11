@@ -13,6 +13,9 @@ import 'date_time_engine.dart';
 /// All day appointment height
 const double kAllDayAppointmentHeight = 20;
 
+/// Timezone loaded value.
+bool timeZoneLoaded = false;
+
 /// Signature for callback that used to get and update the calendar
 /// state details.
 typedef UpdateCalendarState = void Function(

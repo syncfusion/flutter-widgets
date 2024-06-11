@@ -1,6 +1,6 @@
 name: syncfusion_flutter_pdfviewer
 description: Flutter PDF Viewer library is used to display a PDF document seamlessly and efficiently.
-version: 24.2.9
+version: 25.2.7
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_pdfviewer
 
 environment:
@@ -29,6 +29,10 @@ flutter:
 
   assets:
     - assets/
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: assets/fonts/RobotoMono-Regular.ttf
 
 dependencies:
   flutter:
@@ -41,25 +45,25 @@ dependencies:
   intl: '>=0.18.1 <0.20.0'
 
   syncfusion_pdfviewer_platform_interface:
-      path: ../syncfusion_pdfviewer_platform_interface
+    path: ../syncfusion_pdfviewer_platform_interface
 
   syncfusion_pdfviewer_web:
-      path: ../syncfusion_pdfviewer_web
+    path: ../syncfusion_pdfviewer_web
 
   syncfusion_pdfviewer_macos:
-      path: ../syncfusion_pdfviewer_macos
+    path: ../syncfusion_pdfviewer_macos
 
   syncfusion_pdfviewer_windows:
-      path: ../syncfusion_pdfviewer_windows
+    path: ../syncfusion_pdfviewer_windows
 
   syncfusion_flutter_core:
-      path: ../syncfusion_flutter_core
+    path: ../syncfusion_flutter_core
 
   syncfusion_flutter_pdf:
-      path: ../syncfusion_flutter_pdf
+    path: ../syncfusion_flutter_pdf
       
   syncfusion_flutter_signaturepad:
-      path: ../syncfusion_flutter_signaturepad
+    path: ../syncfusion_flutter_signaturepad
 
   url_launcher: ^6.1.0
 
@@ -70,6 +74,8 @@ dev_dependencies:
 screenshots:
   - description: 'This screenshot shows the PdfViewer widget, which displays a PDF document.'
     path: screenshots/flutter-pdf-viewer.png
+  - description: 'This screenshot shows the password alert dialog in the PdfViewer widget, which is used to enter the password to open the password-protected PDF document.'
+    path: screenshots/flutter-pdf-viewer-password-protected.png
   - description: 'This screenshot shows the page navigation in the PdfViewer widget that is used to navigate to the desired page.'
     path: screenshots/flutter-pdf-viewer-page-navigation.png
   - description: 'This screenshot shows the bookmark navigation in the PdfViewer widget that is used to navigate to the desired bookmark.'
@@ -78,6 +84,10 @@ screenshots:
     path: screenshots/flutter-pdf-viewer-text-selection.png
   - description: 'This screenshot shows the text search in the PdfViewer widget.'
     path: screenshots/flutter-pdf-viewer-text-search.png
+  - description: 'This screenshot shows the text markup annotation support in the PdfViewer widget.'
+    path: screenshots/flutter-pdf-viewer-text-markup.png
+  - description: 'This screenshot shows the form filling support in the PdfViewer widget.'
+    path: screenshots/flutter-pdf-viewer-form-filling.gif
   - description: 'This screenshot shows theme support in the PdfViewer widget.'
     path: screenshots/flutter-pdf-viewer-dark-theme.png
   - description: 'This screenshot shows the localization support in the PdfViewer widget.'

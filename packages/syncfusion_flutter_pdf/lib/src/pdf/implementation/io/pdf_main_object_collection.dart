@@ -319,13 +319,6 @@ class PdfMainObjectCollection {
         mainObjectCollection!.containsKey(index)) {
       if (objectCollection != null &&
           objectCollection!.contains(mainObjectCollection![index])) {
-        final IPdfPrimitive? primitive = mainObjectCollection![index]!.object;
-        if (primitive != null &&
-            _primitiveObjectCollection != null &&
-            _primitiveObjectCollection!.containsKey(primitive)) {
-          _primitiveObjectCollection!.remove(primitive);
-          primitive.dispose();
-        }
         objectCollection!.remove(mainObjectCollection![index]);
       }
       mainObjectCollection!.remove(index);

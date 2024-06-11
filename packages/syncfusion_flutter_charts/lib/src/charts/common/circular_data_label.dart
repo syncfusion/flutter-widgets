@@ -386,7 +386,8 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
 
   @override
   bool hitTestSelf(Offset position) {
-    return hasTrimmedDataLabel || series?.parent?.onDataLabelTapped != null;
+    return (series?.parent?.onDataLabelTapped != null || hasTrimmedDataLabel) &&
+        _findSelectedDataLabelIndex(position) != -1;
   }
 
   int _findSelectedDataLabelIndex(Offset localPosition) {
@@ -474,7 +475,7 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
     final RenderCircularChartPlotArea plotArea =
         series!.parent! as RenderCircularChartPlotArea;
 
-    plotArea.behaviorArea!.showTooltip(TooltipInfo(
+    plotArea.behaviorArea?.showTooltip(TooltipInfo(
       primaryPosition: localToGlobal(point.labelRect.topCenter),
       secondaryPosition: localToGlobal(point.labelRect.topCenter),
       text: point.text,
@@ -556,7 +557,7 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
           LabelIntersectAction.shift) {
         shiftCircularDataLabels(series!, labels!);
         hasTrimmedDataLabel =
-            labels!.every((element) => element.point!.trimmedText != null);
+            labels!.any((element) => element.point!.trimmedText != null);
       }
     }
   }

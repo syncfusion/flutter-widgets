@@ -1180,7 +1180,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
   Widget? _trackballBuilder;
 
   SfChartThemeData _updateThemeData(
-      BuildContext context, SfChartThemeData effectiveChartThemeData) {
+      BuildContext context, ChartThemeData effectiveChartThemeData) {
     SfChartThemeData chartThemeData = SfChartTheme.of(context);
     chartThemeData = chartThemeData.copyWith(
       axisLineColor:
@@ -1330,13 +1330,15 @@ class SfCartesianChartState extends State<SfCartesianChart>
 
   void _buildTrackballWidget(List<TrackballDetails> details) {
     final TrackballBehavior trackballBehavior = widget.trackballBehavior!;
+    final List<ChartPointInfo> chartPointInfo =
+        trackballBehavior.chartPointInfo;
     if (details.isEmpty || trackballBehavior.builder == null) {
       _trackballBuilder = const SizedBox(width: 0, height: 0);
-    } else if (details.isNotEmpty && trackballBehavior.builder != null) {
+    } else if (details.isNotEmpty &&
+        trackballBehavior.builder != null &&
+        chartPointInfo.isNotEmpty) {
       _trackballBuilder = Stack(
         children: List<Widget>.generate(details.length, (int index) {
-          final List<ChartPointInfo> chartPointInfo =
-              trackballBehavior.chartPointInfo;
           final ChartPointInfo info = chartPointInfo[index];
           final Widget builder =
               trackballBehavior.builder!.call(context, details[index]);
@@ -1406,9 +1408,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
   @override
   Widget build(BuildContext context) {
     _themeData = Theme.of(context);
-    final SfChartThemeData effectiveChartThemeData = _themeData.useMaterial3
-        ? SfChartThemeDataM3(context)
-        : SfChartThemeDataM2(context);
+    final ChartThemeData effectiveChartThemeData = ChartThemeData(context);
     _chartThemeData = _updateThemeData(context, effectiveChartThemeData);
     bool isTransposed = widget.isTransposed;
     if (widget.series.isNotEmpty && widget.series[0].transposed()) {
@@ -1481,10 +1481,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
             onDataLabelTapped: widget.onDataLabelTapped,
             onMarkerRender: widget.onMarkerRender,
             onTooltipRender: widget.onTooltipRender,
-            palette: widget.palette ??
-                (_themeData.useMaterial3
-                    ? (effectiveChartThemeData as SfChartThemeDataM3).palette
-                    : (effectiveChartThemeData as SfChartThemeDataM2).palette),
+            palette: widget.palette ?? effectiveChartThemeData.palette,
             selectionMode: widget.selectionType,
             selectionGesture: widget.selectionGesture,
             enableMultiSelection: widget.enableMultiSelection,

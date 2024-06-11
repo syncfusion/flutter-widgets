@@ -148,13 +148,13 @@ class PdfPageLayerCollectionHelper extends PdfObjectCollectionHelper {
       final PdfStream restoreStream = PdfStream();
       const int saveState = 113;
       const int restoreState = 81;
-      saveStream.dataStream = <int>[saveState];
+      saveStream.data = <int>[saveState];
       if (contents.count > 0) {
         contents.insert(0, PdfReferenceHolder(saveStream));
       } else {
         contents.add(PdfReferenceHolder(saveStream));
       }
-      restoreStream.dataStream = <int>[restoreState];
+      restoreStream.data = <int>[restoreState];
       contents.add(PdfReferenceHolder(restoreStream));
     }
   }

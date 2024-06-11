@@ -72,7 +72,10 @@ class CategoryAxis extends ChartAxis {
     super.autoScrollingMode,
     super.axisLabelFormatter,
     this.onRendererCreated,
-  });
+  }) : assert(
+            (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
+                autoScrollingDelta == null,
+            'Both properties have the same behavior to display the visible data points, use any one of the properties');
 
   /// Position of the category axis labels.
   ///
@@ -146,8 +149,8 @@ class CategoryAxis extends ChartAxis {
   /// ```
   final double? maximum;
 
-  /// The minimum visible value of the axis. The axis is rendered from this
-  /// value initially.
+  /// The minimum visible value of the axis. The axis is rendered from this value initially, and
+  /// it applies only during load time. The value will not be updated when zooming or panning.
   ///
   /// Defaults to `null`.
   ///
@@ -160,11 +163,50 @@ class CategoryAxis extends ChartAxis {
   ///    );
   /// }
   /// ```
+  ///
+  /// Use the [onRendererCreated] callback, as shown in the code below, to update the visible
+  /// minimum value dynamically.
+  ///
+  /// ```dart
+  /// CategoryAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: CategoryAxis(
+  ///             initialVisibleMinimum: 0,
+  ///             onRendererCreated: (CategoryAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, String>>[
+  ///             LineSeries<SalesData, String>(
+  ///               dataSource: data,
+  ///               xValueMapper: (SalesData sales, _) => sales.year,
+  ///               yValueMapper: (SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.visibleMinimum = 30;
+  ///            }
+  ///           },
+  ///           child: const Text('Update Axis Range'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
   final double? initialVisibleMinimum;
 
-  /// The maximum visible value of the axis.
-  ///
-  /// The axis is rendered to this value initially.
+  /// The maximum visible value of the axis. The axis is rendered from this value initially, and
+  /// it applies only during load time. The value will not be updated when zooming or panning.
   ///
   /// Defaults to `null`.
   ///
@@ -174,6 +216,46 @@ class CategoryAxis extends ChartAxis {
   ///        child: SfCartesianChart(
   ///           primaryYAxis: CategoryAxis(initialVisibleMaximum: 20),
   ///        ));
+  /// }
+  /// ```
+  ///
+  /// Use the [onRendererCreated] callback, as shown in the code below, to update the visible
+  /// maximum value dynamically
+  ///
+  /// ```dart
+  /// CategoryAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: CategoryAxis(
+  ///             initialVisibleMaximum: 20,
+  ///             onRendererCreated: (CategoryAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, String>>[
+  ///             LineSeries<SalesData, String>(
+  ///               dataSource: data,
+  ///               xValueMapper: (SalesData sales, _) => sales.year,
+  ///               yValueMapper: (SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.visibleMaximum = 70;
+  ///            }
+  ///           },
+  ///           child: const Text('Update Axis Range'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
   /// }
   /// ```
   final double? initialVisibleMaximum;
@@ -404,6 +486,16 @@ class RenderCategoryAxis extends RenderChartAxis {
     }
 
     return range.copyWith();
+  }
+
+  @override
+  DoubleRange updateAutoScrollingDelta(
+      int scrollingDelta, DoubleRange actualRange, DoubleRange visibleRange) {
+    if (initialVisibleMaximum != null || initialVisibleMinimum != null) {
+      return visibleRange;
+    }
+    return super
+        .updateAutoScrollingDelta(scrollingDelta, actualRange, visibleRange);
   }
 
   @override
@@ -792,23 +884,21 @@ class RenderCategoryAxis extends RenderChartAxis {
       for (final AxisDependent dependent in dependents) {
         if (dependent is CartesianSeriesRenderer &&
             dependent.controller.isVisible) {
-          final List actualXValues = dependent.xRawValues;
-          final int length = actualXValues.length;
-          num? minimum;
-          num minValue = 0, maxValue = 0;
+          final List xRawValues = dependent.xRawValues;
+          final int length = xRawValues.length;
           if (length > 0) {
+            num minValue = 0;
+            num maxValue = 0;
             for (int i = 0; i < length; i++) {
-              final String x = actualXValues[i].toString();
-              if (!groupedRawValues.contains(x)) {
-                groupedRawValues.add(x);
+              final String rawX = xRawValues[i].toString();
+              if (!groupedRawValues.contains(rawX)) {
+                groupedRawValues.add(rawX);
               }
 
-              final List<num> xValues = dependent.xValues;
-              xValues[i] = groupedRawValues.indexOf(x);
-              final num index = xValues[i];
-              minimum ??= index;
-              minValue = min(minimum, index);
-              maxValue = max(minimum, index);
+              final int index = groupedRawValues.indexOf(rawX);
+              dependent.xValues[i] = index;
+              minValue = min(minValue, index);
+              maxValue = max(maxValue, index);
             }
             dependent.xMin = minValue;
             dependent.xMax = maxValue;

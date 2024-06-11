@@ -1,5 +1,18 @@
 ## Unreleased
 
+**Bugs**
+
+* The custom filter icons now align properly during horizontal scrolling. 
+* The "index out of range" exception will no longer be thrown when resizing a column with an empty data source.
+
+## [25.1.38] - 04/02/2024
+
+**Bugs**
+
+* The page navigation callbacks will only be invoked when the page is changed interactively.
+
+## [25.1.35] - 03/15/2024
+
 **Features**
 
 * Implemented support for scrolling to a specific position upon initial loading.

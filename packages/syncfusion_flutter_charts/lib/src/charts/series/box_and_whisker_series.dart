@@ -156,6 +156,9 @@ class BoxAndWhiskerSeries<T, D> extends CartesianSeries<T, D> {
 
   @override
   Widget? childForSlot(SeriesSlot slot) {
+    if (dataSource == null) {
+      return null;
+    }
     switch (slot) {
       case SeriesSlot.dataLabel:
         return dataLabelSettings.isVisible
@@ -927,15 +930,14 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    final double width = series.markerSettings.width;
-    final double height = series.markerSettings.height;
-    final int length = _outlierPoints.length;
-    for (int i = 0; i < length; i++) {
-      final Offset outlierPoint = _outlierPoints[i];
-      final Rect outlierRect =
-          Rect.fromCenter(center: outlierPoint, width: width, height: height);
-      if (outlierRect.contains(position)) {
-        return true;
+    if (_outlierPoints.isNotEmpty) {
+      final MarkerSettings marker = series.markerSettings;
+      final int length = _outlierPoints.length;
+      for (int i = 0; i < length; i++) {
+        if (tooltipTouchBounds(_outlierPoints[i], marker.width, marker.height)
+            .contains(position)) {
+          return true;
+        }
       }
     }
 

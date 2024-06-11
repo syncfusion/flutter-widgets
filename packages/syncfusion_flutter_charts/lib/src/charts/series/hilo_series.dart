@@ -310,6 +310,10 @@ class HiloSegment<T, D> extends ChartSegment {
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
     final CartesianChartPoint<D> chartPoint = _chartPoint();
     pointIndex ??= currentSegmentIndex;
     final ChartMarker marker = series.markerAt(pointIndex);

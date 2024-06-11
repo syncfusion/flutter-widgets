@@ -1373,6 +1373,7 @@ class PdfFormHelper {
                 kids[k]! as PdfReferenceHolder;
             if (kidsReference.object == helper.dictionary) {
               kids.remove(kidsReference);
+              dic.modify();
               break;
             }
           }

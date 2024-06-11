@@ -12,6 +12,13 @@ class Algorithms extends Asn1Encode {
   }
 
   /// internal constructor
+  Algorithms.fromAsn1Sequence(Asn1Identifier id, Asn1 asn1) {
+    _sequence = Asn1Sequence();
+    _sequence.objects!.add(id);
+    _sequence.objects!.add(asn1);
+  }
+
+  /// internal constructor
   Algorithms.fromSequence(Asn1Sequence sequence) {
     if (sequence.count < 1 || sequence.count > 2) {
       throw ArgumentError.value('Invalid length in sequence');

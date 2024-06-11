@@ -115,9 +115,10 @@ class FastLineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }
 
   @override
-  ShapeMarkerType effectiveLegendIconType() => dashArray != null
-      ? ShapeMarkerType.fastLineSeriesWithDashArray
-      : ShapeMarkerType.fastLineSeries;
+  ShapeMarkerType effectiveLegendIconType() =>
+      dashArray != null && !dashArray!.every((double value) => value <= 0)
+          ? ShapeMarkerType.fastLineSeriesWithDashArray
+          : ShapeMarkerType.fastLineSeries;
 
   @override
   void onPaint(PaintingContext context, Offset offset) {
@@ -273,6 +274,10 @@ class FastLineSegment<T, D> extends ChartSegment {
     final num startY = _yValues[0];
     num previousX = startX.isNaN ? 0 : startX;
     num previousY = startY.isNaN ? 0 : startY;
+
+    points.add(Offset(transformX(startX, startY), transformY(startX, startY)));
+    _drawIndexes.add(0);
+
     for (final int i in visibleIndexes) {
       num currentX = _xValues[i];
       if (currentX.isNaN) {
@@ -307,9 +312,10 @@ class FastLineSegment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    for (int i = 0; i < points.length; i++) {
-      if (Rect.fromCenter(
-              center: points[i], width: tooltipPadding, height: tooltipPadding)
+    final MarkerSettings marker = series.markerSettings;
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
+      if (tooltipTouchBounds(points[i], marker.width, marker.height)
           .contains(position)) {
         return true;
       }
@@ -327,6 +333,11 @@ class FastLineSegment<T, D> extends ChartSegment {
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
+    pointDistance = series.markerSettings.width / 2;
     pointIndex ??= _findNearestChartPointIndex(points, position!);
     if (pointIndex != -1) {
       final Offset position = points[pointIndex];

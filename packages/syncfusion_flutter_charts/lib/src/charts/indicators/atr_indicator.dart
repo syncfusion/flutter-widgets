@@ -238,10 +238,11 @@ class AtrIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
     }
 
-    if (_highValues.isNotEmpty &&
+    _signalLineActualValues.clear();
+    if (signalLineWidth > 0 &&
+        _highValues.isNotEmpty &&
         _lowValues.isNotEmpty &&
         _closeValues.isNotEmpty) {
-      _signalLineActualValues.clear();
       _calculateSignalLineValues();
     }
 
@@ -304,8 +305,8 @@ class AtrIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     xMin = xMinimum.isInfinite ? xMin : xMinimum;
     xMax = xMaximum.isInfinite ? xMax : xMaximum;
-    yMin = min(yMin, yMinimum);
-    yMax = max(yMax, yMaximum);
+    yMin = yMinimum.isInfinite ? yMin : yMinimum;
+    yMax = yMaximum.isInfinite ? yMax : yMaximum;
   }
 
   @override
@@ -370,7 +371,8 @@ class AtrIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     num? nearPointX;
     num? nearPointY;
     int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
       nearPointX ??= points[0].dx;
       nearPointY ??= yAxis!.visibleRange!.minimum;
 
@@ -407,8 +409,7 @@ class AtrIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     return CartesianChartPoint<D>(
       x: xRawValues[pointIndex + period - 1],
       xValue: xValues[pointIndex + period - 1],
-      y: yAxis!.pixelToPoint(yAxis!.paintBounds,
-          signalLinePoints[pointIndex].dx, signalLinePoints[pointIndex].dy),
+      y: _signalLineActualValues[pointIndex].dy,
     );
   }
 

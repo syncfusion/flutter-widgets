@@ -1358,32 +1358,20 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
 
   SfMapsThemeData _updateThemeData(BuildContext context, ThemeData themeData,
       SfMapsThemeData mapsThemeData) {
-    final SfMapsThemeData effectiveThemeData = themeData.useMaterial3
-        ? SfMapsThemeDataM3(context)
-        : SfMapsThemeDataM2(context);
+    final MapsThemeData effectiveThemeData = MapsThemeData(context);
     return mapsThemeData.copyWith(
       layerColor: widget.color ??
           (isSublayer
-              ? (themeData.useMaterial3
-                  ? (effectiveThemeData as SfMapsThemeDataM3).subLayerColor
-                  : (effectiveThemeData as SfMapsThemeDataM2).subLayerColor)
+              ? effectiveThemeData.subLayerColor
               : mapsThemeData.layerColor ?? effectiveThemeData.layerColor),
       layerStrokeColor: widget.strokeColor ??
           (isSublayer
-              ? (themeData.useMaterial3
-                  ? (effectiveThemeData as SfMapsThemeDataM3)
-                      .subLayerStrokeColor
-                  : (effectiveThemeData as SfMapsThemeDataM2)
-                      .subLayerStrokeColor)
+              ? effectiveThemeData.subLayerStrokeColor
               : mapsThemeData.layerStrokeColor ??
                   effectiveThemeData.layerStrokeColor),
       layerStrokeWidth: widget.strokeWidth ??
           (isSublayer
-              ? themeData.useMaterial3
-                  ? (effectiveThemeData as SfMapsThemeDataM3)
-                      .subLayerStrokeWidth
-                  : (effectiveThemeData as SfMapsThemeDataM2)
-                      .subLayerStrokeWidth
+              ? effectiveThemeData.subLayerStrokeWidth
               : mapsThemeData.layerStrokeWidth),
       shapeHoverStrokeWidth:
           mapsThemeData.shapeHoverStrokeWidth ?? mapsThemeData.layerStrokeWidth,
@@ -1416,7 +1404,8 @@ class _GeoJSONLayerState extends State<GeoJSONLayer>
           mapsThemeData.tooltipColor ??
           effectiveThemeData.tooltipColor,
       tooltipStrokeColor: widget.tooltipSettings.strokeColor ??
-          mapsThemeData.tooltipStrokeColor,
+          mapsThemeData.tooltipStrokeColor ??
+          effectiveThemeData.tooltipStrokeColor,
       tooltipStrokeWidth: widget.tooltipSettings.strokeWidth ??
           mapsThemeData.tooltipStrokeWidth,
       tooltipBorderRadius:

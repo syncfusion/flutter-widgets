@@ -750,24 +750,26 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
-    final SfMapsThemeData effectiveMapsThemeData = themeData.useMaterial3
-        ? SfMapsThemeDataM3(context)
-        : SfMapsThemeDataM2(context);
+    final MapsThemeData effectiveMapsThemeData = MapsThemeData(context);
     _isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
         themeData.platform == TargetPlatform.linux;
+
     _mapsThemeData = SfMapsTheme.of(context)!;
     _mapsThemeData = _mapsThemeData.copyWith(
       tooltipColor: widget.tooltipSettings.color ??
           _mapsThemeData.tooltipColor ??
           effectiveMapsThemeData.tooltipColor,
       tooltipStrokeColor: widget.tooltipSettings.strokeColor ??
-          _mapsThemeData.tooltipStrokeColor,
+          _mapsThemeData.tooltipStrokeColor ??
+          effectiveMapsThemeData.tooltipStrokeColor,
       tooltipStrokeWidth: widget.tooltipSettings.strokeWidth ??
           _mapsThemeData.tooltipStrokeWidth,
       tooltipBorderRadius: _mapsThemeData.tooltipBorderRadius
           .resolve(Directionality.of(context)),
+      markerIconColor: _mapsThemeData.markerIconColor ??
+          effectiveMapsThemeData.markerIconColor,
     );
 
     return LayoutBuilder(

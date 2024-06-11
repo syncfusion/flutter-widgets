@@ -383,6 +383,10 @@ class HiloOpenCloseSegment<T, D> extends ChartSegment {
 
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
+    if (points.isEmpty) {
+      return null;
+    }
+
     pointIndex ??= currentSegmentIndex;
     final CartesianChartPoint<D> chartPoint = _chartPoint();
     final Offset preferredPos = series.localToGlobal(points[0]);

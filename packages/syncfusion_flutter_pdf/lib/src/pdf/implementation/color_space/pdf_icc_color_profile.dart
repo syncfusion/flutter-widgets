@@ -30,7 +30,7 @@ class PdfICCColorProfile implements IPdfWrapper {
   //Handles the BeginSave event of the Stream control.
   void _beginSaveStream(Object sender, SavePdfPrimitiveArgs? args) {
     stream.clearStream();
-    stream.dataStream = base64.decode(profileData).toList();
+    stream.data = base64.decode(profileData).toList();
   }
 
   /// internal property

@@ -1,9 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
-import '../base.dart';
 import '../behaviors/trackball.dart';
 import '../common/chart_point.dart';
 import '../common/core_tooltip.dart';
@@ -21,6 +18,9 @@ import 'chart_series.dart';
 /// The histogram series is a rectangular histogram with heights or
 /// lengths proportional to the values that they represent. It has the spacing
 /// property to separate the histogram.
+///
+/// It supports only NumericAxis and LogarithmicAxis alone.
+/// It does not support sortingOrder and emptyPointSettings.
 ///
 /// Provide the options of color, opacity, border color, and border width to
 /// customize the appearance.
@@ -336,6 +336,7 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
       ..binInterval = binInterval
       ..showNormalDistributionCurve = showNormalDistributionCurve
       ..curveColor = curveColor
+      ..curveWidth = curveWidth
       ..curveDashArray = curveDashArray
       ..trackColor = trackColor
       ..trackBorderColor = trackBorderColor
@@ -358,6 +359,7 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
       ..binInterval = binInterval
       ..showNormalDistributionCurve = showNormalDistributionCurve
       ..curveColor = curveColor
+      ..curveWidth = curveWidth
       ..curveDashArray = curveDashArray
       ..trackColor = trackColor
       ..trackBorderColor = trackBorderColor
@@ -373,164 +375,7 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
 }
 
 /// Creates series renderer for histogram series.
-class HistogramSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
-    with SbsSeriesMixin<T, D>, ClusterSeriesMixin, SegmentAnimationMixin<T, D> {
-  double? get binInterval => _binInterval;
-  double? _binInterval;
-  set binInterval(double? value) {
-    if (_binInterval != value) {
-      _binInterval = value;
-      markNeedsLayout();
-    }
-  }
-
-  bool get showNormalDistributionCurve => _showNormalDistributionCurve;
-  bool _showNormalDistributionCurve = false;
-  set showNormalDistributionCurve(bool value) {
-    if (_showNormalDistributionCurve != value) {
-      _showNormalDistributionCurve = value;
-      markNeedsLayout();
-    }
-  }
-
-  Color get curveColor => _curveColor;
-  Color _curveColor = Colors.blue;
-  set curveColor(Color value) {
-    if (_curveColor != value) {
-      _curveColor = value;
-      markNeedsSegmentsPaint();
-    }
-  }
-
-  double get curveWidth => _curveWidth;
-  double _curveWidth = 2.0;
-  set curveWidth(double value) {
-    if (_curveWidth != value) {
-      _curveWidth = value;
-      markNeedsSegmentsPaint();
-    }
-  }
-
-  List<double>? get curveDashArray => _curveDashArray;
-  List<double>? _curveDashArray;
-  set curveDashArray(List<double>? value) {
-    if (_curveDashArray != value) {
-      _curveDashArray = value;
-      markNeedsLayout();
-    }
-  }
-
-  Color get trackBorderColor => _trackBorderColor;
-  Color _trackBorderColor = Colors.transparent;
-  set trackBorderColor(Color value) {
-    if (_trackBorderColor != value) {
-      _trackBorderColor = value;
-      markNeedsSegmentsPaint();
-    }
-  }
-
-  Color get trackColor => _trackColor;
-  Color _trackColor = Colors.grey;
-  set trackColor(Color value) {
-    if (_trackColor != value) {
-      _trackColor = value;
-      markNeedsSegmentsPaint();
-    }
-  }
-
-  double get trackBorderWidth => _trackBorderWidth;
-  double _trackBorderWidth = 1.0;
-  set trackBorderWidth(double value) {
-    if (_trackBorderWidth != value) {
-      _trackBorderWidth = value;
-      markNeedsSegmentsPaint();
-    }
-  }
-
-  double get trackPadding => _trackPadding;
-  double _trackPadding = 0.0;
-  set trackPadding(double value) {
-    if (_trackPadding != value) {
-      _trackPadding = value;
-      markNeedsLayout();
-    }
-  }
-
-  @override
-  double get spacing => _spacing;
-  double _spacing = 0.0;
-  @override
-  set spacing(double value) {
-    assert(value >= 0 && value <= 1,
-        'The spacing of the series should be between 0 and 1');
-    if (_spacing != value) {
-      _spacing = value;
-      markNeedsUpdate();
-    }
-  }
-
-  bool get isTrackVisible => _isTrackVisible;
-  bool _isTrackVisible = false;
-  set isTrackVisible(bool value) {
-    if (_isTrackVisible != value) {
-      _isTrackVisible = value;
-      markNeedsLayout();
-    }
-  }
-
-  BorderRadius get borderRadius => _borderRadius;
-  BorderRadius _borderRadius = BorderRadius.zero;
-  set borderRadius(BorderRadius value) {
-    if (_borderRadius != value) {
-      _borderRadius = value;
-      markNeedsLayout();
-    }
-  }
-
-  Color get borderColor => _borderColor;
-  Color _borderColor = Colors.transparent;
-  set borderColor(Color value) {
-    if (_borderColor != value) {
-      _borderColor = value;
-      markNeedsSegmentsPaint();
-    }
-  }
-
-  /// It holds the raw Y value from the [super.yValueMapper].
-  final List<num> _yRawValues = <num>[];
-
-  /// It holds the actual Histogram [X] and [Y] values.
-  final List<num> _histogramXValues = <num>[];
-  final List<num> _histogramYValues = <num>[];
-
-  /// It holds actual [_histogramXValues] count.
-  int _xCount = 0;
-
-  num _deviation = 0.0;
-  num _mean = 0.0;
-  num _binWidth = 0.0;
-
-  Path? _distributionPath;
-
-  void _resetDataHolders() {
-    _xCount = 0;
-    _yRawValues.clear();
-    _histogramXValues.clear();
-    _histogramYValues.clear();
-  }
-
-  @override
-  ChartValueMapper<T, num>? get yValueMapper => _histogramYValueMapper;
-
-  // TODO(Natrayansf): Avoid casting.
-  D? _histogramXValueMapper(T data, int index) {
-    return index < _xCount ? _histogramXValues[index] as D : null;
-  }
-
-  num? _histogramYValueMapper(T data, int index) {
-    return index < _xCount ? _histogramYValues[index] : null;
-  }
-
+class HistogramSeriesRenderer<T, D> extends HistogramSeriesRendererBase<T, D> {
   @override
   void populateDataSource([
     List<ChartValueMapper<T, num>>? yPaths,
@@ -540,79 +385,10 @@ class HistogramSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
-    _resetDataHolders();
-    if (dataSource == null ||
-        dataSource!.isEmpty ||
-        super.yValueMapper == null) {
-      return;
-    }
-
-    final int length = dataSource!.length;
-    for (int i = 0; i < length; i++) {
-      final T current = dataSource![i];
-      final num? yValue = super.yValueMapper!(current, i);
-      // TODO(Natrayansf): Handle null properly.
-      if (yValue == null || yValue.isNaN) {
-        _yRawValues.add(0);
-      } else {
-        _yRawValues.add(yValue);
-      }
-    }
-
-    // Calculate the actual Histogram [X] and [Y] values.
-    _calculateStandardDeviation(_histogramXValues, _histogramYValues);
-
-    _xCount = _histogramXValues.length;
-    // Invoke custom [_histogramXValueMapper] method.
-    xValueMapper = _histogramXValueMapper;
-
     super.populateDataSource(
         yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
     populateChartPoints();
   }
-
-  void _calculateStandardDeviation(
-      List<num> histogramXValues, List<num> histogramYValues) {
-    if (_yRawValues.isEmpty) {
-      return;
-    }
-
-    num sumOfY = 0;
-    num sumValue = 0;
-    _mean = 0;
-    final num yLength = _yRawValues.length;
-    for (int i = 0; i < yLength; i++) {
-      final num yValue = _yRawValues[i];
-      sumOfY += yValue;
-      _mean = sumOfY / yLength;
-    }
-
-    for (int i = 0; i < yLength; i++) {
-      final num yValue = _yRawValues[i];
-      sumValue += (yValue - _mean) * (yValue - _mean);
-    }
-
-    _deviation = sqrt(sumValue / (yLength - 1));
-    num minValue = _yRawValues.reduce(min);
-    _binWidth = binInterval ?? (3.5 * _deviation) / pow(yLength, 1 / 3);
-
-    for (int i = 0; i < yLength;) {
-      final num count = _yRawValues
-          .where((num y) => y >= minValue && y < (minValue + _binWidth))
-          .length;
-      // TODO(VijayakumarM): What happened when count is 0?
-      if (count >= 0) {
-        histogramYValues.add(count);
-        final num x = minValue + _binWidth / 2;
-        histogramXValues.add(x);
-        minValue += _binWidth;
-        i += count as int;
-      }
-    }
-  }
-
-  @override
-  num trackballYValue(int index) => _histogramYValues[index];
 
   @override
   void setData(int index, ChartSegment segment) {
@@ -622,7 +398,7 @@ class HistogramSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       ..x = xValues[index]
       ..y = yValues[index]
       ..bottom = bottom
-      .._binWidth = _binWidth
+      .._binWidth = binWidth
       ..isEmpty = isEmpty(index);
   }
 
@@ -643,86 +419,6 @@ class HistogramSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         gradientBounds: histogramSegment.segmentRect?.outerRect,
         gradient: gradient,
         borderGradient: borderGradient);
-  }
-
-  @override
-  void onLoadingAnimationUpdate() {
-    super.onLoadingAnimationUpdate();
-    transformValues();
-  }
-
-  @override
-  void transformValues() {
-    super.transformValues();
-    _createNormalDistributionPath();
-  }
-
-  void _createNormalDistributionPath() {
-    if (!showNormalDistributionCurve ||
-        xAxis == null ||
-        yAxis == null ||
-        segments.isEmpty ||
-        xAxis!.visibleRange == null ||
-        yAxis!.visibleRange == null) {
-      return;
-    }
-
-    final int dataCount = _yRawValues.length;
-    const num pointsCount = 500;
-    final num minimum = xAxis!.visibleRange!.minimum;
-    final num maximum = xAxis!.visibleRange!.maximum;
-    final num delta = (maximum - minimum) / (pointsCount - 1);
-
-    if (_distributionPath == null) {
-      _distributionPath = Path();
-    } else {
-      _distributionPath!.reset();
-    }
-
-    for (int i = 0; i < pointsCount; i++) {
-      final num xValue = minimum + i * delta;
-      final num yValue =
-          exp(-pow(xValue - _mean, 2) / (2 * pow(_deviation, 2))) /
-              (_deviation * sqrt(2 * pi));
-      final num dx = yValue * _binWidth * dataCount;
-      final double x = pointToPixelX(xValue, dx);
-      final double y = pointToPixelY(xValue, dx);
-      i == 0
-          ? _distributionPath!.moveTo(x, y)
-          : _distributionPath!.lineTo(x, y);
-    }
-  }
-
-  @override
-  void onPaint(PaintingContext context, Offset offset) {
-    paintSegments(context, offset);
-    if (showNormalDistributionCurve && _distributionPath != null) {
-      context.canvas.save();
-      final Rect clip = clipRect(paintBounds, segmentAnimationFactor,
-          isInversed: xAxis!.isInversed, isTransposed: isTransposed);
-      context.canvas.clipRect(clip);
-      final Paint strokePaint = Paint()
-        ..color = curveColor
-        ..strokeWidth = curveWidth
-        ..style = PaintingStyle.stroke;
-      curveDashArray == null
-          ? context.canvas.drawPath(_distributionPath!, strokePaint)
-          : drawDashes(context.canvas, curveDashArray, strokePaint,
-              path: _distributionPath);
-    }
-    context.canvas.restore();
-    paintMarkers(context, offset);
-    paintDataLabels(context, offset);
-    paintTrendline(context, offset);
-  }
-
-  @override
-  void dispose() {
-    _yRawValues.clear();
-    _histogramYValues.clear();
-    _histogramXValues.clear();
-    _xCount = 0;
-    super.dispose();
   }
 }
 
@@ -775,7 +471,7 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
     final double x2 = transformX(right, bottom);
     final double y2 = transformY(right, bottom);
 
-    final BorderRadius borderRadius = series._borderRadius;
+    final BorderRadius borderRadius = series.borderRadius;
     segmentRect = toRRect(x1, y1, x2, y2, borderRadius);
     _oldSegmentRect ??= toRRect(
       transformX(left, bottom),
@@ -813,10 +509,12 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
     if (segmentRect != null) {
+      final int dataSourceLength = series.dataSource!.length;
       pointIndex ??= currentSegmentIndex;
       final CartesianChartPoint<D> chartPoint = _chartPoint();
-      final TooltipPosition? tooltipPosition =
-          series.parent?.tooltipBehavior?.tooltipPosition;
+      final TooltipBehavior tooltipBehavior = series.parent!.tooltipBehavior!;
+      final int digits = tooltipBehavior.decimalPlaces;
+      final TooltipPosition? tooltipPosition = tooltipBehavior.tooltipPosition;
       final ChartMarker marker = series.markerAt(pointIndex);
       final double markerHeight =
           series.markerSettings.isVisible ? marker.height / 2 : 0;
@@ -828,11 +526,12 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
             series.localToGlobal(preferredPos.translate(0, -markerHeight)),
         secondaryPosition:
             series.localToGlobal(preferredPos.translate(0, markerHeight)),
-        text: _tooltipText(series.tooltipText(chartPoint)),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
+        text: _tooltipTextFormat(chartPoint, digits),
+        header: tooltipBehavior.shared
+            ? _tooltipText(series.tooltipHeaderText(chartPoint), digits)
             : series.name,
-        data: series.dataSource![pointIndex],
+        data: series.dataSource![
+            pointIndex >= dataSourceLength ? dataSourceLength - 1 : pointIndex],
         point: chartPoint,
         series: series.widget,
         renderer: series,
@@ -866,20 +565,45 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
     return null;
   }
 
-  String _tooltipText(String text) {
+  String _tooltipTextFormat(CartesianChartPoint<D> chartPoint, int digits) {
+    if (series.parent == null) {
+      return '';
+    }
+
+    final TooltipBehavior tooltipBehavior = series.parent!.tooltipBehavior!;
+    if (tooltipBehavior.format != null) {
+      if (tooltipBehavior.format!.contains('point.x')) {
+        return _tooltipText(series.tooltipText(chartPoint), digits);
+      } else {
+        return series.tooltipText(chartPoint);
+      }
+    }
+
+    if (tooltipBehavior.shared) {
+      return series.tooltipText(chartPoint);
+    } else {
+      return _tooltipText(series.tooltipText(chartPoint), digits);
+    }
+  }
+
+  String _tooltipText(String text, int digits) {
     if (series.parent == null) {
       return '';
     }
 
     final num xValue = series.xValues[currentSegmentIndex];
-    final int digits = series.parent!.tooltipBehavior!.decimalPlaces;
     final num binWidth = _binWidth / 2;
     final String x1 =
         formatNumericValue(xValue - binWidth, series.xAxis, digits);
     final String x2 =
         formatNumericValue(xValue + binWidth, series.xAxis, digits);
-    final String yValue = text.split(':')[1];
-    text = '$x1 - $x2 : $yValue';
+    if (text.contains(':')) {
+      // Tooltip text.
+      text = '$x1 - $x2 : ${text.split(':')[1]}';
+    } else {
+      // Tooltip header text.
+      text = '$x1 - $x2';
+    }
 
     return text;
   }
@@ -899,8 +623,10 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    // Draws the tracker bounds.
-    super.onPaint(canvas);
+    if (series.isTrackVisible) {
+      // Draws the tracker bounds.
+      super.onPaint(canvas);
+    }
 
     if (segmentRect == null) {
       return;

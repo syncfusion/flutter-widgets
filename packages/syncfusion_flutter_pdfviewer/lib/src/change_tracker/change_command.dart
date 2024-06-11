@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' show Color;
 
-import '../../pdfviewer.dart';
 import '../annotation/annotation.dart';
 import '../form_fields/pdf_form_field.dart';
 

@@ -456,17 +456,37 @@ class PdfScrollableState extends State<PdfScrollable> {
   /// Retrieves the page number based on the offset of the page.
   int getPageNumber(double offset) {
     int pageNumber = 0;
-    for (int i = 1; i <= widget.pdfViewerController.pageCount; i++) {
-      if (i == widget.pdfViewerController.pageCount ||
-          offset.round() >= widget.maxScrollExtent.round()) {
-        pageNumber = widget.pdfViewerController.pageCount;
-        break;
-      } else if (offset.round() >= widget.pdfPages[i]!.pageOffset.round() &&
-          offset.round() < widget.pdfPages[i + 1]!.pageOffset.round()) {
-        pageNumber = i;
-        break;
-      } else {
-        continue;
+    if (widget.textDirection == TextDirection.rtl &&
+        widget.scrollDirection == PdfScrollDirection.horizontal) {
+      for (int i = 1; i <= widget.pdfViewerController.pageCount; i++) {
+        if (i == widget.pdfViewerController.pageCount || offset.round() <= 0) {
+          pageNumber = widget.pdfViewerController.pageCount;
+          break;
+        } else if ((offset.round() + widget.viewportDimension.width.round()) <=
+                (widget.pdfPages[i]!.pageOffset.round() +
+                    widget.pdfPages[i]!.pageSize.width.round()) &&
+            (offset.round() + widget.viewportDimension.width.round()) >
+                (widget.pdfPages[i + 1]!.pageOffset.round() +
+                    widget.pdfPages[i + 1]!.pageSize.width.round())) {
+          pageNumber = i;
+          break;
+        } else {
+          continue;
+        }
+      }
+    } else {
+      for (int i = 1; i <= widget.pdfViewerController.pageCount; i++) {
+        if (i == widget.pdfViewerController.pageCount ||
+            offset.round() >= widget.maxScrollExtent.round()) {
+          pageNumber = widget.pdfViewerController.pageCount;
+          break;
+        } else if (offset.round() >= widget.pdfPages[i]!.pageOffset.round() &&
+            offset.round() < widget.pdfPages[i + 1]!.pageOffset.round()) {
+          pageNumber = i;
+          break;
+        } else {
+          continue;
+        }
       }
     }
     return pageNumber;

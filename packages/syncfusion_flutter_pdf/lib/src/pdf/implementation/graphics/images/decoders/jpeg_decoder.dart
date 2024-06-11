@@ -119,7 +119,7 @@ class JpegDecoder extends ImageDecoder {
   @override
   PdfStream? getImageDictionary() {
     _imageStream = PdfStream();
-    _imageStream!.dataStream = imageData;
+    _imageStream!.data = imageData;
     _imageStream!.compress = false;
 
     _imageStream![PdfDictionaryProperties.type] =

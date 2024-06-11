@@ -92,10 +92,9 @@ String segmentOverflowTrimmedText(
         if (text == '') {
           break;
         }
-        if (text.length > minCharacterLength)
-          text = addEllipse(text, text.length, ellipse,
-              isRtl: false); // TODO(Lavanya): Recheck here.
-        else {
+        if (text.length > minCharacterLength) {
+          text = addEllipse(text, text.length, ellipse, isRtl: false);
+        } else {
           text = '';
           break;
         }
@@ -485,6 +484,8 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
               point.dataLabelSize,
               // To avoid the extra padding added to the exact template size.
               null)!;
+        } else {
+          point.trimmedText = null;
         }
         point.labelLocation = labelLocation;
         dataLabelPositioned.offset = labelLocation;

@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../series/chart_series.dart';

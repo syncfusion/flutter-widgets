@@ -532,7 +532,8 @@ class PdfLineAnnotationHelper extends PdfAnnotationHelper {
     }
     final Rect nativeRectangle = _obtainLineBounds().rect;
     final PdfTemplate template = PdfTemplateHelper.fromRect(nativeRectangle);
-    helper.setMatrix(PdfTemplateHelper.getHelper(template).content);
+    PdfAnnotationHelper.setMatrixToZeroRotation(
+        PdfTemplateHelper.getHelper(template).content);
     PdfTemplateHelper.getHelper(template).writeTransformation = false;
     final PaintParams paintParams = PaintParams();
     final PdfGraphics? graphics = template.graphics;

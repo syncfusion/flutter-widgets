@@ -1385,7 +1385,7 @@ class PdfCrossTable {
       }
     }
     //iw.Flush();
-    xRefStream.dataStream = ms;
+    xRefStream.data = ms;
     xRefStream[PdfDictionaryProperties.index] = sectionIndeces;
     xRefStream[PdfDictionaryProperties.size] = PdfNumber(this.count);
     xRefStream[PdfDictionaryProperties.prev] = PdfNumber(prevXRef);
@@ -1451,7 +1451,7 @@ class PdfCrossTable {
       }
     }
     //iw.Flush();
-    xRefStream.dataStream = ms;
+    xRefStream.data = ms;
     xRefStream[PdfDictionaryProperties.index] = sectionIndeces;
     xRefStream[PdfDictionaryProperties.size] = PdfNumber(this.count);
     xRefStream[PdfDictionaryProperties.prev] = PdfNumber(prevXRef);
@@ -1639,7 +1639,10 @@ class PdfCrossTable {
           });
           if (obj is PdfStream) {
             final PdfStream stream = obj;
-            if (PdfDocumentHelper.getHelper(document!).isEncrypted &&
+            if (objNumbers.isNotEmpty) {
+              stream.crossTable = this;
+              stream.objNumber = objNumbers.last.objNum;
+            } else if (PdfDocumentHelper.getHelper(document!).isEncrypted &&
                 !stream.decrypted! &&
                 objNumbers.isNotEmpty &&
                 encryptor != null &&

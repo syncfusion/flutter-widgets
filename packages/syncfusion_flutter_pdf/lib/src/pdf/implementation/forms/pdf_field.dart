@@ -754,7 +754,7 @@ class PdfFieldHelper {
   PdfColor get borderColor {
     if (isLoadedField) {
       final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
-      PdfColor bc = PdfColor(0, 0, 0);
+      PdfColor bc = PdfColor.empty;
       if (widget.containsKey(PdfDictionaryProperties.mk)) {
         final IPdfPrimitive? getObject =
             crossTable!.getObject(widget[PdfDictionaryProperties.mk]);

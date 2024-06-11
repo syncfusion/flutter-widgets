@@ -390,12 +390,12 @@ class SinglePageViewState extends State<SinglePageView> {
           clipBehavior: Clip.none,
           maxScale: widget.maxZoomLevel,
           boundaryMargin: EdgeInsets.only(
-            top: isHeightFitted || isLandscape
+            top: isHeightFitted || isLandscape || _fingersInteracting > 1
                 ? 0
                 : (imageSize.round() <= widget.viewportDimension.height.round()
                     ? (childSize.height - widget.viewportDimension.height) / 2
                     : _topMargin),
-            bottom: isHeightFitted || isLandscape
+            bottom: isHeightFitted || isLandscape || _fingersInteracting > 1
                 ? 0
                 : (imageSize.round() <= widget.viewportDimension.height.round()
                     ? (childSize.height - widget.viewportDimension.height) / 2

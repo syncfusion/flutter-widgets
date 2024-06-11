@@ -793,6 +793,28 @@ class MomentumIndicatorRenderParams extends IndicatorRenderParams {
 }
 
 /// Holds the onRenderDetailsUpdate callback arguments.
+class RocIndicatorRenderParams extends IndicatorRenderParams {
+  /// Creating an argument constructor of RocIndicatorRenderParams class.
+  RocIndicatorRenderParams(
+    this.centerLineValue,
+    List<CartesianChartPoint>? calculatedDataPoints,
+    String name,
+    double signalLineWidth,
+    Color signalLineColor,
+    List<double> signalLineDashArray,
+  ) : super(
+          calculatedDataPoints,
+          name,
+          signalLineWidth,
+          signalLineColor,
+          signalLineDashArray,
+        );
+
+  /// Gets the calculated center line value of the Roc indicator.
+  final double? centerLineValue;
+}
+
+/// Holds the onRenderDetailsUpdate callback arguments.
 class StochasticIndicatorRenderParams extends IndicatorRenderParams {
   /// Creating an argument constructor of StochasticIndicatorRenderParams class.
   StochasticIndicatorRenderParams(

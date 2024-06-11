@@ -2,6 +2,45 @@
 
 **Features**
 
+* Now, the pages being rendered will have good quality at the initial zoom level. The rendering performance of pages in the viewer for large documents has also been improved for all platforms. Especially on the web and Android platforms, we have achieved approximately an 80% deduction in the rendering time for a document of 50 MB size.
+* Provided support to scroll right-to-left (RTL) horizontally in the RTL layout. This will help you accommodate languages that are read from right to left for better continuity in reading.
+* Provided support to customize the visibility of the built-in text selection menu. This can help users design their own customized text selection menu.
+
+## [25.2.6] - 05/28/2024
+
+**Bugs**
+
+* Now, the soft keyboard will not hide immediately when focusing on the text form field in a particular PDF document.
+* Now, the `SfPdfViewer` will not crash unexpectedly when loading a particular PDF document on the iOS platform.
+
+## [25.2.5] - 05/21/2024
+
+**Bugs**
+
+* Now, the page number will be retained when switching the page layout from single page to continuous page layout in the `SfPdfViewer` widget.
+
+## [25.2.3] - 05/08/2024
+
+**Features**
+
+* Provided support for letter spacing in the textbox form fields.
+
+## [25.1.41] - 04/23/2024
+
+**Bugs**
+
+* Now, the page will be rendered properly after switching the device orientation from portrait to landscape or vice versa in the `SfPdfViewer` widget.
+
+## [25.1.38] - 04/02/2024
+
+**Bugs**
+
+* Now, the `SfPdfViewer` will not crash unexpectedly due to the high memory usage when loading and unloading the large and high-resolution PDF documents frequently.
+
+## [25.1.35] - 03/15/2024
+
+**Features**
+
 * Provided support for loading the PDF document on a specified page.
 * Provided support for active viewport rendering. That is, at a higher zoom level, this feature renders only the part of the PDF document that is visible on the screen, ignoring the parts that are outside the viewport.
 * Provided support to undo and redo the data filled in PDF forms.

@@ -9,6 +9,7 @@ import '../axis/axis.dart';
 import '../axis/logarithmic_axis.dart';
 import '../base.dart';
 import '../series/chart_series.dart';
+import '../series/histogram_series.dart';
 import '../series/waterfall_series.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
@@ -859,11 +860,16 @@ class _CartesianDataLabelContainerState<T, D>
       return;
     }
 
-    final int pointIndex = hasSortedIndexes ? sortedIndexes![index] : index;
+    int pointIndex = hasSortedIndexes ? sortedIndexes![index] : index;
+    final bool isHisto = renderer is HistogramSeriesRenderer;
+    final int dataSourceLength = widget.dataSource.length;
     final num x = xValues![index];
     for (int k = 0; k < yLength; k++) {
       final List<num> yValues = yLists![k];
       final ChartDataPointType position = widget.positions[k];
+      if (isHisto && pointIndex >= dataSourceLength) {
+        pointIndex = dataSourceLength - 1;
+      }
       final CartesianChartDataLabelPositioned child =
           CartesianChartDataLabelPositioned(
         x: x,
@@ -874,7 +880,7 @@ class _CartesianDataLabelContainerState<T, D>
           widget.dataSource[pointIndex],
           k,
           widget.series,
-          pointIndex,
+          index,
           renderer!.index,
           position,
         ),
@@ -1314,8 +1320,10 @@ class RenderCartesianDataLabelStack<T, D> extends RenderChartElementStack {
       currentChildData.isVisible = true;
       while (nextSibling != null) {
         nextChildData = nextSibling.parentData! as ChartElementParentData;
-        if (currentChildData.rotatedBounds
-            .overlaps(nextChildData.rotatedBounds)) {
+        if (!currentChildData.rotatedBounds.topLeft.isNaN &&
+            !currentChildData.rotatedBounds.bottomRight.isNaN &&
+            currentChildData.rotatedBounds
+                .overlaps(nextChildData.rotatedBounds)) {
           nextChildData.isVisible = false;
         }
         nextSibling = nextChildData.nextSibling;

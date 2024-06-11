@@ -58,15 +58,15 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
     return pagesWidth;
   }
 
-  /// Gets the image's bytes information of the specified page.
+  /// Gets the image bytes of the specified page from the document at the specified width and .
   @override
-  Future<Uint8List> getImage(
-      int pageNumber, double scale, String documentID) async {
+  Future<Uint8List> getPage(
+      int pageNumber, int fullWidth, int fullHeight, String documentID) async {
     if (_documentRepo[documentID] != null) {
       PdfJsPage page = await promiseToFuture<PdfJsPage>(
           _documentRepo[documentID]!.getPage(pageNumber));
       PdfJsViewport viewport = page.getViewport(_settings);
-      return renderPage(page, viewport, scale, documentID);
+      return renderPage(page, viewport, fullWidth, fullHeight, documentID);
     }
     return Uint8List.fromList(<int>[0]);
   }
@@ -110,19 +110,11 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
       ..annotationMode = 0;
     await promiseToFuture<void>(page.render(renderSettings).promise);
 
-    // Renders the page as a PNG image and retrieve its byte information.
-    final completer = Completer<void>();
-    final blob = await htmlCanvas.toBlob();
-    final bytesBuilder = BytesBuilder();
-    final fileReader = html.FileReader()..readAsArrayBuffer(blob);
-    fileReader.onLoadEnd.listen(
-      (html.ProgressEvent e) {
-        bytesBuilder.add(fileReader.result as List<int>);
-        completer.complete();
-      },
-    );
-    await completer.future;
-    return bytesBuilder.toBytes();
+    return htmlCanvas.context2D
+        .getImageData(0, 0, width.toInt(), height.toInt())
+        .data
+        .buffer
+        .asUint8List();
   }
 
   /// Closes the PDF document.
@@ -134,38 +126,27 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
 
   /// Renders the page into a canvas and return image's byte information.
   Future<Uint8List> renderPage(PdfJsPage page, PdfJsViewport viewport,
-      double scale, String documentID) async {
+      int fullWidth, int fullHeight, String documentID) async {
     final html.CanvasElement htmlCanvas =
         js.context['document'].createElement('canvas');
     final Object? context = htmlCanvas.getContext('2d');
     final _viewport = page.getViewport(_settings);
-    if (scale < 2) {
-      scale = 2;
-    }
-    viewport = page.getViewport(Settings()
-      ..scale = ((viewport.width).toInt() * scale) / _viewport.width);
+    viewport =
+        page.getViewport(Settings()..scale = (fullWidth / _viewport.width));
 
     htmlCanvas
-      ..height = viewport.height.toInt()
-      ..width = viewport.width.toInt();
+      ..width = fullWidth
+      ..height = fullHeight;
     final renderSettings = Settings()
       ..canvasContext = (context as html.CanvasRenderingContext2D)
       ..viewport = viewport
       ..annotationMode = 0;
     await promiseToFuture<void>(page.render(renderSettings).promise);
 
-    // Renders the page as a PNG image and retrieve its byte information.
-    final completer = Completer<void>();
-    final blob = await htmlCanvas.toBlob();
-    final bytesBuilder = BytesBuilder();
-    final fileReader = html.FileReader()..readAsArrayBuffer(blob);
-    fileReader.onLoadEnd.listen(
-      (html.ProgressEvent e) {
-        bytesBuilder.add(fileReader.result as List<int>);
-        completer.complete();
-      },
-    );
-    await completer.future;
-    return bytesBuilder.toBytes();
+    return htmlCanvas.context2D
+        .getImageData(0, 0, fullWidth, fullHeight)
+        .data
+        .buffer
+        .asUint8List();
   }
 }

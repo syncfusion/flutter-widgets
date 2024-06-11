@@ -327,15 +327,18 @@ class CrosshairBehavior extends ChartBehavior {
   /// pointIndex - index of point at which the crosshair needs to be shown.
   void showByIndex(int pointIndex) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (parent != null && parent.plotArea != null) {
-      final XyDataSeriesRenderer? seriesRenderer =
-          parent.plotArea!.firstChild as XyDataSeriesRenderer?;
-      if (seriesRenderer != null) {
-        final List<num> visibleIndexes = seriesRenderer.visibleIndexes;
-        if (visibleIndexes.first <= pointIndex &&
-            pointIndex <= visibleIndexes.last) {
-          show(seriesRenderer.xRawValues[pointIndex],
-              seriesRenderer.yValues[pointIndex].toDouble());
+    if (parent != null &&
+        parent.plotArea != null &&
+        parent.plotArea!.firstChild != null) {
+      final CartesianSeriesRenderer seriesRenderer =
+          parent.plotArea!.firstChild as CartesianSeriesRenderer;
+      final List<num> visibleIndexes = seriesRenderer.visibleIndexes;
+      if (visibleIndexes.isNotEmpty &&
+          visibleIndexes.first <= pointIndex &&
+          pointIndex <= visibleIndexes.last) {
+        final num y = seriesRenderer.trackballYValue(pointIndex);
+        if (seriesRenderer.xRawValues.isNotEmpty && !y.isNaN) {
+          show(seriesRenderer.xRawValues[pointIndex], y.toDouble());
         }
       }
     }

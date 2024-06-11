@@ -1,6 +1,6 @@
 name: syncfusion_flutter_datagrid_export
 description: The Syncfusion Flutter DataGrid Export library is used to export the DataGrid content to Excel and Pdf format with several customization options.
-version: 24.2.9
+version: 25.2.6
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_datagrid_export
 
 environment:
@@ -12,13 +12,13 @@ dependencies:
     sdk: flutter
   
   syncfusion_flutter_datagrid:
-      path: ../syncfusion_flutter_datagrid
+    path: ../syncfusion_flutter_datagrid
   
   syncfusion_flutter_xlsio:
-      path: ../syncfusion_flutter_xlsio
+    path: ../syncfusion_flutter_xlsio
   
   syncfusion_flutter_pdf:
-      path: ../syncfusion_flutter_pdf
+    path: ../syncfusion_flutter_pdf
 
   collection: ">=1.9.0 <=2.0.0"
 

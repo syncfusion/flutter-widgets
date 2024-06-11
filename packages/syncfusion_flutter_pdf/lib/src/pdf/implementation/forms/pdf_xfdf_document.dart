@@ -829,7 +829,7 @@ class XFdfDocument {
           XfdfProperties.key: PdfDictionaryProperties.ap
         },
         nest: _writeAppearanceDictionary(appearanceDictionary));
-    final String xmlString = builder.buildDocument().toXmlString(pretty: true);
+    final String xmlString = builder.buildDocument().toXmlString();
     return utf8.encode(xmlString);
   }
 

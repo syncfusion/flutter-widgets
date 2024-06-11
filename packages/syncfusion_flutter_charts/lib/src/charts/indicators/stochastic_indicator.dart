@@ -685,35 +685,46 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     xMin = _xMinimum.isInfinite ? xMin : _xMinimum;
     xMax = _xMaximum.isInfinite ? xMax : _xMaximum;
-    yMin = min(yMin, _yMinimum);
-    yMax = max(yMax, _yMaximum);
+    yMin = _yMinimum.isInfinite ? yMin : _yMinimum;
+    yMax = _yMaximum.isInfinite ? yMax : _yMaximum;
 
     populateChartPoints();
   }
 
   void _calculateZones() {
-    if (showZones) {
-      for (int i = 0; i < dataCount; i++) {
-        final double x = xValues[i].toDouble();
-        final double minY = min(overbought, oversold);
-        final double maxY = max(overbought, oversold);
-        _xMinimum = min(_xMinimum, x);
-        _xMaximum = max(_xMaximum, x);
-        _yMinimum = min(_yMinimum, minY);
-        _yMaximum = max(_yMaximum, maxY);
+    if (!showZones || (upperLineWidth <= 0 && lowerLineWidth <= 0)) {
+      return;
+    }
 
+    for (int i = 0; i < dataCount; i++) {
+      final double x = xValues[i].toDouble();
+      if (upperLineWidth > 0) {
         _upperLineActualValues.add(Offset(x, overbought));
+      }
+
+      if (lowerLineWidth > 0) {
         _lowerLineActualValues.add(Offset(x, oversold));
       }
+
+      _xMinimum = min(_xMinimum, x);
+      _xMaximum = max(_xMaximum, x);
     }
+
+    _yMinimum = min(_yMinimum, min(overbought, oversold));
+    _yMaximum = max(_yMaximum, max(overbought, oversold));
   }
 
   void _calculateStochasticIndicatorValues() {
     final List<Offset> source = _calculatePeriodValues(period, kPeriod.toInt());
-    _periodLineActualValues
-        .addAll(_calculateStochasticValues(period, kPeriod.toInt(), source));
-    _signalLineActualValues.addAll(_calculateStochasticValues(
-        (period + kPeriod - 1).toInt(), dPeriod.toInt(), source));
+    if (periodLineWidth > 0) {
+      _periodLineActualValues
+          .addAll(_calculateStochasticValues(period, kPeriod.toInt(), source));
+    }
+
+    if (signalLineWidth > 0) {
+      _signalLineActualValues.addAll(_calculateStochasticValues(
+          (period + kPeriod - 1).toInt(), dPeriod.toInt(), source));
+    }
   }
 
   List<Offset> _calculateStochasticValues(
@@ -919,7 +930,8 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     num? nearPointX;
     num? nearPointY;
     int? pointIndex;
-    for (int i = 0; i < points.length; i++) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
       nearPointX ??= points[0].dx;
       nearPointY ??= yAxis!.visibleRange!.minimum;
 
@@ -954,38 +966,27 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
   CartesianChartPoint<D> _chartPoint(int pointIndex, String type) {
     return CartesianChartPoint<D>(
-      x: type == 'stocastic'
-          ? xRawValues[
-              pointIndex + (signalLinePoints.length - xRawValues.length).abs()]
-          : type == 'periodLine'
-              ? xRawValues[pointIndex +
-                  (_periodLinePoints.length - xRawValues.length).abs()]
-              : xRawValues[pointIndex],
-      xValue: type == 'stocastic'
-          ? xValues[
-              pointIndex + (signalLinePoints.length - xRawValues.length).abs()]
-          : type == 'periodLine'
-              ? xValues[pointIndex +
-                  (_periodLinePoints.length - xValues.length).abs()]
-              : xValues[pointIndex],
-      y: type == 'stocastic'
-          ? yAxis!.pixelToPoint(yAxis!.paintBounds,
-              signalLinePoints[pointIndex].dx, signalLinePoints[pointIndex].dy)
-          : type == 'periodLine'
-              ? yAxis!.pixelToPoint(
-                  yAxis!.paintBounds,
-                  _periodLinePoints[pointIndex].dx,
-                  _periodLinePoints[pointIndex].dy)
-              : type == 'upperLine'
-                  ? yAxis!.pixelToPoint(
-                      yAxis!.paintBounds,
-                      _upperLinePoints[pointIndex].dx,
-                      _upperLinePoints[pointIndex].dy)
-                  : yAxis!.pixelToPoint(
-                      yAxis!.paintBounds,
-                      _lowerLinePoints[pointIndex].dx,
-                      _lowerLinePoints[pointIndex].dy),
-    );
+        x: type == 'stocastic'
+            ? xRawValues[pointIndex +
+                (signalLinePoints.length - xRawValues.length).abs()]
+            : type == 'periodLine'
+                ? xRawValues[pointIndex +
+                    (_periodLinePoints.length - xRawValues.length).abs()]
+                : xRawValues[pointIndex],
+        xValue: type == 'stocastic'
+            ? xValues[pointIndex +
+                (signalLinePoints.length - xRawValues.length).abs()]
+            : type == 'periodLine'
+                ? xValues[pointIndex +
+                    (_periodLinePoints.length - xValues.length).abs()]
+                : xValues[pointIndex],
+        y: type == 'stocastic'
+            ? _signalLineActualValues[pointIndex].dy
+            : type == 'periodLine'
+                ? _periodLineActualValues[pointIndex].dy
+                : type == 'upperLine'
+                    ? _upperLineActualValues[pointIndex].dy
+                    : _lowerLineActualValues[pointIndex].dy);
   }
 
   @override
@@ -1177,11 +1178,13 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         _upperLinePath.lineTo(_upperLinePoints[i].dx, _upperLinePoints[i].dy);
       }
 
-      context.canvas.drawPath(
-          _upperLinePath,
+      drawDashes(
+          context.canvas,
+          _dashArray,
           strokePaint
             ..color = upperLineColor
-            ..strokeWidth = upperLineWidth);
+            ..strokeWidth = upperLineWidth,
+          path: _upperLinePath);
     }
 
     // Draw lower line.
@@ -1198,11 +1201,13 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         _lowerLinePath.lineTo(_lowerLinePoints[i].dx, _lowerLinePoints[i].dy);
       }
 
-      context.canvas.drawPath(
-          _lowerLinePath,
+      drawDashes(
+          context.canvas,
+          _dashArray,
           strokePaint
             ..color = lowerLineColor
-            ..strokeWidth = lowerLineWidth);
+            ..strokeWidth = lowerLineWidth,
+          path: _lowerLinePath);
     }
 
     context.canvas.restore();

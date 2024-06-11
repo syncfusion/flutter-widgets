@@ -72,13 +72,10 @@ class PdfNumber implements IPdfPrimitive {
   @override
   void save(IPdfWriter? writer) {
     if (value is double) {
-      String numberValue = value!.toStringAsFixed(2);
-      if (numberValue.endsWith('.00')) {
-        if (numberValue.length == 3) {
-          numberValue = '0';
-        } else {
-          numberValue = numberValue.substring(0, numberValue.length - 3);
-        }
+      String numberValue =
+          value!.toStringAsFixed(10).replaceAll(RegExp(r'0*$'), '');
+      if (numberValue.endsWith('.')) {
+        numberValue = numberValue.replaceAll('.', '');
       }
       writer!.write(numberValue);
     } else {

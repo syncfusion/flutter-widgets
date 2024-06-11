@@ -56,6 +56,12 @@ abstract class PdfViewerPlatform extends PlatformInterface {
     throw UnimplementedError('getImage() has not been implemented.');
   }
 
+  /// Gets the image bytes of the specified page from the document at the specified width and height.
+  Future<Uint8List?> getPage(
+      int pageNumber, int width, int height, String documentID) async {
+    throw UnimplementedError('getPage() has not been implemented.');
+  }
+
   /// Gets the image's bytes information of the specified portion of the page.
   Future<Uint8List?> getTileImage(int pageNumber, double scale, double x,
       double y, double width, double height, String documentID) async {

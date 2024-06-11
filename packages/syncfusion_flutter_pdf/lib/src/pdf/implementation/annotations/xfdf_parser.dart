@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:convert/convert.dart';
 import 'package:xml/xml.dart';
 
 import '../../interfaces/pdf_interface.dart';
@@ -197,6 +198,10 @@ class XfdfParser {
         case 'redact':
           annotationDictionary.setName(
               PdfDictionaryProperties.subtype, 'Redact');
+          break;
+        case 'watermark':
+          annotationDictionary.setName(
+              PdfDictionaryProperties.subtype, 'Watermark');
           break;
         default:
           isValidType = false;
@@ -640,7 +645,8 @@ class XfdfParser {
               break;
             case 'data':
               if (!isNullOrEmpty(childNode.innerText)) {
-                final List<int> raw = _hexToBytes(childNode.innerText);
+                final List<int> raw =
+                    List<int>.from(hex.decode(childNode.innerText));
                 if (raw.isNotEmpty) {
                   if (annotDictionary
                       .containsKey(PdfDictionaryProperties.subtype)) {
@@ -674,9 +680,7 @@ class XfdfParser {
                             PdfDictionaryProperties.params, param);
                         _addElementStrings(fileStream, element, 'mimetype',
                             PdfDictionaryProperties.subtype);
-                        fileStream.dataStream = raw;
-                        fileStream
-                            .addFilter(PdfDictionaryProperties.flateDecode);
+                        fileStream.data = raw;
                         final PdfDictionary embeddedFile = PdfDictionary();
                         embeddedFile.setProperty(PdfDictionaryProperties.f,
                             PdfReferenceHolder(fileStream));
@@ -698,7 +702,7 @@ class XfdfParser {
                           soundStream.setName(
                               PdfDictionaryProperties.e, attribute);
                         }
-                        soundStream.dataStream = raw;
+                        soundStream.data = raw;
                         attribute = element.getAttribute('filter');
                         if (!isNullOrEmpty(attribute)) {
                           soundStream
@@ -837,7 +841,7 @@ class XfdfParser {
         final List<int>? data = _getData(element);
         if (data != null && data.isNotEmpty) {
           if (appearance is PdfStream) {
-            appearance.dataStream = data;
+            appearance.data = data;
             if (!appearance.containsKey(PdfDictionaryProperties.type) &&
                 !appearance.containsKey(PdfDictionaryProperties.subtype)) {
               appearance.decompress();
@@ -1208,9 +1212,9 @@ class XfdfParser {
 
   void _addInt(PdfDictionary dictionary, String key, String? value) {
     if (!isNullOrEmpty(value)) {
-      final int? number = int.tryParse(value!);
+      final double? number = double.tryParse(value!);
       if (number != null) {
-        dictionary.setNumber(key, number);
+        dictionary.setNumber(key, number.toInt());
       }
     }
   }

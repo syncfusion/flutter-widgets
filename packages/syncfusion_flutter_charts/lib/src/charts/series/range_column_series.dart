@@ -551,8 +551,10 @@ class RangeColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    // Draws the tracker bounds.
-    super.onPaint(canvas);
+    if (series.isTrackVisible) {
+      // Draws the tracker bounds.
+      super.onPaint(canvas);
+    }
 
     if (segmentRect == null) {
       return;

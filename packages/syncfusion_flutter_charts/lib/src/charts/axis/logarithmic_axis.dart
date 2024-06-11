@@ -76,7 +76,10 @@ class LogarithmicAxis extends ChartAxis {
     super.autoScrollingMode,
     super.axisLabelFormatter,
     this.onRendererCreated,
-  });
+  }) : assert(
+            (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
+                autoScrollingDelta == null,
+            'Both properties have the same behavior to display the visible data points, use any one of the properties');
 
   /// Formats the numeric axis labels.
   ///
@@ -162,9 +165,8 @@ class LogarithmicAxis extends ChartAxis {
   /// ```
   final double logBase;
 
-  /// The minimum visible value of the axis.
-  ///
-  /// The axis will be rendered from this value initially.
+  /// The minimum visible value of the axis. The axis is rendered from this value initially, and
+  /// it applies only during load time. The value will not be updated when zooming or panning.
   ///
   /// Defaults to `null`.
   ///
@@ -172,16 +174,57 @@ class LogarithmicAxis extends ChartAxis {
   /// Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
-  ///           primaryXAxis: LogarithmicAxis(initialVisibleMinimum: 0),
+  ///           primaryXAxis: NumericAxis(initialVisibleMinimum: 0),
   ///        )
   ///    );
   /// }
   /// ```
+  ///
+  /// Use the [onRendererCreated] callback, as shown in the code below, to update the visible
+  /// minimum value dynamically.
+  ///
+  /// ```dart
+  /// LogarithmicAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: LogarithmicAxis(
+  ///             initialVisibleMinimum: 0,
+  ///             initialVisibleMaximum: 100,
+  ///             onRendererCreated: (LogarithmicAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, num>>[
+  ///             LineSeries<SalesData, num>(
+  ///               dataSource: data,
+  ///               xValueMapper: (SalesData sales, _) => sales.year,
+  ///               yValueMapper: (SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.visibleMinimum = 30;
+  ///              axisController!.visibleMaximum = 70;
+  ///            }
+  ///           },
+  ///           child: const Text('Update Axis Range'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
   final double? initialVisibleMinimum;
 
-  /// The minimum visible value of the axis.
-  ///
-  /// The axis will be rendered from this value initially.
+  /// The maximum visible value of the axis. The axis is rendered from this value initially, and
+  /// it applies only during load time. The value will not be updated when zooming or panning.
   ///
   /// Defaults to `null`.
   ///
@@ -192,6 +235,48 @@ class LogarithmicAxis extends ChartAxis {
   ///           primaryXAxis: LogarithmicAxis(initialVisibleMaximum: 200),
   ///        )
   ///    );
+  ///}
+  ///```
+  ///
+  /// Use the [onRendererCreated] callback, as shown in the code below, to update the visible
+  /// maximum value dynamically.
+  ///
+  /// ```dart
+  /// LogarithmicAxisController? axisController;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: Column(
+  ///       children: [
+  ///         SfCartesianChart(
+  ///           primaryXAxis: LogarithmicAxis(
+  ///             initialVisibleMinimum: 0,
+  ///             initialVisibleMaximum: 200,
+  ///             onRendererCreated: (LogarithmicAxisController controller) {
+  ///               axisController = controller;
+  ///             },
+  ///           ),
+  ///           series: <CartesianSeries<SalesData, num>>[
+  ///             LineSeries<SalesData, num>(
+  ///               dataSource: data,
+  ///               xValueMapper: (SalesData sales, _) => sales.year,
+  ///               yValueMapper: (SalesData sales, _) => sales.sales,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         TextButton(
+  ///           onPressed: () {
+  ///             if (axisController != null) {
+  ///              axisController!.visibleMinimum = 10;
+  ///              axisController!.visibleMaximum = 70;
+  ///            }
+  ///           },
+  ///           child: const Text('Update Axis Range'),
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
   /// }
   /// ```
   final double? initialVisibleMaximum;
@@ -482,6 +567,16 @@ class RenderLogarithmicAxis extends RenderChartAxis {
     return rangeCopy
       ..minimum = min
       ..maximum = max;
+  }
+
+  @override
+  DoubleRange updateAutoScrollingDelta(
+      int scrollingDelta, DoubleRange actualRange, DoubleRange visibleRange) {
+    if (initialVisibleMaximum != null || initialVisibleMinimum != null) {
+      return visibleRange;
+    }
+    return super
+        .updateAutoScrollingDelta(scrollingDelta, actualRange, visibleRange);
   }
 
   @override

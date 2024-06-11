@@ -130,6 +130,14 @@ class PdfListBoxFormFieldHelper extends PdfFormFieldHelper {
               ? const Color.fromARGB(255, 221, 228, 255)
               : Color.fromRGBO(pdfListBoxField.backColor.r,
                   pdfListBoxField.backColor.g, pdfListBoxField.backColor.b, 1),
+          borderColor: pdfListBoxField.borderColor.isEmpty
+              ? Colors.transparent
+              : Color.fromRGBO(
+                  pdfListBoxField.borderColor.r,
+                  pdfListBoxField.borderColor.g,
+                  pdfListBoxField.borderColor.b,
+                  1),
+          borderWidth: pdfListBoxField.borderWidth / heightPercentage,
           fontSize: (pdfListBoxField.font?.size ?? 14.0) / heightPercentage,
           onValueChanged: invokeValueChanged,
           onTap: () {
@@ -157,6 +165,8 @@ class PdfListBox extends StatefulWidget {
       this.fontSize,
       this.onValueChanged,
       required this.onTap,
+      required this.borderColor,
+      required this.borderWidth,
       super.key});
 
   /// The list box form field scale factor.
@@ -186,6 +196,12 @@ class PdfListBox extends StatefulWidget {
   /// The list box form field tap callback.
   final VoidCallback onTap;
 
+  /// The list box form field border color
+  final Color borderColor;
+
+  /// The list box form field border width
+  final double borderWidth;
+
   @override
   State<PdfListBox> createState() => _PdfListBoxState();
 }
@@ -193,32 +209,36 @@ class PdfListBox extends StatefulWidget {
 class _PdfListBoxState extends State<PdfListBox> {
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: widget.onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: widget.fillColor,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: InkWell(
+        onTap: widget.onTap,
+        child: Container(
+          decoration: BoxDecoration(
+              color: widget.fillColor,
+              border: Border.all(
+                  color: widget.borderColor, width: widget.borderWidth)),
+          child: ListView.builder(
+              itemCount: widget.items.length,
+              itemBuilder: (BuildContext context, int index) {
+                final bool selected =
+                    widget.selectedItems.contains(widget.items[index]);
+                return Container(
+                  padding: const EdgeInsets.only(left: 5),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? const Color.fromARGB(255, 46, 134, 193)
+                        : Colors.transparent,
+                  ),
+                  child: Text(widget.items[index],
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: widget.fontSize,
+                        fontFamily: widget.font,
+                      )),
+                );
+              }),
         ),
-        child: ListView.builder(
-            itemCount: widget.items.length,
-            itemBuilder: (BuildContext context, int index) {
-              final bool selected =
-                  widget.selectedItems.contains(widget.items[index]);
-              return Container(
-                padding: const EdgeInsets.only(left: 5),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? const Color.fromARGB(255, 46, 134, 193)
-                      : Colors.transparent,
-                ),
-                child: Text(widget.items[index],
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: widget.fontSize,
-                      fontFamily: widget.font,
-                    )),
-              );
-            }),
       ),
     );
   }

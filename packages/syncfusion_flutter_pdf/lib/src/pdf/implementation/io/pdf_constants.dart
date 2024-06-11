@@ -856,6 +856,27 @@ class PdfDictionaryProperties {
 
   /// internal field
   static const String targetUnitConversion = 'TargetUnitConversion';
+
+  /// internal field
+  static const String dss = 'DSS';
+
+  /// internal field
+  static const String ocsps = 'OCSPs';
+
+  /// internal field
+  static const String crls = 'CRLs';
+
+  /// internal field
+  static const String vri = 'VRI';
+
+  /// internal field
+  static const String ocsp = 'OCSP';
+
+  /// internal field
+  static const String crl = 'CRL';
+
+  /// internal field
+  static const String certs = 'Certs';
 }
 
 /// Class of string PDF common operators.

@@ -136,6 +136,28 @@ class DerAsciiString extends DerString {
     }
     return true;
   }
+
+  /// internal method
+  static DerAsciiString? getAsciiStringFromObj(dynamic obj) {
+    if (obj == null || obj is DerAsciiString) {
+      return obj;
+    }
+    throw Exception('Invalid entry');
+  }
+
+  /// internal method
+  static DerAsciiString? getAsciiString(Asn1Tag tag, bool isExplicit) {
+    final Asn1? asn1 = tag.getObject();
+    if (asn1 != null) {
+      if (isExplicit || asn1 is DerAsciiString) {
+        return getAsciiStringFromObj(asn1);
+      }
+    }
+    if (asn1 is Asn1Octet) {
+      return DerAsciiString.fromBytes(asn1.getOctets()!);
+    }
+    return null;
+  }
 }
 
 /// internal class
@@ -502,6 +524,14 @@ class DerObjectID extends Asn1 {
     bytes = Asn1.clone(bytes);
   }
 
+  /// internal constructor
+  DerObjectID.fromBranch(DerObjectID id, String branchId) {
+    if (!isValidBranchID(branchId, 0)) {
+      throw ArgumentError.value(id, 'id', 'Invalid ID');
+    }
+    this.id = '${id.id!}.$branchId';
+  }
+
   /// internal field
   String? id;
 
@@ -701,6 +731,11 @@ class DerObjectID extends Asn1 {
     }
     _objects[first] = DerObjectID.fromBytes(bytes);
     return _objects[first];
+  }
+
+  /// internal method
+  DerObjectID branch(String id) {
+    return DerObjectID.fromBranch(this, id);
   }
 }
 
@@ -986,7 +1021,7 @@ class DerUtcTime extends Asn1 {
 /// internal class
 class DerCatalogue extends Asn1 {
   /// internal constructor
-  DerCatalogue(List<int>? bytes) {
+  DerCatalogue([List<int>? bytes]) {
     this.bytes = bytes;
   }
 

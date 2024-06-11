@@ -502,6 +502,28 @@ class AppointmentHelper {
     return getLocation(windowsTimeZoneId);
   }
 
+  /// Method returns the date time of the provided timezone.
+  static DateTime convertTimezone(DateTime dateTime, String? targetTimezone) {
+    final DateTime convertedDate = dateTime;
+    final DateTime actualConvertedDate;
+
+    if (targetTimezone == 'Dateline Standard Time') {
+      actualConvertedDate =
+          convertedDate.toUtc().subtract(const Duration(hours: 12));
+    } else {
+      final Location location = _timeZoneInfoToOlsonTimeZone(targetTimezone!);
+      actualConvertedDate = TZDateTime.from(convertedDate, location);
+    }
+
+    return DateTime(
+        actualConvertedDate.year,
+        actualConvertedDate.month,
+        actualConvertedDate.day,
+        actualConvertedDate.hour,
+        actualConvertedDate.minute,
+        actualConvertedDate.second);
+  }
+
   /// Resets the appointment views used on appointment layout rendering.
   static void resetAppointmentView(
       List<AppointmentView> appointmentCollection) {

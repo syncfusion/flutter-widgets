@@ -126,6 +126,15 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
                       pdfRadioField.items[j].backColor.g,
                       pdfRadioField.items[j].backColor.b,
                       1),
+              borderColor: pdfRadioField.items[j].borderColor.isEmpty
+                  ? Colors.transparent
+                  : Color.fromRGBO(
+                      pdfRadioField.items[j].borderColor.r,
+                      pdfRadioField.items[j].borderColor.g,
+                      pdfRadioField.items[j].borderColor.b,
+                      1),
+              borderWidth:
+                  pdfRadioField.items[j].borderWidth / heightPercentage,
               size: bounds.height / heightPercentage,
             ),
           ),
@@ -149,6 +158,8 @@ class PdfRadioButton extends StatefulWidget {
       required this.heightPercentage,
       required this.selectionPadding,
       required this.fillColor,
+      required this.borderColor,
+      required this.borderWidth,
       this.size = 24.0})
       : super(key: key);
 
@@ -176,6 +187,12 @@ class PdfRadioButton extends StatefulWidget {
   /// Radio button padding
   final double selectionPadding;
 
+  /// Radio button border color
+  final Color borderColor;
+
+  /// Radio button border width
+  final double borderWidth;
+
   @override
   _PdfRadioButtonState createState() => _PdfRadioButtonState();
 }
@@ -202,9 +219,10 @@ class _PdfRadioButtonState extends State<PdfRadioButton> {
           width: widget.size,
           height: widget.size,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: widget.fillColor,
-          ),
+              shape: BoxShape.circle,
+              color: widget.fillColor,
+              border: Border.all(
+                  color: widget.borderColor, width: widget.borderWidth)),
           child: widget.groupValue == widget.value
               ? Icon(
                   Icons.circle,

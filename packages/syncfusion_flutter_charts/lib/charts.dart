@@ -67,6 +67,8 @@ export './src/charts/indicators/macd_indicator.dart'
     hide MacdIndicatorRenderer, MacdIndicatorWidget;
 export './src/charts/indicators/momentum_indicator.dart'
     hide MomentumIndicatorRenderer, MomentumIndicatorWidget;
+export './src/charts/indicators/roc_indicator.dart'
+    hide RocIndicatorRenderer, RocIndicatorWidget;
 export './src/charts/indicators/rsi_indicator.dart'
     hide RsiIndicatorRenderer, RsiIndicatorWidget;
 export './src/charts/indicators/sma_indicator.dart'
@@ -77,6 +79,8 @@ export './src/charts/indicators/technical_indicator.dart'
     hide IndicatorRenderer, IndicatorWidget;
 export './src/charts/indicators/tma_indicator.dart'
     hide TmaIndicatorRenderer, TmaIndicatorWidget;
+export './src/charts/indicators/wma_indicator.dart'
+    hide WmaIndicatorRenderer, WmaIndicatorWidget;
 export './src/charts/pyramid_chart.dart';
 export './src/charts/series/area_series.dart';
 export './src/charts/series/bar_series.dart';

@@ -1004,6 +1004,7 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
+    yValues.clear();
     if (yPaths == null) {
       yPaths = <ChartValueMapper<T, num>>[];
       chaoticYLists = <List<num>>[];
@@ -1168,13 +1169,10 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     final int segmentsCount = segments.length;
     for (int i = 0; i < dataCount; i++) {
       final int legendIndex = dataCount - 1 - i;
-      final Color legendIconColor = pointColorMapper != null
-          ? pointColors[legendIndex]!
-          : palette[legendIndex % palette.length];
       final ChartLegendItem legendItem = ChartLegendItem(
         text: xRawValues[legendIndex].toString(),
         iconType: toLegendShapeMarkerType(legendIconType, this),
-        iconColor: legendIconColor,
+        iconColor: effectiveColor(legendIndex),
         iconBorderWidth: legendIconBorderWidth(),
         series: this,
         seriesIndex: index,

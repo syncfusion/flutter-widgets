@@ -332,7 +332,8 @@ class RenderFunnelDataLabelStack<T, D> extends RenderChartElementStack {
 
   @override
   bool hitTestSelf(Offset position) {
-    return series?.parent?.onDataLabelTapped != null;
+    return series?.parent?.onDataLabelTapped != null &&
+        _findSelectedDataLabelIndex(position) != -1;
   }
 
   int _findSelectedDataLabelIndex(Offset localPosition) {

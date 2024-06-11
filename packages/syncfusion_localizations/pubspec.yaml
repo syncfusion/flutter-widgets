@@ -1,6 +1,6 @@
 name: syncfusion_localizations
 description: Syncfusion Localizations package contains localized text for 77 cultures for all the applicable Syncfusion Flutter Widgets. 
-version: 24.2.9
+version: 25.2.6
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_localizations
 
 environment:
@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   intl: '>=0.18.1 <0.20.0'
   syncfusion_flutter_core:
-      path: ../syncfusion_flutter_core
+    path: ../syncfusion_flutter_core
 
 dev_dependencies:
   flutter_test:

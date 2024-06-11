@@ -511,9 +511,8 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
   SfSparkChartThemeData _updateThemeData(BuildContext context) {
     SfSparkChartThemeData chartThemeData = SfSparkChartTheme.of(context);
     final ThemeData theme = Theme.of(context);
-    final SfSparkChartThemeData effectiveChartThemeData = theme.useMaterial3
-        ? SfSparkChartThemeDataM3(context)
-        : SfSparkChartThemeDataM2(context);
+    final SfSparkChartThemeData effectiveChartThemeData =
+        SparkChartThemeData(context);
     chartThemeData = chartThemeData.copyWith(
         color: widget.color ??
             chartThemeData.color ??
