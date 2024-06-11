@@ -8,6 +8,10 @@ import 'package:flutter/material.dart';
 ///  * [SfGlobalLocalizations], which provides localizations for many languages.
 ///
 abstract class SfLocalizations {
+  /// Text mask for dates that adheres to the defined locale.
+  /// This label is displayed when the filter popup for a column is opened in the SfDataGrid.
+  String get dateFormat;
+
   /// Label that is displayed when no date is selected in a calendar widget.
   /// This label is displayed under agenda section in month view.
   String get noSelectedDateCalendarLabel;
@@ -487,6 +491,9 @@ class _SfLocalizationDelegates extends LocalizationsDelegate<SfLocalizations> {
 /// US English strings for the Syncfusion widgets.
 class _DefaultLocalizations implements SfLocalizations {
   const _DefaultLocalizations();
+
+  @override
+  String get dateFormat => 'yyyy-MM-dd';
 
   @override
   String get noSelectedDateCalendarLabel => 'No selected date';
