@@ -173,7 +173,7 @@ class RenderLinearPointerBase extends RenderProxyBox {
     }
     _value = value;
     if (animationController != null && oldValue != value) {
-      animationController!.forward(from: 0.01);
+       if(mounted) animationController!.forward(from: 0.01);
     }
     markNeedsLayout();
   }
