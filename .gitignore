@@ -76,3 +76,11 @@ svc-keyfile.json
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+packages/syncfusion_flutter_maps/example/build/
+packages/syncfusion_flutter_maps/example/linux/flutter/generated_plugin_registrant.cc
+packages/syncfusion_flutter_maps/example/linux/flutter/generated_plugin_registrant.h
+packages/syncfusion_flutter_maps/example/linux/flutter/generated_plugins.cmake
+packages/syncfusion_flutter_maps/example/windows/flutter/generated_plugin_registrant.cc
+packages/syncfusion_flutter_maps/example/windows/flutter/generated_plugin_registrant.h
+packages/syncfusion_flutter_maps/example/windows/flutter/generated_plugins.cmake
+packages/syncfusion_flutter_maps/example/pubspec.lock
