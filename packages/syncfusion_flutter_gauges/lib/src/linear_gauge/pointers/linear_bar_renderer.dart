@@ -201,7 +201,7 @@ class RenderLinearBarPointer extends RenderOpacity {
     }
 
     _isAxisInversed = value;
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   /// Gets the orientation assigned to [RenderLinearBarPointer].

@@ -27,6 +27,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool _inversed = false;
+  bool _isRadialGauge = false;
+
   Widget _getGauge({bool isRadialGauge = true}) {
     if (isRadialGauge) {
       return _getRadialGauge();
@@ -78,11 +81,19 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _getLinearGauge() {
     return Container(
       child: SfLinearGauge(
+          isAxisInversed: _inversed,
           minimum: 0.0,
           maximum: 100.0,
           orientation: LinearGaugeOrientation.horizontal,
           majorTickStyle: LinearTickStyle(length: 20),
           axisLabelStyle: TextStyle(fontSize: 12.0, color: Colors.black),
+          barPointers: [
+            LinearBarPointer(
+              enableAnimation: false,
+              color: Colors.amber,
+              value: 80,
+            )
+          ],
           axisTrackStyle: LinearAxisTrackStyle(
               color: Colors.cyan,
               edgeStyle: LinearEdgeStyle.bothFlat,
@@ -96,6 +107,35 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: const Text('Syncfusion Flutter Gauge')),
-        body: _getGauge());
+        body: Column(
+          children: [
+            _getSwitches(),
+            _getGauge(isRadialGauge: _isRadialGauge),
+          ],
+        ));
+  }
+
+  Widget _getSwitches() {
+    return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Switch(
+                value: _isRadialGauge,
+                onChanged: (v) {
+                  setState(() {
+                    _isRadialGauge = v;
+                  });
+                },
+              ),
+              Switch(
+                value: _inversed,
+                onChanged: (v) {
+                  setState(() {
+                    _inversed = v;
+                  });
+                },
+              ),
+            ],
+          );
   }
 }
