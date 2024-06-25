@@ -5,6 +5,7 @@
 * Now, the pages being rendered will have good quality at the initial zoom level. The rendering performance of pages in the viewer for large documents has also been improved for all platforms. Especially on the web and Android platforms, we have achieved approximately an 80% deduction in the rendering time for a document of 50 MB size.
 * Provided support to scroll right-to-left (RTL) horizontally in the RTL layout. This will help you accommodate languages that are read from right to left for better continuity in reading.
 * Provided support to customize the visibility of the built-in text selection menu. This can help users design their own customized text selection menu.
+* Now, the `SyncfusionFlutterPdfViewerPlugin` will not crash on compliation on flutter versions that have removed v1 android embedding.
 
 ## [25.2.6] - 05/28/2024
 
