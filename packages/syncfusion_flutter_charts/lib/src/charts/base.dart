@@ -2246,7 +2246,7 @@ class RenderCartesianAxes extends RenderBox
       if (associatedAxis != null &&
           ((associatedAxis.isVertical && axis.isVertical) ||
               (!associatedAxis.isVertical && !axis.isVertical))) {
-        return axis.isXAxis ? _yAxes.first : _xAxes.first;
+        return axis.isXAxis ? _xAxes.first : _yAxes.first;
       } else {
         return associatedAxis;
       }
