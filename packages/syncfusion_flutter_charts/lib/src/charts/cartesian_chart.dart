@@ -1364,7 +1364,12 @@ class SfCartesianChartState extends State<SfCartesianChart>
       if (renderObject != null &&
           renderObject.attached &&
           renderObject is RenderConstrainedLayoutBuilder) {
-        renderObject.markNeedsBuild();
+        try {
+          // try to use the old code
+          renderObject.markNeedsBuild();
+        } catch (e) {
+          renderObject.markNeedsPaint();
+        }
       }
     }
   }

@@ -110,7 +110,14 @@ class RenderChartElementLayoutBuilder<T, D> extends RenderBox
   }
 
   void refresh() {
-    markNeedsBuild();
+    try {
+      markNeedsBuild();
+    } catch (e) {
+      // try marking this widget as dirty and needs layout repaint. This should
+      // work if the object is a RenderObject. Might need something else in other
+      // cases.
+      markNeedsLayout();
+    }
     (child as RenderChartFadeTransition?)?.refresh();
   }
 
