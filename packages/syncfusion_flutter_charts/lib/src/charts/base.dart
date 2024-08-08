@@ -121,11 +121,7 @@ class ChartAreaRenderObjectElement extends MultiChildRenderObjectElement {
 
   void _scheduleUpdate() {
     if (!_hasUpdateScheduled && !dirty) {
-      try {
-        markNeedsBuild();
-      } catch (e) {
-        markNeedsPaint();
-      }
+      markNeedsBuild();
       _hasUpdateScheduled = true;
     }
   }
