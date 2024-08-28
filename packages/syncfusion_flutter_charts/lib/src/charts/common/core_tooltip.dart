@@ -165,13 +165,7 @@ class CoreTooltipState extends State<CoreTooltip>
       if (renderObject != null &&
           renderObject.attached &&
           renderObject is RenderConstrainedLayoutBuilder) {
-        try {
-          // try to use the old code
-          renderObject.markNeedsBuild();
-        } catch (e) {
-          // if it fails, on (Flutter 3.24), use markNeedsPaint instead
           renderObject.markNeedsPaint();
-        }
       }
     }
   }
