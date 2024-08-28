@@ -165,7 +165,7 @@ class CoreTooltipState extends State<CoreTooltip>
       if (renderObject != null &&
           renderObject.attached &&
           renderObject is RenderConstrainedLayoutBuilder) {
-        renderObject.markNeedsBuild();
+          renderObject.markNeedsPaint();
       }
     }
   }
@@ -175,6 +175,9 @@ class CoreTooltipState extends State<CoreTooltip>
     // (_tooltipKey.currentContext?.findRenderObject()
     //         as RenderConstrainedLayoutBuilder<BoxConstraints, RenderBox>?)
     //     ?.markNeedsBuild();
+    // What aver this dead codes does, markNeedsBuild isn't a function available
+    // on RenderObject in flutter 3.24, should be changed to markNeedsPaint or
+    // markNeedsLayout.
   }
 
   void _startShowTimer() {
