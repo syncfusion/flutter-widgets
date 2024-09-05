@@ -12,6 +12,8 @@ import '../settings/month_view_settings.dart';
 import '../settings/week_number_style.dart';
 import '../sfcalendar.dart';
 
+import 'package:nholiday_jp/nholiday_jp.dart';
+
 /// Used to hold the month cell views on calendar month view.
 class MonthViewWidget extends StatefulWidget {
   /// Constructor to create the month view widget to holds month cells for
@@ -39,7 +41,8 @@ class MonthViewWidget extends StatefulWidget {
       this.height,
       this.weekNumberStyle,
       this.isMobilePlatform,
-      this.visibleAppointmentNotifier);
+      this.visibleAppointmentNotifier,
+      {super.key});
 
   /// Defines the row count for the month view.
   final int rowCount;
@@ -923,10 +926,24 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
     _linePainter.isAntiAlias = true;
     final TextStyle todayStyle = calendarTheme.todayTextStyle!;
+    
     final TextStyle currentMonthTextStyle = calendarTheme.activeDatesTextStyle!;
+    
+    final TextStyle saturdayTextStyle = calendarTheme.saturDatesTextStyle!;
+    final TextStyle sundayTextStyle = calendarTheme.sunDatesTextStyle!;
+    final TextStyle holidayTextStyle = calendarTheme.holiDatesTextStyle!;
+    final TextStyle myholidayTextStyle = calendarTheme.myholiDatesTextStyle!;
+    
     final TextStyle previousMonthTextStyle =
         calendarTheme.trailingDatesTextStyle!;
+    
+    final TextStyle clearSaturdayTextStyle = saturdayTextStyle.copyWith(color: saturdayTextStyle.color!.withOpacity(0.54));
+    final TextStyle clearSundayTextStyle = sundayTextStyle.copyWith(color: sundayTextStyle.color!.withOpacity(0.54));
+    final TextStyle clearHolidayTextStyle = holidayTextStyle.copyWith(color: holidayTextStyle.color!.withOpacity(0.54));
+    final TextStyle clearMyholidayTextStyle = myholidayTextStyle.copyWith(color: myholidayTextStyle.color!.withOpacity(0.54));
+    
     final TextStyle nextMonthTextStyle = calendarTheme.leadingDatesTextStyle!;
+    
     final TextStyle? blackoutDatesStyle = calendarTheme.blackoutDatesTextStyle;
     final TextStyle disabledTextStyle = currentMonthTextStyle.copyWith(
         color: currentMonthTextStyle.color != null
@@ -982,9 +999,26 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
         }
       }
 
-      textStyle = currentMonthTextStyle;
+      textStyle = currentMonthTextStyle;//今月
       _linePainter.color = currentMonthBackgroundColor;
-      if (currentVisibleDate.month == nextMonth) {
+
+      if(currentVisibleDate.weekday == DateTime.saturday){//土曜日
+        textStyle = saturdayTextStyle;
+      }
+
+      if(currentVisibleDate.weekday == DateTime.sunday){//日曜日
+        textStyle = sundayTextStyle;
+      }
+
+      if(NHolidayJp.getName(currentVisibleDate.year, currentVisibleDate.month, currentVisibleDate.day) != 'notHoliday'){//祝日
+        textStyle = holidayTextStyle;
+      }
+
+      if(currentVisibleDate.weekday == 9){//マイ休日
+        textStyle = myholidayTextStyle;
+      }
+
+      if (currentVisibleDate.month == nextMonth) {//来月
         if (!showTrailingLeadingDates) {
           if (isRTL) {
             if (xPosition - 1 < 0) {
@@ -1006,7 +1040,23 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
         textStyle = nextMonthTextStyle;
         _linePainter.color = nextMonthBackgroundColor;
-      } else if (currentVisibleDate.month == previousMonth) {
+
+        if(currentVisibleDate.weekday == DateTime.saturday){//土曜日
+          textStyle = clearSaturdayTextStyle;
+        }
+
+        if(currentVisibleDate.weekday == DateTime.sunday){//日曜日
+          textStyle = clearSundayTextStyle;
+        }
+
+        if(NHolidayJp.getName(currentVisibleDate.year, currentVisibleDate.month, currentVisibleDate.day) != 'notHoliday'){//祝日
+          textStyle = clearHolidayTextStyle;
+        }
+
+        if(currentVisibleDate.weekday == 9){//マイ休日
+          textStyle = clearMyholidayTextStyle;
+        }
+      } else if (currentVisibleDate.month == previousMonth) {//先月
         if (!showTrailingLeadingDates) {
           if (isRTL) {
             if (xPosition - 1 < 0) {
@@ -1028,6 +1078,22 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
         textStyle = previousMonthTextStyle;
         _linePainter.color = previousMonthBackgroundColor;
+
+        if(currentVisibleDate.weekday == DateTime.saturday){//土曜日
+          textStyle = clearSaturdayTextStyle;
+        }
+
+        if(currentVisibleDate.weekday == DateTime.sunday){//日曜日
+          textStyle = clearSundayTextStyle;
+        }
+
+        if(NHolidayJp.getName(currentVisibleDate.year, currentVisibleDate.month, currentVisibleDate.day) != 'notHoliday'){//祝日
+          textStyle = clearHolidayTextStyle;
+        }
+
+        if(currentVisibleDate.weekday == 9){//マイ休日
+          textStyle = clearMyholidayTextStyle;
+        }
       }
 
       if (rowCount <= 4) {
