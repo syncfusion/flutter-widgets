@@ -155,6 +155,7 @@ class SfCartesianChart extends StatefulWidget {
     this.title = const ChartTitle(),
     this.axes = const <ChartAxis>[],
     this.indicators = const <TechnicalIndicator>[],
+    this.onChartRendered,
   }) : super(key: key);
 
   /// Customizes the chart title.
@@ -699,6 +700,28 @@ class SfCartesianChart extends StatefulWidget {
   ///    );
   /// }
   /// ```
+  /// 
+  final VoidCallback? onChartRendered;
+  /// /// Called after the chart is rendered for the first time.
+  ///
+  /// This callback can be used to perform any operations that need to happen
+  /// after the chart has been fully rendered, such as showing the trackball
+  /// or performing any other post-render operations.
+  /// 
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SemiDonutBudgetChart(
+  ///     budgetData: myBudgetData,
+  ///     backgroundColor: Colors.grey[900]!,
+  ///     onRenderedCallback: () {
+  ///       print('Chart has been rendered');
+  ///       // Perform any post-render operations here
+  ///     },
+  ///   );
+  /// }
+
+
+  
   final ChartTouchInteractionCallback? onChartTouchInteractionDown;
 
   /// Occurs when touched and moved on the chart area.
@@ -1388,6 +1411,9 @@ class SfCartesianChartState extends State<SfCartesianChart>
     _tooltipKey = GlobalKey();
     _trackballBuilderKey = GlobalKey();
     _collectAnnotationWidgets();
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onChartRendered!();
+    });
     super.initState();
   }
 
