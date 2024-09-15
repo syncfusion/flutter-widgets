@@ -20,7 +20,7 @@
 "pdfPasswordDialogCancelLabel" : "ANNULLA", 
 "pdfSignaturePadDialogHeaderTextLabel" : "Disegna la tua firma", 
 "pdfSignaturePadDialogPenColorLabel" : "Colore penna", 
-"pdfSignaturePadDialogClearLabel" : "CHIARO", 
+"pdfSignaturePadDialogClearLabel" : "ELIMINA", 
 "pdfSignaturePadDialogSaveLabel" : "SALVA", 
 "pdfTextSelectionMenuCopyLabel" : "copia", 
 "pdfTextSelectionMenuHighlightLabel" : "Evidenziare", 
@@ -107,6 +107,6 @@
 "orDataGridFilteringLabel" : "O", 
 "selectAllDataGridFilteringLabel" : "Seleziona tutto", 
 "sortAndFilterDataGridFilteringLabel" : "Ordina e filtra", 
-"clearFilterDataGridFilteringLabel" : "Filtro pulito", 
+"clearFilterDataGridFilteringLabel" : "Pulisci filtro", 
 "fromDataGridFilteringLabel" : "Da"
 }
