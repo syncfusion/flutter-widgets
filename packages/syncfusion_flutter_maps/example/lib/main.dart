@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
 void main() {
-  return runApp(MapsApp());
+  return runApp(const MapsApp());
 }
 
 /// This widget will be the root of application.
 class MapsApp extends StatelessWidget {
+  const MapsApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(

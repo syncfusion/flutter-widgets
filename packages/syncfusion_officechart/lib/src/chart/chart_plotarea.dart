@@ -1,4 +1,5 @@
-part of officechart;
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import '../../officechart.dart';
 
 /// Represents chart plot area object.
 class ChartPlotArea {

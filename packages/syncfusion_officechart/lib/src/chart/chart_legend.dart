@@ -1,4 +1,5 @@
-part of officechart;
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import '../../officechart.dart';
 
 /// Represents an legend on the chart.
 class ChartLegend {
@@ -22,7 +23,7 @@ class ChartLegend {
   ChartTextArea? _textArea;
 
   /// Gets the chart legend have text area or not.
-  bool get _hasTextArea {
+  bool get hasTextArea {
     return _textArea != null;
   }
 

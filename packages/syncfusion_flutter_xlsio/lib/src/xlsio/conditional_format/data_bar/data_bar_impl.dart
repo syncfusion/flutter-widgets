@@ -1,8 +1,13 @@
-part of xlsio;
+import 'dart:math';
+import 'dart:ui';
+
+import '../../general/enums.dart';
+import '../condition_value.dart';
+import 'data_bar.dart';
 
 /// Represents a data bar conditional formatting rule. Applying a data bar to a
 /// range helps you see the value of a cell relative to other cells.
-class _DataBarImpl implements DataBar {
+class DataBarImpl implements DataBar {
   /// Default data bar color.
   static const String _defaultColor = '#638EC6';
 
@@ -49,12 +54,12 @@ class _DataBarImpl implements DataBar {
 
   /// Represents whether the data bar has a negative bar color
   /// that is different from the positive bar color.
-  bool _hasDiffNegativeBarColor = false;
+  bool hasDiffNegativeBarColor = false;
 
   /// Represents whether the data bar has a negative border color
   /// that is different from the positive border color.
   // ignore: unused_field
-  bool _hasDiffNegativeBarBorderColor = true;
+  bool hasDiffNegativeBarBorderColor = true;
 
   /// Represents whether the data bar has extension list or not.
   bool _bHasExtensionList = false;
@@ -63,21 +68,21 @@ class _DataBarImpl implements DataBar {
   bool _bHasGradientFill = true;
 
   /// Represents the GUID for the data bar extension list
-  String? _stGUID;
+  String? stGUID;
 
   @override
 
   /// A ConditionValue object which specifies how the shortest bar is evaluated
   /// for a data bar conditional format.
   ConditionValue minPoint =
-      _ConditionValueImpl(ConditionValueType.automatic, '0');
+      ConditionValueImpl(ConditionValueType.automatic, '0');
 
   @override
 
   /// A ConditionValue object which specifies how the longest bar is evaluated
   /// for a data bar conditional format.
   ConditionValue maxPoint =
-      _ConditionValueImpl(ConditionValueType.automatic, '0');
+      ConditionValueImpl(ConditionValueType.automatic, '0');
 
   @override
 
@@ -117,7 +122,7 @@ class _DataBarImpl implements DataBar {
   @override
   set hasGradientFill(bool value) {
     _bHasGradientFill = value;
-    _hasExtensionList = true;
+    hasExtensionList = true;
   }
 
   @override
@@ -130,14 +135,14 @@ class _DataBarImpl implements DataBar {
   @override
   set dataBarDirection(DataBarDirection value) {
     _direction = value;
-    _hasExtensionList = true;
+    hasExtensionList = true;
   }
 
   @override
 
   /// Represents the negative fill color of the data bar.
   String get negativeFillColor {
-    if (_hasDiffNegativeBarColor) {
+    if (hasDiffNegativeBarColor) {
       return _negativeFillColor;
     } else {
       return barColor;
@@ -147,8 +152,8 @@ class _DataBarImpl implements DataBar {
   @override
   set negativeFillColor(String value) {
     _negativeFillColor = value;
-    _hasExtensionList = true;
-    _hasDiffNegativeBarColor = true;
+    hasExtensionList = true;
+    hasDiffNegativeBarColor = true;
     _negativeFillColorRgb = Color(
         int.parse(_negativeFillColor.substring(1, 7), radix: 16) + 0xFF000000);
   }
@@ -157,7 +162,7 @@ class _DataBarImpl implements DataBar {
 
   /// Represents the negative fill color of the data bar.
   Color get negativeFillColorRgb {
-    if (_hasDiffNegativeBarColor) {
+    if (hasDiffNegativeBarColor) {
       return _negativeFillColorRgb;
     } else {
       return barColorRgb;
@@ -167,8 +172,8 @@ class _DataBarImpl implements DataBar {
   @override
   set negativeFillColorRgb(Color value) {
     _negativeFillColorRgb = value;
-    _hasExtensionList = true;
-    _hasDiffNegativeBarColor = true;
+    hasExtensionList = true;
+    hasDiffNegativeBarColor = true;
     _negativeFillColor =
         _negativeFillColorRgb.value.toRadixString(16).toUpperCase();
   }
@@ -183,8 +188,8 @@ class _DataBarImpl implements DataBar {
   @override
   set negativeBorderColor(String value) {
     _negativeBorderColor = value;
-    _hasExtensionList = true;
-    _hasDiffNegativeBarBorderColor = true;
+    hasExtensionList = true;
+    hasDiffNegativeBarBorderColor = true;
     _negativeBorderColorRgb = Color(
         int.parse(_negativeBorderColor.substring(1, 7), radix: 16) +
             0xFF000000);
@@ -198,22 +203,22 @@ class _DataBarImpl implements DataBar {
   @override
   set negativeBorderColorRgb(Color value) {
     _negativeBorderColorRgb = value;
-    _hasExtensionList = true;
-    _hasDiffNegativeBarBorderColor = true;
+    hasExtensionList = true;
+    hasDiffNegativeBarBorderColor = true;
     _negativeBorderColor =
         _negativeBorderColorRgb.value.toRadixString(16).toUpperCase();
   }
 
   /// Gets or sets the value whether the data bar has extension list or not.
-  bool get _hasExtensionList {
+  bool get hasExtensionList {
     return _bHasExtensionList;
   }
 
-  set _hasExtensionList(bool value) {
+  set hasExtensionList(bool value) {
     _bHasExtensionList = value;
-    if (_stGUID == null) {
-      final _Guid guid = _Guid();
-      _stGUID = '{${guid._newGuid()}}';
+    if (stGUID == null) {
+      final Guid guid = Guid();
+      stGUID = '{${guid._newGuid()}}';
     }
   }
 
@@ -227,7 +232,7 @@ class _DataBarImpl implements DataBar {
     _barColor = value;
     _barColorRgb =
         Color(int.parse(_barColor.substring(1, 7), radix: 16) + 0xFF000000);
-    _hasExtensionList = true;
+    hasExtensionList = true;
   }
 
   @override
@@ -240,7 +245,7 @@ class _DataBarImpl implements DataBar {
   set barColorRgb(Color value) {
     _barColorRgb = value;
     _barColor = _barColorRgb.value.toRadixString(16).toUpperCase();
-    _hasExtensionList = true;
+    hasExtensionList = true;
   }
 
   @override
@@ -253,7 +258,7 @@ class _DataBarImpl implements DataBar {
     _barAxisColor = value;
     _barAxisColorRgb =
         Color(int.parse(_barAxisColor.substring(1, 7), radix: 16) + 0xFF000000);
-    _hasExtensionList = true;
+    hasExtensionList = true;
   }
 
   @override
@@ -265,7 +270,7 @@ class _DataBarImpl implements DataBar {
   set barAxisColorRgb(Color value) {
     _barAxisColorRgb = value;
     _barAxisColor = _barAxisColorRgb.value.toRadixString(16).toUpperCase();
-    _hasExtensionList = true;
+    hasExtensionList = true;
   }
 
   @override
@@ -295,7 +300,7 @@ class _DataBarImpl implements DataBar {
 }
 
 /// Guid generator.
-class _Guid {
+class Guid {
   final Random _rand = Random();
 
   /// Generate new Guid.

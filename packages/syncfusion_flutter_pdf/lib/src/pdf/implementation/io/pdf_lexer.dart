@@ -68,7 +68,7 @@ class PdfLexer {
   late bool atBool;
 
   /// internal field
-  late _State lexicalState;
+  late State lexicalState;
 
   /// internal field
   List<int> stateTrans = <int>[0, 81, 83];
@@ -119,7 +119,7 @@ class PdfLexer {
     bufferEnd = 0;
     line = 0;
     atBool = true;
-    lexicalState = _State.initial;
+    lexicalState = State.initial;
     accept = <int>[
       notAccept,
       noAnchor,
@@ -269,7 +269,7 @@ class PdfLexer {
     bufferEnd = 0;
     line = 0;
     atBool = true;
-    lexicalState = _State.initial;
+    lexicalState = State.initial;
   }
 
   void _markStart() {
@@ -485,14 +485,14 @@ class PdfLexer {
               break;
             case 5:
               {
-                _begin(_State.hexString);
+                _begin(State.hexString);
                 return PdfTokenType.hexStringStart;
               }
             case -6:
               break;
             case 6:
               {
-                _begin(_State.string);
+                _begin(State.string);
                 stringText = '';
                 break;
               }
@@ -626,7 +626,7 @@ class PdfLexer {
               break;
             case 28:
               {
-                _begin(_State.initial);
+                _begin(State.initial);
                 return PdfTokenType.hexStringEnd;
               }
             case -29:
@@ -656,7 +656,7 @@ class PdfLexer {
                   stringText += _text();
                   --paren;
                 } else {
-                  _begin(_State.initial);
+                  _begin(State.initial);
                   return PdfTokenType.string;
                 }
                 break;
@@ -866,7 +866,7 @@ class PdfLexer {
   }
 
   // ignore: use_setters_to_change_properties
-  void _begin(_State state) {
+  void _begin(State state) {
     lexicalState = state;
   }
 
@@ -882,6 +882,6 @@ class PdfLexer {
   }
 }
 
-enum _State { initial, hexString, string }
+enum State { initial, hexString, string }
 
 enum _Error { internal, match }

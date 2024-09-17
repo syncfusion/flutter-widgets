@@ -53,8 +53,7 @@ dynamic interactiveTooltipLabel(dynamic value, RenderChartAxis axis) {
     final DateFormat dateFormat = axis.dateFormat ??
         dateTimeCategoryAxisLabelFormat(
             axis, interval.toInt(), previousInterval.toInt());
-    return dateFormat
-        .format(DateTime.fromMillisecondsSinceEpoch(milliseconds.toInt()));
+    return dateFormat.format(DateTime.fromMillisecondsSinceEpoch(milliseconds));
   } else if (axis is RenderDateTimeAxis) {
     final num interval = axis.visibleRange!.minimum.ceil();
     final List<AxisLabel> visibleLabels = axis.visibleLabels;

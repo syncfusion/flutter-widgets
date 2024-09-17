@@ -33,7 +33,8 @@ const double _kPdfCloseIconRightPosition = 16.0;
 /// A material design bookmark toolbar.
 class BookmarkToolbar extends StatefulWidget {
   /// Creates a material design bookmark toolbar.
-  const BookmarkToolbar(this.onCloseButtonPressed, this.textDirection);
+  const BookmarkToolbar(this.onCloseButtonPressed, this.textDirection,
+      {super.key});
 
   /// A tap with a close button is occurred.
   ///

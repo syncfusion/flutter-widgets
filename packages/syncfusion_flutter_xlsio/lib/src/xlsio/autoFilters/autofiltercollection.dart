@@ -1,14 +1,15 @@
-part of xlsio;
+import '../../../xlsio.dart';
+import '../autoFilters/autofilter_impl.dart';
 
 /// Represents an AutoFilter collections
 class AutoFilterCollection {
   ///Constructor an AutoFilter collections
-  AutoFilterCollection(Worksheet worksheet) {
-    _worksheet = worksheet;
+  AutoFilterCollection(Worksheet workSheet) {
+    worksheet = workSheet;
   }
   // ignore: unused_field
   ///Represents worksheet
-  late Worksheet _worksheet;
+  late Worksheet worksheet;
 
   ///Represents first row
   late int _topRow;
@@ -29,11 +30,11 @@ class AutoFilterCollection {
   late bool _hasAdjacents = false;
 
   /// Gets the list of elements in the instance
-  final List<AutoFilter> _innerList = <AutoFilter>[];
+  final List<AutoFilter> innerList = <AutoFilter>[];
 
   /// Gets the number of elements contained in the inthe InnerList.
   int get count {
-    return _innerList.length;
+    return innerList.length;
   }
 
   ///Get filterRange
@@ -46,15 +47,15 @@ class AutoFilterCollection {
     value = _updateFilterRange(value);
     _range = value;
 
-    _innerList.clear();
+    innerList.clear();
 
     for (int i = value.column; i <= value.lastColumn; i++) {
-      _innerList.add(_AutoFilterImpl(this, _worksheet, _topRow, _bottomRow));
+      innerList.add(AutoFilterImpl(this, worksheet, _topRow, _bottomRow));
 
-      final _AutoFilterImpl filter =
-          _innerList[_innerList.length - 1] as _AutoFilterImpl;
+      final AutoFilterImpl filter =
+          innerList[innerList.length - 1] as AutoFilterImpl;
 
-      filter._colIndex = i;
+      filter.colIndex = i;
     }
   }
 
@@ -183,11 +184,12 @@ class AutoFilterCollection {
   void _getTopAdjacents(int topRow, int leftColumn, int bottomRow,
       int rightColumn, Range filterRange) {
     late int row;
-    if (topRow != 1)
+    if (topRow != 1) {
       row = topRow - 1;
-    else
+    } else {
       return;
-    final int maxColumnCount = filterRange.workbook._maxRowCount;
+    }
+    final int maxColumnCount = filterRange.workbook.maxRowCount;
     for (int column = leftColumn != 1 ? leftColumn - 1 : leftColumn;
         column <=
             (rightColumn != maxColumnCount ? rightColumn + 1 : rightColumn);
@@ -206,11 +208,12 @@ class AutoFilterCollection {
   void _getLeftAdjacents(int topRow, int leftColumn, int bottomRow,
       int rightColumn, Range filterRange) {
     int column;
-    if (leftColumn != 1)
+    if (leftColumn != 1) {
       column = leftColumn - 1;
-    else
+    } else {
       return;
-    final int maxRowCount = filterRange.workbook._maxRowCount;
+    }
+    final int maxRowCount = filterRange.workbook.maxRowCount;
     for (int row = topRow != 1 ? topRow - 1 : topRow;
         row <= (bottomRow != maxRowCount ? bottomRow + 1 : bottomRow);
         row++) {
@@ -228,11 +231,12 @@ class AutoFilterCollection {
       int rightColumn, Range filterRange) {
     int row;
 
-    if (bottomRow != filterRange.workbook._maxRowCount)
+    if (bottomRow != filterRange.workbook.maxRowCount) {
       row = bottomRow + 1;
-    else
+    } else {
       return;
-    final int maxColumnCount = filterRange.workbook._maxColumnCount;
+    }
+    final int maxColumnCount = filterRange.workbook.maxColumnCount;
     for (int column = leftColumn != 1 ? leftColumn - 1 : leftColumn;
         column <=
             (rightColumn != maxColumnCount ? rightColumn + 1 : rightColumn);
@@ -250,11 +254,12 @@ class AutoFilterCollection {
   void _getRightAdjacents(int topRow, int leftColumn, int bottomRow,
       int rightColumn, Range filterRange) {
     int column;
-    if (rightColumn != filterRange.workbook._maxColumnCount)
+    if (rightColumn != filterRange.workbook.maxColumnCount) {
       column = rightColumn + 1;
-    else
+    } else {
       return;
-    final int maxRowCount = filterRange.workbook._maxRowCount;
+    }
+    final int maxRowCount = filterRange.workbook.maxRowCount;
     for (int row = topRow != 1 ? topRow - 1 : topRow;
         row <= (bottomRow != maxRowCount ? bottomRow + 1 : bottomRow);
         row++) {
@@ -268,15 +273,15 @@ class AutoFilterCollection {
 
   ///Operator for get column index
   AutoFilter operator [](int columnIndex) {
-    if (columnIndex > _innerList.length) {
+    if (columnIndex > innerList.length) {
       throw Exception('index Out of Range');
     }
 
-    return _innerList[columnIndex] as _AutoFilterImpl;
+    return innerList[columnIndex] as AutoFilterImpl;
   }
 
   ///Set range adjacents for Bottom column
-  Range _includeBottomAdjacents(int topRow, int leftColumn, int bottomRow,
+  Range includeBottomAdjacents(int topRow, int leftColumn, int bottomRow,
       int rightColumn, Range filterRange) {
     _initializeFilterRange(topRow, leftColumn, bottomRow, rightColumn);
     _hasAdjacents = false;
@@ -284,9 +289,10 @@ class AutoFilterCollection {
         topRow, leftColumn, bottomRow, rightColumn, filterRange);
     filterRange = filterRange.worksheet
         .getRangeByIndex(_topRow, _leftColumn, _bottomRow, _rightColumn);
-    if (_hasAdjacents)
-      filterRange = _includeBottomAdjacents(
+    if (_hasAdjacents) {
+      filterRange = includeBottomAdjacents(
           _topRow, _leftColumn, _bottomRow, _rightColumn, filterRange);
+    }
     return filterRange;
   }
 }

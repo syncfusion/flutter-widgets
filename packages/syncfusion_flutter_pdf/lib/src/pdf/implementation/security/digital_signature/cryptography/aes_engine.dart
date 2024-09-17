@@ -15,7 +15,7 @@ class AesEngine implements ICipher {
 
   /// internal field
   late int rounds;
-  bool? _isEncryption;
+  late bool? _isEncryption;
 
   /// internal field
   late List<int> rcon;

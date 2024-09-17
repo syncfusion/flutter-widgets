@@ -1,19 +1,17 @@
-part of xlsio;
-
 /// FormulaInfo maintains information on a single formula object.
 class FormulaInfo {
   // ignore: prefer_final_fields
-  String _formulaValue = '';
+  String formulaValue = '';
   // ignore: prefer_final_fields
-  String _parsedFormula = '';
+  String parsedFormula = '';
   // ignore: prefer_final_fields
-  int _calcID = -2147483648 + 1;
+  int calcID = -2147483648 + 1;
 }
 
 /// RangeInfo represents a rectangle array of cells that may contain formulas, strings, or numbers
 /// that may be referenced by other formulas.
 /// GetAlphaLabel is a method that retrieves a String value for the column whose numerical index is passed in.
-String _getAlphaLabel(int col) {
+String getAlphaLabel(int col) {
   final List<String> cols = List<String>.filled(10, '');
   int n = 0;
   while (col > 0 && n < 9) {

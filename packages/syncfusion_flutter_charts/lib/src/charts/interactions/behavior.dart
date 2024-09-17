@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/material.dart';
@@ -122,9 +120,6 @@ class RenderBehaviorArea extends RenderBox
         RenderBoxContainerDefaultsMixin<RenderBox, StackParentData>,
         ChartAreaUpdateMixin {
   GlobalKey? _tooltipKey;
-
-  Timer? _crosshairHideTimer;
-  Timer? _trackballHideTimer;
 
   bool _crosshairEnabled = false;
   bool _trackballEnabled = false;
@@ -547,27 +542,11 @@ class RenderBehaviorArea extends RenderBox
     if (tooltipBehavior != null && tooltipBehavior!.enable) {
       hideTooltip(immediately: true);
     }
-    if (trackballBehavior != null &&
-        trackballBehavior!.enable &&
-        !trackballBehavior!.shouldAlwaysShow) {
-      _hideTrackball(immediately: true);
+    if (trackballBehavior != null && trackballBehavior!.enable) {
+      trackballBehavior!.hide();
     }
-  }
-
-  void _hideTrackball({int doubleTapHideDelay = 0, bool immediately = false}) {
-    if (trackballBehavior != null) {
-      if (immediately) {
-        trackballBehavior!.hide();
-      } else if (!trackballBehavior!.shouldAlwaysShow) {
-        final int hideDelay = trackballBehavior!.hideDelay > 0
-            ? trackballBehavior!.hideDelay.toInt()
-            : doubleTapHideDelay;
-        _trackballHideTimer?.cancel();
-        _trackballHideTimer = Timer(Duration(milliseconds: hideDelay), () {
-          _trackballHideTimer = null;
-          trackballBehavior!.hide();
-        });
-      }
+    if (crosshairBehavior != null && crosshairBehavior!.enable) {
+      crosshairBehavior!.hide();
     }
   }
 
@@ -598,9 +577,6 @@ class RenderBehaviorArea extends RenderBox
   @override
   void dispose() {
     _previousTooltipInfo = null;
-    _crosshairHideTimer?.cancel();
-    _trackballHideTimer?.cancel();
-
     _crosshairEnabled = false;
     _trackballEnabled = false;
     _zoomingEnabled = false;

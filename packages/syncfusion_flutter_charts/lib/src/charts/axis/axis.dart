@@ -38,7 +38,9 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
   const ChartAxis({
     Key? key,
     this.name,
-    this.plotOffset = 0,
+    this.plotOffset,
+    this.plotOffsetStart,
+    this.plotOffsetEnd,
     this.isVisible = true,
     this.anchorRangeToVisiblePoints = true,
     this.title = const AxisTitle(),
@@ -487,20 +489,47 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
   /// ```
   final double? interval;
 
-  /// Padding for plot area. The axis is rendered in chart with padding.
+  /// The plotOffset property is used to offset the rendering of the axis at
+  /// start and end position.
   ///
-  /// Defaults to `0`.
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///     return Container(
-  ///         child: SfCartesianChart(
-  ///            primaryXAxis: NumericAxis(plotOffset: 60),
-  ///         )
+  ///     return SfCartesianChart(
+  ///         primaryXAxis: NumericAxis(plotOffset: 60),
   ///     );
   /// }
   /// ```
-  final double plotOffset;
+  final double? plotOffset;
+
+  /// The plotOffsetStart property is used to offset the rendering of the axis
+  /// at start position.
+  ///
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///     return SfCartesianChart(
+  ///         primaryXAxis: NumericAxis(plotOffsetStart: 60),
+  ///     );
+  /// }
+  /// ```
+  final double? plotOffsetStart;
+
+  /// The plotOffsetEnd property is used to offset the rendering of the axis
+  /// at end position.
+  ///
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///     return SfCartesianChart(
+  ///         primaryXAxis: NumericAxis(plotOffsetEnd: 60),
+  ///     );
+  /// }
+  /// ```
+  final double? plotOffsetEnd;
 
   /// Name of an axis.
   ///
@@ -1142,6 +1171,8 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
       ..edgeLabelPlacement = edgeLabelPlacement
       ..interval = interval
       ..plotOffset = plotOffset
+      ..plotOffsetStart = plotOffsetStart
+      ..plotOffsetEnd = plotOffsetEnd
       ..name = name
       ..initialZoomFactor = initialZoomFactor
       ..initialZoomPosition = initialZoomPosition
@@ -1193,6 +1224,8 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
       ..edgeLabelPlacement = edgeLabelPlacement
       ..interval = interval
       ..plotOffset = plotOffset
+      ..plotOffsetStart = plotOffsetStart
+      ..plotOffsetEnd = plotOffsetEnd
       ..name = name
       ..enableAutoIntervalOnZooming = enableAutoIntervalOnZooming
       ..interactiveTooltip = interactiveTooltip
@@ -1562,12 +1595,36 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     }
   }
 
-  double get plotOffset => _plotOffset;
-  double _plotOffset = 0.0;
-  set plotOffset(double value) {
+  double? get plotOffset => _plotOffset;
+  double? _plotOffset;
+  set plotOffset(double? value) {
     if (_plotOffset != value) {
+      assert(value == null || value >= 0,
+          'PlotOffset must be greater than or equal to 0');
       _plotOffset = value;
-      markNeedsRangeUpdate();
+      _updateEffectivePlotOffset();
+    }
+  }
+
+  double? get plotOffsetStart => _plotOffsetStart;
+  double? _plotOffsetStart;
+  set plotOffsetStart(double? value) {
+    if (_plotOffsetStart != value) {
+      assert(value == null || value >= 0,
+          'PlotOffsetStart must be greater than or equal to 0');
+      _plotOffsetStart = value;
+      _updateEffectivePlotOffset();
+    }
+  }
+
+  double? get plotOffsetEnd => _plotOffsetEnd;
+  double? _plotOffsetEnd;
+  set plotOffsetEnd(double? value) {
+    if (_plotOffsetEnd != value) {
+      assert(value == null || value >= 0,
+          'PlotOffsetEnd must be greater than or equal to 0');
+      _plotOffsetEnd = value;
+      _updateEffectivePlotOffset();
     }
   }
 
@@ -1765,6 +1822,27 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
   double get outerSize => _renderer?.outerSize ?? 0.0;
 
+  double _effectivePlotOffset = 0.0;
+  double _effectivePlotOffsetStart = 0.0;
+  double _effectivePlotOffsetEnd = 0.0;
+
+  void _updateEffectivePlotOffset() {
+    if (plotOffset != null) {
+      _effectivePlotOffsetStart = plotOffset!;
+      _effectivePlotOffsetEnd = plotOffset!;
+    } else {
+      _effectivePlotOffsetStart = plotOffsetStart ?? 0.0;
+      _effectivePlotOffsetEnd = plotOffsetEnd ?? 0.0;
+    }
+
+    _effectivePlotOffset = _effectivePlotOffsetStart + _effectivePlotOffsetEnd;
+    if (plotOffset != null ||
+        plotOffsetStart != null ||
+        plotOffsetEnd != null) {
+      markNeedsRangeUpdate();
+    }
+  }
+
   void markNeedsRangeUpdate() {
     if (hasSize) {
       _needsRangeUpdate = true;
@@ -1858,7 +1936,8 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   void performLayout() {
     _isLayoutPhase = true;
     final Size availableSize = constraints.biggest;
-    if (_needsRangeUpdate) {
+    final bool isResized = (parentData! as CartesianAxesParentData).isResized;
+    if (_needsRangeUpdate || isResized) {
       _calculateRangeAndInterval(availableSize);
     }
 
@@ -1888,13 +1967,13 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
         min(newSize.height, constraintsSize.height));
 
     if (isVertical) {
-      _renderSize = Size(size.width, size.height - 2 * plotOffset);
+      _renderSize = Size(size.width, size.height - _effectivePlotOffset);
     } else {
-      _renderSize = Size(size.width - 2 * plotOffset, size.height);
+      _renderSize = Size(size.width - _effectivePlotOffset, size.height);
     }
 
     if (visibleRange != null) {
-      if (plotOffset > 0) {
+      if (_effectivePlotOffset > 0) {
         _calculateLabelPositions();
         _calculateBorderPositions();
       }
@@ -1928,13 +2007,13 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     }
 
     Size availableSize = size;
-    if (plotOffset > 0) {
+    if (_effectivePlotOffset > 0) {
       if (isVertical) {
-        availableSize =
-            Size(availableSize.width, availableSize.height - 2 * plotOffset);
+        availableSize = Size(
+            availableSize.width, availableSize.height - _effectivePlotOffset);
       } else {
-        availableSize =
-            Size(availableSize.width - 2 * plotOffset, availableSize.height);
+        availableSize = Size(
+            availableSize.width - _effectivePlotOffset, availableSize.height);
       }
     }
     DoubleRange newActualRange = calculateActualRange();
@@ -1973,13 +2052,13 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   void _calculateRangeAndInterval(Size availableSize) {
-    if (plotOffset > 0) {
+    if (_effectivePlotOffset > 0) {
       if (isVertical) {
-        availableSize =
-            Size(availableSize.width, availableSize.height - 2 * plotOffset);
+        availableSize = Size(
+            availableSize.width, availableSize.height - _effectivePlotOffset);
       } else {
-        availableSize =
-            Size(availableSize.width - 2 * plotOffset, availableSize.height);
+        availableSize = Size(
+            availableSize.width - _effectivePlotOffset, availableSize.height);
       }
     }
 
@@ -2067,7 +2146,7 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     _visibleRange = newVisibleRange;
     _visibleInterval = newVisibleInterval;
 
-    if (attached) {
+    if (attached && _needsRangeUpdate) {
       invokeLayoutCallback((Object? constraints) {
         for (final AxisDependent dependent in dependents) {
           dependent.didRangeChange(this);
@@ -2154,9 +2233,13 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   DoubleRange applyRangePadding(
       DoubleRange range, num interval, Size availableSize) {
     final ChartRangePadding padding = effectiveRangePadding();
-    if (padding == ChartRangePadding.additional) {
+    if (padding == ChartRangePadding.additional ||
+        padding == ChartRangePadding.additionalStart ||
+        padding == ChartRangePadding.additionalEnd) {
       _addAdditionalRange(range, interval);
-    } else if (padding == ChartRangePadding.round) {
+    } else if (padding == ChartRangePadding.round ||
+        padding == ChartRangePadding.roundStart ||
+        padding == ChartRangePadding.roundEnd) {
       _roundRange(range, interval);
     } else if (padding == ChartRangePadding.normal) {
       addNormalRange(range, interval, availableSize);
@@ -2189,15 +2272,27 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   void _roundRange(DoubleRange range, num interval) {
-    range.minimum = ((range.minimum / interval).floor()) * interval;
-    range.maximum = ((range.maximum / interval).ceil()) * interval;
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundStart) {
+      range.minimum = ((range.minimum / interval).floor()) * interval;
+    }
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundEnd) {
+      range.maximum = ((range.maximum / interval).ceil()) * interval;
+    }
   }
 
   void _addAdditionalRange(DoubleRange range, num interval) {
-    final num minimum = ((range.minimum / interval).floor()) * interval;
-    final num maximum = ((range.maximum / interval).ceil()) * interval;
-    range.minimum = minimum - interval;
-    range.maximum = maximum + interval;
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalStart) {
+      final num minimum = ((range.minimum / interval).floor()) * interval;
+      range.minimum = minimum - interval;
+    }
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalEnd) {
+      final num maximum = ((range.maximum / interval).ceil()) * interval;
+      range.maximum = maximum + interval;
+    }
   }
 
   @protected
@@ -3116,19 +3211,26 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
     final num coefficient = _valueToCoefficient(dataPoint, range: range);
     if (isVertical) {
-      return plotOffset + _renderSize.height * (1 - coefficient);
+      return (isInversed
+              ? _effectivePlotOffsetStart
+              : _effectivePlotOffsetEnd) +
+          _renderSize.height * (1 - coefficient);
     } else {
-      return plotOffset + _renderSize.width * coefficient;
+      return (isInversed
+              ? _effectivePlotOffsetEnd
+              : _effectivePlotOffsetStart) +
+          _renderSize.width * coefficient;
     }
   }
 
   double pixelToPoint(Rect rect, double x, double y) {
     rect = Rect.fromLTWH(
-      rect.left + (!isVertical ? plotOffset : 0),
-      rect.top + (isVertical ? plotOffset : 0),
-      rect.width - (!isVertical ? 2 * plotOffset : 0),
-      rect.height - (isVertical ? 2 * plotOffset : 0),
+      rect.left + (!isVertical ? _effectivePlotOffsetStart : 0),
+      rect.top + (isVertical ? _effectivePlotOffsetEnd : 0),
+      rect.width - (!isVertical ? _effectivePlotOffset : 0),
+      rect.height - (isVertical ? _effectivePlotOffset : 0),
     );
+
     if (visibleRange != null) {
       return isVertical
           ? _coefficientToValue(1 - ((y - rect.top) / rect.height))
@@ -3553,15 +3655,16 @@ class _HorizontalGridLineRenderer extends _GridLineRenderer {
         maximum = associatedAxis.toPow(maximum);
       }
 
-      final double plotOffset = associatedAxis.plotOffset;
+      final double plotOffsetStart = associatedAxis._effectivePlotOffsetStart;
+      final double plotOffsetEnd = associatedAxis._effectivePlotOffsetEnd;
       double y1 = associatedAxis.pointToPixel(minimum);
       double y2 = associatedAxis.pointToPixel(maximum);
       if (associatedAxis.isInversed) {
-        y1 = y1 - plotOffset;
-        y2 = y2 + plotOffset;
+        y1 = y1 - plotOffsetStart;
+        y2 = y2 + plotOffsetEnd;
       } else {
-        y1 = y1 + plotOffset;
-        y2 = y2 - plotOffset;
+        y1 = y1 + plotOffsetStart;
+        y2 = y2 - plotOffsetEnd;
       }
       for (final double position in positions) {
         final Offset start = offset.translate(position, y1);
@@ -3619,15 +3722,16 @@ class _VerticalGridLineRenderer extends _GridLineRenderer {
         maximum = associatedAxis.toPow(maximum);
       }
 
-      final double plotOffset = associatedAxis.plotOffset;
+      final double plotOffsetStart = associatedAxis._effectivePlotOffsetStart;
+      final double plotOffsetEnd = associatedAxis._effectivePlotOffsetEnd;
       double x1 = associatedAxis.pointToPixel(minimum);
       double x2 = associatedAxis.pointToPixel(maximum);
       if (associatedAxis.isInversed) {
-        x1 = x1 + plotOffset;
-        x2 = x2 - plotOffset;
+        x1 = x1 + plotOffsetStart;
+        x2 = x2 - plotOffsetEnd;
       } else {
-        x1 = x1 - plotOffset;
-        x2 = x2 + plotOffset;
+        x1 = x1 - plotOffsetStart;
+        x2 = x2 + plotOffsetEnd;
       }
       for (final double position in positions) {
         final Offset start = offset.translate(x1, position);
@@ -4161,10 +4265,18 @@ abstract class _AxisRenderer {
         : (axis.parentData! as CartesianAxesParentData).offset & axis.size;
     final Rect extendedClipRect = clipRect
         .inflate(max(axis.majorTickLines.size, axis.minorTickLines.size) / 2);
+    // HACK: If the ouput renders in html web renderer, y axis labels, ticks
+    // and axis line hide. To avoid this y axis hide, we called canvas save
+    // two times.
+    context.canvas.save();
     context.canvas.save();
     context.canvas.clipRect(extendedClipRect);
     _drawMajorTicks(context, offset + _majorTickOffset);
     _drawMinorTicks(context, offset + _minorTickOffset);
+    // HACK: If the ouput renders in html web renderer, y axis labels, ticks
+    // and axis line hide. To avoid this y axis hide, we called canvas restore
+    // two times.
+    context.canvas.restore();
     context.canvas.restore();
   }
 

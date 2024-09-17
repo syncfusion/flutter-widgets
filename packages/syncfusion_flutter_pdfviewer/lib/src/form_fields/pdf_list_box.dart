@@ -109,44 +109,38 @@ class PdfListBoxFormFieldHelper extends PdfFormFieldHelper {
   }
 
   /// Builds the list box form field widget.
-  Widget build(BuildContext context, double heightPercentage,
-      {required Function(Offset) onTap}) {
+  Widget build(BuildContext context, double heightPercentage) {
     return Positioned(
       left: bounds.left / heightPercentage,
       top: bounds.top / heightPercentage,
       width: bounds.width / heightPercentage,
       height: bounds.height / heightPercentage,
-      child: Listener(
-        onPointerUp: (PointerUpEvent event) {
-          onTap(event.localPosition.translate(
-              bounds.left / heightPercentage, bounds.top / heightPercentage));
+      child: PdfListBox(
+        heightPercentage: heightPercentage,
+        selectedItems: listBoxFormField._selectedItems!,
+        items: listBoxFormField._items,
+        font: pdfListBoxField.font?.name,
+        fillColor: pdfListBoxField.backColor.isEmpty
+            ? const Color.fromARGB(255, 221, 228, 255)
+            : Color.fromRGBO(pdfListBoxField.backColor.r,
+                pdfListBoxField.backColor.g, pdfListBoxField.backColor.b, 1),
+        borderColor: pdfListBoxField.borderColor.isEmpty
+            ? Colors.transparent
+            : Color.fromRGBO(
+                pdfListBoxField.borderColor.r,
+                pdfListBoxField.borderColor.g,
+                pdfListBoxField.borderColor.b,
+                1),
+        borderWidth: pdfListBoxField.borderWidth / heightPercentage,
+        textAlign: pdfListBoxField.textAlignment.textAlign,
+        fontSize: (pdfListBoxField.font?.size ?? 14.0) / heightPercentage,
+        onValueChanged: invokeValueChanged,
+        onTap: () {
+          if (listBoxFormField.readOnly) {
+            return;
+          }
+          _showListBoxDialog(context, this);
         },
-        child: PdfListBox(
-          heightPercentage: heightPercentage,
-          selectedItems: listBoxFormField._selectedItems!,
-          items: listBoxFormField._items,
-          font: pdfListBoxField.font?.name,
-          fillColor: pdfListBoxField.backColor.isEmpty
-              ? const Color.fromARGB(255, 221, 228, 255)
-              : Color.fromRGBO(pdfListBoxField.backColor.r,
-                  pdfListBoxField.backColor.g, pdfListBoxField.backColor.b, 1),
-          borderColor: pdfListBoxField.borderColor.isEmpty
-              ? Colors.transparent
-              : Color.fromRGBO(
-                  pdfListBoxField.borderColor.r,
-                  pdfListBoxField.borderColor.g,
-                  pdfListBoxField.borderColor.b,
-                  1),
-          borderWidth: pdfListBoxField.borderWidth / heightPercentage,
-          fontSize: (pdfListBoxField.font?.size ?? 14.0) / heightPercentage,
-          onValueChanged: invokeValueChanged,
-          onTap: () {
-            if (listBoxFormField.readOnly) {
-              return;
-            }
-            _showListBoxDialog(context, this);
-          },
-        ),
       ),
     );
   }
@@ -167,6 +161,7 @@ class PdfListBox extends StatefulWidget {
       required this.onTap,
       required this.borderColor,
       required this.borderWidth,
+      this.textAlign = TextAlign.left,
       super.key});
 
   /// The list box form field scale factor.
@@ -202,6 +197,9 @@ class PdfListBox extends StatefulWidget {
   /// The list box form field border width
   final double borderWidth;
 
+  /// The list box form field text alignment
+  final TextAlign textAlign;
+
   @override
   State<PdfListBox> createState() => _PdfListBoxState();
 }
@@ -231,6 +229,7 @@ class _PdfListBoxState extends State<PdfListBox> {
                         : Colors.transparent,
                   ),
                   child: Text(widget.items[index],
+                      textAlign: widget.textAlign,
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: widget.fontSize,

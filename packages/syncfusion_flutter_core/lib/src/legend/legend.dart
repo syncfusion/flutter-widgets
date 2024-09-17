@@ -1209,7 +1209,7 @@ class _LegendItemState extends State<_LegendItem>
 
   ImageInfo? _imageInfo;
   ImageStream? _imageStream;
-  Completer<ImageInfo>? _completer;
+  late Completer<ImageInfo>? _completer;
   Future<ui.Image?>? _obtainImage;
 
   Widget _buildCustomPaint(

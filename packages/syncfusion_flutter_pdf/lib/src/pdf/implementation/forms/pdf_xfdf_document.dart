@@ -26,7 +26,7 @@ class XFdfDocument {
   }
 
   //Fields
-  String? _pdfFilePath;
+  late String? _pdfFilePath;
   final Map<Object, Object> _table = <Object, Object>{};
   List<String>? _annotationAttributes;
   bool _skipBorderStyle = false;

@@ -101,6 +101,18 @@ class FastLineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       .._yValues = yValues;
   }
 
+  @override
+  int dataPointIndex(Offset position, ChartSegment segment) {
+    final FastLineSegment fastLineSegment = segment as FastLineSegment<T, D>;
+    final int nearestPointIndex =
+        fastLineSegment._findNearestPoint(fastLineSegment.points, position);
+    final int pointIndex = fastLineSegment._drawIndexes[nearestPointIndex];
+    if (pointIndex != -1) {
+      return super.actualPointIndex(pointIndex);
+    }
+    return pointIndex;
+  }
+
   /// Creates a segment for a data point in the series.
   @override
   FastLineSegment<T, D> createSegment() => FastLineSegment<T, D>();
@@ -220,7 +232,7 @@ class FastLineSegment<T, D> extends ChartSegment {
     final double startYValue = transformY(startX, startY);
 
     points.add(Offset(startXValue, startYValue));
-    _drawIndexes.add(0);
+    _drawIndexes.add(start);
 
     num previousX = startX;
     num previousY = startY;

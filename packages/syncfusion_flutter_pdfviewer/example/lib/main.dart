@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     title: 'Syncfusion PDF Viewer Demo',
     home: HomePage(),
   ));
@@ -10,6 +10,8 @@ void main() {
 
 /// Represents Homepage for Navigation
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePage createState() => _HomePage();
 }

@@ -44,7 +44,8 @@ const double _kPdfExpandIconRightPosition = 16.0;
 class BookmarkItem extends StatefulWidget {
   /// Creates a material design bookmark.
   const BookmarkItem(
-      {this.title = '',
+      {super.key,
+      this.title = '',
       this.height = 48,
       required this.onNavigate,
       required this.onExpandPressed,

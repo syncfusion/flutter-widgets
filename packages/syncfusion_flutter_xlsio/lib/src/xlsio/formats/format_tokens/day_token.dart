@@ -1,7 +1,14 @@
-part of xlsio;
+import 'package:intl/intl.dart';
+
+import '../../formats/format_tokens/enums.dart';
+import '../../general/culture_info.dart';
+import '../../general/enums.dart';
+import '../../range/range.dart';
+import '../format_section.dart';
+import 'format_token_base.dart';
 
 /// Class used for describing Day Tokens.
-class _DayToken extends _FormatTokenBase {
+class DayToken extends FormatTokenBase {
   /// Regular expression for minutes part of the format:
   final RegExp _dayRegex = RegExp('[Dd]+');
 
@@ -11,11 +18,11 @@ class _DayToken extends _FormatTokenBase {
   @override
 
   /// Tries to parse format string.
-  int _tryParse(String strFormat, int iIndex) {
-    final int iResult = _tryParseRegex(_dayRegex, strFormat, iIndex);
+  int tryParse(String stringFormat, int iIndex) {
+    final int iResult = tryParseRegex(_dayRegex, stringFormat, iIndex);
 
     if (iResult != iIndex) {
-      _strFormatLower = _strFormat.toLowerCase();
+      _strFormatLower = strFormat.toLowerCase();
     }
 
     return iResult;
@@ -23,8 +30,8 @@ class _DayToken extends _FormatTokenBase {
 
   /// Applies format to the value.
   @override
-  String _applyFormat(double value, bool bShowHiddenSymbols,
-      CultureInfo culture, _FormatSection section) {
+  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
+      FormatSection section) {
     double tempValue = value;
 
     if (_strFormatLower.length > 2 &&
@@ -33,7 +40,7 @@ class _DayToken extends _FormatTokenBase {
       tempValue = tempValue - 1;
     }
 
-    final DateTime date = Range._fromOADate(tempValue);
+    final DateTime date = Range.fromOADate(tempValue);
     return DateFormat(' $_strFormatLower').format(date).substring(1);
   }
 
@@ -41,14 +48,14 @@ class _DayToken extends _FormatTokenBase {
 
   /// Applies format to the value.
   // ignore: unused_element
-  String _applyFormatString(String value, bool bShowHiddenSymbols) {
+  String applyFormatString(String value, bool bShowHiddenSymbols) {
     return '';
   }
 
   @override
 
   /// Gets type of the token. Read-only.
-  _TokenType get _tokenType {
-    return _TokenType.day;
+  TokenType get tokenType {
+    return TokenType.day;
   }
 }

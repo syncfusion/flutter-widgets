@@ -1,10 +1,25 @@
-part of xlsio;
+import 'package:jiffy/jiffy.dart';
+
+import '../autoFilters/datetime_filter.dart';
+import '../autoFilters/multiplefilter.dart';
+import '../general/enums.dart';
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'auto_filter.dart';
+import 'autofiltercollection.dart';
+import 'autofiltercondition.dart';
+import 'autofilterconditon_impl.dart';
+import 'colorfilter.dart';
+import 'combination_filter.dart';
+import 'dynamicfilter.dart';
+import 'filter.dart';
+import 'text_filter.dart';
 
 ///Implementation class for autofilter
 /// This class represents single autofilter item.
-class _AutoFilterImpl implements AutoFilter {
+class AutoFilterImpl implements AutoFilter {
   //Constructor for autofilterimpl class
-  _AutoFilterImpl(AutoFilterCollection parent, Worksheet worksheet,
+  AutoFilterImpl(AutoFilterCollection parent, Worksheet worksheet,
       [int iRow = 0, int lRow = 0]) {
     intializeConditions();
     _autoFilterCollection = parent;
@@ -12,8 +27,8 @@ class _AutoFilterImpl implements AutoFilter {
     _iRow = iRow;
     _lastRow = lRow;
     _rangeList = <Range, double?>{};
-    _firstConditionboolList = <bool>[];
-    _secondConditionboolList = <bool>[];
+    firstConditionboolList = <bool>[];
+    secondConditionboolList = <bool>[];
     _rangeListtemp = <int>[];
     _logicalOperator = ExcelLogicalOperator.or;
     _isFilterUsed = false;
@@ -26,7 +41,7 @@ class _AutoFilterImpl implements AutoFilter {
   late AutoFilterCollection _autoFilterCollection;
 
   /// Represents the combinationFilter filter object.
-  late _CombinationFilter _combinationFilter;
+  late CombinationFilter _combinationFilter;
 
   ///Indicates whether to use AND, OR logical operation between first and second conditions. By default, it uses OR operation.
   late ExcelLogicalOperator _logicalOperator;
@@ -41,10 +56,10 @@ class _AutoFilterImpl implements AutoFilter {
   late AutoFilterCondition _secondconditions;
 
   ///Defines type of filter used
-  _ExcelFilterType _typeOfFilter = _ExcelFilterType.notUsed;
+  ExcelFilterType _typeOfFilter = ExcelFilterType.notUsed;
 
   ///Represents column index
-  late int _colIndex;
+  late int colIndex;
 
   /// Represent the dynamic filter object.
   late Worksheet _worksheet;
@@ -56,10 +71,10 @@ class _AutoFilterImpl implements AutoFilter {
   late int _lastRow;
 
   ///For adding values Of the hidden rows in first condition.
-  late List<bool> _firstConditionboolList;
+  late List<bool> firstConditionboolList;
 
   ///For adding values Of the hidden rows in second condition.
-  late List<bool> _secondConditionboolList;
+  late List<bool> secondConditionboolList;
 
   ///For adding range lists to be filtered.
   late List<int> _rangeListtemp;
@@ -71,10 +86,10 @@ class _AutoFilterImpl implements AutoFilter {
   late bool _isSecondCondition;
 
   /// Represent the dynamic filter object.
-  late _DynamicFilter _dateFilter;
+  late DynamicFilter dateFilter;
 
   /// Represent the color filter object.
-  late _ColorFilter _colorFilter;
+  late ColorFilter colorFilter;
 
   ///Get second condition indicator
   bool get isSecondCondition {
@@ -114,7 +129,7 @@ class _AutoFilterImpl implements AutoFilter {
   set secondCondition(AutoFilterCondition value) {}
 
   ///Get combinationFilter.
-  _CombinationFilter get combinationFilter {
+  CombinationFilter get combinationFilter {
     return _combinationFilter;
   }
 
@@ -131,8 +146,8 @@ class _AutoFilterImpl implements AutoFilter {
   }
 
   ///Get isFiltered
-  bool get _isFiltered {
-    if (_typeOfFilter == _ExcelFilterType.notUsed) {
+  bool get isFiltered {
+    if (_typeOfFilter == ExcelFilterType.notUsed) {
       return _isFilterUsed;
     }
     _isFilterUsed = true;
@@ -140,41 +155,41 @@ class _AutoFilterImpl implements AutoFilter {
   }
 
   ///Set isFiltered
-  set _isFiltered(bool value) {
+  set isFiltered(bool value) {
     _isFilterUsed = value;
   }
 
-  ///Set filtertype
+  ///Set filterType
   @override
-  set _filtertype(_ExcelFilterType value) {
+  set filterType(ExcelFilterType value) {
     _typeOfFilter = value;
   }
 
-  ///Get filtertype
+  ///Get filterType
   @override
-  _ExcelFilterType get _filtertype {
+  ExcelFilterType get filterType {
     return _typeOfFilter;
   }
 
   /// Returns filter values for combination type (Text and DateTime),
   /// dynamic and color type. It returns null, if custom filter is applied.
-  _Filter get _filteredItems {
-    late _Filter temp;
-    switch (_filtertype) {
-      case _ExcelFilterType.customFilter:
+  Filter get filteredItems {
+    late Filter temp;
+    switch (filterType) {
+      case ExcelFilterType.customFilter:
         break;
-      case _ExcelFilterType.combinationFilter:
-        temp = _combinationFilter;
+      case ExcelFilterType.combinationFilter:
+        temp = combinationFilter;
         break;
-      case _ExcelFilterType.dynamicFilter:
-        temp = _dateFilter;
+      case ExcelFilterType.dynamicFilter:
+        temp = dateFilter;
         break;
-      case _ExcelFilterType.colorFilter:
-        temp = _colorFilter;
+      case ExcelFilterType.colorFilter:
+        temp = colorFilter;
         break;
-      case _ExcelFilterType.iconFilter:
+      case ExcelFilterType.iconFilter:
         break;
-      case _ExcelFilterType.notUsed:
+      case ExcelFilterType.notUsed:
         break;
     }
     return temp;
@@ -182,19 +197,19 @@ class _AutoFilterImpl implements AutoFilter {
 
   ///Set for filteredItems
   // ignore: unused_element
-  set _filteredItems(_Filter filteredItems) {}
+  set filteredItems(Filter filteredItems) {}
 
   ///Apply text filter with the specified string.
   @override
   void addTextFilter(Set<String> filterCollection) {
-    _filtertype = _ExcelFilterType.combinationFilter;
+    filterType = ExcelFilterType.combinationFilter;
 
     for (final String filter in filterCollection) {
-      if (!combinationFilter._textFilterCollection.contains(filter)) {
-        final _TextFilter textFilter = _TextFilter();
-        textFilter._text = filter.trim();
-        _combinationFilter._filterCollection.add(textFilter);
-        combinationFilter._isBlank = false;
+      if (!combinationFilter.textFilterCollection.contains(filter)) {
+        final TextFilter textFilter = TextFilter();
+        textFilter.text = filter.trim();
+        _combinationFilter.filterCollection.add(textFilter);
+        combinationFilter.isBlank = false;
         // _textCollection.add(filter.toLowerCase());
       }
     }
@@ -206,14 +221,14 @@ class _AutoFilterImpl implements AutoFilter {
     final Map<String, String> filterCollection = <String, String>{};
 
     String cellText = '';
-    if (combinationFilter._isBlank) {
+    if (combinationFilter.isBlank) {
       filterCollection.addAll(<String, String>{'': ''});
     }
-    for (final _MultipleFilter multiFilter
-        in _combinationFilter._filterCollection) {
-      if (multiFilter._combinationFilterType ==
-          _ExcelCombinationFilterType.textFilter) {
-        cellText = (multiFilter as _TextFilter)._text.toLowerCase();
+    for (final MultipleFilter multiFilter
+        in _combinationFilter.filterCollection) {
+      if (multiFilter.combinationFilterType ==
+          ExcelCombinationFilterType.textFilter) {
+        cellText = (multiFilter as TextFilter).text.toLowerCase();
         // ignore: always_specify_types
         filterCollection.addAll({cellText: cellText});
       }
@@ -222,20 +237,20 @@ class _AutoFilterImpl implements AutoFilter {
     for (int iRow = _iRow + 1; iRow <= _lastRow; iRow++) {
       if (filterCollection.isNotEmpty) {
         if (!filterCollection.containsKey(_worksheet
-            .getRangeByIndex(iRow, _colIndex)
+            .getRangeByIndex(iRow, colIndex)
             .getText()
             ?.toLowerCase())) {
-          _worksheet.getRangeByIndex(iRow, _colIndex).showRows(false);
+          _worksheet.getRangeByIndex(iRow, colIndex).showRows(false);
         } else {
-          _worksheet.getRangeByIndex(iRow, _colIndex).showRows(true);
-          _isFiltered = true;
+          _worksheet.getRangeByIndex(iRow, colIndex).showRows(true);
+          isFiltered = true;
         }
       } else {
-        _worksheet.getRangeByIndex(iRow, _colIndex).showRows(false);
+        _worksheet.getRangeByIndex(iRow, colIndex).showRows(false);
       }
     }
-    if (_combinationFilter._textFilterCollection.length !=
-        _combinationFilter._filterCollection.length) {
+    if (_combinationFilter.textFilterCollection.length !=
+        _combinationFilter.filterCollection.length) {
       _applyDateTimeFilter();
     }
   }
@@ -243,29 +258,29 @@ class _AutoFilterImpl implements AutoFilter {
   /// Add the dynamic filter.
   @override
   void addDynamicFilter(DynamicFilterType dynamicFilterType) {
-    _filtertype = _ExcelFilterType.dynamicFilter;
-    _dateFilter._dateFilterType = dynamicFilterType;
+    filterType = ExcelFilterType.dynamicFilter;
+    dateFilter.dateFilterType = dynamicFilterType;
     _applyDynamicFilter();
   }
 
   /// Apply the dynamic filter.
   void _applyDynamicFilter() {
-    if (_dateFilter._dateFilterType == DynamicFilterType.none) {
+    if (dateFilter.dateFilterType == DynamicFilterType.none) {
       _removeDynamicFilter();
       return;
     }
     final Range filterRange = _autoFilterCollection.filterRange;
     for (int row = filterRange.row + 1; row <= filterRange.lastRow; row++) {
-      final Range range = _worksheet.getRangeByIndex(row, _colIndex);
+      final Range range = _worksheet.getRangeByIndex(row, colIndex);
       DateTime? dateTime;
-      if (range._dateTime != null) {
+      if (range.dateTime != null) {
         bool isVisible = false;
         final DateTime currentDate = DateTime.now();
-        dateTime = range._dateTime;
+        dateTime = range.dateTime;
         DateTime startDate;
         DateTime endDate;
         int temp;
-        switch (_dateFilter._dateFilterType) {
+        switch (dateFilter.dateFilterType) {
           case DynamicFilterType.yesterday:
             if ((dateTime!.year == currentDate.year) &&
                 (dateTime.month == currentDate.month) &&
@@ -552,21 +567,22 @@ class _AutoFilterImpl implements AutoFilter {
             break;
         }
         range.showRows(isVisible);
-      } else
+      } else {
         range.showRows(false);
+      }
     }
   }
 
   /// Remove the existing dynamic filter from filter collection.
   bool _removeDynamicFilter() {
-    _filtertype = _ExcelFilterType.customFilter;
-    _dateFilter._dateFilterType = DynamicFilterType.none;
+    filterType = ExcelFilterType.customFilter;
+    dateFilter.dateFilterType = DynamicFilterType.none;
 
     final Range filterRange = _autoFilterCollection.filterRange;
     final int firstRow = filterRange.row;
     final int lastRow = filterRange.lastRow;
     for (int row = firstRow + 1; row <= lastRow; row++) {
-      _worksheet.getRangeByIndex(row, _colIndex).showRows(true);
+      _worksheet.getRangeByIndex(row, colIndex).showRows(true);
     }
 
     return true;
@@ -575,11 +591,11 @@ class _AutoFilterImpl implements AutoFilter {
   /// Add the date filter.
   @override
   void addDateFilter(DateTime? dateTime, DateTimeFilterType groupingType) {
-    _filtertype = _ExcelFilterType.combinationFilter;
-    final _DateTimeFilter dateTimeFilter = _DateTimeFilter();
-    dateTimeFilter._dateTime = dateTime!;
-    dateTimeFilter._groupingType = groupingType;
-    combinationFilter._filterCollection.add(dateTimeFilter);
+    filterType = ExcelFilterType.combinationFilter;
+    final DateTimeFilter dateTimeFilter = DateTimeFilter();
+    dateTimeFilter.dateTime = dateTime!;
+    dateTimeFilter.groupingType = groupingType;
+    combinationFilter.filterCollection.add(dateTimeFilter);
     _applyTextFilter();
   }
 
@@ -587,18 +603,18 @@ class _AutoFilterImpl implements AutoFilter {
   void _applyDateTimeFilter() {
     final Range filterRange = _autoFilterCollection.filterRange;
     for (int row = filterRange.row + 1; row <= filterRange.lastRow; row++) {
-      final Range range = _worksheet.getRangeByIndex(row, _colIndex);
+      final Range range = _worksheet.getRangeByIndex(row, colIndex);
       if (range.dateTime != null) {
         for (int index = 0;
-            index < _combinationFilter._filterCollection.length;
+            index < _combinationFilter.filterCollection.length;
             index++) {
-          final _MultipleFilter filter =
-              _combinationFilter._filterCollection[index];
-          if (filter._combinationFilterType ==
-              _ExcelCombinationFilterType.dateTimeFilter) {
-            final _DateTimeFilter dateTimeFilter = filter as _DateTimeFilter;
-            final DateTimeFilterType dateGroup = dateTimeFilter._groupingType;
-            final DateTime filterDate = dateTimeFilter._dateTime;
+          final MultipleFilter filter =
+              _combinationFilter.filterCollection[index];
+          if (filter.combinationFilterType ==
+              ExcelCombinationFilterType.dateTimeFilter) {
+            final DateTimeFilter dateTimeFilter = filter as DateTimeFilter;
+            final DateTimeFilterType dateGroup = dateTimeFilter.groupingType;
+            final DateTime filterDate = dateTimeFilter.dateTime;
             final DateTime? dateTime = range.dateTime;
             if (filterDate.year == dateTime!.year) {
               if (dateGroup == DateTimeFilterType.year) {
@@ -643,9 +659,9 @@ class _AutoFilterImpl implements AutoFilter {
   /// Add the color filter.
   @override
   void addColorFilter(String color, ExcelColorFilterType colorFilterType) {
-    _filtertype = _ExcelFilterType.colorFilter;
-    _colorFilter._color = color;
-    _colorFilter._colorFilterType = colorFilterType;
+    filterType = ExcelFilterType.colorFilter;
+    colorFilter.color = color;
+    colorFilter.colorFilterType = colorFilterType;
     final Range filterRange = _autoFilterCollection.filterRange;
     if (color == '#000000') {
       switch (colorFilterType) {
@@ -653,12 +669,12 @@ class _AutoFilterImpl implements AutoFilter {
           color = '#FFFFFF';
           break;
         case ExcelColorFilterType.fontColor:
-          color = _worksheet._book.styles['Normal']!.fontColor;
+          color = _worksheet.book.styles['Normal']!.fontColor;
           break;
       }
     }
     for (int row = filterRange.row + 1; row <= filterRange.lastRow; row++) {
-      final Range range = _worksheet.getRangeByIndex(row, _colIndex);
+      final Range range = _worksheet.getRangeByIndex(row, colIndex);
       String toCompare = '#000000';
       if (colorFilterType == ExcelColorFilterType.cellColor) {
         toCompare = range.cellStyle.backColor;
@@ -672,32 +688,32 @@ class _AutoFilterImpl implements AutoFilter {
   }
 
   /// To select the range in which the autofilter has to be applied
-  void _selectRangesToFilter() {
+  void selectRangesToFilter() {
     Range filterRange = _autoFilterCollection.filterRange;
     final int row = filterRange.row;
     final int column = filterRange.column;
     int lastRow = filterRange.lastRow;
     final int lastColumn = filterRange.lastColumn;
-    filterRange = _autoFilterCollection._includeBottomAdjacents(
+    filterRange = _autoFilterCollection.includeBottomAdjacents(
         row, column, lastRow, lastColumn, filterRange);
     lastRow = filterRange.lastRow;
     _rangeList.clear();
     for (int rowIndex = row + 1; rowIndex <= lastRow; rowIndex++) {
-      final Range range = _worksheet.getRangeByIndex(rowIndex, _colIndex);
+      final Range range = _worksheet.getRangeByIndex(rowIndex, colIndex);
       _rangeList.addAll(<Range, double?>{range: range.number});
     }
   }
 
   ///To set condition to check which row going to hide based on condition operator
-  void _setCondition(
+  void setCondition(
       ExcelFilterCondition conditionOperator,
-      _ExcelFilterDataType datatype,
+      ExcelFilterDataType datatype,
       Object conditionValue,
       int currentAutoFilter,
       bool isFirstCondition) {
-    if (datatype == _ExcelFilterDataType.matchAllBlanks) {
+    if (datatype == ExcelFilterDataType.matchAllBlanks) {
       _setMatchAllBlanks();
-    } else if (datatype == _ExcelFilterDataType.matchAllNonBlanks) {
+    } else if (datatype == ExcelFilterDataType.matchAllNonBlanks) {
       _setMatchAllNonBlanks();
     } else {
       _setConditionImpl(conditionOperator, conditionValue, _worksheet,
@@ -711,10 +727,10 @@ class _AutoFilterImpl implements AutoFilter {
     int row = filterRange.row;
     final int lastRow = filterRange.lastRow;
     for (final int iRow = row; iRow <= lastRow; row++) {
-      if (_worksheet.getRangeByIndex(iRow, _colIndex).displayText.isEmpty) {
-        _worksheet.getRangeByIndex(iRow, _colIndex).showRows(true);
+      if (_worksheet.getRangeByIndex(iRow, colIndex).displayText.isEmpty) {
+        _worksheet.getRangeByIndex(iRow, colIndex).showRows(true);
       } else {
-        _worksheet.getRangeByIndex(iRow, _colIndex).showRows(false);
+        _worksheet.getRangeByIndex(iRow, colIndex).showRows(false);
       }
     }
   }
@@ -725,10 +741,10 @@ class _AutoFilterImpl implements AutoFilter {
     int row = filterRange.row;
     final int lastRow = filterRange.lastRow;
     for (final int iRow = row; iRow <= lastRow; row++) {
-      if (_worksheet.getRangeByIndex(iRow, _colIndex).displayText.isNotEmpty) {
-        _worksheet.getRangeByIndex(iRow, _colIndex).showRows(true);
+      if (_worksheet.getRangeByIndex(iRow, colIndex).displayText.isNotEmpty) {
+        _worksheet.getRangeByIndex(iRow, colIndex).showRows(true);
       } else {
-        _worksheet.getRangeByIndex(iRow, _colIndex).showRows(false);
+        _worksheet.getRangeByIndex(iRow, colIndex).showRows(false);
       }
     }
   }
@@ -915,10 +931,10 @@ class _AutoFilterImpl implements AutoFilter {
         break;
     }
     if (isFirstCondition) {
-      _firstConditionboolList.add(temp);
+      firstConditionboolList.add(temp);
       _rangeListtemp.add(key);
     } else {
-      _secondConditionboolList.add(temp);
+      secondConditionboolList.add(temp);
       if (_rangeListtemp.isEmpty) {
         _rangeListtemp.add(key);
       }
@@ -926,56 +942,56 @@ class _AutoFilterImpl implements AutoFilter {
   }
 
   /// Show/hide a row by checking/changing the property hidden by filters
-  void _showFilteredRow(List<bool> firstCondition, List<bool> secondCondition) {
+  void showFilteredRow(List<bool> firstCondition, List<bool> secondCondition) {
     if (logicalOperator == ExcelLogicalOperator.and) {
       for (int temp = 0; temp <= _rangeListtemp.length - 1; temp++) {
-        if (_firstConditionboolList[temp] && _secondConditionboolList[temp]) {
+        if (firstConditionboolList[temp] && secondConditionboolList[temp]) {
           _worksheet
-              .getRangeByIndex(_rangeListtemp[temp], _colIndex)
+              .getRangeByIndex(_rangeListtemp[temp], colIndex)
               .showRows(true);
         } else {
           _worksheet
-              .getRangeByIndex(_rangeListtemp[temp], _colIndex)
+              .getRangeByIndex(_rangeListtemp[temp], colIndex)
               .showRows(false);
         }
       }
     } else {
-      if (_firstConditionboolList.isNotEmpty &&
-          _secondConditionboolList.isNotEmpty) {
+      if (firstConditionboolList.isNotEmpty &&
+          secondConditionboolList.isNotEmpty) {
         for (int temp = 0; temp <= _rangeListtemp.length - 1; temp++) {
-          if (_firstConditionboolList[temp] || _secondConditionboolList[temp]) {
+          if (firstConditionboolList[temp] || secondConditionboolList[temp]) {
             _worksheet
-                .getRangeByIndex(_rangeListtemp[temp], _colIndex)
+                .getRangeByIndex(_rangeListtemp[temp], colIndex)
                 .showRows(true);
           } else {
             _worksheet
-                .getRangeByIndex(_rangeListtemp[temp], _colIndex)
+                .getRangeByIndex(_rangeListtemp[temp], colIndex)
                 .showRows(false);
           }
         }
-      } else if (_firstConditionboolList.isNotEmpty &&
-          _secondConditionboolList.isEmpty) {
+      } else if (firstConditionboolList.isNotEmpty &&
+          secondConditionboolList.isEmpty) {
         for (int temp = 0; temp <= _rangeListtemp.length - 1; temp++) {
-          if (_firstConditionboolList[temp]) {
+          if (firstConditionboolList[temp]) {
             _worksheet
-                .getRangeByIndex(_rangeListtemp[temp], _colIndex)
+                .getRangeByIndex(_rangeListtemp[temp], colIndex)
                 .showRows(true);
           } else {
             _worksheet
-                .getRangeByIndex(_rangeListtemp[temp], _colIndex)
+                .getRangeByIndex(_rangeListtemp[temp], colIndex)
                 .showRows(false);
           }
         }
-      } else if (_firstConditionboolList.isEmpty &&
-          _secondConditionboolList.isNotEmpty) {
+      } else if (firstConditionboolList.isEmpty &&
+          secondConditionboolList.isNotEmpty) {
         for (int temp = 0; temp <= _rangeListtemp.length - 1; temp++) {
-          if (_secondConditionboolList[temp]) {
+          if (secondConditionboolList[temp]) {
             _worksheet
-                .getRangeByIndex(_rangeListtemp[temp], _colIndex)
+                .getRangeByIndex(_rangeListtemp[temp], colIndex)
                 .showRows(true);
           } else {
             _worksheet
-                .getRangeByIndex(_rangeListtemp[temp], _colIndex)
+                .getRangeByIndex(_rangeListtemp[temp], colIndex)
                 .showRows(false);
           }
         }
@@ -985,10 +1001,10 @@ class _AutoFilterImpl implements AutoFilter {
 
   /// Creates new instances of condition variables.
   void intializeConditions() {
-    _combinationFilter = _CombinationFilter(this);
-    _firstconditions = _AutofilterConditionImpl(this);
-    _secondconditions = _AutofilterConditionImpl(this);
-    _dateFilter = _DynamicFilter(this);
-    _colorFilter = _ColorFilter(this);
+    _combinationFilter = CombinationFilter(this);
+    _firstconditions = AutofilterConditionImpl(this);
+    _secondconditions = AutofilterConditionImpl(this);
+    dateFilter = DynamicFilter(this);
+    colorFilter = ColorFilter(this);
   }
 }

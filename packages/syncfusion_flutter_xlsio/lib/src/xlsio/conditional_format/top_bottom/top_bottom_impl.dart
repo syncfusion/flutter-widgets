@@ -1,8 +1,9 @@
-part of xlsio;
+import '../../conditional_format/top_bottom/top_bottom.dart';
+import '../../general/enums.dart';
 
 /// Represents the top or bottom conditional formatting rule.
 /// Applying this rule to a range helps you highlight the top or bottom 'n' cells from the selected range
-class _TopBottomImpl implements TopBottom {
+class TopBottomImpl implements TopBottom {
   int _rank = 10;
   // ExcelCFTopBottomType _type = ExcelCFTopBottomType.top;
 

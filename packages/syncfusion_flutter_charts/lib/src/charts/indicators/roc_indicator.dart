@@ -478,8 +478,7 @@ class RocIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         if (isSignalLineVisible) {
           if (!(i < period)) {
             final num prevY = _closeValues[i - period];
-            final double y =
-                (((_closeValues[i] - prevY) / prevY) * 100).toDouble();
+            final double y = ((_closeValues[i] - prevY) / prevY) * 100;
             if (y.isNaN) {
               continue;
             }

@@ -74,7 +74,7 @@ class RenderMarkerPointer extends RenderBox {
   final double _margin = 15;
   dart_ui.Image? _image;
   late double _radian;
-  Size? _textSize;
+  late Size? _textSize;
   late double _totalOffset;
   late double _actualMarkerOffset;
   late double _angle;

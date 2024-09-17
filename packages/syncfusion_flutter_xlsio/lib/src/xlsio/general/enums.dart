@@ -1,5 +1,3 @@
-part of xlsio;
-
 ///Specifies the horizontal alignment options for cell formatting.
 enum HAlignType {
   /// Center horizontal alignment.
@@ -938,7 +936,7 @@ enum ExcelDataValidationErrorStyle {
 }
 
 ///Represents filtertype of AutoFilter
-enum _ExcelFilterType {
+enum ExcelFilterType {
   ///Represents the No Filters are used to avoid Exception While Instance Creation
   notUsed,
 
@@ -960,7 +958,7 @@ enum _ExcelFilterType {
 
 ///Represents filter data type
 /// Data type for autofilters.
-enum _ExcelFilterDataType {
+enum ExcelFilterDataType {
   /// Represents the filter data type.
   notUsed,
 
@@ -1024,7 +1022,7 @@ enum ExcelFilterCondition {
 
 ///used to find Combinatioanal Filter Type
 
-enum _ExcelCombinationFilterType {
+enum ExcelCombinationFilterType {
   /// Represents text value filter.
   textFilter,
 
@@ -1420,7 +1418,7 @@ enum CellErrorPrintOptions {
 }
 
 /// Possible values for active pane.
-enum _ActivePane {
+enum ActivePane {
   /// Bottom left pane, when both vertical and horizontal splits are applied.
   /// This value is also used when only a horizontal split has been applied,
   /// dividing the pane into upper and lower regions. In that case, this value

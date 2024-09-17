@@ -10,6 +10,7 @@ import 'package:syncfusion_flutter_core/core.dart' as shape_helper;
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../utils/helper.dart';
+import 'element_widget.dart';
 
 /// Callback which is used to generate a widget legend item.
 typedef LegendItemBuilder = Widget Function(BuildContext context, int index);
@@ -448,7 +449,7 @@ class LegendLayoutState extends State<LegendLayout> {
       final RenderObject? renderObject = legendElement.findRenderObject();
       if (renderObject != null &&
           renderObject.attached &&
-          renderObject is RenderConstrainedLayoutBuilder) {
+          renderObject is CustomRenderConstrainedLayoutBuilder) {
         renderObject.markNeedsBuild();
       }
     }
@@ -466,7 +467,7 @@ class LegendLayoutState extends State<LegendLayout> {
   @override
   Widget build(BuildContext context) {
     final Widget? legend = widget.showLegend
-        ? LayoutBuilder(
+        ? CustomLayoutBuilder(
             key: _legendKey,
             builder: (BuildContext context, BoxConstraints constraints) {
               return _buildLegend();
@@ -1643,12 +1644,13 @@ class _IconTextState extends State<_IconText>
   late AnimationController _toggleAnimationController;
   late Animation<double> _toggleAnimation;
   late ColorTween _iconColorTween;
+  late ColorTween _iconBorderColorTween;
   late ColorTween _shaderMaskColorTween;
   late Tween<double> _opacityTween;
 
   ImageInfo? _imageInfo;
   ImageStream? _imageStream;
-  Completer<ImageInfo>? _completer;
+  late Completer<ImageInfo>? _completer;
   Future<ui.Image?>? _obtainImage;
   bool _isToggled = false;
 
@@ -1743,7 +1745,13 @@ class _IconTextState extends State<_IconText>
         widget.details.shader == null && widget.details.imageProvider == null
             ? widget.details.iconColor
             : Colors.transparent;
+    final Color? borderColorBegin =
+        widget.details.shader == null && widget.details.imageProvider == null
+            ? widget.details.iconBorderColor ?? widget.iconBorderColor
+            : Colors.transparent;
     _iconColorTween = ColorTween(begin: begin, end: widget.toggledColor);
+    _iconBorderColorTween =
+        ColorTween(begin: borderColorBegin, end: widget.toggledColor);
     _shaderMaskColorTween = ColorTween(end: widget.toggledColor);
     _opacityTween = Tween<double>(begin: 1.0, end: widget.toggledTextOpacity);
 
@@ -1765,9 +1773,20 @@ class _IconTextState extends State<_IconText>
               : Colors.transparent;
     }
 
+    if (widget.details.iconBorderColor != oldWidget.details.iconBorderColor ||
+        widget.details.shader != oldWidget.details.shader) {
+      _iconBorderColorTween.begin =
+          widget.details.shader == null && widget.details.imageProvider == null
+              ? widget.details.iconBorderColor ??
+                  widget.iconBorderColor ??
+                  Colors.transparent
+              : Colors.transparent;
+    }
+
     if (widget.toggledColor != null &&
         widget.toggledColor != oldWidget.toggledColor) {
       _iconColorTween.end = widget.toggledColor;
+      _iconBorderColorTween.end = widget.toggledColor;
       _shaderMaskColorTween.end = widget.toggledColor;
     }
 
@@ -1812,14 +1831,15 @@ class _IconTextState extends State<_IconText>
         } else {
           final Color? effectiveIconColor =
               _iconColorTween.evaluate(_toggleAnimation);
+          final Color? effectiveBorderIconColor =
+              _iconBorderColorTween.evaluate(_toggleAnimation);
           final ItemRendererDetails details = ItemRendererDetails(
             item: widget.details,
             index: widget.index,
             text: widget.details.text,
             color: effectiveIconColor,
             iconType: widget.details.iconType,
-            iconBorderColor:
-                widget.iconBorderColor ?? widget.details.iconBorderColor,
+            iconBorderColor: effectiveBorderIconColor,
             iconBorderWidth:
                 widget.iconBorderWidth ?? widget.details.iconBorderWidth,
           );
@@ -1828,6 +1848,12 @@ class _IconTextState extends State<_IconText>
               effectiveIconColor != details.color) {
             _iconColorTween.begin = details.color;
             details.color = _iconColorTween.evaluate(_toggleAnimation);
+          }
+          if (effectiveBorderIconColor != null &&
+              effectiveBorderIconColor != details.iconBorderColor) {
+            _iconBorderColorTween.begin = details.iconBorderColor;
+            details.iconBorderColor =
+                _iconBorderColorTween.evaluate(_toggleAnimation);
           }
           current = SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),

@@ -1223,7 +1223,8 @@ class RenderLinearAxis extends RenderBox {
       _axisActualSize = Size(axisWidgetThickness, parentWidgetSize);
     }
 
-    size = _axisActualSize;
+    size = Size(math.min(_axisActualSize.width, constraints.maxWidth),
+        math.min(_axisActualSize.height, constraints.maxHeight));
   }
 
   /// To calculate the axis interval based on the maximum axis label count.

@@ -31,6 +31,8 @@ import '../utils/helper.dart';
 ///
 /// Provide options for activation mode, line type, line color, line width,
 /// hide delay for customizing the behavior of the crosshair.
+@immutable
+// ignore: must_be_immutable
 class CrosshairBehavior extends ChartBehavior {
   /// Creating an argument constructor of [CrosshairBehavior] class.
   CrosshairBehavior({
@@ -331,7 +333,7 @@ class CrosshairBehavior extends ChartBehavior {
         parent.plotArea != null &&
         parent.plotArea!.firstChild != null) {
       final CartesianSeriesRenderer seriesRenderer =
-          parent.plotArea!.firstChild as CartesianSeriesRenderer;
+          parent.plotArea!.firstChild! as CartesianSeriesRenderer;
       final List<num> visibleIndexes = seriesRenderer.visibleIndexes;
       if (visibleIndexes.isNotEmpty &&
           visibleIndexes.first <= pointIndex &&
@@ -788,8 +790,7 @@ class CrosshairBehavior extends ChartBehavior {
   }
 
   String _resultantString(RenderChartAxis axis, num actualValue) {
-    final String resultantString =
-        _interactiveTooltipLabel(actualValue, axis).toString();
+    final String resultantString = _interactiveTooltipLabel(actualValue, axis);
     if (axis.interactiveTooltip.format != null) {
       return axis.interactiveTooltip.format!
           .replaceAll('{value}', resultantString);
@@ -826,7 +827,7 @@ class CrosshairBehavior extends ChartBehavior {
           dateTimeCategoryAxisLabelFormat(
               axis, interval.toInt(), previousInterval.toInt());
       return dateFormat
-          .format(DateTime.fromMillisecondsSinceEpoch(milliseconds.toInt()));
+          .format(DateTime.fromMillisecondsSinceEpoch(milliseconds));
     } else if (axis is RenderDateTimeAxis) {
       final num interval = axis.visibleRange!.minimum.ceil();
       final List<AxisLabel> visibleLabels = axis.visibleLabels;
@@ -1095,7 +1096,7 @@ class CrosshairBehavior extends ChartBehavior {
         text: TextSpan(text: text, style: style),
         textAlign: TextAlign.center,
         maxLines: getMaxLinesContent(text),
-        textDirection: TextDirection.rtl);
+        textDirection: TextDirection.ltr);
     textPainter
       ..layout()
       ..paint(context.canvas, position);

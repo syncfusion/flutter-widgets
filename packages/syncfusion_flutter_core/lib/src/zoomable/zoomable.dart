@@ -182,7 +182,7 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
   late Offset _scaleFocalPoint;
 
   Timer? _doubleTapTimer;
-  Offset? _referenceFocalPoint;
+  late Offset? _referenceFocalPoint;
 
   double _maxAttainedScale = 1.0;
   double _currentScale = 1.0;
@@ -796,9 +796,9 @@ class ZoomableController extends ChangeNotifier {
       : _matrix = matrix ?? Matrix4.identity();
 
   // ignore: unused_field
-  ScaleCallback? _onZoomLevelChange;
+  late ScaleCallback? _onZoomLevelChange;
   // ignore: unused_field
-  TranslationCallback? _onAbsoluteBoundsChange;
+  late TranslationCallback? _onAbsoluteBoundsChange;
 
   /// By defaults it will be a identity matrix, which corresponds to no
   /// transformation.

@@ -9,6 +9,7 @@ enum _ToolbarIcon { zoomIn, zoomOut, reset }
 
 class MapToolbar extends StatelessWidget {
   const MapToolbar({
+    super.key,
     required this.zoomPanBehavior,
     required this.controller,
   });

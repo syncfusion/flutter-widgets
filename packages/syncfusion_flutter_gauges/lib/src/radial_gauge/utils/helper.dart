@@ -183,6 +183,7 @@ double cornerRadiusAngle(double totalRadius, double circleRadius) {
 class RadialAxisInheritedWidget extends InheritedWidget {
   /// Creates [RadialAxisInheritedWidget].
   const RadialAxisInheritedWidget({
+    super.key,
     required this.minimum,
     required this.maximum,
     required Widget child,

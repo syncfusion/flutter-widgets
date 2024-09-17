@@ -1208,13 +1208,13 @@ class _TextRenderingMode {
   static const int clipFlag = 4;
 }
 
-class _PdfAutomaticFieldInfoCollection extends PdfObjectCollection {
+class PdfAutomaticFieldInfoCollection extends PdfObjectCollection {
   // constructor
-  _PdfAutomaticFieldInfoCollection() : super() {
-    _helper = _PdfAutomaticFieldInfoCollectionHelper(this);
+  PdfAutomaticFieldInfoCollection() : super() {
+    _helper = PdfAutomaticFieldInfoCollectionHelper(this);
   }
 
-  late _PdfAutomaticFieldInfoCollectionHelper _helper;
+  late PdfAutomaticFieldInfoCollectionHelper _helper;
 
   // implementaion
   int add(PdfAutomaticFieldInfo fieldInfo) {
@@ -1222,10 +1222,10 @@ class _PdfAutomaticFieldInfoCollection extends PdfObjectCollection {
   }
 }
 
-class _PdfAutomaticFieldInfoCollectionHelper extends PdfObjectCollectionHelper {
+class PdfAutomaticFieldInfoCollectionHelper extends PdfObjectCollectionHelper {
   // constructor
-  _PdfAutomaticFieldInfoCollectionHelper(this.base) : super(base);
-  _PdfAutomaticFieldInfoCollection base;
+  PdfAutomaticFieldInfoCollectionHelper(this.base) : super(base);
+  PdfAutomaticFieldInfoCollection base;
 
   // implementaion
   int add(PdfAutomaticFieldInfo fieldInfo) {
@@ -1283,7 +1283,7 @@ class PdfGraphicsHelper {
   PdfBrush? _currentBrush;
   PdfTransformationMatrix? _transformationMatrix;
   PdfLayer? _documentLayer;
-  _PdfAutomaticFieldInfoCollection? _automaticFields;
+  PdfAutomaticFieldInfoCollection? _automaticFields;
   Map<_TransparencyData, PdfTransparency>? _trasparencies;
   Function? _getResources;
   double? _previousTextScaling;
@@ -1312,8 +1312,8 @@ class PdfGraphicsHelper {
   }
 
   /// Gets the automatic fields.
-  _PdfAutomaticFieldInfoCollection? get autoFields {
-    _automaticFields ??= _PdfAutomaticFieldInfoCollection();
+  PdfAutomaticFieldInfoCollection? get autoFields {
+    _automaticFields ??= PdfAutomaticFieldInfoCollection();
     return _automaticFields;
   }
 

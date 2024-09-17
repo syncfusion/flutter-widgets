@@ -170,9 +170,25 @@ enum ChartRangePadding {
   /// maximum of the axis.
   additional,
 
+  /// - ChartRangePadding.additionalStart, will add an interval to the minimum
+  /// value of the axis.
+  additionalStart,
+
+  /// - ChartRangePadding.additionalEnd, will add an interval to the maximum
+  ///  value of the axis.
+  additionalEnd,
+
   /// - ChartRangePadding.round, will round the minimum and maximum values to
   /// the nearest possible value.
-  round
+  round,
+
+  /// - ChartRangePadding.roundStart, will round the minimum value to
+  /// the nearest possible value.
+  roundStart,
+
+  /// - ChartRangePadding.round, will round the maximum value to
+  /// the nearest possible value.
+  roundEnd,
 }
 
 /// Placement of category axis labels.

@@ -154,7 +154,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   SfPdfViewerThemeData? _pdfViewerThemeData;
   SfPdfViewerThemeData? _effectiveThemeData;
-  ThemeData? _themeData;
+  late ThemeData _themeData;
   SfLocalizations? _localizations;
   final GlobalKey _childKey = GlobalKey();
   Timer? _scrollTimer;
@@ -263,18 +263,20 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                   : offset.dy / 2)
               .clamp(
                   0,
-                  ((widget.viewportDimension.height -
-                                  widget
-                                      .pdfPages[widget
-                                          .pdfViewerController.pageNumber]!
-                                      .pageSize
-                                      .height) /
-                              2 +
-                          widget
-                              .pdfPages[widget.pdfViewerController.pageNumber]!
-                              .pageSize
-                              .height) /
-                      2));
+                  (((widget.viewportDimension.height -
+                                      widget
+                                          .pdfPages[widget
+                                              .pdfViewerController.pageNumber]!
+                                          .pageSize
+                                          .height) /
+                                  2 +
+                              widget
+                                  .pdfPages[
+                                      widget.pdfViewerController.pageNumber]!
+                                  .pageSize
+                                  .height) /
+                          2)
+                      .abs()));
     } else {
       if ((widget.viewportDimension.width > totalPageOffset) &&
           (widget.pdfDimension.width >= widget.viewportDimension.width)) {
@@ -305,15 +307,10 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
     WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
       _updateScrollHeadPosition();
     });
-    // ignore: avoid_bool_literals_in_conditional_expressions
-    final bool enableDoubleTapZoom = ((!kIsDesktop &&
-                widget.enableDoubleTapZooming) ||
-            (kIsDesktop && widget.interactionMode == PdfInteractionMode.pan) ||
-            (kIsDesktop &&
-                widget.isMobileWebView &&
-                widget.enableDoubleTapZooming))
-        ? true
-        : false;
+    final bool enableDoubleTapZoom = (!kIsDesktop &&
+            widget.enableDoubleTapZooming) ||
+        (kIsDesktop && widget.interactionMode == PdfInteractionMode.pan) ||
+        (kIsDesktop && widget.isMobileWebView && widget.enableDoubleTapZooming);
     final Widget scrollable = Directionality(
       textDirection: widget.textDirection,
       child: InteractiveScrollViewer(
@@ -325,9 +322,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
         key: _childKey,
         boundaryMargin: _boundaryMargin,
         enableDoubleTapZooming: enableDoubleTapZoom,
-        scaleEnabled:
-            // ignore: avoid_bool_literals_in_conditional_expressions
-            (!kIsDesktop || (kIsDesktop && widget.scaleEnabled)) ? true : false,
+        scaleEnabled: !kIsDesktop || (kIsDesktop && widget.scaleEnabled),
         panEnabled: widget.isPanEnabled,
         onInteractionStart: _handleInteractionStart,
         onInteractionUpdate: _handleInteractionChanged,
@@ -496,7 +491,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                         .copyWith(
                           fontSize: 14,
                           fontWeight: isMaterial3 ? FontWeight.w500 : null,
-                          color: _themeData!.colorScheme.primary,
+                          color: _themeData.colorScheme.primary,
                         )
                         .merge(_pdfViewerThemeData!
                             .paginationDialogStyle?.cancelTextStyle),
@@ -521,7 +516,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                         .copyWith(
                           fontSize: 14,
                           fontWeight: isMaterial3 ? FontWeight.w500 : null,
-                          color: _themeData!.colorScheme.primary,
+                          color: _themeData.colorScheme.primary,
                         )
                         .merge(_pdfViewerThemeData!
                             .paginationDialogStyle?.okTextStyle),
@@ -562,7 +557,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                             .passwordDialogStyle?.inputFieldBorderColor ??
                         _effectiveThemeData!
                             .passwordDialogStyle?.inputFieldBorderColor ??
-                        _themeData!.colorScheme.primary,
+                        _themeData.colorScheme.primary,
                   ))
                 : null,
             errorBorder: isMaterial3
@@ -573,7 +568,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                               .passwordDialogStyle?.errorBorderColor ??
                           _effectiveThemeData!
                               .passwordDialogStyle?.errorBorderColor ??
-                          _themeData!.colorScheme.error,
+                          _themeData.colorScheme.error,
                     ))
                 : null,
             focusedBorder: isMaterial3
@@ -583,12 +578,12 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                                 .passwordDialogStyle?.inputFieldBorderColor ??
                             _effectiveThemeData!
                                 .passwordDialogStyle?.inputFieldBorderColor ??
-                            _themeData!.colorScheme.primary,
+                            _themeData.colorScheme.primary,
                         width: 2),
                   )
                 : UnderlineInputBorder(
                     borderSide:
-                        BorderSide(color: _themeData!.colorScheme.primary),
+                        BorderSide(color: _themeData.colorScheme.primary),
                   ),
             contentPadding: isMaterial3
                 ? const EdgeInsets.all(16)
@@ -622,7 +617,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
             errorStyle: Theme.of(context)
                 .textTheme
                 .bodySmall!
-                .copyWith(fontSize: 12, color: _themeData!.colorScheme.error)
+                .copyWith(fontSize: 12, color: _themeData.colorScheme.error)
                 .merge(_pdfViewerThemeData!
                     .paginationDialogStyle?.validationTextStyle),
           ),
@@ -783,7 +778,10 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
 
   /// updates the scroll head position based on the interaction results.
   void _updateScrollHeadPosition() {
-    if (widget.pdfDimension.height > 0 && widget.viewportDimension.height > 0) {
+    if (widget.pdfDimension.height > 0 &&
+        widget.pdfDimension.width > 0 &&
+        widget.viewportDimension.height > 0 &&
+        widget.viewportDimension.width > 0) {
       _scale = widget.transformationController!.value.getMaxScaleOnAxis();
       final double currentOffsetX =
           widget.transformationController!.toScene(Offset.zero).dx;

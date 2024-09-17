@@ -23,7 +23,8 @@ class ScrollHead extends StatefulWidget {
       this.isMobileWebView,
       this.scrollDirection,
       this.isBookmarkViewOpen,
-      this.pageLayoutMode);
+      this.pageLayoutMode,
+      {super.key});
 
   /// Position of the [ScrollHead] in [SfPdfViewer].
   final Offset scrollHeadOffset;

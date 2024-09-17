@@ -166,7 +166,8 @@ class MapModel {
 class MapLayerInheritedWidget extends InheritedWidget {
   /// Creates [MapLayerInheritedWidget].
   const MapLayerInheritedWidget(
-      {required Widget child,
+      {super.key,
+      required Widget child,
       required this.controller,
       this.zoomController,
       this.sublayers})
@@ -192,6 +193,7 @@ class MapLayerInheritedWidget extends InheritedWidget {
 class SublayerContainer extends Stack {
   /// Creates a [SublayerContainer].
   const SublayerContainer({
+    super.key,
     required this.ancestor,
     required List<MapSublayer> children,
   }) : super(children: children);

@@ -25,7 +25,8 @@ import 'rendering_widget.dart';
 class ScrollViewWidget extends StatefulWidget {
   /// Creates a [ScrollViewWidget] for the [SfDataGrid].
   const ScrollViewWidget(
-      {required this.width,
+      {super.key,
+      required this.width,
       required this.height,
       required this.dataGridStateDetails});
 
@@ -365,6 +366,9 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
 
     double getStartX() {
       if (dataGridConfiguration.textDirection == TextDirection.ltr) {
+        if (_horizontalController!.hasClients) {
+          _container.horizontalOffset = _horizontalController!.offset;
+        }
         return -_container.horizontalOffset;
       } else {
         if (!_horizontalController!.hasClients ||

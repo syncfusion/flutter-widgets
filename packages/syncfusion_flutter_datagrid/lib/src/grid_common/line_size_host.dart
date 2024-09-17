@@ -734,7 +734,7 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     }
 
     if (_distances != null) {
-      DistancesUtil.onInserted(_distances!, this, insertAtLine, count);
+      DistancesUtil.instance.onInserted(_distances!, this, insertAtLine, count);
     }
 
     if (onLinesInserted != null) {
@@ -898,7 +898,8 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     }
     // DistancesLineHiddenChanged checks both hidden state and sizes together...
     if (_distances != null) {
-      DistancesUtil.distancesLineHiddenChanged(distances!, this, from, to);
+      DistancesUtil.instance
+          .distancesLineHiddenChanged(distances!, this, from, to);
     }
     HiddenRangeChangedArgs hiddenRangeChangedArgs;
     if (onLineHiddenChanged != null) {
@@ -993,7 +994,8 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     }
 
     if (_distances != null) {
-      DistancesUtil.distancesLineSizeChanged(distances!, this, index, index);
+      DistancesUtil.instance
+          .distancesLineSizeChanged(distances!, this, index, index);
     }
 
     if (onLineSizeChanged != null) {
@@ -1021,7 +1023,8 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     }
 
     if (_distances != null) {
-      DistancesUtil.distancesLineHiddenChanged(_distances!, this, from, to);
+      DistancesUtil.instance
+          .distancesLineHiddenChanged(_distances!, this, from, to);
     }
     RangeChangedArgs rangeChangedArgs;
     if (onLineSizeChanged != null) {
@@ -1055,8 +1058,15 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
 
 /// Initializes a new instance of the DistanceLineCounterTree class.
 class DistancesUtil {
+  // Private constructor
+  DistancesUtil._internal();
+
   /// Prevents a default instance of the DistancesUtil class from being created.
-  DistancesUtil();
+  // Static instance of the class
+  static final DistancesUtil _instance = DistancesUtil._internal();
+
+  // Static method to access the instance
+  static DistancesUtil get instance => _instance;
 
   /// This method fires when distances line hidden changed.
   ///
@@ -1064,11 +1074,8 @@ class DistancesUtil {
   /// * linesHost - _required_ - The line host.
   /// * from - _required_ - The start index of the line.
   /// * to - _required_ - The end index of the line.
-  static void distancesLineHiddenChanged(
-      DistanceCounterCollectionBase distances,
-      LineSizeHostBase linesHost,
-      int from,
-      int to) {
+  void distancesLineHiddenChanged(DistanceCounterCollectionBase distances,
+      LineSizeHostBase linesHost, int from, int to) {
     final Object ndh = linesHost;
     for (int n = from; n <= to; n++) {
       int repeatSizeCount = -1;
@@ -1105,7 +1112,7 @@ class DistancesUtil {
   /// * linesHost - _required_ - The line host.
   /// * from - _required_ - The start index of the line.
   /// * to - _required_ - The end index of the line.
-  static void distancesLineSizeChanged(DistanceCounterCollectionBase distances,
+  void distancesLineSizeChanged(DistanceCounterCollectionBase distances,
       LineSizeHostBase linesHost, int from, int to) {
     final Object ndh = linesHost;
 
@@ -1139,7 +1146,7 @@ class DistancesUtil {
   /// * repeatSizeCount - _required_ - The count of repeated sizes.
   ///
   /// Returns the minimum index value
-  static int getRangeToHelper(int n, int to, int repeatSizeCount) {
+  int getRangeToHelper(int n, int to, int repeatSizeCount) {
     if (repeatSizeCount == maxvalue) {
       return to;
     }
@@ -1153,7 +1160,7 @@ class DistancesUtil {
   /// * linesHost - _required_ - The line host.
   /// * insertAt - _required_ - The index to insert.
   /// * count - _required_ - The count of the lines inserted.
-  static void onInserted(DistanceCounterCollectionBase distances,
+  void onInserted(DistanceCounterCollectionBase distances,
       LineSizeHostBase linesHost, int insertAt, int count) {
     distances.insert(insertAt, count);
     final int to = insertAt + count - 1;

@@ -1,7 +1,11 @@
-part of xlsio;
+import '../../general/culture_info.dart';
+import '../../range/range.dart';
+import '../format_section.dart';
+import '../format_tokens/enums.dart';
+import 'format_token_base.dart';
 
 /// Contains Am Pm Token descriptions.
-class _AmPmToken extends _FormatTokenBase {
+class AmPmToken extends FormatTokenBase {
   final RegExp _aMPMRegex = RegExp('[Am/PM]{4,}');
 
   /// Edge between AM and PM symbols.
@@ -15,7 +19,7 @@ class _AmPmToken extends _FormatTokenBase {
 
   /// Tries to parse format string.
   @override
-  int _tryParse(String strFormat, int iIndex) {
+  int tryParse(String strFormat, int iIndex) {
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) {
@@ -28,15 +32,15 @@ class _AmPmToken extends _FormatTokenBase {
           'iIndex - Value cannot be less than 0 and greater than than format length - 1.');
       throw error;
     }
-    return _tryParseRegex(_aMPMRegex, strFormat, iIndex);
+    return tryParseRegex(_aMPMRegex, strFormat, iIndex);
   }
 
   /// Applies format to the value.
 
   @override
-  String _applyFormat(double value, bool bShowHiddenSymbols,
-      CultureInfo culture, _FormatSection section) {
-    final DateTime date = Range._fromOADate(value);
+  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
+      FormatSection section) {
+    final DateTime date = Range.fromOADate(value);
 
     final int iHour = date.hour;
 
@@ -50,7 +54,7 @@ class _AmPmToken extends _FormatTokenBase {
   /// Applies format to the value.
   @override
   // ignore: unused_element
-  String _applyFormatString(String value, bool bShowHiddenSymbols) {
+  String applyFormatString(String value, bool bShowHiddenSymbols) {
     throw Exception();
   }
 
@@ -63,7 +67,7 @@ class _AmPmToken extends _FormatTokenBase {
   /// Gets type of the token. Read-only.
 
   @override
-  _TokenType get _tokenType {
-    return _TokenType.amPm;
+  TokenType get tokenType {
+    return TokenType.amPm;
   }
 }

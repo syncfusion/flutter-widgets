@@ -1,5 +1,3 @@
-part of officechart;
-
 ///Represents chart format
 class ChartFormat {
   /// Represents the angle of first slice in a doughnut or pie chart., in degrees (clockwise from vertical).

@@ -116,7 +116,7 @@ class RenderTooltip extends RenderProxyBox {
   late Animation<double> _scaleAnimation;
   Timer? _showTimer;
   Timer? _hideDeferTimer;
-  Size? _tileSize;
+  late Size? _tileSize;
   Offset? _position;
   bool _preferTooltipOnTop = true;
   bool _shouldCalculateTooltipPosition = false;

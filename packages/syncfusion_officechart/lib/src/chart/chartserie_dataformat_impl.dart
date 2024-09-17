@@ -1,9 +1,10 @@
-part of officechart;
+import '../../officechart.dart';
+import 'chart_fomat_impl.dart';
 
 ///Represents chart series format
-class _ChartSerieDataFormatImpl implements ChartSerieDataFormat {
-  /// Create a instance of [_ChartSerieDataFormatImpl] class.
-  _ChartSerieDataFormatImpl(Chart chart) {
+class ChartSerieDataFormatImpl implements ChartSerieDataFormat {
+  /// Create a instance of [ChartSerieDataFormatImpl] class.
+  ChartSerieDataFormatImpl(Chart chart) {
     _markerBackgroundColor = '#000000';
     _markerForegroundColor = '#000000';
     _markerStyle = ExcelChartMarkerType.none;
@@ -67,7 +68,7 @@ class _ChartSerieDataFormatImpl implements ChartSerieDataFormat {
   ///Get chart format
   @override
   ChartFormat get commonSerieOptions {
-    _chartFormat ??= _ChartformatImpl(_chart);
+    _chartFormat ??= ChartformatImpl(_chart);
     return _chartFormat!;
   }
 

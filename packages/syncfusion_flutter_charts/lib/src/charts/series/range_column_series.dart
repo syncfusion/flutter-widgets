@@ -562,12 +562,12 @@ class RangeColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
 
     final RRect? paintRRect =
         RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
-    if (paintRRect == null || paintRRect.isEmpty) {
+    if (paintRRect == null) {
       return;
     }
 
     Paint paint = getFillPaint();
-    if (paint.color != Colors.transparent) {
+    if (paint.color != Colors.transparent && !paintRRect.isEmpty) {
       canvas.drawRRect(paintRRect, paint);
     }
 

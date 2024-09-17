@@ -1,4 +1,4 @@
-part of xlsio;
+import '../../general/enums.dart';
 
 /// Represents the above or below conditional formatting rule.
 /// Applying this rule to a range helps you highlight the cells which contain values above or below the average of selected range.

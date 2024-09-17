@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../interfaces/pdf_interface.dart';
+import '../annotations/json_parser.dart';
 import '../io/decode_big_endian.dart';
 import '../io/enums.dart';
 import '../io/pdf_cross_table.dart';
@@ -99,6 +100,12 @@ class PdfString implements IPdfPrimitive {
     result.add(isHex!
         ? PdfString.hexStringMark.codeUnitAt(0)
         : PdfString.stringMark.codeUnitAt(0));
+    if ((data == null || data!.isEmpty) && !isNullOrEmpty(value)) {
+      data = <int>[];
+      for (int i = 0; i < value!.length; i++) {
+        data!.add(value!.codeUnitAt(i).toUnsigned(8));
+      }
+    }
     if (data != null && data!.isNotEmpty) {
       List<int> tempData;
       if (isHex!) {
@@ -109,7 +116,7 @@ class PdfString implements IPdfPrimitive {
         for (int i = 0; i < data.length; i++) {
           tempData.add(data[i].toUnsigned(8));
         }
-      } else if (utf8.encode(value!).length != value!.length) {
+      } else if (!isColorSpace && utf8.encode(value!).length != value!.length) {
         tempData = toUnicodeArray(value!, true);
         tempData = escapeSymbols(tempData);
       } else {

@@ -18,7 +18,7 @@ class SelectionManagerBase extends ChangeNotifier {
   final List<DataGridRow> _shiftSelectedRows = <DataGridRow>[];
 
   /// Holds the [DataGridStateDetails].
-  DataGridStateDetails? _dataGridStateDetails;
+  late DataGridStateDetails? _dataGridStateDetails;
 
   /// Processes the selection operation when tap a cell.
   void handleTap(RowColumnIndex rowColumnIndex) {}

@@ -1,4 +1,4 @@
-part of xlsio;
+import '../general/enums.dart';
 
 /// Represents a class contains page setup settings.
 class PageSetup {

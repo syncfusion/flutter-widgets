@@ -1,18 +1,21 @@
-part of xlsio;
+import '../../general/culture_info.dart';
+import '../format_section.dart';
+import 'enums.dart';
 
 /// Base class for formula tokens.
-abstract class _FormatTokenBase {
+abstract class FormatTokenBase {
   /// Part of format.
-  String _strFormat = '';
+  String strFormat = '';
 
   /// Tries to parse format string.
-  int _tryParse(String strFormat, int iIndex);
+  int tryParse(String strFormat, int iIndex);
 
   /// Tries to parse format string using regular expression.
-  int _tryParseRegex(RegExp regex, String strFormat, int iIndex) {
-    final int iFormatLength = strFormat.length;
+  int tryParseRegex(RegExp regex, String stringFormat, int iIndex) {
+    final int iFormatLength = stringFormat.length;
     if (iFormatLength == 0) {
-      final Error error = ArgumentError('strFormat - string cannot be empty');
+      final Error error =
+          ArgumentError('stringFormat - string cannot be empty');
       throw error;
     }
 
@@ -21,12 +24,12 @@ abstract class _FormatTokenBase {
           'iIndex - Value cannot be less than 0 or greater than Format Length');
       throw error;
     }
-    final Match? m = regex.matchAsPrefix(strFormat, iIndex);
-    if (regex.hasMatch(strFormat) && m != null && m.start == iIndex) {
-      _format = regex.stringMatch(strFormat)!;
-      iIndex += _strFormat.length;
+    final Match? m = regex.matchAsPrefix(stringFormat, iIndex);
+    if (regex.hasMatch(stringFormat) && m != null && m.start == iIndex) {
+      format = regex.stringMatch(stringFormat)!;
+      iIndex += strFormat.length;
       if (m.end != iIndex) {
-        _format = _strFormat + _strFormat;
+        format = strFormat + strFormat;
         iIndex = m.end;
       }
     }
@@ -34,27 +37,27 @@ abstract class _FormatTokenBase {
   }
 
   /// Applies format to the value.
-  String _applyFormat(double value, bool bShowHiddenSymbols,
-      CultureInfo culture, _FormatSection section);
+  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
+      FormatSection section);
 
   /// Applies format to the value.
   // ignore: unused_element
-  String _applyFormatString(String value, bool bShowHiddenSymbols);
+  String applyFormatString(String value, bool bShowHiddenSymbols);
 
   /// Gets or sets format of the token.
-  String get _format {
-    return _strFormat;
+  String get format {
+    return strFormat;
   }
 
-  set _format(String value) {
+  set format(String value) {
     if (value.isEmpty) {
       final Error error = ArgumentError('value - string cannot be empty.');
       throw error;
     }
 
-    if (_strFormat != value) {
-      _strFormat = value;
-      _onFormatChange();
+    if (strFormat != value) {
+      strFormat = value;
+      onFormatChange();
     }
   }
 
@@ -78,10 +81,10 @@ abstract class _FormatTokenBase {
   }
 
   /// This method is called after format string was changed.
-  void _onFormatChange() {}
+  void onFormatChange() {}
 
   /// Gets type of the token. Read-only.
-  _TokenType get _tokenType {
-    return _TokenType.general;
+  TokenType get tokenType {
+    return TokenType.general;
   }
 }

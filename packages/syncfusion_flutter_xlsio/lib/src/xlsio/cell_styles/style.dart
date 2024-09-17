@@ -1,4 +1,7 @@
-part of xlsio;
+import 'dart:ui';
+
+import '../general/enums.dart';
+import 'borders.dart';
 
 /// Represents the Style class.
 class Style {

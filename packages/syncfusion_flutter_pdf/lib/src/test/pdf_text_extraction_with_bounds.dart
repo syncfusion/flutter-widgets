@@ -10,6 +10,7 @@ import 'pdf_docs.dart';
 import 'pdf_document.dart';
 // ignore: directives_ordering
 import 'find_text.dart';
+import 'pdf_input_docs.dart';
 
 // ignore: public_member_api_docs
 void extractTextWithBounds() {
@@ -2860,6 +2861,25 @@ void extractTextWithBounds() {
       drawRectangleWithTextLineGlyphs(
           textLine, document, 'FLUT_7406_test_4.pdf');
     });
+    test(
+        'FLUT-891201-Performance issue occurs while extracting text line from specific PDF document',
+        () {
+      final PdfDocument document = PdfDocument.fromBase64String(flut891201Pdf);
+      final int count = document.pages.count;
+      Stopwatch? stopwatch = Stopwatch()..start();
+      for (int i = 0; i < count; i++) {
+        List<TextLine>? textLine =
+            PdfTextExtractor(document).extractTextLines(startPageIndex: i);
+        textLine.clear();
+        textLine = null;
+      }
+      stopwatch.stop();
+      expect(stopwatch.elapsedMilliseconds < 7000, true,
+          reason:
+              'Performance failure: Expected less than 7000 ms but was ${stopwatch.elapsedMilliseconds} ms');
+      stopwatch = null;
+      document.dispose();
+    });
     test('FLUT-870068-test - 1', () {
       final PdfDocument doc = PdfDocument.fromBase64String(flut870068Pdf_1);
       final PdfTextExtractor textExtractor = PdfTextExtractor(doc);
@@ -2887,6 +2907,21 @@ void extractTextWithBounds() {
             .drawRectangle(bounds: line.bounds, pen: PdfPens.red);
       }
       savePdf(doc.saveSync(), 'FLUT-870068_test_2.pdf');
+      doc.dispose();
+    });
+    test(
+        'FLUT-890426-Text line bounds is not retrieved properly for specific PDF document',
+        () {
+      final PdfDocument doc = PdfDocument.fromBase64String(flut890426Pdf);
+      final PdfTextExtractor textExtractor = PdfTextExtractor(doc);
+      final List<TextLine> textLines = textExtractor.extractTextLines();
+      for (final TextLine line in textLines) {
+        for (final TextWord word in line.wordCollection) {
+          doc.pages[line.pageIndex].graphics
+              .drawRectangle(bounds: word.bounds, pen: PdfPens.red);
+        }
+      }
+      savePdf(doc.saveSync(), 'FLUT-890426_test.pdf');
       doc.dispose();
     });
   });

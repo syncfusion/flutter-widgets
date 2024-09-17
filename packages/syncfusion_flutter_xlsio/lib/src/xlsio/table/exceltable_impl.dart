@@ -1,9 +1,15 @@
-part of xlsio;
+import '../general/enums.dart';
+import '../general/workbook.dart';
+import '../range/range.dart';
+import '../table/exceltablecolumn.dart';
+import '../worksheet/worksheet.dart';
+import 'exceltable.dart';
+import 'exceltablecolumn_impl.dart';
 
 ///Represents Implementation of List Object
-class _ExcelTableImpl implements ExcelTable {
+class ExcelTableImpl implements ExcelTable {
   /// Initializes new instance of the list object.
-  _ExcelTableImpl(String name, Range location, int index) {
+  ExcelTableImpl(String name, Range location, int index) {
     _showHeaderRow = true;
     _showFirstColumn = false;
     _showLastColumn = false;
@@ -13,10 +19,10 @@ class _ExcelTableImpl implements ExcelTable {
     totalsRowShown = false;
     _alternativeText = '';
     _summary = '';
-    _worksheet = location.worksheet;
-    displayName = _name = name;
+    worksheet = location.worksheet;
+    displayName = name = name;
     _location = location;
-    _index = index;
+    index = index;
     _builtInTableStyle = ExcelTableBuiltInStyle.tableStyleMedium2;
   }
 
@@ -27,7 +33,7 @@ class _ExcelTableImpl implements ExcelTable {
   int columnIndex = 0;
 
   /// Name of the list object.
-  late String _name;
+  late String name;
 
   /// List object's columns.
   late List<ExcelTableColumn> _columns = <ExcelTableColumn>[];
@@ -66,17 +72,17 @@ class _ExcelTableImpl implements ExcelTable {
   late bool _showBandedRows;
 
   /// Index of the list object.
-  late int _index;
+  late int index;
 
   /// Count of rows with totals.
   late bool totalsRowShown;
 
   /// Represents the Parent worksheet.
-  late Worksheet _worksheet;
+  late Worksheet worksheet;
 
   /// Gets index of the table in a worksheet. Read-only.
-  int get _tableIndex {
-    return _index;
+  int get tableIndex {
+    return index;
   }
 
   /// Gets or sets a Boolean value indicating whether the Total row is visible.
@@ -90,12 +96,12 @@ class _ExcelTableImpl implements ExcelTable {
     if (value != showTotalRow) {
       final Worksheet sheet = _location.worksheet;
       final Workbook book = sheet.workbook;
-      final int iMaxRow = book._maxRowCount;
+      final int iMaxRow = book.maxRowCount;
 
       if (value) {
         totalsRowShown = true;
         if (_location.lastRow < iMaxRow) {
-          final Range beforeTotalRow = _worksheet.getRangeByIndex(_location.row,
+          final Range beforeTotalRow = worksheet.getRangeByIndex(_location.row,
               _location.column, _location.lastRow, _location.lastColumn);
           _location = _checkTotalsRange(beforeTotalRow);
           _totalRowCount = 1;
@@ -109,7 +115,7 @@ class _ExcelTableImpl implements ExcelTable {
   /// Checks for TotalsCalculation and updates Range.
   Range _checkTotalsRange(Range range) {
     if (range.row <= range.lastRow) {
-      range = _worksheet.getRangeByIndex(
+      range = worksheet.getRangeByIndex(
           range.row, range.column, range.lastRow + 1, range.lastColumn);
     }
     return range;
@@ -173,8 +179,8 @@ class _ExcelTableImpl implements ExcelTable {
   }
 
   /// Gets the name of the table.
-  String get _tableName {
-    return _name;
+  String get tableName {
+    return name;
   }
 
   /// Gets or sets a Boolean value indicating whether first column format is present.
@@ -197,17 +203,17 @@ class _ExcelTableImpl implements ExcelTable {
   @override
   set showHeaderRow(bool value) {
     if (_showHeaderRow != value) {
-      if (!_worksheet.workbook._saving) {
+      if (!worksheet.workbook.isSaving) {
         if (value == false) {
-          _worksheet
+          worksheet
               .getRangeByIndex(dataRange.row, dataRange.column, dataRange.row,
                   dataRange.lastColumn)
               .text = '';
-          dataRange = _worksheet.getRangeByIndex(dataRange.row + 1,
+          dataRange = worksheet.getRangeByIndex(dataRange.row + 1,
               dataRange.column, dataRange.lastRow, dataRange.lastColumn);
         } else {
           final int iHeaderRow = dataRange.row - 1;
-          dataRange = _worksheet.getRangeByIndex(iHeaderRow, dataRange.column,
+          dataRange = worksheet.getRangeByIndex(iHeaderRow, dataRange.column,
               dataRange.lastRow, dataRange.lastColumn);
           final int iFirstColumn = dataRange.column;
 
@@ -215,7 +221,7 @@ class _ExcelTableImpl implements ExcelTable {
               columnCount < _columns.length;
               columnCount++) {
             final int iColumn = iFirstColumn + columnCount;
-            _worksheet
+            worksheet
                 .getRangeByIndex(iHeaderRow, iColumn, iHeaderRow, iColumn)
                 .text = _columns[columnCount].columnName;
           }
@@ -281,8 +287,7 @@ class _ExcelTableImpl implements ExcelTable {
     for (int columnCount = _location.column;
         columnCount <= _location.lastColumn;
         columnCount++) {
-      final Range range =
-          _worksheet.getRangeByIndex(_location.row, columnCount);
+      final Range range = worksheet.getRangeByIndex(_location.row, columnCount);
       String? strColumnName = range.text;
       if (strColumnName == null || strColumnName.isEmpty) {
         if (range.numberFormat != 'General') {
@@ -294,15 +299,15 @@ class _ExcelTableImpl implements ExcelTable {
         range.text = strColumnName;
       }
       columnNames.add(strColumnName);
-      _columns.add(_ExcelTableColumnImpl(
+      _columns.add(ExcelTableColumnImpl(
           strColumnName, _columns.length + 1, this, columnCount));
     }
 
-    _updateColumnNames(columnNames);
+    updateColumnNames(columnNames);
   }
 
   /// Updates column name
-  void _updateColumnNames(List<String> columnNames) {
+  void updateColumnNames(List<String> columnNames) {
     int iCol = 2;
     int index = 0;
     bool delete = true;
@@ -322,7 +327,7 @@ class _ExcelTableImpl implements ExcelTable {
         delete = false;
       } else {
         delete = true;
-        (_columns[index] as _ExcelTableColumnImpl)._setName(name);
+        (_columns[index] as ExcelTableColumnImpl).setName(name);
         columnNames.insert(index, name);
         index++;
       }
@@ -334,8 +339,9 @@ class _ExcelTableImpl implements ExcelTable {
       throw Exception('name');
     }
 
-    if (name.length > 255)
+    if (name.length > 255) {
       throw Exception('Name should not be more than 255 characters length.');
+    }
 
     if (int.tryParse(name[0]) != null) {
       throw Exception(

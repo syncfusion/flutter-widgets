@@ -149,6 +149,7 @@ class TextMarkupAnnotationView extends InteractiveGraphicsView
           strokeWidth: 1,
           opacity: annotation.opacity,
           isSelected: isSelected,
+          canMove: false,
           selectorColor: selectorColor,
         ) {
     _textMarkupType = annotation is HighlightAnnotation
@@ -366,9 +367,6 @@ bool _checkTextMarkupRects(List<PdfTextLine> textMarkupRects) {
   int pageNumber = textMarkupRects.first.pageNumber;
   for (final PdfTextLine textLine in textMarkupRects) {
     if (pageNumber <= 0 && textLine.pageNumber != pageNumber) {
-      return false;
-    }
-    if (textLine.bounds.isEmpty || textLine.bounds.isInfinite) {
       return false;
     }
     pageNumber = textLine.pageNumber;

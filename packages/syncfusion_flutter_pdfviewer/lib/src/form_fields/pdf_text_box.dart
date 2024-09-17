@@ -81,11 +81,14 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
     return textFormField;
   }
 
-  /// Adds the grouped items.
-  // ignore: use_setters_to_change_properties
-  void updateChildItems(List<PdfTextFormField> groupedItems) {
+  /// Sets the child items of the text form field.
+  set textFormFieldChildItems(List<PdfTextFormField>? groupedItems) {
     textFormField._children = groupedItems;
   }
+
+  /// Gets the child items of the text form field.
+  List<PdfTextFormField>? get textFormFieldChildItems =>
+      textFormField._children;
 
   /// Gets the focus node of the [PdfTextFormField].
   FocusNode createFocusNode(ChangeTracker changeTracker) {
@@ -175,51 +178,45 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
   }
 
   /// Builds the text form field widget.
-  Widget build(BuildContext context, double heightPercentage,
-      {required Function(Offset) onTap}) {
+  Widget build(BuildContext context, double heightPercentage) {
     return Positioned(
       left: bounds.left / heightPercentage,
       top: bounds.top / heightPercentage,
       width: bounds.width / heightPercentage,
       height: bounds.height / heightPercentage,
-      child: Listener(
-        onPointerUp: (PointerUpEvent event) {
-          onTap(event.localPosition.translate(
-              bounds.left / heightPercentage, bounds.top / heightPercentage));
-        },
-        child: PdfTextBox(
-          textEditingController: textEditingController,
-          focusNode: focusNode,
-          readOnly: textFormField.readOnly,
-          font: pdfTextField.font.name,
-          fontSize: pdfTextField.font.size / heightPercentage,
-          isPassword: pdfTextField.isPassword,
-          fillColor: pdfTextField.backColor.isEmpty
-              ? const Color.fromARGB(255, 221, 228, 255)
-              : Color.fromRGBO(
-                  pdfTextField.backColor.r,
-                  pdfTextField.backColor.g,
-                  pdfTextField.backColor.b,
-                  1,
-                ),
-          borderColor: pdfTextField.borderColor.isEmpty
-              ? Colors.transparent
-              : Color.fromRGBO(
-                  pdfTextField.borderColor.r,
-                  pdfTextField.borderColor.g,
-                  pdfTextField.borderColor.b,
-                  1,
-                ),
-          borderWidth: pdfTextField.borderWidth / heightPercentage,
-          multiline: pdfTextField.multiline,
-          maxLength: pdfTextField.maxLength,
-          letterSpacing: pdfTextField.insertSpaces && pdfTextField.maxLength > 1
-              ? (pdfTextField.bounds.width / pdfTextField.maxLength - 1) /
-                  heightPercentage
-              : null,
-          onValueChanged: invokeValueChanged,
-          onFocusChange: invokeFocusChange,
-        ),
+      child: PdfTextBox(
+        textEditingController: textEditingController,
+        focusNode: focusNode,
+        readOnly: textFormField.readOnly,
+        font: pdfTextField.font.name,
+        fontSize: pdfTextField.font.size / heightPercentage,
+        isPassword: pdfTextField.isPassword,
+        fillColor: pdfTextField.backColor.isEmpty
+            ? const Color.fromARGB(255, 221, 228, 255)
+            : Color.fromRGBO(
+                pdfTextField.backColor.r,
+                pdfTextField.backColor.g,
+                pdfTextField.backColor.b,
+                1,
+              ),
+        borderColor: pdfTextField.borderColor.isEmpty
+            ? Colors.transparent
+            : Color.fromRGBO(
+                pdfTextField.borderColor.r,
+                pdfTextField.borderColor.g,
+                pdfTextField.borderColor.b,
+                1,
+              ),
+        borderWidth: pdfTextField.borderWidth / heightPercentage,
+        textAlign: pdfTextField.textAlignment.textAlign,
+        multiline: pdfTextField.multiline,
+        maxLength: pdfTextField.maxLength,
+        letterSpacing: pdfTextField.insertSpaces && pdfTextField.maxLength > 1
+            ? (pdfTextField.bounds.width / pdfTextField.maxLength - 1) /
+                heightPercentage
+            : null,
+        onValueChanged: invokeValueChanged,
+        onFocusChange: invokeFocusChange,
       ),
     );
   }
@@ -250,6 +247,7 @@ class PdfTextBox extends StatefulWidget {
       this.onFocusChange,
       required this.borderColor,
       required this.borderWidth,
+      this.textAlign = TextAlign.left,
       super.key});
 
   /// Text form field text editing controller.
@@ -294,6 +292,9 @@ class PdfTextBox extends StatefulWidget {
   /// Text form field border width
   final double borderWidth;
 
+  /// Text form field text alignment
+  final TextAlign textAlign;
+
   @override
   State<PdfTextBox> createState() => _PdfTextBoxState();
 }
@@ -327,6 +328,7 @@ class _PdfTextBoxState extends State<PdfTextBox> {
         cursorWidth: 0.5,
         expands: widget.multiline,
         textAlignVertical: TextAlignVertical.top,
+        textAlign: widget.textAlign,
         style: widget.letterSpacing != null
             ? TextStyle(
                 color: Colors.black,

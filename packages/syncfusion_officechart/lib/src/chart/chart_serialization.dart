@@ -1,4 +1,13 @@
-part of officechart;
+// ignore_for_file: unused_element
+
+import 'dart:convert';
+
+import 'package:archive/archive.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+// ignore: depend_on_referenced_packages, directives_ordering
+import 'package:xml/xml.dart';
+
+import '../../officechart.dart';
 
 /// Represent the chart serialize class
 class ChartSerialization {
@@ -34,7 +43,7 @@ class ChartSerialization {
         builder.attribute('xmlns:c',
             'http://schemas.openxmlformats.org/drawingml/2006/chart');
 
-        if (chart._hasPlotArea) {
+        if (chart.hasPlotArea) {
           builder.element('c:roundedCorners', nest: () {
             builder.attribute('val', 0);
           });
@@ -43,7 +52,7 @@ class ChartSerialization {
           if (chart.hasTitle) {
             _serializeTitle(builder, chart.chartTitleArea);
           }
-          if (chart._is3DChart) {
+          if (chart.is3DChart) {
             _serializeView3D(builder, chart);
           }
           _serializePlotArea(builder, chart);
@@ -67,6 +76,11 @@ class ChartSerialization {
     }
   }
 
+  // ignore: public_member_api_docs
+  void saveCharts(Worksheet sheet) {
+    _saveCharts(sheet);
+  }
+
   /// serializes chart's legend.
   void _serializeLegend(XmlBuilder builder, ChartLegend chartLegend) {
     builder.element('c:legend', nest: () {
@@ -83,7 +97,7 @@ class ChartSerialization {
                         : 'r';
         builder.attribute('val', positionStr);
       });
-      if (chartLegend._hasTextArea) {
+      if (chartLegend.hasTextArea) {
         _serializeDefaultTextAreaProperties(builder, chartLegend.textArea);
       }
       builder.element('c:layout', nest: () {});
@@ -162,6 +176,11 @@ class ChartSerialization {
     }
   }
 
+  // ignore: public_member_api_docs
+  void serializeChartDrawing(XmlBuilder builder, Worksheet sheet) {
+    _serializeChartDrawing(builder, sheet);
+  }
+
   /// serialize default text area properties.
   void _serializeDefaultTextAreaProperties(
       XmlBuilder builder, ChartTextArea textArea) {
@@ -220,7 +239,7 @@ class ChartSerialization {
   /// serialize chart title.
   void _serializeTitle(XmlBuilder builder, ChartTextArea chartTextArea) {
     builder.element('c:title', nest: () {
-      if (chartTextArea._hasText) {
+      if (chartTextArea.hasText) {
         builder.element('c:tx', nest: () {
           builder.element('c:rich', nest: () {
             builder.element('a:bodyPr ', nest: () {});
@@ -242,7 +261,7 @@ class ChartSerialization {
       }
       builder.element('c:layout', nest: () {});
       builder.element('c:overlay', nest: () {
-        builder.attribute('val', chartTextArea._overlay ? '1' : '0');
+        builder.attribute('val', chartTextArea.overlay ? '1' : '0');
       });
       _serializeFill(builder, ExcelChartLinePattern.none, null, false);
     });
@@ -281,7 +300,7 @@ class ChartSerialization {
   void _serializePlotArea(XmlBuilder builder, Chart chart) {
     builder.element('c:plotArea', nest: () {
       builder.element('c:layout', nest: () {});
-      if (chart._series.count > 0) {
+      if (chart.series.count > 0) {
         _serializeMainChartTypeTag(builder, chart);
       } else {
         _serializeEmptyChart(builder, chart);
@@ -358,7 +377,7 @@ class ChartSerialization {
 
   /// serializes Line chart.
   void _serializeLineChart(XmlBuilder builder, Chart chart) {
-    final ExcelChartType type = chart.series[0]._serieType;
+    final ExcelChartType type = chart.series[0].serieType;
     builder.element('c:lineChart', nest: () {
       _serializeChartGrouping(builder, chart);
       builder.element('c:varyColors', nest: () {
@@ -406,8 +425,8 @@ class ChartSerialization {
       builder.element('c:gapWidth', nest: () {
         builder.attribute('val', gapwidth);
       });
-      if (chart._getIsStacked(chart.chartType) ||
-          chart._getIs100(chart.chartType)) {
+      if (chart.getIsStacked(chart.chartType) ||
+          chart.getIs100(chart.chartType)) {
         builder.element('c:overlap', nest: () {
           builder.attribute('val', '100');
         });
@@ -446,11 +465,11 @@ class ChartSerialization {
   ///   serialize chart grouping.
   void _serializeChartGrouping(XmlBuilder builder, Chart chart) {
     String strGrouping;
-    if (chart._getIsClustered(chart.chartType)) {
+    if (chart.getIsClustered(chart.chartType)) {
       strGrouping = 'clustered';
-    } else if (chart._getIs100(chart.chartType)) {
+    } else if (chart.getIs100(chart.chartType)) {
       strGrouping = 'percentStacked';
-    } else if (chart._getIsStacked(chart.chartType)) {
+    } else if (chart.getIsStacked(chart.chartType)) {
       strGrouping = 'stacked';
     } else {
       strGrouping = 'standard';
@@ -478,17 +497,17 @@ class ChartSerialization {
 
   /// serializes series of chart.
   void _serializeSerie(XmlBuilder builder, ChartSerie firstSerie) {
-    final ExcelChartType type = firstSerie._serieType;
+    final ExcelChartType type = firstSerie.serieType;
     builder.element('c:ser', nest: () {
       builder.element('c:idx', nest: () {
-        builder.attribute('val', firstSerie._index);
+        builder.attribute('val', firstSerie.index);
       });
       builder.element('c:order', nest: () {
-        builder.attribute('val', firstSerie._index);
+        builder.attribute('val', firstSerie.index);
       });
-      if (firstSerie._isDefaultName) {
+      if (firstSerie.isDefaultName) {
         builder.element('c:tx', nest: () {
-          final String strName = firstSerie._nameOrFormula;
+          final String strName = firstSerie.nameOrFormula;
           if (strName.isNotEmpty) {
             _serializeStringReference(
                 builder, strName, firstSerie, 'text', null);
@@ -498,7 +517,7 @@ class ChartSerialization {
 
       if (firstSerie.serieFormat.pieExplosionPercent != 0 ||
           (type == ExcelChartType.doughnutExploded &&
-              firstSerie._chart.series.count == 1)) {
+              firstSerie.chart.series.count == 1)) {
         builder.element('c:explosion', nest: () {
           builder.attribute('val', firstSerie.serieFormat.pieExplosionPercent);
         });
@@ -512,7 +531,7 @@ class ChartSerialization {
           });
         });
       } else if (type == ExcelChartType.stockHighLowClose) {
-        if (firstSerie._index == 2) {
+        if (firstSerie.index == 2) {
           builder.element('c:spPr', nest: () {
             builder.element('a:ln', nest: () {
               builder.attribute('w', '3175');
@@ -588,18 +607,17 @@ class ChartSerialization {
           });
         });
       }
-      if (firstSerie._categoryLabels != null) {
-        final Range firstRange = firstSerie._chart._worksheet.getRangeByIndex(
-            firstSerie._categoryLabels!.row,
-            firstSerie._categoryLabels!.column);
+      if (firstSerie.categoryLabels != null) {
+        final Range firstRange = firstSerie.chart.worksheet.getRangeByIndex(
+            firstSerie.categoryLabels!.row, firstSerie.categoryLabels!.column);
         builder.element('c:cat', nest: () {
-          Worksheet tempSheet = firstSerie._chart._worksheet;
-          if (firstSerie._categoryLabels!.addressGlobal != '') {
+          Worksheet tempSheet = firstSerie.chart.worksheet;
+          if (firstSerie.categoryLabels!.addressGlobal != '') {
             for (final Worksheet sheet
-                in firstSerie._chart._worksheet.workbook.worksheets.innerList) {
-              if (firstSerie._categoryLabels!.addressGlobal
+                in firstSerie.chart.worksheet.workbook.worksheets.innerList) {
+              if (firstSerie.categoryLabels!.addressGlobal
                       .contains(RegExp('${sheet.name}!')) ||
-                  firstSerie._categoryLabels!.addressGlobal
+                  firstSerie.categoryLabels!.addressGlobal
                       .contains(RegExp("${sheet.name}'!"))) {
                 tempSheet = sheet;
                 break;
@@ -609,10 +627,10 @@ class ChartSerialization {
           if (firstRange.text == null && firstRange.number != null) {
             builder.element('c:numRef', nest: () {
               builder.element('c:f',
-                  nest: firstSerie._categoryLabels!.addressGlobal);
-              final Range firstRange = firstSerie._chart._worksheet
-                  .getRangeByIndex(firstSerie._categoryLabels!.row,
-                      firstSerie._categoryLabels!.column);
+                  nest: firstSerie.categoryLabels!.addressGlobal);
+              final Range firstRange = firstSerie.chart.worksheet
+                  .getRangeByIndex(firstSerie.categoryLabels!.row,
+                      firstSerie.categoryLabels!.column);
               builder.element('c:numCache', nest: () {
                 if (firstRange.numberFormat != null &&
                     firstRange.numberFormat != 'General') {
@@ -625,27 +643,26 @@ class ChartSerialization {
           } else {
             _serializeStringReference(
                 builder,
-                firstSerie._categoryLabels!.addressGlobal,
+                firstSerie.categoryLabels!.addressGlobal,
                 firstSerie,
                 'cat',
                 tempSheet);
           }
         });
       }
-      if (firstSerie._values != null) {
+      if (firstSerie.values != null) {
         builder.element('c:val', nest: () {
           builder.element('c:numRef', nest: () {
-            builder.element('c:f', nest: firstSerie._values!.addressGlobal);
-            final Range firstRange = firstSerie._chart._worksheet
-                .getRangeByIndex(
-                    firstSerie._values!.row, firstSerie._values!.column);
-            Worksheet tempSheet = firstSerie._chart._worksheet;
-            if (firstSerie._values!.addressGlobal != '') {
-              for (final Worksheet sheet in firstSerie
-                  ._chart._worksheet.workbook.worksheets.innerList) {
-                if (firstSerie._values!.addressGlobal
+            builder.element('c:f', nest: firstSerie.values!.addressGlobal);
+            final Range firstRange = firstSerie.chart.worksheet.getRangeByIndex(
+                firstSerie.values!.row, firstSerie.values!.column);
+            Worksheet tempSheet = firstSerie.chart.worksheet;
+            if (firstSerie.values!.addressGlobal != '') {
+              for (final Worksheet sheet
+                  in firstSerie.chart.worksheet.workbook.worksheets.innerList) {
+                if (firstSerie.values!.addressGlobal
                         .contains(RegExp('${sheet.name}!')) ||
-                    firstSerie._values!.addressGlobal
+                    firstSerie.values!.addressGlobal
                         .contains(RegExp("${sheet.name}'!"))) {
                   tempSheet = sheet;
                   break;
@@ -664,8 +681,8 @@ class ChartSerialization {
           });
         });
       }
-      if (firstSerie._serieType.toString().contains('line') ||
-          firstSerie._serieType.toString().contains('stock')) {
+      if (firstSerie.serieType.toString().contains('line') ||
+          firstSerie.serieType.toString().contains('stock')) {
         builder.element('c:smooth', nest: () {
           builder.attribute('val', 0);
         });
@@ -711,7 +728,7 @@ class ChartSerialization {
   /// serializes number cache values.
   void _serializeNumCacheValues(
       XmlBuilder builder, ChartSerie firstSerie, Worksheet dataSheet) {
-    final Range? serieRange = firstSerie._values;
+    final Range? serieRange = firstSerie.values;
     if (serieRange != null) {
       final int count = serieRange.count;
       final int serieStartRow = serieRange.row;
@@ -753,7 +770,8 @@ class ChartSerialization {
   /// serializes catergory cache values.
   void _serializeCategoryTagCacheValues(
       XmlBuilder builder, ChartSerie firstSerie, Worksheet? dataSheet) {
-    final Range? serieRange = firstSerie._categoryLabels;
+    // ignore: unnecessary_nullable_for_final_variable_declarations
+    final Range? serieRange = firstSerie.categoryLabels;
     if (serieRange != null) {
       final int count = serieRange.count;
       final int serieStartRow = serieRange.row;
@@ -831,10 +849,10 @@ class ChartSerialization {
 
   /// serializes axies of the series.
   void _serializeAxes(XmlBuilder builder, Chart chart) {
-    if (chart._isCategoryAxisAvail) {
+    if (chart.isCategoryAxisAvail) {
       _serializeCategoryAxis(builder, chart.primaryCategoryAxis);
     }
-    if (chart._isValueAxisAvail) {
+    if (chart.isValueAxisAvail) {
       _serializeValueAxis(builder, chart.primaryValueAxis);
     }
   }
@@ -881,7 +899,7 @@ class ChartSerialization {
       builder.element('c:axPos', nest: () {
         builder.attribute('val', 'b');
       });
-      if (axis._hasAxisTitle) {
+      if (axis.hasAxisTitle) {
         _serializeChartTextArea(builder, axis.titleArea);
       }
       if (axis.numberFormat != '' && axis.numberFormat != 'General') {
@@ -936,12 +954,12 @@ class ChartSerialization {
         builder.element('c:orientation', nest: () {
           builder.attribute('val', 'minMax');
         });
-        if (!axis._isAutoMax) {
+        if (!axis.isAutoMax) {
           builder.element('c:max', nest: () {
             builder.attribute('val', axis.maximumValue);
           });
         }
-        if (axis._isAutoMin) {
+        if (axis.isAutoMin) {
           builder.element('c:min', nest: () {
             builder.attribute('val', axis.minimumValue);
           });
@@ -953,7 +971,7 @@ class ChartSerialization {
       builder.element('c:axPos', nest: () {
         builder.attribute('val', 'l');
       });
-      if (axis._hasAxisTitle) {
+      if (axis.hasAxisTitle) {
         _serializeChartTextArea(builder, axis.titleArea);
       }
       if (axis.numberFormat != '' && axis.numberFormat != 'General') {
@@ -983,9 +1001,9 @@ class ChartSerialization {
       builder.element('c:crosses', nest: () {
         builder.attribute('val', 'autoZero');
       });
-      final Chart chart = axis._parentChart;
+      final Chart chart = axis.parentChart;
       final String strCrossBetween =
-          chart.primaryCategoryAxis._isBetween ? 'between' : 'midCat';
+          chart.primaryCategoryAxis.isBetween ? 'between' : 'midCat';
       builder.element('c:crossBetween', nest: () {
         builder.attribute('val', strCrossBetween);
       });
@@ -1056,18 +1074,18 @@ class ChartSerialization {
     final ChartSeriesCollection firstSerie = chart.series;
 
     builder.element('c:view3D', nest: () {
-      if (!chart._isdefaultElevation) {
+      if (!chart.isdefaultElevation) {
         builder.element('c:rotX', nest: () {
           builder.attribute('val', chart.elevation);
         });
       }
-      if (firstSerie._innerList[0]._serieType == ExcelChartType.pie3D) {
+      if (firstSerie.innerList[0].serieType == ExcelChartType.pie3D) {
         for (int i = 0; i < chart.series.count; i++) {
           chart.rotation =
               chart.series[i].serieFormat.commonSerieOptions.firstSliceAngle;
         }
       }
-      if (!chart._isDefaultRotation) {
+      if (!chart.isDefaultRotation) {
         builder.element('c:rotY', nest: () {
           builder.attribute('val', chart.rotation);
         });
@@ -1078,7 +1096,7 @@ class ChartSerialization {
       builder.element('c:rAngAx', nest: () {
         int defaultValue = 0;
 
-        if (chart.rightAngleAxes || chart._isColumnOrBar) {
+        if (chart.rightAngleAxes || chart.isColumnOrBar) {
           defaultValue = 1;
         }
 
@@ -1133,7 +1151,7 @@ class ChartSerialization {
   void _serializeOfPieChart(XmlBuilder builder, Chart chart) {
     late int gapwidth;
     late int pieSecondSize;
-    final ExcelChartType type = chart.series[0]._serieType;
+    final ExcelChartType type = chart.series[0].serieType;
     late String isPieOrBar;
     if (type == ExcelChartType.pieOfPie) {
       isPieOrBar = 'pie';
@@ -1184,7 +1202,7 @@ class ChartSerialization {
 
   /// Serializes stock chart.
   void _serializeStockChart(XmlBuilder builder, Chart chart) {
-    final ExcelChartType type = chart.series.innerList[0]._serieType;
+    final ExcelChartType type = chart.series.innerList[0].serieType;
     if (type == ExcelChartType.stockVolumeOpenHighLowClose ||
         type == ExcelChartType.stockVolumeHighLowClose) {
       builder.element('c:barChart', nest: () {
@@ -1299,11 +1317,11 @@ class ChartSerialization {
   ///serialize stock axes
   void _serializeAxesforStockChart(
       XmlBuilder builder, Chart chart, int axisId, int crossAx, bool isBar) {
-    if (chart._isCategoryAxisAvail) {
+    if (chart.isCategoryAxisAvail) {
       _serializeCategoryAxisForStock(
           builder, chart.primaryCategoryAxis, axisId, crossAx, isBar);
     }
-    if (chart._isValueAxisAvail) {
+    if (chart.isValueAxisAvail) {
       _serializeValueAxisForStockchart(
           builder, chart.primaryCategoryAxis, axisId, crossAx, isBar);
     }
@@ -1333,7 +1351,7 @@ class ChartSerialization {
       builder.element('c:axPos', nest: () {
         builder.attribute('val', axpos);
       });
-      if (axis._hasAxisTitle) {
+      if (axis.hasAxisTitle) {
         _serializeChartTextArea(builder, axis.titleArea);
       }
       if (axis.numberFormat != '' && axis.numberFormat != 'General') {
@@ -1393,12 +1411,12 @@ class ChartSerialization {
         builder.element('c:orientation', nest: () {
           builder.attribute('val', 'minMax');
         });
-        if (!axis._isAutoMax) {
+        if (!axis.isAutoMax) {
           builder.element('c:max', nest: () {
             builder.attribute('val', axis.maximumValue);
           });
         }
-        if (axis._isAutoMin) {
+        if (axis.isAutoMin) {
           builder.element('c:min', nest: () {
             builder.attribute('val', axis.minimumValue);
           });
@@ -1421,7 +1439,7 @@ class ChartSerialization {
         builder.element('c:majorGridlines', nest: () {});
       }
 
-      if (axis._hasAxisTitle) {
+      if (axis.hasAxisTitle) {
         _serializeChartTextArea(builder, axis.titleArea);
       }
       if (axis.numberFormat != '' && axis.numberFormat != 'General') {
@@ -1455,9 +1473,9 @@ class ChartSerialization {
       builder.element('c:crosses', nest: () {
         builder.attribute('val', crosses);
       });
-      final Chart chart = axis._parentChart;
+      final Chart chart = axis.parentChart;
       final String strCrossBetween =
-          chart.primaryCategoryAxis._isBetween ? 'between' : 'midCat';
+          chart.primaryCategoryAxis.isBetween ? 'between' : 'midCat';
       builder.element('c:crossBetween', nest: () {
         builder.attribute('val', strCrossBetween);
       });
@@ -1493,7 +1511,7 @@ class ChartSerialization {
 
   ///Serialize marker for stock and line charts
   void _serializeMarker(XmlBuilder builder, ChartSerie firstSerie) {
-    final ExcelChartType type = firstSerie._serieType;
+    final ExcelChartType type = firstSerie.serieType;
 
     if ((firstSerie.serieFormat.markerStyle == ExcelChartMarkerType.none) &&
         (type == ExcelChartType.line ||
@@ -1592,7 +1610,7 @@ class ChartSerialization {
         builder.attribute('xmlns:c',
             'http://schemas.openxmlformats.org/drawingml/2006/chart');
 
-        if (chart._hasPlotArea) {
+        if (chart.hasPlotArea) {
           builder.element('c:roundedCorners', nest: () async {
             builder.attribute('val', 0);
           });
@@ -1601,7 +1619,7 @@ class ChartSerialization {
           if (chart.hasTitle) {
             _serializeTitleAsync(builder, chart.chartTitleArea);
           }
-          if (chart._is3DChart) {
+          if (chart.is3DChart) {
             _serializeView3DAsync(builder, chart);
           }
           _serializePlotAreaAsync(builder, chart);
@@ -1626,6 +1644,11 @@ class ChartSerialization {
     }
   }
 
+  // ignore: public_member_api_docs
+  Future<void> saveChartsAsync(Worksheet sheet) async {
+    _saveChartsAsync(sheet);
+  }
+
   /// serializes chart's legend.
   Future<void> _serializeLegendAsync(
       XmlBuilder builder, ChartLegend chartLegend) async {
@@ -1643,7 +1666,7 @@ class ChartSerialization {
                         : 'r';
         builder.attribute('val', positionStr);
       });
-      if (chartLegend._hasTextArea) {
+      if (chartLegend.hasTextArea) {
         _serializeDefaultTextAreaPropertiesAsync(builder, chartLegend.textArea);
       }
       builder.element('c:layout', nest: () async {});
@@ -1723,6 +1746,12 @@ class ChartSerialization {
     }
   }
 
+  // ignore: public_member_api_docs
+  Future<void> serializeChartDrawingAsync(
+      XmlBuilder builder, Worksheet sheet) async {
+    _serializeChartDrawingAsync(builder, sheet);
+  }
+
   /// serialize default text area properties.
   Future<void> _serializeDefaultTextAreaPropertiesAsync(
       XmlBuilder builder, ChartTextArea textArea) async {
@@ -1783,7 +1812,7 @@ class ChartSerialization {
   Future<void> _serializeTitleAsync(
       XmlBuilder builder, ChartTextArea chartTextArea) async {
     builder.element('c:title', nest: () async {
-      if (chartTextArea._hasText) {
+      if (chartTextArea.hasText) {
         builder.element('c:tx', nest: () async {
           builder.element('c:rich', nest: () async {
             builder.element('a:bodyPr ', nest: () async {});
@@ -1805,7 +1834,7 @@ class ChartSerialization {
       }
       builder.element('c:layout', nest: () async {});
       builder.element('c:overlay', nest: () async {
-        builder.attribute('val', chartTextArea._overlay ? '1' : '0');
+        builder.attribute('val', chartTextArea.overlay ? '1' : '0');
       });
       _serializeFillAsync(builder, ExcelChartLinePattern.none, null, false);
     });
@@ -1844,7 +1873,7 @@ class ChartSerialization {
   Future<void> _serializePlotAreaAsync(XmlBuilder builder, Chart chart) async {
     builder.element('c:plotArea', nest: () async {
       builder.element('c:layout', nest: () async {});
-      if (chart._series.count > 0) {
+      if (chart.series.count > 0) {
         _serializeMainChartTypeTagAsync(builder, chart);
       } else {
         _serializeEmptyChartAsync(builder, chart);
@@ -1922,7 +1951,7 @@ class ChartSerialization {
 
   /// serializes Line chart.
   Future<void> _serializeLineChartAsync(XmlBuilder builder, Chart chart) async {
-    final ExcelChartType type = chart.series[0]._serieType;
+    final ExcelChartType type = chart.series[0].serieType;
     builder.element('c:lineChart', nest: () async {
       _serializeChartGroupingAsync(builder, chart);
       builder.element('c:varyColors', nest: () async {
@@ -1970,8 +1999,8 @@ class ChartSerialization {
       builder.element('c:gapWidth', nest: () async {
         builder.attribute('val', gapwidth);
       });
-      if (chart._getIsStacked(chart.chartType) ||
-          chart._getIs100(chart.chartType)) {
+      if (chart.getIsStacked(chart.chartType) ||
+          chart.getIs100(chart.chartType)) {
         builder.element('c:overlap', nest: () async {
           builder.attribute('val', '100');
         });
@@ -2011,11 +2040,11 @@ class ChartSerialization {
   Future<void> _serializeChartGroupingAsync(
       XmlBuilder builder, Chart chart) async {
     String strGrouping;
-    if (chart._getIsClustered(chart.chartType)) {
+    if (chart.getIsClustered(chart.chartType)) {
       strGrouping = 'clustered';
-    } else if (chart._getIs100(chart.chartType)) {
+    } else if (chart.getIs100(chart.chartType)) {
       strGrouping = 'percentStacked';
-    } else if (chart._getIsStacked(chart.chartType)) {
+    } else if (chart.getIsStacked(chart.chartType)) {
       strGrouping = 'stacked';
     } else {
       strGrouping = 'standard';
@@ -2044,17 +2073,17 @@ class ChartSerialization {
   /// serializes series of chart.
   Future<void> _serializeSerieAsync(
       XmlBuilder builder, ChartSerie firstSerie) async {
-    final ExcelChartType type = firstSerie._serieType;
+    final ExcelChartType type = firstSerie.serieType;
     builder.element('c:ser', nest: () async {
       builder.element('c:idx', nest: () async {
-        builder.attribute('val', firstSerie._index);
+        builder.attribute('val', firstSerie.index);
       });
       builder.element('c:order', nest: () async {
-        builder.attribute('val', firstSerie._index);
+        builder.attribute('val', firstSerie.index);
       });
-      if (firstSerie._isDefaultName) {
+      if (firstSerie.isDefaultName) {
         builder.element('c:tx', nest: () async {
-          final String strName = firstSerie._nameOrFormula;
+          final String strName = firstSerie.nameOrFormula;
           if (strName.isNotEmpty) {
             _serializeStringReferenceAsync(
                 builder, strName, firstSerie, 'text', null);
@@ -2064,7 +2093,7 @@ class ChartSerialization {
 
       if (firstSerie.serieFormat.pieExplosionPercent != 0 ||
           (type == ExcelChartType.doughnutExploded &&
-              firstSerie._chart.series.count == 1)) {
+              firstSerie.chart.series.count == 1)) {
         builder.element('c:explosion', nest: () async {
           builder.attribute('val', firstSerie.serieFormat.pieExplosionPercent);
         });
@@ -2078,7 +2107,7 @@ class ChartSerialization {
           });
         });
       } else if (type == ExcelChartType.stockHighLowClose) {
-        if (firstSerie._index == 2) {
+        if (firstSerie.index == 2) {
           builder.element('c:spPr', nest: () async {
             builder.element('a:ln', nest: () async {
               builder.attribute('w', '3175');
@@ -2109,12 +2138,10 @@ class ChartSerialization {
 
       if (firstSerie.dataLabels.isValue) {
         builder.element('c:dLbls', nest: () async {
-          if (firstSerie.dataLabels.numberFormat != null &&
-              firstSerie.dataLabels.numberFormat != '' &&
-              firstSerie.dataLabels.numberFormat != 'General') {
+          final format = firstSerie.dataLabels.numberFormat;
+          if (format != null && format.isNotEmpty && format != 'General') {
             builder.element('c:numFmt', nest: () async {
-              builder.attribute(
-                  'formatCode', firstSerie.dataLabels.numberFormat);
+              builder.attribute('formatCode', format);
               builder.attribute('sourceLinked', '0');
             });
           }
@@ -2152,18 +2179,17 @@ class ChartSerialization {
           });
         });
       }
-      if (firstSerie._categoryLabels != null) {
-        final Range firstRange = firstSerie._chart._worksheet.getRangeByIndex(
-            firstSerie._categoryLabels!.row,
-            firstSerie._categoryLabels!.column);
+      if (firstSerie.categoryLabels != null) {
+        final Range firstRange = firstSerie.chart.worksheet.getRangeByIndex(
+            firstSerie.categoryLabels!.row, firstSerie.categoryLabels!.column);
         builder.element('c:cat', nest: () async {
-          Worksheet tempSheet = firstSerie._chart._worksheet;
-          if (firstSerie._categoryLabels!.addressGlobal != '') {
+          Worksheet tempSheet = firstSerie.chart.worksheet;
+          if (firstSerie.categoryLabels!.addressGlobal != '') {
             for (final Worksheet sheet
-                in firstSerie._chart._worksheet.workbook.worksheets.innerList) {
-              if (firstSerie._categoryLabels!.addressGlobal
+                in firstSerie.chart.worksheet.workbook.worksheets.innerList) {
+              if (firstSerie.categoryLabels!.addressGlobal
                       .contains(RegExp('${sheet.name}!')) ||
-                  firstSerie._categoryLabels!.addressGlobal
+                  firstSerie.categoryLabels!.addressGlobal
                       .contains(RegExp("${sheet.name}'!"))) {
                 tempSheet = sheet;
                 break;
@@ -2173,10 +2199,10 @@ class ChartSerialization {
           if (firstRange.text == null && firstRange.number != null) {
             builder.element('c:numRef', nest: () async {
               builder.element('c:f',
-                  nest: firstSerie._categoryLabels!.addressGlobal);
-              final Range firstRange = firstSerie._chart._worksheet
-                  .getRangeByIndex(firstSerie._categoryLabels!.row,
-                      firstSerie._categoryLabels!.column);
+                  nest: firstSerie.categoryLabels!.addressGlobal);
+              final Range firstRange = firstSerie.chart.worksheet
+                  .getRangeByIndex(firstSerie.categoryLabels!.row,
+                      firstSerie.categoryLabels!.column);
               builder.element('c:numCache', nest: () async {
                 if (firstRange.numberFormat != null &&
                     firstRange.numberFormat != 'General') {
@@ -2189,27 +2215,26 @@ class ChartSerialization {
           } else {
             _serializeStringReferenceAsync(
                 builder,
-                firstSerie._categoryLabels!.addressGlobal,
+                firstSerie.categoryLabels!.addressGlobal,
                 firstSerie,
                 'cat',
                 tempSheet);
           }
         });
       }
-      if (firstSerie._values != null) {
+      if (firstSerie.values != null) {
         builder.element('c:val', nest: () async {
           builder.element('c:numRef', nest: () async {
-            builder.element('c:f', nest: firstSerie._values!.addressGlobal);
-            final Range firstRange = firstSerie._chart._worksheet
-                .getRangeByIndex(
-                    firstSerie._values!.row, firstSerie._values!.column);
-            Worksheet tempSheet = firstSerie._chart._worksheet;
-            if (firstSerie._values!.addressGlobal != '') {
-              for (final Worksheet sheet in firstSerie
-                  ._chart._worksheet.workbook.worksheets.innerList) {
-                if (firstSerie._values!.addressGlobal
+            builder.element('c:f', nest: firstSerie.values!.addressGlobal);
+            final Range firstRange = firstSerie.chart.worksheet.getRangeByIndex(
+                firstSerie.values!.row, firstSerie.values!.column);
+            Worksheet tempSheet = firstSerie.chart.worksheet;
+            if (firstSerie.values!.addressGlobal != '') {
+              for (final Worksheet sheet
+                  in firstSerie.chart.worksheet.workbook.worksheets.innerList) {
+                if (firstSerie.values!.addressGlobal
                         .contains(RegExp('${sheet.name}!')) ||
-                    firstSerie._values!.addressGlobal
+                    firstSerie.values!.addressGlobal
                         .contains(RegExp("${sheet.name}'!"))) {
                   tempSheet = sheet;
                   break;
@@ -2228,8 +2253,8 @@ class ChartSerialization {
           });
         });
       }
-      if (firstSerie._serieType.toString().contains('line') ||
-          firstSerie._serieType.toString().contains('stock')) {
+      if (firstSerie.serieType.toString().contains('line') ||
+          firstSerie.serieType.toString().contains('stock')) {
         builder.element('c:smooth', nest: () async {
           builder.attribute('val', 0);
         });
@@ -2276,7 +2301,7 @@ class ChartSerialization {
   /// serializes number cache values.
   Future<void> _serializeNumCacheValuesAsync(
       XmlBuilder builder, ChartSerie firstSerie, Worksheet dataSheet) async {
-    final Range? serieRange = firstSerie._values;
+    final Range? serieRange = firstSerie.values;
     if (serieRange != null) {
       final int count = serieRange.count;
       final int serieStartRow = serieRange.row;
@@ -2318,7 +2343,8 @@ class ChartSerialization {
   /// serializes catergory cache values.
   Future<void> _serializeCategoryTagCacheValuesAsync(
       XmlBuilder builder, ChartSerie firstSerie, Worksheet? dataSheet) async {
-    final Range? serieRange = firstSerie._categoryLabels;
+    // ignore: unnecessary_nullable_for_final_variable_declarations
+    final Range? serieRange = firstSerie.categoryLabels;
     if (serieRange != null) {
       final int count = serieRange.count;
       final int serieStartRow = serieRange.row;
@@ -2400,10 +2426,10 @@ class ChartSerialization {
 
   /// serializes axies of the series.
   Future<void> _serializeAxesAsync(XmlBuilder builder, Chart chart) async {
-    if (chart._isCategoryAxisAvail) {
+    if (chart.isCategoryAxisAvail) {
       _serializeCategoryAxisAsync(builder, chart.primaryCategoryAxis);
     }
-    if (chart._isValueAxisAvail) {
+    if (chart.isValueAxisAvail) {
       _serializeValueAxisAsync(builder, chart.primaryValueAxis);
     }
   }
@@ -2452,7 +2478,7 @@ class ChartSerialization {
       builder.element('c:axPos', nest: () async {
         builder.attribute('val', 'b');
       });
-      if (axis._hasAxisTitle) {
+      if (axis.hasAxisTitle) {
         _serializeChartTextAreaAsync(builder, axis.titleArea);
       }
       if (axis.numberFormat != '' && axis.numberFormat != 'General') {
@@ -2508,12 +2534,12 @@ class ChartSerialization {
         builder.element('c:orientation', nest: () async {
           builder.attribute('val', 'minMax');
         });
-        if (!axis._isAutoMax) {
+        if (!axis.isAutoMax) {
           builder.element('c:max', nest: () async {
             builder.attribute('val', axis.maximumValue);
           });
         }
-        if (axis._isAutoMin) {
+        if (axis.isAutoMin) {
           builder.element('c:min', nest: () async {
             builder.attribute('val', axis.minimumValue);
           });
@@ -2525,7 +2551,7 @@ class ChartSerialization {
       builder.element('c:axPos', nest: () async {
         builder.attribute('val', 'l');
       });
-      if (axis._hasAxisTitle) {
+      if (axis.hasAxisTitle) {
         _serializeChartTextAreaAsync(builder, axis.titleArea);
       }
       if (axis.numberFormat != '' && axis.numberFormat != 'General') {
@@ -2555,9 +2581,9 @@ class ChartSerialization {
       builder.element('c:crosses', nest: () async {
         builder.attribute('val', 'autoZero');
       });
-      final Chart chart = axis._parentChart;
+      final Chart chart = axis.parentChart;
       final String strCrossBetween =
-          chart.primaryCategoryAxis._isBetween ? 'between' : 'midCat';
+          chart.primaryCategoryAxis.isBetween ? 'between' : 'midCat';
       builder.element('c:crossBetween', nest: () async {
         builder.attribute('val', strCrossBetween);
       });
@@ -2629,18 +2655,18 @@ class ChartSerialization {
     final ChartSeriesCollection firstSerie = chart.series;
 
     builder.element('c:view3D', nest: () async {
-      if (!chart._isdefaultElevation) {
+      if (!chart.isdefaultElevation) {
         builder.element('c:rotX', nest: () async {
           builder.attribute('val', chart.elevation);
         });
       }
-      if (firstSerie._innerList[0]._serieType == ExcelChartType.pie3D) {
+      if (firstSerie.innerList[0].serieType == ExcelChartType.pie3D) {
         for (int i = 0; i < chart.series.count; i++) {
           chart.rotation =
               chart.series[i].serieFormat.commonSerieOptions.firstSliceAngle;
         }
       }
-      if (!chart._isDefaultRotation) {
+      if (!chart.isDefaultRotation) {
         builder.element('c:rotY', nest: () async {
           builder.attribute('val', chart.rotation);
         });
@@ -2651,7 +2677,7 @@ class ChartSerialization {
       builder.element('c:rAngAx', nest: () async {
         int defaultValue = 0;
 
-        if (chart.rightAngleAxes || chart._isColumnOrBar) {
+        if (chart.rightAngleAxes || chart.isColumnOrBar) {
           defaultValue = 1;
         }
 
@@ -2708,7 +2734,7 @@ class ChartSerialization {
       XmlBuilder builder, Chart chart) async {
     late int gapwidth;
     late int pieSecondSize;
-    final ExcelChartType type = chart.series[0]._serieType;
+    final ExcelChartType type = chart.series[0].serieType;
     late String isPieOrBar;
     if (type == ExcelChartType.pieOfPie) {
       isPieOrBar = 'pie';
@@ -2761,7 +2787,7 @@ class ChartSerialization {
   /// Serializes stock chart.
   Future<void> _serializeStockChartAsync(
       XmlBuilder builder, Chart chart) async {
-    final ExcelChartType type = chart.series.innerList[0]._serieType;
+    final ExcelChartType type = chart.series.innerList[0].serieType;
     if (type == ExcelChartType.stockVolumeOpenHighLowClose ||
         type == ExcelChartType.stockVolumeHighLowClose) {
       builder.element('c:barChart', nest: () async {
@@ -2879,11 +2905,11 @@ class ChartSerialization {
   ///serialize stock axes
   Future<void> _serializeAxesforStockChartAsync(XmlBuilder builder, Chart chart,
       int axisId, int crossAx, bool isBar) async {
-    if (chart._isCategoryAxisAvail) {
+    if (chart.isCategoryAxisAvail) {
       _serializeCategoryAxisForStockAsync(
           builder, chart.primaryCategoryAxis, axisId, crossAx, isBar);
     }
-    if (chart._isValueAxisAvail) {
+    if (chart.isValueAxisAvail) {
       _serializeValueAxisForStockchartAsync(
           builder, chart.primaryCategoryAxis, axisId, crossAx, isBar);
     }
@@ -2913,7 +2939,7 @@ class ChartSerialization {
       builder.element('c:axPos', nest: () async {
         builder.attribute('val', axpos);
       });
-      if (axis._hasAxisTitle) {
+      if (axis.hasAxisTitle) {
         _serializeChartTextAreaAsync(builder, axis.titleArea);
       }
       if (axis.numberFormat != '' && axis.numberFormat != 'General') {
@@ -2973,12 +2999,12 @@ class ChartSerialization {
         builder.element('c:orientation', nest: () async {
           builder.attribute('val', 'minMax');
         });
-        if (!axis._isAutoMax) {
+        if (!axis.isAutoMax) {
           builder.element('c:max', nest: () async {
             builder.attribute('val', axis.maximumValue);
           });
         }
-        if (axis._isAutoMin) {
+        if (axis.isAutoMin) {
           builder.element('c:min', nest: () async {
             builder.attribute('val', axis.minimumValue);
           });
@@ -3001,7 +3027,7 @@ class ChartSerialization {
         builder.element('c:majorGridlines', nest: () async {});
       }
 
-      if (axis._hasAxisTitle) {
+      if (axis.hasAxisTitle) {
         _serializeChartTextAreaAsync(builder, axis.titleArea);
       }
       if (axis.numberFormat != '' && axis.numberFormat != 'General') {
@@ -3035,9 +3061,9 @@ class ChartSerialization {
       builder.element('c:crosses', nest: () async {
         builder.attribute('val', crosses);
       });
-      final Chart chart = axis._parentChart;
+      final Chart chart = axis.parentChart;
       final String strCrossBetween =
-          chart.primaryCategoryAxis._isBetween ? 'between' : 'midCat';
+          chart.primaryCategoryAxis.isBetween ? 'between' : 'midCat';
       builder.element('c:crossBetween', nest: () async {
         builder.attribute('val', strCrossBetween);
       });
@@ -3075,7 +3101,7 @@ class ChartSerialization {
   ///Serialize marker for stock and line charts
   Future<void> _serializeMarkerAsync(
       XmlBuilder builder, ChartSerie firstSerie) async {
-    final ExcelChartType type = firstSerie._serieType;
+    final ExcelChartType type = firstSerie.serieType;
 
     if ((firstSerie.serieFormat.markerStyle == ExcelChartMarkerType.none) &&
         (type == ExcelChartType.line ||

@@ -2133,7 +2133,8 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
 
   @override
   void didUpdateWidget(_TileDecor oldWidget) {
-    if (widget.sortAscending != oldWidget.sortAscending) {
+    if (widget.sortAscending != oldWidget.sortAscending ||
+        widget.details.color != oldWidget.details.color) {
       _colorTween =
           ColorTween(begin: widget.details.color, end: widget.details.color);
       if (widget.details.level.tooltipBuilder != null) {

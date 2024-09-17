@@ -1,7 +1,7 @@
-part of xlsio;
+import '../general/enums.dart';
 
 ///Common interface for all filter type
-class _Filter {
+class Filter {
   ///Represents filter type
-  late _ExcelFilterType _filterType;
+  late ExcelFilterType filterType;
 }

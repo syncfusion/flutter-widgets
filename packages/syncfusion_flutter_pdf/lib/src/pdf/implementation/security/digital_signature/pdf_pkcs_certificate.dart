@@ -76,10 +76,10 @@ class PdfPKCSCertificate {
                   Asn1SequenceCollection(subSequence);
               if (subSequenceCollection.id!.id ==
                   PkcsObjectId.pkcs8ShroudedKeyBag.id) {
-                final _EncryptedPrivateKey encryptedInformation =
-                    _EncryptedPrivateKey.getEncryptedPrivateKeyInformation(
+                final EncryptedPrivateKey encryptedInformation =
+                    EncryptedPrivateKey.getEncryptedPrivateKeyInformation(
                         subSequenceCollection.value);
-                final _KeyInformation privateKeyInformation =
+                final KeyInformation privateKeyInformation =
                     createPrivateKeyInfo(
                         password, isInvalidPassword, encryptedInformation)!;
                 RsaPrivateKeyParam? rsaparam;
@@ -189,10 +189,10 @@ class PdfPKCSCertificate {
               certificateChain.add(subSequenceCollection);
             } else if (subSequenceCollection.id!.id ==
                 PkcsObjectId.pkcs8ShroudedKeyBag.id) {
-              final _EncryptedPrivateKey encryptedPrivateKeyInformation =
-                  _EncryptedPrivateKey.getEncryptedPrivateKeyInformation(
+              final EncryptedPrivateKey encryptedPrivateKeyInformation =
+                  EncryptedPrivateKey.getEncryptedPrivateKeyInformation(
                       subSequenceCollection.value);
-              final _KeyInformation privateInformation = createPrivateKeyInfo(
+              final KeyInformation privateInformation = createPrivateKeyInfo(
                   password, isInvalidPassword, encryptedPrivateKeyInformation)!;
               RsaPrivateKeyParam? rsaParameter;
               if (privateInformation._algorithms!.id!.id ==
@@ -247,8 +247,8 @@ class PdfPKCSCertificate {
                 _localIdentifiers[key] = name;
               }
             } else if (subSequenceCollection.id!.id == PkcsObjectId.keyBag.id) {
-              final _KeyInformation privateKeyInformation =
-                  _KeyInformation.getInformation(subSequenceCollection.value)!;
+              final KeyInformation privateKeyInformation =
+                  KeyInformation.getInformation(subSequenceCollection.value)!;
               RsaPrivateKeyParam? rsaParameter;
               if (privateKeyInformation._algorithms!.id!.id ==
                       PkcsObjectId.rsaEncryption.id ||
@@ -387,8 +387,8 @@ class PdfPKCSCertificate {
   }
 
   /// internal method
-  _KeyInformation? createPrivateKeyInfo(
-      String passPhrase, bool isPkcs12empty, _EncryptedPrivateKey encInfo) {
+  KeyInformation? createPrivateKeyInfo(
+      String passPhrase, bool isPkcs12empty, EncryptedPrivateKey encInfo) {
     final Algorithms algID = encInfo._algorithms!;
     final _PasswordUtility pbeU = _PasswordUtility();
     final IBufferedCipher? cipher =
@@ -402,17 +402,17 @@ class PdfPKCSCertificate {
     cipher.initialize(false, cipherParameters);
     final List<int>? keyBytes =
         cipher.doFinalFromInput(encInfo._octet!.getOctets());
-    return _KeyInformation.getInformation(keyBytes);
+    return KeyInformation.getInformation(keyBytes);
   }
 
   /// internal method
-  static _SubjectKeyID createSubjectKeyID(CipherParameter publicKey) {
-    _SubjectKeyID result;
+  static SubjectKeyID createSubjectKeyID(CipherParameter publicKey) {
+    SubjectKeyID result;
     if (publicKey is RsaKeyParam) {
       final PublicKeyInformation information = PublicKeyInformation(
           Algorithms(PkcsObjectId.rsaEncryption, DerNull.value),
           RsaPublicKey(publicKey.modulus, publicKey.exponent).getAsn1());
-      result = _SubjectKeyID(information);
+      result = SubjectKeyID(information);
     } else {
       throw ArgumentError.value(publicKey, 'publicKey', 'Invalid Key');
     }
@@ -3248,8 +3248,8 @@ class _MacInformation extends Asn1Encode {
   }
 }
 
-class _EncryptedPrivateKey extends Asn1Encode {
-  _EncryptedPrivateKey(Asn1Sequence sequence) {
+class EncryptedPrivateKey extends Asn1Encode {
+  EncryptedPrivateKey(Asn1Sequence sequence) {
     if (sequence.count != 2) {
       throw ArgumentError.value(
           sequence, 'sequence', 'Invalid length in sequence');
@@ -3268,19 +3268,19 @@ class _EncryptedPrivateKey extends Asn1Encode {
     return DerSequence(array: <Asn1Encode?>[_algorithms, _octet]);
   }
 
-  static _EncryptedPrivateKey getEncryptedPrivateKeyInformation(dynamic obj) {
-    if (obj is _EncryptedPrivateKey) {
+  static EncryptedPrivateKey getEncryptedPrivateKeyInformation(dynamic obj) {
+    if (obj is EncryptedPrivateKey) {
       return obj;
     }
     if (obj is Asn1Sequence) {
-      return _EncryptedPrivateKey(obj);
+      return EncryptedPrivateKey(obj);
     }
     throw ArgumentError.value(obj, 'obj', 'Invalid entry in sequence');
   }
 }
 
-class _KeyInformation extends Asn1Encode {
-  _KeyInformation(Algorithms algorithms, Asn1 privateKey,
+class KeyInformation extends Asn1Encode {
+  KeyInformation(Algorithms algorithms, Asn1 privateKey,
       [Asn1Set? attributes]) {
     _privateKey = privateKey;
     _algorithms = algorithms;
@@ -3288,7 +3288,7 @@ class _KeyInformation extends Asn1Encode {
       _attributes = attributes;
     }
   }
-  _KeyInformation.fromSequence(Asn1Sequence? sequence) {
+  KeyInformation.fromSequence(Asn1Sequence? sequence) {
     if (sequence != null) {
       final List<dynamic> objects = sequence.objects!;
       if (objects.length >= 3) {
@@ -3315,12 +3315,12 @@ class _KeyInformation extends Asn1Encode {
   Asn1Set? _attributes;
 
   //Implementation
-  static _KeyInformation? getInformation(dynamic obj) {
-    if (obj is _KeyInformation) {
+  static KeyInformation? getInformation(dynamic obj) {
+    if (obj is KeyInformation) {
       return obj;
     }
     if (obj != null) {
-      return _KeyInformation.fromSequence(Asn1Sequence.getSequence(obj));
+      return KeyInformation.fromSequence(Asn1Sequence.getSequence(obj));
     }
     return null;
   }
@@ -3396,8 +3396,8 @@ class _RsaKey extends Asn1Encode {
   }
 }
 
-class _SubjectKeyID extends Asn1Encode {
-  _SubjectKeyID(dynamic obj) {
+class SubjectKeyID extends Asn1Encode {
+  SubjectKeyID(dynamic obj) {
     if (obj is Asn1Octet) {
       _bytes = obj.getOctets();
     } else if (obj is PublicKeyInformation) {
@@ -3446,7 +3446,7 @@ class CertificateIdentity {
           utilities.getDigest(algorithm, issuerName!.getEncoded()!);
       final CipherParameter issuerKey = issuerCert.getPublicKey();
       final PublicKeyInformation info =
-          _SubjectKeyID.createSubjectKeyID(issuerKey);
+          SubjectKeyID.createSubjectKeyID(issuerKey);
       utilities = MessageDigestFinder();
       final List<int> issuerKeyHash =
           utilities.getDigest(algorithm, info.publicKey!.getBytes()!);

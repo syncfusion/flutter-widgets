@@ -254,6 +254,7 @@ class SinglePageViewState extends State<SinglePageView> {
     yOffset ??= 0.0;
     _handlePdfOffsetChanged(Offset(xOffset, yOffset));
     _changePage(isMouseWheel: true);
+    widget.onInteractionEnd?.call();
   }
 
   /// Handles PDF offset changed and updates the matrix translation based on it.
@@ -345,15 +346,10 @@ class SinglePageViewState extends State<SinglePageView> {
   Widget build(BuildContext context) {
     final Size childSize = _getChildSize(widget.viewportDimension);
     currentOffset = _transformationController.toScene(Offset.zero);
-    // ignore: avoid_bool_literals_in_conditional_expressions
-    final bool enableDoubleTapZoom = ((!kIsDesktop &&
-                widget.enableDoubleTapZooming) ||
-            (kIsDesktop && widget.interactionMode == PdfInteractionMode.pan) ||
-            (kIsDesktop &&
-                widget.isMobileWebView &&
-                widget.enableDoubleTapZooming))
-        ? true
-        : false;
+    final bool enableDoubleTapZoom = (!kIsDesktop &&
+            widget.enableDoubleTapZooming) ||
+        (kIsDesktop && widget.interactionMode == PdfInteractionMode.pan) ||
+        (kIsDesktop && widget.isMobileWebView && widget.enableDoubleTapZooming);
     final List<Widget> pages = <Widget>[];
     if (widget.pdfPages.isNotEmpty) {
       for (int pageIndex = 0; pageIndex < widget.children.length; pageIndex++) {
@@ -413,10 +409,7 @@ class SinglePageViewState extends State<SinglePageView> {
           ),
           constrained: false,
           onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
-          // ignore: avoid_bool_literals_in_conditional_expressions
-          scaleEnabled: (!kIsDesktop || (kIsDesktop && widget.scaleEnabled))
-              ? true
-              : false,
+          scaleEnabled: !kIsDesktop || (kIsDesktop && widget.scaleEnabled),
           enableDoubleTapZooming: enableDoubleTapZoom,
           transformationController: _transformationController,
           onInteractionStart: (ScaleStartDetails details) {
@@ -573,7 +566,8 @@ class SinglePageViewState extends State<SinglePageView> {
       children: <Widget>[
         LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-          if (_oldLayoutSize != constraints.biggest) {
+          if (_oldLayoutSize != constraints.biggest &&
+              widget.pdfPages.isNotEmpty) {
             final Offset previousOffset =
                 _transformationController.toScene(Offset.zero);
             double yPosition = !_oldLayoutSize.isEmpty
@@ -647,9 +641,7 @@ class SinglePageViewState extends State<SinglePageView> {
                   widget.scrollDirection == PdfScrollDirection.horizontal
                       ? Axis.horizontal
                       : Axis.vertical,
-              reverse:
-                  // ignore: avoid_bool_literals_in_conditional_expressions
-                  widget.textDirection == TextDirection.ltr ? false : true,
+              reverse: widget.textDirection != TextDirection.ltr,
               onPageChanged: (int value) {
                 _transformationController.value = Matrix4.identity();
                 widget.onPageChanged(value);
@@ -869,10 +861,11 @@ class SinglePageViewState extends State<SinglePageView> {
                   : 0.0)
               .clamp(
                   0,
-                  (((widget.viewportDimension.width - pdfPageWidth) +
-                              pdfPageWidth) /
-                          2) -
-                      (widget.viewportDimension.width - pdfPageWidth) / 2),
+                  ((((widget.viewportDimension.width - pdfPageWidth) +
+                                  pdfPageWidth) /
+                              2) -
+                          (widget.viewportDimension.width - pdfPageWidth) / 2)
+                      .abs()),
           (offset.dy - (widget.viewportDimension.height - pdfPageHeight)).clamp(
               0,
               (offset.dy - (widget.viewportDimension.height - pdfPageHeight))
@@ -899,10 +892,11 @@ class SinglePageViewState extends State<SinglePageView> {
                   : 0.0)
               .clamp(
                   0,
-                  (((widget.viewportDimension.height - pdfPageHeight) +
-                              pdfPageHeight) /
-                          2) -
-                      greyAreaSize / 2));
+                  ((((widget.viewportDimension.height - pdfPageHeight) +
+                                  pdfPageHeight) /
+                              2) -
+                          greyAreaSize / 2)
+                      .abs()));
     }
 
     setState(() {});

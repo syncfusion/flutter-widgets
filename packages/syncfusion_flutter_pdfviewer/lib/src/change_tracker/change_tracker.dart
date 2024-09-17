@@ -10,7 +10,6 @@ class ChangeTracker {
   UndoHistoryController get undoController => _undoController!;
   set undoController(UndoHistoryController value) {
     if (_undoController != value) {
-      _undoController?.dispose();
       _undoController = value;
       _undoController!.onUndo.addListener(undo);
       _undoController!.onRedo.addListener(redo);
@@ -66,14 +65,15 @@ class ChangeTracker {
   }
 
   /// Resets the undo and redo stacks.
-  void reset() {
+  void resetStacks() {
     _undoStack.clear();
     _redoStack.clear();
     _updateState();
   }
 
-  /// Disposes the undo controller.
-  void dispose() {
-    _undoController?.dispose();
+  /// Resets the undo controller.
+  void resetController() {
+    _undoController?.removeListener(undo);
+    _undoController?.removeListener(redo);
   }
 }

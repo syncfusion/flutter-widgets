@@ -17,6 +17,7 @@ import 'behaviors/zooming.dart';
 import 'common/annotation.dart';
 import 'common/callbacks.dart';
 import 'common/core_legend.dart';
+import 'common/element_widget.dart';
 import 'common/legend.dart';
 import 'indicators/accumulation_distribution_indicator.dart';
 import 'indicators/atr_indicator.dart';
@@ -67,8 +68,8 @@ class ChartArea extends MultiChildRenderObjectWidget {
 
   @override
   RenderChartArea createRenderObject(BuildContext context) {
-    return RenderChartArea(
-        gestureSettings: MediaQuery.of(context).gestureSettings)
+    return RenderChartArea()
+      ..gestureSettings = MediaQuery.of(context).gestureSettings
       ..legendKey = legendKey
       ..legendItems = legendItems
       ..onChartTouchInteractionDown = onChartTouchInteractionDown
@@ -99,6 +100,7 @@ class ChartAreaRenderObjectElement extends MultiChildRenderObjectElement {
     super.mount(parent, newSlot); // Chart build phase ends here.
     chartArea = renderObject as RenderChartArea;
     chartArea._scheduleUpdate = _scheduleUpdate;
+    chartArea._initializeDragGestureRecognizers();
     chartArea._update();
     _hasUpdateScheduled = false;
   }
@@ -106,6 +108,7 @@ class ChartAreaRenderObjectElement extends MultiChildRenderObjectElement {
   @override
   void update(MultiChildRenderObjectWidget newWidget) {
     super.update(newWidget);
+    chartArea._initializeDragGestureRecognizers();
     chartArea._update();
     _hasUpdateScheduled = false;
   }
@@ -193,9 +196,7 @@ class RenderChartArea extends RenderBox
             ChartAreaParentData>
     implements
         MouseTrackerAnnotation {
-  RenderChartArea({
-    DeviceGestureSettings? gestureSettings,
-  }) {
+  RenderChartArea() {
     final GestureArenaTeam team = GestureArenaTeam();
 
     _tapGestureRecognizer = TapGestureRecognizer()
@@ -222,19 +223,58 @@ class RenderChartArea extends RenderBox
       ..onUpdate = _handleScaleUpdate
       ..onEnd = _handleScaleEnd
       ..gestureSettings = gestureSettings;
+  }
 
+  void _initializeDragGestureRecognizers() {
+    // This boolean prohibits both x and y scrolls for the parent widget.
+    bool canHandleXYDrag = false;
+    // This boolean prohibits x scrolls for the parent widget.
+    bool canHandleXDrag = false;
+    // This boolean prohibits y scrolls for the parent widget.
+    bool canHandleYDrag = false;
+
+    if (!canHandleXYDrag &&
+        crosshairBehavior != null &&
+        crosshairBehavior!.enable &&
+        crosshairBehavior!.activationMode == ActivationMode.singleTap) {
+      canHandleXYDrag = true;
+    }
+
+    if (isTransposed != null) {
+      if ((hasLoadingIndicator != null && hasLoadingIndicator!) ||
+          (trackballBehavior != null &&
+              trackballBehavior!.enable &&
+              trackballBehavior!.activationMode == ActivationMode.singleTap)) {
+        canHandleXDrag = !isTransposed!;
+        canHandleYDrag = isTransposed!;
+      }
+    }
+
+    if (!canHandleXYDrag || !canHandleXDrag || !canHandleYDrag) {
+      if (zoomPanBehavior != null &&
+          (zoomPanBehavior!.enablePinching || zoomPanBehavior!.enablePanning)) {
+        final ZoomMode zoomMode = zoomPanBehavior!.zoomMode;
+        canHandleXYDrag = zoomMode == ZoomMode.xy;
+        canHandleXDrag = zoomMode == ZoomMode.x;
+        canHandleYDrag = zoomMode == ZoomMode.y;
+      }
+    }
+
+    final GestureArenaTeam team = GestureArenaTeam();
+    final bool canHandleHorizontalDrag = canHandleXYDrag || canHandleXDrag;
+    final bool canHandleVerticalDrag = canHandleXYDrag || canHandleYDrag;
     _horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
       ..team = team
-      ..onStart = _handleHorizontalDragStart
-      ..onUpdate = _handleHorizontalDragUpdate
-      ..onEnd = _handleHorizontalDragEnd
+      ..onStart = canHandleHorizontalDrag ? _handleHorizontalDragStart : null
+      ..onUpdate = canHandleHorizontalDrag ? _handleHorizontalDragUpdate : null
+      ..onEnd = canHandleHorizontalDrag ? _handleHorizontalDragEnd : null
       ..gestureSettings = gestureSettings;
 
     _verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
       ..team = team
-      ..onStart = _handleVerticalDragStart
-      ..onUpdate = _handleVerticalDragUpdate
-      ..onEnd = _handleVerticalDragEnd
+      ..onStart = canHandleVerticalDrag ? _handleVerticalDragStart : null
+      ..onUpdate = canHandleVerticalDrag ? _handleVerticalDragUpdate : null
+      ..onEnd = canHandleVerticalDrag ? _handleVerticalDragEnd : null
       ..gestureSettings = gestureSettings;
   }
 
@@ -242,6 +282,9 @@ class RenderChartArea extends RenderBox
   List<LegendItem>? legendItems;
   RenderChartPlotArea? _plotArea;
   RenderIndicatorArea? _indicatorArea;
+  RenderBehaviorArea? _behaviorArea;
+  RenderCartesianAxes? _cartesianAxes;
+  DeviceGestureSettings? gestureSettings;
 
   bool _needsLegendUpdate = true;
   bool _validForMouseTracker = false;
@@ -256,12 +299,14 @@ class RenderChartArea extends RenderBox
   HorizontalDragGestureRecognizer? _horizontalDragGestureRecognizer;
   VerticalDragGestureRecognizer? _verticalDragGestureRecognizer;
 
-  RenderCartesianAxes? _cartesianAxes;
-  RenderBehaviorArea? _behaviorArea;
-
   ChartTouchInteractionCallback? onChartTouchInteractionDown;
   ChartTouchInteractionCallback? onChartTouchInteractionMove;
   ChartTouchInteractionCallback? onChartTouchInteractionUp;
+  CrosshairBehavior? crosshairBehavior;
+  ZoomPanBehavior? zoomPanBehavior;
+  TrackballBehavior? trackballBehavior;
+  bool? hasLoadingIndicator;
+  bool? isTransposed;
 
   Offset? _doubleTapPosition;
   int _pointerCount = 0;
@@ -502,7 +547,7 @@ class RenderChartArea extends RenderBox
       while (child != null) {
         final StackParentData childParentData =
             child.parentData! as StackParentData;
-        if (child is ChartSeriesRenderer) {
+        if (child is ChartSeriesRenderer && child.isVisible()) {
           child.handlePointerHover(details);
         }
         child = childParentData.previousSibling;
@@ -538,7 +583,7 @@ class RenderChartArea extends RenderBox
       while (child != null) {
         final StackParentData childParentData =
             child.parentData! as StackParentData;
-        if (child is ChartSeriesRenderer) {
+        if (child is ChartSeriesRenderer && child.isVisible()) {
           child.handleLongPressStart(details);
         }
         child = childParentData.previousSibling;
@@ -585,7 +630,7 @@ class RenderChartArea extends RenderBox
       while (child != null) {
         final StackParentData childParentData =
             child.parentData! as StackParentData;
-        if (child is ChartSeriesRenderer) {
+        if (child is ChartSeriesRenderer && child.isVisible()) {
           child.handleTapUp(details);
         }
         child = childParentData.previousSibling;
@@ -611,7 +656,7 @@ class RenderChartArea extends RenderBox
       while (child != null) {
         final StackParentData childParentData =
             child.parentData! as StackParentData;
-        if (child is ChartSeriesRenderer) {
+        if (child is ChartSeriesRenderer && child.isVisible()) {
           child.handleDoubleTap(_doubleTapPosition!);
         }
         child = childParentData.previousSibling;
@@ -728,8 +773,13 @@ class CartesianChartArea extends ChartArea {
     super.key,
     required super.legendKey,
     required super.legendItems,
+    required this.isTransposed,
+    this.hasLoadingIndicator = false,
     this.plotAreaBackgroundImage,
     this.plotAreaBackgroundColor,
+    this.crosshairBehavior,
+    this.trackballBehavior,
+    this.zoomPanBehavior,
     super.onChartTouchInteractionDown,
     super.onChartTouchInteractionMove,
     super.onChartTouchInteractionUp,
@@ -738,33 +788,47 @@ class CartesianChartArea extends ChartArea {
 
   final ImageProvider? plotAreaBackgroundImage;
   final Color? plotAreaBackgroundColor;
+  final bool isTransposed;
+  final bool hasLoadingIndicator;
+  final CrosshairBehavior? crosshairBehavior;
+  final TrackballBehavior? trackballBehavior;
+  final ZoomPanBehavior? zoomPanBehavior;
 
   @override
   RenderCartesianChartArea createRenderObject(BuildContext context) {
-    return RenderCartesianChartArea(
-        gestureSettings: MediaQuery.of(context).gestureSettings)
+    return RenderCartesianChartArea()
+      ..gestureSettings = MediaQuery.of(context).gestureSettings
       ..legendKey = legendKey
       ..legendItems = legendItems
+      ..isTransposed = isTransposed
+      ..hasLoadingIndicator = hasLoadingIndicator
       ..plotAreaBackgroundImage = plotAreaBackgroundImage
       ..plotAreaBackgroundColor = plotAreaBackgroundColor
       ..onChartTouchInteractionDown = onChartTouchInteractionDown
       ..onChartTouchInteractionMove = onChartTouchInteractionMove
-      ..onChartTouchInteractionUp = onChartTouchInteractionUp;
+      ..onChartTouchInteractionUp = onChartTouchInteractionUp
+      ..crosshairBehavior = crosshairBehavior
+      ..trackballBehavior = trackballBehavior
+      ..zoomPanBehavior = zoomPanBehavior;
   }
 
   @override
   void updateRenderObject(
       BuildContext context, RenderCartesianChartArea renderObject) {
     super.updateRenderObject(context, renderObject);
-    renderObject.plotAreaBackgroundImage = plotAreaBackgroundImage;
-    renderObject.plotAreaBackgroundColor = plotAreaBackgroundColor;
+    renderObject
+      ..isTransposed = isTransposed
+      ..hasLoadingIndicator = hasLoadingIndicator
+      ..plotAreaBackgroundImage = plotAreaBackgroundImage
+      ..plotAreaBackgroundColor = plotAreaBackgroundColor
+      ..crosshairBehavior = crosshairBehavior
+      ..trackballBehavior = trackballBehavior
+      ..zoomPanBehavior = zoomPanBehavior;
   }
 }
 
 class RenderCartesianChartArea extends RenderChartArea {
-  RenderCartesianChartArea({
-    super.gestureSettings,
-  });
+  RenderCartesianChartArea();
 
   RenderAnnotationArea? _annotationArea;
   Image? _plotAreaImage;
@@ -1707,7 +1771,6 @@ class RenderCartesianChartPlotArea extends RenderChartPlotArea {
       }
     });
     super.performUpdate();
-    markNeedsLayout();
   }
 
   @override
@@ -1717,19 +1780,6 @@ class RenderCartesianChartPlotArea extends RenderChartPlotArea {
       _cartesianAxes!.plotAreaBounds =
           (parentData! as BoxParentData).offset & size;
     }
-
-    // Once all cartesian series layouts are completed, use this method to
-    // handle the collisions of data labels across multiple series.
-    visitChildren((RenderObject child) {
-      if (child is CartesianSeriesRenderer &&
-          child.controller.isVisible &&
-          child.dataLabelSettings.isVisible &&
-          child.dataLabelSettings.labelIntersectAction !=
-              LabelIntersectAction.none &&
-          child.dataLabelContainer != null) {
-        child.dataLabelContainer!.handleMultiSeriesDataLabelCollisions();
-      }
-    });
   }
 
   bool _hasDataLabel() {
@@ -1944,6 +1994,10 @@ class RenderCartesianAxes extends RenderBox
         firstChild!.parentData! as CartesianAxesParentData;
     final String primaryXAxisName = firstChild!.name ?? primaryXAxisDefaultName;
     firstChild!.name = primaryXAxisName;
+    // Sets isXAxis value defaults to true for primaryXAxis here because its
+    // value changed while adding multiple axes to the axes collection and maps
+    // series with different x axis instead of primary axis.
+    firstChild!.isXAxis = true;
 
     assert(firstChildParentData.nextSibling != null);
     final RenderChartAxis primaryYAxis = firstChildParentData.nextSibling!;
@@ -2071,11 +2125,14 @@ class RenderCartesianAxes extends RenderBox
       verticalAxes = _xAxes;
     }
 
-    void measureHorizontalAxes(BoxConstraints constraints) {
+    void measureHorizontalAxes(BoxConstraints horizontalAxesConstraints) {
       topAxesHeight = 0;
       bottomAxesHeight = 0;
       for (final RenderChartAxis axis in horizontalAxes) {
-        axis.layout(constraints, parentUsesSize: true);
+        final CartesianAxesParentData childParentData =
+            axis.parentData! as CartesianAxesParentData;
+        childParentData.isResized = hasSize && size != constraints.biggest;
+        axis.layout(horizontalAxesConstraints, parentUsesSize: true);
         if (axis.crossesAt == null || !axis.placeLabelsNearAxisLine) {
           if (axis.opposedPosition) {
             topAxesHeight += axis.size.height;
@@ -2087,11 +2144,14 @@ class RenderCartesianAxes extends RenderBox
       horizontalAxesHeight = topAxesHeight + bottomAxesHeight;
     }
 
-    void measureVerticalAxes(BoxConstraints constraints) {
+    void measureVerticalAxes(BoxConstraints verticalAxesConstraints) {
       leftAxesWidth = 0;
       rightAxesWidth = 0;
       for (final RenderChartAxis axis in verticalAxes) {
-        axis.layout(constraints, parentUsesSize: true);
+        final CartesianAxesParentData childParentData =
+            axis.parentData! as CartesianAxesParentData;
+        childParentData.isResized = hasSize && size != constraints.biggest;
+        axis.layout(verticalAxesConstraints, parentUsesSize: true);
         if (axis.crossesAt == null || !axis.placeLabelsNearAxisLine) {
           if (axis.opposedPosition) {
             rightAxesWidth += axis.size.width;
@@ -2116,7 +2176,7 @@ class RenderCartesianAxes extends RenderBox
     measureHorizontalAxes(horizontalAxisConstraints);
 
     if (verticalAxisConstraints.maxHeight > 0 && horizontalAxesHeight == 0) {
-      // HACK: If there is no horizontal axes is visible,
+      // Hack: If there is no horizontal axes is visible,
       // then set a very small height to relayout the vertical axes
       // to avoid mutated renderbox exception.
       horizontalAxesHeight = 0.00000001;
@@ -2291,7 +2351,9 @@ class RenderCartesianAxes extends RenderBox
   }
 }
 
-class CartesianAxesParentData extends ContainerBoxParentData<RenderChartAxis> {}
+class CartesianAxesParentData extends ContainerBoxParentData<RenderChartAxis> {
+  bool isResized = false;
+}
 
 class CircularChartPlotArea extends ChartPlotArea {
   const CircularChartPlotArea({
@@ -3096,7 +3158,7 @@ class RenderCircularAnnotationArea extends RenderStack
   }
 }
 
-class LoadingIndicator extends ConstrainedLayoutBuilder<BoxConstraints> {
+class LoadingIndicator extends CustomConstrainedLayoutBuilder<BoxConstraints> {
   const LoadingIndicator({
     super.key,
     required this.isTransposed,
@@ -3129,7 +3191,7 @@ class LoadingIndicator extends ConstrainedLayoutBuilder<BoxConstraints> {
 }
 
 class RenderLoadingIndicator extends RenderProxyBox
-    with RenderConstrainedLayoutBuilder<BoxConstraints, RenderBox> {
+    with CustomRenderConstrainedLayoutBuilder<BoxConstraints, RenderBox> {
   bool _isDesktop = false;
   Offset _startPosition = Offset.zero;
   Offset _endPosition = Offset.zero;

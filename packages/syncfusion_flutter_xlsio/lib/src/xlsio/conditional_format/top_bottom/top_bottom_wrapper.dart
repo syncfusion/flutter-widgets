@@ -1,20 +1,23 @@
-part of xlsio;
+import '../../conditional_format/top_bottom/top_bottom.dart';
+import '../../conditional_format/top_bottom/top_bottom_impl.dart';
+import '../../general/enums.dart';
+import '../condformat_wrapper.dart';
 
 /// Represents the top or bottom conditional formatting rule.
 /// Applying this rule to a range helps you highlight the top or bottom “n” cells from the selected range
-class _TopBottomWrapper implements TopBottom {
+class TopBottomWrapper implements TopBottom {
   /// Initializes new instance of the wrapper.
-  _TopBottomWrapper(_TopBottomImpl top10, _ConditionalFormatWrapper format) {
+  TopBottomWrapper(TopBottomImpl top10, ConditionalFormatWrapper format) {
     _wrapped = top10;
     _format = format;
   }
 
   /// Wrapped data Top10 object.
-  late _TopBottomImpl _wrapped;
+  late TopBottomImpl _wrapped;
 
   /// Parent conditional format wrapper.
   // ignore: unused_field
-  late _ConditionalFormatWrapper _format;
+  late ConditionalFormatWrapper _format;
 
   @override
 

@@ -1,4 +1,6 @@
-part of xlsio;
+import 'dart:math';
+
+import 'merge_cells.dart';
 
 /// Represents merged cell collection class.
 class MergedCellCollection {
@@ -30,8 +32,8 @@ class MergedCellCollection {
             max(mCell.width + mCell.y, mergeCell.width + mergeCell.x);
         intersectingCell.height =
             max(mCell.height + mCell.y, mergeCell.height + mergeCell.y);
-        intersectingCell._reference =
-            '${this[count]._reference.split(':')[0]}:${mergeCell._reference.split(':')[1]}';
+        intersectingCell.reference =
+            '${this[count].reference.split(':')[0]}:${mergeCell.reference.split(':')[1]}';
         innerList[count] = intersectingCell;
         mergeCell = intersectingCell;
         inserted = true;

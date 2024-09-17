@@ -316,7 +316,7 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     }
 
     final double x = xValues[period - 1].toDouble();
-    final double y = (sum / period).toDouble();
+    final double y = sum / period;
     xMinimum = min(xMinimum, x);
     xMaximum = max(xMaximum, x);
     yMinimum = min(yMinimum, y);

@@ -188,7 +188,7 @@ namespace pdfviewer
     // Create empty bitmap and render page onto it
     auto bitmap = FPDFBitmap_Create(width, height, 0);
     FPDFBitmap_FillRect(bitmap, 0, 0, width, height, 0xFFFFFFFF);
-    FPDF_RenderPageBitmap(bitmap, page, 0, 0, width, height, 0, FPDF_LCD_TEXT);
+    FPDF_RenderPageBitmap(bitmap, page, 0, 0, width, height, 0, FPDF_LCD_TEXT | FPDF_REVERSE_BYTE_ORDER);
 
     uint8_t *scanArg = static_cast<uint8_t *>(FPDFBitmap_GetBuffer(bitmap));
      
@@ -196,12 +196,6 @@ namespace pdfviewer
     size_t bufferSize = width * height * 4; 
     std::vector<uint8_t> imageData(scanArg, scanArg + bufferSize);
 
-    //convert BRGA format to ARGB format
-    for (size_t i = 0; i < bufferSize; i += 4) {
-      uint8_t temp = imageData[i]; 
-      imageData[i] = imageData[i + 2];  
-      imageData[i + 2] = temp;  
-    }  
     FPDFBitmap_Destroy(bitmap);
     FPDF_ClosePage(page);
 
@@ -236,19 +230,12 @@ namespace pdfviewer
     // Create empty bitmap and render page onto it
     auto bitmap = FPDFBitmap_Create(width, height, 0);
     FPDFBitmap_FillRect(bitmap, 0, 0, width, height, 0xFFFFFFFF);
-    FPDF_RenderPageBitmapWithMatrix(bitmap, page, &matrix, &rect, 0);
+    FPDF_RenderPageBitmapWithMatrix(bitmap, page, &matrix, &rect, FPDF_LCD_TEXT | FPDF_REVERSE_BYTE_ORDER);
     uint8_t *scanArg = static_cast<uint8_t *>(FPDFBitmap_GetBuffer(bitmap));
      
     // Calculate the total size of the pixel buffer
     size_t bufferSize = width * height * 4; 
     std::vector<uint8_t> imageData(scanArg, scanArg + bufferSize);
-    
-    //convert BRGA format to ARGB format
-    for (size_t i = 0; i < bufferSize; i += 4) {
-      uint8_t temp = imageData[i]; 
-      imageData[i] = imageData[i + 2];  
-      imageData[i + 2] = temp;  
-    }  
 
     FPDFBitmap_Destroy(bitmap);
     FPDF_ClosePage(page);

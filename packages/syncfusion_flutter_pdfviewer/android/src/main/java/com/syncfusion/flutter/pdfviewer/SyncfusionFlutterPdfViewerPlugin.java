@@ -63,21 +63,6 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
     context = flutterPluginBinding.getApplicationContext();
   }
 
-  // This static function is optional and equivalent to onAttachedToEngine. It supports the old
-  // pre-Flutter-1.12 Android projects. You are encouraged to continue supporting
-  // plugin registration via this function while apps migrate to use the new Android APIs
-  // post-flutter-1.12 via https://flutter.dev/go/android-project-migration.
-  //
-  // It is encouraged to share logic between onAttachedToEngine and registerWith to keep
-  // them functionally equivalent. Only one of onAttachedToEngine or registerWith will be called
-  // depending on the user's project. onAttachedToEngine or registerWith must both be defined
-  // in the same class.
-  @SuppressWarnings("deprecation")
-  public static void registerWith(io.flutter.plugin.common.PluginRegistry.Registrar registrar) {
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), "syncfusion_flutter_pdfviewer");
-    channel.setMethodCallHandler(new SyncfusionFlutterPdfViewerPlugin());
-  }
-
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   public void onMethodCall(@NonNull final MethodCall call, @NonNull final Result result) {
@@ -168,15 +153,15 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   double[] getPagesWidth(String documentID) {
     try {
-    if (pageWidth == null) {
-        int count = Objects.requireNonNull(documentRepo.get(documentID)).renderer.getPageCount();
-        pageWidth = new double[count];
-        for (int i = 0; i < count; i++) {
-          PdfRenderer.Page page = Objects.requireNonNull(documentRepo.get(documentID)).renderer.openPage(i);
-          pageWidth[i] = page.getWidth();
-          page.close();
-        }
-     }
+      if (pageWidth == null) {
+          int count = Objects.requireNonNull(documentRepo.get(documentID)).renderer.getPageCount();
+          pageWidth = new double[count];
+          for (int i = 0; i < count; i++) {
+            PdfRenderer.Page page = Objects.requireNonNull(documentRepo.get(documentID)).renderer.openPage(i);
+            pageWidth[i] = page.getWidth();
+            page.close();
+          }
+      }
       return pageWidth;
     } catch (Exception e) {
       return null;
@@ -187,20 +172,41 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   void getPage(int pageIndex, int width, int height, String documentID) {
     try {
-      ExecutorService executor = Executors.newCachedThreadPool();
-     Runnable bitmapRunnable = new PdfRunnable(Objects.requireNonNull(documentRepo.get(documentID)).renderer, resultPdf, pageIndex, pageWidth, pageHeight, width, height);
-      executor.submit(bitmapRunnable);
+      PdfRenderer.Page page = Objects.requireNonNull(documentRepo.get(documentID)).renderer.openPage(pageIndex - 1);
+      double scale = Math.min(width / pageWidth[pageIndex - 1], height / pageHeight[pageIndex - 1]);
+      final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+      bitmap.eraseColor(Color.WHITE);
+      final Rect rect = new Rect(0, 0, width, height);
+      page.render(bitmap, rect, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+      page.close();
+      ByteBuffer buffer = ByteBuffer.allocate(bitmap.getByteCount());
+      bitmap.copyPixelsToBuffer(buffer);
+      bitmap.recycle();
+      final byte[] imageBytes = buffer.array();
+      buffer.clear();
+      resultPdf.success(imageBytes);
     } catch (Exception e) {
       resultPdf.error(e.getMessage(), e.getLocalizedMessage(), e.getMessage());
     }
   }
   
-  void getTileImage(int pageNumber, double currentScale, double x, double y, double width, double height, String documentID) {
+  void getTileImage(int pageNumber, double scale, double x, double y, double width, double height, String documentID) {
     try {
-      ExecutorService executor = Executors.newCachedThreadPool();
-      Runnable bitmapRunnable = new TileImageRunnable(Objects.requireNonNull(documentRepo.get(documentID)).renderer,
-              resultPdf, pageNumber, currentScale, x, y, width, height);
-      executor.submit(bitmapRunnable);
+      PdfRenderer.Page page = Objects.requireNonNull(documentRepo.get(documentID)).renderer.openPage(pageNumber - 1);
+      final Bitmap bitmap = Bitmap.createBitmap((int)width, (int)height, Bitmap.Config.ARGB_8888);
+      bitmap.eraseColor(Color.WHITE);
+      Matrix matrix = new Matrix();
+      matrix.postTranslate((float)-x, (float)-y);
+      matrix.postScale((float)(scale), (float)(scale));
+      final Rect rect = new Rect(0, 0, (int)width, (int)height);
+      page.render(bitmap, rect, matrix, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+      page.close();
+      ByteBuffer buffer = ByteBuffer.allocate(bitmap.getByteCount());
+      bitmap.copyPixelsToBuffer(buffer);
+      bitmap.recycle();
+      final byte[] imageBytes = buffer.array();
+      buffer.clear();
+      resultPdf.success(imageBytes);
     } catch (Exception e) {
       resultPdf.error(e.getMessage(), e.getLocalizedMessage(), e.getMessage());
     }
@@ -229,127 +235,5 @@ class PdfFileRenderer {
   PdfFileRenderer(ParcelFileDescriptor fileDescriptor, PdfRenderer renderer) {
     this.renderer = renderer;
     this.fileDescriptor = fileDescriptor;
-  }
-}
-
-/// This runnable executes all the image fetch in separate thread.
-class PdfRunnable implements Runnable {
-  private byte[] imageBytes = null;
-  final private PdfRenderer renderer;
-  final private Result resultPdf;
-  final private int pageIndex;
-  private double[] pageWidth;
-  private double[] pageHeight;
-  private int width;
-  private int height;
-  private PdfRenderer.Page page;
-
-  PdfRunnable(PdfRenderer renderer, Result resultPdf, int pageIndex, double[] pageWidth,double[] pageHeight, int width, int height) {
-    this.resultPdf = resultPdf;
-    this.renderer = renderer;
-    this.pageIndex = pageIndex;
-    this.pageWidth = pageWidth;
-    this.pageHeight = pageHeight;
-    this.width = width;
-    this.height = height;
-  }
-
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  public void dispose() {
-    imageBytes = null;
-    if (page != null) {
-      page.close();
-      page = null;
-    }
-  }
-
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  public void run() {
-    page = renderer.openPage(pageIndex - 1);
-    double scale = Math.min(width / pageWidth[pageIndex-1], height / pageHeight[pageIndex-1]);
-    final Bitmap bitmap = Bitmap.createBitmap(width ,height, Bitmap.Config.ARGB_8888);
-    bitmap.eraseColor(Color.WHITE);
-    final Rect rect = new Rect(0, 0, width, height);
-    page.render(bitmap, rect, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-    page.close();
-    page = null;
-    ByteBuffer buffer = ByteBuffer.allocate(bitmap.getByteCount());
-    bitmap.copyPixelsToBuffer(buffer);
-    imageBytes = buffer.array();
-    synchronized (this) {
-      notifyAll();
-    }
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
-      @Override
-      public void run() {
-        resultPdf.success(imageBytes);
-      }
-    });
-  }
-}
-
-class TileImageRunnable implements Runnable {
-  private byte[] imageBytes = null;
-  final private PdfRenderer renderer;
-  final private Result resultPdf;
-  final private int pageIndex;
-  private double scale;
-
-  private double tileWidth;
-  private double tileHeight;
-
-  private double  tileX;
-  private double tileY;
-
-  private PdfRenderer.Page page;
-  
-  TileImageRunnable(PdfRenderer renderer, Result resultPdf, int pageIndex, double currentScale, double x,
-      double y, double width, double height) {
-
-    this.resultPdf = resultPdf;
-    this.renderer = renderer;
-    this.pageIndex = pageIndex;
-    this.scale = currentScale;
-
-    this.tileWidth = width;
-    this.tileHeight = height;
-    this.tileX = x;
-    this.tileY = y;
-  }
-  
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  public void dispose() {
-    imageBytes = null;
-    if (page != null) {
-      page.close();
-      page = null;
-    }
-  }
-
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  public void run() {
-    page = renderer.openPage(pageIndex - 1);
-
-    final Bitmap bitmap = Bitmap.createBitmap((int)tileWidth, (int)tileHeight, Bitmap.Config.ARGB_8888);
-    bitmap.eraseColor(Color.WHITE);
-    Matrix matrix = new Matrix();
-    matrix.postTranslate((float)-tileX, (float)-tileY);
-    matrix.postScale((float)(scale), (float)(scale));
-    final Rect rect = new Rect(0, 0, (int)tileWidth, (int)tileHeight);
-    page.render(bitmap, rect, matrix, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-    page.close();
-    page = null;
-    ByteBuffer buffer = ByteBuffer.allocate(bitmap.getByteCount());
-    bitmap.copyPixelsToBuffer(buffer);
-    imageBytes = buffer.array();
-    synchronized (this) {
-      notifyAll();
-    }
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
-      @Override
-      public void run() {
-        resultPdf.success(imageBytes);
-      }
-    });
   }
 }

@@ -2917,7 +2917,7 @@ class _BehaviorViewState extends State<BehaviorView> {
   Size? _size;
   late double _currentZoomLevel;
   late MapLatLng _currentFocalLatLng;
-  Rect? _initialRect;
+  late Rect? _initialRect;
 
   Offset _pixelFromLatLng(MapLatLng latLng, double scale) {
     final double latitude =

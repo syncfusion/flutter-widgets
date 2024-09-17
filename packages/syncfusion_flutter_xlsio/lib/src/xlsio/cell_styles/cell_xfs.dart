@@ -1,7 +1,7 @@
-part of xlsio;
+import 'cell_style_xfs.dart';
 
 /// Represents cell xfs.
-class _CellXfs extends _CellStyleXfs {
+class CellXfs extends CellStyleXfs {
   /// Represents xf id.
-  late int _xfId;
+  late int xfId;
 }

@@ -1,3 +1,17 @@
+/// Syncfusion Flutter PDF viewer lets you display the PDF document seamlessly and efficiently.
+/// It is built in the way that a large PDF document can be opened in
+/// minimal time and all their pages can be accessed spontaneously.
+///
+/// To use, import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart'.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=f1zEJZRdo7w}
+///
+/// See also:
+/// * [Syncfusion Flutter PDF Viewer product page](https://www.syncfusion.com/flutter-widgets/flutter-pdf-viewer)
+/// * [User guide documentation](https://help.syncfusion.com/flutter/pdf-viewer/overview)
+/// * [Video tutorials](https://www.syncfusion.com/tutorial-videos/flutter/pdf-viewer)
+/// * [Knowledge base](https://www.syncfusion.com/kb/flutter)
+
 library pdfviewer;
 
 export 'src/annotation/annotation.dart' show Annotation;
@@ -7,7 +21,9 @@ export 'src/annotation/annotation_settings.dart'
         PdfAnnotationAppearanceSetting,
         PdfAnnotationSelectorSettings,
         PdfAnnotationSettings,
-        PdfTextMarkupAnnotationSettings;
+        PdfTextMarkupAnnotationSettings,
+        PdfStickyNoteAnnotationSettings;
+export 'src/annotation/sticky_notes.dart' show StickyNoteAnnotation;
 export 'src/annotation/text_markup.dart'
     show
         HighlightAnnotation,

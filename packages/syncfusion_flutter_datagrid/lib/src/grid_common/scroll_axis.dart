@@ -1947,7 +1947,8 @@ class PixelScrollAxis extends ScrollAxisBase {
   @override
   void onLinesInserted(int insertAt, int count) {
     if (distances != null) {
-      DistancesUtil.onInserted(distances!, scrollLinesHost!, insertAt, count);
+      DistancesUtil.instance
+          .onInserted(distances!, scrollLinesHost!, insertAt, count);
     }
   }
 

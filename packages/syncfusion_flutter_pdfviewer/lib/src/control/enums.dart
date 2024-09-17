@@ -50,4 +50,31 @@ enum PdfAnnotationMode {
 
   /// Squiggly
   squiggly,
+
+  /// Sticky Note
+  stickyNote,
+}
+
+/// Enumerates the values that represents different types of icons for a sticky note annotation.
+enum PdfStickyNoteIcon {
+  /// Comment
+  comment,
+
+  /// Key
+  key,
+
+  /// Note
+  note,
+
+  /// Help
+  help,
+
+  /// New Paragraph
+  newParagraph,
+
+  /// Paragraph
+  paragraph,
+
+  /// Insert
+  insert,
 }

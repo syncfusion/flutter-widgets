@@ -11,7 +11,8 @@ const double _kPdfScrollStatusBottomPosition = 25.0;
 @immutable
 class ScrollStatus extends StatefulWidget {
   /// Constructs the Scroll status for PdfViewer Widget
-  const ScrollStatus(this.pdfViewerController, {this.isSinglePageView = false});
+  const ScrollStatus(this.pdfViewerController,
+      {super.key, this.isSinglePageView = false});
 
   /// PdfViewer controller of PdfViewer
   final PdfViewerController pdfViewerController;

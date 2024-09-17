@@ -376,9 +376,9 @@ class FdfObject {
   }
 
   // Fields
-  int? _objNumber;
-  int? _genNumber;
-  IPdfPrimitive? _object;
+  late int? _objNumber;
+  late int? _genNumber;
+  late IPdfPrimitive? _object;
 
   // Properties
   /// Gets the object number.

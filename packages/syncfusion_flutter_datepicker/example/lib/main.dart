@@ -4,11 +4,13 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 void main() {
-  return runApp(MyApp());
+  return runApp(const MyApp());
 }
 
 /// My app class to display the date range picker
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   MyAppState createState() => MyAppState();
 }

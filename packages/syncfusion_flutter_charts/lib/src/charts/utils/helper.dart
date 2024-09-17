@@ -99,6 +99,31 @@ Alignment alignmentFromChartAlignment(ChartAlignment alignment) {
   }
 }
 
+Rect calculateRotatedBounds(Rect labelBounds, int angle) {
+  final center = labelBounds.center;
+  final radius = angle * pi / 180;
+  final corner1 = _rotatePoint(labelBounds.topLeft, center, radius);
+  final corner2 = _rotatePoint(labelBounds.topRight, center, radius);
+  final corner3 = _rotatePoint(labelBounds.bottomRight, center, radius);
+  final corner4 = _rotatePoint(labelBounds.bottomLeft, center, radius);
+
+  final left = min(corner1.dx, min(corner2.dx, min(corner3.dx, corner4.dx)));
+  final right = max(corner1.dx, max(corner2.dx, max(corner3.dx, corner4.dx)));
+  final top = min(corner1.dy, min(corner2.dy, min(corner3.dy, corner4.dy)));
+  final bottom = max(corner1.dy, max(corner2.dy, max(corner3.dy, corner4.dy)));
+
+  return Rect.fromLTWH(left, top, right - left, bottom - top);
+}
+
+Offset _rotatePoint(Offset point, Offset center, double radius) {
+  final double dx = point.dx - center.dx;
+  final double dy = point.dy - center.dy;
+  return Offset(
+    dx * cos(radius) - dy * sin(radius) + center.dx,
+    dx * sin(radius) + dy * cos(radius) + center.dy,
+  );
+}
+
 double factorFromValue(String? value) {
   if (value != null && value.isNotEmpty) {
     final double? factor = value.contains('%')
@@ -842,7 +867,7 @@ class RenderTooltipMarkerShape<T, D> extends RenderBox {
 
       fillPaint.color = colors![index!] ?? colorScheme.onSurface;
       if (series != null) {
-        fillPaint.shader = (series as CartesianSeriesRenderer<T, D>)
+        fillPaint.shader = (series! as CartesianSeriesRenderer<T, D>)
             .markerShader(offset & size);
       }
 
@@ -2144,9 +2169,9 @@ RRect performLegendToggleAnimation(
 
   final RenderCartesianChartPlotArea plotArea = series.parent!;
   final CartesianSeriesRenderer firstSeries =
-      plotArea.firstChild as CartesianSeriesRenderer;
+      plotArea.firstChild! as CartesianSeriesRenderer;
   final CartesianSeriesRenderer lastSeries =
-      plotArea.lastChild as CartesianSeriesRenderer;
+      plotArea.lastChild! as CartesianSeriesRenderer;
 
   final bool isSingleBarSeries = _isSingleBarSeries(plotArea);
   num right = 0;
@@ -2217,9 +2242,9 @@ RRect performTransposedLegendToggleAnimation(
 ) {
   final RenderCartesianChartPlotArea plotArea = series.parent!;
   final CartesianSeriesRenderer firstSeries =
-      plotArea.firstChild as CartesianSeriesRenderer;
+      plotArea.firstChild! as CartesianSeriesRenderer;
   final CartesianSeriesRenderer lastSeries =
-      plotArea.lastChild as CartesianSeriesRenderer;
+      plotArea.lastChild! as CartesianSeriesRenderer;
 
   final bool isSingleBarSeries = _isSingleBarSeries(plotArea);
   num bottom;
@@ -2338,4 +2363,14 @@ Rect tooltipTouchBounds(Offset center, double width, double height) {
   }
 
   return Rect.fromCenter(center: center, width: width, height: height);
+}
+
+int drawIndex(int pointIndex, List<int> drawIndexes) {
+  final int length = drawIndexes.length;
+  for (int i = 0; i < length; i++) {
+    if (drawIndexes[i] == pointIndex) {
+      return i;
+    }
+  }
+  return -1;
 }

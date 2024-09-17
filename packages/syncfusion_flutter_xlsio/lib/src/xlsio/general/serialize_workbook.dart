@@ -1,4 +1,55 @@
-part of xlsio;
+import 'dart:convert';
+
+import 'package:archive/archive.dart';
+import 'package:syncfusion_officecore/officecore.dart';
+import 'package:xml/xml.dart';
+
+import '../autoFilters/autofilter_impl.dart';
+import '../autoFilters/autofiltercollection.dart';
+import '../autoFilters/autofiltercondition.dart';
+import '../autoFilters/colorfilter.dart';
+import '../autoFilters/combination_filter.dart';
+import '../autoFilters/datetime_filter.dart';
+import '../autoFilters/dynamicfilter.dart';
+import '../autoFilters/multiplefilter.dart';
+import '../autoFilters/text_filter.dart';
+import '../cell_styles/alignment.dart';
+import '../cell_styles/border.dart';
+import '../cell_styles/borders.dart';
+import '../cell_styles/cell_style.dart';
+import '../cell_styles/cell_style_xfs.dart';
+import '../cell_styles/cell_xfs.dart';
+import '../cell_styles/extend_compare_style.dart';
+import '../cell_styles/font.dart';
+import '../cell_styles/global_style.dart';
+import '../cell_styles/style.dart';
+import '../conditional_format/color_scale/color_scale.dart';
+import '../conditional_format/condition_value.dart';
+import '../conditional_format/conditionalformat.dart';
+import '../conditional_format/conditionalformat_collections.dart';
+import '../conditional_format/conditionalformat_impl.dart';
+import '../conditional_format/data_bar/data_bar.dart';
+import '../conditional_format/data_bar/data_bar_impl.dart';
+import '../conditional_format/icon_set/icon_set.dart';
+import '../conditional_format/icon_set/icon_set_impl.dart';
+import '../datavalidation/datavalidation_collection.dart';
+import '../datavalidation/datavalidation_impl.dart';
+import '../datavalidation/datavalidation_table.dart';
+import '../formats/format.dart';
+import '../general/enums.dart';
+import '../general/workbook.dart';
+import '../hyperlinks/hyperlink.dart';
+import '../images/picture.dart';
+import '../merged_cells/extend_style.dart';
+import '../merged_cells/merge_cells.dart';
+import '../merged_cells/merged_cell_collection.dart';
+import '../named_range/name.dart';
+import '../page_setup/page_setup_impl.dart';
+import '../range/column.dart';
+import '../range/range.dart';
+import '../range/row.dart';
+import '../table/table_serialization.dart';
+import '../worksheet/worksheet.dart';
 
 /// Represent the workbook serialize.
 class SerializeWorkbook {
@@ -53,7 +104,7 @@ class SerializeWorkbook {
   ];
 
   /// Serialize workbook
-  void _saveInternal() {
+  void saveInternal() {
     _updateGlobalStyles();
     _saveWorkbook();
     _saveWorksheets();
@@ -66,7 +117,7 @@ class SerializeWorkbook {
     _saveWorkbookRelation();
   }
 
-  Future<void> _saveInternalAsync() async {
+  Future<void> saveWorkbookAsync() async {
     await _updateGlobalStylesAsync().then((_) async {
       await _saveWorkbookAsync().then((_) async {
         await _saveWorksheetsAsync().then((_) async {
@@ -257,35 +308,35 @@ class SerializeWorkbook {
 
   /// Serializes workbook protection options.
   void _serializeWorkbookProtection(XmlBuilder builder) {
-    if (_workbook._bWindowProtect || _workbook._bCellProtect) {
+    if (_workbook.isWindowProtect || _workbook.isCellProtect) {
       builder.element('workbookProtection', nest: () {
-        if (_workbook._password != null) {
-          final int usPassword = _workbook._isPassword;
+        if (_workbook.password != null) {
+          final int usPassword = _workbook.isPassword;
           if (usPassword != 0) {
             builder.attribute('workbookPassword', usPassword.toRadixString(16));
           }
         }
         _serializeAttributes(
-            builder, 'lockStructure', _workbook._bCellProtect, false);
+            builder, 'lockStructure', _workbook.isCellProtect, false);
         _serializeAttributes(
-            builder, 'lockWindows', _workbook._bWindowProtect, false);
+            builder, 'lockWindows', _workbook.isWindowProtect, false);
       });
     }
   }
 
   Future<void> _serializeWorkbookProtectionAsync(XmlBuilder builder) async {
-    if (_workbook._bWindowProtect || _workbook._bCellProtect) {
+    if (_workbook.isWindowProtect || _workbook.isCellProtect) {
       builder.element('workbookProtection', nest: () async {
-        if (_workbook._password != null) {
-          final int usPassword = _workbook._isPassword;
+        if (_workbook.password != null) {
+          final int usPassword = _workbook.isPassword;
           if (usPassword != 0) {
             builder.attribute('workbookPassword', usPassword.toRadixString(16));
           }
         }
         _serializeAttributesAsync(
-            builder, 'lockStructure', _workbook._bCellProtect, false);
+            builder, 'lockStructure', _workbook.isCellProtect, false);
         _serializeAttributesAsync(
-            builder, 'lockWindows', _workbook._bWindowProtect, false);
+            builder, 'lockWindows', _workbook.isWindowProtect, false);
       });
     }
   }
@@ -352,9 +403,9 @@ class SerializeWorkbook {
   /// Update the Hyperlink cells
   void _updateHyperlinkCells(Worksheet worksheet) {
     for (final Hyperlink hyperlink in worksheet.hyperlinks.innerList) {
-      final Row? row = worksheet.rows._getRow(hyperlink._row);
+      final Row? row = worksheet.rows.getRow(hyperlink.row);
       if (row != null) {
-        final Range? cell = row.ranges._getCell(hyperlink._column);
+        final Range? cell = row.ranges.getCell(hyperlink.column);
         if (cell != null) {
           if (hyperlink.textToDisplay != null &&
               cell.number == null &&
@@ -374,9 +425,9 @@ class SerializeWorkbook {
 
   Future<void> _updateHyperlinkCellsAsync(Worksheet worksheet) async {
     for (final Hyperlink hyperlink in worksheet.hyperlinks.innerList) {
-      final Row? row = worksheet.rows._getRow(hyperlink._row);
+      final Row? row = worksheet.rows.getRow(hyperlink.row);
       if (row != null) {
-        final Range? cell = row.ranges._getCell(hyperlink._column);
+        final Range? cell = row.ranges.getCell(hyperlink.column);
         if (cell != null) {
           if (hyperlink.textToDisplay != null &&
               cell.number == null &&
@@ -410,7 +461,7 @@ class SerializeWorkbook {
           'http://schemas.openxmlformats.org/markup-compatibility/2006');
 
       builder.element('sheetPr', nest: () {
-        if (!sheet._isSummaryRowBelow) {
+        if (!sheet.isSummaryRowBelow) {
           builder.element('OutlinePr', nest: () {
             builder.attribute('summaryBelow', '0');
           });
@@ -420,13 +471,13 @@ class SerializeWorkbook {
             builder.attribute('fitToPage', '1');
           });
         }
-        if (sheet._isTapColorApplied) {
+        if (sheet.isTabColorApplied) {
           _serializeTabColor(sheet, builder);
         }
       });
       _saveSheetView(sheet, builder);
       builder.element('sheetFormatPr', nest: () {
-        builder.attribute('defaultRowHeight', sheet._standardHeight.toString());
+        builder.attribute('defaultRowHeight', sheet.standardHeight.toString());
       });
 
       if (sheet.columns.count != 0) {
@@ -442,12 +493,12 @@ class SerializeWorkbook {
                 i = iLastColumn;
                 if (column.width != 0) {
                   final double dWidth =
-                      sheet._evaluateFileColumnWidth(column.width);
+                      sheet.evaluateFileColumnWidth(column.width);
                   builder.attribute('width', dWidth.toString());
                 } else {
                   builder.attribute('width', '8.43');
                 }
-                if (column._isHidden) {
+                if (column.isHidden) {
                   builder.attribute('hidden', '1');
                 }
                 builder.attribute('customWidth', '1');
@@ -466,7 +517,7 @@ class SerializeWorkbook {
                   builder.attribute('ht', row.height.toString());
                   builder.attribute('customHeight', '1');
                 }
-                if (row._isHidden) {
+                if (row.isHidden) {
                   builder.attribute('hidden', '1');
                 }
                 if (row.ranges.count != 0) {
@@ -480,42 +531,42 @@ class SerializeWorkbook {
                       }
                       sheet.mergeCells =
                           _processMergeCells(cell, row.index, sheet.mergeCells);
-                      if (cell._cellStyle != null || !cell.isDefaultFormat) {
-                        cell._styleIndex = cell.cellStyle.index =
+                      if (cell.hasCellStyle || !cell.isDefaultFormat) {
+                        cell.styleIndex = cell.cellStyle.index =
                             _processCellStyle(
                                 cell.cellStyle as CellStyle, _workbook);
                       } else {
-                        cell._styleIndex = -1;
+                        cell.styleIndex = -1;
                       }
                       builder.element('c', nest: () {
                         String? strFormula = cell.formula;
                         builder.attribute('r', cell.addressLocal);
-                        if (cell._saveType != '' &&
+                        if (cell.saveType != '' &&
                             (strFormula == null ||
                                 strFormula == '' ||
                                 strFormula[0] != '=' ||
-                                cell._saveType == 's')) {
-                          builder.attribute('t', cell._saveType);
+                                cell.saveType == 's')) {
+                          builder.attribute('t', cell.saveType);
                         }
-                        if (cell._styleIndex > 0) {
-                          builder.attribute('s', cell._styleIndex.toString());
+                        if (cell.styleIndex > 0) {
+                          builder.attribute('s', cell.styleIndex.toString());
                         }
                         String? cellValue;
                         if (sheet.calcEngine != null &&
                             cell.number == null &&
                             cell.text == null &&
-                            cell._boolean == '' &&
-                            cell._errorValue == '') {
+                            cell.boolean == '' &&
+                            cell.errorValue == '') {
                           cellValue = cell.calculatedValue;
-                        } else if (cell._errorValue != '') {
-                          cellValue = cell._errorValue;
-                        } else if (cell._boolean != '') {
-                          cellValue = cell._boolean;
+                        } else if (cell.errorValue != '') {
+                          cellValue = cell.errorValue;
+                        } else if (cell.boolean != '') {
+                          cellValue = cell.boolean;
                         } else if (cell.number != null) {
                           cellValue = cell.number.toString();
                         } else if (cell.text != null) {
-                          if (cell._saveType == 's' && cell._textIndex != -1) {
-                            cellValue = cell._textIndex.toString();
+                          if (cell.saveType == 's' && cell.textIndex != -1) {
+                            cellValue = cell.textIndex.toString();
                           } else {
                             cellValue = cell.text;
                           }
@@ -523,9 +574,9 @@ class SerializeWorkbook {
                         if (strFormula != null &&
                             strFormula != '' &&
                             strFormula[0] == '=' &&
-                            cell._saveType != 's') {
-                          if (cell._saveType != '') {
-                            builder.attribute('t', cell._saveType);
+                            cell.saveType != 's') {
+                          if (cell.saveType != '') {
+                            builder.attribute('t', cell.saveType);
                           }
                           strFormula =
                               strFormula.substring(1).replaceAll("'", '"');
@@ -573,7 +624,7 @@ class SerializeWorkbook {
                           builder.element('f', nest: strFormula);
                         }
                         if (cellValue != null &&
-                            (cell._saveType == 'str' || cellValue.isNotEmpty)) {
+                            (cell.saveType == 'str' || cellValue.isNotEmpty)) {
                           builder.element('v', nest: cellValue);
                         }
                       });
@@ -585,24 +636,24 @@ class SerializeWorkbook {
           }
         }
       });
-      if (sheet._isPasswordProtected) {
+      if (sheet.isPasswordProtected) {
         builder.element('sheetProtection', nest: () {
-          if (sheet._algorithmName != null) {
+          if (sheet.algorithmName != null) {
             // ignore: unnecessary_null_checks
-            builder.attribute('algorithmName', sheet._algorithmName!);
-            builder.attribute('hashValue', base64.encode(sheet._hashValue));
-            builder.attribute('saltValue', base64.encode(sheet._saltValue));
-            builder.attribute('spinCount', sheet._spinCount);
-          } else if (sheet._isPassword != 1) {
-            final String password = sheet._isPassword.toRadixString(16);
+            builder.attribute('algorithmName', sheet.algorithmName!);
+            builder.attribute('hashValue', base64.encode(sheet.hashValue));
+            builder.attribute('saltValue', base64.encode(sheet.saltValue));
+            builder.attribute('spinCount', sheet.spinCount);
+          } else if (sheet.isPassword != 1) {
+            final String password = sheet.isPassword.toRadixString(16);
             builder.attribute('password', password);
           }
           List<String> attributes;
           List<bool> flags;
           List<bool> defaultValues;
-          attributes = sheet._protectionAttributes;
-          flags = sheet._flag;
-          defaultValues = sheet._defaultValues;
+          attributes = sheet.protectionAttributes;
+          flags = sheet.flag;
+          defaultValues = sheet.defaultValues;
           // ignore: prefer_final_locals
           for (int i = 0, iCount = attributes.length; i < iCount; i++) {
             _serializeProtectionAttribute(
@@ -619,7 +670,7 @@ class SerializeWorkbook {
               'count', sheet.mergeCells.innerList.length.toString());
           for (final MergeCell mCell in sheet.mergeCells.innerList) {
             builder.element('mergeCell', nest: () {
-              builder.attribute('ref', mCell._reference);
+              builder.attribute('ref', mCell.reference);
             });
           }
         });
@@ -659,7 +710,7 @@ class SerializeWorkbook {
 
       if ((sheet.pictures.count > 0) ||
           (sheet.charts != null && sheet.chartCount > 0)) {
-        _workbook._drawingCount++;
+        _workbook.drawingCount++;
         _saveDrawings(sheet);
         if (sheet.charts != null && sheet.chartCount > 0) {
           sheet.charts!.serializeChartsSync(sheet);
@@ -670,7 +721,7 @@ class SerializeWorkbook {
           if (_relationId.isNotEmpty) {
             if (sheet.hyperlinks.count > 0) {
               for (int i = 0; i < sheet.hyperlinks.count; i++) {
-                if (sheet.hyperlinks[i]._attachedType ==
+                if (sheet.hyperlinks[i].attachedType ==
                         ExcelHyperlinkAttachedType.range &&
                     sheet.hyperlinks[i].type != HyperlinkType.workbook) {
                   id++;
@@ -684,9 +735,9 @@ class SerializeWorkbook {
         });
       }
 
-      final _TableSerialization tableSerialization =
-          _TableSerialization(_workbook);
-      tableSerialization._serializeTables(builder, sheet);
+      final TableSerialization tableSerialization =
+          TableSerialization(_workbook);
+      tableSerialization.serializeTables(builder, sheet);
 
       builder.element('extLst', nest: () {
         _serializeConditionalFormattingExt(builder, sheet);
@@ -715,7 +766,7 @@ class SerializeWorkbook {
           'http://schemas.openxmlformats.org/markup-compatibility/2006');
 
       builder.element('sheetPr', nest: () async {
-        if (!sheet._isSummaryRowBelow) {
+        if (!sheet.isSummaryRowBelow) {
           builder.element('OutlinePr', nest: () async {
             builder.attribute('summaryBelow', '0');
           });
@@ -725,13 +776,13 @@ class SerializeWorkbook {
             builder.attribute('fitToPage', '1');
           });
         }
-        if (sheet._isTapColorApplied) {
+        if (sheet.isTabColorApplied) {
           _serializeTabColorAsync(sheet, builder);
         }
       });
       _saveSheetViewAsync(sheet, builder);
       builder.element('sheetFormatPr', nest: () async {
-        builder.attribute('defaultRowHeight', sheet._standardHeight.toString());
+        builder.attribute('defaultRowHeight', sheet.standardHeight.toString());
       });
 
       if (sheet.columns.count != 0) {
@@ -747,12 +798,12 @@ class SerializeWorkbook {
                 i = iLastColumn;
                 if (column.width != 0) {
                   final double dWidth =
-                      sheet._evaluateFileColumnWidth(column.width);
+                      sheet.evaluateFileColumnWidth(column.width);
                   builder.attribute('width', dWidth.toString());
                 } else {
                   builder.attribute('width', '8.43');
                 }
-                if (column._isHidden) {
+                if (column.isHidden) {
                   builder.attribute('hidden', '1');
                 }
                 builder.attribute('customWidth', '1');
@@ -771,7 +822,7 @@ class SerializeWorkbook {
                   builder.attribute('ht', row.height.toString());
                   builder.attribute('customHeight', '1');
                 }
-                if (row._isHidden) {
+                if (row.isHidden) {
                   builder.attribute('hidden', '1');
                 }
                 if (row.ranges.count != 0) {
@@ -786,42 +837,42 @@ class SerializeWorkbook {
                       sheet.mergeCells =
                           _processMergeCells(cell, row.index, sheet.mergeCells);
 
-                      if (cell._cellStyle != null || !cell.isDefaultFormat) {
-                        cell._styleIndex = cell.cellStyle.index =
+                      if (cell.hasCellStyle || !cell.isDefaultFormat) {
+                        cell.styleIndex = cell.cellStyle.index =
                             _processCellStyle(
                                 cell.cellStyle as CellStyle, _workbook);
                       } else {
-                        cell._styleIndex = -1;
+                        cell.styleIndex = -1;
                       }
                       builder.element('c', nest: () async {
                         String? strFormula = cell.formula;
                         builder.attribute('r', cell.addressLocal);
-                        if (cell._saveType != '' &&
+                        if (cell.saveType != '' &&
                             (strFormula == null ||
                                 strFormula == '' ||
                                 strFormula[0] != '=' ||
-                                cell._saveType == 's')) {
-                          builder.attribute('t', cell._saveType);
+                                cell.saveType == 's')) {
+                          builder.attribute('t', cell.saveType);
                         }
-                        if (cell._styleIndex > 0) {
-                          builder.attribute('s', cell._styleIndex.toString());
+                        if (cell.styleIndex > 0) {
+                          builder.attribute('s', cell.styleIndex.toString());
                         }
                         String? cellValue;
                         if (sheet.calcEngine != null &&
                             cell.number == null &&
                             cell.text == null &&
-                            cell._boolean == '' &&
-                            cell._errorValue == '') {
+                            cell.boolean == '' &&
+                            cell.errorValue == '') {
                           cellValue = cell.calculatedValue;
-                        } else if (cell._errorValue != '') {
-                          cellValue = cell._errorValue;
-                        } else if (cell._boolean != '') {
-                          cellValue = cell._boolean;
+                        } else if (cell.errorValue != '') {
+                          cellValue = cell.errorValue;
+                        } else if (cell.boolean != '') {
+                          cellValue = cell.boolean;
                         } else if (cell.number != null) {
                           cellValue = cell.number.toString();
                         } else if (cell.text != null) {
-                          if (cell._saveType == 's' && cell._textIndex != -1) {
-                            cellValue = cell._textIndex.toString();
+                          if (cell.saveType == 's' && cell.textIndex != -1) {
+                            cellValue = cell.textIndex.toString();
                           } else {
                             cellValue = cell.text;
                           }
@@ -829,9 +880,9 @@ class SerializeWorkbook {
                         if (strFormula != null &&
                             strFormula != '' &&
                             strFormula[0] == '=' &&
-                            cell._saveType != 's') {
-                          if (cell._saveType != '') {
-                            builder.attribute('t', cell._saveType);
+                            cell.saveType != 's') {
+                          if (cell.saveType != '') {
+                            builder.attribute('t', cell.saveType);
                           }
                           strFormula =
                               strFormula.substring(1).replaceAll("'", '"');
@@ -856,7 +907,7 @@ class SerializeWorkbook {
                           builder.element('f', nest: strFormula);
                         }
                         if (cellValue != null &&
-                            (cell._saveType == 'str' || cellValue.isNotEmpty)) {
+                            (cell.saveType == 'str' || cellValue.isNotEmpty)) {
                           builder.element('v', nest: cellValue);
                         }
                       });
@@ -868,24 +919,24 @@ class SerializeWorkbook {
           }
         }
       });
-      if (sheet._isPasswordProtected) {
+      if (sheet.isPasswordProtected) {
         builder.element('sheetProtection', nest: () async {
-          if (sheet._algorithmName != null) {
+          if (sheet.algorithmName != null) {
             // ignore: unnecessary_null_checks
-            builder.attribute('algorithmName', sheet._algorithmName!);
-            builder.attribute('hashValue', base64.encode(sheet._hashValue));
-            builder.attribute('saltValue', base64.encode(sheet._saltValue));
-            builder.attribute('spinCount', sheet._spinCount);
-          } else if (sheet._isPassword != 1) {
-            final String password = sheet._isPassword.toRadixString(16);
+            builder.attribute('algorithmName', sheet.algorithmName!);
+            builder.attribute('hashValue', base64.encode(sheet.hashValue));
+            builder.attribute('saltValue', base64.encode(sheet.saltValue));
+            builder.attribute('spinCount', sheet.spinCount);
+          } else if (sheet.isPassword != 1) {
+            final String password = sheet.isPassword.toRadixString(16);
             builder.attribute('password', password);
           }
           List<String> attributes;
           List<bool> flags;
           List<bool> defaultValues;
-          attributes = sheet._protectionAttributes;
-          flags = sheet._flag;
-          defaultValues = sheet._defaultValues;
+          attributes = sheet.protectionAttributes;
+          flags = sheet.flag;
+          defaultValues = sheet.defaultValues;
           // ignore: prefer_final_locals
           for (int i = 0, iCount = attributes.length; i < iCount; i++) {
             _serializeProtectionAttributeAsync(
@@ -901,7 +952,7 @@ class SerializeWorkbook {
               'count', sheet.mergeCells.innerList.length.toString());
           for (final MergeCell mCell in sheet.mergeCells.innerList) {
             builder.element('mergeCell', nest: () async {
-              builder.attribute('ref', mCell._reference);
+              builder.attribute('ref', mCell.reference);
             });
           }
         });
@@ -940,7 +991,7 @@ class SerializeWorkbook {
 
       if ((sheet.pictures.count > 0) ||
           (sheet.charts != null && sheet.chartCount > 0)) {
-        _workbook._drawingCount++;
+        _workbook.drawingCount++;
         _saveDrawingsAsync(sheet);
         if (sheet.charts != null && sheet.chartCount > 0) {
           sheet.charts!.serializeCharts(sheet);
@@ -951,7 +1002,7 @@ class SerializeWorkbook {
           if (_relationId.isNotEmpty) {
             if (sheet.hyperlinks.count > 0) {
               for (int i = 0; i < sheet.hyperlinks.count; i++) {
-                if (sheet.hyperlinks[i]._attachedType ==
+                if (sheet.hyperlinks[i].attachedType ==
                         ExcelHyperlinkAttachedType.range &&
                     sheet.hyperlinks[i].type != HyperlinkType.workbook) {
                   id++;
@@ -964,9 +1015,9 @@ class SerializeWorkbook {
           }
         });
       }
-      final _TableSerialization tableSerialization =
-          _TableSerialization(_workbook);
-      tableSerialization._serializeTablesAsync(builder, sheet);
+      final TableSerialization tableSerialization =
+          TableSerialization(_workbook);
+      tableSerialization.serializeTablesAsync(builder, sheet);
       builder.element('extLst', nest: () async {
         _serializeConditionalFormattingExtAsync(builder, sheet);
       });
@@ -1016,18 +1067,18 @@ class SerializeWorkbook {
 
   /// Validate whether Page margins are fit into the Page
   void _validatePageMargins(Worksheet sheet) {
-    if ((sheet.pageSetup as _PageSetupImpl)
-            ._paperHight
+    if ((sheet.pageSetup as PageSetupImpl)
+            .paperHight
             .containsKey(sheet.pageSetup.paperSize) &&
-        (sheet.pageSetup as _PageSetupImpl)
-            ._paperWidth
+        (sheet.pageSetup as PageSetupImpl)
+            .paperWidth
             .containsKey(sheet.pageSetup.paperSize)) {
       final double maxHight =
           sheet.pageSetup.topMargin + sheet.pageSetup.bottomMargin;
       final double maxWidth =
           sheet.pageSetup.leftMargin + sheet.pageSetup.rightMargin;
-      (sheet.pageSetup as _PageSetupImpl)
-          ._paperHight
+      (sheet.pageSetup as PageSetupImpl)
+          .paperHight
           .forEach((ExcelPaperSize key, double value) {
         if (sheet.pageSetup.paperSize == key) {
           if (maxHight > value) {
@@ -1036,8 +1087,8 @@ class SerializeWorkbook {
           }
         }
       });
-      (sheet.pageSetup as _PageSetupImpl)
-          ._paperWidth
+      (sheet.pageSetup as PageSetupImpl)
+          .paperWidth
           .forEach((ExcelPaperSize key, double value) {
         if (sheet.pageSetup.paperSize == key) {
           if (maxWidth > value) {
@@ -1050,18 +1101,18 @@ class SerializeWorkbook {
   }
 
   Future<void> _validatePageMarginsAsync(Worksheet sheet) async {
-    if ((sheet.pageSetup as _PageSetupImpl)
-            ._paperHight
+    if ((sheet.pageSetup as PageSetupImpl)
+            .paperHight
             .containsKey(sheet.pageSetup.paperSize) &&
-        (sheet.pageSetup as _PageSetupImpl)
-            ._paperWidth
+        (sheet.pageSetup as PageSetupImpl)
+            .paperWidth
             .containsKey(sheet.pageSetup.paperSize)) {
       final double maxHight =
           sheet.pageSetup.topMargin + sheet.pageSetup.bottomMargin;
       final double maxWidth =
           sheet.pageSetup.leftMargin + sheet.pageSetup.rightMargin;
-      (sheet.pageSetup as _PageSetupImpl)
-          ._paperHight
+      (sheet.pageSetup as PageSetupImpl)
+          .paperHight
           .forEach((ExcelPaperSize key, double value) {
         if (sheet.pageSetup.paperSize == key) {
           if (maxHight > value) {
@@ -1070,8 +1121,8 @@ class SerializeWorkbook {
           }
         }
       });
-      (sheet.pageSetup as _PageSetupImpl)
-          ._paperWidth
+      (sheet.pageSetup as PageSetupImpl)
+          .paperWidth
           .forEach((ExcelPaperSize key, double value) {
         if (sheet.pageSetup.paperSize == key) {
           if (maxWidth > value) {
@@ -1669,7 +1720,7 @@ class SerializeWorkbook {
       for (int i = 0; i < sheet.hyperlinks.count; i++) {
         final Hyperlink hyperLink = sheet.hyperlinks[i];
         hyperLinkType[i] =
-            hyperLink._attachedType.toString().split('.').toList().removeAt(1);
+            hyperLink.attachedType.toString().split('.').toList().removeAt(1);
       }
       if (iCount == 0 || !hyperLinkType.contains('range')) {
         return;
@@ -1677,7 +1728,7 @@ class SerializeWorkbook {
       builder.element('hyperlinks', nest: () {
         int id = 1;
         for (final Hyperlink link in sheet.hyperlinks.innerList) {
-          if (link._attachedType == ExcelHyperlinkAttachedType.range) {
+          if (link.attachedType == ExcelHyperlinkAttachedType.range) {
             builder.element('hyperlink', nest: () {
               if (link.type == HyperlinkType.workbook) {
                 builder.attribute('ref', link.reference);
@@ -1714,7 +1765,7 @@ class SerializeWorkbook {
       for (int i = 0; i < sheet.hyperlinks.count; i++) {
         final Hyperlink hyperLink = sheet.hyperlinks[i];
         hyperLinkType[i] =
-            hyperLink._attachedType.toString().split('.').toList().removeAt(1);
+            hyperLink.attachedType.toString().split('.').toList().removeAt(1);
       }
       if (iCount == 0 || !hyperLinkType.contains('range')) {
         return;
@@ -1722,7 +1773,7 @@ class SerializeWorkbook {
       builder.element('hyperlinks', nest: () async {
         int id = 1;
         for (final Hyperlink link in sheet.hyperlinks.innerList) {
-          if (link._attachedType == ExcelHyperlinkAttachedType.range) {
+          if (link.attachedType == ExcelHyperlinkAttachedType.range) {
             builder.element('hyperlink', nest: () async {
               if (link.type == HyperlinkType.workbook) {
                 builder.attribute('ref', link.reference);
@@ -1809,7 +1860,7 @@ class SerializeWorkbook {
                 builder.element('xdr:cNvPr', nest: () {
                   builder.attribute('id', imgId);
                   builder.attribute('name', 'Picture$imgId');
-                  if (picture._isHyperlink) {
+                  if (picture.isHyperlink) {
                     builder.element('a:hlinkClick', nest: () {
                       builder.attribute('xmlns:r',
                           'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
@@ -1821,7 +1872,7 @@ class SerializeWorkbook {
                       }
                       builder.attribute('r:id', rId);
                       idRelation.add(rId);
-                      sheet._hyperlinkRelationId.add(rId);
+                      sheet.hyperlinkRelationId.add(rId);
                       idHyperlink++;
                       if (picture.hyperlink != null &&
                           picture.hyperlink!.screenTip != null) {
@@ -1864,7 +1915,7 @@ class SerializeWorkbook {
                     }
                     builder.attribute('r:embed', rId);
                     idRelation.add(rId);
-                    if (picture._isHyperlink) {
+                    if (picture.isHyperlink) {
                       hyperlinkCount++;
                     }
                   }
@@ -1908,17 +1959,17 @@ class SerializeWorkbook {
             builder.element('xdr:clientData', nest: () {});
           });
           final List<int>? imageData = picture.imageData;
-          _workbook._imageCount += 1;
+          _workbook.imageCount += 1;
           String imgPath;
           if (Picture.isJpeg(imageData)) {
-            imgPath = 'xl/media/image${_workbook._imageCount}.jpeg';
-            if (!_workbook._defaultContentTypes.containsKey('jpeg')) {
-              _workbook._defaultContentTypes['jpeg'] = 'image/jpeg';
+            imgPath = 'xl/media/image${_workbook.imageCount}.jpeg';
+            if (!_workbook.defaultContentTypes.containsKey('jpeg')) {
+              _workbook.defaultContentTypes['jpeg'] = 'image/jpeg';
             }
           } else {
-            imgPath = 'xl/media/image${_workbook._imageCount}.png';
-            if (!_workbook._defaultContentTypes.containsKey('png')) {
-              _workbook._defaultContentTypes['png'] = 'image/png';
+            imgPath = 'xl/media/image${_workbook.imageCount}.png';
+            if (!_workbook.defaultContentTypes.containsKey('png')) {
+              _workbook.defaultContentTypes['png'] = 'image/png';
             }
           }
           if (imageData != null) {
@@ -1930,7 +1981,7 @@ class SerializeWorkbook {
     _saveDrawingRelations(sheet);
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
-    _addToArchive(bytes, 'xl/drawings/drawing${_workbook._drawingCount}.xml');
+    _addToArchive(bytes, 'xl/drawings/drawing${_workbook.drawingCount}.xml');
   }
 
   Future<void> _saveDrawingsAsync(Worksheet sheet) async {
@@ -1990,7 +2041,7 @@ class SerializeWorkbook {
                 builder.element('xdr:cNvPr', nest: () async {
                   builder.attribute('id', imgId);
                   builder.attribute('name', 'Picture$imgId');
-                  if (picture._isHyperlink) {
+                  if (picture.isHyperlink) {
                     builder.element('a:hlinkClick', nest: () async {
                       builder.attribute('xmlns:r',
                           'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
@@ -2002,7 +2053,7 @@ class SerializeWorkbook {
                       }
                       builder.attribute('r:id', rId);
                       idRelation.add(rId);
-                      sheet._hyperlinkRelationId.add(rId);
+                      sheet.hyperlinkRelationId.add(rId);
                       idHyperlink++;
                       if (picture.hyperlink != null &&
                           picture.hyperlink!.screenTip != null) {
@@ -2045,7 +2096,7 @@ class SerializeWorkbook {
                     }
                     builder.attribute('r:embed', rId);
                     idRelation.add(rId);
-                    if (picture._isHyperlink) {
+                    if (picture.isHyperlink) {
                       hyperlinkCount++;
                     }
                   }
@@ -2089,17 +2140,17 @@ class SerializeWorkbook {
             builder.element('xdr:clientData', nest: () async {});
           });
           final List<int>? imageData = picture.imageData;
-          _workbook._imageCount += 1;
+          _workbook.imageCount += 1;
           String imgPath;
           if (Picture.isJpeg(imageData)) {
-            imgPath = 'xl/media/image${_workbook._imageCount}.jpeg';
-            if (!_workbook._defaultContentTypes.containsKey('jpeg')) {
-              _workbook._defaultContentTypes['jpeg'] = 'image/jpeg';
+            imgPath = 'xl/media/image${_workbook.imageCount}.jpeg';
+            if (!_workbook.defaultContentTypes.containsKey('jpeg')) {
+              _workbook.defaultContentTypes['jpeg'] = 'image/jpeg';
             }
           } else {
-            imgPath = 'xl/media/image${_workbook._imageCount}.png';
-            if (!_workbook._defaultContentTypes.containsKey('png')) {
-              _workbook._defaultContentTypes['png'] = 'image/png';
+            imgPath = 'xl/media/image${_workbook.imageCount}.png';
+            if (!_workbook.defaultContentTypes.containsKey('png')) {
+              _workbook.defaultContentTypes['png'] = 'image/png';
             }
           }
           if (imageData != null) {
@@ -2112,7 +2163,7 @@ class SerializeWorkbook {
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(
-        bytes, 'xl/drawings/drawing${_workbook._drawingCount}.xml');
+        bytes, 'xl/drawings/drawing${_workbook.drawingCount}.xml');
   }
 
   /// Serialize drawing relations.
@@ -2140,10 +2191,10 @@ class SerializeWorkbook {
         final int length = sheet.hyperlinks.count;
         int j = 0;
         for (int i = 0; i < length; i++) {
-          if (sheet.hyperlinks[i]._attachedType ==
+          if (sheet.hyperlinks[i].attachedType ==
               ExcelHyperlinkAttachedType.shape) {
             builder.element('Relationship', nest: () {
-              builder.attribute('Id', sheet._hyperlinkRelationId[j]);
+              builder.attribute('Id', sheet.hyperlinkRelationId[j]);
               builder.attribute('Type',
                   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
               if (sheet.hyperlinks[i].type == HyperlinkType.workbook) {
@@ -2163,7 +2214,7 @@ class SerializeWorkbook {
       }
       if (sheet.pictures.count != 0) {
         final int length = sheet.pictures.count;
-        int id = _workbook._imageCount - sheet.pictures.count;
+        int id = _workbook.imageCount - sheet.pictures.count;
         int idHyperlink = 0;
         for (int i = 1; i <= length; i++) {
           id++;
@@ -2174,7 +2225,7 @@ class SerializeWorkbook {
             } else {
               imgPath = '/xl/media/image$id.jpeg';
             }
-            if (sheet.pictures[i - 1]._isHyperlink) {
+            if (sheet.pictures[i - 1].isHyperlink) {
               builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
               builder.attribute('Type',
                   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
@@ -2194,7 +2245,7 @@ class SerializeWorkbook {
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(
-        bytes, 'xl/drawings/_rels/drawing${_workbook._drawingCount}.xml.rels');
+        bytes, 'xl/drawings/_rels/drawing${_workbook.drawingCount}.xml.rels');
   }
 
   Future<void> _saveDrawingRelationsAsync(Worksheet sheet) async {
@@ -2221,10 +2272,10 @@ class SerializeWorkbook {
         final int length = sheet.hyperlinks.count;
         int j = 0;
         for (int i = 0; i < length; i++) {
-          if (sheet.hyperlinks[i]._attachedType ==
+          if (sheet.hyperlinks[i].attachedType ==
               ExcelHyperlinkAttachedType.shape) {
             builder.element('Relationship', nest: () async {
-              builder.attribute('Id', sheet._hyperlinkRelationId[j]);
+              builder.attribute('Id', sheet.hyperlinkRelationId[j]);
               builder.attribute('Type',
                   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
               if (sheet.hyperlinks[i].type == HyperlinkType.workbook) {
@@ -2244,7 +2295,7 @@ class SerializeWorkbook {
       }
       if (sheet.pictures.count != 0) {
         final int length = sheet.pictures.count;
-        int id = _workbook._imageCount - sheet.pictures.count;
+        int id = _workbook.imageCount - sheet.pictures.count;
         int idHyperlink = 0;
         for (int i = 1; i <= length; i++) {
           id++;
@@ -2255,7 +2306,7 @@ class SerializeWorkbook {
             } else {
               imgPath = '/xl/media/image$id.jpeg';
             }
-            if (sheet.pictures[i - 1]._isHyperlink) {
+            if (sheet.pictures[i - 1].isHyperlink) {
               builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
               builder.attribute('Type',
                   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
@@ -2275,7 +2326,7 @@ class SerializeWorkbook {
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(
-        bytes, 'xl/drawings/_rels/drawing${_workbook._drawingCount}.xml.rels');
+        bytes, 'xl/drawings/_rels/drawing${_workbook.drawingCount}.xml.rels');
   }
 
   /// Updates the picture shape last row offset.
@@ -2314,7 +2365,7 @@ class SerializeWorkbook {
 
         picture.lastRowOffset = (rowHiddenHeight * picture.lastRowOffset) / 256;
         picture.lastRowOffset =
-            (picture.lastRowOffset / _workbook._unitProportions[7])
+            (picture.lastRowOffset / _workbook.unitProportions[7])
                 .round()
                 .toDouble();
         break;
@@ -2362,7 +2413,7 @@ class SerializeWorkbook {
 
         picture.lastRowOffset = (rowHiddenHeight * picture.lastRowOffset) / 256;
         picture.lastRowOffset =
-            (picture.lastRowOffset / _workbook._unitProportions[7])
+            (picture.lastRowOffset / _workbook.unitProportions[7])
                 .round()
                 .toDouble();
         break;
@@ -2408,7 +2459,7 @@ class SerializeWorkbook {
 
         picture.lastColOffset = (colHiddenWidth * picture.lastColOffset) / 1024;
         picture.lastColOffset =
-            (picture.lastColOffset / _workbook._unitProportions[7])
+            (picture.lastColOffset / _workbook.unitProportions[7])
                 .round()
                 .toDouble();
 
@@ -2455,7 +2506,7 @@ class SerializeWorkbook {
 
         picture.lastColOffset = (colHiddenWidth * picture.lastColOffset) / 1024;
         picture.lastColOffset =
-            (picture.lastColOffset / _workbook._unitProportions[7])
+            (picture.lastColOffset / _workbook.unitProportions[7])
                 .round()
                 .toDouble();
 
@@ -2470,7 +2521,7 @@ class SerializeWorkbook {
 
   /// Converts the given value to pixels.
   double _convertToPixels(double value) {
-    return value * _workbook._unitProportions[6];
+    return value * _workbook.unitProportions[6];
   }
 
   /// Converts column width to pixels.
@@ -2500,7 +2551,7 @@ class SerializeWorkbook {
       if (sheet.hyperlinks.count > 0) {
         int id = 1;
         for (final Hyperlink link in sheet.hyperlinks.innerList) {
-          if (link._attachedType == ExcelHyperlinkAttachedType.range &&
+          if (link.attachedType == ExcelHyperlinkAttachedType.range &&
               link.type != HyperlinkType.workbook) {
             builder.element('Relationship', nest: () {
               builder.attribute('Id', 'rId$id');
@@ -2520,7 +2571,7 @@ class SerializeWorkbook {
           if (_relationId.isNotEmpty) {
             if (sheet.hyperlinks.count > 0) {
               for (int i = 0; i < sheet.hyperlinks.count; i++) {
-                if (sheet.hyperlinks[i]._attachedType ==
+                if (sheet.hyperlinks[i].attachedType ==
                         ExcelHyperlinkAttachedType.range &&
                     sheet.hyperlinks[i].type != HyperlinkType.workbook) {
                   id++;
@@ -2534,7 +2585,7 @@ class SerializeWorkbook {
           builder.attribute('Type',
               'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing');
           builder.attribute(
-              'Target', '../drawings/drawing${_workbook._drawingCount}.xml');
+              'Target', '../drawings/drawing${_workbook.drawingCount}.xml');
         });
       } else if (sheet.charts != null && sheet.chartCount > 0) {
         builder.element('Relationship', nest: () {
@@ -2543,7 +2594,7 @@ class SerializeWorkbook {
           if (_relationId.isNotEmpty) {
             if (sheet.hyperlinks.count > 0) {
               for (int i = 0; i < sheet.hyperlinks.count; i++) {
-                if (sheet.hyperlinks[i]._attachedType ==
+                if (sheet.hyperlinks[i].attachedType ==
                         ExcelHyperlinkAttachedType.range &&
                     sheet.hyperlinks[i].type != HyperlinkType.workbook) {
                   id++;
@@ -2557,10 +2608,10 @@ class SerializeWorkbook {
           builder.attribute('Type',
               'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing');
           builder.attribute(
-              'Target', '../drawings/drawing${_workbook._drawingCount}.xml');
+              'Target', '../drawings/drawing${_workbook.drawingCount}.xml');
         });
       }
-      final int length = sheet.tableCollection._count;
+      final int length = sheet.tableCollection.count;
       int rid;
       int index;
       int id = 1;
@@ -2569,7 +2620,7 @@ class SerializeWorkbook {
           for (int hyperlinkCount = 0;
               hyperlinkCount < sheet.hyperlinks.count;
               hyperlinkCount++) {
-            if (sheet.hyperlinks[hyperlinkCount]._attachedType ==
+            if (sheet.hyperlinks[hyperlinkCount].attachedType ==
                     ExcelHyperlinkAttachedType.range &&
                 sheet.hyperlinks[hyperlinkCount].type !=
                     HyperlinkType.workbook) {
@@ -2591,8 +2642,8 @@ class SerializeWorkbook {
             id++;
           }
         }
-        for (int tableCount = _workbook._previousTableCount;
-            tableCount < _workbook._tableCount;
+        for (int tableCount = _workbook.previousTableCount;
+            tableCount < _workbook.tableCount;
             tableCount++) {
           builder.element('Relationship', nest: () {
             rid = id++;
@@ -2603,7 +2654,7 @@ class SerializeWorkbook {
             builder.attribute('Target', '../tables/table$index.xml');
           });
         }
-        _workbook._previousTableCount = _workbook._tableCount;
+        _workbook.previousTableCount = _workbook.tableCount;
       }
     });
     final String stringXml = builder.buildDocument().copy().toString();
@@ -2621,9 +2672,9 @@ class SerializeWorkbook {
         if (!sheet.showGridlines) {
           builder.attribute('showGridLines', '0');
         }
-        if (sheet._isfreezePane ||
-            sheet._verticalSplit != 0 ||
-            sheet._horizontalSplit != 0) {
+        if (sheet.isFreezePane ||
+            sheet.verticalSplit != 0 ||
+            sheet.horizontalSplit != 0) {
           _savePane(sheet, builder);
         }
       });
@@ -2641,9 +2692,9 @@ class SerializeWorkbook {
         if (!sheet.showGridlines) {
           builder.attribute('showGridLines', '0');
         }
-        if (sheet._isfreezePane ||
-            sheet._verticalSplit != 0 ||
-            sheet._horizontalSplit != 0) {
+        if (sheet.isFreezePane ||
+            sheet.verticalSplit != 0 ||
+            sheet.horizontalSplit != 0) {
           _savePaneAsync(sheet, builder);
         }
       });
@@ -2653,26 +2704,26 @@ class SerializeWorkbook {
   /// Serialize worksheet Pane.
   static void _savePane(Worksheet sheet, XmlBuilder builder) {
     builder.element('pane', nest: () {
-      if (sheet._verticalSplit != 0) {
-        builder.attribute('xSplit', sheet._verticalSplit.toString());
+      if (sheet.verticalSplit != 0) {
+        builder.attribute('xSplit', sheet.verticalSplit.toString());
       }
-      if (sheet._horizontalSplit != 0) {
-        builder.attribute('ySplit', sheet._horizontalSplit.toString());
+      if (sheet.horizontalSplit != 0) {
+        builder.attribute('ySplit', sheet.horizontalSplit.toString());
       }
-      if (sheet._topLeftCell != '') {
-        builder.attribute('topLeftCell', sheet._topLeftCell);
+      if (sheet.topLeftCell != '') {
+        builder.attribute('topLeftCell', sheet.topLeftCell);
       }
-      switch (sheet._activePane) {
-        case _ActivePane.bottomRight:
+      switch (sheet.activePane) {
+        case ActivePane.bottomRight:
           builder.attribute('activePane', 'bottomRight');
           break;
-        case _ActivePane.bottomLeft:
+        case ActivePane.bottomLeft:
           builder.attribute('activePane', 'bottomLeft');
           break;
-        case _ActivePane.topRight:
+        case ActivePane.topRight:
           builder.attribute('activePane', 'topRight');
           break;
-        case _ActivePane.topLeft:
+        case ActivePane.topLeft:
           builder.attribute('activePane', 'topLeft');
           break;
       }
@@ -2683,26 +2734,26 @@ class SerializeWorkbook {
   static Future<void> _savePaneAsync(
       Worksheet sheet, XmlBuilder builder) async {
     builder.element('pane', nest: () async {
-      if (sheet._verticalSplit != 0) {
-        builder.attribute('xSplit', sheet._verticalSplit.toString());
+      if (sheet.verticalSplit != 0) {
+        builder.attribute('xSplit', sheet.verticalSplit.toString());
       }
-      if (sheet._horizontalSplit != 0) {
-        builder.attribute('ySplit', sheet._horizontalSplit.toString());
+      if (sheet.horizontalSplit != 0) {
+        builder.attribute('ySplit', sheet.horizontalSplit.toString());
       }
-      if (sheet._topLeftCell != '') {
-        builder.attribute('topLeftCell', sheet._topLeftCell);
+      if (sheet.topLeftCell != '') {
+        builder.attribute('topLeftCell', sheet.topLeftCell);
       }
-      switch (sheet._activePane) {
-        case _ActivePane.bottomRight:
+      switch (sheet.activePane) {
+        case ActivePane.bottomRight:
           builder.attribute('activePane', 'bottomRight');
           break;
-        case _ActivePane.bottomLeft:
+        case ActivePane.bottomLeft:
           builder.attribute('activePane', 'bottomLeft');
           break;
-        case _ActivePane.topRight:
+        case ActivePane.topRight:
           builder.attribute('activePane', 'topRight');
           break;
-        case _ActivePane.topLeft:
+        case ActivePane.topLeft:
           builder.attribute('activePane', 'topLeft');
           break;
       }
@@ -2713,15 +2764,15 @@ class SerializeWorkbook {
   /// Serialize workbook shared string.
   void _saveSharedString() {
     final XmlBuilder builder = XmlBuilder();
-    final int length = _workbook._sharedStrings.length;
+    final int length = _workbook.sharedStrings.length;
     if (length > 0) {
       builder.processing('xml', 'version="1.0"');
       builder.element('sst', nest: () {
         builder.attribute('xmlns',
             'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
         builder.attribute('uniqueCount', length.toString());
-        builder.attribute('count', _workbook._sharedStringCount.toString());
-        _workbook._sharedStrings.forEach((String key, int value) {
+        builder.attribute('count', _workbook.sharedStringCount.toString());
+        _workbook.sharedStrings.forEach((String key, int value) {
           if (key.indexOf('<r>') != 0) {
             builder.element('si', nest: () {
               builder.element('t', nest: () {
@@ -2743,15 +2794,15 @@ class SerializeWorkbook {
 
   Future<void> _saveSharedStringAsync() async {
     final XmlBuilder builder = XmlBuilder();
-    final int length = _workbook._sharedStrings.length;
+    final int length = _workbook.sharedStrings.length;
     if (length > 0) {
       builder.processing('xml', 'version="1.0"');
       builder.element('sst', nest: () async {
         builder.attribute('xmlns',
             'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
         builder.attribute('uniqueCount', length.toString());
-        builder.attribute('count', _workbook._sharedStringCount.toString());
-        _workbook._sharedStrings.forEach((String key, int value) {
+        builder.attribute('count', _workbook.sharedStringCount.toString());
+        _workbook.sharedStrings.forEach((String key, int value) {
           if (key.indexOf('<r>') != 0) {
             builder.element('si', nest: () async {
               builder.element('t', nest: () async {
@@ -2990,7 +3041,7 @@ class SerializeWorkbook {
           builder.attribute('ContentType',
               'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');
         });
-        if ((_workbook._imageCount > 0 &&
+        if ((_workbook.imageCount > 0 &&
                 _workbook.worksheets[i].pictures.count > 0) ||
             _workbook.worksheets[i].charts != null &&
                 _workbook.worksheets[i].chartCount > 0) {
@@ -3018,7 +3069,7 @@ class SerializeWorkbook {
       }
 
       for (int tableCount = 0;
-          tableCount < _workbook._tableCount;
+          tableCount < _workbook.tableCount;
           tableCount++) {
         final int tableIndex = tableCount + 1;
         builder.element('Override', nest: () {
@@ -3028,19 +3079,19 @@ class SerializeWorkbook {
         });
       }
 
-      if (_workbook._imageCount > 0) {
-        for (final dynamic key in _workbook._defaultContentType.keys) {
+      if (_workbook.imageCount > 0) {
+        for (final dynamic key in _workbook.defaultContentType.keys) {
           builder.element('Default', nest: () {
             builder.attribute('Extension', key);
             builder.attribute(
                 'ContentType',
                 // ignore: unnecessary_null_checks
-                _workbook._defaultContentTypes[key]!);
+                _workbook.defaultContentTypes[key]!);
           });
         }
       }
 
-      if (_workbook._sharedStringCount > 0) {
+      if (_workbook.sharedStringCount > 0) {
         builder.element('Override', nest: () {
           builder.attribute('PartName', '/xl/sharedStrings.xml');
           builder.attribute('ContentType',
@@ -3099,7 +3150,7 @@ class SerializeWorkbook {
           builder.attribute('ContentType',
               'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');
         });
-        if ((_workbook._imageCount > 0 &&
+        if ((_workbook.imageCount > 0 &&
                 _workbook.worksheets[i].pictures.count > 0) ||
             _workbook.worksheets[i].charts != null &&
                 _workbook.worksheets[i].chartCount > 0) {
@@ -3127,7 +3178,7 @@ class SerializeWorkbook {
       }
 
       for (int tableCount = 0;
-          tableCount < _workbook._tableCount;
+          tableCount < _workbook.tableCount;
           tableCount++) {
         final int tableIndex = tableCount + 1;
         builder.element('Override', nest: () async {
@@ -3137,19 +3188,19 @@ class SerializeWorkbook {
         });
       }
 
-      if (_workbook._imageCount > 0) {
-        for (final dynamic key in _workbook._defaultContentType.keys) {
+      if (_workbook.imageCount > 0) {
+        for (final dynamic key in _workbook.defaultContentType.keys) {
           builder.element('Default', nest: () async {
             builder.attribute('Extension', key);
             builder.attribute(
                 'ContentType',
                 // ignore: unnecessary_null_checks
-                _workbook._defaultContentTypes[key]!);
+                _workbook.defaultContentTypes[key]!);
           });
         }
       }
 
-      if (_workbook._sharedStringCount > 0) {
+      if (_workbook.sharedStringCount > 0) {
         builder.element('Override', nest: () async {
           builder.attribute('PartName', '/xl/sharedStrings.xml');
           builder.attribute('ContentType',
@@ -3190,7 +3241,7 @@ class SerializeWorkbook {
             'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles');
         builder.attribute('Target', 'styles.xml');
       });
-      if (_workbook._sharedStringCount > 0) {
+      if (_workbook.sharedStringCount > 0) {
         count = ++count;
         builder.element('Relationship', nest: () {
           builder.attribute('Id', 'rId$count');
@@ -3232,7 +3283,7 @@ class SerializeWorkbook {
             'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles');
         builder.attribute('Target', 'styles.xml');
       });
-      if (_workbook._sharedStringCount > 0) {
+      if (_workbook.sharedStringCount > 0) {
         count = ++count;
         builder.element('Relationship', nest: () async {
           builder.attribute('Id', 'rId$count');
@@ -3379,12 +3430,12 @@ class SerializeWorkbook {
         if (cellStyle.name == '') {
           _workbook.styles.addStyle(cellStyle);
         }
-        final _GlobalStyle globalStyle = _GlobalStyle();
-        globalStyle._name = cellStyle.name;
-        globalStyle._xfId = cellStyle.index;
-        globalStyle._numberFormat = cellStyle.numberFormat;
-        globalStyle._builtinId = cellStyle._builtinId;
-        _workbook._globalStyles[globalStyle._name] = globalStyle;
+        final GlobalStyle globalStyle = GlobalStyle();
+        globalStyle.name = cellStyle.name;
+        globalStyle.xfId = cellStyle.index;
+        globalStyle.numberFormat = cellStyle.numberFormat;
+        globalStyle.builtinId = cellStyle.builtinId;
+        _workbook.globalStyles[globalStyle.name] = globalStyle;
       }
     }
   }
@@ -3396,12 +3447,12 @@ class SerializeWorkbook {
         if (cellStyle.name == '') {
           _workbook.styles.addStyle(cellStyle);
         }
-        final _GlobalStyle globalStyle = _GlobalStyle();
-        globalStyle._name = cellStyle.name;
-        globalStyle._xfId = cellStyle.index;
-        globalStyle._numberFormat = cellStyle.numberFormat;
-        globalStyle._builtinId = cellStyle._builtinId;
-        _workbook._globalStyles[globalStyle._name] = globalStyle;
+        final GlobalStyle globalStyle = GlobalStyle();
+        globalStyle.name = cellStyle.name;
+        globalStyle.xfId = cellStyle.index;
+        globalStyle.numberFormat = cellStyle.numberFormat;
+        globalStyle.builtinId = cellStyle.builtinId;
+        _workbook.globalStyles[globalStyle.name] = globalStyle;
       }
     }
   }
@@ -3429,8 +3480,8 @@ class SerializeWorkbook {
   /// Process the number format for cell style.
   void _processNumFormatId(CellStyle style, Workbook workbook) {
     if (style.numberFormat != 'General' &&
-        !_workbook.innerFormats._contains(style.numberFormatIndex)) {
-      _workbook.innerFormats._createFormat(style.numberFormat);
+        !_workbook.innerFormats.contains(style.numberFormatIndex)) {
+      _workbook.innerFormats.createFormat(style.numberFormat);
     }
   }
 
@@ -3438,19 +3489,18 @@ class SerializeWorkbook {
   void _updateCellStyleXfs() {
     for (final Style cellStyle in _workbook.styles.innerList) {
       final CellStyle style = cellStyle as CellStyle;
-      _CellStyleXfs cellXfs;
+      CellStyleXfs cellXfs;
       if (style.isGlobalStyle) {
-        cellXfs = _CellXfs();
-        if (_workbook._globalStyles.containsKey(style.name)) {
-          (cellXfs as _CellXfs)._xfId =
-              _workbook._globalStyles[style.name]!._xfId;
+        cellXfs = CellXfs();
+        if (_workbook.globalStyles.containsKey(style.name)) {
+          (cellXfs as CellXfs).xfId = _workbook.globalStyles[style.name]!.xfId;
         }
       } else {
-        cellXfs = _CellXfs();
-        (cellXfs as _CellXfs)._xfId = 0;
+        cellXfs = CellXfs();
+        (cellXfs as CellXfs).xfId = 0;
       }
-      final _ExtendCompareStyle compareFontResult = _workbook._isNewFont(style);
-      if (!compareFontResult._result) {
+      final ExtendCompareStyle compareFontResult = _workbook.isNewFont(style);
+      if (!compareFontResult.result) {
         final Font font = Font();
         font.bold = style.bold;
         font.italic = style.italic;
@@ -3463,79 +3513,78 @@ class SerializeWorkbook {
           font.color = style.fontColor;
         }
         _workbook.fonts.add(font);
-        cellXfs._fontId = _workbook.fonts.length - 1;
+        cellXfs.fontId = _workbook.fonts.length - 1;
       } else {
-        cellXfs._fontId = compareFontResult._index;
+        cellXfs.fontId = compareFontResult.index;
       }
       if (style.backColor != '#FFFFFF' && style.backColor.length == 7) {
         final String backColor = 'FF${style.backColor.replaceAll('#', '')}';
         if (_workbook.fills.containsKey(backColor)) {
           final int? fillId = _workbook.fills[backColor];
-          cellXfs._fillId = fillId!;
+          cellXfs.fillId = fillId!;
         } else {
           final int fillId = _workbook.fills.length + 2;
           _workbook.fills[backColor] = fillId;
-          cellXfs._fillId = fillId;
+          cellXfs.fillId = fillId;
         }
       } else if (style.backColor.length > 7) {
         final String backColorRgb = style.backColor;
         if (_workbook.fills.containsKey(backColorRgb)) {
           final int? fillId = _workbook.fills[backColorRgb];
-          cellXfs._fillId = fillId!;
+          cellXfs.fillId = fillId!;
         } else {
           final int fillId = _workbook.fills.length + 2;
           _workbook.fills[backColorRgb] = fillId;
-          cellXfs._fillId = fillId;
+          cellXfs.fillId = fillId;
         }
       } else {
-        cellXfs._fillId = 0;
+        cellXfs.fillId = 0;
       }
 
       //Add border
-      if (!Workbook._isNewBorder(style)) {
+      if (!Workbook.isNewBorder(style)) {
         _workbook.borders.add(style.borders);
-        cellXfs._borderId = _workbook.borders.length;
+        cellXfs.borderId = _workbook.borders.length;
       } else {
-        cellXfs._borderId = 0;
+        cellXfs.borderId = 0;
       }
 
       //Add Number Format
       if (style.numberFormat != 'GENERAL') {
-        if (_workbook.innerFormats._contains(style.numberFormatIndex)) {
-          final _Format format =
-              _workbook.innerFormats[style.numberFormatIndex];
-          cellXfs._numberFormatId = format._index;
+        if (_workbook.innerFormats.contains(style.numberFormatIndex)) {
+          final Format format = _workbook.innerFormats[style.numberFormatIndex];
+          cellXfs.numberFormatId = format.index;
         } else {
-          cellXfs._numberFormatId =
-              _workbook.innerFormats._createFormat(style.numberFormat);
+          cellXfs.numberFormatId =
+              _workbook.innerFormats.createFormat(style.numberFormat);
         }
       } else {
         if (style.numberFormat == 'GENERAL' && style.numberFormatIndex == 14) {
-          cellXfs._numberFormatId = 14;
+          cellXfs.numberFormatId = 14;
         } else {
-          cellXfs._numberFormatId = 0;
+          cellXfs.numberFormatId = 0;
         }
       }
       //Add alignment
-      cellXfs._alignment = _Alignment();
-      cellXfs._alignment!.indent = style.indent;
-      cellXfs._alignment!.horizontal =
+      cellXfs.alignment = Alignment();
+      cellXfs.alignment!.indent = style.indent;
+      cellXfs.alignment!.horizontal =
           style.hAlign.toString().split('.').toList().removeAt(1);
-      cellXfs._alignment!.vertical =
+      cellXfs.alignment!.vertical =
           style.vAlign.toString().split('.').toList().removeAt(1);
-      cellXfs._alignment!.wrapText = style.wrapText ? 1 : 0;
-      cellXfs._alignment!.rotation = style.rotation;
+      cellXfs.alignment!.wrapText = style.wrapText ? 1 : 0;
+      cellXfs.alignment!.rotation = style.rotation;
 
       // Add protection
       if (!style.locked) {
-        cellXfs._locked = 0;
+        cellXfs.locked = 0;
       }
       if (style.isGlobalStyle) {
-        _workbook._cellStyleXfs.add(cellXfs);
-        _workbook._cellXfs.add(cellXfs as _CellXfs);
+        _workbook.cellStyleXfs.add(cellXfs);
+        _workbook.cellXfs.add(cellXfs as CellXfs);
       } else {
         //Add cellxfs
-        _workbook._cellXfs.add(cellXfs as _CellXfs);
+        _workbook.cellXfs.add(cellXfs as CellXfs);
       }
     }
   }
@@ -3543,19 +3592,18 @@ class SerializeWorkbook {
   Future<void> _updateCellStyleXfsAsync() async {
     for (final Style cellStyle in _workbook.styles.innerList) {
       final CellStyle style = cellStyle as CellStyle;
-      _CellStyleXfs cellXfs;
+      CellStyleXfs cellXfs;
       if (style.isGlobalStyle) {
-        cellXfs = _CellXfs();
-        if (_workbook._globalStyles.containsKey(style.name)) {
-          (cellXfs as _CellXfs)._xfId =
-              _workbook._globalStyles[style.name]!._xfId;
+        cellXfs = CellXfs();
+        if (_workbook.globalStyles.containsKey(style.name)) {
+          (cellXfs as CellXfs).xfId = _workbook.globalStyles[style.name]!.xfId;
         }
       } else {
-        cellXfs = _CellXfs();
-        (cellXfs as _CellXfs)._xfId = 0;
+        cellXfs = CellXfs();
+        (cellXfs as CellXfs).xfId = 0;
       }
-      final _ExtendCompareStyle compareFontResult = _workbook._isNewFont(style);
-      if (!compareFontResult._result) {
+      final ExtendCompareStyle compareFontResult = _workbook.isNewFont(style);
+      if (!compareFontResult.result) {
         final Font font = Font();
         font.bold = style.bold;
         font.italic = style.italic;
@@ -3568,94 +3616,93 @@ class SerializeWorkbook {
           font.color = style.fontColor;
         }
         _workbook.fonts.add(font);
-        cellXfs._fontId = _workbook.fonts.length - 1;
+        cellXfs.fontId = _workbook.fonts.length - 1;
       } else {
-        cellXfs._fontId = compareFontResult._index;
+        cellXfs.fontId = compareFontResult.index;
       }
       if (style.backColor != '#FFFFFF' && style.backColor.length == 7) {
         final String backColor = 'FF${style.backColor.replaceAll('#', '')}';
         if (_workbook.fills.containsKey(backColor)) {
           final int? fillId = _workbook.fills[backColor];
-          cellXfs._fillId = fillId!;
+          cellXfs.fillId = fillId!;
         } else {
           final int fillId = _workbook.fills.length + 2;
           _workbook.fills[backColor] = fillId;
-          cellXfs._fillId = fillId;
+          cellXfs.fillId = fillId;
         }
       } else if (style.backColor.length > 7) {
         final String backColorRgb = style.backColor;
         if (_workbook.fills.containsKey(backColorRgb)) {
           final int? fillId = _workbook.fills[backColorRgb];
-          cellXfs._fillId = fillId!;
+          cellXfs.fillId = fillId!;
         } else {
           final int fillId = _workbook.fills.length + 2;
           _workbook.fills[backColorRgb] = fillId;
-          cellXfs._fillId = fillId;
+          cellXfs.fillId = fillId;
         }
       } else {
-        cellXfs._fillId = 0;
+        cellXfs.fillId = 0;
       }
 
       //Add border
-      if (!Workbook._isNewBorder(style)) {
+      if (!Workbook.isNewBorder(style)) {
         _workbook.borders.add(style.borders);
-        cellXfs._borderId = _workbook.borders.length;
+        cellXfs.borderId = _workbook.borders.length;
       } else {
-        cellXfs._borderId = 0;
+        cellXfs.borderId = 0;
       }
 
       //Add Number Format
       if (style.numberFormat != 'GENERAL') {
-        if (_workbook.innerFormats._contains(style.numberFormatIndex)) {
-          final _Format format =
-              _workbook.innerFormats[style.numberFormatIndex];
-          cellXfs._numberFormatId = format._index;
+        if (_workbook.innerFormats.contains(style.numberFormatIndex)) {
+          final Format format = _workbook.innerFormats[style.numberFormatIndex];
+          cellXfs.numberFormatId = format.index;
         } else {
-          cellXfs._numberFormatId =
-              _workbook.innerFormats._createFormat(style.numberFormat);
+          cellXfs.numberFormatId =
+              _workbook.innerFormats.createFormat(style.numberFormat);
         }
       } else {
         if (style.numberFormat == 'GENERAL' && style.numberFormatIndex == 14) {
-          cellXfs._numberFormatId = 14;
+          cellXfs.numberFormatId = 14;
         } else {
-          cellXfs._numberFormatId = 0;
+          cellXfs.numberFormatId = 0;
         }
       }
       //Add alignment
-      cellXfs._alignment = _Alignment();
-      cellXfs._alignment!.indent = style.indent;
-      cellXfs._alignment!.horizontal =
+      cellXfs.alignment = Alignment();
+      cellXfs.alignment!.indent = style.indent;
+      cellXfs.alignment!.horizontal =
           style.hAlign.toString().split('.').toList().removeAt(1);
-      cellXfs._alignment!.vertical =
+      cellXfs.alignment!.vertical =
           style.vAlign.toString().split('.').toList().removeAt(1);
-      cellXfs._alignment!.wrapText = style.wrapText ? 1 : 0;
-      cellXfs._alignment!.rotation = style.rotation;
+      cellXfs.alignment!.wrapText = style.wrapText ? 1 : 0;
+      cellXfs.alignment!.rotation = style.rotation;
 
       // Add protection
       if (!style.locked) {
-        cellXfs._locked = 0;
+        cellXfs.locked = 0;
       }
       if (style.isGlobalStyle) {
-        _workbook._cellStyleXfs.add(cellXfs);
-        _workbook._cellXfs.add(cellXfs as _CellXfs);
+        _workbook.cellStyleXfs.add(cellXfs);
+        _workbook.cellXfs.add(cellXfs as CellXfs);
       } else {
         //Add cellxfs
-        _workbook._cellXfs.add(cellXfs as _CellXfs);
+        _workbook.cellXfs.add(cellXfs as CellXfs);
       }
     }
   }
 
   /// Serialize number formats.
   void _saveNumberFormats(XmlBuilder builder) {
-    final List<_Format> arrFormats = _workbook.innerFormats._getUsedFormats();
+    final List<Format> arrFormats = _workbook.innerFormats.getUsedFormats();
     if (arrFormats.isNotEmpty) {
       builder.element('numFmts', nest: () {
         builder.attribute('count', arrFormats.length.toString());
         for (int i = 0; i < arrFormats.length; i++) {
           builder.element('numFmt', nest: () {
-            builder.attribute('numFmtId', arrFormats[i]._index.toString());
+            builder.attribute('numFmtId', arrFormats[i].index.toString());
             final String formatString =
-                arrFormats[i]._formatString!.replaceAll("'", '"');
+                arrFormats[i].formatString!.replaceAll("'", '"');
             builder.attribute('formatCode', formatString);
           });
         }
@@ -3664,15 +3711,15 @@ class SerializeWorkbook {
   }
 
   Future<void> _saveNumberFormatsAsync(XmlBuilder builder) async {
-    final List<_Format> arrFormats = _workbook.innerFormats._getUsedFormats();
+    final List<Format> arrFormats = _workbook.innerFormats.getUsedFormats();
     if (arrFormats.isNotEmpty) {
       builder.element('numFmts', nest: () async {
         builder.attribute('count', arrFormats.length.toString());
         for (int i = 0; i < arrFormats.length; i++) {
           builder.element('numFmt', nest: () async {
-            builder.attribute('numFmtId', arrFormats[i]._index.toString());
+            builder.attribute('numFmtId', arrFormats[i].index.toString());
             final String formatString =
-                arrFormats[i]._formatString!.replaceAll("'", '"');
+                arrFormats[i].formatString!.replaceAll("'", '"');
             builder.attribute('formatCode', formatString);
           });
         }
@@ -3819,7 +3866,7 @@ class SerializeWorkbook {
       });
       if (_workbook.borders.isNotEmpty) {
         for (final Borders borders in _workbook.borders) {
-          if (Workbook._isAllBorder(borders)) {
+          if (Workbook.isAllBorder(borders)) {
             builder.element('border', nest: () {
               _serializeBorder(borders.all, builder, 'left');
               _serializeBorder(borders.all, builder, 'right');
@@ -3847,7 +3894,7 @@ class SerializeWorkbook {
       });
       if (_workbook.borders.isNotEmpty) {
         for (final Borders borders in _workbook.borders) {
-          if (Workbook._isAllBorder(borders)) {
+          if (Workbook.isAllBorder(borders)) {
             builder.element('border', nest: () async {
               _serializeBorderAsync(borders.all, builder, 'left');
               _serializeBorderAsync(borders.all, builder, 'right');
@@ -3917,21 +3964,21 @@ class SerializeWorkbook {
   void _saveCellStyleXfs(XmlBuilder builder) {
     builder.element('cellStyleXfs', nest: () {
       builder.attribute(
-          'count', (_workbook._cellStyleXfs.length + 1).toString());
+          'count', (_workbook.cellStyleXfs.length + 1).toString());
       builder.element('xf', nest: () {
         builder.attribute('numFmtId', '0');
         builder.attribute('fontId', '0');
         builder.attribute('fillId', '0');
         builder.attribute('borderId', '0');
       });
-      if (_workbook._cellStyleXfs.isNotEmpty) {
-        for (final _CellStyleXfs cellStyleXfs in _workbook._cellStyleXfs) {
+      if (_workbook.cellStyleXfs.isNotEmpty) {
+        for (final CellStyleXfs cellStyleXfs in _workbook.cellStyleXfs) {
           builder.element('xf', nest: () {
             builder.attribute(
-                'numFmtId', cellStyleXfs._numberFormatId.toString());
-            builder.attribute('fontId', cellStyleXfs._fontId.toString());
-            builder.attribute('fillId', cellStyleXfs._fillId.toString());
-            builder.attribute('borderId', cellStyleXfs._borderId.toString());
+                'numFmtId', cellStyleXfs.numberFormatId.toString());
+            builder.attribute('fontId', cellStyleXfs.fontId.toString());
+            builder.attribute('fillId', cellStyleXfs.fillId.toString());
+            builder.attribute('borderId', cellStyleXfs.borderId.toString());
           });
         }
       }
@@ -3941,21 +3988,21 @@ class SerializeWorkbook {
   Future<void> _saveCellStyleXfsAsync(XmlBuilder builder) async {
     builder.element('cellStyleXfs', nest: () async {
       builder.attribute(
-          'count', (_workbook._cellStyleXfs.length + 1).toString());
+          'count', (_workbook.cellStyleXfs.length + 1).toString());
       builder.element('xf', nest: () async {
         builder.attribute('numFmtId', '0');
         builder.attribute('fontId', '0');
         builder.attribute('fillId', '0');
         builder.attribute('borderId', '0');
       });
-      if (_workbook._cellStyleXfs.isNotEmpty) {
-        for (final _CellStyleXfs cellStyleXfs in _workbook._cellStyleXfs) {
+      if (_workbook.cellStyleXfs.isNotEmpty) {
+        for (final CellStyleXfs cellStyleXfs in _workbook.cellStyleXfs) {
           builder.element('xf', nest: () async {
             builder.attribute(
-                'numFmtId', cellStyleXfs._numberFormatId.toString());
-            builder.attribute('fontId', cellStyleXfs._fontId.toString());
-            builder.attribute('fillId', cellStyleXfs._fillId.toString());
-            builder.attribute('borderId', cellStyleXfs._borderId.toString());
+                'numFmtId', cellStyleXfs.numberFormatId.toString());
+            builder.attribute('fontId', cellStyleXfs.fontId.toString());
+            builder.attribute('fillId', cellStyleXfs.fillId.toString());
+            builder.attribute('borderId', cellStyleXfs.borderId.toString());
           });
         }
       }
@@ -3965,15 +4012,15 @@ class SerializeWorkbook {
   /// Serialize cell styles xfs.
   void _saveCellXfs(XmlBuilder builder) {
     builder.element('cellXfs', nest: () {
-      builder.attribute('count', _workbook._cellXfs.length.toString());
-      if (_workbook._cellXfs.isNotEmpty) {
-        for (final _CellXfs cellXf in _workbook._cellXfs) {
+      builder.attribute('count', _workbook.cellXfs.length.toString());
+      if (_workbook.cellXfs.isNotEmpty) {
+        for (final CellXfs cellXf in _workbook.cellXfs) {
           builder.element('xf', nest: () {
-            builder.attribute('numFmtId', cellXf._numberFormatId.toString());
-            builder.attribute('fontId', cellXf._fontId.toString());
-            builder.attribute('fillId', cellXf._fillId.toString());
-            builder.attribute('borderId', cellXf._borderId.toString());
-            builder.attribute('xfId', cellXf._xfId.toString());
+            builder.attribute('numFmtId', cellXf.numberFormatId.toString());
+            builder.attribute('fontId', cellXf.fontId.toString());
+            builder.attribute('fillId', cellXf.fillId.toString());
+            builder.attribute('borderId', cellXf.borderId.toString());
+            builder.attribute('xfId', cellXf.xfId.toString());
             _saveAlignment(cellXf, builder);
             _saveProtection(cellXf, builder);
           });
@@ -3984,15 +4031,15 @@ class SerializeWorkbook {
 
   Future<void> _saveCellXfsAsync(XmlBuilder builder) async {
     builder.element('cellXfs', nest: () async {
-      builder.attribute('count', _workbook._cellXfs.length.toString());
-      if (_workbook._cellXfs.isNotEmpty) {
-        for (final _CellXfs cellXf in _workbook._cellXfs) {
+      builder.attribute('count', _workbook.cellXfs.length.toString());
+      if (_workbook.cellXfs.isNotEmpty) {
+        for (final CellXfs cellXf in _workbook.cellXfs) {
           builder.element('xf', nest: () async {
-            builder.attribute('numFmtId', cellXf._numberFormatId.toString());
-            builder.attribute('fontId', cellXf._fontId.toString());
-            builder.attribute('fillId', cellXf._fillId.toString());
-            builder.attribute('borderId', cellXf._borderId.toString());
-            builder.attribute('xfId', cellXf._xfId.toString());
+            builder.attribute('numFmtId', cellXf.numberFormatId.toString());
+            builder.attribute('fontId', cellXf.fontId.toString());
+            builder.attribute('fillId', cellXf.fillId.toString());
+            builder.attribute('borderId', cellXf.borderId.toString());
+            builder.attribute('xfId', cellXf.xfId.toString());
             _saveAlignmentAsync(cellXf, builder);
             _saveProtectionAsync(cellXf, builder);
           });
@@ -4002,72 +4049,72 @@ class SerializeWorkbook {
   }
 
   ///Serialize Protection.
-  void _saveProtection(_CellStyleXfs cellXf, XmlBuilder builder) {
-    if (cellXf._locked != 1) {
+  void _saveProtection(CellStyleXfs cellXf, XmlBuilder builder) {
+    if (cellXf.locked != 1) {
       builder.element('protection', nest: () {
-        builder.attribute('locked', cellXf._locked.toString());
+        builder.attribute('locked', cellXf.locked.toString());
       });
     }
   }
 
   Future<void> _saveProtectionAsync(
-      _CellStyleXfs cellXf, XmlBuilder builder) async {
-    if (cellXf._locked != 1) {
+      CellStyleXfs cellXf, XmlBuilder builder) async {
+    if (cellXf.locked != 1) {
       builder.element('protection', nest: () async {
-        builder.attribute('locked', cellXf._locked.toString());
+        builder.attribute('locked', cellXf.locked.toString());
       });
     }
   }
 
   /// Serialize alignment.
-  void _saveAlignment(_CellStyleXfs cellXf, XmlBuilder builder) {
+  void _saveAlignment(CellStyleXfs cellXf, XmlBuilder builder) {
     builder.element('alignment', nest: () {
-      if (cellXf._alignment != null) {
-        if (cellXf._alignment!.horizontal != '') {
+      if (cellXf.alignment != null) {
+        if (cellXf.alignment!.horizontal != '') {
           builder.attribute(
-              'horizontal', cellXf._alignment!.horizontal.toLowerCase());
+              'horizontal', cellXf.alignment!.horizontal.toLowerCase());
         }
-        if (cellXf._alignment!.indent != 0) {
-          builder.attribute('indent', cellXf._alignment!.indent.toString());
-        } else if (cellXf._alignment!.rotation != 0) {
+        if (cellXf.alignment!.indent != 0) {
+          builder.attribute('indent', cellXf.alignment!.indent.toString());
+        } else if (cellXf.alignment!.rotation != 0) {
           builder.attribute(
-              'textRotation', cellXf._alignment!.rotation.toString());
+              'textRotation', cellXf.alignment!.rotation.toString());
         }
-        if (cellXf._alignment!.vertical != '') {
+        if (cellXf.alignment!.vertical != '') {
           builder.attribute(
-              'vertical', cellXf._alignment!.vertical.toLowerCase());
+              'vertical', cellXf.alignment!.vertical.toLowerCase());
         }
-        builder.attribute('wrapText', cellXf._alignment!.wrapText.toString());
+        builder.attribute('wrapText', cellXf.alignment!.wrapText.toString());
       }
     });
   }
 
   Future<void> _saveAlignmentAsync(
-      _CellStyleXfs cellXf, XmlBuilder builder) async {
+      CellStyleXfs cellXf, XmlBuilder builder) async {
     builder.element('alignment', nest: () async {
-      if (cellXf._alignment != null) {
-        if (cellXf._alignment!.horizontal != '') {
+      if (cellXf.alignment != null) {
+        if (cellXf.alignment!.horizontal != '') {
           builder.attribute(
-              'horizontal', cellXf._alignment!.horizontal.toLowerCase());
+              'horizontal', cellXf.alignment!.horizontal.toLowerCase());
         }
-        if (cellXf._alignment!.indent != 0) {
-          builder.attribute('indent', cellXf._alignment!.indent.toString());
-        } else if (cellXf._alignment!.rotation != 0) {
+        if (cellXf.alignment!.indent != 0) {
+          builder.attribute('indent', cellXf.alignment!.indent.toString());
+        } else if (cellXf.alignment!.rotation != 0) {
           builder.attribute(
-              'textRotation', cellXf._alignment!.rotation.toString());
+              'textRotation', cellXf.alignment!.rotation.toString());
         }
-        if (cellXf._alignment!.vertical != '') {
+        if (cellXf.alignment!.vertical != '') {
           builder.attribute(
-              'vertical', cellXf._alignment!.vertical.toLowerCase());
+              'vertical', cellXf.alignment!.vertical.toLowerCase());
         }
-        builder.attribute('wrapText', cellXf._alignment!.wrapText.toString());
+        builder.attribute('wrapText', cellXf.alignment!.wrapText.toString());
       }
     });
   }
 
   /// Serialize cell styles.
   void _saveGlobalCellstyles(XmlBuilder builder) {
-    final int length = _workbook._globalStyles.length + 1;
+    final int length = _workbook.globalStyles.length + 1;
     builder.element('cellStyles', nest: () {
       builder.attribute('count', length.toString());
       builder.element('cellStyle', nest: () {
@@ -4075,15 +4122,15 @@ class SerializeWorkbook {
         builder.attribute('xfId', '0');
         builder.attribute('builtinId', '0');
       });
-      _workbook._globalStyles.forEach((String key, _GlobalStyle value) {
+      _workbook.globalStyles.forEach((String key, GlobalStyle value) {
         builder.element('cellStyle', nest: () {
           if (key != '') {
             builder.attribute('name', key);
             builder.attribute(
-                'xfId', _workbook._globalStyles[key]!._xfId.toString());
-            if (_workbook._globalStyles[key]!._builtinId != 0) {
+                'xfId', _workbook.globalStyles[key]!.xfId.toString());
+            if (_workbook.globalStyles[key]!.builtinId != 0) {
               builder.attribute('builtinId',
-                  _workbook._globalStyles[key]!._builtinId.toString());
+                  _workbook.globalStyles[key]!.builtinId.toString());
             }
           }
         });
@@ -4092,7 +4139,7 @@ class SerializeWorkbook {
   }
 
   Future<void> _saveGlobalCellstylesAsync(XmlBuilder builder) async {
-    final int length = _workbook._globalStyles.length + 1;
+    final int length = _workbook.globalStyles.length + 1;
     builder.element('cellStyles', nest: () async {
       builder.attribute('count', length.toString());
       builder.element('cellStyle', nest: () async {
@@ -4100,15 +4147,15 @@ class SerializeWorkbook {
         builder.attribute('xfId', '0');
         builder.attribute('builtinId', '0');
       });
-      _workbook._globalStyles.forEach((String key, _GlobalStyle value) {
+      _workbook.globalStyles.forEach((String key, GlobalStyle value) {
         builder.element('cellStyle', nest: () async {
           if (key != '') {
             builder.attribute('name', key);
             builder.attribute(
-                'xfId', _workbook._globalStyles[key]!._xfId.toString());
-            if (_workbook._globalStyles[key]!._builtinId != 0) {
+                'xfId', _workbook.globalStyles[key]!.xfId.toString());
+            if (_workbook.globalStyles[key]!.builtinId != 0) {
               builder.attribute('builtinId',
-                  _workbook._globalStyles[key]!._builtinId.toString());
+                  _workbook.globalStyles[key]!.builtinId.toString());
             }
           }
         });
@@ -4121,21 +4168,21 @@ class SerializeWorkbook {
       Range cell, int rowIndex, MergedCellCollection mergeCells) {
     if (cell.rowSpan != 0 || cell.columnSpan != 0) {
       final MergeCell mCell = MergeCell();
-      mCell.x = cell._index;
+      mCell.x = cell.index;
       mCell.width = cell.columnSpan;
       mCell.y = rowIndex;
       mCell.height = cell.rowSpan;
-      final String startCell = Range._getCellName(mCell.y, mCell.x);
-      final String endCell = Range._getCellName(
-          rowIndex + mCell.height, cell._index + mCell.width);
-      mCell._reference = '$startCell:$endCell';
+      final String startCell = Range.getCellName(mCell.y, mCell.x);
+      final String endCell =
+          Range.getCellName(rowIndex + mCell.height, cell.index + mCell.width);
+      mCell.reference = '$startCell:$endCell';
       mergeCells.addCell(mCell);
-      final _ExtendCell start = _ExtendCell();
-      start._x = mCell.x;
-      start._y = mCell.y;
-      final _ExtendCell end = _ExtendCell();
-      end._x = cell._index + mCell.width;
-      end._y = rowIndex + mCell.height;
+      final ExtendCell start = ExtendCell();
+      start.x = mCell.x;
+      start.y = mCell.y;
+      final ExtendCell end = ExtendCell();
+      end.x = cell.index + mCell.width;
+      end.y = rowIndex + mCell.height;
       _updatedMergedCellStyles(start, end, cell);
     }
     return mergeCells;
@@ -4143,37 +4190,37 @@ class SerializeWorkbook {
 
   /// Update merged cell styles
   void _updatedMergedCellStyles(
-      _ExtendCell sCell, _ExtendCell eCell, Range cell) {
+      ExtendCell sCell, ExtendCell eCell, Range cell) {
     final Workbook workbook = cell.workbook;
-    for (int x = sCell._x; x <= eCell._x; x++) {
-      for (int y = sCell._y; y <= eCell._y; y++) {
-        final _ExtendStyle extendStyle = _ExtendStyle();
-        extendStyle._x = x;
-        extendStyle._y = y;
-        extendStyle._styleIndex = cell._styleIndex;
-        if (workbook._mergedCellsStyle.containsKey(Range._getCellName(y, x))) {
-          workbook._mergedCellsStyle.remove(Range._getCellName(y, x));
+    for (int x = sCell.x; x <= eCell.x; x++) {
+      for (int y = sCell.y; y <= eCell.y; y++) {
+        final ExtendStyle extendStyle = ExtendStyle();
+        extendStyle.x = x;
+        extendStyle.y = y;
+        extendStyle.styleIndex = cell.styleIndex;
+        if (workbook.mergedCellsStyle.containsKey(Range.getCellName(y, x))) {
+          workbook.mergedCellsStyle.remove(Range.getCellName(y, x));
         }
-        workbook._mergedCellsStyle[Range._getCellName(y, x)] = extendStyle;
+        workbook.mergedCellsStyle[Range.getCellName(y, x)] = extendStyle;
       }
     }
   }
 
   /// Serialize DataValidations
   void _serializeDataValidations(XmlBuilder builder, Worksheet sheet) {
-    final _DataValidationTable dataValidationTable = sheet._dvTable;
+    final DataValidationTable dataValidationTable = sheet.dataValidationTable;
 
-    if (dataValidationTable._count == 0) {
+    if (dataValidationTable.count == 0) {
       return;
     }
 
-    for (int dvTable = 0; dvTable < dataValidationTable._count; dvTable++) {
+    for (int dvTable = 0; dvTable < dataValidationTable.count; dvTable++) {
       for (int dvCollection = 0;
           dvCollection <
-              dataValidationTable._dataValidationCollectionList.length;
+              dataValidationTable.dataValidationCollectionList.length;
           dvCollection++) {
-        final _DataValidationCollection dataValidationCollection =
-            dataValidationTable._dataValidationCollectionList[dvCollection];
+        final DataValidationCollection dataValidationCollection =
+            dataValidationTable.dataValidationCollectionList[dvCollection];
         _serializeDataValidationCollection(builder, dataValidationCollection);
       }
     }
@@ -4181,19 +4228,19 @@ class SerializeWorkbook {
 
   Future<void> _serializeDataValidationsAsync(
       XmlBuilder builder, Worksheet sheet) async {
-    final _DataValidationTable dataValidationTable = sheet._dvTable;
+    final DataValidationTable dataValidationTable = sheet.dataValidationTable;
 
-    if (dataValidationTable._count == 0) {
+    if (dataValidationTable.count == 0) {
       return;
     }
 
-    for (int dvTable = 0; dvTable < dataValidationTable._count; dvTable++) {
+    for (int dvTable = 0; dvTable < dataValidationTable.count; dvTable++) {
       for (int dvCollection = 0;
           dvCollection <
-              dataValidationTable._dataValidationCollectionList.length;
+              dataValidationTable.dataValidationCollectionList.length;
           dvCollection++) {
-        final _DataValidationCollection dataValidationCollection =
-            dataValidationTable._dataValidationCollectionList[dvCollection];
+        final DataValidationCollection dataValidationCollection =
+            dataValidationTable.dataValidationCollectionList[dvCollection];
         _serializeDataValidationCollectionAsync(
             builder, dataValidationCollection);
       }
@@ -4202,7 +4249,7 @@ class SerializeWorkbook {
 
   ///Serialize DataValidation Collection
   void _serializeDataValidationCollection(
-      XmlBuilder builder, _DataValidationCollection dataValidationCollection) {
+      XmlBuilder builder, DataValidationCollection dataValidationCollection) {
     if (dataValidationCollection.count == 0) {
       return;
     }
@@ -4211,25 +4258,25 @@ class SerializeWorkbook {
       _serializeAttributeInt(
           builder, 'count', dataValidationCollection.count, 0);
 
-      if (dataValidationCollection._isPromptBoxPositionFixedVal) {
+      if (dataValidationCollection.isPromptBoxPositionFixedVal) {
         _serializeAttributeInt(builder, 'xWindow',
-            dataValidationCollection._promptBoxVPositionVal, 0);
+            dataValidationCollection.promptBoxVPositionVal, 0);
 
         _serializeAttributeInt(builder, 'yWindow',
-            dataValidationCollection._promptBoxHPositionVal, 0);
+            dataValidationCollection.promptBoxHPositionVal, 0);
       }
 
       for (int dvList = 0;
-          dvList < dataValidationCollection._dataValidationList.length;
+          dvList < dataValidationCollection.dataValidationList.length;
           dvList++) {
         _serializeDataValidation(
-            builder, dataValidationCollection._dataValidationList[dvList]);
+            builder, dataValidationCollection.dataValidationList[dvList]);
       }
     });
   }
 
   Future<void> _serializeDataValidationCollectionAsync(XmlBuilder builder,
-      _DataValidationCollection dataValidationCollection) async {
+      DataValidationCollection dataValidationCollection) async {
     if (dataValidationCollection.count == 0) {
       return;
     }
@@ -4237,18 +4284,18 @@ class SerializeWorkbook {
     builder.element('dataValidations', nest: () async {
       _serializeAttributeIntAsync(
           builder, 'count', dataValidationCollection.count, 0);
-      if (dataValidationCollection._isPromptBoxPositionFixedVal) {
+      if (dataValidationCollection.isPromptBoxPositionFixedVal) {
         _serializeAttributeIntAsync(builder, 'xWindow',
-            dataValidationCollection._promptBoxVPositionVal, 0);
+            dataValidationCollection.promptBoxVPositionVal, 0);
         _serializeAttributeIntAsync(builder, 'yWindow',
-            dataValidationCollection._promptBoxHPositionVal, 0);
+            dataValidationCollection.promptBoxHPositionVal, 0);
       }
 
       for (int dvList = 0;
-          dvList < dataValidationCollection._dataValidationList.length;
+          dvList < dataValidationCollection.dataValidationList.length;
           dvList++) {
         _serializeDataValidationAsync(
-            builder, dataValidationCollection._dataValidationList[dvList]);
+            builder, dataValidationCollection.dataValidationList[dvList]);
       }
     });
   }
@@ -4343,7 +4390,7 @@ class SerializeWorkbook {
 
   /// Serialize DataValidation
   void _serializeDataValidation(
-      XmlBuilder builder, _DataValidationImpl dataValidationImpl) {
+      XmlBuilder builder, DataValidationImpl dataValidationImpl) {
     builder.element('dataValidation', nest: () {
       final ExcelDataValidationType dataType = dataValidationImpl.allowType;
 
@@ -4391,7 +4438,7 @@ class SerializeWorkbook {
           builder, 'prompt', dataValidationImpl.promptBoxText, '');
 
       _serializeDataValStringAttribute(
-          builder, 'sqref', dataValidationImpl._cellRange, '');
+          builder, 'sqref', dataValidationImpl.cellRange, '');
 
       if ('textLength' == _getDataType(dataType) ||
           'decimal' == _getDataType(dataType) ||
@@ -4502,7 +4549,7 @@ class SerializeWorkbook {
           builder.element('formula1', nest: '" $listOfValues"');
         } else {
           final String firstFormulaSelect =
-              dataValidationImpl._dataRangeVal.addressGlobal;
+              dataValidationImpl.dataRangeVal.addressGlobal;
 
           builder.element('formula1', nest: firstFormulaSelect);
         }
@@ -4515,12 +4562,12 @@ class SerializeWorkbook {
           builder.element('formula1', nest: secondFormula);
         }
       } else {
-        final DateTime firstDateTime = dataValidationImpl._firstDateTimeVal;
+        final DateTime firstDateTime = dataValidationImpl.firstDateTimeVal;
         final DateTime secondDateTime = dataValidationImpl.secondDateTime;
         final String firstDateTimeVal =
-            Range._toOADate(firstDateTime).toString();
+            Range.toOADate(firstDateTime).toString();
         final String secondDateTimeVal =
-            Range._toOADate(secondDateTime).toString();
+            Range.toOADate(secondDateTime).toString();
         if (firstDateTime != DateTime(1)) {
           builder.element('formula1', nest: firstDateTimeVal);
         }
@@ -4532,7 +4579,7 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeDataValidationAsync(
-      XmlBuilder builder, _DataValidationImpl dataValidationImpl) async {
+      XmlBuilder builder, DataValidationImpl dataValidationImpl) async {
     builder.element('dataValidation', nest: () {
       final ExcelDataValidationType dataType = dataValidationImpl.allowType;
 
@@ -4580,7 +4627,7 @@ class SerializeWorkbook {
           builder, 'prompt', dataValidationImpl.promptBoxText, '');
 
       _serializeDataValStringAttributeAsync(
-          builder, 'sqref', dataValidationImpl._cellRange, '');
+          builder, 'sqref', dataValidationImpl.cellRange, '');
 
       if ('textLength' == _getDataType(dataType) ||
           'decimal' == _getDataType(dataType) ||
@@ -4691,7 +4738,7 @@ class SerializeWorkbook {
           builder.element('formula1', nest: '" $listOfValues"');
         } else {
           final String firstFormulaSelect =
-              dataValidationImpl._dataRangeVal.addressGlobal;
+              dataValidationImpl.dataRangeVal.addressGlobal;
 
           builder.element('formula1', nest: firstFormulaSelect);
         }
@@ -4704,12 +4751,12 @@ class SerializeWorkbook {
           builder.element('formula1', nest: secondFormula);
         }
       } else {
-        final DateTime firstDateTime = dataValidationImpl._firstDateTimeVal;
+        final DateTime firstDateTime = dataValidationImpl.firstDateTimeVal;
         final DateTime secondDateTime = dataValidationImpl.secondDateTime;
         final String firstDateTimeVal =
-            Range._toOADate(firstDateTime).toString();
+            Range.toOADate(firstDateTime).toString();
         final String secondDateTimeVal =
-            Range._toOADate(secondDateTime).toString();
+            Range.toOADate(secondDateTime).toString();
         if (firstDateTime != DateTime(1)) {
           builder.element('formula1', nest: firstDateTimeVal);
         }
@@ -4726,7 +4773,7 @@ class SerializeWorkbook {
       int iPriority = 1;
       int iPriorityCount = 0;
       for (int i = 0; i < iCount; i++) {
-        final _ConditionalFormatsImpl conditionalFormats =
+        final ConditionalFormatsImpl conditionalFormats =
             sheet.conditionalFormats[i];
         final List<dynamic> result = _serializeConditionalFormats(
             builder, _iDxfIndex, iPriority, iPriorityCount, conditionalFormats);
@@ -4744,7 +4791,7 @@ class SerializeWorkbook {
       int iPriority = 1;
       int iPriorityCount = 0;
       for (int i = 0; i < iCount; i++) {
-        final _ConditionalFormatsImpl conditionalFormats =
+        final ConditionalFormatsImpl conditionalFormats =
             sheet.conditionalFormats[i];
         final List<dynamic> result = _serializeConditionalFormats(
             builder, _iDxfIndex, iPriority, iPriorityCount, conditionalFormats);
@@ -4756,37 +4803,38 @@ class SerializeWorkbook {
   }
 
   List<dynamic> _serializeConditionalFormats(XmlBuilder builder, int iDxfIndex,
-      int iPriority, int iPriorityCount, _ConditionalFormatsImpl formats) {
+      int iPriority, int iPriorityCount, ConditionalFormatsImpl formats) {
     final int iRulesCount = formats.count;
     bool serializeCF = false;
-    if (iRulesCount == 0)
+    if (iRulesCount == 0) {
       return <dynamic>[iDxfIndex, iPriority, iPriorityCount];
-    for (final _ConditionalFormatImpl format in formats.innerList) {
+    }
+    for (final ConditionalFormatImpl format in formats.innerList) {
       if (format.formatType == ExcelCFType.iconSet) {
-        _IconSetImpl? iconSet;
+        IconSetImpl? iconSet;
         if (format.iconSet != null) {
-          iconSet = format.iconSet as _IconSetImpl?;
+          iconSet = format.iconSet as IconSetImpl?;
         }
-        if (iconSet != null && iconSet._isCustom) {
-          format._bCFHasExtensionList = true;
+        if (iconSet != null && iconSet.isCustom) {
+          format.bCFHasExtensionList = true;
         } else if (format.iconSet!.iconSet == ExcelIconSetType.threeTriangles ||
             format.iconSet!.iconSet == ExcelIconSetType.threeStars ||
             format.iconSet!.iconSet == ExcelIconSetType.fiveBoxes) {
-          format._bCFHasExtensionList = true;
+          format.bCFHasExtensionList = true;
         }
       }
-      if (!format._bCFHasExtensionList) {
+      if (!format.bCFHasExtensionList) {
         serializeCF = true;
       }
     }
     if (serializeCF) {
       builder.element('conditionalFormatting', nest: () {
-        builder.attribute('sqref', formats._cellList);
+        builder.attribute('sqref', formats.cellList);
         int iCount = iRulesCount + iPriorityCount;
         iPriorityCount += iRulesCount;
         for (int i = 0; i < iRulesCount; i++) {
           final ConditionalFormat condition = formats.innerList[i];
-          if (!(condition as _ConditionalFormatImpl)._bCFHasExtensionList) {
+          if (!(condition as ConditionalFormatImpl).bCFHasExtensionList) {
             final List<dynamic> result = _serializeCondition(
                 builder, condition, '', iDxfIndex, iPriority, iCount);
             iDxfIndex = result[0] as int;
@@ -4806,11 +4854,10 @@ class SerializeWorkbook {
       int iDxfIndex,
       int iPriority,
       int iCount) {
-    final _ConditionalFormatImpl condFormat =
-        condition as _ConditionalFormatImpl;
-    _IconSetImpl? iconSet;
+    final ConditionalFormatImpl condFormat = condition as ConditionalFormatImpl;
+    IconSetImpl? iconSet;
     if (condFormat.iconSet != null) {
-      iconSet = condFormat.iconSet as _IconSetImpl?;
+      iconSet = condFormat.iconSet as IconSetImpl?;
     }
     final ExcelCFType cfType = condition.formatType;
     final ExcelComparisonOperator comparisonOperator = condition.operator;
@@ -4886,16 +4933,16 @@ class SerializeWorkbook {
       if (cfType == ExcelCFType.colorScale) {
         _serializeColorScale(builder, condition.colorScale!);
       } else if (cfType == ExcelCFType.iconSet) {
-        if (condFormat._bCFHasExtensionList ||
-            (iconSet != null && iconSet._isCustom)) {
-          _serializeIconSet(builder, iconSet!, condFormat._bCFHasExtensionList,
-              iconSet._isCustom);
+        if (condFormat.bCFHasExtensionList ||
+            (iconSet != null && iconSet.isCustom)) {
+          _serializeIconSet(builder, iconSet!, condFormat.bCFHasExtensionList,
+              iconSet.isCustom);
         } else {
           _serializeIconSet(builder, iconSet!, false, false);
         }
       }
       if (condition.dataBar != null &&
-          (condition.dataBar! as _DataBarImpl)._hasExtensionList) {
+          (condition.dataBar! as DataBarImpl).hasExtensionList) {
         builder.element('extLst', nest: () {
           builder.namespace(
               'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
@@ -4908,7 +4955,7 @@ class SerializeWorkbook {
                 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
 
             builder.element('x14:id',
-                nest: (condition.dataBar! as _DataBarImpl)._stGUID);
+                nest: (condition.dataBar! as DataBarImpl).stGUID);
           });
         });
       }
@@ -5001,8 +5048,8 @@ class SerializeWorkbook {
 
       builder.attribute('type', strType);
 
-      if (strType == 'formula' && value.startsWith(Range._defaultEquivalent)) {
-        value = value.replaceAll(Range._defaultEquivalent, '');
+      if (strType == 'formula' && value.startsWith(Range.equalsSign)) {
+        value = value.replaceAll(Range.equalsSign, '');
       }
 
       if (!cfHasExtensionList) {
@@ -5196,21 +5243,21 @@ class SerializeWorkbook {
   void _serialiseDxfs(XmlBuilder builder) {
     builder.element('dxfs', nest: () {
       for (final Worksheet sheet in _workbook.worksheets.innerList) {
-        if (sheet.autoFilters._innerList.isNotEmpty) {
+        if (sheet.autoFilters.innerList.isNotEmpty) {
           for (int i = 0; i < sheet.autoFilters.count; i++) {
-            if (sheet.autoFilters[i]._filtertype ==
-                _ExcelFilterType.colorFilter) {
+            if (sheet.autoFilters[i].filterType ==
+                ExcelFilterType.colorFilter) {
               _serializeDxfColorFilter(
-                  builder, sheet.autoFilters[i] as _AutoFilterImpl);
+                  builder, sheet.autoFilters[i] as AutoFilterImpl);
             }
           }
         }
         if (sheet.conditionalFormats.isNotEmpty) {
           final int iCount = sheet.conditionalFormats.length;
           for (int i = 0; i < iCount; i++) {
-            final _ConditionalFormatsImpl condFormats =
+            final ConditionalFormatsImpl condFormats =
                 sheet.conditionalFormats[i];
-            for (final _ConditionalFormatImpl condition
+            for (final ConditionalFormatImpl condition
                 in condFormats.innerList) {
               if (_checkFormat(condition)) {
                 _serializeDxf(builder, condition);
@@ -5225,21 +5272,21 @@ class SerializeWorkbook {
   Future<void> _serialiseDxfsAsync(XmlBuilder builder) async {
     builder.element('dxfs', nest: () async {
       for (final Worksheet sheet in _workbook.worksheets.innerList) {
-        if (sheet.autoFilters._innerList.isNotEmpty) {
+        if (sheet.autoFilters.innerList.isNotEmpty) {
           for (int i = 0; i < sheet.autoFilters.count; i++) {
-            if (sheet.autoFilters[i]._filtertype ==
-                _ExcelFilterType.colorFilter) {
+            if (sheet.autoFilters[i].filterType ==
+                ExcelFilterType.colorFilter) {
               _serializeDxfColorFilterAsync(
-                  builder, sheet.autoFilters[i] as _AutoFilterImpl);
+                  builder, sheet.autoFilters[i] as AutoFilterImpl);
             }
           }
         }
         if (sheet.conditionalFormats.isNotEmpty) {
           final int iCount = sheet.conditionalFormats.length;
           for (int i = 0; i < iCount; i++) {
-            final _ConditionalFormatsImpl condFormats =
+            final ConditionalFormatsImpl condFormats =
                 sheet.conditionalFormats[i];
-            for (final _ConditionalFormatImpl condition
+            for (final ConditionalFormatImpl condition
                 in condFormats.innerList) {
               if (_checkFormat(condition)) {
                 _serializeDxfAsync(builder, condition);
@@ -5252,36 +5299,36 @@ class SerializeWorkbook {
   }
 
   ///Serialize color filter dxf style.
-  void _serializeDxfColorFilter(
-      XmlBuilder builder, _AutoFilterImpl autoFilter) {
+  void _serializeDxfColorFilter(XmlBuilder builder, AutoFilterImpl autoFilter) {
     builder.element('dxf', nest: () {
       _serializeDxfColorFilterFill(
-          builder, autoFilter._filteredItems as _ColorFilter);
+          builder, autoFilter.filteredItems as ColorFilter);
     });
   }
 
   Future<void> _serializeDxfColorFilterAsync(
-      XmlBuilder builder, _AutoFilterImpl autoFilter) async {
+      XmlBuilder builder, AutoFilterImpl autoFilter) async {
     builder.element('dxf', nest: () async {
       _serializeDxfColorFilterFillAsync(
-          builder, autoFilter._filteredItems as _ColorFilter);
+          builder, autoFilter.filteredItems as ColorFilter);
     });
   }
 
   ///Serialize dxf color filter style fill.
   void _serializeDxfColorFilterFill(
-      XmlBuilder builder, _ColorFilter colorFilter) {
+      XmlBuilder builder, ColorFilter colorFilter) {
     String foreColor;
     builder.element('fill', nest: () {
       builder.element('patternFill', nest: () {
-        if (colorFilter._colorFilterType == ExcelColorFilterType.cellColor &&
-            colorFilter._color == '#000000')
+        if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor &&
+            colorFilter.color == '#000000') {
           builder.attribute('patternType', 'none');
-        else
+        } else {
           builder.attribute('patternType', 'solid');
+        }
 
-        if (colorFilter._color == '#000000') {
-          if (colorFilter._colorFilterType == ExcelColorFilterType.cellColor) {
+        if (colorFilter.color == '#000000') {
+          if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor) {
             builder.element('fgColor', nest: () {
               builder.attribute('indexed', '64');
             });
@@ -5291,10 +5338,10 @@ class SerializeWorkbook {
             });
           }
         } else {
-          if (colorFilter._color.length == 7) {
-            foreColor = 'FF${colorFilter._color.replaceAll('#', '')}';
+          if (colorFilter.color.length == 7) {
+            foreColor = 'FF${colorFilter.color.replaceAll('#', '')}';
           } else {
-            foreColor = colorFilter._color;
+            foreColor = colorFilter.color;
           }
           builder.element('fgColor', nest: () {
             builder.attribute('rgb', foreColor);
@@ -5305,18 +5352,19 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeDxfColorFilterFillAsync(
-      XmlBuilder builder, _ColorFilter colorFilter) async {
+      XmlBuilder builder, ColorFilter colorFilter) async {
     String foreColor;
     builder.element('fill', nest: () async {
       builder.element('patternFill', nest: () async {
-        if (colorFilter._colorFilterType == ExcelColorFilterType.cellColor &&
-            colorFilter._color == '#000000')
+        if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor &&
+            colorFilter.color == '#000000') {
           builder.attribute('patternType', 'none');
-        else
+        } else {
           builder.attribute('patternType', 'solid');
+        }
 
-        if (colorFilter._color == '#000000') {
-          if (colorFilter._colorFilterType == ExcelColorFilterType.cellColor) {
+        if (colorFilter.color == '#000000') {
+          if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor) {
             builder.element('fgColor', nest: () async {
               builder.attribute('indexed', '64');
             });
@@ -5326,10 +5374,10 @@ class SerializeWorkbook {
             });
           }
         } else {
-          if (colorFilter._color.length == 7) {
-            foreColor = 'FF${colorFilter._color.replaceAll('#', '')}';
+          if (colorFilter.color.length == 7) {
+            foreColor = 'FF${colorFilter.color.replaceAll('#', '')}';
           } else {
-            foreColor = colorFilter._color;
+            foreColor = colorFilter.color;
           }
           builder.element('fgColor', nest: () async {
             builder.attribute('rgb', foreColor);
@@ -5340,7 +5388,7 @@ class SerializeWorkbook {
   }
 
   /// Serializes Dxf style.
-  void _serializeDxf(XmlBuilder builder, _ConditionalFormatImpl condition) {
+  void _serializeDxf(XmlBuilder builder, ConditionalFormatImpl condition) {
     builder.element('dxf', nest: () {
       _serializeDxfFont(builder, condition);
       _serializeDxfNumberFormat(builder, condition);
@@ -5350,7 +5398,7 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeDxfAsync(
-      XmlBuilder builder, _ConditionalFormatImpl condition) async {
+      XmlBuilder builder, ConditionalFormatImpl condition) async {
     builder.element('dxf', nest: () async {
       _serializeDxfFontAsync(builder, condition);
       _serializeDxfNumberFormatAsync(builder, condition);
@@ -5360,7 +5408,7 @@ class SerializeWorkbook {
   }
 
   /// Serializes Dxf style font.
-  void _serializeDxfFont(XmlBuilder builder, _ConditionalFormatImpl condition) {
+  void _serializeDxfFont(XmlBuilder builder, ConditionalFormatImpl condition) {
     if (condition.isBold ||
         condition.isItalic ||
         condition.underline ||
@@ -5389,7 +5437,7 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeDxfFontAsync(
-      XmlBuilder builder, _ConditionalFormatImpl condition) async {
+      XmlBuilder builder, ConditionalFormatImpl condition) async {
     if (condition.isBold ||
         condition.isItalic ||
         condition.underline ||
@@ -5419,45 +5467,45 @@ class SerializeWorkbook {
 
   /// Serializes Dxf number format.
   void _serializeDxfNumberFormat(
-      XmlBuilder builder, _ConditionalFormatImpl condition) {
+      XmlBuilder builder, ConditionalFormatImpl condition) {
     if (condition.numberFormat != 'General') {
       int index;
-      _Format? format;
-      if (_workbook.innerFormats._contains(condition._numberFormatIndex)) {
-        format = _workbook.innerFormats[condition._numberFormatIndex];
-        index = format._index;
+      Format? format;
+      if (_workbook.innerFormats.contains(condition.numberFormatIndex)) {
+        format = _workbook.innerFormats[condition.numberFormatIndex];
+        index = format.index;
       } else {
-        index = _workbook.innerFormats._createFormat(condition.numberFormat);
+        index = _workbook.innerFormats.createFormat(condition.numberFormat);
       }
       builder.element('numFmt', nest: () {
         builder.attribute('numFmtId', index.toString());
-        final String formatString = format!._formatString!.replaceAll("'", '"');
+        final String formatString = format!.formatString!.replaceAll("'", '"');
         builder.attribute('formatCode', formatString);
       });
     }
   }
 
   Future<void> _serializeDxfNumberFormatAsync(
-      XmlBuilder builder, _ConditionalFormatImpl condition) async {
+      XmlBuilder builder, ConditionalFormatImpl condition) async {
     if (condition.numberFormat != 'General') {
       int index;
-      _Format? format;
-      if (_workbook.innerFormats._contains(condition._numberFormatIndex)) {
-        format = _workbook.innerFormats[condition._numberFormatIndex];
-        index = format._index;
+      Format? format;
+      if (_workbook.innerFormats.contains(condition.numberFormatIndex)) {
+        format = _workbook.innerFormats[condition.numberFormatIndex];
+        index = format.index;
       } else {
-        index = _workbook.innerFormats._createFormat(condition.numberFormat);
+        index = _workbook.innerFormats.createFormat(condition.numberFormat);
       }
       builder.element('numFmt', nest: () async {
         builder.attribute('numFmtId', index.toString());
-        final String formatString = format!._formatString!.replaceAll("'", '"');
+        final String formatString = format!.formatString!.replaceAll("'", '"');
         builder.attribute('formatCode', formatString);
       });
     }
   }
 
   /// Serializes Dxf style fill.
-  void _serializeDxfFill(XmlBuilder builder, _ConditionalFormatImpl condition) {
+  void _serializeDxfFill(XmlBuilder builder, ConditionalFormatImpl condition) {
     String backColor;
     if (condition.backColor != '#FFFFFF') {
       if (condition.backColor.length == 7) {
@@ -5476,7 +5524,7 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeDxfFillAsync(
-      XmlBuilder builder, _ConditionalFormatImpl condition) async {
+      XmlBuilder builder, ConditionalFormatImpl condition) async {
     String backColor;
     if (condition.backColor != '#FFFFFF') {
       if (condition.backColor.length == 7) {
@@ -5496,7 +5544,7 @@ class SerializeWorkbook {
 
   /// Serializes Dxf borders.
   void _serializeDxfBorders(
-      XmlBuilder builder, _ConditionalFormatImpl condition) {
+      XmlBuilder builder, ConditionalFormatImpl condition) {
     if (condition.leftBorderStyle != LineStyle.none ||
         condition.rightBorderStyle != LineStyle.none ||
         condition.topBorderStyle != LineStyle.none ||
@@ -5523,7 +5571,7 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeDxfBordersAsync(
-      XmlBuilder builder, _ConditionalFormatImpl condition) async {
+      XmlBuilder builder, ConditionalFormatImpl condition) async {
     if (condition.leftBorderStyle != LineStyle.none ||
         condition.rightBorderStyle != LineStyle.none ||
         condition.topBorderStyle != LineStyle.none ||
@@ -5604,17 +5652,17 @@ class SerializeWorkbook {
               in sheet.conditionalFormats) {
             for (int i = 0; i < conditions.count; i++) {
               final ConditionalFormat condition =
-                  (conditions as _ConditionalFormatsImpl).innerList[i];
-              final _ConditionalFormatImpl format =
-                  condition as _ConditionalFormatImpl;
-              _IconSetImpl? iconSet;
+                  (conditions as ConditionalFormatsImpl).innerList[i];
+              final ConditionalFormatImpl format =
+                  condition as ConditionalFormatImpl;
+              IconSetImpl? iconSet;
               if (format.iconSet != null) {
-                iconSet = format.iconSet! as _IconSetImpl;
+                iconSet = format.iconSet! as IconSetImpl;
               }
-              if (format._bCFHasExtensionList) {
-                final _ConditionalFormatsImpl formats = conditions;
-                format._rangeRefernce = (formats._cellList.isNotEmpty)
-                    ? (' ${formats._cellList}')
+              if (format.bCFHasExtensionList) {
+                final ConditionalFormatsImpl formats = conditions;
+                format.rangeRefernce = (formats.cellList.isNotEmpty)
+                    ? (' ${formats.cellList}')
                     : '';
 
                 if ((condition.formatType == ExcelCFType.formula &&
@@ -5653,9 +5701,9 @@ class SerializeWorkbook {
                     builder.element('x14:cfRule', nest: () {
                       builder.attribute('type',
                           _getCFType(condition.formatType, condition.operator));
-                      if (format._priority > 1) {
+                      if (format.priority > 1) {
                         builder.attribute(
-                            'priority', format._priority.toString());
+                            'priority', format.priority.toString());
                       } else {
                         builder.attribute('priority', iPriority.toString());
                         iPriority++;
@@ -5666,7 +5714,7 @@ class SerializeWorkbook {
                             _getCFComparisonOperatorName(condition.operator));
                       }
                       // writer.WriteAttributeString(IdAttributeName, format.ST_GUID.ToString());
-                      final _ConditionalFormatImpl conFormatImpl = condition;
+                      final ConditionalFormatImpl conFormatImpl = condition;
                       final String strFormula1 = conFormatImpl.firstFormula;
                       final String strFormula2 = conFormatImpl.secondFormula;
                       if (strFormula1 != '' && strFormula1 != '') {
@@ -5674,9 +5722,9 @@ class SerializeWorkbook {
                       }
                       if (strFormula2 != '' && strFormula2 != '') {
                         builder.element('xm:f', nest: strFormula2);
-                      } else if (format._range != null) {
+                      } else if (format.range != null) {
                         builder.element('xm:f',
-                            nest: format._range!.addressGlobal);
+                            nest: format.range!.addressGlobal);
                       }
 
                       builder.element('dxf', nest: () {
@@ -5685,14 +5733,14 @@ class SerializeWorkbook {
                         _serializeDxfBorders(builder, condition);
                       });
                     });
-                    builder.element('xm:sqref', nest: format._rangeRefernce);
+                    builder.element('xm:sqref', nest: format.rangeRefernce);
                   });
                 }
               }
               if (condition.iconSet != null &&
-                  (format._bCFHasExtensionList ||
+                  (format.bCFHasExtensionList ||
                       format.iconSet!.iconSet == ExcelIconSetType.threeStars ||
-                      (iconSet != null && iconSet._isCustom) ||
+                      (iconSet != null && iconSet.isCustom) ||
                       format.iconSet!.iconSet == ExcelIconSetType.fiveBoxes ||
                       format.iconSet!.iconSet ==
                           ExcelIconSetType.threeTriangles)) {
@@ -5707,23 +5755,23 @@ class SerializeWorkbook {
                   iPriority = result[1] as int;
                   iPriorityCount = result[2] as int;
 
-                  final _ConditionalFormatsImpl formats = conditions;
-                  final String strAddress = (formats._cellList.isNotEmpty)
-                      ? (' ${formats._cellList}')
+                  final ConditionalFormatsImpl formats = conditions;
+                  final String strAddress = (formats.cellList.isNotEmpty)
+                      ? (' ${formats.cellList}')
                       : '';
                   builder.element('xm:sqref', nest: strAddress);
                 });
               }
               if (condition.dataBar != null &&
-                  (condition.dataBar! as _DataBarImpl)._hasExtensionList) {
+                  (condition.dataBar! as DataBarImpl).hasExtensionList) {
                 final DataBar dataBar = condition.dataBar!;
-                final _DataBarImpl dataBarImpl = dataBar as _DataBarImpl;
+                final DataBarImpl dataBarImpl = dataBar as DataBarImpl;
 
                 builder.element('x14:conditionalFormatting', nest: () {
                   builder.element('x14:cfRule', nest: () {
                     builder.attribute('type', 'dataBar');
                     // ignore: unnecessary_null_checks
-                    builder.attribute('id', dataBarImpl._stGUID!);
+                    builder.attribute('id', dataBarImpl.stGUID!);
 
                     builder.element('x14:dataBar', nest: () {
                       builder.attribute(
@@ -5737,10 +5785,10 @@ class SerializeWorkbook {
                       builder.attribute('direction',
                           dataBar.dataBarDirection.toString().substring(17));
                       builder.attribute('negativeBarColorSameAsPositive',
-                          (dataBarImpl._hasDiffNegativeBarColor) ? '0' : '1');
+                          (dataBarImpl.hasDiffNegativeBarColor) ? '0' : '1');
                       builder.attribute(
                           'negativeBarBorderColorSameAsPositive',
-                          (dataBarImpl._hasDiffNegativeBarBorderColor)
+                          (dataBarImpl.hasDiffNegativeBarBorderColor)
                               ? '0'
                               : '1');
                       builder.attribute('axisPosition',
@@ -5800,17 +5848,17 @@ class SerializeWorkbook {
               in sheet.conditionalFormats) {
             for (int i = 0; i < conditions.count; i++) {
               final ConditionalFormat condition =
-                  (conditions as _ConditionalFormatsImpl).innerList[i];
-              final _ConditionalFormatImpl format =
-                  condition as _ConditionalFormatImpl;
-              _IconSetImpl? iconSet;
+                  (conditions as ConditionalFormatsImpl).innerList[i];
+              final ConditionalFormatImpl format =
+                  condition as ConditionalFormatImpl;
+              IconSetImpl? iconSet;
               if (format.iconSet != null) {
-                iconSet = format.iconSet! as _IconSetImpl;
+                iconSet = format.iconSet! as IconSetImpl;
               }
-              if (format._bCFHasExtensionList) {
-                final _ConditionalFormatsImpl formats = conditions;
-                format._rangeRefernce = (formats._cellList.isNotEmpty)
-                    ? (' ${formats._cellList}')
+              if (format.bCFHasExtensionList) {
+                final ConditionalFormatsImpl formats = conditions;
+                format.rangeRefernce = (formats.cellList.isNotEmpty)
+                    ? (' ${formats.cellList}')
                     : '';
 
                 if ((condition.formatType == ExcelCFType.formula &&
@@ -5850,9 +5898,9 @@ class SerializeWorkbook {
                       builder.attribute('type',
                           _getCFType(condition.formatType, condition.operator));
 
-                      if (format._priority > 1) {
+                      if (format.priority > 1) {
                         builder.attribute(
-                            'priority', format._priority.toString());
+                            'priority', format.priority.toString());
                       } else {
                         builder.attribute('priority', iPriority.toString());
                         iPriority++;
@@ -5863,7 +5911,7 @@ class SerializeWorkbook {
                             _getCFComparisonOperatorName(condition.operator));
                       }
                       // writer.WriteAttributeString(IdAttributeName, format.ST_GUID.ToString());
-                      final _ConditionalFormatImpl conFormatImpl = condition;
+                      final ConditionalFormatImpl conFormatImpl = condition;
                       final String strFormula1 = conFormatImpl.firstFormula;
                       final String strFormula2 = conFormatImpl.secondFormula;
                       if (strFormula1 != '' && strFormula1 != '') {
@@ -5871,9 +5919,9 @@ class SerializeWorkbook {
                       }
                       if (strFormula2 != '' && strFormula2 != '') {
                         builder.element('xm:f', nest: strFormula2);
-                      } else if (format._range != null) {
+                      } else if (format.range != null) {
                         builder.element('xm:f',
-                            nest: format._range!.addressGlobal);
+                            nest: format.range!.addressGlobal);
                       }
 
                       builder.element('dxf', nest: () async {
@@ -5882,14 +5930,14 @@ class SerializeWorkbook {
                         _serializeDxfBordersAsync(builder, condition);
                       });
                     });
-                    builder.element('xm:sqref', nest: format._rangeRefernce);
+                    builder.element('xm:sqref', nest: format.rangeRefernce);
                   });
                 }
               }
               if (condition.iconSet != null &&
-                  (format._bCFHasExtensionList ||
+                  (format.bCFHasExtensionList ||
                       format.iconSet!.iconSet == ExcelIconSetType.threeStars ||
-                      (iconSet != null && iconSet._isCustom) ||
+                      (iconSet != null && iconSet.isCustom) ||
                       format.iconSet!.iconSet == ExcelIconSetType.fiveBoxes ||
                       format.iconSet!.iconSet ==
                           ExcelIconSetType.threeTriangles)) {
@@ -5904,23 +5952,23 @@ class SerializeWorkbook {
                   iPriority = result[1] as int;
                   iPriorityCount = result[2] as int;
 
-                  final _ConditionalFormatsImpl formats = conditions;
-                  final String strAddress = (formats._cellList.isNotEmpty)
-                      ? (' ${formats._cellList}')
+                  final ConditionalFormatsImpl formats = conditions;
+                  final String strAddress = (formats.cellList.isNotEmpty)
+                      ? (' ${formats.cellList}')
                       : '';
                   builder.element('xm:sqref', nest: strAddress);
                 });
               }
               if (condition.dataBar != null &&
-                  (condition.dataBar! as _DataBarImpl)._hasExtensionList) {
+                  (condition.dataBar! as DataBarImpl).hasExtensionList) {
                 final DataBar dataBar = condition.dataBar!;
-                final _DataBarImpl dataBarImpl = dataBar as _DataBarImpl;
+                final DataBarImpl dataBarImpl = dataBar as DataBarImpl;
 
                 builder.element('x14:conditionalFormatting', nest: () async {
                   builder.element('x14:cfRule', nest: () async {
                     builder.attribute('type', 'dataBar');
                     // ignore: unnecessary_null_checks
-                    builder.attribute('id', dataBarImpl._stGUID!);
+                    builder.attribute('id', dataBarImpl.stGUID!);
 
                     builder.element('x14:dataBar', nest: () async {
                       builder.attribute(
@@ -5934,10 +5982,10 @@ class SerializeWorkbook {
                       builder.attribute('direction',
                           dataBar.dataBarDirection.toString().substring(17));
                       builder.attribute('negativeBarColorSameAsPositive',
-                          (dataBarImpl._hasDiffNegativeBarColor) ? '0' : '1');
+                          (dataBarImpl.hasDiffNegativeBarColor) ? '0' : '1');
                       builder.attribute(
                           'negativeBarBorderColorSameAsPositive',
-                          (dataBarImpl._hasDiffNegativeBarBorderColor)
+                          (dataBarImpl.hasDiffNegativeBarBorderColor)
                               ? '0'
                               : '1');
                       builder.attribute('axisPosition',
@@ -5985,26 +6033,26 @@ class SerializeWorkbook {
     for (final ConditionalFormats conditions in sheet.conditionalFormats) {
       for (int i = 0; i < conditions.count; i++) {
         final ConditionalFormat condition =
-            (conditions as _ConditionalFormatsImpl).innerList[i];
+            (conditions as ConditionalFormatsImpl).innerList[i];
         if (condition.dataBar != null &&
-            (condition.dataBar! as _DataBarImpl)._hasExtensionList) {
+            (condition.dataBar! as DataBarImpl).hasExtensionList) {
           hasExtensionList = true;
           break;
-        } else if ((condition as _ConditionalFormatImpl)._bCFHasExtensionList &&
+        } else if ((condition as ConditionalFormatImpl).bCFHasExtensionList &&
             condition.formatType == ExcelCFType.specificText) {
           hasExtensionList = true;
           break;
         } else if ((condition.iconSet != null) &&
-            condition._bCFHasExtensionList) {
+            condition.bCFHasExtensionList) {
           hasExtensionList = true;
           break;
-        } else if (condition._bCFHasExtensionList &&
+        } else if (condition.bCFHasExtensionList &&
             condition.formatType == ExcelCFType.formula &&
             condition.firstFormula != '' &&
             condition.firstFormula.contains('!')) {
           hasExtensionList = true;
           break;
-        } else if (condition._bCFHasExtensionList &&
+        } else if (condition.bCFHasExtensionList &&
             condition.formatType == ExcelCFType.cellValue) {
           hasExtensionList = true;
           break;
@@ -6059,7 +6107,7 @@ class SerializeWorkbook {
   }
 
   // Check whether to apply format or not.
-  bool _checkFormat(_ConditionalFormatImpl condition) {
+  bool _checkFormat(ConditionalFormatImpl condition) {
     return condition.backColor != '#FFFFFF' ||
         condition.isBold ||
         condition.isItalic ||
@@ -6096,7 +6144,7 @@ class SerializeWorkbook {
 
       if (columnToCompare != null &&
           columnToCompare.width == currentColumn!.width &&
-          columnToCompare._isHidden == currentColumn._isHidden) {
+          columnToCompare.isHidden == currentColumn.isHidden) {
         iColumnIndex++;
       } else {
         break;
@@ -6108,19 +6156,19 @@ class SerializeWorkbook {
   ///Serializes auto filters.
   void _serializeAutoFilters(
       XmlBuilder builder, AutoFilterCollection? autoFilters) {
-    if (autoFilters == null || autoFilters._innerList.isEmpty) {
+    if (autoFilters == null || autoFilters.innerList.isEmpty) {
       return;
     }
-    if (!_isTableAutoFlter(autoFilters._worksheet)) {
+    if (!_isTableAutoFlter(autoFilters.worksheet)) {
       builder.element('autoFilter', nest: () {
         builder.attribute('ref', autoFilters.filterRange.addressLocal);
 
         // ignore: always_specify_types
         for (int i = 0; i < autoFilters.count; i++) {
-          final _AutoFilterImpl autoFilter = autoFilters[i] as _AutoFilterImpl;
+          final AutoFilterImpl autoFilter = autoFilters[i] as AutoFilterImpl;
 
-          if (autoFilter._isFiltered) {
-            _serializeFilterColumn(builder, autoFilter);
+          if (autoFilter.isFiltered) {
+            serializeFilterColumn(builder, autoFilter);
           }
         }
       });
@@ -6129,7 +6177,7 @@ class SerializeWorkbook {
 
   ///Check is Table AutoFlter
   bool _isTableAutoFlter(Worksheet sheet) {
-    for (int i = 0; i < sheet.tableCollection._count; i++) {
+    for (int i = 0; i < sheet.tableCollection.count; i++) {
       if (sheet.tableCollection[i].dataRange.addressLocal ==
           sheet.autoFilters.filterRange.addressLocal) {
         return true;
@@ -6140,7 +6188,7 @@ class SerializeWorkbook {
 
   Future<void> _serializeAutoFiltersAsync(
       XmlBuilder builder, AutoFilterCollection? autoFilters) async {
-    if (autoFilters == null || autoFilters._innerList.isEmpty) {
+    if (autoFilters == null || autoFilters.innerList.isEmpty) {
       return;
     }
     builder.element('autoFilter', nest: () async {
@@ -6148,9 +6196,9 @@ class SerializeWorkbook {
 
       // ignore: always_specify_types
       for (int i = 0; i < autoFilters.count; i++) {
-        final _AutoFilterImpl autoFilter = autoFilters[i] as _AutoFilterImpl;
+        final AutoFilterImpl autoFilter = autoFilters[i] as AutoFilterImpl;
 
-        if (autoFilter._isFiltered) {
+        if (autoFilter.isFiltered) {
           _serializeFilterColumnAsync(builder, autoFilter);
         }
       }
@@ -6158,31 +6206,31 @@ class SerializeWorkbook {
   }
 
   /// Serializes filter column.
-  void _serializeFilterColumn(
+  void serializeFilterColumn(
     XmlBuilder builder,
-    _AutoFilterImpl autoFilter,
+    AutoFilterImpl autoFilter,
   ) {
     builder.element('filterColumn', nest: () {
-      _serializeAttributeInt(builder, 'colId', autoFilter._colIndex - 1, -1);
+      _serializeAttributeInt(builder, 'colId', autoFilter.colIndex - 1, -1);
 
-      switch (autoFilter._typeOfFilter) {
-        case _ExcelFilterType.combinationFilter:
+      switch (autoFilter.filterType) {
+        case ExcelFilterType.combinationFilter:
           _serializeFilters(builder, autoFilter);
           break;
-        case _ExcelFilterType.customFilter:
+        case ExcelFilterType.customFilter:
           _serializeCustomFilter(builder, autoFilter);
           break;
-        case _ExcelFilterType.dynamicFilter:
+        case ExcelFilterType.dynamicFilter:
           _serializeDateFilter(
-              builder, autoFilter._filteredItems as _DynamicFilter);
+              builder, autoFilter.filteredItems as DynamicFilter);
           break;
-        case _ExcelFilterType.colorFilter:
+        case ExcelFilterType.colorFilter:
           _serializeColorFilter(
-              builder, autoFilter._filteredItems as _ColorFilter);
+              builder, autoFilter.filteredItems as ColorFilter);
           break;
-        case _ExcelFilterType.iconFilter:
+        case ExcelFilterType.iconFilter:
           break;
-        case _ExcelFilterType.notUsed:
+        case ExcelFilterType.notUsed:
           break;
       }
     });
@@ -6190,73 +6238,73 @@ class SerializeWorkbook {
 
   Future<void> _serializeFilterColumnAsync(
     XmlBuilder builder,
-    _AutoFilterImpl autoFilter,
+    AutoFilterImpl autoFilter,
   ) async {
     builder.element('filterColumn', nest: () async {
       _serializeAttributeIntAsync(
-          builder, 'colId', autoFilter._colIndex - 1, -1);
-      switch (autoFilter._typeOfFilter) {
-        case _ExcelFilterType.combinationFilter:
+          builder, 'colId', autoFilter.colIndex - 1, -1);
+      switch (autoFilter.filterType) {
+        case ExcelFilterType.combinationFilter:
           _serializeFiltersAsync(builder, autoFilter);
           break;
-        case _ExcelFilterType.customFilter:
+        case ExcelFilterType.customFilter:
           _serializeCustomFilterAsync(builder, autoFilter);
           break;
-        case _ExcelFilterType.dynamicFilter:
+        case ExcelFilterType.dynamicFilter:
           _serializeDateFilterAsync(
-              builder, autoFilter._filteredItems as _DynamicFilter);
+              builder, autoFilter.filteredItems as DynamicFilter);
           break;
-        case _ExcelFilterType.colorFilter:
+        case ExcelFilterType.colorFilter:
           _serializeColorFilterAsync(
-              builder, autoFilter._filteredItems as _ColorFilter);
+              builder, autoFilter.filteredItems as ColorFilter);
           break;
-        case _ExcelFilterType.iconFilter:
+        case ExcelFilterType.iconFilter:
           break;
-        case _ExcelFilterType.notUsed:
+        case ExcelFilterType.notUsed:
           break;
       }
     });
   }
 
   /// Serialize color filter.
-  void _serializeColorFilter(XmlBuilder builder, _ColorFilter filter) {
+  void _serializeColorFilter(XmlBuilder builder, ColorFilter filter) {
     builder.element('colorFilter', nest: () {
       builder.attribute('dxfId', _iDxfIndex.toString());
       _iDxfIndex++;
-      if (filter._colorFilterType == ExcelColorFilterType.fontColor) {
+      if (filter.colorFilterType == ExcelColorFilterType.fontColor) {
         builder.attribute('cellColor', '0');
       }
     });
   }
 
   Future<void> _serializeColorFilterAsync(
-      XmlBuilder builder, _ColorFilter filter) async {
+      XmlBuilder builder, ColorFilter filter) async {
     builder.element('colorFilter', nest: () async {
       builder.attribute('dxfId', _iDxfIndex.toString());
       _iDxfIndex++;
-      if (filter._colorFilterType == ExcelColorFilterType.fontColor) {
+      if (filter.colorFilterType == ExcelColorFilterType.fontColor) {
         builder.attribute('cellColor', '0');
       }
     });
   }
 
   /// Serialize the dynmaic filter.
-  void _serializeDateFilter(XmlBuilder builder, _DynamicFilter filter) {
-    if (filter._dateFilterType != DynamicFilterType.none) {
+  void _serializeDateFilter(XmlBuilder builder, DynamicFilter filter) {
+    if (filter.dateFilterType != DynamicFilterType.none) {
       builder.element('dynamicFilter', nest: () {
         final String? dateTime =
-            _convertDateFilterTypeToString(filter._dateFilterType);
+            _convertDateFilterTypeToString(filter.dateFilterType);
         builder.attribute('type', dateTime.toString());
       });
     }
   }
 
   Future<void> _serializeDateFilterAsync(
-      XmlBuilder builder, _DynamicFilter filter) async {
-    if (filter._dateFilterType != DynamicFilterType.none) {
+      XmlBuilder builder, DynamicFilter filter) async {
+    if (filter.dateFilterType != DynamicFilterType.none) {
       builder.element('dynamicFilter', nest: () async {
         builder.attribute('type',
-            _convertDateFilterTypeToString(filter._dateFilterType).toString());
+            _convertDateFilterTypeToString(filter.dateFilterType).toString());
       });
     }
   }
@@ -6366,116 +6414,128 @@ class SerializeWorkbook {
   }
 
   ///SerializeCombination filter
-  void _serializeFilters(XmlBuilder builder, _AutoFilterImpl autoFilter) {
+  void _serializeFilters(XmlBuilder builder, AutoFilterImpl autoFilter) {
     builder.element('filters', nest: () {
-      if (autoFilter._filteredItems._filterType ==
-          _ExcelFilterType.combinationFilter) {
+      if (autoFilter.filteredItems.filterType ==
+          ExcelFilterType.combinationFilter) {
         _serializeCombinationFilters(
-            builder, autoFilter._filteredItems as _CombinationFilter);
+            builder, autoFilter.filteredItems as CombinationFilter);
       }
     });
   }
 
   Future<void> _serializeFiltersAsync(
-      XmlBuilder builder, _AutoFilterImpl autoFilter) async {
+      XmlBuilder builder, AutoFilterImpl autoFilter) async {
     builder.element('filters', nest: () async {
-      if (autoFilter._filteredItems._filterType ==
-          _ExcelFilterType.combinationFilter) {
+      if (autoFilter.filteredItems.filterType ==
+          ExcelFilterType.combinationFilter) {
         _serializeCombinationFiltersAsync(
-            builder, autoFilter._filteredItems as _CombinationFilter);
+            builder, autoFilter.filteredItems as CombinationFilter);
       }
     });
   }
 
   ///SerializeCombination filter
   void _serializeCombinationFilters(
-      XmlBuilder builder, _CombinationFilter combinationFilter) {
-    if (combinationFilter._isBlank) {
+      XmlBuilder builder, CombinationFilter combinationFilter) {
+    if (combinationFilter.isBlank) {
       builder.attribute('blank', 1);
     }
-    for (final _MultipleFilter multipleFilter
-        in combinationFilter._filterCollection) {
-      switch (multipleFilter._combinationFilterType) {
-        case _ExcelCombinationFilterType.textFilter:
-          _serializeFilter(builder, (multipleFilter as _TextFilter)._text);
+    for (final MultipleFilter multipleFilter
+        in combinationFilter.filterCollection) {
+      switch (multipleFilter.combinationFilterType) {
+        case ExcelCombinationFilterType.textFilter:
+          _serializeFilter(builder, (multipleFilter as TextFilter).text);
           break;
-        case _ExcelCombinationFilterType.dateTimeFilter:
-          _serializeDateTimeFilter(builder, multipleFilter as _DateTimeFilter);
+        case ExcelCombinationFilterType.dateTimeFilter:
+          _serializeDateTimeFilter(builder, multipleFilter as DateTimeFilter);
           break;
       }
     }
   }
 
   Future<void> _serializeCombinationFiltersAsync(
-      XmlBuilder builder, _CombinationFilter combinationFilter) async {
-    if (combinationFilter._isBlank) {
+      XmlBuilder builder, CombinationFilter combinationFilter) async {
+    if (combinationFilter.isBlank) {
       builder.attribute('blank', 1);
     }
-    for (final _MultipleFilter multipleFilter
-        in combinationFilter._filterCollection) {
-      switch (multipleFilter._combinationFilterType) {
-        case _ExcelCombinationFilterType.textFilter:
-          _serializeFilterAsync(builder, (multipleFilter as _TextFilter)._text);
+    for (final MultipleFilter multipleFilter
+        in combinationFilter.filterCollection) {
+      switch (multipleFilter.combinationFilterType) {
+        case ExcelCombinationFilterType.textFilter:
+          _serializeFilterAsync(builder, (multipleFilter as TextFilter).text);
           break;
-        case _ExcelCombinationFilterType.dateTimeFilter:
+        case ExcelCombinationFilterType.dateTimeFilter:
           _serializeDateTimeFilterAsync(
-              builder, multipleFilter as _DateTimeFilter);
+              builder, multipleFilter as DateTimeFilter);
           break;
       }
     }
   }
 
   /// Serialize the date time filter.
-  void _serializeDateTimeFilter(XmlBuilder builder, _DateTimeFilter filter) {
-    final DateTimeFilterType dateGroup = filter._groupingType;
-    final DateTime date = filter._dateTimeValue;
+  void _serializeDateTimeFilter(XmlBuilder builder, DateTimeFilter filter) {
+    final DateTimeFilterType dateGroup = filter.groupingType;
+    final DateTime date = filter.dateTimeValue;
     builder.element('dateGroupItem', nest: () {
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.year))
+          _getDateTimevalue(DateTimeFilterType.year)) {
         builder.attribute('year', date.year.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.month))
+          _getDateTimevalue(DateTimeFilterType.month)) {
         builder.attribute('month', date.month.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.day))
+          _getDateTimevalue(DateTimeFilterType.day)) {
         builder.attribute('day', date.day.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.hour))
+          _getDateTimevalue(DateTimeFilterType.hour)) {
         builder.attribute('hour', date.hour.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.minute))
+          _getDateTimevalue(DateTimeFilterType.minute)) {
         builder.attribute('minute', date.minute.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.second))
+          _getDateTimevalue(DateTimeFilterType.second)) {
         builder.attribute('second', date.second.toString());
+      }
       final String dateTimeStr = _getDateTimeString(dateGroup);
       builder.attribute('dateTimeGrouping', dateTimeStr);
     });
   }
 
   Future<void> _serializeDateTimeFilterAsync(
-      XmlBuilder builder, _DateTimeFilter filter) async {
-    final DateTimeFilterType dateGroup = filter._groupingType;
-    final DateTime date = filter._dateTimeValue;
+      XmlBuilder builder, DateTimeFilter filter) async {
+    final DateTimeFilterType dateGroup = filter.groupingType;
+    final DateTime date = filter.dateTimeValue;
     builder.element('dateGroupItem', nest: () {
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.year))
+          _getDateTimevalue(DateTimeFilterType.year)) {
         builder.attribute('year', date.year.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.month))
+          _getDateTimevalue(DateTimeFilterType.month)) {
         builder.attribute('month', date.month.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.day))
+          _getDateTimevalue(DateTimeFilterType.day)) {
         builder.attribute('day', date.day.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.hour))
+          _getDateTimevalue(DateTimeFilterType.hour)) {
         builder.attribute('hour', date.hour.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.minute))
+          _getDateTimevalue(DateTimeFilterType.minute)) {
         builder.attribute('minute', date.minute.toString());
+      }
       if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.second))
+          _getDateTimevalue(DateTimeFilterType.second)) {
         builder.attribute('second', date.second.toString());
+      }
       final String dateTimeStr = _getDateTimeString(dateGroup);
       builder.attribute('dateTimeGrouping', dateTimeStr);
     });
@@ -6532,7 +6592,7 @@ class SerializeWorkbook {
   }
 
   /// Serializes custom filters.
-  void _serializeCustomFilter(XmlBuilder builder, _AutoFilterImpl autoFilter) {
+  void _serializeCustomFilter(XmlBuilder builder, AutoFilterImpl autoFilter) {
     builder.element('customFilters', nest: () {
       final bool isAnd = autoFilter.logicalOperator == ExcelLogicalOperator.and;
       _serializeAttributes(builder, 'and', isAnd, false);
@@ -6550,7 +6610,7 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeCustomFilterAsync(
-      XmlBuilder builder, _AutoFilterImpl autoFilter) async {
+      XmlBuilder builder, AutoFilterImpl autoFilter) async {
     builder.element('customFilters', nest: () async {
       final bool isAnd = autoFilter.logicalOperator == ExcelLogicalOperator.and;
       _serializeAttributesAsync(builder, 'and', isAnd, false);
@@ -6569,14 +6629,14 @@ class SerializeWorkbook {
 
   /// Serializes custom filters.
   void __serializeCustomFilters(XmlBuilder builder,
-      AutoFilterCondition autoFilterCondition, _AutoFilterImpl autoFilter) {
+      AutoFilterCondition autoFilterCondition, AutoFilterImpl autoFilter) {
     _customFilterCondition(builder, autoFilterCondition, autoFilter, 0);
   }
 
   Future<void> __serializeCustomFiltersAsync(
       XmlBuilder builder,
       AutoFilterCondition autoFilterCondition,
-      _AutoFilterImpl autoFilter) async {
+      AutoFilterImpl autoFilter) async {
     _customFilterConditionAsync(builder, autoFilterCondition, autoFilter, 0);
   }
 
@@ -6616,13 +6676,13 @@ class SerializeWorkbook {
   void _customFilterCondition(
       XmlBuilder builder,
       AutoFilterCondition autoFilterCondition,
-      _AutoFilterImpl autoFilter,
+      AutoFilterImpl autoFilter,
       int dataindex) {
     ExcelFilterCondition conditionOperator =
         autoFilterCondition.conditionOperator;
     builder.element('customFilter', nest: () {
-      if (autoFilterCondition._dataType ==
-          _ExcelFilterDataType.matchAllNonBlanks) {
+      if (autoFilterCondition.dataType ==
+          ExcelFilterDataType.matchAllNonBlanks) {
         builder.attribute('operator', 'notEqual');
         builder.attribute('val', 0);
       } else {
@@ -6656,13 +6716,13 @@ class SerializeWorkbook {
   Future<void> _customFilterConditionAsync(
       XmlBuilder builder,
       AutoFilterCondition autoFilterCondition,
-      _AutoFilterImpl autoFilter,
+      AutoFilterImpl autoFilter,
       int dataindex) async {
     ExcelFilterCondition conditionOperator =
         autoFilterCondition.conditionOperator;
     builder.element('customFilter', nest: () {
-      if (autoFilterCondition._dataType ==
-          _ExcelFilterDataType.matchAllNonBlanks) {
+      if (autoFilterCondition.dataType ==
+          ExcelFilterDataType.matchAllNonBlanks) {
         builder.attribute('operator', 'notEqual');
         builder.attribute('val', 0);
       } else {
@@ -6696,22 +6756,22 @@ class SerializeWorkbook {
   /// Returns auto filter condition value.
   Object _conditionValue(AutoFilterCondition autoFilterCondition) {
     Object empty = '';
-    switch (autoFilterCondition._dataType) {
-      case _ExcelFilterDataType.notUsed:
+    switch (autoFilterCondition.dataType) {
+      case ExcelFilterDataType.notUsed:
         break;
-      case _ExcelFilterDataType.floatingPoint:
+      case ExcelFilterDataType.floatingPoint:
         empty = autoFilterCondition.numberValue;
         break;
-      case _ExcelFilterDataType.string:
+      case ExcelFilterDataType.string:
         empty = autoFilterCondition.textValue;
         break;
-      case _ExcelFilterDataType.boolean:
+      case ExcelFilterDataType.boolean:
         break;
-      case _ExcelFilterDataType.errorCode:
+      case ExcelFilterDataType.errorCode:
         break;
-      case _ExcelFilterDataType.matchAllBlanks:
+      case ExcelFilterDataType.matchAllBlanks:
         break;
-      case _ExcelFilterDataType.matchAllNonBlanks:
+      case ExcelFilterDataType.matchAllNonBlanks:
         break;
     }
     return empty;

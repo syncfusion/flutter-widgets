@@ -1,3 +1,9 @@
+## Unreleased
+
+**General**
+
+* The compatible version of our Flutter datepicker widget has been updated to Flutter SDK 3.24.0.
+
 ## 15/03/2024
 
 **General**

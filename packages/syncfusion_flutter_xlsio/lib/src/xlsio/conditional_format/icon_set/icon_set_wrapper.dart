@@ -1,19 +1,25 @@
-part of xlsio;
+import 'dart:math';
+
+import '../../conditional_format/icon_set/icon_set.dart';
+import '../../conditional_format/icon_set/icon_set_impl.dart';
+import '../../general/enums.dart';
+import '../condformat_wrapper.dart';
+import '../condition_value.dart';
 
 /// Wrapper over Icon set for conditional format.
-class _IconSetWrapper implements IconSet {
+class IconSetWrapper implements IconSet {
   /// Initializes new instance of the wrapper.
-  _IconSetWrapper(_IconSetImpl iconSet, _ConditionalFormatWrapper format) {
+  IconSetWrapper(IconSetImpl iconSet, ConditionalFormatWrapper format) {
     _wrapped = iconSet;
     _format = format;
     _updateCollection(_wrapped.iconCriteria);
   }
 
   // Wrapped icon set object.
-  late _IconSetImpl _wrapped;
+  late IconSetImpl _wrapped;
 
   /// Parent format.
-  late _ConditionalFormatWrapper _format;
+  late ConditionalFormatWrapper _format;
 
   /// Wrapper over condition values.
   List<ConditionValue> _arrConditions = <ConditionValue>[];
@@ -45,9 +51,9 @@ class _IconSetWrapper implements IconSet {
 
   @override
   set iconSet(ExcelIconSetType value) {
-    _beginUpdate();
+    beginUpdate();
     _wrapped.iconSet = value;
-    _endUpdate();
+    endUpdate();
   }
 
   @override
@@ -62,9 +68,9 @@ class _IconSetWrapper implements IconSet {
 
   @override
   set percentileValues(bool value) {
-    _beginUpdate();
+    beginUpdate();
     _wrapped.percentileValues = value;
-    _endUpdate();
+    endUpdate();
   }
 
   @override
@@ -79,9 +85,9 @@ class _IconSetWrapper implements IconSet {
 
   @override
   set reverseOrder(bool value) {
-    _beginUpdate();
+    beginUpdate();
     _wrapped.reverseOrder = value;
-    _endUpdate();
+    endUpdate();
   }
 
   @override
@@ -96,19 +102,19 @@ class _IconSetWrapper implements IconSet {
 
   @override
   set showIconOnly(bool value) {
-    _beginUpdate();
+    beginUpdate();
     _wrapped.showIconOnly = value;
-    _endUpdate();
+    endUpdate();
   }
 
   /// This method should be called before several updates to the object will take place.
-  void _beginUpdate() {
+  void beginUpdate() {
     _updateCollection(_wrapped.iconCriteria);
   }
 
   /// This method should be called after several updates to the object took place.
-  void _endUpdate() {
-    _format._endUpdate();
+  void endUpdate() {
+    _format.endUpdate();
     _updateCollection(_wrapped.iconCriteria);
   }
 
@@ -123,27 +129,27 @@ class _IconSetWrapper implements IconSet {
       _remove(iDestLength - iSourceLength);
     }
 
-    _update(min(iSourceLength, iDestLength));
+    update(min(iSourceLength, iDestLength));
   }
 
   /// Adds required number of new wrappers to the criteria collection.
   void _add(int count, List<ConditionValue> arrSource) {
     for (int i = 0; i < count; i++) {
-      final _IconConditionValueWrapper wrapper = _IconConditionValueWrapper(
-          arrSource[i] as _IconConditionValueImpl, this);
+      final IconConditionValueWrapper wrapper = IconConditionValueWrapper(
+          arrSource[i] as IconConditionValueImpl, this);
       _arrConditions.add(wrapper);
     }
   }
 
   /// Updates wrappers inside criteria collection.
-  void _update(int count) {
-    final _IconSetImpl iconSetImpl = _wrapped;
+  void update(int count) {
+    final IconSetImpl iconSetImpl = _wrapped;
     final List<ConditionValue> arrValues = iconSetImpl.iconCriteria;
 
     for (int i = 0; i < count; i++) {
-      final _IconConditionValueWrapper wrapper =
-          _arrConditions[i] as _IconConditionValueWrapper;
-      wrapper._wrapped = arrValues[i] as _IconConditionValueImpl;
+      final IconConditionValueWrapper wrapper =
+          _arrConditions[i] as IconConditionValueWrapper;
+      wrapper.wrapped = arrValues[i] as IconConditionValueImpl;
     }
   }
 

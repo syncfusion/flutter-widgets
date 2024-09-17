@@ -70,7 +70,42 @@ class CandleSeries<T, D> extends FinancialSeriesBase<T, D> {
     super.initialSelectedDataIndexes,
     super.showIndicationForSameValues = false,
     super.trendlines,
+    this.borderRadius = BorderRadius.zero,
+    super.width,
+    super.spacing,
   });
+
+  /// Customize the corners of the candle.
+  ///
+  /// Each corner can be customized with a specific value or with the same value for all corners.
+  ///
+  /// Defaults to `Radius.zero`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///      series: <CartesianSeries>[
+  ///            CandleSeries<_SalesData, String>(
+  ///         borderRadius: BorderRadius.all(Radius.circular(5))
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  final BorderRadius borderRadius;
+  @override
+  CandleSeriesRenderer<T, D> createRenderObject(BuildContext context) {
+    final CandleSeriesRenderer<T, D> renderer =
+        super.createRenderObject(context) as CandleSeriesRenderer<T, D>;
+    return renderer..borderRadius = borderRadius;
+  }
+
+  @override
+  void updateRenderObject(
+      BuildContext context, CandleSeriesRenderer<T, D> renderObject) {
+    super.updateRenderObject(context, renderObject);
+    renderObject.borderRadius = borderRadius;
+  }
 
   /// Create the candle series renderer.
   @override
@@ -87,6 +122,14 @@ class CandleSeries<T, D> extends FinancialSeriesBase<T, D> {
 /// Creates series renderer for candle series.
 class CandleSeriesRenderer<T, D> extends FinancialSeriesRendererBase<T, D>
     with SegmentAnimationMixin<T, D> {
+  BorderRadius get borderRadius => _borderRadius;
+  BorderRadius _borderRadius = BorderRadius.zero;
+  set borderRadius(BorderRadius value) {
+    if (value != _borderRadius) {
+      _borderRadius = value;
+    }
+  }
+
   @override
   void setData(int index, ChartSegment segment) {
     super.setData(index, segment);
@@ -200,8 +243,8 @@ class CandleSegment<T, D> extends ChartSegment {
   late num bottom;
 
   bool _isSameValue = false;
-  Rect? _oldSegmentRect;
-  Rect? segmentRect;
+  RRect? _oldSegmentRect;
+  RRect? segmentRect;
   final List<Offset> _oldPoints = <Offset>[];
 
   @override
@@ -242,7 +285,7 @@ class CandleSegment<T, D> extends ChartSegment {
       }
 
       _oldSegmentRect =
-          Rect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
+          RRect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
     } else {
       _oldPoints.clear();
       _oldSegmentRect = segmentRect;
@@ -266,37 +309,44 @@ class CandleSegment<T, D> extends ChartSegment {
     final num right = x + series.sbsInfo.maximum;
 
     final double centerX = (right + left) / 2;
-    final double centerY = (low + high) / 2;
+    double centerY = (top + bottom) / 2;
 
     final double x1 = transformX(left, top);
     final double y1 = transformY(left, top);
     final double x2 = transformX(right, bottom);
     final double y2 = transformY(right, bottom);
-    segmentRect = Rect.fromLTRB(x1, y1, x2, y2);
-    _oldSegmentRect ??= Rect.fromLTRB(
+    final BorderRadius borderRadius = series._borderRadius;
+    segmentRect = toRRect(x1, y1, x2, y2, borderRadius);
+
+    _oldSegmentRect ??= toRRect(
       series.pointToPixelX(left, centerY),
       series.pointToPixelY(left, centerY),
       series.pointToPixelX(right, centerY),
       series.pointToPixelY(right, centerY),
+      borderRadius,
     );
 
     _isSameValue = top == bottom;
-    if (_isSameValue) {
-      points.add(Offset(x1, y1));
-      points.add(Offset(x2, y2));
 
-      if (series.showIndicationForSameValues) {
-        final double x = transformX(centerX, centerY);
-        final double y = transformY(centerX, centerY);
-        if (series.isTransposed) {
-          points.add(Offset(x - 2, y));
-          points.add(Offset(x + 2, y));
-        } else {
-          points.add(Offset(x, y - 2));
-          points.add(Offset(x, y + 2));
-        }
+    if (_isSameValue) {
+      segmentRect = toRRect(x1, y1, x2, y2, borderRadius);
+    }
+
+    if (series.showIndicationForSameValues && high == low) {
+      centerY = (high + low) / 2;
+      final double x = transformX(centerX, centerY);
+      final double y = transformY(centerX, centerY);
+      if (series.isTransposed) {
+        points.add(Offset(x - 2, y));
+        points.add(Offset(x, y));
+        points.add(Offset(x + 2, y));
+        points.add(Offset(x, y));
+      } else {
+        points.add(Offset(x, y - 2));
+        points.add(Offset(x, y));
+        points.add(Offset(x, y + 2));
+        points.add(Offset(x, y));
       }
-      segmentRect = Rect.fromPoints(points[0], points[1]);
     } else {
       points.add(Offset(transformX(centerX, high), transformY(centerX, high)));
       points.add(Offset(transformX(centerX, top), transformY(centerX, top)));
@@ -304,15 +354,15 @@ class CandleSegment<T, D> extends ChartSegment {
       points.add(Offset(transformX(centerX, low), transformY(centerX, low)));
       points.add(
           Offset(transformX(centerX, bottom), transformY(centerX, bottom)));
+    }
 
-      if (_oldPoints.isEmpty) {
-        final Offset point =
-            Offset(transformX(centerX, centerY), transformY(centerX, centerY));
-        _oldPoints.add(point);
-        _oldPoints.add(point);
-        _oldPoints.add(point);
-        _oldPoints.add(point);
-      }
+    if (_oldPoints.isEmpty) {
+      final Offset point =
+          Offset(transformX(centerX, centerY), transformY(centerX, centerY));
+      _oldPoints.add(point);
+      _oldPoints.add(point);
+      _oldPoints.add(point);
+      _oldPoints.add(point);
     }
   }
 
@@ -346,8 +396,9 @@ class CandleSegment<T, D> extends ChartSegment {
       primaryPos = series.localToGlobal(points[0]);
       secondaryPos = primaryPos;
     } else {
-      primaryPos = series.localToGlobal(segmentRect!.topCenter);
-      secondaryPos = series.localToGlobal(segmentRect!.bottomCenter);
+      final Rect outerRect = segmentRect!.outerRect;
+      primaryPos = series.localToGlobal(outerRect.topCenter);
+      secondaryPos = series.localToGlobal(outerRect.bottomCenter);
     }
     return ChartTooltipInfo<T, D>(
       primaryPosition: primaryPos,
@@ -420,39 +471,34 @@ class CandleSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final Rect? paintRect =
-        Rect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+    final RRect? paintRRect =
+        RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
     Paint paint = getFillPaint();
     if (paint.color != Colors.transparent && !_isSameValue) {
-      canvas.drawRect(paintRect!, paint);
+      canvas.drawRRect(paintRRect!, paint);
     }
 
     paint = getStrokePaint();
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
+      Path strokePath;
       if (_isSameValue) {
-        drawDashes(canvas, series.dashArray, paint,
-            start: points[0], end: points[1]);
-        if (series.showIndicationForSameValues) {
-          drawDashes(canvas, series.dashArray, paint,
-              start: points[2], end: points[3]);
-        }
+        strokePath = Path()..addRRect(paintRRect!);
       } else {
-        final Path strokePath =
-            strokePathFromRect(paintRect, paint.strokeWidth);
-        drawDashes(canvas, series.dashArray, paint, path: strokePath);
-
-        final Offset start =
-            Offset.lerp(_oldPoints[0], points[0], animationFactor)!;
-        final Offset end =
-            Offset.lerp(_oldPoints[1], points[1], animationFactor)!;
-        drawDashes(canvas, series.dashArray, paint, start: start, end: end);
-
-        final Offset start2 =
-            Offset.lerp(_oldPoints[2], points[2], animationFactor)!;
-        final Offset end2 =
-            Offset.lerp(_oldPoints[3], points[3], animationFactor)!;
-        drawDashes(canvas, series.dashArray, paint, start: start2, end: end2);
+        strokePath = strokePathFromRRect(paintRRect, paint.strokeWidth);
       }
+      drawDashes(canvas, series.dashArray, paint, path: strokePath);
+
+      final Offset start =
+          Offset.lerp(_oldPoints[0], points[0], animationFactor)!;
+      final Offset end =
+          Offset.lerp(_oldPoints[1], points[1], animationFactor)!;
+      drawDashes(canvas, series.dashArray, paint, start: start, end: end);
+
+      final Offset start2 =
+          Offset.lerp(_oldPoints[2], points[2], animationFactor)!;
+      final Offset end2 =
+          Offset.lerp(_oldPoints[3], points[3], animationFactor)!;
+      drawDashes(canvas, series.dashArray, paint, start: start2, end: end2);
     }
   }
 

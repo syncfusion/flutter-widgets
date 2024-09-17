@@ -1,9 +1,13 @@
-part of xlsio;
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'condformat_wrapper.dart';
+import 'conditionalformat.dart';
+import 'conditionalformat_collections.dart';
 
 /// Wrapper over conditional format collection for range.
-class _CondFormatCollectionWrapper implements ConditionalFormats {
+class CondFormatCollectionWrapper implements ConditionalFormats {
   /// Create an instances of culture info class.
-  _CondFormatCollectionWrapper(Range range) {
+  CondFormatCollectionWrapper(Range range) {
     _range = range;
     _arrConditionFormat = <ConditionalFormat>[];
     _sheet = range.worksheet;
@@ -15,7 +19,7 @@ class _CondFormatCollectionWrapper implements ConditionalFormats {
   /// Wrapped range object.
   late Range _range;
 
-  _ConditionalFormatsImpl? _condFormats;
+  ConditionalFormatsImpl? condFormats;
 
   /// List with all wrapped conditions.
   late List<ConditionalFormat> _arrConditionFormat;
@@ -37,39 +41,39 @@ class _CondFormatCollectionWrapper implements ConditionalFormats {
 
   /// Gets the number of conditional formats in the collection. Read-only.
   int get count {
-    return _condFormats!.innerList.length;
+    return condFormats!.innerList.length;
   }
 
   @override
 
   /// Gets the number of conditional formats in the collection. Read-only.
   set count(int value) {
-    _condFormats!.innerList.length = value;
+    condFormats!.innerList.length = value;
   }
 
   @override
 
   /// Adds new condition to the collection.
   ConditionalFormat addCondition() {
-    if (_condFormats == null) {
+    if (condFormats == null) {
       final Worksheet worksheet = sheet;
-      _condFormats = _ConditionalFormatsImpl(worksheet, _range);
-      worksheet.conditionalFormats.add(_condFormats!);
+      condFormats = ConditionalFormatsImpl(worksheet, _range);
+      worksheet.conditionalFormats.add(condFormats!);
     }
-    ConditionalFormat format = _condFormats!.addCondition();
-    format = _ConditionalFormatWrapper(this, count - 1);
-    (format as _ConditionalFormatWrapper)._range = _range;
+    ConditionalFormat format = condFormats!.addCondition();
+    format = ConditionalFormatWrapper(this, count - 1);
+    (format as ConditionalFormatWrapper).range = _range;
     _arrConditionFormat.add(format);
     return format;
   }
 
   /// This method should be called before several updates to the object will take place.
-  void _beginUpdate() {
+  void beginUpdate() {
     _iBeginCount++;
   }
 
   /// This method should be called after several updates to the object.
-  void _endUpdate() {
+  void endUpdate() {
     if (_iBeginCount > 0) {
       _iBeginCount--;
     }

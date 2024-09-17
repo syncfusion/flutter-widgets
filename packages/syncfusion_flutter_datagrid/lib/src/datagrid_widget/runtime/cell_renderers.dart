@@ -475,7 +475,6 @@ class GroupExpanderIcon extends StatefulWidget {
 class GroupExpanderIconState extends State<GroupExpanderIcon>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _rotationAnimation;
 
   @override
   void initState() {
@@ -485,9 +484,6 @@ class GroupExpanderIconState extends State<GroupExpanderIcon>
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
-
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.5)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
     if (widget.dataGridConfiguration.groupExpandCollapseRowIndex ==
         widget.rowIndex) {
@@ -505,19 +501,14 @@ class GroupExpanderIconState extends State<GroupExpanderIcon>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (BuildContext context, Widget? child) {
-        return Transform.rotate(
-          angle: _rotationAnimation.value * 2 * 3.14159265359,
-          child: widget.dataGridConfiguration.dataGridThemeHelper
-                  ?.groupExpanderIcon ??
+    return RotationTransition(
+      turns: Tween<double>(begin: 0.0, end: 0.5).animate(_controller),
+      child:
+          widget.dataGridConfiguration.dataGridThemeHelper?.groupExpanderIcon ??
               Icon(
                 Icons.expand_less,
                 color: widget.dataGridConfiguration.colorScheme!.onSurface[153],
               ),
-        );
-      },
     );
   }
 

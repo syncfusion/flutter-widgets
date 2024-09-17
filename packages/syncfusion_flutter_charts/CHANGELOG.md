@@ -1,11 +1,37 @@
-## [Unreleased]
+## Unreleased
+
+**General**
+
+* \#GH2008, \#GH2013, \#GH2012, \#BD620212, \#BD620214, \#F192976, \#BD621964, \#BD621021, \#BD620826, \#BD619659, \#BD619610, \#BD620964, \#GH2020, \#F194113, \#GH623599, \#GH1907, \#BD626072, \#BD626410, \#GH2041, \#BD626867, \#GH2045 - The compatible version of our Flutter charts widget has been updated to Flutter SDK 3.24.0.
+
+### Features
+
+* \#FB31997 - Added support for `borderRadius` in the candle series.
+* Added support for customizing `width` and `spacing` of the candle series.
+* Added support for individual plot offset customization for the chart axis.
+* Added `additionalStart`, `additionalEnd`, `roundStart` and `roundEnd` enums to [`rangePadding`](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/rangePadding.html) property to customize the axis range padding at the start or end of the axis.
+
+**Bugs**
+
+* The [`RadialBarSeries`](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/RadialBarSeries-class.html) animation now updates properly when data points are reset dynamically.
+* The range of the category axis now updates correctly when data points are dynamically replaced.
+* The tooltip position of the trackball builder has been adjusted to inside within the plot area.
+
+## [26.2.9] - 13/08/2024
+
+**Bugs**
+
+* Now, the trackball image marker is updated according to the marker visibility mode set to auto. 
+* Now, the [pointColorMapper](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeriesRenderer/pointColorMapper.html) colors are properly updated when the data source is dynamically changed with different lengths.
+
+## [26.1.35] - 11/06/2024
 
 ### Features
 
 Added two new indicators in Cartesian Chart:
 
-* Provided Rate of Change Indicator (ROC) support to technical indicators.
-* Provided Weighted Moving Average Indicator (WMA) support to technical indicators.
+* \#FB15987 - Provided Rate of Change Indicator (ROC) support to technical indicators.
+* \#FB15987 - Provided Weighted Moving Average Indicator (WMA) support to technical indicators.
 
 ## [25.2.5] - 09/04/2024
 

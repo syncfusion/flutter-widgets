@@ -1,42 +1,57 @@
-part of xlsio;
+import '../formats/format_tokens/am_pm_token.dart';
+import '../formats/format_tokens/character_token.dart';
+import '../formats/format_tokens/day_token.dart';
+import '../formats/format_tokens/decimal_point_token.dart';
+import '../formats/format_tokens/format_token_base.dart';
+import '../formats/format_tokens/fraction_token.dart';
+import '../formats/format_tokens/hour_24_token.dart';
+import '../formats/format_tokens/hour_token.dart';
+import '../formats/format_tokens/minute_token.dart';
+import '../formats/format_tokens/month_token.dart';
+import '../formats/format_tokens/second_token.dart';
+import '../formats/format_tokens/significant_digit_token.dart';
+import '../formats/format_tokens/unknown_token.dart';
+import '../formats/format_tokens/year_token.dart';
+import '../general/workbook.dart';
+import 'format_section_collection.dart';
 
 /// Class used for format parsing.
-class _FormatParser {
+class FormatParser {
   /// Initializes a new instance of the FormatParserImpl class.
-  _FormatParser() {
-    _arrFormatTokens.add(_CharacterToken());
-    _arrFormatTokens.add(_YearToken());
-    _arrFormatTokens.add(_MonthToken());
-    _arrFormatTokens.add(_DayToken());
-    _arrFormatTokens.add(_HourToken());
-    _arrFormatTokens.add(_Hour24Token());
-    _arrFormatTokens.add(_MinuteToken());
-    _arrFormatTokens.add(_SecondToken());
-    _arrFormatTokens.add(_AmPmToken());
-    _arrFormatTokens.add(_SignificantDigitToken());
-    _arrFormatTokens.add(_DecimalPointToken());
-    _arrFormatTokens.add(_FractionToken());
-    _arrFormatTokens.add(_UnknownToken());
+  FormatParser() {
+    _arrFormatTokens.add(CharacterToken());
+    _arrFormatTokens.add(YearToken());
+    _arrFormatTokens.add(MonthToken());
+    _arrFormatTokens.add(DayToken());
+    _arrFormatTokens.add(HourToken());
+    _arrFormatTokens.add(Hour24Token());
+    _arrFormatTokens.add(MinuteToken());
+    _arrFormatTokens.add(SecondToken());
+    _arrFormatTokens.add(AmPmToken());
+    _arrFormatTokens.add(SignificantDigitToken());
+    _arrFormatTokens.add(DecimalPointToken());
+    _arrFormatTokens.add(FractionToken());
+    _arrFormatTokens.add(UnknownToken());
   }
 
   /// List with all known format tokens.
 
   // ignore: prefer_final_fields
-  List<_FormatTokenBase> _arrFormatTokens = <_FormatTokenBase>[];
+  List<FormatTokenBase> _arrFormatTokens = <FormatTokenBase>[];
 
   /// Regular expression for checking if specified switch argument present in numberformat.
-  static final RegExp _numberFormatRegex =
+  static final RegExp numberFormatRegex =
       // ignore: use_raw_strings
       RegExp('\\[(DBNUM[1-4]{1}|GB[1-4]{1})\\]');
 
   /// Parses format string.
   // ignore: unused_element
-  _FormatSectionCollection _parse(Workbook workbook, String? strFormat) {
+  FormatSectionCollection parse(Workbook workbook, String? strFormat) {
     if (strFormat == null) {
       final Error error = ArgumentError('strFormat - string cannot be null');
       throw error;
     }
-    strFormat = _numberFormatRegex.hasMatch(strFormat)
+    strFormat = numberFormatRegex.hasMatch(strFormat)
         ? strFormat.replaceAll(RegExp(r'strFormat'), '')
         : strFormat;
     final int iFormatLength = strFormat.length;
@@ -46,14 +61,14 @@ class _FormatParser {
       throw error;
     }
 
-    final List<_FormatTokenBase> arrParsedExpression = <_FormatTokenBase>[];
+    final List<FormatTokenBase> arrParsedExpression = <FormatTokenBase>[];
     int iPos = 0;
 
     while (iPos < iFormatLength) {
       final int len = _arrFormatTokens.length;
       for (int i = 0; i < len; i++) {
-        final _FormatTokenBase token = _arrFormatTokens[i];
-        final int iNewPos = token._tryParse(strFormat, iPos);
+        final FormatTokenBase token = _arrFormatTokens[i];
+        final int iNewPos = token.tryParse(strFormat, iPos);
 
         if (iNewPos > iPos) {
           // token = ( FormatTokenBase )token.Clone();
@@ -63,10 +78,10 @@ class _FormatParser {
         }
       }
     }
-    return _FormatSectionCollection(workbook, arrParsedExpression);
+    return FormatSectionCollection(workbook, arrParsedExpression);
   }
 
-  void _clear() {
+  void clear() {
     _arrFormatTokens.clear();
   }
 }

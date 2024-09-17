@@ -1,4 +1,4 @@
-part of xlsio;
+import '../condition_value.dart';
 
 /// Represents a color scale conditional formatting rule.
 abstract class ColorScale {

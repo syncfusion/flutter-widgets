@@ -1,6 +1,12 @@
 ## Unreleased
 
 **General**
+
+* The compatible version of all our Flutter widgets has been updated to Flutter SDK 3.24.0.
+  
+## Unreleased
+
+**General**
 * Provided th​e Material 3 themes support.
 
 ## [20.2.38] - 07/12/2022

@@ -1,27 +1,27 @@
-part of xlsio;
+import 'alignment.dart';
 
 /// Represents cell style xfs.
-class _CellStyleXfs {
+class CellStyleXfs {
   /// Represents number format id.
   // ignore: prefer_final_fields
-  int _numberFormatId = 0;
+  int numberFormatId = 0;
 
   /// Represents font id.
   // ignore: prefer_final_fields
-  int _fontId = 0;
+  int fontId = 0;
 
   /// Represents fill id.
   // ignore: prefer_final_fields
-  int _fillId = 0;
+  int fillId = 0;
 
   /// Represents border id.
   // ignore: prefer_final_fields
-  int _borderId = 0;
+  int borderId = 0;
 
   /// Represents alignment.
-  _Alignment? _alignment;
+  Alignment? alignment;
 
   /// Represent protection.
   // ignore: prefer_final_fields
-  int _locked = 1;
+  int locked = 1;
 }

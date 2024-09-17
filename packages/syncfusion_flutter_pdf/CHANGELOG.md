@@ -1,4 +1,58 @@
-## Unreleased
+## [26.2.10] - 08/20/2024
+
+**Bugs**
+
+* Exception will no longer be thrown while extracting text from a particular PDF document.
+
+## [26.2.9] - 08/13/2024
+
+**Bugs**
+
+* Text will now be properly extracted in the Safari browser on macOS.
+
+## [26.2.7] - 07/30/2024
+
+**Bugs**
+
+* The text color now remains consistent after decrypting and saving the PDF document.
+
+## [26.2.4] - 07/24/2024
+
+**Bugs**
+
+* Incorrect bounds are no longer being retrieved when extracting text from a specific PDF document.
+
+## [26.1.42] - 07/16/2024
+
+**Bugs**
+
+* The issue causing null check errors when retrieving items from a radio button field in the PDF document has been resolved.
+
+* The issue with type casting no longer occurs when retrieving annotations from a PDF document.
+
+## [26.1.41] - 07/09/2024
+
+**Bugs**
+
+* The performance issue no longer occurs when reading the signature field from the PDF document.
+
+* The type cast issue no longer occurs when flattening the signature in a specific PDF document.
+
+## [26.1.40] - 07/02/2024
+
+**Bugs**
+
+* High memory consumption will no longer occur while extracting text from large PDF documents.
+
+## [26.1.38] - 06/19/2024
+
+**Bugs**
+
+* Extracting text lines now returns the proper bounds for the CID font type in the PDF document.
+
+* Performance issue no longer occurs while extracting text lines from the PDF document.
+
+## [26.1.35] - 06/11/2024
 
 **Features**
 

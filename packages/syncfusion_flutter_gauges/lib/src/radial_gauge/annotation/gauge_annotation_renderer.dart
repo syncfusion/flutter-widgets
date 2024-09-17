@@ -165,19 +165,20 @@ class RenderGaugeAnnotation extends RenderOpacity {
     final double offset = value * _radius;
     final double angle = _calculateActualAngle();
     final double radian = getDegreeToRadian(angle);
+    final double axisHalfWidth = positionFactor == 1 ? _actualAxisWidth / 2 : 0;
     if (!axisRenderer!.canScaleToFit) {
       final double x = (_axisSize.width / 2) +
-          (offset - (_actualAxisWidth / 2)) * math.cos(radian) -
+          (offset - axisHalfWidth) * math.cos(radian) -
           _centerXPoint;
       final double y = (_axisSize.height / 2) +
-          (offset - (_actualAxisWidth / 2)) * math.sin(radian) -
+          (offset - axisHalfWidth) * math.sin(radian) -
           _centerYPoint;
       _annotationPosition = Offset(x, y);
     } else {
       final double x =
-          _axisCenter.dx + (offset - (_actualAxisWidth / 2)) * math.cos(radian);
+          _axisCenter.dx + (offset - axisHalfWidth) * math.cos(radian);
       final double y =
-          _axisCenter.dy + (offset - (_actualAxisWidth / 2)) * math.sin(radian);
+          _axisCenter.dy + (offset - axisHalfWidth) * math.sin(radian);
       _annotationPosition = Offset(x, y);
     }
   }

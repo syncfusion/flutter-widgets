@@ -1,4 +1,6 @@
-part of xlsio;
+import '../general/enums.dart';
+import '../range/range.dart';
+import 'exceltablecolumn.dart';
 
 /// Represents a Table in a Worksheet.
 class ExcelTable {

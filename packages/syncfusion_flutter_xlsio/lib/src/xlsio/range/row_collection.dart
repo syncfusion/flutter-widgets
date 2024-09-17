@@ -1,4 +1,5 @@
-part of xlsio;
+import '../range/row.dart';
+import '../worksheet/worksheet.dart';
 
 /// Represents the worksheet rows.
 class RowCollection {
@@ -73,7 +74,7 @@ class RowCollection {
   }
 
   /// Get a row from rows collection based on row index.
-  Row? _getRow(int rowIndex) {
+  Row? getRow(int rowIndex) {
     for (final Row? row in innerList) {
       if (row != null) {
         if (row.index == rowIndex) {
@@ -85,12 +86,12 @@ class RowCollection {
   }
 
   /// Clear the row.
-  void _clear() {
+  void clear() {
     for (int i = 0; i < _innerList.length; i++) {
       final Row? row = _innerList[i];
       _innerList[i] = null;
       if (row != null) {
-        row._clear();
+        row.clear();
       }
     }
   }

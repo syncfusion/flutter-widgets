@@ -265,10 +265,10 @@ class _RenderSparkAreaChart extends RenderSparkChart {
   }
 
   /// Specifies the low point in series.
-  num? _lowPoint;
+  late num? _lowPoint;
 
   /// Specifies the high point in series.
-  num? _highPoint;
+  late num? _highPoint;
 
   @override
   void processDataSource() {

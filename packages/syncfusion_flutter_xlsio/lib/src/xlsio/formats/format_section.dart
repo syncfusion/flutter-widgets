@@ -1,9 +1,18 @@
-part of xlsio;
+import '../formats/format_tokens/enums.dart';
+import '../formats/format_tokens/format_token_base.dart';
+import '../formats/format_tokens/hour_token.dart';
+import '../formats/format_tokens/milli_second_token.dart';
+import '../formats/format_tokens/month_token.dart';
+import '../formats/format_tokens/second_token.dart';
+import '../general/culture_info.dart';
+import '../general/enums.dart';
+import '../general/workbook.dart';
+import '../worksheet/worksheet.dart';
 
 /// Class used for Format Section.
-class _FormatSection {
+class FormatSection {
   /// Initializes a new instance of the FormatSection class based on array of tokens.
-  _FormatSection(Workbook workbook, List<_FormatTokenBase> arrTokens) {
+  FormatSection(Workbook workbook, List<FormatTokenBase> arrTokens) {
     _workbook = workbook;
     _arrTokens = arrTokens;
     _prepareFormat();
@@ -11,105 +20,105 @@ class _FormatSection {
 
   /// Table for token type detection. Value in TokenType arrays must be sorted.
   final List<dynamic> _defultPossibleTokens = <dynamic>[
-    <_TokenType>[
-      _TokenType.unknown,
-      _TokenType.string,
-      _TokenType.reservedPlace,
-      _TokenType.character,
-      _TokenType.color
+    <TokenType>[
+      TokenType.unknown,
+      TokenType.string,
+      TokenType.reservedPlace,
+      TokenType.character,
+      TokenType.color
     ],
     ExcelFormatType.unknown,
-    <_TokenType>[_TokenType.general, _TokenType.culture],
+    <TokenType>[TokenType.general, TokenType.culture],
     ExcelFormatType.general,
-    <_TokenType>[
-      _TokenType.unknown,
-      _TokenType.string,
-      _TokenType.reservedPlace,
-      _TokenType.character,
-      _TokenType.color,
-      _TokenType.condition,
-      _TokenType.text,
-      _TokenType.asterix,
-      _TokenType.culture,
+    <TokenType>[
+      TokenType.unknown,
+      TokenType.string,
+      TokenType.reservedPlace,
+      TokenType.character,
+      TokenType.color,
+      TokenType.condition,
+      TokenType.text,
+      TokenType.asterix,
+      TokenType.culture,
     ],
     ExcelFormatType.text,
-    <_TokenType>[
-      _TokenType.unknown,
-      _TokenType.string,
-      _TokenType.reservedPlace,
-      _TokenType.character,
-      _TokenType.color,
-      _TokenType.condition,
-      _TokenType.significantDigit,
-      _TokenType.insignificantDigit,
-      _TokenType.placeReservedDigit,
-      _TokenType.percent,
-      _TokenType.scientific,
-      _TokenType.thousandsSeparator,
-      _TokenType.decimalPoint,
-      _TokenType.asterix,
-      _TokenType.fraction,
-      _TokenType.culture,
-      _TokenType.dollar,
+    <TokenType>[
+      TokenType.unknown,
+      TokenType.string,
+      TokenType.reservedPlace,
+      TokenType.character,
+      TokenType.color,
+      TokenType.condition,
+      TokenType.significantDigit,
+      TokenType.insignificantDigit,
+      TokenType.placeReservedDigit,
+      TokenType.percent,
+      TokenType.scientific,
+      TokenType.thousandsSeparator,
+      TokenType.decimalPoint,
+      TokenType.asterix,
+      TokenType.fraction,
+      TokenType.culture,
+      TokenType.dollar,
     ],
     ExcelFormatType.number,
-    <_TokenType>[
-      _TokenType.unknown,
-      _TokenType.day,
-      _TokenType.string,
-      _TokenType.reservedPlace,
-      _TokenType.character,
-      _TokenType.color,
-      _TokenType.condition,
-      _TokenType.significantDigit,
-      _TokenType.insignificantDigit,
-      _TokenType.placeReservedDigit,
-      _TokenType.percent,
-      _TokenType.scientific,
-      _TokenType.thousandsSeparator,
-      _TokenType.decimalPoint,
-      _TokenType.asterix,
-      _TokenType.fraction,
-      _TokenType.culture,
-      _TokenType.dollar,
+    <TokenType>[
+      TokenType.unknown,
+      TokenType.day,
+      TokenType.string,
+      TokenType.reservedPlace,
+      TokenType.character,
+      TokenType.color,
+      TokenType.condition,
+      TokenType.significantDigit,
+      TokenType.insignificantDigit,
+      TokenType.placeReservedDigit,
+      TokenType.percent,
+      TokenType.scientific,
+      TokenType.thousandsSeparator,
+      TokenType.decimalPoint,
+      TokenType.asterix,
+      TokenType.fraction,
+      TokenType.culture,
+      TokenType.dollar,
     ],
     ExcelFormatType.number,
-    <_TokenType>[
-      _TokenType.unknown,
-      _TokenType.hour,
-      _TokenType.hour24,
-      _TokenType.minute,
-      _TokenType.minuteTotal,
-      _TokenType.second,
-      _TokenType.secondTotal,
-      _TokenType.year,
-      _TokenType.month,
-      _TokenType.day,
-      _TokenType.string,
-      _TokenType.reservedPlace,
-      _TokenType.character,
-      _TokenType.amPm,
-      _TokenType.color,
-      _TokenType.condition,
-      _TokenType.significantDigit,
-      _TokenType.decimalPoint,
-      _TokenType.asterix,
-      _TokenType.fraction,
-      _TokenType.culture,
+    <TokenType>[
+      TokenType.unknown,
+      TokenType.hour,
+      TokenType.hour24,
+      TokenType.minute,
+      TokenType.minuteTotal,
+      TokenType.second,
+      TokenType.secondTotal,
+      TokenType.year,
+      TokenType.month,
+      TokenType.day,
+      TokenType.string,
+      TokenType.reservedPlace,
+      TokenType.character,
+      TokenType.amPm,
+      TokenType.color,
+      TokenType.condition,
+      TokenType.significantDigit,
+      TokenType.decimalPoint,
+      TokenType.asterix,
+      TokenType.fraction,
+      TokenType.culture,
     ],
     ExcelFormatType.dateTime
   ];
 
   /// Break tokens when locating hour token.
-  final List<_TokenType> _defultBreakHour = <_TokenType>[_TokenType.minute];
+  final List<TokenType> _defultBreakHour = <TokenType>[TokenType.minute];
 
   /// Break tokens when locating second token.
-  final List<_TokenType> _defultBreakSecond = <_TokenType>[
-    _TokenType.minute,
-    _TokenType.hour,
-    _TokenType.day,
-    _TokenType.month,
-    _TokenType.year,
+  final List<TokenType> _defultBreakSecond = <TokenType>[
+    TokenType.minute,
+    TokenType.hour,
+    TokenType.day,
+    TokenType.month,
+    TokenType.year,
   ];
 
   /// Return this value when element wasn't found.
@@ -117,14 +126,14 @@ class _FormatSection {
 
   /// Possible digit tokens in the millisecond token.
   final List<dynamic> _defultMilliSecondTokens = <dynamic>[
-    _TokenType.significantDigit,
+    TokenType.significantDigit,
   ];
 
   /// Maximum month token length.
   final int _defultMonthTokenLength = 5;
 
   /// Array of tokens.
-  late List<_FormatTokenBase> _arrTokens;
+  late List<FormatTokenBase> _arrTokens;
 
   /// Indicates whether format is prepared.
   bool _bFormatPrepared = false;
@@ -154,7 +163,7 @@ class _FormatSection {
   bool _bMultiplePoints = false;
 
   /// Indicates whether the milli second format having the value.
-  bool _isMilliSecondFormatValue = false;
+  bool isMilliSecondFormatValue = false;
 
   /// Represents the workbook.
   late Workbook _workbook;
@@ -198,21 +207,21 @@ class _FormatSection {
 
     final int len = _count;
     for (int i = 0; i < len; i++) {
-      final _FormatTokenBase token = _arrTokens[i];
+      final FormatTokenBase token = _arrTokens[i];
 
-      switch (token._tokenType) {
-        case _TokenType.amPm:
-          final _HourToken? hour = _findCorrespondingHourSection(i);
+      switch (token.tokenType) {
+        case TokenType.amPm:
+          final HourToken? hour = _findCorrespondingHourSection(i);
           if (hour != null) {
-            hour._isAmPm = true;
+            hour.isAmPm = true;
           }
           break;
 
-        case _TokenType.minute:
+        case TokenType.minute:
           _checkMinuteToken(i);
           break;
 
-        case _TokenType.decimalPoint:
+        case TokenType.decimalPoint:
           if (_iDecimalPointPos < 0) {
             _iDecimalPointPos = _assignPosition(_iDecimalPointPos, i);
           } else {
@@ -220,19 +229,19 @@ class _FormatSection {
           }
           break;
 
-        case _TokenType.scientific:
+        case TokenType.scientific:
           _iScientificPos = _assignPosition(_iScientificPos, i);
           break;
 
-        case _TokenType.significantDigit:
-        case _TokenType.insignificantDigit:
-        case _TokenType.placeReservedDigit:
+        case TokenType.significantDigit:
+        case TokenType.insignificantDigit:
+        case TokenType.placeReservedDigit:
           if (!bDigit) {
             bDigit = true;
           }
           break;
 
-        case _TokenType.fraction:
+        case TokenType.fraction:
           if (_iFractionPos < 0) {
             _iFractionPos = i;
             _bFraction = true;
@@ -241,36 +250,36 @@ class _FormatSection {
           }
           break;
 
-        case _TokenType.unknown:
-        case _TokenType.section:
-        case _TokenType.hour:
-        case _TokenType.hour24:
-        case _TokenType.minuteTotal:
-        case _TokenType.second:
-        case _TokenType.secondTotal:
-        case _TokenType.year:
-        case _TokenType.month:
-        case _TokenType.day:
-        case _TokenType.string:
-        case _TokenType.reservedPlace:
-        case _TokenType.character:
-        case _TokenType.color:
-        case _TokenType.condition:
-        case _TokenType.text:
-        case _TokenType.percent:
-        case _TokenType.general:
-        case _TokenType.thousandsSeparator:
-        case _TokenType.asterix:
-        case _TokenType.milliSecond:
-        case _TokenType.culture:
-        case _TokenType.dollar:
+        case TokenType.unknown:
+        case TokenType.section:
+        case TokenType.hour:
+        case TokenType.hour24:
+        case TokenType.minuteTotal:
+        case TokenType.second:
+        case TokenType.secondTotal:
+        case TokenType.year:
+        case TokenType.month:
+        case TokenType.day:
+        case TokenType.string:
+        case TokenType.reservedPlace:
+        case TokenType.character:
+        case TokenType.color:
+        case TokenType.condition:
+        case TokenType.text:
+        case TokenType.percent:
+        case TokenType.general:
+        case TokenType.thousandsSeparator:
+        case TokenType.asterix:
+        case TokenType.milliSecond:
+        case TokenType.culture:
+        case TokenType.dollar:
           break;
       }
     }
   }
 
   /// Searches for corresponding hour token.
-  _HourToken? _findCorrespondingHourSection(int index) {
+  HourToken? _findCorrespondingHourSection(int index) {
     int i = index;
 
     do {
@@ -279,10 +288,10 @@ class _FormatSection {
         i += _count;
       }
 
-      final _FormatTokenBase token = _arrTokens[i];
+      final FormatTokenBase token = _arrTokens[i];
 
-      if (token._tokenType == _TokenType.hour) {
-        return token as _HourToken;
+      if (token.tokenType == TokenType.hour) {
+        return token as HourToken;
       }
     } while (i != index);
 
@@ -290,7 +299,7 @@ class _FormatSection {
   }
 
   /// Applies format to the value.
-  String _applyFormat(double value, bool bShowReservedSymbols) {
+  String applyFormat(double value, bool bShowReservedSymbols) {
     _prepareFormat();
     value = _prepareValue(value, bShowReservedSymbols);
 
@@ -308,7 +317,7 @@ class _FormatSection {
     strResult = _applyFormatNumber(value, bShowReservedSymbols, 0, _iIntegerEnd,
         false, _bGroupDigits, bAddNegative);
 
-    strResult = Worksheet._convertSecondsMinutesToHours(strResult, value);
+    strResult = Worksheet.convertSecondsMinutesToHours(strResult, value);
 
     if (_bFraction) {
       dFractionValue = value;
@@ -344,25 +353,25 @@ class _FormatSection {
     final double originalValue = value;
 
     for (int i = iStart; _checkCondition(iEnd, bForward, i); i += iDelta) {
-      final _FormatTokenBase token = _arrTokens[i];
+      final FormatTokenBase token = _arrTokens[i];
       final double tempValue = originalValue;
       String strTokenResult =
-          token._applyFormat(tempValue, bShowReservedSymbols, culture, this);
+          token.applyFormat(tempValue, bShowReservedSymbols, culture, this);
 
       //If the Month token length is 5 , Ms Excel consider as 1.
-      if (token is _MonthToken &&
-          token._format.length == _defultMonthTokenLength) {
+      if (token is MonthToken &&
+          token.format.length == _defultMonthTokenLength) {
         strTokenResult = strTokenResult.substring(0, 1);
       }
 
-      if (token is _MilliSecondToken) {
+      if (token is MilliSecondToken) {
         final int milliSecond = int.parse(strTokenResult.substring(1));
-        if (token._format == '0' && milliSecond >= 5) {
-          _isMilliSecondFormatValue = true;
-        } else if (token._format == '00' && milliSecond >= 50) {
-          _isMilliSecondFormatValue = true;
-        } else if (token._format == '000' && milliSecond >= 500) {
-          _isMilliSecondFormatValue = true;
+        if (token.format == '0' && milliSecond >= 5) {
+          isMilliSecondFormatValue = true;
+        } else if (token.format == '00' && milliSecond >= 50) {
+          isMilliSecondFormatValue = true;
+        } else if (token.format == '000' && milliSecond >= 500) {
+          isMilliSecondFormatValue = true;
         }
       }
 
@@ -385,9 +394,9 @@ class _FormatSection {
   double _prepareValue(double value, bool bShowReservedSymbols) {
     final int len = _count;
     for (int i = 0; i < len; i++) {
-      final _FormatTokenBase token = _arrTokens[i];
+      final FormatTokenBase token = _arrTokens[i];
 
-      if (token._tokenType == _TokenType.percent) {
+      if (token.tokenType == TokenType.percent) {
         value *= 100;
       }
     }
@@ -400,8 +409,8 @@ class _FormatSection {
 
     final int len = _defultPossibleTokens.length;
     for (int i = 0; i < len; i += 2) {
-      final List<_TokenType> arrPossibleTokens =
-          _defultPossibleTokens[i] as List<_TokenType>;
+      final List<TokenType> arrPossibleTokens =
+          _defultPossibleTokens[i] as List<TokenType>;
       final ExcelFormatType formatType =
           _defultPossibleTokens[i + 1] as ExcelFormatType;
 
@@ -417,7 +426,7 @@ class _FormatSection {
   }
 
   /// Checks whether section contains only specified token types.
-  bool _checkTokenTypes(List<_TokenType> arrPossibleTokens) {
+  bool _checkTokenTypes(List<TokenType> arrPossibleTokens) {
     final int iCount = _count;
     if (iCount == 0 && arrPossibleTokens.isEmpty) {
       return true;
@@ -425,9 +434,9 @@ class _FormatSection {
 
     final int len = iCount;
     for (int i = 0; i < len; i++) {
-      final _FormatTokenBase token = _arrTokens[i];
+      final FormatTokenBase token = _arrTokens[i];
 
-      if (!_containsIn(arrPossibleTokens, token._tokenType)) {
+      if (!_containsIn(arrPossibleTokens, token.tokenType)) {
         return false;
       }
     }
@@ -440,36 +449,36 @@ class _FormatSection {
     // Here we should check whether this token is really minute token
     // or it is month token. It can be minute token if it has hour
     // section before it or second section after it.
-    final _FormatTokenBase token = _arrTokens[iTokenIndex];
+    final FormatTokenBase token = _arrTokens[iTokenIndex];
 
-    if (token._tokenType != _TokenType.minute) {
+    if (token.tokenType != TokenType.minute) {
       final Error error = ArgumentError('Wrong token type.');
       throw error;
     }
 
     final bool bMinute = (_findTimeToken(iTokenIndex - 1, _defultBreakHour,
-                false, <_TokenType>[_TokenType.hour, _TokenType.hour24]) !=
+                false, <TokenType>[TokenType.hour, TokenType.hour24]) !=
             -1) ||
         (_findTimeToken(iTokenIndex + 1, _defultBreakSecond, true,
-                <_TokenType>[_TokenType.second, _TokenType.secondTotal]) !=
+                <TokenType>[TokenType.second, TokenType.secondTotal]) !=
             -1);
 
     if (!bMinute) {
-      final _MonthToken month = _MonthToken();
-      month._format = token._format;
+      final MonthToken month = MonthToken();
+      month.format = token.format;
       _arrTokens[iTokenIndex] = month;
     }
   }
 
   /// Searches for required time token.
-  int _findTimeToken(int iTokenIndex, List<_TokenType> arrBreakTypes,
-      bool bForward, List<_TokenType> arrTypes) {
+  int _findTimeToken(int iTokenIndex, List<TokenType> arrBreakTypes,
+      bool bForward, List<TokenType> arrTypes) {
     final int iCount = _count;
     final int iDelta = bForward ? 1 : -1;
 
     while (iTokenIndex >= 0 && iTokenIndex < iCount) {
-      final _FormatTokenBase token = _arrTokens[iTokenIndex];
-      final _TokenType tokenType = token._tokenType;
+      final FormatTokenBase token = _arrTokens[iTokenIndex];
+      final TokenType tokenType = token.tokenType;
 
       if (arrBreakTypes.contains(tokenType)) {
         break;
@@ -492,24 +501,23 @@ class _FormatSection {
     int iCount = _count;
 
     for (int i = 0; i < iCount; i++) {
-      final _FormatTokenBase token = _arrTokens[i];
+      final FormatTokenBase token = _arrTokens[i];
 
-      if (token._tokenType == _TokenType.decimalPoint) {
+      if (token.tokenType == TokenType.decimalPoint) {
         final int iStartIndex = i;
         String strFormat = '';
 
         i++;
         while (i < iCount &&
             // ignore: prefer_contains
-            (_defultMilliSecondTokens.indexOf(_arrTokens[i]._tokenType) !=
-                -1)) {
-          strFormat += _arrTokens[i]._format;
+            (_defultMilliSecondTokens.indexOf(_arrTokens[i].tokenType) != -1)) {
+          strFormat += _arrTokens[i].format;
           i++;
         }
 
         if (i != iStartIndex + 1) {
-          final _MilliSecondToken milli = _MilliSecondToken();
-          milli._format = strFormat;
+          final MilliSecondToken milli = MilliSecondToken();
+          milli.format = strFormat;
           final int iRemoveCount = i - iStartIndex;
           _arrTokens.removeRange(iStartIndex, iStartIndex + iRemoveCount);
           _arrTokens.insert(iStartIndex, milli);
@@ -524,32 +532,32 @@ class _FormatSection {
     }
 
     for (int i = 0; i < iCount; i++) {
-      final _FormatTokenBase token = _arrTokens[i];
+      final FormatTokenBase token = _arrTokens[i];
 
-      if (token._tokenType == _TokenType.second) {
-        (token as _SecondToken)._roundValue = false;
+      if (token.tokenType == TokenType.second) {
+        (token as SecondToken).roundValue = false;
       }
     }
   }
 
   /// Indicates whether type of specified token is in the array of tokens.
-  bool _containsIn(List<_TokenType> arrPossibleTokens, _TokenType token) {
+  bool _containsIn(List<TokenType> arrPossibleTokens, TokenType token) {
     int iFirstIndex = 0;
     int iLastIndex = arrPossibleTokens.length - 1;
 
     while (iLastIndex != iFirstIndex) {
       final double iMiddleIndex = (iLastIndex + iFirstIndex) / 2;
-      final _TokenType curToken = arrPossibleTokens[iMiddleIndex.floor()];
+      final TokenType curToken = arrPossibleTokens[iMiddleIndex.floor()];
 
-      if (_TokenType.values.indexOf(curToken) >=
-          _TokenType.values.indexOf(token)) {
+      if (TokenType.values.indexOf(curToken) >=
+          TokenType.values.indexOf(token)) {
         if (iLastIndex == iMiddleIndex.floor()) {
           break;
         }
 
         iLastIndex = iMiddleIndex.floor();
-      } else if (_TokenType.values.indexOf(curToken) <
-          _TokenType.values.indexOf(token)) {
+      } else if (TokenType.values.indexOf(curToken) <
+          TokenType.values.indexOf(token)) {
         if (iFirstIndex == iMiddleIndex.floor()) {
           break;
         }
@@ -563,7 +571,7 @@ class _FormatSection {
   }
 
   /// Rounds value.
-  static double _round(double value) {
+  static double round(double value) {
     final bool bLargerThanZero = value >= 0;
     double dIntPart =
         bLargerThanZero ? value.floor().toDouble() : value.ceil().toDouble();
@@ -580,7 +588,7 @@ class _FormatSection {
     return dIntPart;
   }
 
-  void _clear() {
+  void clear() {
     _arrTokens.clear();
   }
 }

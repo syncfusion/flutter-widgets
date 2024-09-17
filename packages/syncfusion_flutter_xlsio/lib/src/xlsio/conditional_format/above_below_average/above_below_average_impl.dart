@@ -1,8 +1,9 @@
-part of xlsio;
+import '../../general/enums.dart';
+import '../above_below_average/above_below_average.dart';
 
 /// Represents the top or bottom conditional formatting rule.
 /// Applying this rule to a range helps you highlight the top or bottom 'n' cells from the selected range
-class _AboveBelowAverageImpl implements AboveBelowAverage {
+class AboveBelowAverageImpl implements AboveBelowAverage {
   /// Specifies whether the conditional formatting rule looks for cell values above or below the range average or standard deviation.
   ExcelCFAverageType _averageType = ExcelCFAverageType.above;
 

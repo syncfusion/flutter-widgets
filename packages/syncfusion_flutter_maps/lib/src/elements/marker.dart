@@ -13,6 +13,7 @@ import '../utils.dart';
 // ignore_for_file: public_member_api_docs
 class MarkerContainer extends Stack {
   MarkerContainer({
+    super.key,
     required this.markerTooltipBuilder,
     required this.controller,
     required this.themeData,

@@ -242,7 +242,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         <ChartValueMapper<T, num>>[],
         <List<num>>[],
         <List<num>>[],
-        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <ChartValueMapper<T, Object?>>[_sizeByMapper],
         <List<Object?>>[_sizes],
       );
     } else {
@@ -250,7 +250,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         <ChartValueMapper<T, num>>[],
         <List<num>>[],
         <List<num>>[],
-        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <ChartValueMapper<T, Object?>>[_sizeByMapper],
         <List<Object?>>[_chaoticSizes],
         <List<Object?>>[_sizes],
       );
@@ -285,7 +285,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         <ChartValueMapper<T, num>>[],
         <List<num>>[],
         <List<num>>[],
-        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <ChartValueMapper<T, Object?>>[_sizeByMapper],
         <List<Object?>>[_sizes],
       );
     } else {
@@ -297,7 +297,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         <ChartValueMapper<T, num>>[],
         <List<num>>[],
         <List<num>>[],
-        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <ChartValueMapper<T, Object?>>[_sizeByMapper],
         <List<Object?>>[_chaoticSizes],
         <List<Object?>>[_sizes],
       );
@@ -322,7 +322,13 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     super.populateChartPoints(positions: positions, yLists: yLists);
   }
 
-  num _defaultSize(T type, num value) => minimumRadius;
+  num _sizeByMapper(T type, int value) {
+    if (sizeValueMapper != null) {
+      final num? fValue = sizeValueMapper!(type, value);
+      return fValue ?? minimumRadius;
+    }
+    return minimumRadius;
+  }
 
   @override
   void setData(int index, ChartSegment segment) {

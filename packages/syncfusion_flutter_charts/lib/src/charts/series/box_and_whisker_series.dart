@@ -359,7 +359,7 @@ class BoxAndWhiskerSeriesRenderer<T, D>
     List<List<num>>? yLists,
   }) {
     chartPoints.clear();
-    if (parent == null || yLists == null || yLists.isEmpty) {
+    if (parent == null) {
       return;
     }
 
@@ -369,35 +369,9 @@ class BoxAndWhiskerSeriesRenderer<T, D>
       return;
     }
 
-    yLists = <List<num>>[
-      minimumValues,
-      maximumValues,
-      lowerValues,
-      upperValues,
-      medianValues,
-      meanValues,
-    ];
-    positions = <ChartDataPointType>[
-      ChartDataPointType.low,
-      ChartDataPointType.high,
-      ChartDataPointType.open,
-      ChartDataPointType.close,
-      ChartDataPointType.median,
-      ChartDataPointType.mean,
-    ];
-    final int yLength = yLists.length;
-    if (positions.length != yLength) {
-      return;
-    }
-
     for (int i = 0; i < dataCount; i++) {
-      final num xValue = xValues[i];
       final CartesianChartPoint<D> point =
-          CartesianChartPoint<D>(x: xRawValues[index], xValue: xValue);
-      for (int j = 0; j < yLength; j++) {
-        point[positions[j]] = yLists[j][i];
-      }
-      point[ChartDataPointType.outliers] = outliersValues[i];
+          CartesianChartPoint<D>(x: xRawValues[i], xValue: xValues[i]);
       chartPoints.add(point);
     }
   }
@@ -429,6 +403,17 @@ class BoxAndWhiskerSeriesRenderer<T, D>
       } else {
         outliersValues.add(boxPlotValues.outliers!);
       }
+    }
+
+    if (chartPoints.isNotEmpty && chartPoints.length > index) {
+      (chartPoints[index] as CartesianChartPoint)
+        ..maximum = maximum
+        ..minimum = minimum
+        ..lowerQuartile = lowerQuartile
+        ..upperQuartile = upperQuartile
+        ..mean = mean
+        ..median = median
+        ..outliers = boxPlotValues.outliers;
     }
 
     segment as BoxAndWhiskerSegment<T, D>
@@ -504,6 +489,11 @@ class BoxAndWhiskerSeriesRenderer<T, D>
         ..sortedIndexes = sortedIndexes
         ..animation = dataLabelAnimation
         ..layout(constraints);
+
+      if (dataLabelSettings.isVisible &&
+          dataLabelSettings.labelIntersectAction != LabelIntersectAction.none) {
+        dataLabelContainer!.handleDataLabelCollision(this);
+      }
     }
   }
 
@@ -1110,12 +1100,12 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
 
     final Rect? paintRect =
         Rect.lerp(_oldSegmentRect, segmentRect, animationFactor);
-    if (paintRect == null || paintRect.isEmpty) {
+    if (paintRect == null) {
       return;
     }
 
     final Paint fillPaint = getFillPaint();
-    if (fillPaint.color != Colors.transparent) {
+    if (fillPaint.color != Colors.transparent && !paintRect.isEmpty) {
       canvas.drawRect(paintRect, fillPaint);
     }
 

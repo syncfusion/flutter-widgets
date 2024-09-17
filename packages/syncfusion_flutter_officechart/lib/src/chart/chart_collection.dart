@@ -1,4 +1,7 @@
-part of officechart;
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import 'package:xml/xml.dart';
+
+import '../../officechart.dart';
 
 /// Represents the worksheet rows.
 class ChartCollection extends ChartHelper {
@@ -55,11 +58,11 @@ class ChartCollection extends ChartHelper {
   /// ```
   Chart add() {
     final Chart chart = Chart(_worksheet);
-    chart._series = ChartSeriesCollection(_worksheet, chart);
-    chart._primaryCategoryAxis = ChartCategoryAxis(_worksheet, chart);
-    chart._primaryValueAxis = ChartValueAxis(_worksheet, chart);
-    chart._primaryValueAxis.hasMajorGridLines = true;
-    chart._plotArea = ChartPlotArea(_worksheet, chart);
+    chart.series = ChartSeriesCollection(_worksheet, chart);
+    chart.primaryCategoryAxis = ChartCategoryAxis(_worksheet, chart);
+    chart.primaryValueAxis = ChartValueAxis(_worksheet, chart);
+    chart.primaryValueAxis.hasMajorGridLines = true;
+    chart.plotArea = ChartPlotArea(_worksheet, chart);
     innerList.add(chart);
     chart.name = 'Chart${innerList.length}';
     chart.index = innerList.length;
@@ -78,7 +81,7 @@ class ChartCollection extends ChartHelper {
   void serializeChartsSync(Worksheet sheet) {
     _chartSerialization ??= ChartSerialization(sheet.workbook);
 
-    _chartSerialization!._saveCharts(sheet);
+    _chartSerialization!.saveCharts(sheet);
   }
 
   /// Serialize the charts.
@@ -86,7 +89,7 @@ class ChartCollection extends ChartHelper {
   Future<void> serializeCharts(Worksheet sheet) async {
     _chartSerialization ??= ChartSerialization(sheet.workbook);
 
-    _chartSerialization!._saveChartsAsync(sheet);
+    _chartSerialization!.saveChartsAsync(sheet);
   }
 
   /// Serialize the chart drawings.
@@ -94,7 +97,7 @@ class ChartCollection extends ChartHelper {
   void serializeChartDrawingSync(XmlBuilder builder, Worksheet sheet) {
     _chartSerialization ??= ChartSerialization(sheet.workbook);
 
-    _chartSerialization!._serializeChartDrawing(builder, sheet);
+    _chartSerialization!.serializeChartDrawing(builder, sheet);
   }
 
   /// Serialize the chart drawings.
@@ -103,6 +106,6 @@ class ChartCollection extends ChartHelper {
       XmlBuilder builder, Worksheet sheet) async {
     _chartSerialization ??= ChartSerialization(sheet.workbook);
 
-    _chartSerialization!._serializeChartDrawingAsync(builder, sheet);
+    _chartSerialization!.serializeChartDrawingAsync(builder, sheet);
   }
 }

@@ -69,8 +69,8 @@ class AesEncryptor {
   /// internal constructor
   AesEncryptor(List<int> key, List<int> iv, bool isEncryption) {
     initialize();
-    _aes = Aes(
-        key.length == _blockSize ? _KeySize.bits128 : _KeySize.bits256, key);
+    _aes =
+        Aes(key.length == _blockSize ? KeySize.bits128 : KeySize.bits256, key);
     List.copyRange(_buf, 0, iv, 0, iv.length);
     List.copyRange(_cbcV!, 0, iv, 0, iv.length);
     if (isEncryption) {
@@ -207,16 +207,17 @@ class AesEncryptor {
 /// internal class
 class Aes {
   /// internal constructor
-  Aes(_KeySize keySize, List<int> keyBytes) {
+  // ignore: library_private_types_in_public_api
+  Aes(KeySize keySize, List<int> keyBytes) {
     _keySize = keySize;
     nb = 4;
-    if (_keySize == _KeySize.bits128) {
+    if (_keySize == KeySize.bits128) {
       nk = 4;
       nr = 10;
-    } else if (_keySize == _KeySize.bits192) {
+    } else if (_keySize == KeySize.bits192) {
       nk = 6;
       nr = 12;
-    } else if (_keySize == _KeySize.bits256) {
+    } else if (_keySize == KeySize.bits256) {
       nk = 8;
       nr = 14;
     }
@@ -226,7 +227,7 @@ class Aes {
   }
 
   //Fields
-  _KeySize? _keySize;
+  KeySize? _keySize;
 
   /// internal field
   late int nb;
@@ -1132,7 +1133,7 @@ class Aes {
 }
 
 /// Specifies the key size of AES.
-enum _KeySize {
+enum KeySize {
   /// 128 Bit.
   bits128,
 

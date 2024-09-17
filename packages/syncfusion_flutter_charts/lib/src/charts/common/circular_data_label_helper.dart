@@ -481,9 +481,7 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
               margin,
               shiftedConnectorPath,
               endPoint,
-              point.dataLabelSize,
-              // To avoid the extra padding added to the exact template size.
-              null)!;
+              point.dataLabelSize)!;
         } else {
           point.trimmedText = null;
         }

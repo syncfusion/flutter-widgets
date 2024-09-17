@@ -47,7 +47,7 @@ class SparkChartTrackballRenderer extends StatefulWidget {
 class _SparkChartTrackballRendererState
     extends State<SparkChartTrackballRenderer> {
   /// Holds the trackball repaint notifier.
-  ValueNotifier<int>? _trackballRepaintNotifier;
+  late ValueNotifier<int>? _trackballRepaintNotifier;
 
   /// Specifies whether the track ball is enabled.
   bool _isTrackballEnabled = false;
@@ -59,7 +59,7 @@ class _SparkChartTrackballRendererState
   Rect? _areaBounds;
 
   /// Specifies the local rect.
-  Rect? _localBounds;
+  late Rect? _localBounds;
 
   /// Specifies the nearest point index.
   int? _currentIndex;
@@ -190,7 +190,7 @@ class _SparkChartTrackballRendererState
 
   /// Method to enable the trackball behavior.
   void _enableTrackballBehavior(BuildContext context, Offset globalPosition) {
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final RenderBox renderBox = context.findRenderObject()! as RenderBox;
     final Size renderBoxSize = renderBox.size;
     final Offset renderBoxOffset = renderBox.localToGlobal(Offset.zero);
     _areaBounds = Rect.fromLTWH(renderBoxOffset.dx, renderBoxOffset.dy,
@@ -223,7 +223,7 @@ class _SparkChartTrackballRendererState
     _isTop = false;
     int? index;
     if (_isTrackballEnabled) {
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
       _touchPosition = renderBox.globalToLocal(globalPosition);
       final double currentXPoint = _touchPosition!.dx;
       double xPoint;

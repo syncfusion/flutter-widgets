@@ -414,8 +414,10 @@ class RenderPyramidDataLabelStack<T, D> extends RenderChartElementStack {
         child.layout(constraints, parentUsesSize: true);
         currentChildData.offset =
             series!.dataLabelPosition(currentChildData, child.size);
-        currentChildData.offset +=
+        final Offset offset =
             _invokeDataLabelRender(currentChildData.dataPointIndex);
+        currentChildData.offset = Offset(currentChildData.offset.dx + offset.dx,
+            currentChildData.offset.dy - offset.dy);
         // TODO(Praveen): Builder works only for inner and outer position,
         // Need to handle for intersection.
         child = nextSibling;
@@ -428,8 +430,10 @@ class RenderPyramidDataLabelStack<T, D> extends RenderChartElementStack {
           ..dataPointIndex = currentLabel.dataPointIndex
           ..position = currentLabel.position;
         final DataLabelText details = currentLabel.child as DataLabelText;
-        currentLabel.offset =
+        final Offset offset =
             _invokeDataLabelRender(currentLabel.dataPointIndex, details);
+        currentLabel.offset = Offset(currentLabel.offset.dx + offset.dx,
+            currentLabel.offset.dy - offset.dy);
         currentLabel.size = measureText(details.text, details.textStyle);
         currentLabel.offset +=
             series!.dataLabelPosition(currentLabelData, currentLabel.size);
@@ -477,7 +481,7 @@ class RenderPyramidDataLabelStack<T, D> extends RenderChartElementStack {
       return dataLabelArgs.offset;
     }
 
-    return Offset.zero;
+    return settings.offset;
   }
 
   @override

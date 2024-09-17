@@ -1,4 +1,5 @@
-part of xlsio;
+import 'range.dart';
+import 'row.dart';
 
 /// Represents the worksheet rows.
 class RangeCollection {
@@ -62,18 +63,18 @@ class RangeCollection {
 
   /// Add row to the row collection.
   Range add() {
-    final Range range = Range(_row._worksheet);
+    final Range range = Range(_row.worksheet);
     innerList.add(range);
     range.row = range.lastRow = _row.index;
-    range._index = range.column = range.lastColumn = innerList.length;
+    range.index = range.column = range.lastColumn = innerList.length;
     return range;
   }
 
   /// Get a cell from cells collection based on column.
-  Range? _getCell(int columnIndex) {
+  Range? getCell(int columnIndex) {
     for (final Range? range in innerList) {
       if (range != null) {
-        if (range._index == columnIndex) {
+        if (range.index == columnIndex) {
           return range;
         }
       }
@@ -82,13 +83,13 @@ class RangeCollection {
   }
 
   /// clear the Range.
-  void _clear() {
+  void clear() {
     for (int i = 0; i < _innerList.length; i++) {
       final Range? range = _innerList[i];
       _innerList[i] = null;
 
       if (range != null) {
-        range._clear();
+        range.clear();
       }
     }
     _innerList.clear();

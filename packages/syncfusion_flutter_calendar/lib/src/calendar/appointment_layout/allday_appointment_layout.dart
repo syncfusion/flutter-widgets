@@ -31,7 +31,8 @@ class AllDayAppointmentLayout extends StatefulWidget {
       this.width,
       this.height,
       this.localizations,
-      this.updateCalendarState);
+      this.updateCalendarState,
+      {super.key});
 
   /// Holds the calendar instance used the get the properties of calendar.
   final SfCalendar calendar;

@@ -1,10 +1,16 @@
-part of xlsio;
+import 'dart:ui';
+
+import '../formats/format.dart';
+import '../general/enums.dart';
+import '../general/workbook.dart';
+import 'borders.dart';
+import 'style.dart';
 
 /// Represent the Cell style class.
 class CellStyle implements Style {
   /// Creates an new instances of the Workbook.
   CellStyle(Workbook workbook, [String? name]) {
-    _book = workbook;
+    book = workbook;
     backColor = '#FFFFFF';
     fontName = 'Calibri';
     fontSize = 11;
@@ -18,11 +24,11 @@ class CellStyle implements Style {
     indent = 0;
     rotation = 0;
     numberFormat = 'General';
-    _builtinId = 0;
-    borders = BordersCollection(_book);
+    builtinId = 0;
+    borders = BordersCollection(book);
     isGlobalStyle = false;
     locked = true;
-    _borders = BordersCollection(_book);
+    _borders = BordersCollection(book);
     if (name != null) {
       this.name = name;
     }
@@ -123,9 +129,9 @@ class CellStyle implements Style {
   late int numberFormatIndex;
 
   /// Represents the workbook.
-  late Workbook _book;
+  late Workbook book;
 
-  int _builtinId = 0;
+  int builtinId = 0;
 
   @override
 
@@ -148,33 +154,33 @@ class CellStyle implements Style {
 
   /// Gets number format object.
   // ignore: library_private_types_in_public_api
-  _Format get numberFormatObject {
+  Format get numberFormatObject {
     //MS Excel sets 14th index by default if the index is out of range for any the datatype.
     //So, using the same here in XlsIO.
-    if (_book.innerFormats.count > 14 &&
-        !_book.innerFormats._contains(numberFormatIndex)) {
+    if (book.innerFormats.count > 14 &&
+        !book.innerFormats.contains(numberFormatIndex)) {
       numberFormatIndex = 14;
     }
-    return _book.innerFormats[numberFormatIndex];
+    return book.innerFormats[numberFormatIndex];
   }
 
   @override
 
   /// Returns or sets the format code for the object. Read/write String.
   String? get numberFormat {
-    return numberFormatObject._formatString;
+    return numberFormatObject.formatString;
   }
 
   @override
 
   /// Sets the number format.
   set numberFormat(String? value) {
-    numberFormatIndex = _book.innerFormats._findOrCreateFormat(value);
+    numberFormatIndex = book.innerFormats.findOrCreateFormat(value);
   }
 
   /// Represents the wookbook
-  Workbook get _workbook {
-    return _book;
+  Workbook get workbook {
+    return book;
   }
 
   Color _backColorRgb = const Color.fromARGB(255, 0, 0, 0);
@@ -206,8 +212,8 @@ class CellStyle implements Style {
   }
 
   /// clone method of cell style
-  CellStyle _clone() {
-    final CellStyle cellStyle = CellStyle(_workbook);
+  CellStyle clone() {
+    final CellStyle cellStyle = CellStyle(workbook);
     cellStyle.name = name;
     cellStyle.backColor = backColor;
     cellStyle.fontName = fontName;
@@ -222,12 +228,12 @@ class CellStyle implements Style {
     cellStyle.indent = indent;
     cellStyle.rotation = rotation;
     cellStyle.index = index;
-    cellStyle._builtinId = _builtinId;
+    cellStyle.builtinId = builtinId;
     cellStyle.numberFormat = numberFormat;
     cellStyle.numberFormatIndex = numberFormatIndex;
     cellStyle.isGlobalStyle = isGlobalStyle;
     cellStyle.locked = locked;
-    cellStyle.borders = (borders as BordersCollection)._clone();
+    cellStyle.borders = (borders as BordersCollection).clone();
     cellStyle.backColorRgb = backColorRgb;
     cellStyle.fontColorRgb = fontColorRgb;
     return cellStyle;
@@ -278,7 +284,7 @@ class CellStyle implements Style {
         indent,
         rotation,
         index,
-        _builtinId,
+        builtinId,
         numberFormat,
         numberFormatIndex,
         isGlobalStyle,
@@ -287,7 +293,7 @@ class CellStyle implements Style {
       );
 
   /// clear the borders
-  void _clear() {
-    _borders._clear();
+  void clear() {
+    _borders.clear();
   }
 }

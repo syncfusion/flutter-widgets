@@ -17,7 +17,7 @@ class TextElement {
   //constructor
   /// internal constructor
   TextElement(this.text, MatrixHelper? transformMatrix) {
-    transformations = _TransformationStack(transformMatrix);
+    transformations = TransformationStack(transformMatrix);
     _initialize();
   }
 
@@ -26,7 +26,7 @@ class TextElement {
   late String text;
 
   /// internal field
-  late _TransformationStack transformations;
+  late TransformationStack transformations;
 
   /// internal field
   late List<Glyph> textElementGlyphList;
@@ -928,6 +928,8 @@ class TextElement {
         systemFontGlyph =
             fontGlyphWidths![letter.codeUnitAt(0)]! * charSizeMultiplier;
       }
+    } else if (defaultGlyphWidth != null && defaultGlyphWidth! > 0) {
+      systemFontGlyph = defaultGlyphWidth! * charSizeMultiplier;
     }
     gly.width = (systemFontGlyph == null) ? 0 : systemFontGlyph;
     final MatrixHelper identity = MatrixHelper(1, 0, 0, 1, 0, 0);
@@ -1019,8 +1021,8 @@ class TextElement {
   }
 }
 
-class _TransformationStack {
-  _TransformationStack([MatrixHelper? transformMatrix]) {
+class TransformationStack {
+  TransformationStack([MatrixHelper? transformMatrix]) {
     _initialTransform = (transformMatrix != null)
         ? transformMatrix
         : MatrixHelper(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
