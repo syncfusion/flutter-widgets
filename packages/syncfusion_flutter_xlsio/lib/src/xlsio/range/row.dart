@@ -1,15 +1,16 @@
-part of xlsio;
+import '../worksheet/worksheet.dart';
+import 'range_collection.dart';
 
 /// Represents the worksheet row.
 class Row {
   /// Create an instance of Row.
   Row(Worksheet sheet) {
     _worksheet = sheet;
-    _isHidden = false;
+    isHidden = false;
   }
 
   ///Represents the indicate wheather row hide or not.
-  late bool _isHidden;
+  late bool isHidden;
 
   /// Represents the row height.
   double height = 0;
@@ -35,9 +36,9 @@ class Row {
   }
 
   /// clear the row.
-  void _clear() {
+  void clear() {
     if (_ranges != null) {
-      _ranges!._clear();
+      _ranges!.clear();
     }
   }
 }

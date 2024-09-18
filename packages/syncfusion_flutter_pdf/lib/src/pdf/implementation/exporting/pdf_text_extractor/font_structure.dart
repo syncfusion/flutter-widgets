@@ -61,7 +61,7 @@ class FontStructure {
       }
     }
     _fontStyle = <PdfFontStyle>[PdfFontStyle.regular];
-    defaultGlyphWidth = 0;
+    defaultGlyphWidth = isCid ? 1000 : 0;
     _containsCmap = true;
     differenceEncoding = <int, String>{};
   }
@@ -175,6 +175,9 @@ class FontStructure {
   late List<String> cjkEncoding;
   late List<String> _windows1252MapTable;
 
+  /// internal field
+  bool isLayout = false;
+
 //Properties
   /// internal property
   String? get fontEncoding => _fontEncoding ??= getFontEncoding();
@@ -253,10 +256,12 @@ class FontStructure {
 
   /// internal property
   Map<int, int>? get fontGlyphWidths {
-    if (fontEncoding == 'Identity-H' || fontEncoding == 'Identity#2DH') {
-      _getGlyphWidths();
-    } else {
-      _getGlyphWidthsNonIdH();
+    if (_fontGlyphWidth == null) {
+      if (fontEncoding == 'Identity-H' || fontEncoding == 'Identity#2DH') {
+        _getGlyphWidths();
+      } else {
+        _getGlyphWidthsNonIdH();
+      }
     }
     return _fontGlyphWidth;
   }
@@ -2913,10 +2918,11 @@ class FontStructure {
             if (cidToGidTable != null && !isTextExtraction) {
               listElement = mapCidToGid(listElement);
             }
-            if (encodedText
-                .substring(textEnd + 1, encodedText.length)
-                .trim()
-                .isEmpty) {
+            if (!isLayout &&
+                encodedText
+                    .substring(textEnd + 1, encodedText.length)
+                    .trim()
+                    .isEmpty) {
               listElement = listElement.trimRight();
             }
             if (listElement.contains(RegExp('[\n-\r]'))) {

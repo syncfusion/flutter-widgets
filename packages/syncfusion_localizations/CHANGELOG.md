@@ -1,3 +1,9 @@
+## Unreleased
+
+**General**
+
+* The compatible version of our Flutter localizations widget has been updated to Flutter SDK 3.24.0.
+
 ## [24.1.46] - 17/01/2024
 
 **General**

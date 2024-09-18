@@ -542,12 +542,17 @@ class StepAreaSegment<T, D> extends ChartSegment {
   @override
   TrackballInfo? trackballInfo(Offset position, int pointIndex) {
     if (pointIndex != -1 && points.isNotEmpty) {
-      final Offset preferredPos = points[pointIndex];
+      final int drawPointIndex = drawIndex(pointIndex, _drawIndexes);
+      if (drawPointIndex == -1) {
+        return null;
+      }
+
+      final Offset preferredPos = points[drawPointIndex];
       if (preferredPos.isNaN) {
         return null;
       }
 
-      final int actualPointIndex = _drawIndexes[pointIndex];
+      final int actualPointIndex = _drawIndexes[drawPointIndex];
       final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       return ChartTrackballInfo<T, D>(
         position: preferredPos,

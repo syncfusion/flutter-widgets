@@ -1,4 +1,7 @@
-part of officechart;
+// ignore_for_file: unnecessary_getters_setters
+
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import '../../officechart.dart';
 
 /// Represents a chart sheet in the workbook.
 class Chart {
@@ -236,7 +239,7 @@ class Chart {
   set chartType(ExcelChartType value) {
     _chartType = value;
     if (!_chartType.toString().contains('area')) {
-      _primaryCategoryAxis._isBetween = true;
+      _primaryCategoryAxis.isBetween = true;
     }
     if (value.toString().endsWith('3D')) {
       _is3DChart = true;
@@ -492,17 +495,37 @@ class Chart {
   }
 
   /// Gets a boolean value indicating whether the chart has plot area.
-  bool get _hasPlotArea {
+  bool get hasPlotArea {
     return _plotArea != null;
   }
 
+  // ignore: public_member_api_docs
+  bool get is3DChart {
+    return _is3DChart;
+  }
+
+  // ignore: public_member_api_docs
+  bool get isdefaultElevation {
+    return _isdefaultElevation;
+  }
+
+  // ignore: public_member_api_docs
+  bool get isDefaultRotation {
+    return _isDefaultRotation;
+  }
+
+  // ignore: public_member_api_docs
+  bool get isColumnOrBar {
+    return _isColumnOrBar;
+  }
+
   /// True if chart has a category axis. False otherwise. Read-only.
-  bool get _isCategoryAxisAvail {
+  bool get isCategoryAxisAvail {
     return true;
   }
 
   /// True if chart has a value axis. False otherwise. Read-only.
-  bool get _isValueAxisAvail {
+  bool get isValueAxisAvail {
     return true;
   }
 
@@ -648,9 +671,38 @@ class Chart {
     return _series;
   }
 
+  set series(ChartSeriesCollection value) {
+    _series = value;
+  }
+
   /// Gets the data range for the chart series.
   Range? get dataRange {
     return _dataRange;
+  }
+
+  ///Set the primaryCategoryAxis
+  set primaryCategoryAxis(ChartCategoryAxis value) {
+    _primaryCategoryAxis = value;
+  }
+
+  ///Set the primaryValueAxis
+  set primaryValueAxis(ChartValueAxis value) {
+    _primaryValueAxis = value;
+  }
+
+  ///Set the chart plot area
+  set plotArea(ChartPlotArea value) {
+    _plotArea = value;
+  }
+
+  // ignore: public_member_api_docs
+  set worksheet(Worksheet value) {
+    _worksheet = value;
+  }
+
+  // ignore: public_member_api_docs
+  Worksheet get worksheet {
+    return _worksheet;
   }
 
   /// sets the data range for the chart series.
@@ -971,7 +1023,7 @@ class Chart {
   /// This method is called if DataRange was changed.
   void _onDataRangeChanged(ExcelChartType type) {
     if (_dataRange == null) {
-      _series._clear();
+      _series.clear();
       return;
     }
 
@@ -986,7 +1038,7 @@ class Chart {
       throw error;
     }
 
-    primaryCategoryAxis._categoryLabels = axisRange;
+    primaryCategoryAxis.categoryLabels = axisRange;
     int iIndex = 0;
 
     if (serieNameRange != null && axisRange != null) {
@@ -1076,11 +1128,11 @@ class Chart {
 
       final ChartSerie serie = series[i];
       serie.name = 'Serie${i + 1}';
-      serie._index = i;
+      serie.index = i;
       int iAddIndex = iIndex;
-      serie._values = value;
-      serie._isDefaultName = true;
+      serie.values = value;
       if (serieNameRange != null) {
+        serie.isDefaultName = true;
         iAddIndex +=
             isSeriesInRows ? serieNameRange.row : serieNameRange.column;
 
@@ -1093,7 +1145,7 @@ class Chart {
                 .getRangeByIndex(serieNameRange.row, iAddIndex + i,
                     serieNameRange.lastRow, iAddIndex + i)
                 .addressGlobal;
-        serie._nameOrFormula = formula;
+        serie.nameOrFormula = formula;
         formula = isSeriesInRows
             ? sheet
                 .getRangeByIndex(iAddIndex + i, serieNameRange.column,
@@ -1128,7 +1180,7 @@ class Chart {
       if (bRemove) {
         _series.innerList.removeAt(iLen - i + iStart - 1);
       } else {
-        _series._add();
+        _series.add();
       }
     }
     return true;
@@ -1144,13 +1196,28 @@ class Chart {
     return _stackedCharts.contains(chartType);
   }
 
+  // ignore: public_member_api_docs
+  bool getIsStacked(ExcelChartType chartType) {
+    return _getIsStacked(chartType);
+  }
+
   /// Indicates whether if given chart type is clustered chart or not.
   bool _getIsClustered(ExcelChartType chartType) {
     return _chartsCluster.contains(chartType);
   }
 
+  // ignore: public_member_api_docs
+  bool getIsClustered(ExcelChartType chartType) {
+    return _getIsClustered(chartType);
+  }
+
   /// Indicates whether if given chart type is clustered chart or not.
   bool _getIs100(ExcelChartType chartType) {
     return _charts100.contains(chartType);
+  }
+
+  // ignore: public_member_api_docs
+  bool getIs100(ExcelChartType chartType) {
+    return _getIs100(chartType);
   }
 }

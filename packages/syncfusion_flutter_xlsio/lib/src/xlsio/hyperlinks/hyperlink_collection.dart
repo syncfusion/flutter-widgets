@@ -1,4 +1,8 @@
-part of xlsio;
+import '../general/enums.dart';
+import '../images/picture.dart';
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'hyperlink.dart';
 
 /// Represents Worksheet Hyperlink collection.
 class HyperlinkCollection {
@@ -46,9 +50,9 @@ class HyperlinkCollection {
   Hyperlink add(Range range, HyperlinkType linkType, String address,
       [String? screenTip, String? textToDisplay]) {
     final Hyperlink hyperlink = Hyperlink(_worksheet);
-    hyperlink._bHyperlinkStyle = range.builtInStyle = BuiltInStyles.hyperlink;
-    hyperlink._row = range.row;
-    hyperlink._column = range.column;
+    hyperlink.isHyperlinkStyle = range.builtInStyle = BuiltInStyles.hyperlink;
+    hyperlink.row = range.row;
+    hyperlink.column = range.column;
     hyperlink.type = linkType;
     hyperlink.address = address;
     if (screenTip != null) {
@@ -57,7 +61,7 @@ class HyperlinkCollection {
     if (textToDisplay != null) {
       hyperlink.textToDisplay = textToDisplay;
     }
-    hyperlink._attachedType = ExcelHyperlinkAttachedType.range;
+    hyperlink.attachedType = ExcelHyperlinkAttachedType.range;
     addHyperlink(hyperlink);
     return hyperlink;
   }
@@ -87,8 +91,8 @@ class HyperlinkCollection {
     if (screenTip != null) {
       hyperlink.screenTip = screenTip;
     }
-    hyperlink._attachedType = ExcelHyperlinkAttachedType.shape;
-    picture._isHyperlink = true;
+    hyperlink.attachedType = ExcelHyperlinkAttachedType.shape;
+    picture.isHyperlink = true;
     picture.hyperlink = hyperlink;
     addHyperlink(hyperlink);
     return hyperlink;

@@ -86,43 +86,35 @@ class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
   }
 
   /// Builds the combo box form field widget.
-  Widget build(BuildContext context, double heightPercentage,
-      {required Function(Offset) onTap}) {
+  Widget build(BuildContext context, double heightPercentage) {
     return Positioned(
       left: bounds.left / heightPercentage,
       top: bounds.top / heightPercentage,
       width: bounds.width / heightPercentage,
       height: bounds.height / heightPercentage,
-      child: Listener(
-        onPointerUp: (PointerUpEvent event) {
-          onTap(event.localPosition.translate(
-              bounds.left / heightPercentage, bounds.top / heightPercentage));
-        },
-        child: PdfComboBox(
-          bounds: bounds,
-          heightPercentage: heightPercentage,
-          items: comboBoxFormField._items,
-          selectedItem: comboBoxFormField._selectedItem,
-          readOnly: comboBoxFormField.readOnly,
-          font: pdfComboBoxField.font?.name,
-          fillColor: pdfComboBoxField.backColor.isEmpty
-              ? const Color.fromARGB(255, 221, 228, 255)
-              : Color.fromRGBO(
-                  pdfComboBoxField.backColor.r,
-                  pdfComboBoxField.backColor.g,
-                  pdfComboBoxField.backColor.b,
-                  1),
-          borderColor: pdfComboBoxField.borderColor.isEmpty
-              ? Colors.transparent
-              : Color.fromRGBO(
-                  pdfComboBoxField.borderColor.r,
-                  pdfComboBoxField.borderColor.g,
-                  pdfComboBoxField.borderColor.b,
-                  1),
-          borderWidth: pdfComboBoxField.borderWidth / heightPercentage,
-          fontSize: (pdfComboBoxField.font?.size ?? 14.0) / heightPercentage,
-          onValueChanged: invokeValueChanged,
-        ),
+      child: PdfComboBox(
+        bounds: bounds,
+        heightPercentage: heightPercentage,
+        items: comboBoxFormField._items,
+        selectedItem: comboBoxFormField._selectedItem,
+        readOnly: comboBoxFormField.readOnly,
+        font: pdfComboBoxField.font?.name,
+        textAlign: pdfComboBoxField.textAlignment.textAlign,
+        alignment: pdfComboBoxField.textAlignment.alignmentGeometry,
+        fillColor: pdfComboBoxField.backColor.isEmpty
+            ? const Color.fromARGB(255, 221, 228, 255)
+            : Color.fromRGBO(pdfComboBoxField.backColor.r,
+                pdfComboBoxField.backColor.g, pdfComboBoxField.backColor.b, 1),
+        borderColor: pdfComboBoxField.borderColor.isEmpty
+            ? Colors.transparent
+            : Color.fromRGBO(
+                pdfComboBoxField.borderColor.r,
+                pdfComboBoxField.borderColor.g,
+                pdfComboBoxField.borderColor.b,
+                1),
+        borderWidth: pdfComboBoxField.borderWidth / heightPercentage,
+        fontSize: (pdfComboBoxField.font?.size ?? 14.0) / heightPercentage,
+        onValueChanged: invokeValueChanged,
       ),
     );
   }
@@ -143,6 +135,8 @@ class PdfComboBox extends StatefulWidget {
       this.onValueChanged,
       required this.borderColor,
       required this.borderWidth,
+      this.textAlign = TextAlign.left,
+      this.alignment = Alignment.centerLeft,
       super.key});
 
   /// Combo box bounds.
@@ -178,6 +172,12 @@ class PdfComboBox extends StatefulWidget {
   /// Combo box border width
   final double borderWidth;
 
+  /// Combo box text widget alignment
+  final TextAlign textAlign;
+
+  /// Combo box text alignment
+  final AlignmentGeometry alignment;
+
   @override
   State<PdfComboBox> createState() => _PdfComboBoxState();
 }
@@ -193,14 +193,17 @@ class _PdfComboBoxState extends State<PdfComboBox> {
             border: Border.all(
                 color: widget.borderColor, width: widget.borderWidth)),
         child: DropdownButton<String>(
+          alignment: widget.alignment,
           value: widget.selectedItem.isNotEmpty ? widget.selectedItem : null,
           items: widget.items.map((String value) {
             return DropdownMenuItem<String>(
+              alignment: widget.alignment,
               value: value,
               child: Tooltip(
                 excludeFromSemantics: true,
                 message: value,
                 child: Text(
+                  textAlign: widget.textAlign,
                   value,
                   style: const TextStyle(fontSize: 16.0),
                   overflow: TextOverflow.ellipsis,
@@ -222,9 +225,10 @@ class _PdfComboBoxState extends State<PdfComboBox> {
               return Padding(
                 padding: EdgeInsets.only(left: 2 / widget.heightPercentage),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: widget.alignment,
                   child: Text(
                     value,
+                    textAlign: widget.textAlign,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: widget.fontSize,

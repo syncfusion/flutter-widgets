@@ -192,11 +192,12 @@ class StackedBarSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
     } else if (alignment == ChartDataLabelAlignment.middle) {
       y = (y + (y - stackValue)) / 2;
     }
-    return _calculateDataLabelPosition(x, y, alignment, size);
+    return _calculateDataLabelPosition(
+        x, y, alignment, size, current.y!.isNegative);
   }
 
-  Offset _calculateDataLabelPosition(
-      num x, num y, ChartDataLabelAlignment alignment, Size size) {
+  Offset _calculateDataLabelPosition(num x, num y,
+      ChartDataLabelAlignment alignment, Size size, bool isNegative) {
     final EdgeInsets margin = dataLabelSettings.margin;
     double translationX = 0.0;
     double translationY = 0.0;
@@ -205,21 +206,29 @@ class StackedBarSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
       case ChartDataLabelAlignment.outer:
       case ChartDataLabelAlignment.bottom:
         if (isTransposed) {
-          translationX = dataLabelPadding;
+          translationX = isNegative
+              ? -(dataLabelPadding + size.width + margin.horizontal)
+              : dataLabelPadding;
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = -(dataLabelPadding + size.height + margin.vertical);
+          translationY = isNegative
+              ? dataLabelPadding
+              : -(dataLabelPadding + size.height + margin.vertical);
         }
         return translateTransform(x, y, translationX, translationY);
 
       case ChartDataLabelAlignment.top:
         if (isTransposed) {
-          translationX = -(dataLabelPadding + size.width + margin.horizontal);
+          translationX = isNegative
+              ? dataLabelPadding
+              : -(dataLabelPadding + size.width + margin.horizontal);
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = dataLabelPadding;
+          translationY = isNegative
+              ? -(dataLabelPadding + size.height + margin.vertical)
+              : dataLabelPadding;
         }
         return translateTransform(x, y, translationX, translationY);
 
@@ -432,12 +441,12 @@ class StackedBarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
 
     final RRect? paintRRect =
         RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
-    if (paintRRect == null || paintRRect.isEmpty) {
+    if (paintRRect == null) {
       return;
     }
 
     Paint paint = getFillPaint();
-    if (paint.color != Colors.transparent) {
+    if (paint.color != Colors.transparent && !paintRRect.isEmpty) {
       canvas.drawRRect(paintRRect, paint);
     }
 

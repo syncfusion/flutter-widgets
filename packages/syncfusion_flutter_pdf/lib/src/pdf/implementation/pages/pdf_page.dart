@@ -778,11 +778,11 @@ class PdfPageHelper {
 
   /// internal method
   void createAnnotations(List<int> widgetReferences) {
-    PdfArray? annots;
+    IPdfPrimitive? annots;
     if (dictionary!.containsKey(PdfDictionaryProperties.annots)) {
-      annots = crossTable!
-          .getObject(dictionary![PdfDictionaryProperties.annots]) as PdfArray?;
-      if (annots != null) {
+      annots =
+          crossTable!.getObject(dictionary![PdfDictionaryProperties.annots]);
+      if (annots != null && annots is PdfArray) {
         for (int count = 0; count < annots.count; ++count) {
           PdfDictionary? annotDictionary;
           if (crossTable!.getObject(annots[count]) is PdfDictionary) {

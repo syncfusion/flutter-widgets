@@ -447,7 +447,7 @@ class WmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         }
 
         final double x = xValues[i].toDouble();
-        final double y = (weightedSum / sumOfPeriods).toDouble();
+        final double y = weightedSum / sumOfPeriods;
         xMinimum = min(xMinimum, x);
         xMaximum = max(xMaximum, x);
         yMinimum = min(yMinimum, y);

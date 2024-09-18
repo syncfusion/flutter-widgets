@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import '../../interfaces/pdf_interface.dart';
 import '../annotations/fdf_parser.dart';
+import '../pdf_document/pdf_document.dart';
 import '../primitives/pdf_array.dart';
 import '../primitives/pdf_boolean.dart';
 import '../primitives/pdf_dictionary.dart';
@@ -444,11 +445,11 @@ class PdfParser {
           text = String.fromCharCodes(_processEscapes(text));
         }
       }
-    } else {
-      if (_isColorSpace) {
-        text = String.fromCharCodes(_processEscapes(text));
-      }
-      text = 'ColorFound$text';
+    } else if ((_crossTable != null &&
+            _crossTable!.document != null &&
+            PdfDocumentHelper.getHelper(_crossTable!.document!).isEncrypted) ||
+        _isColorSpace) {
+      text = String.fromCharCodes(_processEscapes(text));
     }
     final PdfString str = PdfString(text);
     if (_isColorSpace) {
@@ -594,7 +595,7 @@ class PdfParser {
   IPdfPrimitive _hexString() {
     _match(_next, PdfTokenType.hexStringStart);
     advance();
-    String sb = '';
+    final StringBuffer sb = StringBuffer();
     bool isHex = true;
     while (_next != PdfTokenType.hexStringEnd) {
       String text = _lexer!.text;
@@ -604,12 +605,12 @@ class PdfParser {
         isHex = false;
         text = text.substring(1);
       }
-      sb += text;
+      sb.write(text);
       advance();
     }
     _match(_next, PdfTokenType.hexStringEnd);
     advance();
-    final PdfString result = PdfString(sb, !isHex);
+    final PdfString result = PdfString(sb.toString(), !isHex);
     if (_isColorSpace) {
       result.isColorSpace = true;
     }

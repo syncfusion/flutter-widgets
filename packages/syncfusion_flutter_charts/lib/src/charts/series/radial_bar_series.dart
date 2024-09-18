@@ -391,6 +391,17 @@ class RadialBarSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
     return legendItems;
   }
 
+  @override
+  void handleLegendItemTapped(LegendItem item, bool isToggled) {
+    super.handleLegendItemTapped(item, isToggled);
+    // Resets `_isLegendToggled` to `true` to handle legend inner and outer radius animations.
+    if (item is ChartLegendItem && item.pointIndex != -1) {
+      final RadialBarSegment segment =
+          segmentAt(item.pointIndex) as RadialBarSegment;
+      segment._isLegendToggled = true;
+    }
+  }
+
   void _handleLegendItemCreated(ItemRendererDetails details) {
     if (parent != null && parent!.onLegendItemRender != null) {
       final ChartLegendItem item = details.item as ChartLegendItem;
@@ -541,6 +552,11 @@ class RadialBarSegment<T, D> extends ChartSegment {
   double _priorInnerRadius = double.nan;
   double _priorOuterRadius = double.nan;
 
+  /// The `_isLegendToggled` field is used to manage animations in the radial bar series.
+  /// Set to `true` when a legend item is tapped to trigger the inner and outer radius animation.
+  /// Reset to `false` to ensure the end angle animation works correctly when data changes.
+  bool _isLegendToggled = false;
+
   double get endAngle => _endAngle;
   double _endAngle = double.nan;
   set endAngle(double value) {
@@ -572,40 +588,51 @@ class RadialBarSegment<T, D> extends ChartSegment {
 
   @override
   void transformValues() {
-    overFilledPath.reset();
-    shadowPath.reset();
+    _reset();
 
-    double degree = _degree * animationFactor;
+    double degree = _degree;
     double startAngle = _startAngle;
     double endAngle = _endAngle;
     double innerRadius = _innerRadius;
     double outerRadius = _outerRadius;
 
-    if (!_priorInnerRadius.isNaN && !_priorOuterRadius.isNaN) {
-      if (isVisible) {
-        innerRadius =
-            lerpDouble(_priorInnerRadius, _innerRadius, animationFactor)!;
-        outerRadius =
-            lerpDouble(_priorOuterRadius, _outerRadius, animationFactor)!;
-      } else {
-        num sumOfY = series.circularYValues
-            .reduce((num value, num element) => value + element.abs());
-        sumOfY = sumOfY - series.circularYValues[currentSegmentIndex];
-        degree = series.circularYValues[currentSegmentIndex] /
-            (series.maximumValue ?? sumOfY);
-        degree = degree * fullAngle;
-        endAngle = _priorEndAngle;
-        innerRadius = _priorInnerRadius +
-            ((_priorOuterRadius + _priorInnerRadius) / 2 - _priorInnerRadius) *
-                animationFactor;
-        outerRadius = _priorOuterRadius -
-            (_priorOuterRadius - (_priorOuterRadius + _priorInnerRadius) / 2) *
-                animationFactor;
-        _innerRadius = innerRadius;
-        _outerRadius = outerRadius;
-      }
+    if (animationFactor == 1) {
+      // Resets `_isLegendToggled` to `false` to handle endAngle animations during dynamically.
+      _isLegendToggled = false;
+    }
+
+    if (!_isLegendToggled &&
+        !degree.isNaN &&
+        !_endAngle.isNaN &&
+        !_priorEndAngle.isNaN &&
+        _priorEndAngle != _endAngle) {
+      // Handles endAngle animation  when the data is reset dynamically.
+      endAngle = lerpDouble(_priorEndAngle, _endAngle, animationFactor)!;
+      degree = endAngle - startAngle;
     } else {
-      endAngle = startAngle + degree;
+      if (!_priorInnerRadius.isNaN && !_priorOuterRadius.isNaN) {
+        // Handles inner and outer radius animation when the legend is toggled.
+        if (isVisible) {
+          innerRadius =
+              lerpDouble(_priorInnerRadius, _innerRadius, animationFactor)!;
+          outerRadius =
+              lerpDouble(_priorOuterRadius, _outerRadius, animationFactor)!;
+        } else {
+          final double halfRadii = (_priorOuterRadius + _priorInnerRadius) / 2;
+          endAngle = _priorEndAngle;
+          degree = endAngle - startAngle;
+          innerRadius = _priorInnerRadius +
+              (halfRadii - _priorInnerRadius) * animationFactor;
+          outerRadius = _priorOuterRadius -
+              (_priorOuterRadius - halfRadii) * animationFactor;
+          _innerRadius = innerRadius;
+          _outerRadius = outerRadius;
+        }
+      } else {
+        // Handles endAngle animation at load time.
+        degree = degree * animationFactor;
+        endAngle = startAngle + degree;
+      }
     }
 
     trackPath = calculateArcPath(
@@ -645,16 +672,17 @@ class RadialBarSegment<T, D> extends ChartSegment {
       }
 
       if (degree > 360 && endAngle >= startAngle + 180) {
-        _calculateShadowPath(endAngle);
+        _calculateShadowPath(endAngle, degree, innerRadius, outerRadius);
       }
     }
   }
 
-  void _calculateShadowPath(double endAngle) {
-    if (_degree > 360) {
-      final double actualRadius = (_innerRadius - _outerRadius).abs() / 2;
+  void _calculateShadowPath(
+      double endAngle, double degree, double innerRadius, double outerRadius) {
+    if (degree > 360) {
+      final double actualRadius = (innerRadius - outerRadius).abs() / 2;
       final Offset midPoint =
-          calculateOffset(endAngle, (_innerRadius + _outerRadius) / 2, _center);
+          calculateOffset(endAngle, (innerRadius + outerRadius) / 2, _center);
       if (actualRadius > 0) {
         double shadowWidth = actualRadius * 0.2;
         const double sigmaRadius = 3 * 0.57735 + 0.5;
@@ -688,14 +716,14 @@ class RadialBarSegment<T, D> extends ChartSegment {
             ..strokeWidth = series.borderWidth;
 
           final Offset shadowStartPoint = calculateOffset(
-              newEndAngle, _outerRadius - (_outerRadius * 0.025), _center);
+              newEndAngle, outerRadius - (outerRadius * 0.025), _center);
           final Offset shadowEndPoint = calculateOffset(
-              newEndAngle, _innerRadius + (_innerRadius * 0.025), _center);
+              newEndAngle, innerRadius + (innerRadius * 0.025), _center);
 
           final Offset overFilledStartPoint =
-              calculateOffset(newEndAngle - 2, _outerRadius, _center);
+              calculateOffset(newEndAngle - 2, outerRadius, _center);
           final Offset overFilledEndPoint =
-              calculateOffset(newEndAngle - 2, _innerRadius, _center);
+              calculateOffset(newEndAngle - 2, innerRadius, _center);
 
           shadowPath
             ..reset()
@@ -777,22 +805,25 @@ class RadialBarSegment<T, D> extends ChartSegment {
       canvas.drawPath(yValuePath, paint);
     }
 
-    if (_shadowPaint != null &&
-        _overFilledPaint != null &&
-        _degree > 360 &&
-        _endAngle >= _startAngle + 180) {
+    if (_shadowPaint != null && _overFilledPaint != null) {
       canvas.drawPath(shadowPath, _shadowPaint!);
       _overFilledPaint!.color = getFillPaint().color;
       canvas.drawPath(overFilledPath, _overFilledPaint!);
     }
   }
 
-  @override
-  void dispose() {
+  void _reset() {
     trackPath.reset();
     yValuePath.reset();
     shadowPath.reset();
     overFilledPath.reset();
+    _shadowPaint = null;
+    _overFilledPaint = null;
+  }
+
+  @override
+  void dispose() {
+    _reset();
     super.dispose();
   }
 }

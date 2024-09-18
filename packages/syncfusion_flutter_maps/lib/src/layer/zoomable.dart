@@ -196,7 +196,7 @@ class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
   late Matrix4 _newMatrix;
   late Offset _startLocalPoint;
 
-  Rect? _boundaryRect;
+  late Rect? _boundaryRect;
   Timer? _doubleTapTimer;
   Size? _size;
   Offset? _matrixStartPoint;

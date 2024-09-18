@@ -15,6 +15,7 @@ import '../helper/datagrid_configuration.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
 import '../helper/datagrid_helper.dart';
 import '../helper/enums.dart';
+import '../helper/selection_helper.dart';
 import '../sfdatagrid.dart';
 import 'generator.dart';
 
@@ -283,7 +284,7 @@ class ColumnSizer {
     _isColumnSizerLoadedInitially = false;
   }
 
-  DataGridStateDetails? _dataGridStateDetails;
+  late DataGridStateDetails? _dataGridStateDetails;
 
   GridColumn? _autoFillColumn;
 
@@ -653,7 +654,7 @@ class ColumnSizer {
             dataGridConfiguration, visibleLines.lastBodyVisibleIndex);
         break;
     }
-    if (startRowIndex <= 0 && endRowIndex <= 0) {
+    if (getFirstRowIndex(dataGridConfiguration) < 0) {
       return column._actualWidth;
     }
 
@@ -1184,7 +1185,11 @@ class ColumnSizer {
     final GridColumn firstVisibleColumn = dataGridConfiguration.columns
         .firstWhere(
             (GridColumn column) => column.visible && column.width != 0.0);
+    final GridColumn lastVisibleColumn = dataGridConfiguration.columns
+        .lastWhere(
+            (GridColumn column) => column.visible && column.width != 0.0);
     bool isFirstColumn = firstVisibleColumn.columnName == column.columnName;
+    final bool isLastColumn = lastVisibleColumn.columnName == column.columnName;
 
     isFirstColumn = isFirstColumn &&
         (dataGridConfiguration.source.groupedColumns.isEmpty ||
@@ -1202,7 +1207,7 @@ class ColumnSizer {
         return Size(isFirstColumn ? (strokeWidth + strokeWidth) : strokeWidth,
             rowIndex == 0 ? strokeWidth : 0);
       case GridLinesVisibility.horizontal:
-        return Size(isFirstColumn ? strokeWidth : 0,
+        return Size((isFirstColumn || isLastColumn) ? strokeWidth : 0,
             rowIndex == 0 ? (strokeWidth + strokeWidth) : strokeWidth);
     }
   }
@@ -1393,7 +1398,7 @@ class ColumnResizeController {
         // Fix:
         // An issue occurred due to not considering the column which is corner clipped by the frozen columns.
         // Now, we have restricted the clipped columns to disable resizing for the columns.
-        if (_resizingLine!.isClippedCorner) {
+        if (_resizingLine!.isClippedCorner && _resizingLine!.clippedSize > 0) {
           return null;
         }
         _ensureDataCell(dx, resizingDataCell);

@@ -1,4 +1,4 @@
-part of xlsio;
+import '../../general/enums.dart';
 
 /// Represents the top or bottom conditional formatting rule.
 /// Applying this rule to a range helps you highlight the top or bottom “n” cells from the selected range.

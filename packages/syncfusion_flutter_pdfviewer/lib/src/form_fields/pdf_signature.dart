@@ -129,52 +129,45 @@ class PdfSignatureFormFieldHelper extends PdfFormFieldHelper {
   }
 
   /// Builds the signature form field widget.
-  Widget build(BuildContext context, double heightPercentage,
-      {required Function(Offset) onTap}) {
+  Widget build(BuildContext context, double heightPercentage) {
     return Positioned(
       left: bounds.left / heightPercentage,
       top: bounds.top / heightPercentage,
       width: bounds.width / heightPercentage,
       height: bounds.height / heightPercentage,
-      child: Listener(
-        onPointerUp: (PointerUpEvent event) {
-          onTap(event.localPosition.translate(
-              bounds.left / heightPercentage, bounds.top / heightPercentage));
-        },
-        child: PdfSignature(
-            bounds: bounds,
-            heightPercentage: heightPercentage,
-            signature: signatureFormField.signature,
-            readOnly: signatureFormField.readOnly,
-            fillColor: pdfSignatureField.backColor.isEmpty
-                ? const Color.fromARGB(255, 221, 228, 255)
-                : Color.fromRGBO(
-                    pdfSignatureField.backColor.r,
-                    pdfSignatureField.backColor.g,
-                    pdfSignatureField.backColor.b,
-                    1),
-            borderColor: pdfSignatureField.borderColor.isEmpty
-                ? Colors.transparent
-                : Color.fromRGBO(
-                    pdfSignatureField.borderColor.r,
-                    pdfSignatureField.borderColor.g,
-                    pdfSignatureField.borderColor.b,
-                    1),
-            borderWidth: pdfSignatureField.borderWidth / heightPercentage,
-            onValueChanged: invokeValueChanged,
-            onSignatureFieldTapDown: (TapDownDetails details) {
-              if (signatureFormField.readOnly) {
-                return;
-              }
-              _onSignatureFieldTapDown();
-            },
-            onSignatureFieldTapUp: (TapUpDetails details) {
-              if (signatureFormField.readOnly || !canShowSignaturePadDialog) {
-                return;
-              }
-              _onSignatureFieldTapUp(context, details, heightPercentage);
-            }),
-      ),
+      child: PdfSignature(
+          bounds: bounds,
+          heightPercentage: heightPercentage,
+          signature: signatureFormField.signature,
+          readOnly: signatureFormField.readOnly,
+          fillColor: pdfSignatureField.backColor.isEmpty
+              ? const Color.fromARGB(255, 221, 228, 255)
+              : Color.fromRGBO(
+                  pdfSignatureField.backColor.r,
+                  pdfSignatureField.backColor.g,
+                  pdfSignatureField.backColor.b,
+                  1),
+          borderColor: pdfSignatureField.borderColor.isEmpty
+              ? Colors.transparent
+              : Color.fromRGBO(
+                  pdfSignatureField.borderColor.r,
+                  pdfSignatureField.borderColor.g,
+                  pdfSignatureField.borderColor.b,
+                  1),
+          borderWidth: pdfSignatureField.borderWidth / heightPercentage,
+          onValueChanged: invokeValueChanged,
+          onSignatureFieldTapDown: (TapDownDetails details) {
+            if (signatureFormField.readOnly) {
+              return;
+            }
+            _onSignatureFieldTapDown();
+          },
+          onSignatureFieldTapUp: (TapUpDetails details) {
+            if (signatureFormField.readOnly || !canShowSignaturePadDialog) {
+              return;
+            }
+            _onSignatureFieldTapUp(context, details, heightPercentage);
+          }),
     );
   }
 }
@@ -370,7 +363,6 @@ void _showSignaturePadDialog(
                             ),
                   ),
                   InkWell(
-                    //ignore: sdk_version_set_literal
                     onTap: () {
                       Navigator.of(context).pop();
                       if (signatureFieldHelper.onFocusChange != null) {

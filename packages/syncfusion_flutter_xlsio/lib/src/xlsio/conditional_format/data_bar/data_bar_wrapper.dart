@@ -1,19 +1,25 @@
-part of xlsio;
+import 'dart:ui';
+
+import '../../general/enums.dart';
+import '../condformat_wrapper.dart';
+import '../condition_value.dart';
+import 'data_bar.dart';
+import 'data_bar_impl.dart';
 
 /// Represents a wrapper over data bar conditional formatting rule. Applying
 /// a data bar to a range helps you see the value of a cell relative to other cells.
-class _DataBarWrapper implements DataBar {
+class DataBarWrapper implements DataBar {
   /// Initializes new instance of the wrapper.
-  _DataBarWrapper(_DataBarImpl dataBar, _ConditionalFormatWrapper format) {
+  DataBarWrapper(DataBarImpl dataBar, ConditionalFormatWrapper format) {
     _wrapped = dataBar;
     _format = format;
   }
 
   /// Wrapped data bar object.
-  late _DataBarImpl _wrapped;
+  late DataBarImpl _wrapped;
 
   /// Parent conditional format wrapper.
-  late _ConditionalFormatWrapper _format;
+  late ConditionalFormatWrapper _format;
 
   /// Returns a ConditionValue object which specifies how the shortest bar is evaluated
   /// for a data bar conditional format.
@@ -244,13 +250,13 @@ class _DataBarWrapper implements DataBar {
 
   /// This method should be called before several updates to the object will take place.
   void _beginUpdate() {
-    _format._beginUpdate();
-    _wrapped = _format._getCondition().dataBar! as _DataBarImpl;
+    _format.beginUpdate();
+    _wrapped = _format.getCondition().dataBar! as DataBarImpl;
   }
 
   /// This method should be called after several updates to the object took place.
   void _endUpdate() {
-    _format._endUpdate();
+    _format.endUpdate();
   }
 
   @override

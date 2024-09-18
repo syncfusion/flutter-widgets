@@ -16,6 +16,7 @@ import 'common/callbacks.dart';
 import 'common/chart_point.dart';
 import 'common/core_legend.dart' as core;
 import 'common/core_tooltip.dart';
+import 'common/element_widget.dart';
 import 'common/legend.dart';
 import 'common/title.dart';
 import 'indicators/technical_indicator.dart';
@@ -1363,7 +1364,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
           trackballBuilderElement.findRenderObject();
       if (renderObject != null &&
           renderObject.attached &&
-          renderObject is RenderConstrainedLayoutBuilder) {
+          renderObject is CustomRenderConstrainedLayoutBuilder) {
         renderObject.markNeedsBuild();
       }
     }
@@ -1457,6 +1458,12 @@ class SfCartesianChartState extends State<SfCartesianChart>
       child: CartesianChartArea(
         legendKey: _legendKey,
         legendItems: _legendItems,
+        isTransposed: isTransposed,
+        crosshairBehavior: widget.crosshairBehavior,
+        trackballBehavior: widget.trackballBehavior,
+        zoomPanBehavior: widget.zoomPanBehavior,
+        hasLoadingIndicator: widget.loadMoreIndicatorBuilder != null ||
+            widget.onPlotAreaSwipe != null,
         onChartTouchInteractionDown: widget.onChartTouchInteractionDown,
         onChartTouchInteractionMove: widget.onChartTouchInteractionMove,
         onChartTouchInteractionUp: widget.onChartTouchInteractionUp,
@@ -1555,7 +1562,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
                   widget.trackballBehavior!.builder != null)
                 TrackballBuilderOpacityWidget(
                   opacity: 1.0,
-                  child: LayoutBuilder(
+                  child: CustomLayoutBuilder(
                     key: _trackballBuilderKey,
                     builder:
                         (BuildContext context, BoxConstraints constraints) {

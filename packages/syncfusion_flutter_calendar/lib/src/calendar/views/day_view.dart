@@ -31,7 +31,8 @@ class TimeSlotWidget extends StatefulWidget {
       this.width,
       this.height,
       this.minDate,
-      this.maxDate);
+      this.maxDate,
+      {super.key});
 
   /// Holds the visible dates collection for current time slot view.
   final List<DateTime> visibleDates;

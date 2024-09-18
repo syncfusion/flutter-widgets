@@ -1,5 +1,3 @@
-part of xlsio;
-
 /// Represents the data cell for importing data.
 ///
 /// The data for each row can be passed as the cells argument to the

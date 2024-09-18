@@ -1,4 +1,5 @@
-part of xlsio;
+import '../general/workbook.dart';
+import 'worksheet.dart';
 
 /// Represents worksheet collection.
 class WorksheetCollection {
@@ -107,22 +108,25 @@ class WorksheetCollection {
   }
 
   /// Clear the worksheet.
-  void _clear() {
+  void clear() {
     for (final Worksheet sheet in _worksheets) {
-      sheet._clear();
+      sheet.clear();
     }
     _worksheets.clear();
   }
 
   /// Represents moving worksheet .
   void moveTo(Worksheet sourceWorksheet, int destinationIndex) {
-    if (innerList.length <= 1)
+    if (innerList.length <= 1) {
       throw Exception('It requires at least two sheets to change positions.');
-    if (innerList.length - 1 < destinationIndex)
+    }
+    if (innerList.length - 1 < destinationIndex) {
       throw Exception(
           'destinationIndex should be in the range of worksheet count');
-    if (destinationIndex < 0)
+    }
+    if (destinationIndex < 0) {
       throw Exception('destinationIndex should be starts from 0');
+    }
 
     if (sourceWorksheet.index - 1 != destinationIndex) {
       final List<Worksheet> tempInnerList = <Worksheet>[];

@@ -23,7 +23,7 @@ class PdfStandardFontMetricsFactory {
   static const double _helveticaBoldAscent = 962;
 
   /// Ascender value for the font.
-  static const double _helveticaBoldDescent = -228;
+  final double _helveticaBoldDescent = -228;
 
   /// Font type
   static const String _helveticaBoldName = 'Helvetica-Bold';
@@ -172,6 +172,8 @@ class PdfStandardFontMetricsFactory {
   static PdfFontMetrics _getHelveticaMetrics(
       PdfFontFamily? fontFamily, int fontStyle, double size) {
     final PdfFontMetrics metrics = PdfFontMetrics();
+    final PdfStandardFontMetricsFactory standardFontMetricsFactory =
+        PdfStandardFontMetricsFactory();
     if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) > 0 &&
         fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) > 0) {
       metrics.ascent = _helveticaBoldItalicAscent;
@@ -184,7 +186,7 @@ class PdfStandardFontMetricsFactory {
     } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) >
         0) {
       metrics.ascent = _helveticaBoldAscent;
-      metrics.descent = _helveticaBoldDescent;
+      metrics.descent = standardFontMetricsFactory._helveticaBoldDescent;
       metrics.postScriptName = _helveticaBoldName;
       metrics.size = size;
       metrics.widthTable =

@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart' show Color;
+import 'package:flutter/material.dart' show Color, Offset;
 
 import '../annotation/annotation.dart';
+import '../annotation/sticky_notes.dart';
+import '../control/enums.dart';
 import '../form_fields/pdf_form_field.dart';
 
 /// The base class for all annotation change commands.
@@ -52,6 +54,19 @@ class AnnotationPropertyChangeTracker extends ChangeCommand {
       annotation.setOpacity(value as double);
     } else if (propertyName == 'isLocked') {
       annotation.setIsLocked(value as bool);
+    } else if (propertyName == 'icon') {
+      if (annotation is StickyNoteAnnotation) {
+        (annotation as StickyNoteAnnotation)
+            .setIcon(value as PdfStickyNoteIcon);
+      }
+    } else if (propertyName == 'position') {
+      if (annotation is StickyNoteAnnotation) {
+        (annotation as StickyNoteAnnotation).setPosition(value as Offset);
+      }
+    } else if (propertyName == 'text') {
+      if (annotation is StickyNoteAnnotation) {
+        (annotation as StickyNoteAnnotation).setText(value as String);
+      }
     }
   }
 }
@@ -105,18 +120,12 @@ class ClearAnnotationsTracker extends ChangeCommand {
 
   @override
   void undo() {
-    // ignore: prefer_foreach
-    for (final Annotation annotation in annotations) {
-      undoCallback(annotation);
-    }
+    annotations.forEach(undoCallback);
   }
 
   @override
   void redo() {
-    // ignore: prefer_foreach
-    for (final Annotation annotation in annotations) {
-      redoCallback(annotation);
-    }
+    annotations.forEach(redoCallback);
   }
 }
 

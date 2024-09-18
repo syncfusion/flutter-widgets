@@ -451,7 +451,7 @@ class SfDataPagerState extends State<SfDataPager> {
   TextDirection _textDirection = TextDirection.ltr;
   Orientation _deviceOrientation = Orientation.landscape;
 
-  DataPagerThemeHelper? _dataPagerThemeHelper;
+  late DataPagerThemeHelper? _dataPagerThemeHelper;
 
   bool _isDirty = false;
   bool _isOrientationChanged = false;

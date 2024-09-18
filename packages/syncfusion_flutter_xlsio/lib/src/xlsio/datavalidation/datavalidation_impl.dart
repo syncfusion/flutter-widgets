@@ -1,13 +1,16 @@
-part of xlsio;
+import '../general/enums.dart';
+import '../range/range.dart';
+import 'datavalidation.dart';
+import 'datavalidation_collection.dart';
 
 /// Represents the class used for storing DataValidationImpl properties
-class _DataValidationImpl implements DataValidation {
+class DataValidationImpl implements DataValidation {
   /// Represents the instance created for DataValidationImpl
-  _DataValidationImpl() {
+  DataValidationImpl() {
     _allowTypeVal = ExcelDataValidationType.any;
     _isListInformulaVal = false;
     _comparisonOperatorVal = ExcelDataValidationComparisonOperator.between;
-    _firstDateTimeVal = DateTime(1);
+    firstDateTimeVal = DateTime(1);
     _secondDateTimeVal = DateTime(1);
     _firstFormulaVal = '';
     _secondFormulaVal = '';
@@ -17,7 +20,7 @@ class _DataValidationImpl implements DataValidation {
     _promptBoxTextVal = '';
     _showPromptBoxVal = true;
     _promptBoxTitleVal = '';
-    _cellRange = '';
+    cellRange = '';
     _isSuppressDropDownArrowVal = false;
     _isEmptyCellAllowedVal = true;
     _errorStyleVal = ExcelDataValidationErrorStyle.stop;
@@ -39,7 +42,7 @@ class _DataValidationImpl implements DataValidation {
   late ExcelDataValidationComparisonOperator _comparisonOperatorVal;
 
   /// Represents the variable used for getting and setting firstDateTime values
-  late DateTime _firstDateTimeVal;
+  late DateTime firstDateTimeVal;
 
   /// Represents the variable used for getting and setting secondDateTime values
   late DateTime _secondDateTimeVal;
@@ -69,8 +72,8 @@ class _DataValidationImpl implements DataValidation {
   late String _promptBoxTitleVal;
 
   /// Represents an instance for DataValidationCollection
-  final _DataValidationCollection _dataValidationCollection =
-      _DataValidationCollection();
+  final DataValidationCollection _dataValidationCollection =
+      DataValidationCollection();
 
   ///Represents the variable used for getting and setting isSuppressDropDownArrow values
   late bool _isSuppressDropDownArrowVal;
@@ -82,19 +85,19 @@ class _DataValidationImpl implements DataValidation {
   late ExcelDataValidationErrorStyle _errorStyleVal;
 
   ///Represents the variable used for getting and setting dataRange values
-  late Range _dataRangeVal;
+  late Range dataRangeVal;
 
   ///Represents the variable used for getting and setting listOfValues values
   late List<String> _listOfValuesVal;
 
   ///Represents the variable used for getting cellRange values
-  late String _cellRange;
+  late String cellRange;
 
   @override
 
   /// gets or sets the dataRange for DataValidation
   set dataRange(Range value) {
-    _dataRangeVal = value;
+    dataRangeVal = value;
     _allowTypeVal = ExcelDataValidationType.user;
   }
 
@@ -102,7 +105,7 @@ class _DataValidationImpl implements DataValidation {
 
   /// gets or sets the dataRange for DataValidation
   Range get dataRange {
-    return _dataRangeVal;
+    return dataRangeVal;
   }
 
   @override
@@ -151,14 +154,14 @@ class _DataValidationImpl implements DataValidation {
 
   /// gets or sets the firstDateTime for DataValidation
   DateTime get firstDateTime {
-    return _firstDateTimeVal;
+    return firstDateTimeVal;
   }
 
   @override
 
   /// gets or sets the firstDateTime for DataValidation
   set firstDateTime(DateTime value) {
-    _firstDateTimeVal = value;
+    firstDateTimeVal = value;
   }
 
   @override
@@ -299,42 +302,42 @@ class _DataValidationImpl implements DataValidation {
 
   /// gets or sets the promptBoxVposition for DataValidation
   set promptBoxVPosition(int value) {
-    _dataValidationCollection._promptBoxVPositionVal = value;
+    _dataValidationCollection.promptBoxVPositionVal = value;
   }
 
   @override
 
   /// gets or sets the promptBoxVposition for DataValidation
   int get promptBoxVPosition {
-    return _dataValidationCollection._promptBoxVPositionVal;
+    return _dataValidationCollection.promptBoxVPositionVal;
   }
 
   @override
 
   /// gets or sets the promptBoxHposition for DataValidation
   set promptBoxHPosition(int value) {
-    _dataValidationCollection._promptBoxHPositionVal = value;
+    _dataValidationCollection.promptBoxHPositionVal = value;
   }
 
   @override
 
   /// gets or sets the promptBoxHposition for DataValidation
   int get promptBoxHPosition {
-    return _dataValidationCollection._promptBoxHPositionVal;
+    return _dataValidationCollection.promptBoxHPositionVal;
   }
 
   @override
 
   /// gets or sets the isPromptBoxPositionFixed for DataValidation
   set isPromptBoxPositionFixed(bool value) {
-    _dataValidationCollection._isPromptBoxPositionFixedVal = value;
+    _dataValidationCollection.isPromptBoxPositionFixedVal = value;
   }
 
   @override
 
   /// gets or sets the isPromptBoxPositionFixed for DataValidation
   bool get isPromptBoxPositionFixed {
-    return _dataValidationCollection._isPromptBoxPositionFixedVal;
+    return _dataValidationCollection.isPromptBoxPositionFixedVal;
   }
 
   @override

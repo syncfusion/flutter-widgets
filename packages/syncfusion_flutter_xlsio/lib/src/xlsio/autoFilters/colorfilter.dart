@@ -1,17 +1,18 @@
 // ignore_for_file: unused_field, unused_element, unnecessary_getters_setters
-
-part of xlsio;
+import '../autoFilters/autofilter_impl.dart';
+import '../general/enums.dart';
+import 'filter.dart';
 
 ///Represent the color filter.
-class _ColorFilter implements _Filter {
+class ColorFilter implements Filter {
   ///Constructor of color filter.
-  _ColorFilter(_AutoFilterImpl filter) {
+  ColorFilter(AutoFilterImpl filter) {
     _autoFilter = filter;
     _colorFilter = ExcelColorFilterType.cellColor;
   }
 
   /// Represent the autoFilter.
-  late _AutoFilterImpl _autoFilter;
+  late AutoFilterImpl _autoFilter;
 
   /// Specifies the color filter type ( Cell Color or Font Color)
   late ExcelColorFilterType _colorFilter;
@@ -21,31 +22,31 @@ class _ColorFilter implements _Filter {
 
   /// Get the filter type.
   @override
-  _ExcelFilterType get _filterType {
-    return _ExcelFilterType.colorFilter;
+  ExcelFilterType get filterType {
+    return ExcelFilterType.colorFilter;
   }
 
   /// Set the filter type.
   @override
-  set _filterType(_ExcelFilterType filterType) {}
+  set filterType(ExcelFilterType filterType) {}
 
   /// Get the color filter type.
-  ExcelColorFilterType get _colorFilterType {
+  ExcelColorFilterType get colorFilterType {
     return _colorFilter;
   }
 
   /// Set the color filter type.
-  set _colorFilterType(ExcelColorFilterType colorFilterType) {
+  set colorFilterType(ExcelColorFilterType colorFilterType) {
     _colorFilter = colorFilterType;
   }
 
   /// Get the color value.
-  String get _color {
+  String get color {
     return _colorValue;
   }
 
   /// Set the filter color value.
-  set _color(String colorValue) {
+  set color(String colorValue) {
     _colorValue = colorValue;
   }
 }

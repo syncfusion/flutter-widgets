@@ -1,9 +1,12 @@
-part of xlsio;
+import '../general/workbook.dart';
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'name.dart';
 
 /// Represents implementations of pagesetup in a worksheet.
-class _NameImpl implements Name {
+class NameImpl implements Name {
   /// Create a instances of tables collection.
-  _NameImpl(Workbook book) {
+  NameImpl(Workbook book) {
     _book = book;
     _index = -1;
     _name = '';
@@ -77,7 +80,9 @@ class _NameImpl implements Name {
   }
 
   @override
-  set isLocal(bool value) {}
+  set isLocal(bool value) {
+    _isLocal = value;
+  }
 
   /// Get the name for the named range.
   @override
@@ -101,9 +106,9 @@ class _NameImpl implements Name {
   @override
   set refersToRange(Range value) {
     _value = value.addressGlobal;
-    _worksheet = value._worksheet;
+    _worksheet = value.worksheet;
     if (_isLocal) {
-      _scope = value._worksheet._name;
+      _scope = value.worksheet.name;
     } else {
       _scope = 'workbook';
     }
@@ -141,7 +146,9 @@ class _NameImpl implements Name {
   }
 
   @override
-  set scope(String value) {}
+  set scope(String value) {
+    _scope = value;
+  }
 
   /// Get parent worksheet of the named range.
   @override

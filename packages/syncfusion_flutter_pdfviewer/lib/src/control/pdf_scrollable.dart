@@ -1,5 +1,3 @@
-// ignore_for_file: use_if_null_to_convert_nulls_to_bools
-
 import 'dart:async';
 import 'dart:ui';
 
@@ -342,6 +340,7 @@ class PdfScrollableState extends State<PdfScrollable> {
     xOffset ??= currentOffset.dx;
     yOffset ??= currentOffset.dy;
     _handlePdfOffsetChanged(Offset(xOffset, yOffset));
+    widget.initiateTileRendering?.call();
   }
 
   /// Handles PDF offset changed and updates the matrix translation based on it.
@@ -364,7 +363,7 @@ class PdfScrollableState extends State<PdfScrollable> {
               widget.pdfViewerController.zoomLevel);
       offset = Offset(
           offset.dx.clamp(
-              _setZoomLevel == true ? -widthFactor : 0, widthFactor.abs()),
+              (_setZoomLevel ?? false) ? -widthFactor : 0, widthFactor.abs()),
           offset.dy.clamp(
               0,
               (widget.pdfDimension.height -
@@ -419,7 +418,7 @@ class PdfScrollableState extends State<PdfScrollable> {
   /// Force the jump without restriction
   void forcePixels(Offset offset, {bool? isZoomInitiated}) {
     //  add post frame restricted ,if the set scaling is progress
-    if (isZoomInitiated == true) {
+    if (isZoomInitiated ?? false) {
       _setPixel(offset);
     } else {
       // add post frame which is jumped once the layout is changed.

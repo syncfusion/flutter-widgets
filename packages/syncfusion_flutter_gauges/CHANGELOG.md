@@ -1,3 +1,23 @@
+## Unreleased
+
+**General**
+
+* The compatible version of our Flutter gauges widget has been updated to Flutter SDK 3.24.0.
+
+## [26.2.4] - 23/07/2024
+
+## Linear Gauge
+
+**Bugs**
+* Now, the [`SfLinearGauge``](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/SfLinearGauge-class.html) properly adjusts its constraints when resizing the screen.
+
+# [26.1.41] - 09/07/2024
+
+## Linear Gauge
+
+**Bugs**
+* Now the bar painter updates properly while dynamically update [`isAxisInversed`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/SfLinearGauge/isAxisInversed.html) property.
+
 ## [25.1.35] - 15/03/2024
 
 **General**

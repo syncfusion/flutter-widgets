@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -201,7 +203,7 @@ class RenderLinearBarPointer extends RenderOpacity {
     }
 
     _isAxisInversed = value;
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   /// Gets the orientation assigned to [RenderLinearBarPointer].
@@ -316,7 +318,8 @@ class RenderLinearBarPointer extends RenderOpacity {
       child!.layout(BoxConstraints.tight(controlSize));
     }
 
-    size = controlSize;
+    size = Size(min(controlSize.width, constraints.maxWidth),
+        min(controlSize.height, constraints.maxHeight));
   }
 
   ///Measures the bar rect.

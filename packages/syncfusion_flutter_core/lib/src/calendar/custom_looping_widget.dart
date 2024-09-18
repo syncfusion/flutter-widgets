@@ -46,7 +46,8 @@ class CustomScrollViewerLayout extends MultiChildRenderObjectWidget {
   ///
   /// ```
   const CustomScrollViewerLayout(List<Widget> children,
-      this._navigationDirection, this._position, this._currentChildIndex)
+      this._navigationDirection, this._position, this._currentChildIndex,
+      {super.key})
       : super(children: children);
   final CustomScrollDirection _navigationDirection;
   final double _position;

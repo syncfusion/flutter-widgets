@@ -1,4 +1,5 @@
-part of officechart;
+import 'chart_impl.dart';
+import 'chart_text_area.dart';
 
 /// Represents an axis on the chart.
 class ChartAxis {
@@ -38,6 +39,16 @@ class ChartAxis {
     _titleArea = value;
   }
 
+  /// Gets the parent chart.
+  Chart get parentChart {
+    return _parentChart;
+  }
+
+  /// Sets the parent chart.
+  set parentChart(Chart? value) {
+    _parentChart = value!;
+  }
+
   /// Gets chart axis title.
   String? get title {
     if (_titleArea == null) {
@@ -52,7 +63,7 @@ class ChartAxis {
   }
 
   /// Gets indicates whether chart axis have title or not.
-  bool get _hasAxisTitle {
+  bool get hasAxisTitle {
     return _titleArea != null;
   }
 
@@ -76,5 +87,15 @@ class ChartAxis {
   set maximumValue(double value) {
     _maximumValue = value;
     _isAutoMax = false;
+  }
+
+  /// Gets indicates whether auto max or not.
+  bool get isAutoMax {
+    return _isAutoMax;
+  }
+
+  // ignore: public_member_api_docs
+  bool get isAutoMin {
+    return _isAutoMin;
   }
 }

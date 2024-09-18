@@ -1,26 +1,29 @@
-part of xlsio;
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'conditionalformat.dart';
+import 'conditionalformat_impl.dart';
 
 /// Collection of conditional formats for the single-cell range.
-class _ConditionalFormatsImpl implements ConditionalFormats {
+class ConditionalFormatsImpl implements ConditionalFormats {
   /// Create a instances of conditionsal collection.
-  _ConditionalFormatsImpl(Worksheet sheet, Range range) {
+  ConditionalFormatsImpl(Worksheet sheet, Range range) {
     _sheet = sheet;
-    conditionalFormat = <_ConditionalFormatImpl>[];
-    _cellList = range._cfValue;
+    conditionalFormat = <ConditionalFormatImpl>[];
+    cellList = range.conditionalFormatValue;
   }
 
   /// list of conditional format
-  late List<_ConditionalFormatImpl> conditionalFormat;
+  late List<ConditionalFormatImpl> conditionalFormat;
 
   /// Conditional format InnerList
-  List<_ConditionalFormatImpl> get innerList {
+  List<ConditionalFormatImpl> get innerList {
     return conditionalFormat;
   }
 
   /// Parent worksheet.
   late Worksheet _sheet;
 
-  late String _cellList;
+  late String cellList;
 
   // Maximum conditional formats number. Depends on current Excel version.
   static const int _maxCFNumber = 2147483647;
@@ -51,16 +54,16 @@ class _ConditionalFormatsImpl implements ConditionalFormats {
     if (count >= _maxCFNumber) {
       throw Exception('Too many conditional formats.');
     }
-    final _ConditionalFormatImpl result =
-        _ConditionalFormatImpl(sheet, _cellList);
-    _addConditionalFormat(result);
-    return result;
+    final ConditionalFormatImpl result = ConditionalFormatImpl(sheet, cellList);
+    addConditionalFormat(result);
+    // ignore: unnecessary_cast
+    return result as ConditionalFormat;
   }
 
   /// Adds new condition to the collection.
-  void _addConditionalFormat(ConditionalFormat? conditionalFormat) {
+  void addConditionalFormat(ConditionalFormat? conditionalFormat) {
     if (conditionalFormat != null) {
-      innerList.add(conditionalFormat as _ConditionalFormatImpl);
+      innerList.add(conditionalFormat as ConditionalFormatImpl);
     }
   }
 }

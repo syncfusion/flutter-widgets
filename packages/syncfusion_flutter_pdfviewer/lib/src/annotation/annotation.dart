@@ -1,7 +1,7 @@
-// ignore_for_file: use_setters_to_change_properties
-
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import '../../pdfviewer.dart';
+import '../common/pdfviewer_helper.dart';
 import 'annotation_view.dart';
 import 'text_markup.dart';
 
@@ -23,10 +23,12 @@ abstract class Annotation extends ChangeNotifier {
   bool _isLocked = false;
   int _pageNumber = -1;
   Rect _boundingBox = Rect.zero;
+  Rect _intermediateBounds = Rect.zero;
   Color _color = Colors.transparent;
   double _opacity = -1;
   int _zOrder = -1;
   bool _isSelected = false;
+  Rect _globalRect = Rect.zero;
   AnnotationPropertyChangedCallback? _onPropertyChanged;
   AnnotationPropertyChangingCallback? _onPropertyChange;
 
@@ -90,13 +92,18 @@ abstract class Annotation extends ChangeNotifier {
 /// Extension methods for [Annotation].
 extension AnnotationExtension on Annotation {
   /// Returns the [Rect] bounds of the [Annotation].
-  Rect get bounds => _boundingBox;
-  set bounds(Rect value) {
-    _boundingBox = value;
-  }
+  Rect get boundingBox => _boundingBox;
 
   /// Returns the [Rect] bounds of the [Annotation].
-  Rect get uiBounds => _boundingBox.inflate(selectionBorderMargin);
+  Rect get uiBounds => isSelected
+      ? _intermediateBounds.inflate(selectionBorderMargin)
+      : _boundingBox.inflate(selectionBorderMargin);
+
+  /// Return the global bounds of the [Annotation].
+  Rect get globalRect => _globalRect;
+  set globalRect(Rect value) {
+    _globalRect = value;
+  }
 
   /// Callback definition for annotation property change.
   AnnotationPropertyChangedCallback? get onPropertyChanged =>
@@ -121,34 +128,50 @@ extension AnnotationExtension on Annotation {
   bool get isSelected => _isSelected;
   set isSelected(bool value) {
     _isSelected = value;
+    notifyChange();
   }
 
   /// Sets the [Rect] bounds of the [Annotation].
   void setBounds(Rect bounds) {
     _boundingBox = bounds;
+    _intermediateBounds = bounds;
+    notifyChange();
   }
 
   /// Sets the color of the [Annotation].
   void setColor(Color value) {
     _color = value;
-    _notify();
+    notifyChange();
   }
 
   /// Sets the opacity of the [Annotation].
   void setOpacity(double value) {
     _opacity = value;
-    _notify();
+    notifyChange();
   }
 
   /// Sets the lock state of the [Annotation].
   void setIsLocked(bool value) {
     _isLocked = value;
-    _notify();
+    notifyChange();
   }
+
+  /// Intermediate bounds of the [Annotation].
+  /// Used when moving the annotation.
+  Rect get intermediateBounds => _intermediateBounds;
+  set intermediateBounds(Rect value) {
+    _intermediateBounds = value;
+    notifyChange();
+  }
+
+  /// Gets whether the annotation can be edited i.e., it is not locked
+  bool get canEdit => _onPropertyChange?.call(this, '') ?? true;
 
   /// Saves the [Annotation] to the given [PdfPage].
   PdfAnnotation saveToPage(PdfPage page, PdfAnnotation? pdfAnnotation) {
     final Annotation annotation = this;
+    final String name = annotation.name ?? '';
+
     if (pdfAnnotation == null) {
       if (annotation is HighlightAnnotation ||
           annotation is StrikethroughAnnotation ||
@@ -173,9 +196,8 @@ extension AnnotationExtension on Annotation {
           type = PdfTextMarkupAnnotationType.squiggly;
         }
         if (boundsCollection.isNotEmpty) {
-          final String name = annotation.name ?? '';
           final PdfTextMarkupAnnotation pdfTextMarkupAnnotation =
-              PdfTextMarkupAnnotation(annotation.bounds, name, pdfColor);
+              PdfTextMarkupAnnotation(annotation.boundingBox, name, pdfColor);
           pdfTextMarkupAnnotation.textMarkupAnnotationType = type;
           if (annotation.author != null && annotation.author!.isNotEmpty) {
             pdfTextMarkupAnnotation.author = annotation.author!;
@@ -187,37 +209,89 @@ extension AnnotationExtension on Annotation {
           pdfAnnotation = pdfTextMarkupAnnotation;
           pdfTextMarkupAnnotation.boundsCollection.addAll(boundsCollection);
         }
+      } else if (annotation is StickyNoteAnnotation) {
+        final PdfPopupAnnotation pdfPopupAnnotation =
+            PdfPopupAnnotation(annotation._boundingBox, annotation.text);
+        pdfPopupAnnotation.icon = annotation.icon.pdfPopupIcon;
+        if (annotation.author != null && annotation.author!.isNotEmpty) {
+          pdfPopupAnnotation.author = annotation.author!;
+        }
+        if (annotation.subject != null && annotation.subject!.isNotEmpty) {
+          pdfPopupAnnotation.subject = annotation.subject!;
+        }
+        pdfAnnotation = pdfPopupAnnotation;
       }
       page.annotations.add(pdfAnnotation!);
     }
 
     if (pdfAnnotation is PdfTextMarkupAnnotation) {
       pdfAnnotation.color = annotation.color.pdfColor;
+      pdfAnnotation.setAppearance = true;
+    } else if (pdfAnnotation is PdfPopupAnnotation) {
+      pdfAnnotation.color = annotation.color.pdfColor;
+      pdfAnnotation.bounds = annotation.boundingBox;
+      if (annotation is StickyNoteAnnotation) {
+        pdfAnnotation.text = annotation.text;
+        pdfAnnotation.icon = annotation.icon.pdfPopupIcon;
+      }
     }
     pdfAnnotation.opacity = annotation.opacity;
 
     if (annotation.isLocked) {
-      pdfAnnotation.annotationFlags = <PdfAnnotationFlags>[
-        PdfAnnotationFlags.print,
-        PdfAnnotationFlags.locked
-      ];
+      if (pdfAnnotation is PdfPopupAnnotation) {
+        pdfAnnotation.annotationFlags = <PdfAnnotationFlags>[
+          PdfAnnotationFlags.locked,
+          PdfAnnotationFlags.print,
+          PdfAnnotationFlags.noZoom,
+          PdfAnnotationFlags.noRotate,
+        ];
+      } else {
+        pdfAnnotation.annotationFlags = <PdfAnnotationFlags>[
+          PdfAnnotationFlags.print,
+          PdfAnnotationFlags.locked
+        ];
+      }
     } else {
-      pdfAnnotation.annotationFlags = <PdfAnnotationFlags>[
-        PdfAnnotationFlags.print
-      ];
+      if (pdfAnnotation is PdfPopupAnnotation) {
+        pdfAnnotation.annotationFlags = <PdfAnnotationFlags>[
+          PdfAnnotationFlags.print,
+          PdfAnnotationFlags.noZoom,
+          PdfAnnotationFlags.noRotate,
+        ];
+      } else {
+        pdfAnnotation.annotationFlags = <PdfAnnotationFlags>[
+          PdfAnnotationFlags.print,
+        ];
+      }
     }
 
     return pdfAnnotation;
   }
+
+  /// Notify the internal changes.
+  void notifyChange() {
+    _notify();
+  }
 }
 
-/// The [PdfColor] extension for [Color].
-extension PdfColorExtension on PdfColor {
-  /// Converts the [PdfColor] to [Color].
-  Color get materialColor => Color.fromRGBO(r, g, b, 1);
-}
-
-extension on Color {
-  /// Converts the [Color] to [PdfColor].
-  PdfColor get pdfColor => PdfColor(red, green, blue);
+/// Extension methods for [PdfStickyNoteIcon].
+extension on PdfStickyNoteIcon {
+  PdfPopupIcon get pdfPopupIcon {
+    switch (this) {
+      case PdfStickyNoteIcon.comment:
+        return PdfPopupIcon.comment;
+      case PdfStickyNoteIcon.key:
+        return PdfPopupIcon.key;
+      case PdfStickyNoteIcon.note:
+        return PdfPopupIcon.note;
+      case PdfStickyNoteIcon.help:
+        return PdfPopupIcon.help;
+      case PdfStickyNoteIcon.newParagraph:
+        return PdfPopupIcon.newParagraph;
+      case PdfStickyNoteIcon.paragraph:
+        return PdfPopupIcon.paragraph;
+      case PdfStickyNoteIcon.insert:
+        return PdfPopupIcon.insert;
+    }
+  }
 }

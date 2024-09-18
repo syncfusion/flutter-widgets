@@ -1128,6 +1128,7 @@ class MapShapeLayerController extends MapLayerController {
 // ignore_for_file: public_member_api_docs
 class GeoJSONLayer extends StatefulWidget {
   const GeoJSONLayer({
+    super.key,
     required this.source,
     required this.controller,
     this.initialLatLngBounds,
@@ -2681,7 +2682,7 @@ class _RenderGeoJSONLayer extends RenderStack
 
       _controller.gesture = null;
     }
-    // HACK: If the initial pinch zooming is performed then reinitialize
+    // Hack: If the initial pinch zooming is performed then reinitialize
     // the ScaleGestureRecognizer for the web platform alone
     if (!_initailPinchZooming && kIsWeb) {
       _scaleGestureRecognizer.dispose();

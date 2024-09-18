@@ -370,7 +370,7 @@ class CrossTable {
           reference[j] = field;
         }
         int offset = 0;
-        _ArchiveInformation? ai;
+        ArchiveInformation? ai;
         if (reference[0] == PdfObjectType.normal.index) {
           if (_whiteSpace != 0) {
             offset = reference[1] + _whiteSpace;
@@ -378,8 +378,7 @@ class CrossTable {
             offset = reference[1];
           }
         } else if (reference[0] == PdfObjectType.packed.index) {
-          ai =
-              _ArchiveInformation(reference[1], reference[2], _retrieveArchive);
+          ai = ArchiveInformation(reference[1], reference[2], _retrieveArchive);
         }
         ObjectInformation? oi;
         // NOTE: do not store removed objects.
@@ -537,7 +536,7 @@ class CrossTable {
   }
 
   /// internal method
-  PdfParser? retrieveParser(_ArchiveInformation? archive) {
+  PdfParser? retrieveParser(ArchiveInformation? archive) {
     if (archive == null) {
       return _parser;
     } else {
@@ -561,13 +560,13 @@ class ObjectInformation {
   //Constructor
   /// internal constructor
   ObjectInformation(
-      int offset, _ArchiveInformation? arciveInfo, CrossTable? crossTable) {
+      int offset, ArchiveInformation? arciveInfo, CrossTable? crossTable) {
     _offset = offset;
     _archive = arciveInfo;
     _crossTable = crossTable;
   }
   //Fields
-  _ArchiveInformation? _archive;
+  ArchiveInformation? _archive;
   PdfParser? _parser;
   int? _offset;
   CrossTable? _crossTable;
@@ -624,9 +623,9 @@ class ObjectInformation {
   }
 }
 
-class _ArchiveInformation {
+class ArchiveInformation {
   //Constructor
-  _ArchiveInformation(int archiveNumber, int index, _GetArchive getArchive) {
+  ArchiveInformation(int archiveNumber, int index, GetArchive getArchive) {
     _archiveNumber = archiveNumber;
     _index = index;
     _getArchive = getArchive;
@@ -636,7 +635,7 @@ class _ArchiveInformation {
   late int _archiveNumber;
   late int _index;
   PdfStream? _archive;
-  late _GetArchive _getArchive;
+  late GetArchive _getArchive;
 
   //Properties
   PdfStream get archive {
@@ -645,7 +644,7 @@ class _ArchiveInformation {
   }
 }
 
-typedef _GetArchive = PdfStream Function(int archiveNumber);
+typedef GetArchive = PdfStream Function(int archiveNumber);
 
 class _SubSection {
   //constructor

@@ -1,3 +1,9 @@
+## Unreleased
+
+**General**
+
+* The compatible version of our Flutter barcodes widget has been updated to Flutter SDK 3.24.0.
+
 ## [25.1.35] - 15/03/2024
 
 **General**

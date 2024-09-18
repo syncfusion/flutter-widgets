@@ -61,11 +61,14 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
   /// The checkbox form field object.
   late PdfCheckboxFormField checkboxFormField;
 
-  /// Adds the grouped items.
-  // ignore: use_setters_to_change_properties
-  void updateChildItems(List<PdfCheckboxFormField> groupedItems) {
+  /// Sets the checkbox form field child items.
+  set checkBoxFormFieldChildItems(List<PdfCheckboxFormField>? groupedItems) {
     checkboxFormField._children = groupedItems;
   }
+
+  /// Gets the checkbox form field child items.
+  List<PdfCheckboxFormField>? get checkBoxFormFieldChildItems =>
+      checkboxFormField._children;
 
   /// Updates the child value.
   void import() {
@@ -130,8 +133,7 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
   }
 
   /// Builds the checkbox form field widget.
-  Widget build(BuildContext context, double heightPercentage,
-      {required Function(Offset) onTap}) {
+  Widget build(BuildContext context, double heightPercentage) {
     final double selectionPadding = kIsDesktop ? 0 : kFormFieldSelectionPadding;
     final Rect adjustedBounds = bounds.inflate(selectionPadding);
     return Positioned(
@@ -139,38 +141,28 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
       top: adjustedBounds.top / heightPercentage,
       width: adjustedBounds.width / heightPercentage,
       height: adjustedBounds.height / heightPercentage,
-      child: Listener(
-        onPointerUp: (PointerUpEvent event) {
-          onTap(event.localPosition.translate(
-              adjustedBounds.left / heightPercentage,
-              adjustedBounds.top / heightPercentage));
-        },
-        child: PdfCheckbox(
-          isChecked: checkboxFormField._isChecked,
-          readOnly: checkboxFormField.readOnly,
-          onChanged: invokeValueChanged,
-          heightPercentage: heightPercentage,
-          selectionPadding: selectionPadding,
-          fillColor: pdfCheckboxField.backColor.isEmpty
-              ? const Color.fromARGB(255, 221, 228, 255)
-              : Color.fromRGBO(
-                  pdfCheckboxField.backColor.r,
-                  pdfCheckboxField.backColor.g,
-                  pdfCheckboxField.backColor.b,
-                  1),
-          borderColor: pdfCheckboxField.borderColor.isEmpty
-              ? Colors.transparent
-              : Color.fromRGBO(
-                  pdfCheckboxField.borderColor.r,
-                  pdfCheckboxField.borderColor.g,
-                  pdfCheckboxField.borderColor.b,
-                  1),
-          borderWidth: (pdfCheckboxField.borderWidth == 0
-                  ? 1
-                  : pdfCheckboxField.borderWidth) /
-              heightPercentage,
-          size: bounds.height / heightPercentage,
-        ),
+      child: PdfCheckbox(
+        isChecked: checkboxFormField._isChecked,
+        readOnly: checkboxFormField.readOnly,
+        onChanged: invokeValueChanged,
+        heightPercentage: heightPercentage,
+        selectionPadding: selectionPadding,
+        fillColor: pdfCheckboxField.backColor.isEmpty
+            ? const Color.fromARGB(255, 221, 228, 255)
+            : Color.fromRGBO(pdfCheckboxField.backColor.r,
+                pdfCheckboxField.backColor.g, pdfCheckboxField.backColor.b, 1),
+        borderColor: pdfCheckboxField.borderColor.isEmpty
+            ? Colors.transparent
+            : Color.fromRGBO(
+                pdfCheckboxField.borderColor.r,
+                pdfCheckboxField.borderColor.g,
+                pdfCheckboxField.borderColor.b,
+                1),
+        borderWidth: (pdfCheckboxField.borderWidth == 0
+                ? 1
+                : pdfCheckboxField.borderWidth) /
+            heightPercentage,
+        size: bounds.height / heightPercentage,
       ),
     );
   }

@@ -13,11 +13,13 @@ import 'helper/save_file_mobile.dart'
     if (dart.library.html) 'helper/save_file_web.dart' as helper;
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 /// The application that contains datagrid on it.
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

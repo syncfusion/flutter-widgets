@@ -735,7 +735,7 @@ class PdfFieldHelper {
   }
 
   /// internal field
-  late _BeforeNameChangesEventHandler beforeNameChanges;
+  late BeforeNameChangesEventHandler beforeNameChanges;
 
   /// Gets or sets a value indicating whether to flatten this [PdfField].
   bool get flattenField {
@@ -3186,4 +3186,4 @@ class GraphicsProperties {
 }
 
 //typedef for NameChanged event handler.
-typedef _BeforeNameChangesEventHandler = void Function(String name);
+typedef BeforeNameChangesEventHandler = void Function(String name);

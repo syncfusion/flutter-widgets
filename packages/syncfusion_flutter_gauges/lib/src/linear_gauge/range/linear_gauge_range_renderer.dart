@@ -319,7 +319,8 @@ class RenderLinearRange extends RenderOpacity {
       child!.layout(BoxConstraints.tight(controlSize));
     }
 
-    size = controlSize;
+    size = Size(min(controlSize.width, constraints.maxWidth),
+        min(controlSize.height, constraints.maxHeight));
   }
 
   ///Calculation Position based on value.

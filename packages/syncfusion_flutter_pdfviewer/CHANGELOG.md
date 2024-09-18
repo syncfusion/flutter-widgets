@@ -1,5 +1,66 @@
 ## Unreleased
 
+**General**
+
+* The compatible version of our Flutter PDF Viewer widget has been updated to Flutter SDK 3.24.0.
+
+## [26.2.8] - 08/06/2024
+
+**Bugs**
+
+* Now, the second page is rendered properly when loading a two-page PDF document in the `SfPdfViewer` widget on the Android platform.
+
+## [26.2.7] - 07/30/2024
+
+**Bugs**
+
+* Now, the multi-line textbox form field will not lose focus as soon as it is focused.
+
+## [26.2.4] - 07/24/2024
+
+**Features**
+
+* Provided text alignment support for form fields in PDF documents.
+
+## [26.1.42] - 07/16/2024
+
+**Bugs**
+
+* Now, the `SfPdfViewer` will not crash unexpectedly when loading PDF documents while the device is in landscape orientation.
+* Improved the performance of the `SfPdfViewer` widget when loading PDF documents with a large number of form fields.
+
+**Features**
+
+* Provided support to add, remove, modify, and save sticky note annotations in PDF files.
+
+**General**
+
+* Upgraded the `device_info_plus` package to the latest version 10.1.0.
+
+## [26.1.41] - 07/09/2024
+
+**Bugs**
+
+* Now, the soft keyboard will not hide immediately when focusing on the text form field in the `SfPdfViewer` widget if `Scaffold.resizeToAvoidBottomInset` is set to false.
+
+## [26.1.40] - 07/02/2024
+
+**Bugs**
+
+* Now, the PDF document with invalid annotation bounds will be loaded properly in the `SfPdfViewer` widget.
+
+**General**
+
+* Updated the 'js' package version constraints to '>=0.6.3 <0.8.0' in the `syncfusion_pdfviewer_web` package.
+
+## [26.1.39] - 06/25/2024
+
+**Bugs**
+
+* Now, the copied text will correctly match the selected Right-to-Left (RTL) text in the `SfPdfViewer` widget.
+
+## [26.1.35] - 06/11/2024
+
 **Features**
 
 * Now, the pages being rendered will have good quality at the initial zoom level. The rendering performance of pages in the viewer for large documents has also been improved for all platforms. Especially on the web and Android platforms, we have achieved approximately an 80% deduction in the rendering time for a document of 50 MB size.

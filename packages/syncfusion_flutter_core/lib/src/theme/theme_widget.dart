@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'barcodes_theme.dart';
 import 'calendar_theme.dart';
 import 'charts_theme.dart';
+import 'chat_theme.dart';
 import 'color_scheme.dart';
 import 'datagrid_theme.dart';
 import 'datapager_theme.dart';
@@ -256,22 +257,24 @@ class _SfInheritedTheme extends InheritedTheme {
 @immutable
 class SfThemeData with Diagnosticable {
   /// Creating an argument constructor of SfThemeData class.
-  factory SfThemeData(
-      {Brightness? brightness,
-      SfPdfViewerThemeData? pdfViewerThemeData,
-      SfChartThemeData? chartThemeData,
-      SfSparkChartThemeData? sparkChartThemeData,
-      SfCalendarThemeData? calendarThemeData,
-      SfDataGridThemeData? dataGridThemeData,
-      SfDataPagerThemeData? dataPagerThemeData,
-      SfDateRangePickerThemeData? dateRangePickerThemeData,
-      SfBarcodeThemeData? barcodeThemeData,
-      SfGaugeThemeData? gaugeThemeData,
-      SfSliderThemeData? sliderThemeData,
-      SfRangeSliderThemeData? rangeSliderThemeData,
-      SfRangeSelectorThemeData? rangeSelectorThemeData,
-      SfMapsThemeData? mapsThemeData,
-      SfTreemapThemeData? treemapThemeData}) {
+  factory SfThemeData({
+    Brightness? brightness,
+    SfPdfViewerThemeData? pdfViewerThemeData,
+    SfChartThemeData? chartThemeData,
+    SfSparkChartThemeData? sparkChartThemeData,
+    SfCalendarThemeData? calendarThemeData,
+    SfDataGridThemeData? dataGridThemeData,
+    SfDataPagerThemeData? dataPagerThemeData,
+    SfDateRangePickerThemeData? dateRangePickerThemeData,
+    SfBarcodeThemeData? barcodeThemeData,
+    SfGaugeThemeData? gaugeThemeData,
+    SfSliderThemeData? sliderThemeData,
+    SfRangeSliderThemeData? rangeSliderThemeData,
+    SfRangeSelectorThemeData? rangeSelectorThemeData,
+    SfMapsThemeData? mapsThemeData,
+    SfTreemapThemeData? treemapThemeData,
+    SfChatThemeData? chatThemeData,
+  }) {
     brightness ??= Brightness.light;
     pdfViewerThemeData = pdfViewerThemeData ?? SfPdfViewerThemeData.raw();
     sparkChartThemeData = sparkChartThemeData ??
@@ -300,22 +303,25 @@ class SfThemeData with Diagnosticable {
         treemapThemeData ?? SfTreemapThemeData.raw(brightness: brightness);
     dataPagerThemeData =
         dataPagerThemeData ?? SfDataPagerThemeData.raw(brightness: brightness);
+    chatThemeData = chatThemeData ?? SfChatThemeData.raw();
     return SfThemeData.raw(
-        brightness: brightness,
-        pdfViewerThemeData: pdfViewerThemeData,
-        chartThemeData: chartThemeData,
-        sparkChartThemeData: sparkChartThemeData,
-        calendarThemeData: calendarThemeData,
-        dataGridThemeData: dataGridThemeData,
-        dataPagerThemeData: dataPagerThemeData,
-        dateRangePickerThemeData: dateRangePickerThemeData,
-        barcodeThemeData: barcodeThemeData,
-        gaugeThemeData: gaugeThemeData,
-        sliderThemeData: sliderThemeData,
-        rangeSelectorThemeData: rangeSelectorThemeData,
-        rangeSliderThemeData: rangeSliderThemeData,
-        mapsThemeData: mapsThemeData,
-        treemapThemeData: treemapThemeData);
+      brightness: brightness,
+      pdfViewerThemeData: pdfViewerThemeData,
+      chartThemeData: chartThemeData,
+      sparkChartThemeData: sparkChartThemeData,
+      calendarThemeData: calendarThemeData,
+      dataGridThemeData: dataGridThemeData,
+      dataPagerThemeData: dataPagerThemeData,
+      dateRangePickerThemeData: dateRangePickerThemeData,
+      barcodeThemeData: barcodeThemeData,
+      gaugeThemeData: gaugeThemeData,
+      sliderThemeData: sliderThemeData,
+      rangeSelectorThemeData: rangeSelectorThemeData,
+      rangeSliderThemeData: rangeSliderThemeData,
+      mapsThemeData: mapsThemeData,
+      treemapThemeData: treemapThemeData,
+      chatThemeData: chatThemeData,
+    );
   }
 
   /// Create a [SfThemeData] given a set of exact values. All the values must be
@@ -325,22 +331,24 @@ class SfThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfThemeData] constructor.
   ///
-  const SfThemeData.raw(
-      {required this.brightness,
-      required this.pdfViewerThemeData,
-      required this.chartThemeData,
-      required this.sparkChartThemeData,
-      required this.calendarThemeData,
-      required this.dataGridThemeData,
-      required this.dateRangePickerThemeData,
-      required this.barcodeThemeData,
-      required this.gaugeThemeData,
-      required this.sliderThemeData,
-      required this.rangeSelectorThemeData,
-      required this.rangeSliderThemeData,
-      required this.mapsThemeData,
-      required this.dataPagerThemeData,
-      required this.treemapThemeData});
+  const SfThemeData.raw({
+    required this.brightness,
+    required this.pdfViewerThemeData,
+    required this.chartThemeData,
+    required this.sparkChartThemeData,
+    required this.calendarThemeData,
+    required this.dataGridThemeData,
+    required this.dateRangePickerThemeData,
+    required this.barcodeThemeData,
+    required this.gaugeThemeData,
+    required this.sliderThemeData,
+    required this.rangeSelectorThemeData,
+    required this.rangeSliderThemeData,
+    required this.mapsThemeData,
+    required this.dataPagerThemeData,
+    required this.treemapThemeData,
+    required this.chatThemeData,
+  });
 
   /// This method returns the light theme when no theme has been specified.
   factory SfThemeData.light() => SfThemeData(brightness: Brightness.light);
@@ -647,6 +655,25 @@ class SfThemeData with Diagnosticable {
   /// ```
   final SfTreemapThemeData treemapThemeData;
 
+  /// Defines the default configuration of chat widgets.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            chatThemeData: SfChatThemeData()
+  ///          ),
+  ///          child: SfChat(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+  final SfChatThemeData chatThemeData;
+
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   SfThemeData copyWith({
@@ -665,25 +692,28 @@ class SfThemeData with Diagnosticable {
     SfMapsThemeData? mapsThemeData,
     SfDataPagerThemeData? dataPagerThemeData,
     SfTreemapThemeData? treemapThemeData,
+    SfChatThemeData? chatThemeData,
   }) {
     return SfThemeData.raw(
-        brightness: brightness ?? this.brightness,
-        pdfViewerThemeData: pdfViewerThemeData ?? this.pdfViewerThemeData,
-        chartThemeData: chartThemeData ?? this.chartThemeData,
-        sparkChartThemeData: sparkChartThemeData ?? this.sparkChartThemeData,
-        calendarThemeData: calendarThemeData ?? this.calendarThemeData,
-        dataGridThemeData: dataGridThemeData ?? this.dataGridThemeData,
-        dataPagerThemeData: dataPagerThemeData ?? this.dataPagerThemeData,
-        dateRangePickerThemeData:
-            dateRangePickerThemeData ?? this.dateRangePickerThemeData,
-        barcodeThemeData: barcodeThemeData ?? this.barcodeThemeData,
-        gaugeThemeData: gaugeThemeData ?? this.gaugeThemeData,
-        sliderThemeData: sliderThemeData ?? this.sliderThemeData,
-        rangeSelectorThemeData:
-            rangeSelectorThemeData ?? this.rangeSelectorThemeData,
-        rangeSliderThemeData: rangeSliderThemeData ?? this.rangeSliderThemeData,
-        mapsThemeData: mapsThemeData ?? this.mapsThemeData,
-        treemapThemeData: treemapThemeData ?? this.treemapThemeData);
+      brightness: brightness ?? this.brightness,
+      pdfViewerThemeData: pdfViewerThemeData ?? this.pdfViewerThemeData,
+      chartThemeData: chartThemeData ?? this.chartThemeData,
+      sparkChartThemeData: sparkChartThemeData ?? this.sparkChartThemeData,
+      calendarThemeData: calendarThemeData ?? this.calendarThemeData,
+      dataGridThemeData: dataGridThemeData ?? this.dataGridThemeData,
+      dataPagerThemeData: dataPagerThemeData ?? this.dataPagerThemeData,
+      dateRangePickerThemeData:
+          dateRangePickerThemeData ?? this.dateRangePickerThemeData,
+      barcodeThemeData: barcodeThemeData ?? this.barcodeThemeData,
+      gaugeThemeData: gaugeThemeData ?? this.gaugeThemeData,
+      sliderThemeData: sliderThemeData ?? this.sliderThemeData,
+      rangeSelectorThemeData:
+          rangeSelectorThemeData ?? this.rangeSelectorThemeData,
+      rangeSliderThemeData: rangeSliderThemeData ?? this.rangeSliderThemeData,
+      mapsThemeData: mapsThemeData ?? this.mapsThemeData,
+      treemapThemeData: treemapThemeData ?? this.treemapThemeData,
+      chatThemeData: chatThemeData ?? this.chatThemeData,
+    );
   }
 
   /// Linearly interpolate between two themes.
@@ -691,35 +721,36 @@ class SfThemeData with Diagnosticable {
     assert(a != null);
     assert(b != null);
     return SfThemeData.raw(
-        brightness: t < 0.5 ? a!.brightness : b!.brightness,
-        pdfViewerThemeData: SfPdfViewerThemeData.lerp(
-            a!.pdfViewerThemeData, b!.pdfViewerThemeData, t)!,
-        chartThemeData:
-            SfChartThemeData.lerp(a.chartThemeData, b.chartThemeData, t)!,
-        sparkChartThemeData: SfSparkChartThemeData.lerp(
-            a.sparkChartThemeData, b.sparkChartThemeData, t)!,
-        calendarThemeData: SfCalendarThemeData.lerp(
-            a.calendarThemeData, b.calendarThemeData, t)!,
-        dataGridThemeData: SfDataGridThemeData.lerp(
-            a.dataGridThemeData, b.dataGridThemeData, t)!,
-        dataPagerThemeData: SfDataPagerThemeData.lerp(
-            a.dataPagerThemeData, b.dataPagerThemeData, t)!,
-        dateRangePickerThemeData: SfDateRangePickerThemeData.lerp(
-            a.dateRangePickerThemeData, b.dateRangePickerThemeData, t)!,
-        barcodeThemeData:
-            SfBarcodeThemeData.lerp(a.barcodeThemeData, b.barcodeThemeData, t)!,
-        gaugeThemeData:
-            SfGaugeThemeData.lerp(a.gaugeThemeData, b.gaugeThemeData, t)!,
-        sliderThemeData:
-            SfSliderThemeData.lerp(a.sliderThemeData, b.sliderThemeData, t)!,
-        rangeSelectorThemeData: SfRangeSelectorThemeData.lerp(
-            a.rangeSelectorThemeData, b.rangeSelectorThemeData, t)!,
-        rangeSliderThemeData: SfRangeSliderThemeData.lerp(
-            a.rangeSliderThemeData, b.rangeSliderThemeData, t)!,
-        mapsThemeData:
-            SfMapsThemeData.lerp(a.mapsThemeData, b.mapsThemeData, t)!,
-        treemapThemeData: SfTreemapThemeData.lerp(
-            a.treemapThemeData, b.treemapThemeData, t)!);
+      brightness: t < 0.5 ? a!.brightness : b!.brightness,
+      pdfViewerThemeData: SfPdfViewerThemeData.lerp(
+          a!.pdfViewerThemeData, b!.pdfViewerThemeData, t)!,
+      chartThemeData:
+          SfChartThemeData.lerp(a.chartThemeData, b.chartThemeData, t)!,
+      sparkChartThemeData: SfSparkChartThemeData.lerp(
+          a.sparkChartThemeData, b.sparkChartThemeData, t)!,
+      calendarThemeData: SfCalendarThemeData.lerp(
+          a.calendarThemeData, b.calendarThemeData, t)!,
+      dataGridThemeData: SfDataGridThemeData.lerp(
+          a.dataGridThemeData, b.dataGridThemeData, t)!,
+      dataPagerThemeData: SfDataPagerThemeData.lerp(
+          a.dataPagerThemeData, b.dataPagerThemeData, t)!,
+      dateRangePickerThemeData: SfDateRangePickerThemeData.lerp(
+          a.dateRangePickerThemeData, b.dateRangePickerThemeData, t)!,
+      barcodeThemeData:
+          SfBarcodeThemeData.lerp(a.barcodeThemeData, b.barcodeThemeData, t)!,
+      gaugeThemeData:
+          SfGaugeThemeData.lerp(a.gaugeThemeData, b.gaugeThemeData, t)!,
+      sliderThemeData:
+          SfSliderThemeData.lerp(a.sliderThemeData, b.sliderThemeData, t)!,
+      rangeSelectorThemeData: SfRangeSelectorThemeData.lerp(
+          a.rangeSelectorThemeData, b.rangeSelectorThemeData, t)!,
+      rangeSliderThemeData: SfRangeSliderThemeData.lerp(
+          a.rangeSliderThemeData, b.rangeSliderThemeData, t)!,
+      mapsThemeData: SfMapsThemeData.lerp(a.mapsThemeData, b.mapsThemeData, t)!,
+      treemapThemeData:
+          SfTreemapThemeData.lerp(a.treemapThemeData, b.treemapThemeData, t)!,
+      chatThemeData: SfChatThemeData.lerp(a.chatThemeData, b.chatThemeData, t)!,
+    );
   }
 
   @override
@@ -742,7 +773,8 @@ class SfThemeData with Diagnosticable {
         other.rangeSelectorThemeData == rangeSelectorThemeData &&
         other.rangeSliderThemeData == rangeSliderThemeData &&
         other.mapsThemeData == mapsThemeData &&
-        other.treemapThemeData == treemapThemeData;
+        other.treemapThemeData == treemapThemeData &&
+        other.chatThemeData == chatThemeData;
   }
 
   @override
@@ -762,7 +794,8 @@ class SfThemeData with Diagnosticable {
       rangeSelectorThemeData,
       rangeSliderThemeData,
       mapsThemeData,
-      treemapThemeData
+      treemapThemeData,
+      chatThemeData,
     ];
     return Object.hashAll(values);
   }
@@ -815,5 +848,8 @@ class SfThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<SfTreemapThemeData>(
         'treemapThemeData', treemapThemeData,
         defaultValue: defaultData.treemapThemeData));
+    properties.add(DiagnosticsProperty<SfChatThemeData>(
+        'chatThemeData', chatThemeData,
+        defaultValue: defaultData.chatThemeData));
   }
 }

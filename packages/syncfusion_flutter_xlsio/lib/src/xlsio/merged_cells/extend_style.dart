@@ -1,16 +1,14 @@
-part of xlsio;
-
 /// Represent Extended format style.
-class _ExtendStyle {
+class ExtendStyle {
   /// Gets/Sets X value.
   // ignore: unused_field
-  late int _x;
+  late int x;
 
   /// Gets/Sets Y value.
   // ignore: unused_field
-  late int _y;
+  late int y;
 
   /// Gets/Sets style index.
   // ignore: unused_field
-  late int _styleIndex;
+  late int styleIndex;
 }

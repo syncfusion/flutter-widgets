@@ -1687,9 +1687,11 @@ class PdfCrossTable {
             documentCatalog!.containsKey(PdfDictionaryProperties.outlines)) {
           final IPdfPrimitive? dict = PdfCrossTable.dereference(
               documentCatalog![PdfDictionaryProperties.outlines]);
-          return dict != null && dict is PdfDictionary && dict == outline
-              ? (true)
-              : _checkForOutlinesAndDestination(outline);
+          if (dict != null && dict is PdfDictionary && dict == outline) {
+            return true;
+          } else {
+            return _checkForOutlinesAndDestination(outline);
+          }
         }
       }
     } else if (dictionary.containsKey(PdfDictionaryProperties.limits)) {

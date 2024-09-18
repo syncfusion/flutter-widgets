@@ -1,4 +1,5 @@
-part of xlsio;
+import '../worksheet/worksheet.dart';
+import 'column.dart';
 
 /// Reprsents the colunm collection.
 class ColumnCollection {
@@ -74,7 +75,7 @@ class ColumnCollection {
   }
 
   /// clear the column.
-  void _clear() {
+  void clear() {
     _innerList.clear();
   }
 }

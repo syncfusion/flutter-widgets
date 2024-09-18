@@ -1,4 +1,11 @@
-part of xlsio;
+import 'dart:ui';
+
+import '../conditional_format/color_scale/color_scale.dart';
+import '../conditional_format/color_scale/color_scale_wrapper.dart';
+import '../conditional_format/data_bar/data_bar.dart';
+import '../conditional_format/icon_set/icon_set.dart';
+import '../conditional_format/icon_set/icon_set_wrapper.dart';
+import '../general/enums.dart';
 
 /// Represents implementation of single condition value for iconset, databar, colorscale conditions.
 abstract class ConditionValue {
@@ -274,9 +281,9 @@ abstract class ConditionValue {
 }
 
 /// Represents implementation of single condition value for iconset, databar, colorscale conditions.
-class _ConditionValueImpl extends ConditionValue {
+class ConditionValueImpl extends ConditionValue {
   /// Initializes new instance of the class.
-  _ConditionValueImpl(this.type, this.value);
+  ConditionValueImpl(this.type, this.value);
 
   @override
 
@@ -397,9 +404,9 @@ class ColorConditionValue extends ConditionValue {
 }
 
 /// Represents the implementation of color condition value
-class _ColorConditionValueImpl implements ColorConditionValue {
+class ColorConditionValueImpl implements ColorConditionValue {
   /// Initializes new instance of the class.
-  _ColorConditionValueImpl(this.type, this.value, String color) {
+  ColorConditionValueImpl(this.type, this.value, String color) {
     formatColor = color;
   }
 
@@ -452,47 +459,47 @@ class _ColorConditionValueImpl implements ColorConditionValue {
 }
 
 /// This object wraps ConditionValue object to ensure correct parent object update.
-class _ColorConditionValueWrapper extends ColorConditionValue {
+class ColorConditionValueWrapper extends ColorConditionValue {
   /// Initializes new instance of the wrapped.
-  _ColorConditionValueWrapper(
-      _ColorConditionValueImpl value, _ColorScaleWrapper parent) {
-    _wrapped = value;
+  ColorConditionValueWrapper(
+      ColorConditionValueImpl value, ColorScaleWrapper parent) {
+    wrapped = value;
     _parent = parent;
   }
 
   /// Wrapped item.
-  late _ColorConditionValueImpl _wrapped;
+  late ColorConditionValueImpl wrapped;
 
   /// Parent item;
-  late _ColorScaleWrapper _parent;
+  late ColorScaleWrapper _parent;
 
   @override
 
   /// <summary>
   String get formatColor {
     {
-      return _wrapped.formatColor;
+      return wrapped.formatColor;
     }
   }
 
   @override
   set formatColor(String value) {
     _beginUpdate();
-    _wrapped.formatColor = value;
+    wrapped.formatColor = value;
     _endUpdate();
   }
 
   @override
   Color get formatColorRgb {
     {
-      return _wrapped.formatColorRgb;
+      return wrapped.formatColorRgb;
     }
   }
 
   @override
   set formatColorRgb(Color value) {
     _beginUpdate();
-    _wrapped.formatColorRgb = value;
+    wrapped.formatColorRgb = value;
     _endUpdate();
   }
 
@@ -503,14 +510,14 @@ class _ColorConditionValueWrapper extends ColorConditionValue {
   /// or icon set conditional format are determined. Read-only.
   ConditionValueType get type {
     {
-      return _wrapped.type;
+      return wrapped.type;
     }
   }
 
   @override
   set type(ConditionValueType value) {
     _beginUpdate();
-    _wrapped.type = value;
+    wrapped.type = value;
     _endUpdate();
   }
 
@@ -520,14 +527,14 @@ class _ColorConditionValueWrapper extends ColorConditionValue {
   /// bar conditional format.
   String get value {
     {
-      return _wrapped.value;
+      return wrapped.value;
     }
   }
 
   @override
   set value(String value) {
     _beginUpdate();
-    _wrapped.value = value;
+    wrapped.value = value;
     _endUpdate();
   }
 
@@ -537,25 +544,25 @@ class _ColorConditionValueWrapper extends ColorConditionValue {
   /// which specifes if the threshold is "greater than" or "greater than or equal to" the threshold value.
   ConditionalFormatOperator get operator {
     {
-      return _wrapped.operator;
+      return wrapped.operator;
     }
   }
 
   @override
   set operator(ConditionalFormatOperator value) {
     _beginUpdate();
-    _wrapped.operator = value;
+    wrapped.operator = value;
     _endUpdate();
   }
 
   /// Initiates updates to the object.
   void _beginUpdate() {
-    _parent._beginUpdate();
+    _parent.beginUpdate();
   }
 
   /// Ends updating the object.
   void _endUpdate() {
-    _parent._endUpdate();
+    _parent.endUpdate();
   }
 }
 
@@ -653,12 +660,12 @@ class IconConditionValue extends ConditionValue {
 }
 
 /// Represents the implementation of Icon condition value
-class _IconConditionValueImpl implements IconConditionValue {
+class IconConditionValueImpl implements IconConditionValue {
   /// Initializes new instance of the class.
-  _IconConditionValueImpl(this.iconSet, this.index);
+  IconConditionValueImpl(this.iconSet, this.index);
 
   /// Initializes new instance of the class.
-  _IconConditionValueImpl._withType(
+  IconConditionValueImpl.withType(
       this.iconSet, this.index, this.type, this.value);
 
   @override
@@ -691,31 +698,31 @@ class _IconConditionValueImpl implements IconConditionValue {
 }
 
 /// This object wraps IconConditionValue object to ensure correct parent object update.
-class _IconConditionValueWrapper implements IconConditionValue {
+class IconConditionValueWrapper implements IconConditionValue {
   /// Initializes new instance of wrapper.
-  _IconConditionValueWrapper(
-      _IconConditionValueImpl value, _IconSetWrapper parent) {
-    _wrapped = value;
+  IconConditionValueWrapper(
+      IconConditionValueImpl value, IconSetWrapper parent) {
+    wrapped = value;
     _parent = parent;
   }
 
   /// Wrapped item.
-  late _IconConditionValueImpl _wrapped;
+  late IconConditionValueImpl wrapped;
 
   /// Parent.
-  late _IconSetWrapper _parent;
+  late IconSetWrapper _parent;
 
   @override
 
   /// Returns or sets IconSet for individual IconSet criteria.
   ExcelIconSetType get iconSet {
-    return _wrapped.iconSet;
+    return wrapped.iconSet;
   }
 
   @override
   set iconSet(ExcelIconSetType value) {
     _beginUpdate();
-    _wrapped.iconSet = value;
+    wrapped.iconSet = value;
     _endUpdate();
   }
 
@@ -723,13 +730,13 @@ class _IconConditionValueWrapper implements IconConditionValue {
 
   /// Gets or sets index of the iconset type's individual icon index.
   int get index {
-    return _wrapped.index;
+    return wrapped.index;
   }
 
   @override
   set index(int value) {
     _beginUpdate();
-    _wrapped.index = value;
+    wrapped.index = value;
     _endUpdate();
   }
 
@@ -739,13 +746,13 @@ class _IconConditionValueWrapper implements IconConditionValue {
   /// which specifies how the threshold values for a data bar, color scale,
   /// or icon set conditional format are determined. Read-only.
   ConditionValueType get type {
-    return _wrapped.type;
+    return wrapped.type;
   }
 
   @override
   set type(ConditionValueType value) {
     _beginUpdate();
-    _wrapped.type = value;
+    wrapped.type = value;
     _endUpdate();
   }
 
@@ -753,13 +760,13 @@ class _IconConditionValueWrapper implements IconConditionValue {
 
   /// Gets or sets the shortest bar or longest bar threshold value for a data bar conditional format.
   String get value {
-    return _wrapped.value;
+    return wrapped.value;
   }
 
   @override
   set value(String value) {
     _beginUpdate();
-    _wrapped.value = value;
+    wrapped.value = value;
     _endUpdate();
   }
 
@@ -767,23 +774,23 @@ class _IconConditionValueWrapper implements IconConditionValue {
 
   /// Gets or sets the operator
   ConditionalFormatOperator get operator {
-    return _wrapped.operator;
+    return wrapped.operator;
   }
 
   @override
   set operator(ConditionalFormatOperator value) {
     _beginUpdate();
-    _wrapped.operator = value;
+    wrapped.operator = value;
     _endUpdate();
   }
 
   /// Initiates updates to the object.
   void _beginUpdate() {
-    _parent._beginUpdate();
+    _parent.beginUpdate();
   }
 
   /// Ends updating the object.
   void _endUpdate() {
-    _parent._endUpdate();
+    _parent.endUpdate();
   }
 }

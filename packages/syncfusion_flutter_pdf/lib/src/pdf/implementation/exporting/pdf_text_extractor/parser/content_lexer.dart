@@ -14,6 +14,7 @@ class ContentLexer {
   int _charPointer = 0;
   bool _isArtifactContentEnds = false;
   bool _isContentEnded = false;
+  String? _tempContent;
 
   /// internal field
   bool isContainsArtifacts = false;
@@ -174,8 +175,8 @@ class ContentLexer {
   }
 
   String _consumeValue() {
-    final String data = String.fromCharCode(int.parse(_currentChar));
-    operatorParams!.write(data);
+    _tempContent = String.fromCharCode(int.parse(_currentChar));
+    operatorParams!.write(_tempContent);
     if (isContainsArtifacts &&
         operatorParams.toString().contains('/Contents') &&
         !_isContentEnded) {

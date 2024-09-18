@@ -33,8 +33,8 @@ class HuffmanTree {
   // Fields
   late int _tBits;
   late List<int> _table;
-  List<int>? _left;
-  List<int>? _right;
+  late List<int>? _left;
+  late List<int>? _right;
   late List<int> _clArray;
   late int _tMask;
 

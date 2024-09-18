@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../control/enums.dart';
 import 'annotation.dart';
 import 'annotation_view.dart';
+import 'sticky_notes.dart';
 import 'text_markup.dart';
 
 /// Base class for the AnnotationSettings and AnnotationAppearanceSettings.
@@ -38,6 +40,12 @@ class PdfAnnotationSelectorSettings {
 /// Represents the settings that allows to customize the default appearance of text markup annotations.
 class PdfTextMarkupAnnotationSettings extends PdfAnnotationAppearanceSetting {}
 
+/// Represents the settings that allows to customize the default appearance of sticky note annotations.
+class PdfStickyNoteAnnotationSettings extends PdfAnnotationAppearanceSetting {
+  /// Gets or sets the default icon of sticky note annotations.
+  PdfStickyNoteIcon icon = PdfStickyNoteIcon.comment;
+}
+
 /// Represents the settings that allows to customize the default appearance and behavior of annotations.
 class PdfAnnotationSettings extends PdfBaseAnnotationSettings {
   /// Gets or sets a value that indicates the default author name for all annotations in the PDF.
@@ -59,6 +67,11 @@ class PdfAnnotationSettings extends PdfBaseAnnotationSettings {
   PdfTextMarkupAnnotationSettings squiggly = PdfTextMarkupAnnotationSettings()
     ..color = Colors.green;
 
+  /// Gets or sets the default settings for sticky note annotations. The default color is yellow. Default icon is Comment
+  PdfStickyNoteAnnotationSettings stickyNote = PdfStickyNoteAnnotationSettings()
+    ..color = Colors.yellow
+    ..icon = PdfStickyNoteIcon.comment;
+
   /// Gets or sets the default settings for the annotation selector.
   PdfAnnotationSelectorSettings selector = PdfAnnotationSelectorSettings();
 }
@@ -77,6 +90,8 @@ extension AnnotationSettingsExtension on PdfAnnotationSettings {
       isTypeLocked = underline.isLocked;
     } else if (annotation is SquigglyAnnotation) {
       isTypeLocked = squiggly.isLocked;
+    } else if (annotation is StickyNoteAnnotation) {
+      isTypeLocked = stickyNote.isLocked;
     }
 
     return !isLocked && !isTypeLocked && !annotation.isLocked;

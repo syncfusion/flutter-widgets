@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import 'element_widget.dart';
+
 typedef TooltipWidgetBuilder = Widget? Function(
     BuildContext, TooltipInfo?, Size);
 
@@ -164,7 +166,7 @@ class CoreTooltipState extends State<CoreTooltip>
       final RenderObject? renderObject = tooltipElement.findRenderObject();
       if (renderObject != null &&
           renderObject.attached &&
-          renderObject is RenderConstrainedLayoutBuilder) {
+          renderObject is CustomRenderConstrainedLayoutBuilder) {
         renderObject.markNeedsBuild();
       }
     }
@@ -235,7 +237,7 @@ class CoreTooltipState extends State<CoreTooltip>
         chartThemeData.platform == TargetPlatform.linux;
     return TooltipOpacity(
       opacity: widget.opacity,
-      child: LayoutBuilder(
+      child: CustomLayoutBuilder(
         key: _tooltipKey,
         builder: (BuildContext context, BoxConstraints constraints) {
           return _CoreTooltipRenderObjectWidget(

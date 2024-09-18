@@ -1,21 +1,24 @@
-part of xlsio;
+import '../../general/enums.dart';
+import '../above_below_average/above_below_average.dart';
+import '../above_below_average/above_below_average_impl.dart';
+import '../condformat_wrapper.dart';
 
 /// Represents the above or below conditional formatting rule.
 /// Applying this rule to a range helps you highlight the cells which contain values above or below the average of selected range.
-class _AboveBelowAverageWrapper implements AboveBelowAverage {
+class AboveBelowAverageWrapper implements AboveBelowAverage {
   /// Initializes new instance of the wrapper.
-  _AboveBelowAverageWrapper(
-      _AboveBelowAverageImpl aboveAverage, _ConditionalFormatWrapper format) {
+  AboveBelowAverageWrapper(
+      AboveBelowAverageImpl aboveAverage, ConditionalFormatWrapper format) {
     _wrapped = aboveAverage;
     _format = format;
   }
 
   /// Wrapped data Top10 object.
-  late _AboveBelowAverageImpl _wrapped;
+  late AboveBelowAverageImpl _wrapped;
 
   /// Parent conditional format wrapper.
   // ignore: unused_field
-  late _ConditionalFormatWrapper _format;
+  late ConditionalFormatWrapper _format;
 
   @override
 

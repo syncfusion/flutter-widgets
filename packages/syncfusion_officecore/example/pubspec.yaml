@@ -7,8 +7,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  path_provider: ^2.0.1
-  open_file: ^3.0.1
+  path_provider: ^2.0.5
+  open_file: ^3.0.3
   syncfusion_flutter_xlsio:
     path: ../../syncfusion_flutter_xlsio
 

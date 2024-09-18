@@ -128,6 +128,7 @@ class MapTileLayerController extends MapLayerController {
 // ignore_for_file: public_member_api_docs
 class TileLayer extends StatefulWidget {
   const TileLayer({
+    super.key,
     required this.urlTemplate,
     required this.initialFocalLatLng,
     required this.initialZoomLevel,

@@ -32,7 +32,8 @@ class AgendaViewLayout extends StatefulWidget {
       this.width,
       this.height,
       this.placeholderTextStyle,
-      this.calendar);
+      this.calendar,
+      {super.key});
 
   /// Defines the month view customization details.
   final MonthViewSettings? monthViewSettings;

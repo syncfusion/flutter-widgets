@@ -1,24 +1,29 @@
-part of xlsio;
+import '../general/enums.dart';
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'datavalidation.dart';
+import 'datavalidation_collection.dart';
+import 'datavalidation_impl.dart';
 
 /// Represents a dataValidationWrapper used for Single Range
-class _DataValidationWrapper implements DataValidation {
+class DataValidationWrapper implements DataValidation {
   /// Create a instance for dataValidationWrapper
-  _DataValidationWrapper(Range range, _DataValidationImpl? wrap) {
+  DataValidationWrapper(Range range, DataValidationImpl? wrap) {
     _sheet = range.worksheet;
     _range = range;
     if (wrap == null) {
-      if (_sheet._dvTable._innerList.isNotEmpty) {
-        _dvCollection = _sheet._dvTable._innerList[0];
+      if (_sheet.dataValidationTable.innerList.isNotEmpty) {
+        _dvCollection = _sheet.dataValidationTable.innerList[0];
       } else {
-        _dvCollection = _sheet._dvTable._add();
+        _dvCollection = _sheet.dataValidationTable.add();
       }
 
-      wrap = _dvCollection._addDataValidation();
+      wrap = _dvCollection.addDataValidation();
     }
 
     _mdataValidation = wrap;
-    _mdataValidation._cellRange = _range._dvValue;
-    _mdataValidation._dataRangeVal = range;
+    _mdataValidation.cellRange = _range.dataValidationValue;
+    _mdataValidation.dataRangeVal = range;
   }
 
   /// stores the entire range from range class
@@ -28,10 +33,10 @@ class _DataValidationWrapper implements DataValidation {
   late Worksheet _sheet;
 
   /// Represents an instance for DataValidationCollection
-  late _DataValidationCollection _dvCollection;
+  late DataValidationCollection _dvCollection;
 
   /// Represents an instance for DataValidationImpl
-  late _DataValidationImpl _mdataValidation;
+  late DataValidationImpl _mdataValidation;
 
   @override
 
@@ -247,7 +252,7 @@ class _DataValidationWrapper implements DataValidation {
   set promptBoxVPosition(int value) {
     if (promptBoxVPosition != value) {
       _mdataValidation.promptBoxVPosition = value;
-      _dvCollection._promptBoxVPositionVal = value;
+      _dvCollection.promptBoxVPositionVal = value;
     }
   }
 
@@ -264,7 +269,7 @@ class _DataValidationWrapper implements DataValidation {
   set promptBoxHPosition(int value) {
     if (promptBoxHPosition != value) {
       _mdataValidation.promptBoxHPosition = value;
-      _dvCollection._promptBoxHPositionVal = value;
+      _dvCollection.promptBoxHPositionVal = value;
     }
   }
 
@@ -281,7 +286,7 @@ class _DataValidationWrapper implements DataValidation {
   set isPromptBoxPositionFixed(bool value) {
     if (isPromptBoxPositionFixed != value) {
       _mdataValidation.isPromptBoxPositionFixed = value;
-      _dvCollection._isPromptBoxPositionFixedVal = value;
+      _dvCollection.isPromptBoxPositionFixedVal = value;
     }
   }
 

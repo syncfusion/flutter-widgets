@@ -252,7 +252,7 @@ class _RenderSparkBarChart extends RenderSparkChart {
   @override
   set axisCrossesAt(double? value) {
     if (_axisCrossesAt != value) {
-      _axisCrossesAt = value!;
+      _axisCrossesAt = value;
       calculateRenderingPoints();
       markNeedsPaint();
     }

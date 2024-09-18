@@ -1,37 +1,38 @@
 // ignore_for_file: unused_element, unused_field, unnecessary_getters_setters
-
-part of xlsio;
+import '../autoFilters/autofilter_impl.dart';
+import '../general/enums.dart';
+import 'filter.dart';
 
 ///Represent the dynamic filter.
-class _DynamicFilter implements _Filter {
+class DynamicFilter implements Filter {
   /// Constructor of dynamic filter.
-  _DynamicFilter(_AutoFilterImpl filter) {
+  DynamicFilter(AutoFilterImpl filter) {
     _autoFilter = filter;
   }
 
   /// Represent the autoFilter.
-  late _AutoFilterImpl _autoFilter;
+  late AutoFilterImpl _autoFilter;
 
   /// Relative date filter type used.
   late DynamicFilterType _dateFilter;
 
   /// Get the filter type.
   @override
-  _ExcelFilterType get _filterType {
-    return _ExcelFilterType.dynamicFilter;
+  ExcelFilterType get filterType {
+    return ExcelFilterType.dynamicFilter;
   }
 
   /// Set the filter type.
   @override
-  set _filterType(_ExcelFilterType filterType) {}
+  set filterType(ExcelFilterType filterType) {}
 
   /// Get the dynamic filter type.
-  DynamicFilterType get _dateFilterType {
+  DynamicFilterType get dateFilterType {
     return _dateFilter;
   }
 
   /// Set the dynamic filter type.
-  set _dateFilterType(DynamicFilterType dateFilter) {
+  set dateFilterType(DynamicFilterType dateFilter) {
     _dateFilter = dateFilter;
   }
 }

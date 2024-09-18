@@ -1,8 +1,11 @@
-part of xlsio;
+import '../../formats/format_tokens/enums.dart';
+import '../../general/culture_info.dart';
+import '../format_section.dart';
+import 'format_token_base.dart';
 
 /// Class used for Significant Digit Token.
 
-class _SignificantDigitToken extends _FormatTokenBase {
+class SignificantDigitToken extends FormatTokenBase {
   /// Format character.
 
   final String _defaultFormatChar = '0';
@@ -10,27 +13,28 @@ class _SignificantDigitToken extends _FormatTokenBase {
   /// Applies format to the value.
 
   @override
-  String _applyFormat(double value, bool bShowHiddenSymbols,
-      CultureInfo culture, _FormatSection section) {
-    return _strFormat;
+  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
+      FormatSection section) {
+    return strFormat;
   }
 
   /// Applies format to the value.
 
   @override
   // ignore: unused_element
-  String _applyFormatString(String value, bool bShowHiddenSymbols) {
-    return _strFormat;
+  String applyFormatString(String value, bool bShowHiddenSymbols) {
+    return strFormat;
   }
 
   /// Tries to parse format string.
 
   @override
-  int _tryParse(String strFormat, int iIndex) {
-    final int iFormatLength = strFormat.length;
+  int tryParse(String stringFormat, int iIndex) {
+    final int iFormatLength = stringFormat.length;
 
     if (iFormatLength == 0) {
-      final Error error = ArgumentError('strFormat - string cannot be empty');
+      final Error error =
+          ArgumentError('stringFormat - string cannot be empty');
       throw error;
     }
 
@@ -40,14 +44,14 @@ class _SignificantDigitToken extends _FormatTokenBase {
       throw error;
     }
 
-    final String chCurrent = strFormat[iIndex];
+    final String chCurrent = stringFormat[iIndex];
 
     if (_isNumeric(chCurrent)) {
       iIndex++;
-      _strFormat = chCurrent;
-    } else if (strFormat[iIndex] == r'\\' &&
-        strFormat[iIndex + 1] == _formatChar) {
-      _strFormat = strFormat[iIndex + 1];
+      strFormat = chCurrent;
+    } else if (stringFormat[iIndex] == r'\\' &&
+        stringFormat[iIndex + 1] == _formatChar) {
+      strFormat = stringFormat[iIndex + 1];
       iIndex = iIndex + 2;
     }
     return iIndex;
@@ -60,16 +64,16 @@ class _SignificantDigitToken extends _FormatTokenBase {
 
   /// Format character. Read-only.
   String get _formatChar {
-    if (_strFormat == '') {
+    if (strFormat == '') {
       return _defaultFormatChar;
     }
-    return _strFormat;
+    return strFormat;
   }
 
   /// Gets type of the token. Read-only.
 
   @override
-  _TokenType get _tokenType {
-    return _TokenType.significantDigit;
+  TokenType get tokenType {
+    return TokenType.significantDigit;
   }
 }

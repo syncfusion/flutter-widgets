@@ -1,5 +1,3 @@
-// ignore_for_file: only_throw_errors
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -47,14 +45,7 @@ class NetworkPdf extends PdfProvider {
 
   @override
   Future<Uint8List> getPdfBytes(BuildContext context) async {
-    if (_documentBytes == null) {
-      try {
-        _documentBytes =
-            await http.readBytes(Uri.parse(_url), headers: _headers);
-      } on Exception catch (e) {
-        throw e.toString();
-      }
-    }
+    _documentBytes ??= await http.readBytes(Uri.parse(_url), headers: _headers);
     return Future<Uint8List>.value(_documentBytes);
   }
 }
@@ -108,14 +99,10 @@ class AssetPdf extends PdfProvider {
   @override
   Future<Uint8List> getPdfBytes(BuildContext context) async {
     if (_documentBytes == null) {
-      try {
-        final ByteData bytes = await ((_bundle != null)
-            ? _bundle!.load(_pdfPath)
-            : DefaultAssetBundle.of(context).load(_pdfPath));
-        _documentBytes = bytes.buffer.asUint8List();
-      } on Exception catch (e) {
-        throw e.toString();
-      }
+      final ByteData bytes = await ((_bundle != null)
+          ? _bundle!.load(_pdfPath)
+          : DefaultAssetBundle.of(context).load(_pdfPath));
+      _documentBytes = bytes.buffer.asUint8List();
     }
     return Future<Uint8List>.value(_documentBytes);
   }
@@ -141,13 +128,7 @@ class FilePdf extends PdfProvider {
 
   @override
   Future<Uint8List> getPdfBytes(BuildContext context) async {
-    if (_documentBytes == null) {
-      try {
-        _documentBytes = await _file.readAsBytes();
-      } on Exception catch (e) {
-        throw e.toString();
-      }
-    }
+    _documentBytes ??= await _file.readAsBytes();
     return Future<Uint8List>.value(_documentBytes);
   }
 }

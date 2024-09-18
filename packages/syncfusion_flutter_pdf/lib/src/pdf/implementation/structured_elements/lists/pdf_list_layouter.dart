@@ -42,7 +42,7 @@ class PdfListLayouter extends ElementLayouter {
   PdfList? curList;
 
   /// List that contains ListInfo.
-  List<_ListInfo> info = <_ListInfo>[];
+  List<ListInfo> info = <ListInfo>[];
 
   /// Index of item that lay outing.
   int index = 0;
@@ -201,7 +201,7 @@ class PdfListLayouter extends ElementLayouter {
           if (curList is PdfOrderedList) {
             final PdfOrderedList oList = curList! as PdfOrderedList;
             PdfOrderedMarkerHelper.getHelper(oList.marker).currentIndex = index;
-            final _ListInfo listInfo = _ListInfo(curList, index,
+            final ListInfo listInfo = ListInfo(curList, index,
                 PdfOrderedMarkerHelper.getHelper(oList.marker).getNumber());
             listInfo.brush = currentBrush;
             listInfo.font = currentFont;
@@ -210,7 +210,7 @@ class PdfListLayouter extends ElementLayouter {
             listInfo.markerWidth = markerMaxWidth as double?;
             info.add(listInfo);
           } else {
-            final _ListInfo listInfo = _ListInfo(curList, index);
+            final ListInfo listInfo = ListInfo(curList, index);
             listInfo.brush = currentBrush;
             listInfo.font = currentFont;
             listInfo.format = currentFormat;
@@ -234,7 +234,7 @@ class PdfListLayouter extends ElementLayouter {
         finish = true;
         break;
       }
-      final _ListInfo listInfo = info.last;
+      final ListInfo listInfo = info.last;
       info.remove(listInfo);
       index = listInfo.index + 1;
       indent = indent! - curList!.indent;
@@ -256,7 +256,7 @@ class PdfListLayouter extends ElementLayouter {
       PdfList curList,
       int index,
       double indent,
-      List<_ListInfo> listInfo,
+      List<ListInfo> listInfo,
       PdfListItem item,
       double height,
       double y) {
@@ -523,7 +523,7 @@ class PdfListLayouter extends ElementLayouter {
   }
 
   /// Gets the width of the marker max.
-  double? _getMarkerMaxWidth(PdfOrderedList list, List<_ListInfo> info) {
+  double? _getMarkerMaxWidth(PdfOrderedList list, List<ListInfo> info) {
     double? width = -1;
 
     for (int i = 0; i < list.items.count; i++) {
@@ -539,7 +539,7 @@ class PdfListLayouter extends ElementLayouter {
 
   /// Creates the ordered marker result.
   PdfStringLayoutResult _createOrderedMarkerResult(PdfList list,
-      PdfListItem? item, int index, List<_ListInfo> info, bool findMaxWidth) {
+      PdfListItem? item, int index, List<ListInfo> info, bool findMaxWidth) {
     PdfOrderedList orderedList = list as PdfOrderedList;
     PdfOrderedMarker marker = orderedList.marker;
     PdfOrderedMarkerHelper.getHelper(marker).currentIndex = index;
@@ -551,9 +551,9 @@ class PdfListLayouter extends ElementLayouter {
           orderedList.marker.suffix;
     }
     if (orderedList.markerHierarchy) {
-      final List<_ListInfo> listInfos = info;
+      final List<ListInfo> listInfos = info;
       for (int i = listInfos.length - 1; i >= 0; i--) {
-        final _ListInfo listInfo = listInfos[i];
+        final ListInfo listInfo = listInfos[i];
         if (listInfo.list is PdfUnorderedList) {
           break;
         }
@@ -808,7 +808,7 @@ class PdfListLayouter extends ElementLayouter {
 
   /// Creates the marker result.
   PdfStringLayoutResult? _createMarkerResult(
-      int index, PdfList curList, List<_ListInfo> listInfo, PdfListItem item) {
+      int index, PdfList curList, List<ListInfo> listInfo, PdfListItem item) {
     PdfStringLayoutResult? markerResult;
     if (curList is PdfOrderedList) {
       markerResult =
@@ -887,9 +887,9 @@ class _PageLayoutResult {
 }
 
 /// Represents information about list.
-class _ListInfo {
-  /// Initializes a new instance of the [_ListInfo] class.
-  _ListInfo(this.list, this.index, [this.number = '']);
+class ListInfo {
+  /// Initializes a new instance of the [ListInfo] class.
+  ListInfo(this.list, this.index, [this.number = '']);
 
   /// Index of list.
   int index;

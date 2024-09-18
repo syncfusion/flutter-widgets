@@ -2,6 +2,31 @@
 
 **Bugs**
 
+* The selection is now disabled on secondary mouse tap when the `onCellDoubleTap` callback is enabled.
+
+## [26.1.40] - 07/02/2024
+
+**Bugs**
+
+* The `ScrollController not attached to any scroll views exception` will not be thrown when navigating to the new page from datagrid.
+
+## [26.1.39] - 06/25/2024
+
+**Bugs**
+
+* The datagrid now arranges header cells correctly when resizing a column from the maximum scroll extent position.
+
+## [25.2.7] - 06/04/2024
+
+**Bugs**
+
+* The datagrid now draws the outer border on all sides when gridline visibility is not set to none.
+* The datagrid now properly selects rows during shift selection.
+
+## [25.2.6] - 05/28/2024
+
+**Bugs**
+
 * The custom filter icons now align properly during horizontal scrolling. 
 * The "index out of range" exception will no longer be thrown when resizing a column with an empty data source.
 

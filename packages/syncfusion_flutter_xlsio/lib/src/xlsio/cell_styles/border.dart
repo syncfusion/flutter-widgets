@@ -1,4 +1,5 @@
-part of xlsio;
+import 'dart:ui';
+import '../general/enums.dart';
 
 /// Represent cell individual border.
 class Border {
@@ -90,7 +91,7 @@ class CellBorder implements Border {
   }
 
   /// Clone method of Cell Border.
-  CellBorder _clone() {
+  CellBorder clone() {
     final CellBorder cellBorder = CellBorder(lineStyle, color);
     return cellBorder;
   }

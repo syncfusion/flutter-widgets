@@ -44,14 +44,14 @@ class IAsn1Collection implements IAsn1 {
 /// internal class
 abstract class Asn1 extends Asn1Encode {
   /// internal constructor
-  Asn1([List<_Asn1UniversalTags>? tag]) {
+  Asn1([List<Asn1UniversalTags>? tag]) {
     if (tag != null) {
       _tag = tag;
     }
   }
 
   //Fields
-  late List<_Asn1UniversalTags> _tag;
+  late List<Asn1UniversalTags> _tag;
 
   /// internal field
   List<int>? bytes;
@@ -132,104 +132,104 @@ abstract class Asn1 extends Asn1Encode {
   }
 
   /// internal method
-  int getTagValue(List<_Asn1UniversalTags> tags) {
+  int getTagValue(List<Asn1UniversalTags> tags) {
     int value = 0;
-    for (final _Asn1UniversalTags tag in tags) {
+    for (final Asn1UniversalTags tag in tags) {
       switch (tag) {
-        case _Asn1UniversalTags.reservedBER:
+        case Asn1UniversalTags.reservedBER:
           value |= 0;
           break;
-        case _Asn1UniversalTags.boolean:
+        case Asn1UniversalTags.boolean:
           value |= 1;
           break;
-        case _Asn1UniversalTags.integer:
+        case Asn1UniversalTags.integer:
           value |= 2;
           break;
-        case _Asn1UniversalTags.bitString:
+        case Asn1UniversalTags.bitString:
           value |= 3;
           break;
-        case _Asn1UniversalTags.octetString:
+        case Asn1UniversalTags.octetString:
           value |= 4;
           break;
-        case _Asn1UniversalTags.nullValue:
+        case Asn1UniversalTags.nullValue:
           value |= 5;
           break;
-        case _Asn1UniversalTags.objectIdentifier:
+        case Asn1UniversalTags.objectIdentifier:
           value |= 6;
           break;
-        case _Asn1UniversalTags.objectDescriptor:
+        case Asn1UniversalTags.objectDescriptor:
           value |= 7;
           break;
-        case _Asn1UniversalTags.externalValue:
+        case Asn1UniversalTags.externalValue:
           value |= 8;
           break;
-        case _Asn1UniversalTags.real:
+        case Asn1UniversalTags.real:
           value |= 9;
           break;
-        case _Asn1UniversalTags.enumerated:
+        case Asn1UniversalTags.enumerated:
           value |= 10;
           break;
-        case _Asn1UniversalTags.embeddedPDV:
+        case Asn1UniversalTags.embeddedPDV:
           value |= 11;
           break;
-        case _Asn1UniversalTags.utf8String:
+        case Asn1UniversalTags.utf8String:
           value |= 12;
           break;
-        case _Asn1UniversalTags.relativeOid:
+        case Asn1UniversalTags.relativeOid:
           value |= 13;
           break;
-        case _Asn1UniversalTags.sequence:
+        case Asn1UniversalTags.sequence:
           value |= 16;
           break;
-        case _Asn1UniversalTags.setValue:
+        case Asn1UniversalTags.setValue:
           value |= 17;
           break;
-        case _Asn1UniversalTags.numericString:
+        case Asn1UniversalTags.numericString:
           value |= 18;
           break;
-        case _Asn1UniversalTags.printableString:
+        case Asn1UniversalTags.printableString:
           value |= 19;
           break;
-        case _Asn1UniversalTags.teletexString:
+        case Asn1UniversalTags.teletexString:
           value |= 20;
           break;
-        case _Asn1UniversalTags.videotexString:
+        case Asn1UniversalTags.videotexString:
           value |= 21;
           break;
-        case _Asn1UniversalTags.ia5String:
+        case Asn1UniversalTags.ia5String:
           value |= 22;
           break;
-        case _Asn1UniversalTags.utfTime:
+        case Asn1UniversalTags.utfTime:
           value |= 23;
           break;
-        case _Asn1UniversalTags.generalizedTime:
+        case Asn1UniversalTags.generalizedTime:
           value |= 24;
           break;
-        case _Asn1UniversalTags.graphicsString:
+        case Asn1UniversalTags.graphicsString:
           value |= 25;
           break;
-        case _Asn1UniversalTags.visibleString:
+        case Asn1UniversalTags.visibleString:
           value |= 26;
           break;
-        case _Asn1UniversalTags.generalString:
+        case Asn1UniversalTags.generalString:
           value |= 27;
           break;
-        case _Asn1UniversalTags.universalString:
+        case Asn1UniversalTags.universalString:
           value |= 28;
           break;
-        case _Asn1UniversalTags.characterString:
+        case Asn1UniversalTags.characterString:
           value |= 29;
           break;
-        case _Asn1UniversalTags.bmpString:
+        case Asn1UniversalTags.bmpString:
           value |= 30;
           break;
-        case _Asn1UniversalTags.constructed:
+        case Asn1UniversalTags.constructed:
           value |= 32;
           break;
-        case _Asn1UniversalTags.application:
+        case Asn1UniversalTags.application:
           value |= 64;
           break;
-        case _Asn1UniversalTags.tagged:
+        case Asn1UniversalTags.tagged:
           value |= 128;
           break;
       }
@@ -420,7 +420,7 @@ class Asn1EncodeCollection {
 class Asn1Octet extends Asn1 implements IAsn1Octet {
   /// internal constructor
   Asn1Octet(this.value)
-      : super(<_Asn1UniversalTags>[_Asn1UniversalTags.octetString]);
+      : super(<Asn1UniversalTags>[Asn1UniversalTags.octetString]);
 
   /// internal constructor
   Asn1Octet.fromObject(Asn1Encode obj) {
@@ -500,7 +500,7 @@ class Asn1Octet extends Asn1 implements IAsn1Octet {
 /// internal class
 abstract class Asn1Null extends Asn1 {
   /// internal constructor
-  Asn1Null() : super(<_Asn1UniversalTags>[_Asn1UniversalTags.nullValue]);
+  Asn1Null() : super(<Asn1UniversalTags>[Asn1UniversalTags.nullValue]);
   //Implementation
   /// internal method
   List<int> toArray() {
@@ -528,9 +528,9 @@ class Asn1Sequence extends Asn1 {
   //Constructor
   /// internal constructor
   Asn1Sequence()
-      : super(<_Asn1UniversalTags>[
-          _Asn1UniversalTags.sequence,
-          _Asn1UniversalTags.constructed
+      : super(<Asn1UniversalTags>[
+          Asn1UniversalTags.sequence,
+          Asn1UniversalTags.constructed
         ]) {
     objects = <dynamic>[];
   }
@@ -1080,7 +1080,7 @@ class Asn1DerStream extends DerStream {
 class Asn1Integer extends Asn1 {
   /// internal constructor
   Asn1Integer(this._value)
-      : super(<_Asn1UniversalTags>[_Asn1UniversalTags.integer]);
+      : super(<Asn1UniversalTags>[Asn1UniversalTags.integer]);
 
   /// internal field
   late final int _value;
@@ -1098,7 +1098,7 @@ class Asn1Integer extends Asn1 {
   @override
   void encode(DerStream derOut) {
     derOut.writeEncoded(
-        getTagValue(<_Asn1UniversalTags>[_Asn1UniversalTags.integer]), null);
+        getTagValue(<Asn1UniversalTags>[Asn1UniversalTags.integer]), null);
   }
 
   List<int> _getBytesFromLong(int value) {
@@ -1114,7 +1114,7 @@ class Asn1Integer extends Asn1 {
 class Asn1Boolean extends Asn1 {
   /// internal constructor
   Asn1Boolean(this._value)
-      : super(<_Asn1UniversalTags>[_Asn1UniversalTags.boolean]);
+      : super(<Asn1UniversalTags>[Asn1UniversalTags.boolean]);
 
   /// internal field
   late final bool _value;
@@ -1132,7 +1132,7 @@ class Asn1Boolean extends Asn1 {
   @override
   void encode(DerStream derOut) {
     derOut.writeEncoded(
-        getTagValue(<_Asn1UniversalTags>[_Asn1UniversalTags.boolean]),
+        getTagValue(<Asn1UniversalTags>[Asn1UniversalTags.boolean]),
         _toArray());
   }
 }
@@ -1141,7 +1141,7 @@ class Asn1Boolean extends Asn1 {
 class Asn1Identifier extends Asn1 {
   /// internal constructor
   Asn1Identifier(this._id)
-      : super(<_Asn1UniversalTags>[_Asn1UniversalTags.objectIdentifier]);
+      : super(<Asn1UniversalTags>[Asn1UniversalTags.objectIdentifier]);
 
   /// internal field
   late final String _id;
@@ -1217,7 +1217,7 @@ class Asn1Identifier extends Asn1 {
   @override
   void encode(DerStream derOut) {
     derOut.writeEncoded(
-        getTagValue(<_Asn1UniversalTags>[_Asn1UniversalTags.objectIdentifier]),
+        getTagValue(<Asn1UniversalTags>[Asn1UniversalTags.objectIdentifier]),
         _toArray());
   }
 }
@@ -1313,7 +1313,7 @@ class Asn1Tags {
   static const int tagged = 0x80;
 }
 
-enum _Asn1UniversalTags {
+enum Asn1UniversalTags {
   reservedBER,
   boolean,
   integer,

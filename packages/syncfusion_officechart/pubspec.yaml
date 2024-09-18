@@ -1,6 +1,6 @@
 name: syncfusion_officechart
 description: Syncfusion Flutter Office Chart is a library written natively in Dart for creating Office charts from scratch.
-version: 25.2.6
+version: 27.1.48
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_officechart
 
 environment:

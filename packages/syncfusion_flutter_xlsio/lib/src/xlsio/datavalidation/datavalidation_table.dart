@@ -1,37 +1,39 @@
-part of xlsio;
+import '../worksheet/worksheet.dart';
+import 'datavalidation_collection.dart';
+import 'datavalidation_impl.dart';
 
 /// Represents a dataValidationTable used for storing dataValidationCollectionList
-class _DataValidationTable {
+class DataValidationTable {
   ///Represents an instance created for DataValidationTable
-  _DataValidationTable(Worksheet value) {
+  DataValidationTable(Worksheet value) {
     _worksheet = value;
 
-    _dataValidationCollectionList = <_DataValidationCollection>[];
+    dataValidationCollectionList = <DataValidationCollection>[];
   }
 
   /// Represents the parent Worksheet
   late Worksheet _worksheet;
 
   /// Represents the list for storing DataValidationCollection datas
-  late List<_DataValidationCollection> _dataValidationCollectionList;
+  late List<DataValidationCollection> dataValidationCollectionList;
 
   /// gets the count of the table instance created. Read-only
-  int get _count {
-    return _worksheet._tableCount;
+  int get count {
+    return _worksheet.tableCount;
   }
 
   /// gets the DataValidationCollectionlist. ReadOnly
-  List<_DataValidationCollection> get _innerList {
-    return _dataValidationCollectionList;
+  List<DataValidationCollection> get innerList {
+    return dataValidationCollectionList;
   }
 
   /// Represents the method to check whether dataValidation is applied to the cell
-  _DataValidationImpl? _findDataValidation(String dvValue) {
+  DataValidationImpl? findDataValidation(String dvValue) {
     for (int dvCollection = 0;
-        dvCollection < _dataValidationCollectionList.length;
+        dvCollection < dataValidationCollectionList.length;
         dvCollection++) {
-      final _DataValidationImpl? result =
-          _dataValidationCollectionList[dvCollection]._findByCellIndex(dvValue);
+      final DataValidationImpl? result =
+          dataValidationCollectionList[dvCollection].findByCellIndex(dvValue);
       if (result != null) {
         return result;
       }
@@ -40,21 +42,21 @@ class _DataValidationTable {
   }
 
   ///Represents the method to add DataValidationCollection to the list
-  late _DataValidationCollection _dvalCollection;
-  _DataValidationCollection _add() {
-    _dvalCollection = _DataValidationCollection();
+  late DataValidationCollection _dvalCollection;
+  DataValidationCollection add() {
+    _dvalCollection = DataValidationCollection();
 
-    _dataValidationCollectionList.add(_dvalCollection);
+    dataValidationCollectionList.add(_dvalCollection);
 
     return _dvalCollection;
   }
 
-  void _clear() {
-    for (final _DataValidationCollection dataValidationCollection
-        in _dataValidationCollectionList) {
-      dataValidationCollection._clear();
+  void clear() {
+    for (final DataValidationCollection dataValidationCollection
+        in dataValidationCollectionList) {
+      dataValidationCollection.clear();
     }
 
-    _dataValidationCollectionList.clear();
+    dataValidationCollectionList.clear();
   }
 }

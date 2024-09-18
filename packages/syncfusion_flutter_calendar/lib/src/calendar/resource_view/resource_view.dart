@@ -23,7 +23,8 @@ class ResourceViewWidget extends StatefulWidget {
       this.imagePainterCollection,
       this.width,
       this.panelHeight,
-      this.resourceViewHeaderBuilder);
+      this.resourceViewHeaderBuilder,
+      {super.key});
 
   /// Holds the resources of the calendar.
   final List<CalendarResource>? resources;

@@ -1,9 +1,23 @@
-part of xlsio;
+import 'dart:convert';
+
+import 'package:archive/archive.dart';
+import 'package:xml/xml.dart';
+
+import '../autoFilters/autofilter_impl.dart';
+import '../general/enums.dart';
+import '../general/serialize_workbook.dart';
+import '../general/workbook.dart';
+import '../worksheet/worksheet.dart';
+import 'exceltable.dart';
+import 'exceltable_impl.dart';
+import 'exceltablecollection.dart';
+import 'exceltablecolumn.dart';
+import 'exceltablecolumn_impl.dart';
 
 /// Represents the table serialize class.
-class _TableSerialization {
+class TableSerialization {
   /// Initializes new instance of the class.
-  _TableSerialization(Workbook workbook) {
+  TableSerialization(Workbook workbook) {
     _workbook = workbook;
   }
 
@@ -11,16 +25,16 @@ class _TableSerialization {
   late Workbook _workbook;
 
   /// Serialize Tables
-  void _serializeTables(XmlBuilder builder, Worksheet sheet) {
+  void serializeTables(XmlBuilder builder, Worksheet sheet) {
     final ExcelTableCollection tableCollection = sheet.tableCollection;
     int rid;
     int id = 1;
-    if (tableCollection._count > 0) {
+    if (tableCollection.count > 0) {
       if (sheet.hyperlinks.count > 0) {
         for (int hyperlinkIndex = 0;
             hyperlinkIndex < sheet.hyperlinks.count;
             hyperlinkIndex++) {
-          if (sheet.hyperlinks[hyperlinkIndex]._attachedType ==
+          if (sheet.hyperlinks[hyperlinkIndex].attachedType ==
                   ExcelHyperlinkAttachedType.range &&
               sheet.hyperlinks[hyperlinkIndex].type != HyperlinkType.workbook) {
             id++;
@@ -40,9 +54,9 @@ class _TableSerialization {
         }
       }
       builder.element('tableParts', nest: () {
-        builder.attribute('count', tableCollection._count);
+        builder.attribute('count', tableCollection.count);
         for (int tableCount = 0;
-            tableCount < tableCollection._count;
+            tableCount < tableCollection.count;
             tableCount++) {
           rid = id++;
           final ExcelTable table = tableCollection[tableCount];
@@ -87,10 +101,10 @@ class _TableSerialization {
   /// Serialize Table
   void _serializeTable(ExcelTable table, int index, Worksheet sheet) {
     final XmlBuilder builder = XmlBuilder();
-    _workbook._tableCount++;
+    _workbook.tableCount++;
     builder.element('table', nest: () {
-      builder.attribute('id', (table as _ExcelTableImpl)._tableIndex);
-      builder.attribute('name', table._tableName);
+      builder.attribute('id', (table as ExcelTableImpl).tableIndex);
+      builder.attribute('name', table.tableName);
       builder.attribute('displayName', table.displayName);
       builder.attribute('ref', table.dataRange.addressLocal);
       if (!table.totalsRowShown) {
@@ -102,7 +116,7 @@ class _TableSerialization {
       builder.namespace(
           'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
 
-      final _ExcelTableImpl typedTable = table;
+      final ExcelTableImpl typedTable = table;
       if (!typedTable.showHeaderRow) {
         builder.attribute('headerRowCount', '0');
       }
@@ -111,13 +125,13 @@ class _TableSerialization {
           builder.attribute('ref', sheet.autoFilters.filterRange.addressLocal);
           // ignore: always_specify_types
           for (int i = 0; i < sheet.autoFilters.count; i++) {
-            final _AutoFilterImpl autoFilter =
-                sheet.autoFilters[i] as _AutoFilterImpl;
+            final AutoFilterImpl autoFilter =
+                sheet.autoFilters[i] as AutoFilterImpl;
 
-            if (autoFilter._isFiltered) {
+            if (autoFilter.isFiltered) {
               final SerializeWorkbook serializeWorkbook =
                   SerializeWorkbook(sheet.workbook);
-              serializeWorkbook._serializeFilterColumn(builder, autoFilter);
+              serializeWorkbook.serializeFilterColumn(builder, autoFilter);
             }
           }
         });
@@ -130,12 +144,12 @@ class _TableSerialization {
     });
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
-    _addToArchive(bytes, 'xl/tables/table${_workbook._tableCount}.xml');
+    _addToArchive(bytes, 'xl/tables/table${_workbook.tableCount}.xml');
   }
 
   ///Check is Table AutoFlter
   bool _isTableAutoFlter(Worksheet sheet) {
-    for (int i = 0; i < sheet.tableCollection._count; i++) {
+    for (int i = 0; i < sheet.tableCollection.count; i++) {
       if ((sheet.autoFilters.count != 0) &&
           (sheet.tableCollection[i].dataRange.addressLocal ==
               sheet.autoFilters.filterRange.addressLocal)) {
@@ -165,7 +179,7 @@ class _TableSerialization {
   /// Serialize Column.
   void _serializeTableColumn(XmlBuilder builder, ExcelTableColumn column) {
     builder.element('tableColumn', nest: () {
-      builder.attribute('id', (column as _ExcelTableColumnImpl)._columnId);
+      builder.attribute('id', (column as ExcelTableColumnImpl).columnId);
       builder.attribute('name', column.columnName);
       _serializeAttributeString(
           builder, 'totalsRowLabel', column.totalRowLabel, '');
@@ -438,17 +452,16 @@ class _TableSerialization {
   }
 
   /// Serialize Tables
-  Future<void> _serializeTablesAsync(
-      XmlBuilder builder, Worksheet sheet) async {
+  Future<void> serializeTablesAsync(XmlBuilder builder, Worksheet sheet) async {
     final ExcelTableCollection tableCollection = sheet.tableCollection;
     int rid;
     int id = 1;
-    if (tableCollection._count > 0) {
+    if (tableCollection.count > 0) {
       if (sheet.hyperlinks.count > 0) {
         for (int hyperlinkIndex = 0;
             hyperlinkIndex < sheet.hyperlinks.count;
             hyperlinkIndex++) {
-          if (sheet.hyperlinks[hyperlinkIndex]._attachedType ==
+          if (sheet.hyperlinks[hyperlinkIndex].attachedType ==
                   ExcelHyperlinkAttachedType.range &&
               sheet.hyperlinks[hyperlinkIndex].type != HyperlinkType.workbook) {
             id++;
@@ -463,9 +476,9 @@ class _TableSerialization {
         }
       }
       builder.element('tableParts', nest: () async {
-        builder.attribute('count', tableCollection._count);
+        builder.attribute('count', tableCollection.count);
         for (int tableCount = 0;
-            tableCount < tableCollection._count;
+            tableCount < tableCollection.count;
             tableCount++) {
           rid = id++;
           final ExcelTable table = tableCollection[tableCount];
@@ -510,10 +523,10 @@ class _TableSerialization {
   /// Serialize Table
   Future<void> _serializeTableAsync(ExcelTable table, int index) async {
     final XmlBuilder builder = XmlBuilder();
-    _workbook._tableCount++;
+    _workbook.tableCount++;
     builder.element('table', nest: () async {
-      builder.attribute('id', (table as _ExcelTableImpl)._tableIndex);
-      builder.attribute('name', table._tableName);
+      builder.attribute('id', (table as ExcelTableImpl).tableIndex);
+      builder.attribute('name', table.tableName);
       builder.attribute('displayName', table.displayName);
       builder.attribute('ref', table.dataRange.addressLocal);
       if (!table.totalsRowShown) {
@@ -525,7 +538,7 @@ class _TableSerialization {
       builder.namespace(
           'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
 
-      final _ExcelTableImpl typedTable = table;
+      final ExcelTableImpl typedTable = table;
       if (!typedTable.showHeaderRow) {
         builder.attribute('headerRowCount', '0');
       }
@@ -536,7 +549,7 @@ class _TableSerialization {
     });
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
-    _addToArchiveAsync(bytes, 'xl/tables/table${_workbook._tableCount}.xml');
+    _addToArchiveAsync(bytes, 'xl/tables/table${_workbook.tableCount}.xml');
   }
 
   /// Add the workbook data with filename to ZipArchive.
@@ -560,7 +573,7 @@ class _TableSerialization {
   Future<void> _serializeTableColumnAsync(
       XmlBuilder builder, ExcelTableColumn column) async {
     builder.element('tableColumn', nest: () async {
-      builder.attribute('id', (column as _ExcelTableColumnImpl)._columnId);
+      builder.attribute('id', (column as ExcelTableColumnImpl).columnId);
       builder.attribute('name', column.columnName);
       _serializeAttributeStringAsync(
           builder, 'totalsRowLabel', column.totalRowLabel, '');

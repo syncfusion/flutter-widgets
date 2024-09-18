@@ -10,6 +10,7 @@ import '../utils.dart';
 // ignore_for_file: public_member_api_docs
 class MapDataLabel extends LeafRenderObjectWidget {
   const MapDataLabel({
+    super.key,
     required this.source,
     required this.mapDataSource,
     required this.settings,

@@ -99,7 +99,7 @@ class SfSparkLineChartRenderObjectWidget
         marker: marker,
         labelDisplayMode: labelDisplayMode,
         labelStyle: labelStyle,
-        themeData: themeData!,
+        themeData: themeData,
         sparkChartDataDetails: sparkChartDataDetails,
         coordinatePoints: coordinatePoints,
         dataPoints: dataPoints);

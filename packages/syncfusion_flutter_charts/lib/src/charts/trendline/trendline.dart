@@ -991,8 +991,8 @@ class TrendlineRenderer extends RenderBox {
   double? get intercept => _intercept;
   double? _intercept;
   set intercept(double? value) {
-    if (intercept != value) {
-      intercept = value;
+    if (_intercept != value) {
+      _intercept = value;
       markNeedsLayout();
     }
   }
@@ -1011,14 +1011,21 @@ class TrendlineRenderer extends RenderBox {
   DoubleRange xRange = DoubleRange(double.infinity, double.negativeInfinity);
   DoubleRange yRange = DoubleRange(double.infinity, double.negativeInfinity);
 
-  final List<Offset> _points = <Offset>[];
-
-  final Path _path = Path();
-  final List<ChartMarker> _markers = <ChartMarker>[];
   CartesianSeriesRenderer? series;
+  final List<ChartMarker> _markers = <ChartMarker>[];
+  final List<Offset> _points = <Offset>[];
+  // The _points list updates with calculatedDataPoints values when the
+  // callback is invoked, causing the tooltip is not showing. To avoid this,
+  // the _renderPoints list is exposed and handled accordingly.
+  List<Offset> _renderPoints = <Offset>[];
+  final Path _path = Path();
+
   List<num> trendlineXValues = <num>[];
   List<num> trendlineYValues = <num>[];
   List<int> trendSegmentIndexes = <int>[];
+  _SlopeIntercept _slopeIntercept = _SlopeIntercept();
+  List<double>? _slope = <double>[];
+  double? _rSquaredValue;
 
   RenderChartAxis? get xAxis => _xAxis;
   RenderChartAxis? _xAxis;
@@ -1752,12 +1759,9 @@ class TrendlineRenderer extends RenderBox {
     final double x2Value = transformX(x2, y2);
     final double y2Value = transformY(x2, y2);
 
-    _points.add(Offset(x1Value, y1Value));
-    _points.add(Offset(x2Value, y2Value));
-
-    _path
-      ..moveTo(x1Value, y1Value)
-      ..lineTo(x2Value, y2Value);
+    _points
+      ..add(Offset(x1Value, y1Value))
+      ..add(Offset(x2Value, y2Value));
   }
 
   void _transformTrendlineWithControlPoints() {
@@ -1768,32 +1772,14 @@ class TrendlineRenderer extends RenderBox {
     final double moveX = transformX(x1, y1);
     final double moveY = transformY(x1, y1);
     _points.add(Offset(moveX, moveY));
-    _path.moveTo(moveX, moveY);
 
     final int length = trendlineXValues.length;
     for (int i = 0; i < length - 1; i++) {
       final num x2 = trendlineXValues[i + 1];
       final num y2 = trendlineYValues[i + 1];
-      final List<Offset> controlPoints = _computeControlPoints(i);
-      final double controlX1 = controlPoints[0].dx;
-      final double controlY1 = controlPoints[0].dy;
-      final double controlX2 = controlPoints[1].dx;
-      final double controlY2 = controlPoints[1].dy;
-      final double controlX1Value = transformX(controlX1, controlY1);
-      final double controlY1Value = transformY(controlX1, controlY1);
-      final double controlX2Value = transformX(controlX2, controlY2);
-      final double controlY2Value = transformY(controlX2, controlY2);
       final double x2Value = transformX(x2, y2);
       final double y2Value = transformY(x2, y2);
       _points.add(Offset(x2Value, y2Value));
-      _path.cubicTo(
-        controlX1Value,
-        controlY1Value,
-        controlX2Value,
-        controlY2Value,
-        x2Value,
-        y2Value,
-      );
     }
   }
 
@@ -1805,7 +1791,6 @@ class TrendlineRenderer extends RenderBox {
     final double x1Value = transformX(x1, y1);
     final double y1Value = transformY(x1, y1);
     _points.add(Offset(x1Value, y1Value));
-    _path.moveTo(x1Value, y1Value);
 
     final int length = trendlineXValues.length;
     for (int i = 1; i < length; i++) {
@@ -1814,7 +1799,45 @@ class TrendlineRenderer extends RenderBox {
       final double x2Value = transformX(x2, y2);
       final double y2Value = transformY(x2, y2);
       _points.add(Offset(x2Value, y2Value));
-      _path.lineTo(x2Value, y2Value);
+    }
+  }
+
+  void _computeLinearPath() {
+    final Offset start = _renderPoints[0];
+    _path.moveTo(start.dx, start.dy);
+    final int length = _renderPoints.length;
+    for (int i = 1; i < length; i++) {
+      final Offset next = _renderPoints[i];
+      _path.lineTo(next.dx, next.dy);
+    }
+  }
+
+  void _computeCubicPath() {
+    final Function(num, num) transformX = series!.pointToPixelX;
+    final Function(num, num) transformY = series!.pointToPixelY;
+    final Offset start = _renderPoints[0];
+    _path.moveTo(start.dx, start.dy);
+
+    final int lastIndex = _renderPoints.length - 1;
+    for (int i = 0; i < lastIndex; i++) {
+      final Offset next = _renderPoints[i + 1];
+      final List<Offset> controlPoints = _computeControlPoints(i);
+      final double controlX1 = controlPoints[0].dx;
+      final double controlY1 = controlPoints[0].dy;
+      final double controlX2 = controlPoints[1].dx;
+      final double controlY2 = controlPoints[1].dy;
+      final double controlX1Value = transformX(controlX1, controlY1);
+      final double controlY1Value = transformY(controlX1, controlY1);
+      final double controlX2Value = transformX(controlX2, controlY2);
+      final double controlY2Value = transformY(controlX2, controlY2);
+      _path.cubicTo(
+        controlX1Value,
+        controlY1Value,
+        controlX2Value,
+        controlY2Value,
+        next.dx,
+        next.dy,
+      );
     }
   }
 
@@ -2046,6 +2069,22 @@ class TrendlineRenderer extends RenderBox {
     return _computeDateTimeDuration(isForeCast!).toDouble();
   }
 
+  void _resetTrendlineDataHolders() {
+    trendlineXValues.clear();
+    trendlineYValues.clear();
+    trendSegmentIndexes.clear();
+    _rSquaredValue = null;
+    _slope = null;
+    _slopeIntercept = _SlopeIntercept();
+  }
+
+  void _resetRenderPoints() {
+    _points.clear();
+    _renderPoints.clear();
+    _path.reset();
+    _markers.clear();
+  }
+
   void populateDataSource(List<num> seriesXValues, List<num> seriesYValues) {
     final bool trendIsVisible = !isToggled &&
         (type == TrendlineType.polynomial
@@ -2063,11 +2102,8 @@ class TrendlineRenderer extends RenderBox {
 
     final List<num> yValues = <num>[];
     final List<num> slopeInterceptXValues = <num>[];
-    final _SlopeIntercept slopeIntercept = _SlopeIntercept();
     _SlopeIntercept slopeInterceptData = _SlopeIntercept();
     List<num?>? polynomialSlopes;
-    List<double>? polynomialSlopesData;
-    List<double>? slope;
 
     late Function(int, num) slopeValue;
     late Function(num, double) forecastValue;
@@ -2083,11 +2119,6 @@ class TrendlineRenderer extends RenderBox {
     }
 
     _resetTrendlineDataHolders();
-    yValues.clear();
-    slopeInterceptXValues.clear();
-    trendlineXValues.clear();
-    trendlineYValues.clear();
-
     if (xAxis is RenderDateTimeAxis) {
       slopeValue = _slopeDateTimeXValue;
       forecastValue = _forecastDateTimeValue;
@@ -2113,7 +2144,7 @@ class TrendlineRenderer extends RenderBox {
             seriesXValues,
             seriesYValues,
             sortedXValues,
-            slopeIntercept,
+            _slopeIntercept,
             slopeInterceptData,
             slopeValue,
             forecastValue,
@@ -2126,7 +2157,7 @@ class TrendlineRenderer extends RenderBox {
             seriesXValues,
             seriesYValues,
             sortedXValues,
-            slopeIntercept,
+            _slopeIntercept,
             slopeInterceptData,
             slopeValue,
             forecastValue,
@@ -2139,7 +2170,7 @@ class TrendlineRenderer extends RenderBox {
             seriesXValues,
             seriesYValues,
             sortedXValues,
-            slopeIntercept,
+            _slopeIntercept,
             slopeInterceptData,
             slopeValue,
             forecastValue,
@@ -2152,7 +2183,7 @@ class TrendlineRenderer extends RenderBox {
             seriesXValues,
             seriesYValues,
             sortedXValues,
-            slopeIntercept,
+            _slopeIntercept,
             slopeInterceptData,
             slopeValue,
             forecastValue,
@@ -2161,42 +2192,27 @@ class TrendlineRenderer extends RenderBox {
         break;
 
       case TrendlineType.polynomial:
-        polynomialSlopesData = _calculatePolynomialPoints(
-            sortedXValues,
-            seriesYValues,
-            polynomialSlopes,
-            slopeValue,
-            polynomialForeCastValue);
-        slope = polynomialSlopesData;
+        _slope = _calculatePolynomialPoints(sortedXValues, seriesYValues,
+            polynomialSlopes, slopeValue, polynomialForeCastValue);
         break;
 
       case TrendlineType.movingAverage:
         _calculateMovingAveragePoints(sortedXValues, seriesYValues);
-        slope = null;
+        _slope = null;
         break;
     }
 
     // Calculate slope and intercept values after calculated trendline points.
     if (!(type == TrendlineType.movingAverage ||
         type == TrendlineType.polynomial)) {
-      slopeInterceptData = _computeSlopeInterceptValues(
-          slopeInterceptXValues, yValues, seriesXValues.length, slopeIntercept);
-      slope = <double>[slopeInterceptData.slope!];
+      slopeInterceptData = _computeSlopeInterceptValues(slopeInterceptXValues,
+          yValues, seriesXValues.length, _slopeIntercept);
+      _slope = <double>[slopeInterceptData.slope!];
     }
 
-    // Trigger the onRenderDetailsUpdate event.
     if (onRenderDetailsUpdate != null) {
-      final TrendlineRenderParams args = TrendlineRenderParams(
-        slopeIntercept.intercept,
-        series!.index,
-        name,
-        series!.name,
-        _points,
-        slope,
-        _computeRSquaredValue(seriesXValues, seriesYValues, slope,
-            slopeIntercept.intercept, slopeValue),
-      );
-      onRenderDetailsUpdate!(args);
+      _rSquaredValue = _computeRSquaredValue(seriesXValues, seriesYValues,
+          _slope, _slopeIntercept.intercept, slopeValue);
     }
 
     // Calculate segment index based on the trendXValues.
@@ -2336,7 +2352,32 @@ class TrendlineRenderer extends RenderBox {
       return;
     }
 
-    _path.reset();
+    _resetRenderPoints();
+    _transformTrendlinePoints();
+    if (markerSettings.isVisible) {
+      _calculateMarkerPositions();
+    }
+
+    _renderPoints = [..._points];
+
+    // Trigger the onRenderDetailsUpdate event.
+    if (onRenderDetailsUpdate != null) {
+      final TrendlineRenderParams args = TrendlineRenderParams(
+        _slopeIntercept.intercept,
+        series!.index,
+        name ?? _defaultTrendlineName(),
+        series!.name,
+        _renderPoints,
+        _slope,
+        _rSquaredValue,
+      );
+      onRenderDetailsUpdate!(args);
+    }
+
+    _computeTrendlinePath();
+  }
+
+  void _transformTrendlinePoints() {
     switch (type) {
       case TrendlineType.linear:
         _transformLinearPoints();
@@ -2353,16 +2394,32 @@ class TrendlineRenderer extends RenderBox {
         _transformMovingAveragePoints();
         break;
     }
+  }
 
-    if (markerSettings.isVisible) {
-      _markers.clear();
-      _calculateMarkerPositions();
+  void _computeTrendlinePath() {
+    if (_renderPoints.isEmpty) {
+      return;
+    }
+
+    switch (type) {
+      case TrendlineType.linear:
+      case TrendlineType.movingAverage:
+        _computeLinearPath();
+        break;
+
+      case TrendlineType.exponential:
+      case TrendlineType.logarithmic:
+      case TrendlineType.polynomial:
+      case TrendlineType.power:
+        _computeCubicPath();
+        break;
     }
   }
 
   void _calculateMarkerPositions() {
+    final Function(num, num) transformX = series!.pointToPixelX;
+    final Function(num, num) transformY = series!.pointToPixelY;
     final Color themeFillColor = series!.parent!.themeData!.colorScheme.surface;
-    final MarkerSettings settings = markerSettings;
     final int length = trendlineXValues.length;
     for (int i = 0; i < length; i++) {
       final ChartMarker marker = ChartMarker()
@@ -2370,18 +2427,18 @@ class TrendlineRenderer extends RenderBox {
         ..y = trendlineYValues[i]
         ..index = i;
       marker.merge(
-        borderColor: settings.borderColor ?? color,
-        borderWidth: settings.borderWidth,
-        color: settings.color ?? themeFillColor,
-        height: settings.height,
-        width: settings.width,
-        image: settings.image,
-        type: settings.shape,
+        borderColor: markerSettings.borderColor ?? color,
+        borderWidth: markerSettings.borderWidth,
+        color: markerSettings.color ?? themeFillColor,
+        height: markerSettings.height,
+        width: markerSettings.width,
+        image: markerSettings.image,
+        type: markerSettings.shape,
       );
       final double positionX =
-          series!.pointToPixelX(marker.x, marker.y) - marker.width / 2;
+          transformX(marker.x, marker.y) - marker.width / 2;
       final double positionY =
-          series!.pointToPixelY(marker.x, marker.y) - marker.height / 2;
+          transformY(marker.x, marker.y) - marker.height / 2;
       marker.position = Offset(positionX, positionY);
       _markers.add(marker);
     }
@@ -2427,16 +2484,10 @@ class TrendlineRenderer extends RenderBox {
     }
   }
 
-  void _resetTrendlineDataHolders() {
-    _points.clear();
-    _path.reset();
-  }
-
   @override
   void dispose() {
-    _points.clear();
-    _path.reset();
-    _markers.clear();
+    _resetTrendlineDataHolders();
+    _resetRenderPoints();
     super.dispose();
   }
 }

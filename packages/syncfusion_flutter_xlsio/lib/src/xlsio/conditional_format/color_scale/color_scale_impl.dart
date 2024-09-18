@@ -1,9 +1,11 @@
-part of xlsio;
+import '../../general/enums.dart';
+import '../condition_value.dart';
+import 'color_scale.dart';
 
 /// Represents a color scale conditional formatting rule.
-class _ColorScaleImpl implements ColorScale {
+class ColorScaleImpl implements ColorScale {
   /// Initializes new instance of the color scale object.
-  _ColorScaleImpl() {
+  ColorScaleImpl() {
     const int defaultCount = 2;
     setConditionCount(defaultCount);
   }
@@ -56,15 +58,15 @@ class _ColorScaleImpl implements ColorScale {
         (count == 2) ? _defaultColors2 : _defaultColors3;
 
     int iColorIndex = 0;
-    _arrCriteria.add(_ColorConditionValueImpl(
+    _arrCriteria.add(ColorConditionValueImpl(
         ConditionValueType.lowestValue, '0', arrColors[iColorIndex++]));
 
     if (count == 3) {
-      _arrCriteria.add(_ColorConditionValueImpl(
+      _arrCriteria.add(ColorConditionValueImpl(
           ConditionValueType.percentile, '50', arrColors[iColorIndex++]));
     }
 
-    _arrCriteria.add(_ColorConditionValueImpl(
+    _arrCriteria.add(ColorConditionValueImpl(
         ConditionValueType.highestValue, '0', arrColors[iColorIndex++]));
   }
 }

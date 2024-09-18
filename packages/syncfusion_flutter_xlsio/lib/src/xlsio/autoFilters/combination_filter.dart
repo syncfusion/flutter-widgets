@@ -1,12 +1,16 @@
 // ignore_for_file: unused_field, unused_element, unnecessary_getters_setters
-part of xlsio;
+import '../autoFilters/auto_filter.dart';
+import '../autoFilters/multiplefilter.dart';
+import '../autoFilters/text_filter.dart';
+import '../general/enums.dart';
+import 'filter.dart';
 
 ///Combination filter class
-class _CombinationFilter implements _Filter {
+class CombinationFilter implements Filter {
   ///Constructor for combinationFilter class
-  _CombinationFilter(AutoFilter autoFilter) {
+  CombinationFilter(AutoFilter autoFilter) {
     _filter = autoFilter;
-    _filterCollection = <_MultipleFilter>[];
+    filterCollection = <MultipleFilter>[];
     _isBlankValue = false;
   }
 
@@ -17,26 +21,26 @@ class _CombinationFilter implements _Filter {
   late bool _isBlankValue;
 
   /// Collection  of text filter.
-  late List<_MultipleFilter> _filterCollection;
+  late List<MultipleFilter> filterCollection;
 
   ///Get textfilterCollection.
-  List<String> get _textFilterCollection {
+  List<String> get textFilterCollection {
     return _textCollection();
   }
 
   ///Return total number combination filter values.
   int get count {
-    return _filterCollection.length;
+    return filterCollection.length;
   }
 
   /// Returns collection of text filter values alone for currnet combination.
   /// Returns collection of unique text filter values alone.
   List<String> _textCollection() {
     final List<String> collection = <String>[];
-    for (final _MultipleFilter multiFilter in _filterCollection) {
-      if (multiFilter._combinationFilterType ==
-          _ExcelCombinationFilterType.textFilter) {
-        collection.add((multiFilter as _TextFilter)._text);
+    for (final MultipleFilter multiFilter in filterCollection) {
+      if (multiFilter.combinationFilterType ==
+          ExcelCombinationFilterType.textFilter) {
+        collection.add((multiFilter as TextFilter).text);
       }
     }
     return collection;
@@ -45,23 +49,23 @@ class _CombinationFilter implements _Filter {
   ///Represents filterType
   ///Get filterType
   @override
-  _ExcelFilterType get _filterType {
-    return _ExcelFilterType.combinationFilter;
+  ExcelFilterType get filterType {
+    return ExcelFilterType.combinationFilter;
   }
 
   @override
 
   ///Set filter type
-  set _filterType(_ExcelFilterType filterType) {}
+  set filterType(ExcelFilterType filterType) {}
 
   ///Get isblank
-  bool get _isBlank {
+  bool get isBlank {
     return _isBlankValue;
   }
 
   ///Indicates wheather cell is blank or not
   ///Set isBlank
-  set _isBlank(bool value) {
+  set isBlank(bool value) {
     _isBlankValue = value;
   }
 }

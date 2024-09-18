@@ -279,24 +279,30 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
       double x, y, width, height;
       if (points != null && points is PdfArray) {
         for (int i = 0; i < (points.count / 8).round(); i++) {
-          x = ((points[4 + (i * 8)]! as PdfNumber).value! -
-                  (points[0 + (i * 8)]! as PdfNumber).value!)
-              .toDouble();
-          y = ((points[5 + (i * 8)]! as PdfNumber).value! -
-                  (points[1 + (i * 8)]! as PdfNumber).value!)
-              .toDouble();
-          height = sqrt((x * x) + (y * y));
-          x = ((points[6 + (i * 8)]! as PdfNumber).value! -
-                  (points[4 + (i * 8)]! as PdfNumber).value!)
-              .toDouble();
-          y = ((points[7 + (i * 8)]! as PdfNumber).value! -
-                  (points[5 + (i * 8)]! as PdfNumber).value!)
-              .toDouble();
-          width = sqrt((x * x) + (y * y));
-          final double m =
+          final double q1 =
               (points[0 + (i * 8)]! as PdfNumber).value!.toDouble();
-          final double n = page!.size.height -
+          final double q2 =
               (points[1 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q3 =
+              (points[2 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q4 =
+              (points[3 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q5 =
+              (points[4 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q6 =
+              (points[5 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q7 =
+              (points[6 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q8 =
+              (points[7 + (i * 8)]! as PdfNumber).value!.toDouble();
+          x = q5 - q1;
+          y = q6 - q2;
+          height = sqrt((x * x) + (y * y));
+          x = q7 - q5;
+          y = q8 - q6;
+          width = sqrt((x * x) + (y * y));
+          final double m = [q1, q3, q5, q7].reduce(min);
+          final double n = page!.size.height - [q2, q4, q6, q8].reduce(max);
           final Rect rect = Rect.fromLTWH(m, n, width, height);
           collection.add(rect);
         }

@@ -186,12 +186,10 @@ class PdfPageLayerCollectionHelper extends PdfObjectCollectionHelper {
       }
       if (layerStream != null) {
         if (decompress) {
-          final bool isChanged =
-              layerStream.changed != null && layerStream.changed!;
-          layerStream.decompress();
-          layerStream.changed = isChanged || !isTextExtraction;
+          data.addAll(layerStream.getDecompressedData(false)!);
+        } else {
+          data.addAll(layerStream.dataStream!);
         }
-        data.addAll(layerStream.dataStream!);
         data.addAll(end);
       }
     }

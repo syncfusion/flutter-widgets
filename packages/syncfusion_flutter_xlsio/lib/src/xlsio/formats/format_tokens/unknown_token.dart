@@ -1,31 +1,35 @@
-part of xlsio;
+import '../../formats/format_tokens/enums.dart';
+import '../../general/culture_info.dart';
+import '../format_section.dart';
+import 'format_token_base.dart';
 
 /// Class used for UnknownToken.
 
-class _UnknownToken extends _FormatTokenBase {
+class UnknownToken extends FormatTokenBase {
   /// Tries to parse format string.
 
   @override
-  int _tryParse(String strFormat, int iIndex) {
-    final int iFormatLength = strFormat.length;
+  int tryParse(String stringFormat, int iIndex) {
+    final int iFormatLength = stringFormat.length;
 
     if (iFormatLength == 0) {
-      final Error error = ArgumentError('strFormat - string cannot be empty');
+      final Error error =
+          ArgumentError('stringFormat - string cannot be empty');
       throw error;
     }
-    _strFormat = strFormat[iIndex];
+    strFormat = stringFormat[iIndex];
     return iIndex + 1;
   }
 
   /// Applies format to the value.
 
   @override
-  String _applyFormat(double value, bool bShowHiddenSymbols,
-      CultureInfo culture, _FormatSection section) {
-    if (_strFormat == 'g' || _strFormat == 'G') {
+  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
+      FormatSection section) {
+    if (strFormat == 'g' || strFormat == 'G') {
       return '';
     } else {
-      return _strFormat;
+      return strFormat;
     }
   }
 
@@ -33,14 +37,14 @@ class _UnknownToken extends _FormatTokenBase {
 
   @override
   // ignore: unused_element
-  String _applyFormatString(String value, bool bShowHiddenSymbols) {
-    return _strFormat;
+  String applyFormatString(String value, bool bShowHiddenSymbols) {
+    return strFormat;
   }
 
   /// Gets type of the token. Read-only.
 
   @override
-  _TokenType get _tokenType {
-    return _TokenType.unknown;
+  TokenType get tokenType {
+    return TokenType.unknown;
   }
 }

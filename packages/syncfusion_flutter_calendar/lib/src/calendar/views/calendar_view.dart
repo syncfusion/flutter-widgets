@@ -269,7 +269,7 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   late ValueNotifier<_DragPaintDetails> _dragDetails;
   Offset? _dragDifferenceOffset;
   Timer? _timer;
-  double? _viewPortHeight;
+  late double? _viewPortHeight;
 
   @override
   void initState() {
@@ -6174,14 +6174,16 @@ class _CalendarViewState extends State<_CalendarView>
       final double scrollPosition = _getScrollPositionForCurrentDate(
           _updateCalendarStateDetails.currentDate!);
       if (scrollPosition == -1 ||
-          _scrollController!.position.pixels == scrollPosition) {
+          (_scrollController != null &&
+              _scrollController!.position.pixels == scrollPosition)) {
         return;
       }
-
-      _scrollController!.jumpTo(
-          _scrollController!.position.maxScrollExtent > scrollPosition
-              ? scrollPosition
-              : _scrollController!.position.maxScrollExtent);
+      if (_scrollController != null) {
+        _scrollController!.jumpTo(
+            _scrollController!.position.maxScrollExtent > scrollPosition
+                ? scrollPosition
+                : _scrollController!.position.maxScrollExtent);
+      }
     });
   }
 
@@ -6214,7 +6216,7 @@ class _CalendarViewState extends State<_CalendarView>
       }
     }
 
-    if (_scrollController!.hasClients) {
+    if (_scrollController != null && _scrollController!.hasClients) {
       if (timeToPosition > _scrollController!.position.maxScrollExtent) {
         timeToPosition = _scrollController!.position.maxScrollExtent;
       } else if (timeToPosition < _scrollController!.position.minScrollExtent) {
@@ -8744,7 +8746,9 @@ class _CalendarViewState extends State<_CalendarView>
             padding: EdgeInsets.zero,
             controller: _timelineRulerController,
             scrollDirection: Axis.horizontal,
-            physics: const _CustomNeverScrollableScrollPhysics(),
+            physics: widget.isMobilePlatform
+                ? const _CustomNeverScrollableScrollPhysics()
+                : const ClampingScrollPhysics(),
             children: <Widget>[
               RepaintBoundary(
                   child: CustomPaint(
@@ -8775,7 +8779,9 @@ class _CalendarViewState extends State<_CalendarView>
                 padding: EdgeInsets.zero,
                 controller: _scrollController,
                 scrollDirection: Axis.horizontal,
-                physics: const _CustomNeverScrollableScrollPhysics(),
+                physics: widget.isMobilePlatform
+                    ? const _CustomNeverScrollableScrollPhysics()
+                    : const ClampingScrollPhysics(),
                 children: <Widget>[
                   SizedBox(
                       width: width,
@@ -12869,7 +12875,7 @@ class _CurrentTimeIndicator extends CustomPainter {
     final int viewEndMinutes = (timeSlotViewSettings.endHour * 60).toInt();
     DateTime getLocationDateTime = DateTime.now();
 
-    if (!timeZoneLoaded && timeZone == null) {
+    if (!timeZoneLoaded) {
       return;
     }
     if (totalMinutes < viewStartMinutes || totalMinutes > viewEndMinutes) {

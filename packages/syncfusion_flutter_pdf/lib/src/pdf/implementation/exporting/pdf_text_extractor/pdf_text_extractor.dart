@@ -67,8 +67,8 @@ class PdfTextExtractor {
   double _characterSpacing = 0;
   double _wordSpacing = 0;
   MatrixHelper? _textLineMatrix;
-  MatrixHelper? _textMatrix;
-  MatrixHelper? _currentTextMatrix;
+  late MatrixHelper? _textMatrix;
+  late MatrixHelper? _currentTextMatrix;
   Rect? _tempBoundingRectangle;
   bool _hasLeading = false;
   bool _hasET = false;
@@ -920,7 +920,7 @@ class PdfTextExtractor {
 
   PdfRecordCollection? _getRecordCollection(PdfPage page) {
     PdfRecordCollection? recordCollection;
-    final List<int>? combinedData =
+    List<int>? combinedData =
         PdfPageLayerCollectionHelper.getHelper(page.layers)
             .combineContent(true);
     if (combinedData != null) {
@@ -928,7 +928,9 @@ class PdfTextExtractor {
       parser.isTextExtractionProcess = true;
       recordCollection = parser.readContent();
       parser.isTextExtractionProcess = false;
+      combinedData.clear();
     }
+    combinedData = null;
     return recordCollection;
   }
 
@@ -1680,7 +1682,9 @@ class PdfTextExtractor {
         resultantText.endsWith(' ')) {
       resultantText = resultantText.substring(0, resultantText.length - 1);
     }
-    return resultantText;
+    return resultantText
+        .replaceAll(RegExp(r' {2,}'), ' ')
+        .replaceAll(' \r\n', '\r\n');
   }
 
   bool _hasOctalEscape(String input) {
@@ -1747,6 +1751,7 @@ class PdfTextExtractor {
         fontStructure = returnValue;
       }
       fontStructure!.isTextExtraction = true;
+      fontStructure.isLayout = _isLayout;
       fontStructure.fontSize = _fontSize;
       if (!fontStructure.isEmbedded &&
           fontStructure.isStandardCJKFont &&

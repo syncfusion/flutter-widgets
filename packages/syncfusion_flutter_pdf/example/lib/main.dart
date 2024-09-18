@@ -7,11 +7,13 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'save_file_mobile.dart' if (dart.library.html) 'save_file_web.dart';
 
 void main() {
-  runApp(CreatePdfWidget());
+  runApp(const CreatePdfWidget());
 }
 
 /// Represents the PDF widget class.
 class CreatePdfWidget extends StatelessWidget {
+  const CreatePdfWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(

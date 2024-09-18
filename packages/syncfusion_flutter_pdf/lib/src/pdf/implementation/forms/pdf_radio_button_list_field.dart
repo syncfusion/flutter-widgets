@@ -151,14 +151,17 @@ class PdfRadioButtonListField extends PdfField {
 
   PdfRadioButtonItemCollection _getRadioButtonListItems(
       PdfRadioButtonItemCollection listItems) {
-    final PdfArray fieldKids = _helper.obtainKids()!;
-    for (int i = 0; i < fieldKids.count; i++) {
-      final IPdfPrimitive? kidsDict = PdfCrossTable.dereference(fieldKids[i]);
-      if (kidsDict != null && kidsDict is PdfDictionary) {
-        final PdfRadioButtonListItem item = PdfRadioButtonListItemHelper.loaded(
-            kidsDict, _helper.crossTable!, this);
-        PdfRadioButtonItemCollectionHelper.getHelper(listItems)
-            .doAdd(item, true);
+    final PdfArray? fieldKids = _helper.obtainKids();
+    if (fieldKids != null) {
+      for (int i = 0; i < fieldKids.count; i++) {
+        final IPdfPrimitive? kidsDict = PdfCrossTable.dereference(fieldKids[i]);
+        if (kidsDict != null && kidsDict is PdfDictionary) {
+          final PdfRadioButtonListItem item =
+              PdfRadioButtonListItemHelper.loaded(
+                  kidsDict, _helper.crossTable!, this);
+          PdfRadioButtonItemCollectionHelper.getHelper(listItems)
+              .doAdd(item, true);
+        }
       }
     }
     return listItems;

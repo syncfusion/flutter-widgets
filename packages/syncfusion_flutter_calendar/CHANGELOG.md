@@ -1,7 +1,16 @@
 ## Unreleased
 
+**General**
+
+* The compatible version of our Flutter calendar widget has been updated to Flutter SDK 3.24.0.
+
+**Bug fixes**
+* Now, the horizontal scroll bar is draggable in the timeline view on both web and desktop platforms.
+
+## [25.2.7] - 06/04/2024
 **Bugs**
-* \#FB57253 - Now, the appointment details are passed correctly to the [monthCellBuilder](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/monthCellBuilder.html) callback when navigating to the months using the navigation buttons.
+* \#FB57253 -
+Now, the appointment details are passed correctly to the [monthCellBuilder](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/monthCellBuilder.html) callback when navigating to the months using the navigation buttons.
 
 ## [25.2.3] - 05/13/2024
 **General**

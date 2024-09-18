@@ -46,7 +46,8 @@ class YearView extends StatefulWidget {
       this.width,
       this.height,
       this.disableDatesCollection,
-      this.extendableRangeSelectionDirection);
+      this.extendableRangeSelectionDirection,
+      {super.key});
 
   /// Defines the year cell style.
   final dynamic cellStyle;

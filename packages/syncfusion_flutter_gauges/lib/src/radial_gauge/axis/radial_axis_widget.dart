@@ -20,7 +20,7 @@ import '../styles/radial_tick_style.dart';
 /// Radial Axis widget.
 class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
   ///Creates a object for [RadialAxisWidget].
-  const RadialAxisRenderObjectWidget({required this.axis});
+  const RadialAxisRenderObjectWidget({super.key, required this.axis});
 
   /// Radial axis widget.
   final RadialAxis axis;

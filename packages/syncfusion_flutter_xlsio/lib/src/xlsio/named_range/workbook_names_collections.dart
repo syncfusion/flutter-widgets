@@ -1,9 +1,14 @@
-part of xlsio;
+import '../general/workbook.dart';
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'name.dart';
+import 'name_impl.dart';
+import 'names_coll.dart';
 
 /// Represents implementations of names collection in a worksheet.
-class _WorkbookNamesCollection implements Names {
+class WorkbookNamesCollection implements Names {
   /// Create a instances of Workbook names collection.
-  _WorkbookNamesCollection(Workbook book) {
+  WorkbookNamesCollection(Workbook book) {
     _book = book;
     _list = book.innerNamesCollection;
     _count = _list.length;
@@ -70,14 +75,14 @@ class _WorkbookNamesCollection implements Names {
   /// Adds a new named range to the named range collection.
   @override
   Name add(String name, [Range? range]) {
-    final _NameImpl nameImpl = _NameImpl(_book);
+    final NameImpl nameImpl = NameImpl(_book);
     nameImpl.name = name;
-    nameImpl._scope = 'workbook';
+    nameImpl.scope = 'workbook';
     if (range != null) {
       nameImpl.refersToRange = range;
       _parentWorksheet = range.worksheet;
-      nameImpl._worksheet = _parentWorksheet;
-      nameImpl._value = range.addressGlobal;
+      nameImpl.worksheet = _parentWorksheet;
+      nameImpl.value = range.addressGlobal;
     }
     _list.add(nameImpl);
     return nameImpl;

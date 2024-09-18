@@ -1,27 +1,32 @@
-part of xlsio;
+import '../../formats/format_tokens/enums.dart';
+import '../../general/culture_info.dart';
+import '../../range/range.dart';
+import '../format_section.dart';
+import 'constants.dart';
+import 'format_token_base.dart';
 
 /// Class used for 24 hour Token.
-class _Hour24Token extends _FormatTokenBase {
+class Hour24Token extends FormatTokenBase {
   /// Regular expression for hours part of the format:
   final RegExp _hourRegex = RegExp(r'\\[[hH]+\\]');
 
   /// Tries to parse format string.
   @override
-  int _tryParse(String strFormat, int iIndex) {
-    return _tryParseRegex(_hourRegex, strFormat, iIndex);
+  int tryParse(String stringFormat, int iIndex) {
+    return tryParseRegex(_hourRegex, stringFormat, iIndex);
   }
 
   /// Applies format to the value.
   @override
-  String _applyFormat(double value, bool bShowHiddenSymbols,
-      CultureInfo culture, _FormatSection section) {
+  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
+      FormatSection section) {
     double temp = value;
     if (temp <= 60) {
       temp = temp - 1;
     }
-    final DateTime date = Range._fromOADate(value);
+    final DateTime date = Range.fromOADate(value);
     double dHour;
-    dHour = temp * _FormatConstants._hoursInDay;
+    dHour = temp * FormatConstants.hoursInDay;
     dHour = (value > 0)
         ? (dHour % 24).ceilToDouble() == date.hour
             ? dHour.ceilToDouble()
@@ -36,13 +41,13 @@ class _Hour24Token extends _FormatTokenBase {
   /// Applies format to the value.
   @override
   // ignore: unused_element
-  String _applyFormatString(String value, bool bShowHiddenSymbols) {
+  String applyFormatString(String value, bool bShowHiddenSymbols) {
     return '';
   }
 
   /// Gets type of the token. Read-only.
   @override
-  _TokenType get _tokenType {
-    return _TokenType.hour24;
+  TokenType get tokenType {
+    return TokenType.hour24;
   }
 }

@@ -39,7 +39,8 @@ class TimelineWidget extends StatefulWidget {
       this.height,
       this.minDate,
       this.maxDate,
-      this.blackoutDates);
+      this.blackoutDates,
+      {super.key});
 
   /// Defines the total number of time slots needed in the view.
   final double horizontalLinesCountPerView;

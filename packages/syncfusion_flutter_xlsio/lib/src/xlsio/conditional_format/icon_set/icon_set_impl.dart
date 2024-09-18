@@ -1,9 +1,11 @@
-part of xlsio;
+import '../../conditional_format/icon_set/icon_set.dart';
+import '../../general/enums.dart';
+import '../condition_value.dart';
 
 /// Implementation class of icon set conditional formatting.
-class _IconSetImpl implements IconSet {
+class IconSetImpl implements IconSet {
   /// Constuctor of Iconset
-  _IconSetImpl() {
+  IconSetImpl() {
     _updateCriteria();
   }
 
@@ -71,7 +73,7 @@ class _IconSetImpl implements IconSet {
   bool showIconOnly = false;
 
   /// Get as true if the IconSet has a Custom Iconset.
-  bool get _isCustom {
+  bool get isCustom {
     if (_hasCustomIconSet) {
       return _hasCustomIconSet;
     }
@@ -102,11 +104,11 @@ class _IconSetImpl implements IconSet {
     }
 
     _arrCriteria = List<ConditionValue>.filled(
-        iCount, _IconConditionValueImpl(_iconSet, 0));
+        iCount, IconConditionValueImpl(_iconSet, 0));
 
     for (int i = 0; i < iCount; i++) {
       final int iValue = (i * 100 / iCount).round();
-      final IconConditionValue criteria = _IconConditionValueImpl._withType(
+      final IconConditionValue criteria = IconConditionValueImpl.withType(
           _iconSet, i, ConditionValueType.percent, iValue.toString());
       _arrCriteria[i] = criteria;
     }

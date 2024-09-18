@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_treemap/treemap.dart';
 
 void main() {
-  return runApp(TreemapApp());
+  return runApp(const TreemapApp());
 }
 
 /// This widget will be the root of application.
 class TreemapApp extends StatelessWidget {
+  const TreemapApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(

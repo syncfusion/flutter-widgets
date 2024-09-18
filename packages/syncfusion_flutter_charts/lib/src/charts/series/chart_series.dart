@@ -864,8 +864,9 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
     if (_palette != value) {
       // TODO(VijayakumarM): Add assertion.
       _palette = value;
-      // markNeedsLegendUpdate();
-      markNeedsSegmentsPaint();
+      if (pointColorMapper == null) {
+        markNeedsSegmentsPaint();
+      }
     }
   }
 
@@ -1164,6 +1165,15 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
       parent != null &&
       parent!.tooltipBehavior != null &&
       parent!.tooltipBehavior!.enable;
+
+  bool get _callbacksEnabled =>
+      parent != null && parent!.onDataLabelRender != null ||
+      parent!.onTooltipRender != null ||
+      parent!.legend?.legendItemBuilder != null ||
+      dataLabelSettings.builder != null ||
+      onPointLongPress != null ||
+      onPointTap != null ||
+      onPointDoubleTap != null;
 
   bool get _selectionEnabled =>
       selectionBehavior != null && selectionBehavior!.enable;
@@ -1475,6 +1485,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
   ]) {
     _resetDataSourceHolders();
     if (!_canPopulateDataPoints(yPaths, chaoticYLists)) {
+      _dataCount = _chaoticXValues.length;
       return;
     }
 
@@ -1882,7 +1893,9 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
 
   Color effectiveColor(int segmentIndex) {
     Color? pointColor;
-    if (pointColorMapper != null && pointColors.isNotEmpty) {
+    if (pointColorMapper != null &&
+        pointColors.isNotEmpty &&
+        pointColors.length > segmentIndex) {
       pointColor = pointColors[segmentIndex];
     }
     return pointColor ?? color ?? paletteColor;
@@ -1971,7 +1984,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
 
   void handlePointerHover(PointerHoverEvent details) {
     final Offset localPosition = globalToLocal(details.position);
-    if (_interactiveSegment != null && isVisible()) {
+    if (parent != null && _interactiveSegment != null) {
       const bool hasSelection = false;
       final bool hasTooltip = _tooltipEnabled &&
           parent!.tooltipBehavior!.activationMode == ActivationMode.singleTap;
@@ -2215,9 +2228,8 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
   bool isEmpty(int segmentIndex) {
     // Handle sortedIndex for finding the empty point segment,
     // when segment rearrange with sorting.
-    segmentIndex = sortedIndexes != null && sortedIndexes.isNotEmpty
-        ? sortedIndexes[segmentIndex]
-        : segmentIndex;
+    segmentIndex =
+        sortedIndexes.isNotEmpty ? sortedIndexes[segmentIndex] : segmentIndex;
     int start = 0;
     int end = emptyPointIndexes.length - 1;
     while (start <= end) {
@@ -2864,15 +2876,15 @@ class ChartSeriesController<T, D> {
     } else {
       if (xAxis is RenderDateTimeAxis) {
         assert(x is DateTime);
-        pointX = (x as DateTime).millisecondsSinceEpoch;
+        pointX = (x! as DateTime).millisecondsSinceEpoch;
       } else if (xAxis is RenderDateTimeCategoryAxis) {
         assert(x is DateTime);
-        pointX = xAxis.labels.indexOf((x as DateTime).millisecondsSinceEpoch);
+        pointX = xAxis.labels.indexOf((x! as DateTime).millisecondsSinceEpoch);
       } else if (xAxis is RenderCategoryAxis) {
         assert(x is String);
         pointX = xAxis.labels.indexOf(x.toString());
       } else {
-        pointX = x as num;
+        pointX = x! as num;
       }
     }
 
@@ -3534,6 +3546,7 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
   ]) {
     _resetDataSourceHolders();
     if (!_canPopulateDataPoints(yPaths, chaoticYLists)) {
+      _dataCount = _chaoticXValues.length;
       return;
     }
 
@@ -3737,6 +3750,10 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       _isYRangeChanged = true;
     }
 
+    if (_isXRangeChanged || _isYRangeChanged) {
+      parent!.behaviorArea?.hideInteractiveTooltip();
+    }
+
     if (controller.isVisible) {
       markNeedsLayout();
     }
@@ -3931,31 +3948,36 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     final EdgeInsets margin = dataLabelSettings.margin;
     double translationX = 0.0;
     double translationY = 0.0;
+    final num y = current.y!;
     switch (alignment) {
       case ChartDataLabelAlignment.outer:
       case ChartDataLabelAlignment.top:
         if (isTransposed) {
-          translationX = markerWidthWithPadding;
+          translationX = y.isNegative
+              ? -(markerWidthWithPadding + size.width + margin.horizontal)
+              : markerWidthWithPadding;
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY =
-              -(markerHeightWithPadding + size.height + margin.vertical);
+          translationY = y.isNegative
+              ? markerHeightWithPadding
+              : -(markerHeightWithPadding + size.height + margin.vertical);
         }
-        return translateTransform(
-            current.x!, current.y!, translationX, translationY);
+        return translateTransform(current.x!, y, translationX, translationY);
 
       case ChartDataLabelAlignment.bottom:
         if (isTransposed) {
-          translationX =
-              -(markerWidthWithPadding + size.width + margin.horizontal);
+          translationX = y.isNegative
+              ? markerWidthWithPadding
+              : -(markerWidthWithPadding + size.width + margin.horizontal);
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = markerHeightWithPadding;
+          translationY = y.isNegative
+              ? -(markerHeightWithPadding + size.height + margin.vertical)
+              : markerHeightWithPadding;
         }
-        return translateTransform(
-            current.x!, current.y!, translationX, translationY);
+        return translateTransform(current.x!, y, translationX, translationY);
 
       case ChartDataLabelAlignment.auto:
       case ChartDataLabelAlignment.middle:
@@ -4222,7 +4244,6 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     Paint strokePaint,
   ) {
     final EdgeInsets margin = dataLabelSettings.margin;
-    final Offset settingsOffset = dataLabelSettings.offset;
     if (!dataLabelSettings.showZeroValue && dataLabel == '0') {
       return;
     }
@@ -4236,14 +4257,32 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
             text: TextSpan(text: dataLabel, style: style),
             textDirection: TextDirection.ltr,
           )..layout();
-          final RRect labelRect = RRect.fromRectAndRadius(
-              Rect.fromLTWH(
-                offset.dx + settingsOffset.dx,
-                offset.dy - settingsOffset.dy,
-                textPainter.width + margin.horizontal,
-                textPainter.height + margin.vertical,
-              ),
-              Radius.circular(dataLabelSettings.borderRadius));
+          final Rect dataLabelRect = Rect.fromLTWH(
+            offset.dx,
+            offset.dy,
+            textPainter.width + margin.horizontal,
+            textPainter.height + margin.vertical,
+          );
+          RRect labelRect = RRect.fromRectAndRadius(
+              dataLabelRect, Radius.circular(dataLabelSettings.borderRadius));
+          // To check and update the label rect and offset by rotated
+          // label rect height overlaps with plotArea or not.
+          if (angle != 0) {
+            final Rect rotatedBounds =
+                calculateRotatedBounds(dataLabelRect, dataLabelSettings.angle);
+            final double heightFromCenter = rotatedBounds.height / 2;
+            if (paintBounds.bottom < labelRect.center.dy + heightFromCenter) {
+              labelRect =
+                  _rotatedRRect(labelRect, labelRect.bottom - heightFromCenter);
+              offset = Offset(labelRect.left, labelRect.top);
+            }
+            if (paintBounds.top > labelRect.center.dy - heightFromCenter) {
+              labelRect =
+                  _rotatedRRect(labelRect, labelRect.top + heightFromCenter);
+              offset = Offset(labelRect.left, labelRect.top);
+            }
+          }
+
           canvas.save();
           canvas.translate(labelRect.center.dx, labelRect.center.dy);
           canvas.rotate((angle * pi) / 180);
@@ -4261,13 +4300,23 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       }
     }
     drawDataLabel(
-        index,
-        canvas,
-        dataLabel,
-        offset.dx + settingsOffset.dx + margin.left,
-        offset.dy - settingsOffset.dy + margin.top,
-        angle,
-        style);
+      index,
+      canvas,
+      dataLabel,
+      offset.dx + margin.left,
+      offset.dy + margin.top,
+      angle,
+      style,
+    );
+  }
+
+  RRect _rotatedRRect(RRect labelRect, double labelY) {
+    return RRect.fromRectAndRadius(
+        Rect.fromCenter(
+            center: Offset(labelRect.center.dx, labelY),
+            width: labelRect.width,
+            height: labelRect.height),
+        Radius.circular(dataLabelSettings.borderRadius));
   }
 
   /// To customize each data labels.
@@ -4379,12 +4428,12 @@ mixin ContinuousSeriesMixin<T, D> on CartesianSeriesRenderer<T, D> {
   int dataPointIndex(Offset position, ChartSegment segment) {
     final int segPointIndex = segmentPointIndex(position, segment);
     if (segPointIndex != -1) {
-      return _dataPointIndex(segPointIndex);
+      return actualPointIndex(segPointIndex);
     }
     return segPointIndex;
   }
 
-  int _dataPointIndex(int pointIndex) {
+  int actualPointIndex(int pointIndex) {
     if (_xNullPointIndexes.isNotEmpty) {
       for (final int xNullPointIndex in _xNullPointIndexes) {
         if (pointIndex >= xNullPointIndex) {
@@ -4501,6 +4550,10 @@ mixin RealTimeUpdateMixin<T, D> on ChartSeriesRenderer<T, D> {
       if (emptyPointIndexes.contains(index)) {
         emptyPointIndexes.remove(index);
       }
+
+      if (_callbacksEnabled && chartPoints.length > index) {
+        chartPoints.removeAt(index);
+      }
     }
 
     _dataCount = _chaoticXValues.length;
@@ -4555,6 +4608,15 @@ mixin RealTimeUpdateMixin<T, D> on ChartSeriesRenderer<T, D> {
                 : _chaoticRawSortValues.insert(index, rawX);
           }
         }
+      }
+
+      if (_callbacksEnabled) {
+        final List<ChartDataPointType> positions = widget.positions;
+        final ChartPoint<D> point = ChartPoint<D>(x: _chaoticRawXValues[index]);
+        for (int j = 0; j < yPathLength; j++) {
+          point[positions[j]] = chaoticYLists![j][index];
+        }
+        chartPoints.insert(index, point);
       }
 
       for (int j = 0; j < fPathLength; j++) {
@@ -4615,6 +4677,16 @@ mixin RealTimeUpdateMixin<T, D> on ChartSeriesRenderer<T, D> {
               emptyPointIndexes.remove(index);
             }
           }
+        }
+
+        if (_callbacksEnabled) {
+          final List<ChartDataPointType> positions = widget.positions;
+          final ChartPoint<D> point =
+              ChartPoint<D>(x: _chaoticRawXValues[index]);
+          for (int j = 0; j < yPathLength; j++) {
+            point[positions[j]] = chaoticYLists![j][index];
+          }
+          chartPoints[index] = point;
         }
 
         for (int j = 0; j < fPathLength; j++) {
@@ -4763,6 +4835,10 @@ mixin CartesianRealTimeUpdateMixin<T, D> on CartesianSeriesRenderer<T, D> {
       if (emptyPointIndexes.contains(index)) {
         emptyPointIndexes.remove(index);
       }
+
+      if (_callbacksEnabled && chartPoints.length > index) {
+        chartPoints.removeAt(index);
+      }
     }
 
     _dataCount = _chaoticXValues.length;
@@ -4839,6 +4915,17 @@ mixin CartesianRealTimeUpdateMixin<T, D> on CartesianSeriesRenderer<T, D> {
           yMinimum = min(yMinimum, yValue);
           yMaximum = max(yMaximum, yValue);
         }
+      }
+
+      if (_callbacksEnabled) {
+        final List<ChartDataPointType> positions = widget.positions;
+        final num xValue = _chaoticXValues[index];
+        final CartesianChartPoint<D> point = CartesianChartPoint<D>(
+            x: _chaoticRawXValues[index], xValue: xValue);
+        for (int j = 0; j < yPathLength; j++) {
+          point[positions[j]] = chaoticYLists![j][index];
+        }
+        chartPoints.insert(index, point);
       }
 
       for (int j = 0; j < fPathLength; j++) {
@@ -4950,6 +5037,17 @@ mixin CartesianRealTimeUpdateMixin<T, D> on CartesianSeriesRenderer<T, D> {
         }
       }
 
+      if (_callbacksEnabled) {
+        final List<ChartDataPointType> positions = widget.positions;
+        final num xValue = _chaoticXValues[index];
+        final CartesianChartPoint<D> point = CartesianChartPoint<D>(
+            x: _chaoticRawXValues[index], xValue: xValue);
+        for (int j = 0; j < yPathLength; j++) {
+          point[positions[j]] = chaoticYLists![j][index];
+        }
+        chartPoints[index] = point;
+      }
+
       for (int j = 0; j < fPathLength; j++) {
         chaoticFLists![j][index] = fPaths![j](current, index);
       }
@@ -4990,14 +5088,38 @@ mixin CartesianRealTimeUpdateMixin<T, D> on CartesianSeriesRenderer<T, D> {
 
   void _removeXValueAt(int index) {
     _chaoticRawXValues.removeAt(index);
-    if (xRawValues.length > index) {
+    if (index < xRawValues.length) {
       xRawValues.removeAt(index);
     }
 
-    _chaoticXValues.removeAt(index);
-    // TODO(VijayakumarM): Check with category axis.
-    if (xValues.length > index) {
-      xValues.removeAt(index);
+    // For category type axis, the _chaoticXValues and xValues fields contain
+    // index values and the x-axis range updated by xValues. Here, the last
+    // index is removed from the list from _chaoticXValues and xValues to
+    // update the x-axis range correctly.
+    //
+    // Example: If a data source initially has four data points and the value
+    // stored in _chaoticXValues and xValues list for a category-type axis is
+    // [0, 1, 2, 3] and x-axis range min and max value was calculated based on
+    // xValues. If a data point is removed using the remove data points method,
+    // the corresponding value is removed from the xRawValues list and the data
+    // points length reduced from four to three, and by removing the last index
+    // the _chaoticXValues and xValues list is updated to [0, 1, 2] and x-axis
+    // range was updated correctly with min value as 0 and max value as 2.
+    if (xAxis is RenderCategoryAxis || xAxis is RenderDateTimeCategoryAxis) {
+      // If add and remove operations on data points are performed simultaneously,
+      // the values of _chaoticXValues and xValues remain the same, and the range
+      // is not updated. To resolve this, _isXRangeChanged is set to true for
+      // category-type axes.
+      _isXRangeChanged = true;
+      _chaoticXValues.removeLast();
+      if (index < xValues.length) {
+        xValues.removeLast();
+      }
+    } else {
+      _chaoticXValues.removeAt(index);
+      if (index < xValues.length) {
+        xValues.removeAt(index);
+      }
     }
   }
 
@@ -5130,7 +5252,8 @@ mixin SbsSeriesMixin<T, D> on CartesianSeriesRenderer<T, D> {
       DateTime? minDate;
       num? minimumInSeconds;
       if (xAxis is RenderDateTimeAxis) {
-        minDate = DateTime.fromMillisecondsSinceEpoch(_sortedXValues[0] as int);
+        minDate =
+            DateTime.fromMillisecondsSinceEpoch(_sortedXValues[0]! as int);
         minDate = minDate.subtract(const Duration(days: 1));
         minimumInSeconds = minDate.millisecondsSinceEpoch;
       }
@@ -5260,7 +5383,8 @@ mixin SbsSeriesMixin<T, D> on CartesianSeriesRenderer<T, D> {
         } else if (alignment == ChartDataLabelAlignment.middle) {
           y = (y + _bottom) / 2;
         }
-        return _calculateYPosition(x, y, alignment, size);
+        return _calculateYPosition(x, y, alignment, size,
+            isNegative: current.y!.isNegative);
 
       case ChartDataPointType.high:
         return _calculateHighPosition(x, y, alignment, size);
@@ -5291,7 +5415,8 @@ mixin SbsSeriesMixin<T, D> on CartesianSeriesRenderer<T, D> {
   }
 
   Offset _calculateYPosition(
-      num x, num y, ChartDataLabelAlignment alignment, Size size) {
+      num x, num y, ChartDataLabelAlignment alignment, Size size,
+      {bool isNegative = false}) {
     final EdgeInsets margin = dataLabelSettings.margin;
     double translationX = 0.0;
     double translationY = 0.0;
@@ -5300,21 +5425,29 @@ mixin SbsSeriesMixin<T, D> on CartesianSeriesRenderer<T, D> {
       case ChartDataLabelAlignment.outer:
       case ChartDataLabelAlignment.bottom:
         if (isTransposed) {
-          translationX = dataLabelPadding;
+          translationX = isNegative
+              ? -(dataLabelPadding + size.width + margin.horizontal)
+              : dataLabelPadding;
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = -(dataLabelPadding + size.height + margin.vertical);
+          translationY = isNegative
+              ? dataLabelPadding
+              : -(dataLabelPadding + size.height + margin.vertical);
         }
         return translateTransform(x, y, translationX, translationY);
 
       case ChartDataLabelAlignment.top:
         if (isTransposed) {
-          translationX = -(dataLabelPadding + size.width + margin.horizontal);
+          translationX = isNegative
+              ? dataLabelPadding
+              : -(dataLabelPadding + size.width + margin.horizontal);
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = dataLabelPadding;
+          translationY = isNegative
+              ? -(dataLabelPadding + size.height + margin.vertical)
+              : dataLabelPadding;
         }
         return translateTransform(x, y, translationX, translationY);
 
@@ -5822,6 +5955,12 @@ abstract class XyDataSeriesRenderer<T, D> extends CartesianSeriesRenderer<T, D>
           ..sortedIndexes = sortedIndexes
           ..animation = dataLabelAnimation
           ..layout(constraints);
+
+        if (dataLabelSettings.isVisible &&
+            dataLabelSettings.labelIntersectAction !=
+                LabelIntersectAction.none) {
+          dataLabelContainer!.handleDataLabelCollision(this);
+        }
       }
     }
   }
@@ -6243,10 +6382,12 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       }
 
       // Calculate current series minimum and maximum range.
-      final num bottom = current.bottomValues[i];
-      yMinimum = min(yMinimum, bottom.isNaN ? yMinimum : bottom);
-      final num top = current.topValues[i];
-      yMaximum = max(yMaximum, top.isNaN ? yMaximum : top);
+      num top = current.topValues[i];
+      top = top.isNaN ? yMaximum : top;
+      num bottom = current.bottomValues[i];
+      bottom = min(bottom.isNaN ? yMinimum : bottom, top);
+      yMinimum = min(yMinimum, bottom);
+      yMaximum = max(yMaximum, top);
     }
 
     num minY = yMinimum;
@@ -6382,6 +6523,11 @@ abstract class StackedSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         ..sortedIndexes = sortedIndexes
         ..animation = dataLabelAnimation
         ..layout(constraints);
+
+      if (dataLabelSettings.isVisible &&
+          dataLabelSettings.labelIntersectAction != LabelIntersectAction.none) {
+        dataLabelContainer!.handleDataLabelCollision(this);
+      }
     }
   }
 
@@ -6887,6 +7033,11 @@ abstract class RangeSeriesRendererBase<T, D>
         ..sortedIndexes = sortedIndexes
         ..animation = dataLabelAnimation
         ..layout(constraints);
+
+      if (dataLabelSettings.isVisible &&
+          dataLabelSettings.labelIntersectAction != LabelIntersectAction.none) {
+        dataLabelContainer!.handleDataLabelCollision(this);
+      }
     }
   }
 
@@ -7436,6 +7587,11 @@ abstract class FinancialSeriesRendererBase<T, D>
         ..sortedIndexes = sortedIndexes
         ..animation = dataLabelAnimation
         ..layout(constraints);
+
+      if (dataLabelSettings.isVisible &&
+          dataLabelSettings.labelIntersectAction != LabelIntersectAction.none) {
+        dataLabelContainer!.handleDataLabelCollision(this);
+      }
     }
   }
 
@@ -9146,6 +9302,7 @@ abstract class BoxAndWhiskerSeriesRendererBase<T, D>
         dataSource!.isEmpty ||
         xValueMapper == null ||
         yValueMapper == null) {
+      _dataCount = _chaoticXValues.length;
       return;
     }
 
@@ -9392,6 +9549,10 @@ abstract class BoxAndWhiskerSeriesRendererBase<T, D>
       for (int k = 0; k < fPathLength; k++) {
         chaoticFLists![k].removeAt(index);
       }
+
+      if (_callbacksEnabled && chartPoints.length > index) {
+        chartPoints.removeAt(index);
+      }
     }
 
     _dataCount = _chaoticXValues.length;
@@ -9462,6 +9623,13 @@ abstract class BoxAndWhiskerSeriesRendererBase<T, D>
         yMaximum = max(yMaximum, maxY);
       }
 
+      if (_callbacksEnabled) {
+        final num xValue = _chaoticXValues[index];
+        final CartesianChartPoint<D> point = CartesianChartPoint<D>(
+            x: _chaoticRawXValues[index], xValue: xValue);
+        chartPoints.insert(index, point);
+      }
+
       for (int j = 0; j < fPathLength; j++) {
         final Object? fValue = fPaths![j](current, j);
         chaoticFLists![j].insert(index, fValue);
@@ -9525,6 +9693,13 @@ abstract class BoxAndWhiskerSeriesRendererBase<T, D>
         }
         nonNullYValues.sort();
         _chaoticYValues[index] = nonNullYValues;
+      }
+
+      if (_callbacksEnabled) {
+        final num xValue = _chaoticXValues[index];
+        final CartesianChartPoint<D> point = CartesianChartPoint<D>(
+            x: _chaoticRawXValues[index], xValue: xValue);
+        chartPoints[index] = point;
       }
 
       for (int j = 0; j < fPathLength; j++) {
@@ -9773,6 +9948,7 @@ abstract class HistogramSeriesRendererBase<T, D>
 
     _resetDataSourceHolders();
     if (!_canPopulateDataPoints(yPaths, chaoticYLists)) {
+      _dataCount = _chaoticXValues.length;
       return;
     }
 

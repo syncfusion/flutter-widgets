@@ -520,8 +520,10 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
             series!.dataLabelPosition(currentChildData, child.size);
         // TODO(Lavanya): Need to handle the offset value for the
         // shift data label.
-        currentChildData.offset +=
+        final Offset offset =
             _invokeDataLabelRender(currentChildData.dataPointIndex);
+        currentChildData.offset = Offset(currentChildData.offset.dx + offset.dx,
+            currentChildData.offset.dy - offset.dy);
         child = nextSibling;
       }
 
@@ -540,8 +542,10 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
               ..point = currentLabel.point;
 
         final DataLabelText details = currentLabel.child as DataLabelText;
-        currentLabel.offset =
+        final Offset offset =
             _invokeDataLabelRender(currentLabel.dataPointIndex, details);
+        currentLabel.offset = Offset(currentLabel.offset.dx + offset.dx,
+            currentLabel.offset.dy - offset.dy);
         currentLabel.point!.text = details.text;
         currentLabel.size = measureText(details.text, details.textStyle);
         currentLabel.offset +=
@@ -588,7 +592,7 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
       return dataLabelArgs.offset;
     }
 
-    return Offset.zero;
+    return settings.offset;
   }
 
   @override

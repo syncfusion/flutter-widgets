@@ -129,8 +129,15 @@ class PdfStream extends PdfDictionary {
 
   /// internal method
   void decompress() {
+    data = getDecompressedData(true);
+    remove(PdfDictionaryProperties.filter);
+    _compress = true;
+  }
+
+  List<int>? getDecompressedData(bool modified) {
     String? filterName = '';
     IPdfPrimitive? primitive = this[PdfDictionaryProperties.filter];
+    List<int>? decompressedData = dataStream;
     if (primitive is PdfReferenceHolder) {
       final PdfReferenceHolder holder = primitive;
       primitive = holder.object;
@@ -139,11 +146,13 @@ class PdfStream extends PdfDictionary {
       if (primitive is PdfName) {
         final PdfName name = primitive;
         if (name.name == 'ASCIIHexDecode') {
-          data = _decode(dataStream);
+          decompressedData = _decode(decompressedData);
         } else {
-          data = _decompressData(dataStream!, name.name!);
+          decompressedData = _decompressData(decompressedData!, name.name!);
         }
-        _modify();
+        if (modified) {
+          _modify();
+        }
       } else if (primitive is PdfArray) {
         final PdfArray filter = primitive;
         for (int i = 0; i < filter.count; i++) {
@@ -152,18 +161,19 @@ class PdfStream extends PdfDictionary {
             filterName = pdfFilter.name;
           }
           if (filterName == 'ASCIIHexDecode') {
-            data = _decode(dataStream);
+            decompressedData = _decode(decompressedData);
           } else {
-            data = _decompressData(dataStream!, filterName!);
+            decompressedData = _decompressData(decompressedData!, filterName!);
           }
-          _modify();
+          if (modified) {
+            _modify();
+          }
         }
       } else {
         throw ArgumentError.value(filterName, 'Invalid format');
       }
     }
-    remove(PdfDictionaryProperties.filter);
-    _compress = true;
+    return decompressedData;
   }
 
   List<int>? _decode(List<int>? data) {
@@ -171,7 +181,7 @@ class PdfStream extends PdfDictionary {
   }
 
   List<int> _decompressData(List<int> data, String filter) {
-    if (data.isEmpty) {
+    if (data.isEmpty || data.length == 1) {
       return data;
     }
     if (filter != PdfDictionaryProperties.crypt) {
@@ -179,10 +189,13 @@ class PdfStream extends PdfDictionary {
         return data;
       } else if (filter == PdfDictionaryProperties.flateDecode ||
           filter == PdfDictionaryProperties.flateDecodeShort) {
-        final PdfZlibCompressor compressor = PdfZlibCompressor();
-        data = compressor.decompress(data);
-        data = _postProcess(data, filter);
-        return data;
+        try {
+          final PdfZlibCompressor compressor = PdfZlibCompressor();
+          data = compressor.decompress(data);
+        } catch (e) {
+          //Non-compressed stream throws exception when try to decompress.
+        }
+        return _postProcess(data, filter);
       } else if (filter == PdfDictionaryProperties.ascii85Decode ||
           filter == PdfDictionaryProperties.ascii85DecodeShort) {
         final PdfAscii85Compressor compressor = PdfAscii85Compressor();

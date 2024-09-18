@@ -1,9 +1,9 @@
-part of officechart;
+import '../../officechart.dart';
 
 ///Represents chart format implement class
-class _ChartformatImpl implements ChartFormat {
-  /// Create an instances of [_ChartformatImpl] class.
-  _ChartformatImpl(Chart chart) {
+class ChartformatImpl implements ChartFormat {
+  /// Create an instances of [ChartformatImpl] class.
+  ChartformatImpl(Chart chart) {
     _firstSliceAngle = 0;
     _doughnutHoleSize = 75;
     _gapWidth = 150;
@@ -46,7 +46,7 @@ class _ChartformatImpl implements ChartFormat {
     }
     for (int i = 0; i < _chart.series.count; i++) {
       final ChartSerie serie1 = _chart.series[i];
-      (serie1.serieFormat.commonSerieOptions as _ChartformatImpl)
+      (serie1.serieFormat.commonSerieOptions as ChartformatImpl)
           ._firstSliceAngle = value;
     }
   }
@@ -65,7 +65,7 @@ class _ChartformatImpl implements ChartFormat {
     }
     for (int i = 0; i < _chart.series.count; i++) {
       final ChartSerie serie1 = _chart.series[i];
-      (serie1.serieFormat.commonSerieOptions as _ChartformatImpl)
+      (serie1.serieFormat.commonSerieOptions as ChartformatImpl)
           ._doughnutHoleSize = value;
     }
   }
@@ -84,7 +84,7 @@ class _ChartformatImpl implements ChartFormat {
     }
     for (int i = 0; i < _chart.series.count; i++) {
       final ChartSerie serie1 = _chart.series[i];
-      (serie1.serieFormat.commonSerieOptions as _ChartformatImpl)._gapWidth =
+      (serie1.serieFormat.commonSerieOptions as ChartformatImpl)._gapWidth =
           value;
     }
   }
@@ -103,7 +103,7 @@ class _ChartformatImpl implements ChartFormat {
     }
     for (int i = 0; i < _chart.series.count; i++) {
       final ChartSerie serie1 = _chart.series[i];
-      (serie1.serieFormat.commonSerieOptions as _ChartformatImpl)
+      (serie1.serieFormat.commonSerieOptions as ChartformatImpl)
           ._pieSecondSize = value;
     }
   }
@@ -122,7 +122,7 @@ class _ChartformatImpl implements ChartFormat {
     }
     for (int i = 0; i < _chart.series.count; i++) {
       final ChartSerie serie1 = _chart.series[i];
-      (serie1.serieFormat.commonSerieOptions as _ChartformatImpl)._gapDepth =
+      (serie1.serieFormat.commonSerieOptions as ChartformatImpl)._gapDepth =
           value;
     }
   }

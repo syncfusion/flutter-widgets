@@ -46,6 +46,8 @@ class CategoryAxis extends ChartAxis {
     super.majorGridLines,
     super.labelStyle,
     super.plotOffset,
+    super.plotOffsetStart,
+    super.plotOffsetEnd,
     super.initialZoomFactor,
     super.initialZoomPosition,
     super.interactiveTooltip,

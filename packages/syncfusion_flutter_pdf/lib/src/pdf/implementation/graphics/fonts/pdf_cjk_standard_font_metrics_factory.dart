@@ -15,7 +15,8 @@ class PdfCjkStandardFontMetricsFactory {
   static PdfFontMetrics getMetrics(
       PdfCjkFontFamily? fontFamily, int? fontStyle, double size) {
     PdfFontMetrics metrics;
-
+    final PdfCjkStandardFontMetricsFactory fontfactory =
+        PdfCjkStandardFontMetricsFactory();
     switch (fontFamily) {
       case PdfCjkFontFamily.hanyangSystemsGothicMedium:
         metrics =
@@ -44,7 +45,8 @@ class PdfCjkStandardFontMetricsFactory {
         break;
 
       case PdfCjkFontFamily.sinoTypeSongLight:
-        metrics = _getSinoTypeSongLight(fontFamily, fontStyle!, size);
+        metrics =
+            fontfactory._getSinoTypeSongLight(fontFamily, fontStyle!, size);
         break;
 
       // ignore: no_default_cases
@@ -153,7 +155,7 @@ class PdfCjkStandardFontMetricsFactory {
   }
 
   /// Gets the sino type song light font metrics.
-  static PdfFontMetrics _getSinoTypeSongLight(
+  PdfFontMetrics _getSinoTypeSongLight(
       PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     final CjkWidthTable widthTable = CjkWidthTable(1000);

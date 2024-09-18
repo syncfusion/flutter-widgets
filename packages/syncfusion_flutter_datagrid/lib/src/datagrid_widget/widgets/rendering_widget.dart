@@ -377,7 +377,8 @@ class VirtualizingCellsRenderObjectWidget extends MultiChildRenderObjectWidget {
   /// Creates the [VirtualizingCellsRenderObjectWidget] for the
   /// [RenderVirtualizingCellsWidget].
   VirtualizingCellsRenderObjectWidget(
-      {required this.dataRow,
+      {super.key,
+      required this.dataRow,
       required this.isDirty,
       required this.children,
       required this.dataGridStateDetails})
@@ -1132,6 +1133,10 @@ class RenderVirtualizingCellsWidget extends RenderBox
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
     super.handleEvent(event, entry);
+
+    if (!hasOwner()) {
+      return;
+    }
     _handleSwiping(event);
 
     _handleColumnResizing(event);
@@ -1139,9 +1144,22 @@ class RenderVirtualizingCellsWidget extends RenderBox
     _handleColumnDragAndDrop(event);
 
     // Handles the all the datagrid long press events here commonly.
+    _handleLongPress(event);
+  }
+
+  void _handleLongPress(PointerEvent event) {
     if (event is PointerDownEvent) {
       _onLongPressGesture.addPointer(event);
     }
+  }
+
+  // FLUT- 890745 Gestures need to be unhandled when the owner of the current widget is null.
+  // This means the widget is not attached to the current widget tree.
+  bool hasOwner() {
+    if (owner != null) {
+      return true;
+    }
+    return false;
   }
 
   void _handleColumnDragAndDrop(PointerEvent event) {
@@ -1401,6 +1419,9 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
   // To handle long press start event.
   void _onLongPressStart(LongPressStartDetails details) {
+    if (!hasOwner()) {
+      return;
+    }
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
     DataCellBase? dataCell;
     dataCell = _getDataCellBase(dataRow, details);
@@ -1414,6 +1435,9 @@ class RenderVirtualizingCellsWidget extends RenderBox
 
   // To handle long press end event.
   Future<void> _onLongPressEnd(LongPressEndDetails details) async {
+    if (!hasOwner()) {
+      return;
+    }
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
     DataCellBase? dataCell;
     dataCell = _getDataCellBase(dataRow, details);
@@ -1434,6 +1458,9 @@ class RenderVirtualizingCellsWidget extends RenderBox
   }
 
   void _onPointerEnter(PointerEnterEvent event) {
+    if (!hasOwner()) {
+      return;
+    }
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
 
     if (dataGridConfiguration.allowColumnsResizing) {
@@ -1464,16 +1491,14 @@ class RenderVirtualizingCellsWidget extends RenderBox
         notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
             propertyName: 'hoverOnCell');
       }
-
-      /// FLUT-5777 Invoke markNeedsPaint only the widget is attached in the
-      /// current widget tree. The `owner` property will be null if it is unattached.
-      if (owner != null) {
-        markNeedsPaint();
-      }
+      markNeedsPaint();
     }
   }
 
   void _onPointerExit(PointerExitEvent event) {
+    if (!hasOwner()) {
+      return;
+    }
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
 
     if (dataGridConfiguration.allowColumnsResizing) {
@@ -1500,12 +1525,7 @@ class RenderVirtualizingCellsWidget extends RenderBox
         notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
             propertyName: 'hoverOnCell');
       }
-
-      /// FLUT-5777 Invoke markNeedsPaint only the widget is attached in the
-      /// current widget tree. The `owner` property will be null if it is unattached.
-      if (owner != null) {
-        markNeedsPaint();
-      }
+      markNeedsPaint();
     }
   }
 }

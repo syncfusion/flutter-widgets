@@ -1,4 +1,8 @@
-part of xlsio;
+import 'dart:typed_data';
+
+import 'package:image/image.dart' as img;
+
+import '../hyperlinks/hyperlink.dart';
 
 /// Represent the Excel image.
 class Picture {
@@ -24,7 +28,7 @@ class Picture {
   List<int>? _imageData;
 
   // ignore: prefer_final_fields
-  bool _isHyperlink = false;
+  bool isHyperlink = false;
 
   /// Gets/Sets the image hyperlink.
   Hyperlink? hyperlink;
@@ -195,7 +199,7 @@ class Picture {
   }
 
   /// clear the image data.
-  void _clear() {
+  void clear() {
     if (_imageData != null) {
       _imageData = null;
     }

@@ -46,6 +46,8 @@ class NumericAxis extends ChartAxis {
     super.edgeLabelPlacement,
     super.labelStyle,
     super.plotOffset,
+    super.plotOffsetStart,
+    super.plotOffsetEnd,
     super.initialZoomFactor,
     super.initialZoomPosition,
     super.enableAutoIntervalOnZooming,
@@ -555,18 +557,6 @@ class RenderNumericAxis extends RenderChartAxis {
     return range.copyWith();
   }
 
-  num _visibleStart() {
-    if (minimum != null && controller.zoomFactor == 1) {
-      return visibleRange!.minimum;
-    }
-
-    if (edgeLabelPlacement == EdgeLabelPlacement.shift) {
-      return visibleRange!.minimum;
-    }
-
-    return visibleRange!.minimum - (visibleRange!.minimum % visibleInterval);
-  }
-
   @override
   void generateVisibleLabels() {
     hasTrimmedAxisLabel = false;
@@ -576,7 +566,7 @@ class RenderNumericAxis extends RenderChartAxis {
     final double extent =
         labelsExtent ?? (maximumLabelWidth ?? double.maxFinite);
     final bool isRtl = textDirection == TextDirection.rtl;
-    num current = _visibleStart();
+    num current = visibleRange!.minimum;
     final num visibleMinimum = visibleRange!.minimum;
     final num visibleMaximum = visibleRange!.maximum;
     while (current <= visibleMaximum) {

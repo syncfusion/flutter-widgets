@@ -563,16 +563,18 @@ abstract class RenderSparkChart extends RenderBox {
   /// Method to calculate axis height.
   double? getAxisHeight() {
     final double value = axisCrossesAt!;
-    double? axisLineHeight =
-        areaSize!.height - ((areaSize!.height / diffY!) * (-minY!));
-    axisLineHeight = minY! < 0 && maxY! <= 0
+    final double areaHeight = areaSize!.height;
+    double? axisLineHeight = areaHeight - ((areaHeight / diffY!) * (-minY!));
+    axisLineHeight = minY! < value && maxY! <= value
         ? 0
-        : (minY! < 0 && maxY! > 0)
+        : (minY! < value && maxY! > value)
             ? axisHeight
-            : areaSize!.height;
+            : areaHeight;
     if (value >= minY! && value <= maxY!) {
-      axisLineHeight = areaSize!.height -
-          (areaSize!.height * ((value - minY!) / diffY!)).roundToDouble();
+      axisLineHeight = (minY! == maxY!)
+          ? 0
+          : areaHeight -
+              (areaHeight * ((value - minY!) / diffY!)).roundToDouble();
     }
     return axisLineHeight;
   }
@@ -634,7 +636,7 @@ abstract class RenderSparkChart extends RenderBox {
 
   /// Method to render axis line.
   void renderAxisline(Canvas canvas, Offset offset) {
-    if (axisLineWidth! > 0 && axisHeight != null) {
+    if (axisLineWidth! > 0 && axisHeight != null && !axisHeight!.isNaN) {
       final double x1 = offset.dx;
       final double y1 = offset.dy + axisHeight!;
       final double x2 = offset.dx + areaSize!.width;

@@ -1,4 +1,6 @@
-part of xlsio;
+import '../general/enums.dart';
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
 
 /// Represent the Hyperlink object.
 class Hyperlink {
@@ -19,7 +21,7 @@ class Hyperlink {
 
   /// Represents the hyperlink location.
   // ignore: unused_field
-  String? _location;
+  late String? _location;
 
   /// Parent worksheet.
   // ignore: unused_field
@@ -27,19 +29,20 @@ class Hyperlink {
 
   /// Row index
   // ignore: prefer_final_fields
-  int _row = 0;
+  int row = 0;
 
   /// Column Index
   // ignore: prefer_final_fields
-  int _column = 0;
+  int column = 0;
 
   /// Represents the Hyperlink built in style.
   // ignore: unused_field
-  BuiltInStyles? _bHyperlinkStyle;
+  late BuiltInStyles? isHyperlinkStyle;
 
   /// Represent the hyperlink applied object name.
   // ignore: prefer_final_fields
-  ExcelHyperlinkAttachedType _attachedType = ExcelHyperlinkAttachedType.range;
+  late ExcelHyperlinkAttachedType attachedType =
+      ExcelHyperlinkAttachedType.range;
 
   /// Represents tooltip String.
   ///  ```dart
@@ -128,6 +131,6 @@ class Hyperlink {
 
   /// Represents the cell reference name.
   String get reference {
-    return Range._getCellName(_row, _column);
+    return Range.getCellName(row, column);
   }
 }

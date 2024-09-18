@@ -104,8 +104,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
   }
 
   /// Opens the bookmark view.
-  // ignore: avoid_void_async
-  void open() async {
+  Future<void> open() async {
     await Future<bool>.sync(() => widget.controller.clearSelection());
     _ensureHistoryEntry();
     if (!showBookmark && widget.pdfDocument != null) {

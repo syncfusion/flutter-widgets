@@ -316,7 +316,8 @@ class TooltipRenderObject extends SingleChildRenderObjectWidget {
   /// Creating an argument constructor of TooltipRenderObject class.
   // ignore: prefer_const_constructors_in_immutables
   TooltipRenderObject(
-      {Widget? template,
+      {super.key,
+      Widget? template,
       required SfTooltipState tooltipState,
       required Animation<double> tooltipAnimation,
       required AnimationController animationController})
@@ -462,7 +463,7 @@ class TooltipRenderBox extends RenderShiftedBox {
     _markerImages = images;
   }
 
-  List<LinearGradient?>? _markerGradients;
+  late List<LinearGradient?>? _markerGradients;
 
   ///Setter for the tooltip marker gradient
   set markerGradients(List<LinearGradient?> values) {

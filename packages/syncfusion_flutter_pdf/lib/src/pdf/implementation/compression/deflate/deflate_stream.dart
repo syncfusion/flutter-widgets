@@ -14,7 +14,7 @@ class DeflateStream {
   //Fields
   late List<int> _data;
   // ignore: unused_field
-  bool? _leaveOpen;
+  late bool? _leaveOpen;
   late int _offset;
   List<int>? _buffer;
   late Inflater _inflater;
