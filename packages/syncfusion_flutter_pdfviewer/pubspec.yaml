@@ -45,7 +45,7 @@ dependencies:
   intl: '>=0.18.1 <0.20.0'
 
   syncfusion_pdfviewer_platform_interface:
-    path: ../syncfusion_pdfviewer_platform_interface
+    path: ../syncfusion_flutter_pdfviewer_platform_interface
 
   syncfusion_pdfviewer_web:
     path: ../syncfusion_pdfviewer_web
