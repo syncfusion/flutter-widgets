@@ -162,6 +162,33 @@ class DataGridCell<T> {
   final T? value;
 }
 
+class FilterableWidgetCell extends StatelessWidget
+    implements Comparable<FilterableWidgetCell> {
+  const FilterableWidgetCell({
+    super.key,
+    required this.value,
+    required this.child,
+  });
+
+  final String value;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return child;
+  }
+
+  int toCompare(FilterableWidgetCell other) {
+    return value.compareTo(other.value);
+  }
+
+  @override
+  @override
+  int compareTo(FilterableWidgetCell other) {
+    return value.compareTo(other.value);
+  }
+}
+
 /// Row configuration and widget of cell for a [SfDataGrid].
 ///
 /// The widget for each cell can be provided in the [DataGridRowAdapter.cells]

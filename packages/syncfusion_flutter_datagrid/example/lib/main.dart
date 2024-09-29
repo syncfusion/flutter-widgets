@@ -45,8 +45,18 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SfDataGrid(
         source: employeeDataSource,
+        allowFiltering: true,
+        allowSorting: true,
         columnWidthMode: ColumnWidthMode.fill,
         columns: <GridColumn>[
+          GridColumn(
+              columnName: 'test',
+              label: Container(
+                  padding: EdgeInsets.all(16.0),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Test',
+                  ))),
           GridColumn(
               columnName: 'id',
               label: Container(
@@ -123,10 +133,21 @@ class EmployeeDataSource extends DataGridSource {
   EmployeeDataSource({required List<Employee> employeeData}) {
     _employeeData = employeeData
         .map<DataGridRow>((e) => DataGridRow(cells: [
+              DataGridCell<FilterableWidgetCell>(
+                  columnName: 'test',
+                  value: FilterableWidgetCell(
+                    value: '${e.id}: ${e.name}',
+                    child: Container(
+                      color: Colors.red,
+                      child: Text('${e.id}: ${e.name}'),
+                    ),
+                  )),
               DataGridCell<int>(columnName: 'id', value: e.id),
               DataGridCell<String>(columnName: 'name', value: e.name),
               DataGridCell<String>(
-                  columnName: 'designation', value: e.designation),
+                columnName: 'designation',
+                value: e.designation,
+              ),
               DataGridCell<int>(columnName: 'salary', value: e.salary),
             ]))
         .toList();
@@ -141,6 +162,9 @@ class EmployeeDataSource extends DataGridSource {
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
         cells: row.getCells().map<Widget>((e) {
+      if (e.value is FilterableWidgetCell) {
+        return e.value;
+      }
       return Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(8.0),

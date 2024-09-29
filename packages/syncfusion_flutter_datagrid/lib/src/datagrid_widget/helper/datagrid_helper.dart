@@ -667,6 +667,7 @@ String getFilterTileText(
     SfLocalizations localizations, AdvancedFilterType type) {
   switch (type) {
     case AdvancedFilterType.text:
+    case AdvancedFilterType.customWidget:
       return localizations.textFiltersDataGridFilteringLabel;
     case AdvancedFilterType.numeric:
       return localizations.numberFiltersDataGridFilteringLabel;
@@ -680,6 +681,7 @@ String getSortButtonText(
     SfLocalizations localizations, bool isAscending, AdvancedFilterType type) {
   switch (type) {
     case AdvancedFilterType.text:
+    case AdvancedFilterType.customWidget:
       return isAscending
           ? localizations.sortAToZDataGridFilteringLabel
           : localizations.sortZToADataGridFilteringLabel;

@@ -2131,6 +2131,9 @@ class DataGridFilterHelper {
         case AdvancedFilterType.date:
           final DateTime date = value as DateTime;
           return date.toString().split(' ').first;
+        case AdvancedFilterType.customWidget:
+          final FilterableWidgetCell widget = value as FilterableWidgetCell;
+          return widget.value;
       }
     }
     return '';
@@ -2142,6 +2145,8 @@ class DataGridFilterHelper {
       switch (advancedFilterHelper.advancedFilterType) {
         case AdvancedFilterType.text:
           return value is! String ? value.toString() : value;
+        case AdvancedFilterType.customWidget:
+          return value is FilterableWidgetCell ? value.value : null;
         case AdvancedFilterType.numeric:
           return value is! num ? num.tryParse(value.toString()) : value;
         case AdvancedFilterType.date:
@@ -2346,8 +2351,14 @@ class DataGridFilterHelper {
           final DataGridCell? cell = row.getCells().firstWhereOrNull(
               (DataGridCell element) =>
                   element.columnName == column.columnName);
-          if (cell?.value?.toString() == value?.toString()) {
-            return true;
+          if (cell?.value is FilterableWidgetCell) {
+            if ((cell?.value as FilterableWidgetCell).value == value?.toString()) {
+              return true;
+            }
+          } else {
+            if (cell?.value?.toString() == value?.toString()) {
+              return true;
+            }
           }
         }
         return false;
@@ -2362,7 +2373,11 @@ class DataGridFilterHelper {
           (DataGridCell element) => element.columnName == column.columnName);
       if (cell != null) {
         if (cell.value != null) {
-          cellValues.add(cell.value);
+          if (cell.value is FilterableWidgetCell) {
+            cellValues.add((cell.value as FilterableWidgetCell).value);
+          } else {
+            cellValues.add(cell.value);
+          }
         } else if (!hasBlankValues) {
           hasBlankValues = true;
         }
@@ -2512,7 +2527,11 @@ class DataGridFilterHelper {
       final DataGridCell? cellValue = row.getCells().firstWhereOrNull(
           (DataGridCell element) => element.columnName == column.columnName);
       if (cellValue != null && cellValue.value != null) {
-        return cellValue.value;
+        if (cellValue.value is FilterableWidgetCell) {
+          return (cellValue.value as FilterableWidgetCell).value;
+        } else {
+          return cellValue.value;
+        }
       }
     }
     return null;
@@ -2649,6 +2668,31 @@ class DataGridFilterHelper {
 
     switch (advancedFilterHelper.advancedFilterType) {
       case AdvancedFilterType.text:
+        {
+          // Condition 1
+          if (canCreateFilterCondition(filterValue1, filterType1, true)) {
+            final FilterCondition condition = FilterCondition(
+                type: type1,
+                filterOperator: getFilterOperator(),
+                value: advancedFilterHelper.filterValue1,
+                filterBehavior: FilterBehavior.stringDataType,
+                isCaseSensitive: advancedFilterHelper.isCaseSensitive1);
+            filterConditions.add(condition);
+          }
+
+          // Condition 2
+          if (canCreateFilterCondition(filterValue2, filterType2, false)) {
+            final FilterCondition condition = FilterCondition(
+                type: type2,
+                filterOperator: getFilterOperator(),
+                value: advancedFilterHelper.filterValue2,
+                filterBehavior: FilterBehavior.stringDataType,
+                isCaseSensitive: advancedFilterHelper.isCaseSensitive2);
+            filterConditions.add(condition);
+          }
+        }
+        break;
+      case AdvancedFilterType.customWidget:
         {
           // Condition 1
           if (canCreateFilterCondition(filterValue1, filterType1, true)) {
@@ -2900,6 +2944,20 @@ class DataGridAdvancedFilterHelper {
     final SfLocalizations localizations = _dataGridStateDetails().localizations;
     switch (advancedFilterType) {
       case AdvancedFilterType.text:
+        items.add(localizations.equalsDataGridFilteringLabel);
+        items.add(localizations.doesNotEqualDataGridFilteringLabel);
+        items.add(localizations.beginsWithDataGridFilteringLabel);
+        items.add(localizations.doesNotBeginWithDataGridFilteringLabel);
+        items.add(localizations.endsWithDataGridFilteringLabel);
+        items.add(localizations.doesNotEndWithDataGridFilteringLabel);
+        items.add(localizations.containsDataGridFilteringLabel);
+        items.add(localizations.doesNotContainDataGridFilteringLabel);
+        items.add(localizations.emptyDataGridFilteringLabel);
+        items.add(localizations.notEmptyDataGridFilteringLabel);
+        items.add(localizations.nullDataGridFilteringLabel);
+        items.add(localizations.notNullDataGridFilteringLabel);
+        break;
+      case AdvancedFilterType.customWidget:
         items.add(localizations.equalsDataGridFilteringLabel);
         items.add(localizations.doesNotEqualDataGridFilteringLabel);
         items.add(localizations.beginsWithDataGridFilteringLabel);
