@@ -170,7 +170,7 @@ class FilterableWidgetCell extends StatelessWidget
     required this.child,
   });
 
-  final String value;
+  final String? value;
   final Widget child;
 
   @override
@@ -179,13 +179,12 @@ class FilterableWidgetCell extends StatelessWidget
   }
 
   int toCompare(FilterableWidgetCell other) {
-    return value.compareTo(other.value);
+    return (value ?? '').compareTo(other.value ?? '');
   }
 
   @override
-  @override
   int compareTo(FilterableWidgetCell other) {
-    return value.compareTo(other.value);
+    return (value ?? '').compareTo(other.value ?? '');
   }
 }
 

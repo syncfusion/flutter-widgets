@@ -2133,7 +2133,7 @@ class DataGridFilterHelper {
           return date.toString().split(' ').first;
         case AdvancedFilterType.customWidget:
           final FilterableWidgetCell widget = value as FilterableWidgetCell;
-          return widget.value;
+          return widget.value ?? '';
       }
     }
     return '';
@@ -2352,7 +2352,8 @@ class DataGridFilterHelper {
               (DataGridCell element) =>
                   element.columnName == column.columnName);
           if (cell?.value is FilterableWidgetCell) {
-            if ((cell?.value as FilterableWidgetCell).value == value?.toString()) {
+            if ((cell?.value as FilterableWidgetCell).value ==
+                value?.toString()) {
               return true;
             }
           } else {
@@ -2374,7 +2375,11 @@ class DataGridFilterHelper {
       if (cell != null) {
         if (cell.value != null) {
           if (cell.value is FilterableWidgetCell) {
-            cellValues.add((cell.value as FilterableWidgetCell).value);
+            if ((cell.value as FilterableWidgetCell).value != null) {
+              cellValues.add((cell.value as FilterableWidgetCell).value!);
+            } else {
+              hasBlankValues = true;
+            }
           } else {
             cellValues.add(cell.value);
           }
