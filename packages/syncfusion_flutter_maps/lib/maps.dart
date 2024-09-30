@@ -1882,6 +1882,7 @@ class MapTileLayer extends MapLayer {
     MapZoomPanBehavior? zoomPanBehavior,
     WillZoomCallback? onWillZoom,
     WillPanCallback? onWillPan,
+    super.colorFilter,
   })  : assert(initialZoomLevel >= 1 && initialZoomLevel <= 15),
         assert(initialMarkersCount == 0 ||
             initialMarkersCount != 0 && markerBuilder != null),
@@ -2117,6 +2118,7 @@ class MapTileLayer extends MapLayer {
       onWillZoom: onWillZoom,
       onWillPan: onWillPan,
       isTransparent: isTransparent,
+      colorFilter: colorFilter,
     );
   }
 
@@ -2170,6 +2172,7 @@ class _TileLayer extends StatefulWidget {
     required this.onWillZoom,
     required this.onWillPan,
     required this.isTransparent,
+    required this.colorFilter,
   });
 
   final String urlTemplate;
@@ -2186,6 +2189,7 @@ class _TileLayer extends StatefulWidget {
   final WillZoomCallback? onWillZoom;
   final WillPanCallback? onWillPan;
   final bool isTransparent;
+  final ColorFilter? colorFilter;
 
   @override
   _TileLayerState createState() => _TileLayerState();
@@ -2228,6 +2232,7 @@ class _TileLayerState extends State<_TileLayer> {
         onWillZoom: widget.onWillZoom,
         onWillPan: widget.onWillPan,
         isTransparent: widget.isTransparent,
+        colorFilter: widget.colorFilter,
       ),
     );
   }
@@ -3158,7 +3163,9 @@ class _BehaviorViewState extends State<BehaviorView> {
   }
 
   Rect _getInitialRect() {
-    widget.behavior._zoomController!.parentRect = Offset.zero & _size!;
+    if (widget.behavior._zoomController != null) {
+      widget.behavior._zoomController!.parentRect = Offset.zero & _size!;
+    }
     final double tileSize = getTotalTileWidth(_currentZoomLevel);
     final Offset center =
         _pixelFromLatLng(_currentFocalLatLng, _currentZoomLevel);
@@ -3181,9 +3188,10 @@ class _BehaviorViewState extends State<BehaviorView> {
   @override
   void dispose() {
     widget.controller.removeToolbarZoomedListener(_handleToolbarZooming);
-    widget.behavior
-      .._zoomController?.dispose()
-      .._zoomController = null;
+    // Broken life cycle for responsive or reusing widget with same controllers
+    // widget.behavior
+    //   .._zoomController?.dispose()
+    //   .._zoomController = null;
     super.dispose();
   }
 
@@ -3200,6 +3208,9 @@ class _BehaviorViewState extends State<BehaviorView> {
             .._zoomLevel = _currentZoomLevel
             .._focalLatLng = _currentFocalLatLng;
           _initialRect = _getInitialRect();
+        }
+        if (widget.behavior._zoomController == null) {
+          return Container();
         }
 
         return Zoomable(

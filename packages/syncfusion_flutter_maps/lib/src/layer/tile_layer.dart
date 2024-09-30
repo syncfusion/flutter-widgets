@@ -75,6 +75,7 @@ class _MapTile {
     required this.tilePos,
     required this.level,
     required this.image,
+    required this.colorFilter,
   });
 
   /// Provides a unique key for each tile. The format of [xyzKey] looks `x:y:z`,
@@ -92,6 +93,8 @@ class _MapTile {
 
   /// Add tile to the image.
   final Widget image;
+
+  final ColorFilter? colorFilter;
 
   @override
   int get hashCode => coordinates.hashCode;
@@ -143,6 +146,7 @@ class TileLayer extends StatefulWidget {
     required this.onWillZoom,
     required this.onWillPan,
     required this.isTransparent,
+    required this.colorFilter,
   });
 
   final String urlTemplate;
@@ -159,6 +163,7 @@ class TileLayer extends StatefulWidget {
   final WillZoomCallback? onWillZoom;
   final WillPanCallback? onWillPan;
   final bool isTransparent;
+  final ColorFilter? colorFilter;
 
   @override
   State<TileLayer> createState() => _TileLayerState();
@@ -428,6 +433,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       xyzKey: tileFactorToKey,
       tilePos: Offset(tileLeftPos, tileTopPos),
       level: _levels[tileFactor.z]!,
+      colorFilter: widget.colorFilter,
       image: Image.network(
         url,
         fit: BoxFit.fill,
@@ -500,7 +506,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       top: tileTopPos,
       width: tileSize * level.scale,
       height: tileSize * level.scale,
-      child: tile.image,
+      child: tile.colorFilter == null
+          ? tile.image
+          : ColorFiltered(colorFilter: tile.colorFilter!, child: tile.image),
     );
   }
 
