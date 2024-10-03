@@ -2358,10 +2358,8 @@ class DataGridFilterHelper {
     bool isNullOrEmpty(Object? value) {
       if (value == null) {
         return true;
-      }else if (value is String) {
-        return value.trim().isEmpty;
       } else {
-        return false;
+        return value.toString().trim().isEmpty;
       }
     }
 
@@ -2371,7 +2369,7 @@ class DataGridFilterHelper {
       final DataGridCell? cell = row.getCells().firstWhereOrNull(
           (DataGridCell element) => element.columnName == column.columnName);
       if (cell != null) {
-        if (!isNullOrEmpty(cell.value.toString())) {
+        if (!isNullOrEmpty(cell.value)) {
           cellValues.add(cell.value);
         } else if (!hasBlankValues) {
           hasBlankValues = true;
