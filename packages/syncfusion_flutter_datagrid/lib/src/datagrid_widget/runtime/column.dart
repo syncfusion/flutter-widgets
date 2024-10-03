@@ -2355,13 +2355,23 @@ class DataGridFilterHelper {
       return true;
     }
 
+    bool isNullOrEmpty(Object? value) {
+      if (value == null) {
+        return true;
+      }else if (Object is String) {
+        return (value as String).trim().isEmpty;
+      } else {
+        return false;
+      }
+    }
+
     final List<Object> cellValues = <Object>[];
     final List<FilterElement> filterElements = <FilterElement>[];
     for (final DataGridRow row in items) {
       final DataGridCell? cell = row.getCells().firstWhereOrNull(
           (DataGridCell element) => element.columnName == column.columnName);
       if (cell != null) {
-        if (cell.value != null) {
+        if (!isNullOrEmpty(cell.value)) {
           cellValues.add(cell.value);
         } else if (!hasBlankValues) {
           hasBlankValues = true;
