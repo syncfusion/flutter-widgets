@@ -346,10 +346,6 @@ enum AdvancedFilterType {
   /// Specifies that the filtering options should be available based on date
   /// values.
   date,
-
-  /// Specifies that the filtering options should be available based on custom
-  /// widget values.
-  customWidget,
 }
 
 /// Decides how the checked listbox and advanced filter options should be shown in filter popup
