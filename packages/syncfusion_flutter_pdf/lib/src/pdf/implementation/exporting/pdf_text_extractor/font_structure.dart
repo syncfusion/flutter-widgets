@@ -1100,10 +1100,14 @@ class FontStructure {
             fontEncoding = baseFont!.name;
           }
         } else if (fontDictionary[PdfDictionaryProperties.encoding]
-            is PdfReferenceHolder) {
-          baseFontDict = (fontDictionary[PdfDictionaryProperties.encoding]!
-                  as PdfReferenceHolder)
-              .object as PdfDictionary?;
+        is PdfReferenceHolder) {
+          final ref = (fontDictionary[PdfDictionaryProperties.encoding]!
+          as PdfReferenceHolder);
+          if (ref.object is PdfDictionary) {
+            baseFontDict = ref.object as PdfDictionary?;
+          } else {
+            fontEncoding = (ref.object as PdfName).name;
+          }
         }
         if (baseFontDict != null &&
             baseFontDict.containsKey(PdfDictionaryProperties.type)) {
@@ -1602,9 +1606,11 @@ class FontStructure {
     if (fontDictionary.containsKey(PdfDictionaryProperties.encoding)) {
       if (fontDictionary[PdfDictionaryProperties.encoding]
           is PdfReferenceHolder) {
-        encodingDictionary = (fontDictionary[PdfDictionaryProperties.encoding]!
-                as PdfReferenceHolder)
-            .object as PdfDictionary?;
+        final ref = fontDictionary[PdfDictionaryProperties.encoding]
+        as PdfReferenceHolder;
+        if (ref.object is PdfDictionary) {
+          encodingDictionary = ref.object as PdfDictionary?;
+        }
       } else if (fontDictionary[PdfDictionaryProperties.encoding]
           is PdfDictionary) {
         encodingDictionary =
