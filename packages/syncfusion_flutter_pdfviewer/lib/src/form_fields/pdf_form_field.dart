@@ -23,6 +23,11 @@ abstract class PdfFormField {
       _helper.rebuild();
     }
   }
+
+  /// Gets the bounds of the form field.
+  Rect get bounds {
+    return _helper.bounds;
+  }
 }
 
 /// Represents the form field helper.
