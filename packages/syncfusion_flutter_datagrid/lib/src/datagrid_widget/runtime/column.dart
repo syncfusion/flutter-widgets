@@ -2375,14 +2375,10 @@ class DataGridFilterHelper {
     }
 
     if (cellValues.isNotEmpty) {
-      final Object cellValue = cellValues.first;
-      final bool convertToString =
-          !(cellValue is num || cellValue is DateTime || cellValue is String);
-
       // Sort the items to display in the ascending order.
       cellValues.sort((Object a, Object b) {
-        final dynamic value1 = convertToString ? a.toString() : a;
-        final dynamic value2 = convertToString ? b.toString() : b;
+        final dynamic value1 = !(a is num || a is DateTime || a is String) ? a.toString() : a;
+        final dynamic value2 = !(b is num || b is DateTime || b is String) ? b.toString() : b;
 
         return value1.compareTo(value2);
       });
