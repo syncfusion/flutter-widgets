@@ -155,7 +155,7 @@ void xlsioHyperlinks() {
 
       final Range range4 = sheet.getRangeByName('A5');
       final Hyperlink link4 = sheet.hyperlinks.add(range4, HyperlinkType.unc,
-          r'C:\\Program Files\\Syncfusion\\Essential Studio');
+          r'C:\\Program Files\\Syncfusion\\Essential Studio®');
       link4.screenTip = 'Click here for files';
 
       final List<int> bytes = workbook.saveAsStream();
