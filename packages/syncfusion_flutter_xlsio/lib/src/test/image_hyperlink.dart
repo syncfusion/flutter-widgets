@@ -19,7 +19,7 @@ void xlsioImageHyperlink() {
       sheet.hyperlinks.addImage(
           sheet.pictures.addBase64(30, 30, image12jpg),
           HyperlinkType.unc,
-          r'C:\\Program Files\\Syncfusion\\Essential Studio');
+          r'C:\\Program Files\\Syncfusion\\Essential Studio®');
       sheet.hyperlinks.addImage(sheet.pictures.addBase64(30, 1, image13jpg),
           HyperlinkType.workbook, 'Sheet1!L5');
       final List<int> bytes = workbook.saveAsStream();
@@ -39,7 +39,7 @@ void xlsioImageHyperlink() {
       sheet.hyperlinks.addImage(
           sheet.pictures.addBase64(30, 20, image27png),
           HyperlinkType.unc,
-          r'C:\\Program Files\\Syncfusion\\Essential Studio');
+          r'C:\\Program Files\\Syncfusion\\Essential Studio®');
       sheet.hyperlinks.addImage(sheet.pictures.addBase64(30, 1, image25png),
           HyperlinkType.workbook, 'Sheet1!L5');
       final List<int> bytes = workbook.saveAsStream();
@@ -62,8 +62,8 @@ void xlsioImageHyperlink() {
       link = sheet.hyperlinks.addImage(
           sheet.pictures.addBase64(30, 20, image12jpg),
           HyperlinkType.unc,
-          r'C:\\Program Files\\Syncfusion\\Essential Studio');
-      link.screenTip = 'Open Essential studio';
+          r'C:\\Program Files\\Syncfusion\\Essential Studio®');
+      link.screenTip = 'Open Essential Studio®';
       sheet.hyperlinks.addImage(sheet.pictures.addBase64(30, 1, image25png),
           HyperlinkType.workbook, 'Sheet1!L5', 'Move to L5 cell');
       final List<int> bytes = workbook.saveAsStream();
@@ -88,8 +88,8 @@ void xlsioImageHyperlink() {
       link = sheet2.hyperlinks.addImage(
           sheet2.pictures.addBase64(30, 20, image12jpg),
           HyperlinkType.unc,
-          r'C:\\Program Files\\Syncfusion\\Essential Studio');
-      link.screenTip = 'Open Essential studio';
+          r'C:\\Program Files\\Syncfusion\\Essential Studio®');
+      link.screenTip = 'Open Essential Studio®';
       sheet2.hyperlinks.addImage(sheet2.pictures.addBase64(30, 1, image25png),
           HyperlinkType.workbook, 'Sheet1!L5', 'Move to L5 cell');
       final List<int> bytes = workbook.saveAsStream();
