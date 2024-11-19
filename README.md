@@ -30,6 +30,7 @@ Also, you can view the samples code from [this repository](https://github.com/sy
 
 | Package/Plugin | Available widgets/libraries | Pub | Points | Popularity | Likes |
 |----------------|-----------------------------|-----|--------|------------|-------|
+| [syncfusion_flutter_chat](./packages/syncfusion_flutter_chat/) | <ul><li>SfChat</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_chat.svg)](https://pub.dev/packages/syncfusion_flutter_chat) | [![pub points](https://img.shields.io/pub/points/syncfusion_flutter_chat)](https://pub.dev/packages/syncfusion_flutter_chat/score) |  [![popularity](https://img.shields.io/pub/popularity/syncfusion_flutter_chat)](https://pub.dev/packages/syncfusion_flutter_chat/score) | [![likes](https://img.shields.io/pub/likes/syncfusion_flutter_chat)](https://pub.dev/packages/syncfusion_flutter_chat/score)  |
 | [syncfusion_flutter_charts](./packages/syncfusion_flutter_charts/) | <ul><li>SfCartesianChart</li><li>SfCircularChart</li><li>SfPyramidChart</li><li>SfFunnelChart</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_charts.svg)](https://pub.dev/packages/syncfusion_flutter_charts) | [![pub points](https://img.shields.io/pub/points/syncfusion_flutter_charts)](https://pub.dev/packages/syncfusion_flutter_charts/score) |  [![popularity](https://img.shields.io/pub/popularity/syncfusion_flutter_charts)](https://pub.dev/packages/syncfusion_flutter_charts/score) | [![likes](https://img.shields.io/pub/likes/syncfusion_flutter_charts)](https://pub.dev/packages/syncfusion_flutter_charts/score)  |
 | [syncfusion_flutter_calendar](./packages/syncfusion_flutter_calendar/) | <ul><li>SfCalendar</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_calendar.svg)](https://pub.dev/packages/syncfusion_flutter_calendar) | [![pub points](https://img.shields.io/pub/points/syncfusion_flutter_calendar)](https://pub.dev/packages/syncfusion_flutter_calendar/score) |  [![popularity](https://img.shields.io/pub/popularity/syncfusion_flutter_calendar)](https://pub.dev/packages/syncfusion_flutter_calendar/score) | [![likes](https://img.shields.io/pub/likes/syncfusion_flutter_calendar)](https://pub.dev/packages/syncfusion_flutter_calendar/score) |
 | [syncfusion_flutter_datagrid](./packages/syncfusion_flutter_datagrid/) | <ul><li>SfDataGrid</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_datagrid.svg)](https://pub.dev/packages/syncfusion_flutter_datagrid) | [![pub points](https://img.shields.io/pub/points/syncfusion_flutter_datagrid)](https://pub.dev/packages/syncfusion_flutter_datagrid/score) |  [![popularity](https://img.shields.io/pub/popularity/syncfusion_flutter_datagrid)](https://pub.dev/packages/syncfusion_flutter_datagrid/score) | [![likes](https://img.shields.io/pub/likes/syncfusion_flutter_datagrid)](https://pub.dev/packages/syncfusion_flutter_datagrid/score) |
@@ -76,7 +77,33 @@ $ flutter pub get
 
 **Step 4**
 
-Run your application either using `F5` or `Run > Start Debugging`.
+Run your application using the following commands:
+
+**Windows & Linux**
+
+Run code: Ctrl + F5
+
+Run with debugging: F5 or Run > Start Debugging
+
+Stop debugging: Shift + F5
+
+Restart debugging: Ctrl + Shift + F5
+
+**MacOS**
+
+Run code: Cmd + F5
+
+Run with debugging: F5 or Run > Start Debugging
+
+Stop debugging: Shift + Cmd + F5
+
+Restart debugging: Cmd + Shift + F5
+
+**Web (VS Code in the Browser)**
+
+Run code: Ctrl + F5 
+
+Run with debugging: F5 or Run > Start Debugging
 
 ### Running the available example
 
@@ -113,12 +140,14 @@ Run your application either using `F5` or `Run > Start Debugging`.
 Explore the full capabilities of our Flutter widgets on your device by installing our sample browser applications from the below app stores, and view samples code in GitHub.
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
-  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/apple-button.png"/></a>
-  </p>
-  <p align="center">
-  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/GitHub.png"/></a>
-  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>  
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a>
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
+</p>
+<p align="center">
+  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
+  <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Useful links
