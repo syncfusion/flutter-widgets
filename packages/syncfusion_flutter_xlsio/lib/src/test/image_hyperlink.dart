@@ -19,7 +19,7 @@ void xlsioImageHyperlink() {
       sheet.hyperlinks.addImage(
           sheet.pictures.addBase64(30, 30, image12jpg),
           HyperlinkType.unc,
-          r'C:\\Program Files\\Syncfusion\\Essential Studio®');
+          r'C:\\Program Files\\Syncfusion\\Essential Studio');
       sheet.hyperlinks.addImage(sheet.pictures.addBase64(30, 1, image13jpg),
           HyperlinkType.workbook, 'Sheet1!L5');
       final List<int> bytes = workbook.saveAsStream();
