@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SelectionDetails;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
