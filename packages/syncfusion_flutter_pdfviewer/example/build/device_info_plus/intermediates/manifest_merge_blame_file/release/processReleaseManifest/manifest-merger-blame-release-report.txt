@@ -1,0 +1,7 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="dev.fluttercommunity.plus.device_info" >
+4
+5    <uses-sdk android:minSdkVersion="19" />
+6
+7</manifest>

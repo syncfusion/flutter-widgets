@@ -1,0 +1,82 @@
+{
+    "logs": [
+        {
+            "outputFile": "io.flutter.plugins.urllauncher.url_launcher_android-mergeReleaseResources-24:/values-is/values-is.xml",
+            "map": [
+                {
+                    "source": "/Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/res/values-is/values-is.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,150,257,354,454,557,661,772",
+                        "endColumns": "94,106,96,99,102,103,110,100",
+                        "endOffsets": "145,252,349,449,552,656,767,868"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7,8,13",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,150,257,354,454,557,661,1184",
+                        "endColumns": "94,106,96,99,102,103,110,100",
+                        "endOffsets": "145,252,349,449,552,656,767,1280"
+                    }
+                },
+                {
+                    "source": "/Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/a6860f5565e719db195dfb05d8b147b8/transformed/browser-1.8.0/res/values-is/values-is.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,159,260,366",
+                        "endColumns": "103,100,105,100",
+                        "endOffsets": "154,255,361,462"
+                    },
+                    "to": {
+                        "startLines": "9,10,11,12",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "772,876,977,1083",
+                        "endColumns": "103,100,105,100",
+                        "endOffsets": "871,972,1078,1179"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/values-is/values-is.xml",
+            "map": [
+                {
+                    "source": "/Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/res/values-is/values-is.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,150,257,354,454,557,661,772",
+                        "endColumns": "94,106,96,99,102,103,110,100",
+                        "endOffsets": "145,252,349,449,552,656,767,868"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7,8,13",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,150,257,354,454,557,661,1184",
+                        "endColumns": "94,106,96,99,102,103,110,100",
+                        "endOffsets": "145,252,349,449,552,656,767,1280"
+                    }
+                },
+                {
+                    "source": "/Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/a6860f5565e719db195dfb05d8b147b8/transformed/browser-1.8.0/res/values-is/values-is.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,159,260,366",
+                        "endColumns": "103,100,105,100",
+                        "endOffsets": "154,255,361,462"
+                    },
+                    "to": {
+                        "startLines": "9,10,11,12",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "772,876,977,1083",
+                        "endColumns": "103,100,105,100",
+                        "endOffsets": "871,972,1078,1179"
+                    }
+                }
+            ]
+        }
+    ]
+}

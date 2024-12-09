@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-mergeReleaseResources-24:/values-iw/values-iw.xml",
+            "map": [
+                {
+                    "source": "/Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/res/values-iw/values-iw.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,149,251,348,445,546,646,752",
+                        "endColumns": "93,101,96,96,100,99,105,100",
+                        "endOffsets": "144,246,343,440,541,641,747,848"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/values-iw/values-iw.xml",
+            "map": [
+                {
+                    "source": "/Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/res/values-iw/values-iw.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,149,251,348,445,546,646,752",
+                        "endColumns": "93,101,96,96,100,99,105,100",
+                        "endOffsets": "144,246,343,440,541,641,747,848"
+                    }
+                }
+            ]
+        }
+    ]
+}

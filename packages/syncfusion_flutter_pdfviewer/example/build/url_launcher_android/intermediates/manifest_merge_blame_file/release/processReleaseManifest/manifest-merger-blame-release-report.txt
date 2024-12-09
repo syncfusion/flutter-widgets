@@ -1,0 +1,19 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="io.flutter.plugins.urllauncher" >
+4
+5    <uses-sdk android:minSdkVersion="19" />
+6
+7    <application>
+7-->/Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:3:3-7:17
+8        <activity
+8-->/Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:4:5-6:33
+9            android:name="io.flutter.plugins.urllauncher.WebViewActivity"
+9-->/Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:4:15-76
+10            android:exported="false"
+10-->/Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:6:7-31
+11            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+11-->/Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:5:7-65
+12    </application>
+13
+14</manifest>

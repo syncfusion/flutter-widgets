@@ -1,0 +1,29 @@
+<lint-module
+    format="1"
+    dir="/Users/oceanmtechflutterdev3/.pub-cache/git/plus_plugins-d4863f9d5e5c1040ab9edde45e1c7598abf7962c/packages/device_info_plus/device_info_plus/android"
+    name=":device_info_plus"
+    type="LIBRARY"
+    maven="dev.fluttercommunity.plus.device_info:device_info_plus:1.0-SNAPSHOT"
+    agpVersion="8.7.0"
+    buildFolder="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/device_info_plus"
+    bootClassPath="/Users/oceanmtechflutterdev3/Library/Android/sdk/platforms/android-34/android.jar:/Users/oceanmtechflutterdev3/Library/Android/sdk/build-tools/34.0.0/core-lambda-stubs.jar"
+    javaSourceLevel="17"
+    compileTarget="android-34"
+    neverShrinking="true">
+  <lintOptions
+      disable="InvalidPackage,MissingPermission"
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true">
+    <severities>
+      <severity
+        id="InvalidPackage"
+        severity="IGNORE" />
+      <severity
+        id="MissingPermission"
+        severity="IGNORE" />
+    </severities>
+  </lintOptions>
+  <variant name="release"/>
+</lint-module>

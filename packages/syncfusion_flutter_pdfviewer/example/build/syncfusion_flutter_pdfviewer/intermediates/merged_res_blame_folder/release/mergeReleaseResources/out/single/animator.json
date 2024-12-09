@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/animator/fragment_open_exit.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-fragment-1.7.1-6:/animator/fragment_open_exit.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/animator/fragment_close_enter.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-fragment-1.7.1-6:/animator/fragment_close_enter.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/animator/fragment_close_exit.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-fragment-1.7.1-6:/animator/fragment_close_exit.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/animator/fragment_fade_enter.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-fragment-1.7.1-6:/animator/fragment_fade_enter.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/animator/fragment_fade_exit.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-fragment-1.7.1-6:/animator/fragment_fade_exit.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/animator/fragment_open_enter.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-fragment-1.7.1-6:/animator/fragment_open_enter.xml"
+    }
+]

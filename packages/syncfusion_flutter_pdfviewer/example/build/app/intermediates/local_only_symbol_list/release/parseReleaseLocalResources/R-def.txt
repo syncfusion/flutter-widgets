@@ -1,0 +1,6 @@
+R_DEF: Internal format may change without notice
+local
+drawable launch_background
+mipmap ic_launcher
+style LaunchTheme
+style NormalTheme

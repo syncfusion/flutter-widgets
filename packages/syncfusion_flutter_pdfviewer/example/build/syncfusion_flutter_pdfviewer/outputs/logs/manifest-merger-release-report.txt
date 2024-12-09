@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android/src/main/AndroidManifest.xml:1:1-2:12
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android/src/main/AndroidManifest.xml:1:1-2:12
+	package
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android/src/main/AndroidManifest.xml:1:11-69
+uses-sdk
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android/src/main/AndroidManifest.xml
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android/src/main/AndroidManifest.xml

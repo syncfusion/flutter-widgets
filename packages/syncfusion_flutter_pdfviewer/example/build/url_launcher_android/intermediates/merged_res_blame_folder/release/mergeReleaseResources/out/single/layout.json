@@ -1,0 +1,46 @@
+[
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/browser_actions_context_menu_row.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-browser-1.8.0-12:/layout/browser_actions_context_menu_row.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/notification_template_part_chronometer.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/ime_secondary_split_test_activity.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout/ime_secondary_split_test_activity.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/notification_template_custom_big.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/ime_base_split_test_activity.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout/ime_base_split_test_activity.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/custom_dialog.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/browser_actions_context_menu_page.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-browser-1.8.0-12:/layout/browser_actions_context_menu_page.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/notification_action_tombstone.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/notification_template_part_time.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/notification_action.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout/notification_action.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout/notification_template_icon_group.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout/notification_template_icon_group.xml"
+    }
+]

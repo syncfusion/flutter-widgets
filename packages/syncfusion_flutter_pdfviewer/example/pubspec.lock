@@ -68,11 +68,12 @@ packages:
   device_info_plus:
     dependency: transitive
     description:
-      name: device_info_plus
-      sha256: "77f757b789ff68e4eaf9c56d1752309bd9f7ad557cb105b938a7f8eb89e59110"
-      url: "https://pub.dev"
-    source: hosted
-    version: "9.1.2"
+      path: "packages/device_info_plus/device_info_plus"
+      ref: d4863f9d5e5c1040ab9edde45e1c7598abf7962c
+      resolved-ref: d4863f9d5e5c1040ab9edde45e1c7598abf7962c
+      url: "https://github.com/fenil2024/plus_plugins.git"
+    source: git
+    version: "11.1.1"
   device_info_plus_platform_interface:
     dependency: transitive
     description:

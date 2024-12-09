@@ -1,0 +1,50 @@
+[
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/ic_call_decline_low.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/ic_call_decline_low.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/ic_call_answer_video.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/ic_call_answer_video.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/ic_call_answer_low.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/ic_call_answer_low.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/ic_call_answer_video_low.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/ic_call_answer_video_low.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/notification_bg_normal.9.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/notification_bg_normal.9.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/notification_bg_low_pressed.9.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/notification_bg_low_pressed.9.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/ic_call_decline.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/ic_call_decline.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/notify_panel_notification_icon_bg.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/notify_panel_notification_icon_bg.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/notification_oversize_large_icon_bg.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/notification_oversize_large_icon_bg.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/ic_call_answer.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/ic_call_answer.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/notification_bg_normal_pressed.9.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/notification_bg_normal_pressed.9.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-hdpi-v4/notification_bg_low_normal.9.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-hdpi-v4/notification_bg_low_normal.9.png"
+    }
+]

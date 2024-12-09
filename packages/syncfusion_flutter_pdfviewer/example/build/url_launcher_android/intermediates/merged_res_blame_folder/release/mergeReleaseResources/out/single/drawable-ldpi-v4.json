@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-ldpi-v4/ic_call_answer.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-ldpi-v4/ic_call_answer.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-ldpi-v4/ic_call_answer_video.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-ldpi-v4/ic_call_answer_video.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-ldpi-v4/ic_call_decline.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-ldpi-v4/ic_call_decline.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-ldpi-v4/ic_call_answer_low.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-ldpi-v4/ic_call_answer_low.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-ldpi-v4/ic_call_answer_video_low.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-ldpi-v4/ic_call_answer_video_low.png"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-ldpi-v4/ic_call_decline_low.png",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-ldpi-v4/ic_call_decline_low.png"
+    }
+]

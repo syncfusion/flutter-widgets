@@ -1,0 +1,31 @@
+<variant
+    name="release"
+    package="com.syncfusion.flutter.pdfviewer"
+    minSdkVersion="16"
+    targetSdkVersion="16"
+    mergedManifest="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml"
+    manifestMergeReport="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/outputs/logs/manifest-merger-release-report.txt"
+    proguardFiles="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/intermediates/default_proguard_files/global/proguard-android.txt-8.7.0"
+    partialResultsDir="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/intermediates/lint_partial_results/release/lintAnalyzeRelease/out">
+  <buildFeatures
+      namespacing="REQUIRED"/>
+  <sourceProviders>
+    <sourceProvider
+        manifests="src/main/AndroidManifest.xml"
+        javaDirectories="src/main/java:src/release/java:src/main/kotlin:src/release/kotlin"
+        resDirectories="src/main/res:src/release/res"
+        assetsDirectories="src/main/assets:src/release/assets"/>
+  </sourceProviders>
+  <testSourceProviders>
+  </testSourceProviders>
+  <testFixturesSourceProviders>
+  </testFixturesSourceProviders>
+  <artifact
+      classOutputs="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/intermediates/compile_r_class_jar/release/generateReleaseRFile/R.jar"
+      type="MAIN"
+      applicationId="com.syncfusion.flutter.pdfviewer"
+      generatedSourceFolders="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/generated/ap_generated_sources/release/out"
+      generatedResourceFolders="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/generated/res/resValues/release"
+      desugaredMethodsFiles="/Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/4b51cfeb47c4e6cb1ed0234c13c6dbf5/transformed/D8BackportedDesugaredMethods.txt">
+  </artifact>
+</variant>

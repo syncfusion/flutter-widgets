@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.7.0" type="configured_issues">
+    <config id="AndroidGradlePluginVersion" severity="ignore"/>
+    <config id="GradleDependency" severity="ignore"/>
+    <config id="InvalidPackage" severity="ignore"/>
+    <config id="NewerVersionAvailable" severity="ignore"/>
+
+</incidents>

@@ -1,0 +1,27 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:1:1-8:12
+INJECTED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:1:1-8:12
+	package
+		ADDED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:2:3-43
+		INJECTED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:1:11-69
+application
+ADDED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:3:3-7:17
+activity#io.flutter.plugins.urllauncher.WebViewActivity
+ADDED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:4:5-6:33
+	android:exported
+		ADDED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:6:7-31
+	android:theme
+		ADDED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:5:7-65
+	android:name
+		ADDED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml:4:15-76
+uses-sdk
+INJECTED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml
+INJECTED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/src/main/AndroidManifest.xml

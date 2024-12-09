@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout-v21/notification_action.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout-v21/notification_action.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout-v21/notification_action_tombstone.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout-v21/notification_template_custom_big.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/layout-v21/notification_template_icon_group.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/layout-v21/notification_template_icon_group.xml"
+    }
+]

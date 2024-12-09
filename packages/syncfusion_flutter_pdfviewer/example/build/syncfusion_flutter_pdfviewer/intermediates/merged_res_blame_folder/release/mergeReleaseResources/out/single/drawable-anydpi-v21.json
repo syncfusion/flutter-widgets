@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable-anydpi-v21/ic_call_answer_low.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer_low.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable-anydpi-v21/ic_call_decline.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable-anydpi-v21/ic_call_decline.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable-anydpi-v21/ic_call_decline_low.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable-anydpi-v21/ic_call_decline_low.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable-anydpi-v21/ic_call_answer_video.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer_video.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable-anydpi-v21/ic_call_answer.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable-anydpi-v21/ic_call_answer_video_low.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer_video_low.xml"
+    }
+]

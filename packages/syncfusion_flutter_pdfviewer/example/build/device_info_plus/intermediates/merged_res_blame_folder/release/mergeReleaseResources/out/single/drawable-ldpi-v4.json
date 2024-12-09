@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-ldpi-v4/ic_call_decline.png",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-ldpi-v4/ic_call_decline.png"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-ldpi-v4/ic_call_answer.png",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-ldpi-v4/ic_call_answer.png"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-ldpi-v4/ic_call_answer_low.png",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-ldpi-v4/ic_call_answer_low.png"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-ldpi-v4/ic_call_answer_video.png",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-ldpi-v4/ic_call_answer_video.png"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-ldpi-v4/ic_call_decline_low.png",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-ldpi-v4/ic_call_decline_low.png"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-ldpi-v4/ic_call_answer_video_low.png",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-ldpi-v4/ic_call_answer_video_low.png"
+    }
+]

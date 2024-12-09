@@ -40,8 +40,13 @@ dependencies:
   vector_math: ^2.1.0
   async: ^2.5.0
   http: ^1.0.0
-  uuid: ^4.1.0
-  device_info_plus: ^9.0.2
+  uuid: ^4.5.1
+  # device_info_plus: ^9.0.2
+  device_info_plus:
+    git:
+      url: https://github.com/fenil2024/plus_plugins.git
+      path: packages/device_info_plus/device_info_plus
+      ref: d4863f9d5e5c1040ab9edde45e1c7598abf7962c
   intl: '>=0.18.1 <0.20.0'
 
   syncfusion_pdfviewer_platform_interface:

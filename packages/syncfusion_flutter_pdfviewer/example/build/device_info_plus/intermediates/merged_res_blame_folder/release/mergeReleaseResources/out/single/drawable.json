@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable/notification_bg_low.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable/notification_bg_low.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable/notification_bg.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable/notification_bg.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable/notification_icon_background.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable/notification_icon_background.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable/notification_tile_bg.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable/notification_tile_bg.xml"
+    }
+]
