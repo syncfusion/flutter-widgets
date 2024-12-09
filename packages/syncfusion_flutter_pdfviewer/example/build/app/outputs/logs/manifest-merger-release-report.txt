@@ -1,0 +1,277 @@
+-- Merging decision tree log ---
+application
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:2:4-32:19
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:2:4-32:19
+MERGED from [:url_launcher_android] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:7:5-12:19
+MERGED from [:url_launcher_android] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:7:5-12:19
+MERGED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:22:5-29:19
+MERGED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:22:5-29:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:28:5-89
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8d2585a8dd485f2c18942556d4f99403/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8d2585a8dd485f2c18942556d4f99403/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/f5263b33adcd91370ce7d835cf26ad99/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/f5263b33adcd91370ce7d835cf26ad99/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+	android:extractNativeLibs
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
+	android:label
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:3:9-32
+	android:icon
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:5:9-43
+	android:name
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:4:9-42
+manifest
+ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:1:1-33:12
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:1:1-33:12
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:1:1-33:12
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:1:1-33:12
+MERGED from [:syncfusion_flutter_pdfviewer] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:2:1-7:12
+MERGED from [:device_info_plus] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/device_info_plus/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:2:1-7:12
+MERGED from [:url_launcher_android] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:2:1-14:12
+MERGED from [androidx.browser:browser:1.8.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/a6860f5565e719db195dfb05d8b147b8/transformed/browser-1.8.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.window:window-java:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/a41b2d097154309b48a91075e810bce7/transformed/jetified-window-java-1.2.0/AndroidManifest.xml:17:1-21:12
+MERGED from [androidx.fragment:fragment:1.7.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/432c6c3aa96073df68d39e7d662c6382/transformed/fragment-1.7.1/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity:1.8.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/d85c35e28711a3c15da52c99bc91269e/transformed/jetified-activity-1.8.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/2f2e369be142fc705db0f85369a6dcb2/transformed/loader-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/ff6673e9b3c0b3aa913404ed60d2afeb/transformed/viewpager-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/1752ee41578238b0d381d5b237f41d53/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/dc1eb9c373b2a869dcd247b7ba37fe25/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/04e17afa88f277a290234fb476bda104/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e51a935774e5b6faf366d27192414cfa/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.savedstate:savedstate:1.2.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/da48aa6e3a6c8d0b4818df1e5cde2501/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/d08c50dfafb11ab0897a6cf596381300/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e1219cc7c252214b636dd18ac060caa1/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.core:core-ktx:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/eb991bbdffb73257204580893254bca7/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.customview:customview:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/84ca95cbecf930d3ff248989cec29f23/transformed/customview-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/754f29e1467ed3ece3f67957dca8be8f/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:17:1-55:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8d2585a8dd485f2c18942556d4f99403/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.tracing:tracing:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/1c46ce1d06b80ccf677d9d80997ba218/transformed/jetified-tracing-1.2.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/af8d1d3097bf4e5d123cb28aec5c2c04/transformed/interpolator-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/f5263b33adcd91370ce7d835cf26ad99/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/7ca4b17952dc7a9e220cc7aa65661706/transformed/core-runtime-2.2.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.window.extensions.core:core:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8609f8f3a2c3c7254dd402d812c09258/transformed/jetified-core-1.0.0/AndroidManifest.xml:2:1-7:12
+	package
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:1:11-69
+activity#com.syncfusion.flutter.pdfviewer.example.MainActivity
+ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:6:9-26:20
+	android:launchMode
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:9:13-43
+	android:hardwareAccelerated
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:12:13-47
+	android:windowSoftInputMode
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:13:13-55
+	android:exported
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:8:13-36
+	android:configChanges
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:11:13-163
+	android:theme
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:10:13-47
+	android:name
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:7:13-41
+meta-data#io.flutter.embedding.android.NormalTheme
+ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:18:13-21:17
+	android:resource
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:20:15-52
+	android:name
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:19:15-70
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:22:13-25:29
+action#android.intent.action.MAIN
+ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:23:17-68
+	android:name
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:23:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:24:17-76
+	android:name
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:24:27-74
+meta-data#flutterEmbedding
+ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:29:9-31:33
+	android:value
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:31:13-30
+	android:name
+		ADDED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml:30:13-44
+uses-sdk
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml
+INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml
+MERGED from [:syncfusion_flutter_pdfviewer] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:5:5-44
+MERGED from [:syncfusion_flutter_pdfviewer] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:5:5-44
+MERGED from [:device_info_plus] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/device_info_plus/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:5:5-44
+MERGED from [:device_info_plus] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/device_info_plus/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:5:5-44
+MERGED from [:url_launcher_android] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:5:5-44
+MERGED from [:url_launcher_android] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:5:5-44
+MERGED from [androidx.browser:browser:1.8.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/a6860f5565e719db195dfb05d8b147b8/transformed/browser-1.8.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.browser:browser:1.8.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/a6860f5565e719db195dfb05d8b147b8/transformed/browser-1.8.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.window:window-java:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/a41b2d097154309b48a91075e810bce7/transformed/jetified-window-java-1.2.0/AndroidManifest.xml:19:5-44
+MERGED from [androidx.window:window-java:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/a41b2d097154309b48a91075e810bce7/transformed/jetified-window-java-1.2.0/AndroidManifest.xml:19:5-44
+MERGED from [androidx.fragment:fragment:1.7.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/432c6c3aa96073df68d39e7d662c6382/transformed/fragment-1.7.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.fragment:fragment:1.7.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/432c6c3aa96073df68d39e7d662c6382/transformed/fragment-1.7.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity:1.8.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/d85c35e28711a3c15da52c99bc91269e/transformed/jetified-activity-1.8.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.8.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/d85c35e28711a3c15da52c99bc91269e/transformed/jetified-activity-1.8.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/2f2e369be142fc705db0f85369a6dcb2/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/2f2e369be142fc705db0f85369a6dcb2/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/ff6673e9b3c0b3aa913404ed60d2afeb/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/ff6673e9b3c0b3aa913404ed60d2afeb/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/1752ee41578238b0d381d5b237f41d53/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/1752ee41578238b0d381d5b237f41d53/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/dc1eb9c373b2a869dcd247b7ba37fe25/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/dc1eb9c373b2a869dcd247b7ba37fe25/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/04e17afa88f277a290234fb476bda104/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/04e17afa88f277a290234fb476bda104/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e51a935774e5b6faf366d27192414cfa/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e51a935774e5b6faf366d27192414cfa/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/da48aa6e3a6c8d0b4818df1e5cde2501/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/da48aa6e3a6c8d0b4818df1e5cde2501/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/d08c50dfafb11ab0897a6cf596381300/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/d08c50dfafb11ab0897a6cf596381300/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e1219cc7c252214b636dd18ac060caa1/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e1219cc7c252214b636dd18ac060caa1/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core-ktx:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/eb991bbdffb73257204580893254bca7/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/eb991bbdffb73257204580893254bca7/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.customview:customview:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/84ca95cbecf930d3ff248989cec29f23/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/84ca95cbecf930d3ff248989cec29f23/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/754f29e1467ed3ece3f67957dca8be8f/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/754f29e1467ed3ece3f67957dca8be8f/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8d2585a8dd485f2c18942556d4f99403/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8d2585a8dd485f2c18942556d4f99403/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.tracing:tracing:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/1c46ce1d06b80ccf677d9d80997ba218/transformed/jetified-tracing-1.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.tracing:tracing:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/1c46ce1d06b80ccf677d9d80997ba218/transformed/jetified-tracing-1.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/af8d1d3097bf4e5d123cb28aec5c2c04/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/af8d1d3097bf4e5d123cb28aec5c2c04/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/f5263b33adcd91370ce7d835cf26ad99/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/f5263b33adcd91370ce7d835cf26ad99/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/7ca4b17952dc7a9e220cc7aa65661706/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/7ca4b17952dc7a9e220cc7aa65661706/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.window.extensions.core:core:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8609f8f3a2c3c7254dd402d812c09258/transformed/jetified-core-1.0.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.window.extensions.core:core:1.0.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8609f8f3a2c3c7254dd402d812c09258/transformed/jetified-core-1.0.0/AndroidManifest.xml:5:5-44
+	android:targetSdkVersion
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/android/app/src/main/AndroidManifest.xml
+activity#io.flutter.plugins.urllauncher.WebViewActivity
+ADDED from [:url_launcher_android] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:8:9-11:74
+	android:exported
+		ADDED from [:url_launcher_android] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:10:13-37
+	android:theme
+		ADDED from [:url_launcher_android] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:11:13-71
+	android:name
+		ADDED from [:url_launcher_android] /Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml:9:13-74
+uses-library#androidx.window.extensions
+ADDED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:23:9-25:40
+	android:required
+		ADDED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:25:13-37
+	android:name
+		ADDED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:24:13-54
+uses-library#androidx.window.sidecar
+ADDED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:26:9-28:40
+	android:required
+		ADDED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:28:13-37
+	android:name
+		ADDED from [androidx.window:window:1.2.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/20c62102790eb7c094dc5e86209601a9/transformed/jetified-window-1.2.0/AndroidManifest.xml:27:13-51
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8d2585a8dd485f2c18942556d4f99403/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/8d2585a8dd485f2c18942556d4f99403/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+	tools:node
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:28:13-31
+	android:authorities
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:26:13-68
+	android:exported
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:25:13-67
+meta-data#androidx.lifecycle.ProcessLifecycleInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/358994e7cc5f263171e58e77c954093a/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
+permission#com.syncfusion.flutter.pdfviewer.example.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
+uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
+uses-permission#com.syncfusion.flutter.pdfviewer.example.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.13.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/08bdbdcfb24bd60638aeea350e298a4d/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
+meta-data#androidx.profileinstaller.ProfileInstallerInitializer
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+receiver#androidx.profileinstaller.ProfileInstallReceiver
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+	android:enabled
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+	android:permission
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+	android:directBootAware
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+action#androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+action#androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+intent-filter#action:name:androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+action#androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+intent-filter#action:name:androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+action#androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/oceanmtechflutterdev3/.gradle/caches/8.9/transforms/e044af089c2cebcd08e8979596f3d12d/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:25-92

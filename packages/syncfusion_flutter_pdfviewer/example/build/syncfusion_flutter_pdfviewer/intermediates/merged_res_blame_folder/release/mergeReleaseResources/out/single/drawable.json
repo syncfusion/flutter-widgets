@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable/notification_tile_bg.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable/notification_tile_bg.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable/notification_icon_background.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable/notification_icon_background.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable/notification_bg_low.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable/notification_bg_low.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/drawable/notification_bg.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/drawable/notification_bg.xml"
+    }
+]

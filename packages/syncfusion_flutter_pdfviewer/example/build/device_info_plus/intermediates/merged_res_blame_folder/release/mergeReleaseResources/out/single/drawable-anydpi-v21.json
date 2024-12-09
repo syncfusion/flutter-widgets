@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-anydpi-v21/ic_call_answer_video.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer_video.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-anydpi-v21/ic_call_answer_video_low.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer_video_low.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-anydpi-v21/ic_call_answer_low.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer_low.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-anydpi-v21/ic_call_answer.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-anydpi-v21/ic_call_decline.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-anydpi-v21/ic_call_decline.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-anydpi-v21/ic_call_decline_low.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-anydpi-v21/ic_call_decline_low.xml"
+    }
+]

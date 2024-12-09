@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/layout/custom_dialog.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/layout/ime_secondary_split_test_activity.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/layout/ime_secondary_split_test_activity.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/layout/notification_template_part_time.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/layout/notification_template_icon_group.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/layout/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/layout/notification_template_part_chronometer.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/layout/notification_template_custom_big.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/layout/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/layout/ime_base_split_test_activity.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/layout/ime_base_split_test_activity.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/layout/notification_action_tombstone.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/layout/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-release-26:/layout/notification_action.xml",
+        "source": "com.syncfusion.flutter.pdfviewer.syncfusion_flutter_pdfviewer-core-1.13.1-1:/layout/notification_action.xml"
+    }
+]

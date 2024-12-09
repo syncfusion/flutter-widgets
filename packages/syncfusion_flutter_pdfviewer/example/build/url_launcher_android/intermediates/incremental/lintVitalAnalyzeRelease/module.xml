@@ -1,0 +1,37 @@
+<lint-module
+    format="1"
+    dir="/Users/oceanmtechflutterdev3/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android"
+    name=":url_launcher_android"
+    type="LIBRARY"
+    maven="io.flutter.plugins.urllauncher:url_launcher_android:1.0-SNAPSHOT"
+    agpVersion="8.7.0"
+    buildFolder="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/url_launcher_android"
+    bootClassPath="/Users/oceanmtechflutterdev3/Library/Android/sdk/platforms/android-34/android.jar:/Users/oceanmtechflutterdev3/Library/Android/sdk/build-tools/34.0.0/core-lambda-stubs.jar"
+    javaSourceLevel="11"
+    compileTarget="android-34"
+    neverShrinking="true">
+  <lintOptions
+      disable="AndroidGradlePluginVersion,InvalidPackage,GradleDependency,NewerVersionAvailable"
+      abortOnError="true"
+      absolutePaths="true"
+      checkAllWarnings="true"
+      warningsAsErrors="true"
+      checkReleaseBuilds="true"
+      explainIssues="true">
+    <severities>
+      <severity
+        id="AndroidGradlePluginVersion"
+        severity="IGNORE" />
+      <severity
+        id="GradleDependency"
+        severity="IGNORE" />
+      <severity
+        id="InvalidPackage"
+        severity="IGNORE" />
+      <severity
+        id="NewerVersionAvailable"
+        severity="IGNORE" />
+    </severities>
+  </lintOptions>
+  <variant name="release"/>
+</lint-module>

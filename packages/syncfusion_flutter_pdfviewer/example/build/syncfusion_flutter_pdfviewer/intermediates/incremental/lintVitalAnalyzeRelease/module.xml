@@ -1,0 +1,26 @@
+<lint-module
+    format="1"
+    dir="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/android"
+    name=":syncfusion_flutter_pdfviewer"
+    type="LIBRARY"
+    maven="com.syncfusion.flutter.pdfviewer:syncfusion_flutter_pdfviewer:1.0"
+    agpVersion="8.7.0"
+    buildFolder="/Volumes/Project Data/Fenil/flutter-widgets/packages/syncfusion_flutter_pdfviewer/example/build/syncfusion_flutter_pdfviewer"
+    bootClassPath="/Users/oceanmtechflutterdev3/Library/Android/sdk/platforms/android-31/android.jar:/Users/oceanmtechflutterdev3/Library/Android/sdk/build-tools/34.0.0/core-lambda-stubs.jar"
+    javaSourceLevel="1.8"
+    compileTarget="android-31"
+    neverShrinking="true">
+  <lintOptions
+      disable="InvalidPackage"
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true">
+    <severities>
+      <severity
+        id="InvalidPackage"
+        severity="IGNORE" />
+    </severities>
+  </lintOptions>
+  <variant name="release"/>
+</lint-module>

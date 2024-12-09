@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/drawable-v21/notification_action_background.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/drawable-v21/notification_action_background.xml"
+    }
+]

@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/animator/fragment_fade_exit.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-fragment-1.7.1-6:/animator/fragment_fade_exit.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/animator/fragment_close_enter.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-fragment-1.7.1-6:/animator/fragment_close_enter.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/animator/fragment_close_exit.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-fragment-1.7.1-6:/animator/fragment_close_exit.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/animator/fragment_open_enter.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-fragment-1.7.1-6:/animator/fragment_open_enter.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/animator/fragment_fade_enter.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-fragment-1.7.1-6:/animator/fragment_fade_enter.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/animator/fragment_open_exit.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-fragment-1.7.1-6:/animator/fragment_open_exit.xml"
+    }
+]

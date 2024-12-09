@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/layout/custom_dialog.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/layout/notification_template_part_chronometer.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/layout/notification_template_icon_group.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/layout/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/layout/ime_secondary_split_test_activity.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/layout/ime_secondary_split_test_activity.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/layout/notification_template_part_time.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/layout/notification_template_custom_big.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/layout/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/layout/notification_action.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/layout/notification_action.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/layout/notification_action_tombstone.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/layout/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "dev.fluttercommunity.plus.device_info.device_info_plus-release-25:/layout/ime_base_split_test_activity.xml",
+        "source": "dev.fluttercommunity.plus.device_info.device_info_plus-core-1.13.1-1:/layout/ime_base_split_test_activity.xml"
+    }
+]

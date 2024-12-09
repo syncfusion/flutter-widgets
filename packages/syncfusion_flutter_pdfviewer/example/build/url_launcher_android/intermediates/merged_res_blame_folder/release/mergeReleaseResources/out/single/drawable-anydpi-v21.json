@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-anydpi-v21/ic_call_answer.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-anydpi-v21/ic_call_decline.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-anydpi-v21/ic_call_decline.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-anydpi-v21/ic_call_answer_low.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer_low.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-anydpi-v21/ic_call_answer_video_low.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer_video_low.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-anydpi-v21/ic_call_decline_low.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-anydpi-v21/ic_call_decline_low.xml"
+    },
+    {
+        "merged": "io.flutter.plugins.urllauncher.url_launcher_android-release-26:/drawable-anydpi-v21/ic_call_answer_video.xml",
+        "source": "io.flutter.plugins.urllauncher.url_launcher_android-core-1.13.1-1:/drawable-anydpi-v21/ic_call_answer_video.xml"
+    }
+]
