@@ -15,9 +15,9 @@ dependencies:
   intl: '>=0.18.1 <0.20.0'
   crypto: ">=3.0.0 <4.0.0"
   jiffy: ">=6.1.0 <7.0.0"
-  syncfusion_officecore:
+  syncfusion_officecore: 
     path: ../syncfusion_officecore
       
-      
-      
-
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

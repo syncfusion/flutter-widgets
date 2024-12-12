@@ -1,0 +1,8 @@
+include: package:syncfusion_flutter_core/analysis_options.yaml
+
+analyzer:
+  errors:
+    lines_longer_than_80_chars: ignore
+    include_file_not_found: ignore
+    uri_does_not_exist: ignore
+    library_private_types_in_public_api: ignore

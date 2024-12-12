@@ -13,10 +13,10 @@ dependencies:
   xml: ">=6.5.0 <7.0.0"
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
-      
-      
   crypto: ">=3.0.0 <4.0.0"
   convert: ">=3.0.0 <4.0.0"
   http: ^1.2.1
 
-
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
