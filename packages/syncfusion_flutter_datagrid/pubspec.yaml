@@ -13,11 +13,11 @@ dependencies:
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
       
-      
-      
   collection: ">=1.9.0 <=2.0.0"
 
-
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 
 flutter:
   fonts:
