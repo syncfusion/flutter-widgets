@@ -1,3 +1,0 @@
-## Undefined
-
-* Initial release.

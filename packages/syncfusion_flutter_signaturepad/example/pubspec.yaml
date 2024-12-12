@@ -4,7 +4,7 @@ description: This project demonstrates how to use Syncfusion Flutter SignaturePa
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <4.0.0"
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:

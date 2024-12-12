@@ -472,7 +472,7 @@ ShapeMarkerType toShapeMarkerType(DataMarkerType type) {
 }
 
 ShapeMarkerType toLegendShapeMarkerType(
-    LegendIconType iconType, core.LegendItemProvider provider) {
+    LegendIconType iconType, core.LegendItemProviderMixin provider) {
   switch (iconType) {
     case LegendIconType.seriesType:
       return provider.effectiveLegendIconType();
@@ -2012,7 +2012,8 @@ Widget buildLegendItem(
   }
 
   if (item.series is! CartesianSeriesRenderer &&
-      item.series!.segments.isNotEmpty) {
+      item.series!.segments.isNotEmpty &&
+      item.pointIndex < item.series!.segments.length) {
     point.isVisible = item.series!.segmentAt(item.pointIndex).isVisible;
   }
 

@@ -1,29 +1,36 @@
-## Unreleased
+## [28.1.29] - 12/12/2024
+
+**General**
+
+* All of our Syncfusion<sup>&reg;</sup> Flutter widgets have been updated to support [`WebAssembly`](https://docs.flutter.dev/platform-integration/web/wasm) (WASM) as a compilation target for building web applications.
+* The minimum Dart version of our Flutter widgets has been updated to 3.3 from 2.17.
+
+## [27.1.48] - 09/18/2024
 
 **General**
 
 * The compatible version of our Flutter gauges widget has been updated to Flutter SDK 3.24.0.
 
-## [26.2.4] - 23/07/2024
+## [26.2.4] - 07/23/2024
 
 ## Linear Gauge
 
 **Bugs**
 * Now, the [`SfLinearGauge``](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/SfLinearGauge-class.html) properly adjusts its constraints when resizing the screen.
 
-# [26.1.41] - 09/07/2024
+# [26.1.41] - 07/09/2024
 
 ## Linear Gauge
 
 **Bugs**
 * Now the bar painter updates properly while dynamically update [`isAxisInversed`](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/SfLinearGauge/isAxisInversed.html) property.
 
-## [25.1.35] - 15/03/2024
+## [25.1.35] - 03/15/2024
 
 **General**
 * Provided th​e Material 3 themes support.
 
-## [24.1.46] - 17/01/2024
+## [24.1.46] - 01/17/2024
 
 **General**
 * Upgraded the `intl` package to the latest version 0.19.0.

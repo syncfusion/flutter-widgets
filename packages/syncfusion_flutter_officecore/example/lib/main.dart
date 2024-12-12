@@ -6,11 +6,14 @@ import 'helper/save_file_mobile.dart'
     if (dart.library.html) 'helper/save_file_web.dart';
 
 void main() {
-  runApp(CreateExcelWidget());
+  runApp(const CreateExcelWidget());
 }
 
 /// Represents the XlsIO widget class.
 class CreateExcelWidget extends StatelessWidget {
+  // Constructor with a named key parameter
+  const CreateExcelWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(

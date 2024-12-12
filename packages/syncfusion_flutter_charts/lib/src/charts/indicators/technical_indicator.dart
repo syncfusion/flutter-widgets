@@ -645,7 +645,7 @@ abstract class IndicatorWidget extends LeafRenderObjectWidget {
 }
 
 abstract class IndicatorRenderer<T, D> extends RenderBox
-    with AxisDependent, LegendItemProvider, ChartAreaUpdateMixin {
+    with AxisDependent, LegendItemProviderMixin, ChartAreaUpdateMixin {
   List<D?> xRawValues = <D>[];
   List<num> xValues = <num>[];
   List<CartesianChartPoint<D>> chartPoints = <CartesianChartPoint<D>>[];

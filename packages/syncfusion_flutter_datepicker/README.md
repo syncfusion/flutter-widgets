@@ -4,7 +4,7 @@
 
 The Flutter Date Range Picker is a lightweight widget that allows users to easily select a single date, multiple dates, or a range of dates. Date Picker provides month, year, decade, and century view options to quickly navigate to the desired date. It supports minimum, maximum, blackout and disabled dates to restrict date selection.
 
-**Disclaimer**: This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
+**Disclaimer**: This is a commercial package. To use this package, you need to have either a Syncfusion<sup>&reg;</sup> commercial license or [Free Syncfusion<sup>&reg;</sup> Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
 
@@ -19,7 +19,7 @@ The Flutter Date Range Picker is a lightweight widget that allows users to easil
     - [Date selection](#date-selection)
     - [Limit the date selection range](#limit-the-date-selection-range)
 - [Support and feedback](#support-and-feedback)
-- [About Syncfusion](#about-syncfusion)
+- [About Syncfusion<sup>&reg;</sup>](#about-syncfusion)
 
 ##  Date-range-picker features
 
@@ -116,9 +116,9 @@ Explore the full capabilities of our Flutter widgets on your device by installin
 
 ## Other useful links
 
-Take a look at the following to learn more about the Syncfusion Flutter DateRangePicker.
+Take a look at the following to learn more about the Syncfusion<sup>&reg;</sup> Flutter DateRangePicker.
 
-* [Syncfusion Flutter widgets product page](https://www.syncfusion.com/flutter-widgets)
+* [Syncfusion<sup>&reg;</sup> Flutter widgets product page](https://www.syncfusion.com/flutter-widgets)
 * [User guide documentation](https://help.syncfusion.com/flutter/introduction/overview)
 * [Knowledge base](https://www.syncfusion.com/kb)
 
@@ -205,11 +205,11 @@ Widget build(BuildContext context) {
 
 ## Support and Feedback
 
-* For any other queries, reach our [Syncfusion support team](https://support.syncfusion.com/support/tickets/create) or post the queries through the [Community forums](https://www.syncfusion.com/forums) and submit a feature request or a bug through our [Feedback portal](https://www.syncfusion.com/feedback/flutter).
+* For any other queries, reach our [Syncfusion<sup>&reg;</sup> support team](https://support.syncfusion.com/support/tickets/create) or post the queries through the [Community forums](https://www.syncfusion.com/forums) and submit a feature request or a bug through our [Feedback portal](https://www.syncfusion.com/feedback/flutter).
 * To renew the subscription, click [renew](https://www.syncfusion.com/sales/products) or contact our sales team at salessupport@syncfusion.com | Toll Free: 1-888-9 DOTNET.
 
-## About Syncfusion
+## About Syncfusion<sup>&reg;</sup>
 
-Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
+Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion<sup>&reg;</sup> has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
 
 Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), [Flutter](https://www.syncfusion.com/flutter-widgets), and [Blazor](https://www.syncfusion.com/blazor-components)), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([Flutter](https://www.syncfusion.com/flutter-widgets), [WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.

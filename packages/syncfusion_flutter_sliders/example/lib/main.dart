@@ -83,7 +83,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           maximum: _dateMax,
                           isVisible: false,
                         ),
-                        primaryYAxis: NumericAxis(isVisible: false, maximum: 4),
+                        primaryYAxis: const NumericAxis(
+                          isVisible: false,
+                          maximum: 4,
+                        ),
                         series: <SplineAreaSeries<Data, DateTime>>[
                           SplineAreaSeries<Data, DateTime>(
                               dataSource: _chartData,

@@ -2111,11 +2111,12 @@ class SfDataGridState extends State<SfDataGrid>
       // To fix this issue, we implemented a check to determine whether pagination is being used,
       // and we now retrieve the data grid row from the paginated effective rows
       // instead of the entire set of effective rows in the data grid
-      dataRow.dataGridRow = isGrouping
-          ? _dataGridConfiguration
-              .group!.displayElements!.grouped[rowColumnIndex.rowIndex]
-          : effectiveRows(_source!)[rowColumnIndex.rowIndex];
-
+      final DataGridRow? row = grid_helper.getDataRow(
+          _dataGridConfiguration, rowColumnIndex.rowIndex);
+      if (row == null) {
+        return;
+      }
+      dataRow.dataGridRow = row;
       dataRow.dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
           _dataGridConfiguration, dataRow.dataGridRow!);
 
@@ -2189,6 +2190,16 @@ class SfDataGridState extends State<SfDataGrid>
 
   Future<void> _processUpdateDataSource() async {
     if (_dataGridConfiguration.source._suspendDataPagerUpdate) {
+      // Issue:
+      // Bug 914469: DataGrid rows are not visible when using paging with grouping.
+      //
+      // Fix:
+      // We have reinitialized the grouping to update the rows in the UI while using SfDataGrid.rowsPerPage.
+      if (_dataGridConfiguration.source.groupedColumns.isNotEmpty &&
+          _dataGridConfiguration.group!.displayElements == null) {
+        _dataGridConfiguration.group?.initializeTopLevelGroup(
+            _dataGridConfiguration, _dataGridConfiguration.autoExpandGroups);
+      }
       return;
     }
     // Resets the editing before processing the `onCellSubmit`.
@@ -2401,6 +2412,7 @@ class SfDataGridState extends State<SfDataGrid>
   }
 
   void _handleListeners() {
+    // We have cleared the display elements to reinitialize the grouping and update the rows in the UI.
     if (_dataGridConfiguration.source.groupedColumns.isNotEmpty) {
       _dataGridConfiguration.group!
           .clearDisplayElements(_dataGridConfiguration);
@@ -4801,7 +4813,7 @@ class DataGridController extends DataGridSourceChangeNotifier {
 /// }
 /// }
 /// ```
-class DataPagerDelegate {
+mixin class DataPagerDelegate {
   /// Number of pages to be displayed in the [SfDataPager].
   double _pageCount = 0;
 

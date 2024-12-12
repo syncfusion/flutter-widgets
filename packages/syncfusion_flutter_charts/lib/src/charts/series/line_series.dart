@@ -46,6 +46,7 @@ class LineSeries<T, D> extends XyDataSeries<T, D> {
     super.initialIsVisible,
     super.name,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     super.selectionBehavior,

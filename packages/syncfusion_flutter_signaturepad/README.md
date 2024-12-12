@@ -1,14 +1,14 @@
 ![syncfusion_flutter_signaturepad](https://cdn.syncfusion.com/content/images/FTControl/signature_pad_banner.png)
 
-# Syncfusion Flutter SignaturePad
+# Syncfusion<sup>&reg;</sup> Flutter SignaturePad
 
-Syncfusion Flutter SignaturePad library is written in Dart for capturing smooth and more realistic signatures and save it as an image to sync across devices and documents that needs signatures.
+Syncfusion<sup>&reg;</sup> Flutter SignaturePad library is written in Dart for capturing smooth and more realistic signatures and save it as an image to sync across devices and documents that needs signatures.
 
 ## Overview
 
 This library is used to capture a signature through drawing gestures. You can use your finger, pen, or mouse on a tablet, touchscreen, etc., to draw your own signature in this SignaturePad widget. The widget also allows you to save a signature as an image, which can be further synchronized with your documents that need the signature.
 
-**Disclaimer** : This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
+**Disclaimer** : This is a commercial package. To use this package, you need to have either a Syncfusion<sup>&reg;</sup> commercial license or [Free Syncfusion<sup>&reg;</sup> Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ![Flutter signature drawing](https://cdn.syncfusion.com/content/images/FTControl/signaturepad_overview.gif)
 
@@ -20,7 +20,7 @@ This library is used to capture a signature through drawing gestures. You can us
 - [Installation](#installation)
 - [SignaturePad Getting Started](#getting-started)
 - [Support and feedback](#support-and-feedback)
-- [About Syncfusion](#about-syncfusion)
+- [About Syncfusion<sup>&reg;</sup>](#about-syncfusion)
 
 ## SignaturePad features
 
@@ -45,9 +45,9 @@ Explore the full capability of our Flutter widgets on your device by installing 
 
 ## Other useful links
 
-Take a look at the following to learn more about the Syncfusion Flutter SignaturePad:
+Take a look at the following to learn more about the Syncfusion<sup>&reg;</sup> Flutter SignaturePad:
 
-* [Syncfusion Flutter SignaturePad product page](https://www.syncfusion.com/flutter-widgets)
+* [Syncfusion<sup>&reg;</sup> Flutter SignaturePad product page](https://www.syncfusion.com/flutter-widgets)
 * [User guide documentation for SignaturePad](https://help.syncfusion.com/flutter/introduction/overview)
 * [Knowledge base](https://www.syncfusion.com/kb)
 
@@ -251,11 +251,11 @@ You can clear the signature drawn in the SignaturePad using the clear() method a
 
 ## Support and feedback
 
-* If you have any questions, you can reach out to our [Syncfusion support team](https://support.syncfusion.com/support/tickets/create) or post question on our [community forums](https://www.syncfusion.com/forums) . Submit a feature request or a bug through our [feedback portal](https://www.syncfusion.com/feedback/flutter).
+* If you have any questions, you can reach out to our [Syncfusion<sup>&reg;</sup> support team](https://support.syncfusion.com/support/tickets/create) or post question on our [community forums](https://www.syncfusion.com/forums) . Submit a feature request or a bug through our [feedback portal](https://www.syncfusion.com/feedback/flutter).
 * To renew your subscription, click [renew](https://www.syncfusion.com/sales/products) or contact our sales team at salessupport@syncfusion.com | Toll Free: 1-888-9 DOTNET.
 
-## About Syncfusion
+## About Syncfusion<sup>&reg;</sup>
 
-Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
+Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion<sup>&reg;</sup> has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
 
 Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), [Flutter](https://www.syncfusion.com/flutter-widgets), and [Blazor](https://www.syncfusion.com/blazor-components)), mobile ([.NET MAUI](https://www.syncfusion.com/maui-controls?utm_source=pubdev&utm_medium=listing&utm_campaign=flutter-charts-pubdev), [Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([Flutter](https://www.syncfusion.com/flutter-widgets), [.NET MAUI](https://www.syncfusion.com/maui-controls?utm_source=pubdev&utm_medium=listing&utm_campaign=flutter-charts-pubdev), [WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.

@@ -56,6 +56,7 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
     super.borderGradient,
     this.borderRadius = BorderRadius.zero,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.animationDuration,
     this.trackColor = Colors.grey,
     this.trackBorderColor = Colors.transparent,

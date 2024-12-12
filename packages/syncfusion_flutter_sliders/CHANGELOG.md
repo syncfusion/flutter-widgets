@@ -1,16 +1,29 @@
-## Unreleased
+## [28.1.29] - 12/12/2024
+
+**General**
+
+* All of our Syncfusion<sup>&reg;</sup> Flutter widgets have been updated to support [`WebAssembly`](https://docs.flutter.dev/platform-integration/web/wasm) (WASM) as a compilation target for building web applications.
+* The minimum Dart version of our Flutter widgets has been updated to 3.3 from 2.17.
+
+## [27.1.53] - 15/10/2024
+
+**Bugs**
+
+* \#FB61614 - Now paddle tooltip is rendering properly in slider when the tooltip size is greater than parent widget.
+
+## [27.1.48] - 09/18/2024
 
 **General**
 
 * The compatible version of our Flutter sliders widget has been updated to Flutter SDK 3.24.0.
 
-## [25.1.35] - 15/03/2024
+## [25.1.35] - 03/15/2024
 
 **General**
 
 * Provided th​e Material 3 themes support.
 
-## [24.1.46] - 17/01/2024
+## [24.1.46] - 01/17/2024
 
 **General**
 

@@ -1288,7 +1288,7 @@ class RenderChartPlotArea extends RenderStack with ChartAreaUpdateMixin {
     int index = 0;
     final List<LegendItem> legendItems = <LegendItem>[];
     visitChildren((RenderObject child) {
-      final LegendItemProvider provider = child as LegendItemProvider;
+      final LegendItemProviderMixin provider = child as LegendItemProviderMixin;
       final List<LegendItem>? items = provider.buildLegendItems(index);
       if (items != null) {
         legendItems.addAll(items);
@@ -2714,7 +2714,7 @@ class RenderIndicatorArea extends RenderBox
     int index = 0;
     final List<LegendItem> legendItems = <LegendItem>[];
     visitChildren((RenderObject child) {
-      final LegendItemProvider provider = child as LegendItemProvider;
+      final LegendItemProviderMixin provider = child as LegendItemProviderMixin;
       final List<LegendItem>? items = provider.buildLegendItems(index);
       if (items != null) {
         legendItems.addAll(items);

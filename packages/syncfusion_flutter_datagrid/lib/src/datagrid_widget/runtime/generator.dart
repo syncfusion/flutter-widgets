@@ -1275,7 +1275,12 @@ class RowGenerator {
       if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
         final int rowIndex =
             resolveStartRecordIndex(dataGridConfiguration, row.rowIndex);
-        record = getGroupElement(dataGridConfiguration, rowIndex);
+        final dynamic element =
+            getGroupElement(dataGridConfiguration, rowIndex);
+        if (element is! DataGridRow) {
+          return;
+        }
+        record = element;
       } else {
         final int recordIndex = grid_helper.resolveToRecordIndex(
             dataGridConfiguration, row.rowIndex);

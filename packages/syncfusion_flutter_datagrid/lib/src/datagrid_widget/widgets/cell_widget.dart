@@ -2889,7 +2889,10 @@ Future<void> _handleOnTapUp(
     final int rowIndex = resolveStartRecordIndex(
         dataGridConfiguration, dataCell.dataRow!.rowIndex);
     if (rowIndex >= 0) {
-      final Group group = getGroupElement(dataGridConfiguration, rowIndex);
+      final dynamic group = getGroupElement(dataGridConfiguration, rowIndex);
+      if (group is! Group) {
+        return;
+      }
       if (group.isExpanded) {
         if (_invokeGroupChangingCallback(dataGridConfiguration, group)) {
           dataGridConfiguration.group!

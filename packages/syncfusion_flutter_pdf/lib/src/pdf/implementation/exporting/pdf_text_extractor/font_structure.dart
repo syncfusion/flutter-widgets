@@ -7,6 +7,7 @@ import '../../graphics/fonts/pdf_font.dart';
 import '../../graphics/fonts/pdf_standard_font.dart';
 import '../../io/decode_big_endian.dart';
 import '../../io/pdf_constants.dart';
+import '../../io/pdf_cross_table.dart';
 import '../../primitives/pdf_array.dart';
 import '../../primitives/pdf_dictionary.dart';
 import '../../primitives/pdf_name.dart';
@@ -1101,9 +1102,14 @@ class FontStructure {
           }
         } else if (fontDictionary[PdfDictionaryProperties.encoding]
             is PdfReferenceHolder) {
-          baseFontDict = (fontDictionary[PdfDictionaryProperties.encoding]!
-                  as PdfReferenceHolder)
-              .object as PdfDictionary?;
+          final IPdfPrimitive? primitive = PdfCrossTable.dereference(
+              fontDictionary[PdfDictionaryProperties.encoding]);
+          if (primitive != null && primitive is PdfName) {
+            baseFont = primitive;
+            fontEncoding = baseFont.name;
+          } else if (primitive != null && primitive is PdfDictionary) {
+            baseFontDict = primitive;
+          }
         }
         if (baseFontDict != null &&
             baseFontDict.containsKey(PdfDictionaryProperties.type)) {
@@ -1602,9 +1608,11 @@ class FontStructure {
     if (fontDictionary.containsKey(PdfDictionaryProperties.encoding)) {
       if (fontDictionary[PdfDictionaryProperties.encoding]
           is PdfReferenceHolder) {
-        encodingDictionary = (fontDictionary[PdfDictionaryProperties.encoding]!
-                as PdfReferenceHolder)
-            .object as PdfDictionary?;
+        final IPdfPrimitive? primitive = PdfCrossTable.dereference(
+            fontDictionary[PdfDictionaryProperties.encoding]);
+        if (primitive != null && primitive is PdfDictionary) {
+          encodingDictionary = primitive;
+        }
       } else if (fontDictionary[PdfDictionaryProperties.encoding]
           is PdfDictionary) {
         encodingDictionary =

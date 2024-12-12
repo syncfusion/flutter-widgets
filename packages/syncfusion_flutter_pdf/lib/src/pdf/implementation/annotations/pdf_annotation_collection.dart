@@ -622,7 +622,7 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
               (temp[j] is PdfNumber) ? temp[j] as PdfNumber? : null;
           int? val = 0;
           if (value != null) {
-            val = value.value as int?;
+            val = value.value?.toInt();
           }
           if (val! > 0) {
             return false;

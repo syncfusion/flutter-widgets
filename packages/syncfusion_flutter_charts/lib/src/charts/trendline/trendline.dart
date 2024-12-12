@@ -651,7 +651,7 @@ class RenderTrendlineStack extends RenderBox
   }
 
   List<LegendItem>? buildLegendItems(
-      int seriesIndex, LegendItemProvider provider) {
+      int seriesIndex, LegendItemProviderMixin provider) {
     final List<LegendItem> legendItems = <LegendItem>[];
     const int trendlineIndex = 0;
     TrendlineRenderer? child = firstChild;
@@ -2223,7 +2223,8 @@ class TrendlineRenderer extends RenderBox {
     }
   }
 
-  List<LegendItem>? buildLegendItems(int index, LegendItemProvider provider) {
+  List<LegendItem>? buildLegendItems(
+      int index, LegendItemProviderMixin provider) {
     if (isVisibleInLegend) {
       _legendItem = ChartLegendItem(
         text: name ?? _defaultTrendlineName(),
@@ -2289,7 +2290,7 @@ class TrendlineRenderer extends RenderBox {
   }
 
   ShapeMarkerType _toShapeMarkerType(LegendIconType iconType,
-      {LegendItemProvider? legendItemProvider}) {
+      {LegendItemProviderMixin? legendItemProvider}) {
     switch (iconType) {
       case LegendIconType.seriesType:
         if (legendItemProvider != null) {

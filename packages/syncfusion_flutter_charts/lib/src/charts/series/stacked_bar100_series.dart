@@ -57,6 +57,7 @@ class StackedBar100Series<T, D> extends StackedSeriesBase<T, D> {
     super.borderGradient,
     this.borderRadius = BorderRadius.zero,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.animationDuration,
     super.trendlines,
     this.borderColor = Colors.transparent,

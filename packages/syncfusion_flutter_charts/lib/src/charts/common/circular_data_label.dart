@@ -17,7 +17,7 @@ import 'data_label.dart';
 import 'element_widget.dart';
 
 // ignore: must_be_immutable
-class CircularChartDataLabelPositioned
+base class CircularChartDataLabelPositioned
     extends ParentDataWidget<CircularDataLabelBoxParentData>
     with LinkedListEntry<CircularChartDataLabelPositioned> {
   CircularChartDataLabelPositioned({

@@ -1,6 +1,6 @@
 name: syncfusion_flutter_signaturepad
 description: The Flutter Signature Pad widget allows you to capture smooth and more realistic signatures through drawn gestures and save it as an image.
-version: 27.1.48
+version: 28.1.33
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_signaturepad
 
 screenshots:
@@ -8,17 +8,17 @@ screenshots:
     path: screenshots/signature_pad.gif
     
 environment:
-  sdk: ">=2.17.0 <4.0.0"
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
+      
+      
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+
 
 
 flutter:

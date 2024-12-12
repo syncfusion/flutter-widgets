@@ -171,6 +171,7 @@ class GridHeaderCellRenderer
                 onChanged: (bool? newValue) {
                   if (dataGridConfiguration.selectionMode ==
                       SelectionMode.multiple) {
+                    _requestFocus(dataGridConfiguration);
                     selection_manager.handleSelectionFromCheckbox(
                         dataGridConfiguration,
                         dataCell,
@@ -271,9 +272,17 @@ class GridCheckboxRenderer
             shape: dataGridConfiguration.checkboxShape,
             value: selectionState,
             onChanged: (bool? newValue) {
+              _requestFocus(dataGridConfiguration);
               selection_manager.handleSelectionFromCheckbox(
                   dataGridConfiguration, dataCell, selectionState, newValue);
             }));
+  }
+}
+
+void _requestFocus(DataGridConfiguration dataGridConfiguration) {
+  if (dataGridConfiguration.dataGridFocusNode != null &&
+      !dataGridConfiguration.dataGridFocusNode!.hasPrimaryFocus) {
+    dataGridConfiguration.dataGridFocusNode!.requestFocus();
   }
 }
 

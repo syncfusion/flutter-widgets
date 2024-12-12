@@ -263,7 +263,7 @@ class JpegDecoder extends ImageDecoder {
           height = imageData[offset] << 8 | imageData[offset + 1];
           seek(2);
           width = imageData[offset] << 8 | imageData[offset + 1];
-          _noOfComponents = imageData[offset];
+          _noOfComponents = imageData[offset + 2];
           seek(1);
           isContinueReading = false;
           break;

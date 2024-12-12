@@ -8,11 +8,14 @@ import 'helper/save_file_mobile.dart'
     if (dart.library.html) 'helper/save_file_web.dart';
 
 void main() {
-  runApp(CreateOfficeChartWidget());
+  runApp(const CreateOfficeChartWidget());
 }
 
 /// Represents the office chart widget class.
 class CreateOfficeChartWidget extends StatelessWidget {
+  // Constructor with a named key parameter
+  const CreateOfficeChartWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
