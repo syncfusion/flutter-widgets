@@ -1,0 +1,19 @@
+name: localization_example
+description: This project holds information about the usage of the syncfusion_localization package with the Flutter Syncfusion Calendar widget.
+version: 1.0.0
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  syncfusion_localizations: ^27.1.53
+  syncfusion_flutter_calendar: ^27.1.53
+  cupertino_icons: '^1.0.8'
+
+flutter:
+
+  uses-material-design: true
