@@ -3,7 +3,7 @@ import 'dart:collection';
 /// Holds a range together with a value assigned to the range.
 ///
 /// * T - _required_ - The type of the parameter.
-class RangeValuePair<T> extends Comparable<T> {
+class RangeValuePair<T> implements Comparable<T> {
   /// Initializes a new instance of the RangeValuePair class.
   ///
   /// * start - _required_ - The start of the range.

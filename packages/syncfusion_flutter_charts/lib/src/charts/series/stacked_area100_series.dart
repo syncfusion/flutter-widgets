@@ -51,6 +51,7 @@ class StackedArea100Series<T, D> extends StackedSeriesBase<T, D> {
     super.dataLabelSettings,
     super.initialIsVisible,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     this.borderColor = Colors.transparent,
@@ -292,6 +293,19 @@ class StackedArea100Segment<T, D> extends ChartSegment {
         break;
     }
     _createFillPath(_fillPath, _highPoints, _lowPoints);
+  }
+
+  @override
+  bool contains(Offset position) {
+    final MarkerSettings marker = series.markerSettings;
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
+      if (tooltipTouchBounds(points[i], marker.width, marker.height)
+          .contains(position)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void _calculatePoints(

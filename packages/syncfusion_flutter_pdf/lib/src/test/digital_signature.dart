@@ -20,9 +20,9 @@ import '../pdf/implementation/primitives/pdf_string.dart';
 import '../pdf/implementation/security/digital_signature/pdf_signature.dart';
 import '../pdf/interfaces/pdf_interface.dart';
 import 'images.dart';
-import 'pdf_docs.dart';
 // ignore: avoid_relative_lib_imports
 import 'pdf_document.dart';
+import 'pdf_test_docs.dart';
 // ignore: avoid_relative_lib_imports
 import 'pfx_files.dart';
 
@@ -340,11 +340,70 @@ void digitalSignatureTest() {
       document.dispose();
     });
   });
+  group(
+      'FLUT-917813- Format exception occurs while signing the document with specific certificate using an external signer',
+      () {
+    test('test', () async {
+      final PdfDocument document = PdfDocument.fromBase64String(flut917813pdf);
+      final PdfSignatureField field =
+          PdfSignatureField(document.pages[0], 'Felício');
+      final IPdfExternalSigner externalSignature =
+          SignEmpty(DigestAlgorithm.sha256);
+      field.signature = PdfSignature()
+        ..addExternalSigner(
+            externalSignature, <List<int>>[base64.decode(publicCert64)]);
+      document.form.fields.add(field);
+      savePdf(document.saveSync(), 'FLUT-917813-output.pdf');
+      document.dispose();
+    });
+  });
+  group(
+      'FLUT-919139- Signature Appearance is duplicated while viewing the resultant Pdf in Syncfusion Viewer',
+      () {
+    test('test', () async {
+      PdfDocument document = PdfDocument();
+      document = PdfDocument.fromBase64String(flut919139pdf);
+      final PdfSignatureField signatureField = PdfSignatureField(
+        document.pages[0],
+        'SignatureField',
+        bounds: const Rect.fromLTWH(0, 0, 200, 100),
+      );
+      final PdfCertificate certificate =
+          PdfCertificate(base64.decode(pdfcertificatePfx), 'password123');
+      signatureField.signature = PdfSignature(
+        certificate: certificate,
+        contactInfo: 'johndoe@owned.us',
+        locationInfo: 'Honolulu, Hawaii',
+        reason: 'I am author of this document.',
+      );
+      final PdfBitmap bitmap = PdfBitmap.fromBase64String(signaturePng);
+      signatureField.appearance.normal.graphics?.drawImage(
+        bitmap,
+        Offset.zero & signatureField.bounds.size,
+      );
+      document.form.fields.add(signatureField);
+      document.form.flattenAllFields();
+      savePdf(document.saveSync(), 'FLUT-919139-output.pdf');
+      final List<int> bytes = await document.save();
+      document.dispose();
+      document = PdfDocument(inputBytes: bytes);
+      final PdfFormFieldCollection pdfField = document.form.fields;
+      final int countField = pdfField.count;
+      expect(countField, 0,
+          reason: 'Not removed the Signature Appearance is duplicated');
+      document.dispose();
+      bytes.clear();
+    });
+  });
 }
 
 // ignore: public_member_api_docs
 const String publicCert =
     'MIIDFTCCAf2gAwIBAgIQMjdwZGujtplDiSGarQzO1DANBgkqhkiG9w0BAQsFADAXMRUwEwYDVQQDEwxUZXN0Q2VydFJvb3QwHhcNMTkwOTA5MDg0MzM5WhcNMzkxMjMxMjM1OTU5WjAXMRUwEwYDVQQDEwxUZXN0Q2VydFJvb3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCWs+BZKfWf5cZauYDpXPlHUZour4oNaGoAfySXUD28KLNxCI6AWlK+UV+JJWgcrJ9SpLuoxQb1384gZhQMe4RFtILQpxx9nAxtwsd7/6OLI4G9TRIdy6PJ2OHyHKL9ZqI/+XkUbgznUF9o0F2VlQwszSCQREDQ5PxcGy/GWS71ZT1tvs8iqMVi3PCUH8ERwqTwIhWvRt6weVZ/daR9rNqkEPkpT5tQPMGvmqEinxbjpO8h8gU91rXbiHaY7QlDgCmEy3zWVIROR56x3ZJv5/xjJ/ya4X51P3DcLNGgUTRre0cYXHfnyTQAVFDGxEGsTd4xOnMWrbMaoeRBt8dtBGNBAgMBAAGjXTBbMA8GA1UdEwEB/wQFMAMBAf8wSAYDVR0BBEEwP4AQk/aIkhJaRQ2nRg1ECf13f6EZMBcxFTATBgNVBAMTDFRlc3RDZXJ0Um9vdIIQMjdwZGujtplDiSGarQzO1DANBgkqhkiG9w0BAQsFAAOCAQEAbcFInTXT+08eV1JyrkMsR3HZGtPXyAGRSiZkMJJKE1MU79fFXCiQf6/UpCV76vdCCSOrZLJweUeZPLznZhOxu9aEGnA0CPEcphYUVT9J8aV8MpQJu5DKGbphdBuZNlBQvVg9Yxs0T7Ne49S3s2EUL/w6tFoBuGh1ar9rc3IRmJA8WM2orz4Q8bVhYdtlxWynfx3idCv7pQDymHmB0Wt5iSlcAfcDrZb7YSq+VYIHzAZatefjGRSsbRuVpSfz3dt+cVttKbY3mOWD4zaUvPvKs6bWznxStEBHomcWd3DymekC78aI9XKLmetddpzx6eOgf9Vju8KuO+udGDpoPy2apw==';
+
+// ignore: public_member_api_docs
+const String publicCert64 =
+    'MIIDazCCAlOgAwIBAgIUNe/5Gh7kSXvTlUrHxNdQImWaIoQwDQYJKoZIhvcNAQELBQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yNDEwMTExMzU3NTBaFw0yNTEwMTExMzU3NTBaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCU0wXI31S/esgn56luX/VB1t7+v2OJUkV7SE4yx0GS6LgL4v7AmLCSjcmfSG+fpqhvzM+S3y6eJwe5l8sBxn8ogdlrJJt9wXWrkRHmVM8C/mcmguI+JwfhRqJCFx0oJq1gV2zmQE6HilE4s+0oCvh2IsyM4Tz7MKMWGrX1S1eF+EQxRL/StuyF6+1sleCtrmEQekK4J7jMBm2hl5YKgRzGLA97MKUXktCuIPrjm72Xi5MZq1qqfV4rzTODEcbUJJJ+yj2dDL2DUnnTBSNe3eIyQyfDzOxX8iyjUKQn7D+3HX++kXI6YR8757QcAxTCInZITMUmD5ZETQQfxm11T1WHAgMBAAGjUzBRMB0GA1UdDgQWBBQGzaYSgUKaWAbGX0ub2fkRYJ4TLTAfBgNVHSMEGDAWgBQGzaYSgUKaWAbGX0ub2fkRYJ4TLTAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQCCILLmLDX3w/yG2Xspyss0JEOkS9R30LrHXQnSvM/K/+C4R6MUo+oI9mKCbfb6sbaUggwENTQ1E30M0ZaQtnkiiAbfBfWomLiMniqMkKNmkThN1Sdwr1oUxZH41V67iVlqaMfuaYsu1DJ8jlR2jDySvsulCUG6I6EaNF5A+uL5Qm09cYsc06/URmbffhiwjNNcroJmS8bujMzPe2C232KZEvbNYOagmprqW9v8j8LDWUglqrN90US5HLg2+6h3l6BfU0MTxVA7/+0m2lhkEu8KVicR4Ps5Q3T47FQ5/WZLd2ozp+nBIKJG5ULfM7SPRvBpSz/E9RiHH+EPS/vA3Oco';
 
 // ignore: public_member_api_docs
 void externalSigner() {

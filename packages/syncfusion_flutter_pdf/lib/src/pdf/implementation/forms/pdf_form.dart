@@ -1020,6 +1020,14 @@ class PdfFormHelper {
           } else {
             helper.save();
           }
+          if (_fields?.count == 0) {
+            final int? index = crossTable!.items!.lookFor(helper.dictionary!);
+            dictionary?.clear();
+            (sender as PdfDictionary).remove(PdfDictionaryProperties.acroForm);
+            if (index != -1) {
+              crossTable!.items!.objectCollection!.removeAt(index!);
+            }
+          }
         }
         ++i;
       }

@@ -1,4 +1,43 @@
-## Unreleased
+## [28.1.29] - 12/12/2024
+
+**General**
+
+* All of our Syncfusion<sup>&reg;</sup> Flutter widgets have been updated to support [`WebAssembly`](https://docs.flutter.dev/platform-integration/web/wasm) (WASM) as a compilation target for building web applications.
+* The minimum Dart version of our Flutter widgets has been updated to 3.3 from 2.17.
+
+### Features
+
+* \#FB58652 - Added support to enable and disable the trackball behavior for specific series in cartesian charts.
+
+## [27.2.3] - 21/11/2024
+
+**Bugs**
+
+* \#F194931 - Resolved [StackedAreaSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/StackedAreaSeries-class.html) is not rendering properly with negative data points when using multiple stacked series.
+
+## [27.1.54] - 22/10/2024
+
+**Bugs**
+
+* \#BD640641 - Resolved failed assertion exception when the data source had value as zero in [SparkBarChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SfSparkBarChart-class.html).
+* \#BD640555 - Now the [PlotBand](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SparkChartPlotBand-class.html) update properly for different start and end values.
+
+## [27.1.53] - 15/10/2024
+
+**Bugs**
+
+* \#GH2084 - Now the [onDataLabelTapped](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/onDataLabelTapped.html) callback invoke properly when tap inside data label bounds.
+* \#GH2091 - Resolved no element state exception when the data source had empty data in the [RadialBarSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/RadialBarSeries-class.html) with Legend.
+
+## [27.1.51] - 30/09/2024
+
+**Bugs**
+
+* \#BD626485 - Resolved the range error exception when adding data dynamically in the circular series with [legendItemBuilder](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Legend/legendItemBuilder.html).
+* \#BD624619 - The trackball builder's position now renders properly in the [groupAllPoints](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/TrackballDisplayMode.html) display mode on transposed charts.
+* \#BD630726 - Resolved the range error exception when updating the data source with the [pointShaderMapper](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CircularSeries/pointShaderMapper.html) property in the circular series.
+
+## [27.1.48] - 18/09/2024
 
 **General**
 

@@ -14,7 +14,7 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <4.0.0"
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -44,8 +44,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - world_map.json
-    - australia.json
+    - assets/world_map.json
+    - assets/australia.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

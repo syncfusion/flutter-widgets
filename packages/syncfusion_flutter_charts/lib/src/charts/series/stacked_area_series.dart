@@ -50,6 +50,7 @@ class StackedAreaSeries<T, D> extends StackedSeriesBase<T, D> {
     super.dataLabelSettings,
     super.initialIsVisible,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     this.borderColor = Colors.transparent,

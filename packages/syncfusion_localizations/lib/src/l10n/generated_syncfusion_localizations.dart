@@ -47,10 +47,10 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get allowedViewTimelineMonthLabel => r'Tydlyn Maand';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Tydlynweek';
+  String get allowedViewTimelineWeekLabel => r'Tydlyn Week';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Tydlynwerkweek';
+  String get allowedViewTimelineWorkWeekLabel => r'TTydlyn Werksweek';
 
   @override
   String get allowedViewWeekLabel => r'Week';
@@ -62,10 +62,10 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'En';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Voor Of Gelyk';
+  String get beforeDataGridFilteringLabel => r'Voorheen';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Voorheen';
+  String get beforeOrEqualDataGridFilteringLabel => r'Voor Of Gelyk';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Begin Met';
@@ -143,7 +143,7 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Geen wedstryde nie';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Geen gekose datum nie';
+  String get noSelectedDateCalendarLabel => r'Geen datum gekies';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Nie leeg nie';
@@ -274,7 +274,7 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get searchDataGridFilteringLabel => r'Soek';
 
   @override
-  String get selectAllDataGridFilteringLabel => r'Kies Alles';
+  String get selectAllDataGridFilteringLabel => r'Selekteer alles';
 
   @override
   String get series => r'Reeks';
@@ -408,10 +408,10 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'እና';
 
   @override
-  String get beforeDataGridFilteringLabel => r'በፊት ወይም እኩል';
+  String get beforeDataGridFilteringLabel => r'ከዚህ በፊት';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'ከዚህ በፊት';
+  String get beforeOrEqualDataGridFilteringLabel => r'በፊት ወይም እኩል';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'ጋር ይጀምራል';
@@ -582,7 +582,7 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogSaveLabel => r'አስቀምጥ';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'ቅዳ';
+  String get pdfTextSelectionMenuCopyLabel => r'ገልብጥ';
 
   @override
   String get pdfTextSelectionMenuHighlightLabel => r'አድምቅ';
@@ -591,7 +591,7 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuSquigglyLabel => r'በቅንጦት';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'አድማ';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'መጋረድ';
 
   @override
   String get pdfTextSelectionMenuUnderlineLabel => r'ይሰመርበት';
@@ -748,10 +748,10 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'و';
 
   @override
-  String get beforeDataGridFilteringLabel => r'قبل أو يساوي';
+  String get beforeDataGridFilteringLabel => r'قبل';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'قبل';
+  String get beforeOrEqualDataGridFilteringLabel => r'قبل أو يساوي';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'يبدأ ب';
@@ -763,7 +763,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get clearFilterDataGridFilteringLabel => r'مسح المرشح';
 
   @override
-  String get containsDataGridFilteringLabel => r'يتضمن';
+  String get containsDataGridFilteringLabel => r'يحتوي على';
 
   @override
   String get dateFiltersDataGridFilteringLabel => r'مرشحات التاريخ';
@@ -898,7 +898,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'إلغاء';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'نعم';
+  String get pdfPaginationDialogOkLabel => r'موافق';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'إلغاء';
@@ -910,7 +910,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'من';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'واضح';
+  String get pdfSignaturePadDialogClearLabel => r'مسح';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'ارسم توقيعك';
@@ -919,10 +919,10 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'لون القلم';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'يحفظ';
+  String get pdfSignaturePadDialogSaveLabel => r'حفظ';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'ينسخ';
+  String get pdfTextSelectionMenuCopyLabel => r'نسخ';
 
   @override
   String get pdfTextSelectionMenuHighlightLabel => r'تسليط الضوء';
@@ -949,7 +949,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get ramadanLabel => r'رمضان';
 
   @override
-  String get rowsPerPageDataPagerLabel => r'عدد الصفوف في الصفحة';
+  String get rowsPerPageDataPagerLabel => r'الصفوف لكل صفحة';
 
   @override
   String get safarLabel => r'سفر';
@@ -1093,10 +1093,10 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Və';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Əvvəl Və ya Bərabər';
+  String get beforeDataGridFilteringLabel => r'Əvvəl';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Əvvəl';
+  String get beforeOrEqualDataGridFilteringLabel => r'Əvvəl Və ya Bərabər';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'ilə başlayır';
@@ -1245,7 +1245,7 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'LƏĞV EDİN';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'tamam';
+  String get pdfPaginationDialogOkLabel => r'Tamam';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'LƏĞV EDİN';
@@ -1275,10 +1275,10 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuHighlightLabel => r'Vurğulayın';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Squiggly';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Dalğalı';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'üstü üstü';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'Üstündən xətt çək';
 
   @override
   String get pdfTextSelectionMenuUnderlineLabel => r'Altını çiz';
@@ -1422,16 +1422,17 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Дзень часовай шкалы';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Храналогія Месяц';
+  String get allowedViewTimelineMonthLabel => r'Часавая шкала месяца';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Храналогія тыдня';
+  String get allowedViewTimelineWeekLabel => r'Часавая шкала тыдня';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Графік працоўнага тыдня';
+  String get allowedViewTimelineWorkWeekLabel =>
+      r'Часавая шкала працоўнага тыдня';
 
   @override
-  String get allowedViewWeekLabel => r'тыдзень';
+  String get allowedViewWeekLabel => r'Тыдзень';
 
   @override
   String get allowedViewWorkWeekLabel => r'Працоўны тыдзень';
@@ -1440,10 +1441,10 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'І';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Раней або роўна';
+  String get beforeDataGridFilteringLabel => r'Раней';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Раней';
+  String get beforeOrEqualDataGridFilteringLabel => r'Раней або роўна';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Пачынаецца з';
@@ -1592,7 +1593,7 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'СКАСАВАЦЬ';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'добра';
+  String get pdfPaginationDialogOkLabel => r'ОК';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'СКАСАВАЦЬ';
@@ -1604,7 +1605,7 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'з';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ЯСНА';
+  String get pdfSignaturePadDialogClearLabel => r'АЧЫСТКА';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Намалюйце свой подпіс';
@@ -1616,7 +1617,7 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogSaveLabel => r'ЗАХАВАЦЬ';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'Копія';
+  String get pdfTextSelectionMenuCopyLabel => r'Капіяваць';
 
   @override
   String get pdfTextSelectionMenuHighlightLabel => r'Вылучыць';
@@ -1731,10 +1732,10 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get textFiltersDataGridFilteringLabel => r'Тэкставыя фільтры';
 
   @override
-  String get todayLabel => r'сёння';
+  String get todayLabel => r'Сёння';
 
   @override
-  String get weeknumberLabel => r'тыдзень';
+  String get weeknumberLabel => r'Тыдзень';
 }
 
 /// The translations for Bulgarian (`bg`).
@@ -1756,29 +1757,29 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get allDayLabel => r'Цял ден';
 
   @override
-  String get allowedViewDayLabel => r'ден';
+  String get allowedViewDayLabel => r'Ден';
 
   @override
-  String get allowedViewMonthLabel => r'месец';
+  String get allowedViewMonthLabel => r'Месец';
 
   @override
   String get allowedViewScheduleLabel => r'График';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Ден на хронологията';
+  String get allowedViewTimelineDayLabel => r'Хронология на деня';
 
   @override
   String get allowedViewTimelineMonthLabel => r'Времева линия Месец';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Седмица на хронологията';
+  String get allowedViewTimelineWeekLabel => r'Хронология на седмицата';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
       r'Времева линия Работна седмица';
 
   @override
-  String get allowedViewWeekLabel => r'седмица';
+  String get allowedViewWeekLabel => r'Седмица';
 
   @override
   String get allowedViewWorkWeekLabel => r'Работна седмица';
@@ -1787,10 +1788,10 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'И';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Преди или Равно';
+  String get beforeDataGridFilteringLabel => r'Преди';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Преди';
+  String get beforeOrEqualDataGridFilteringLabel => r'Преди или Равно';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Започва с';
@@ -1951,7 +1952,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'на';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ЯСНО';
+  String get pdfSignaturePadDialogClearLabel => r'ИЗЧИСТИ';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Начертайте своя подпис';
@@ -1963,7 +1964,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogSaveLabel => r'ЗАПАЗЕТЕ';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'копие';
+  String get pdfTextSelectionMenuCopyLabel => r'Копирай';
 
   @override
   String get pdfTextSelectionMenuHighlightLabel => r'Маркирайте';
@@ -2081,7 +2082,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get todayLabel => r'Днес';
 
   @override
-  String get weeknumberLabel => r'седмица';
+  String get weeknumberLabel => r'Седмица';
 }
 
 /// The translations for Bengali Bangla (`bn`).
@@ -2133,10 +2134,10 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'এবং';
 
   @override
-  String get beforeDataGridFilteringLabel => r'আগে বা সমান';
+  String get beforeDataGridFilteringLabel => r'আগে';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'আগে';
+  String get beforeOrEqualDataGridFilteringLabel => r'আগে বা সমান';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'সঙ্গে শুরু';
@@ -2214,7 +2215,7 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'মিল নেই';
 
   @override
-  String get noSelectedDateCalendarLabel => r'কোনো নির্বাচিত তারিখ নেই';
+  String get noSelectedDateCalendarLabel => r'কোনো তারিখ নির্বাচিত হয়নি';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'খালি না';
@@ -2460,14 +2461,14 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Dan vremenske linije';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Timeline Month';
+  String get allowedViewTimelineMonthLabel => r'Mjesec vremenske linije';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Timeline Week';
+  String get allowedViewTimelineWeekLabel => r'Sedmica vremenske linije';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Vremenski okvir Radna sedmica';
+      r'Radna sedmica vremenske linije';
 
   @override
   String get allowedViewWeekLabel => r'Sedmica';
@@ -2479,10 +2480,10 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'I';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Prije ili jednako';
+  String get beforeDataGridFilteringLabel => r'Prije';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Prije';
+  String get beforeOrEqualDataGridFilteringLabel => r'Prije ili jednako';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Počinje sa';
@@ -2533,7 +2534,7 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get fromDataGridFilteringLabel => r'Od';
 
   @override
-  String get greaterThanDataGridFilteringLabel => r'Veci nego';
+  String get greaterThanDataGridFilteringLabel => r'veće od';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'Veće ili jednako';
@@ -2563,7 +2564,7 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get noSelectedDateCalendarLabel => r'Nema odabranog datuma';
 
   @override
-  String get notEmptyDataGridFilteringLabel => r'Not Empty';
+  String get notEmptyDataGridFilteringLabel => r'Nije prazno';
 
   @override
   String get notNullDataGridFilteringLabel => r'Ne Null';
@@ -2575,7 +2576,7 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get numberFiltersDataGridFilteringLabel => r'Brojčani filteri';
 
   @override
-  String get ofDataPagerLabel => r'of';
+  String get ofDataPagerLabel => r'od';
 
   @override
   String get okDataGridFilteringLabel => r'uredu';
@@ -2826,10 +2827,10 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'I';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Abans o igual';
+  String get beforeDataGridFilteringLabel => r'Abans';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Abans';
+  String get beforeOrEqualDataGridFilteringLabel => r'Abans o igual';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Comença amb';
@@ -2959,7 +2960,7 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
   String get pdfHyperlinkContentLabel => r'Vols obrir la pàgina a';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'CANCEL · LAR';
+  String get pdfHyperlinkDialogCancelLabel => r'Cancel·lar';
 
   @override
   String get pdfHyperlinkDialogOpenLabel => r'OBERT';
@@ -2975,13 +2976,13 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
       r'No s' "'" r'han trobat adreces d' "'" r'interès';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'CANCEL · LAR';
+  String get pdfPaginationDialogCancelLabel => r'Cancel·lar';
 
   @override
   String get pdfPaginationDialogOkLabel => r'D' "'" r'acord';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'CANCEL · LAR';
+  String get pdfPasswordDialogCancelLabel => r'Cancel·lar';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'OBERT';
@@ -3173,16 +3174,16 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'A';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Před nebo rovno';
+  String get beforeDataGridFilteringLabel => r'Před';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Před';
+  String get beforeOrEqualDataGridFilteringLabel => r'Před nebo rovno';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Začíná s';
 
   @override
-  String get cancelDataGridFilteringLabel => r'zrušení';
+  String get cancelDataGridFilteringLabel => r'zrušit';
 
   @override
   String get clearFilterDataGridFilteringLabel => r'Vymazat filtr';
@@ -3255,7 +3256,7 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Žádné shody';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Žádné vybrané datum';
+  String get noSelectedDateCalendarLabel => r'Žádné datum vybráno';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Není prázdný';
@@ -3337,7 +3338,7 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'z';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'PRŮHLEDNÁ';
+  String get pdfSignaturePadDialogClearLabel => r'Vymazat';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Nakreslete svůj podpis';
@@ -3501,13 +3502,13 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Tidslinje Dag';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Tidslinje måned';
+  String get allowedViewTimelineMonthLabel => r'Tidslinje Måned';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Tidslinje uge';
+  String get allowedViewTimelineWeekLabel => r'Tidslinje Uge';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Tidslinje arbejdsuge';
+  String get allowedViewTimelineWorkWeekLabel => r'Tidslinje Arbejdsuge';
 
   @override
   String get allowedViewWeekLabel => r'Uge';
@@ -3519,10 +3520,10 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Og';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Før Eller Lige';
+  String get beforeDataGridFilteringLabel => r'Før';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Før';
+  String get beforeOrEqualDataGridFilteringLabel => r'Før Eller Lige';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Starter med';
@@ -3573,7 +3574,7 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get fromDataGridFilteringLabel => r'Fra';
 
   @override
-  String get greaterThanDataGridFilteringLabel => r'Bedre end';
+  String get greaterThanDataGridFilteringLabel => r'Større end';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel =>
@@ -3683,7 +3684,7 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'af';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'KLAR';
+  String get pdfSignaturePadDialogClearLabel => r'Ryd';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Tegn din signatur';
@@ -3832,7 +3833,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get afterOrEqualDataGridFilteringLabel => r'Nach oder gleich';
 
   @override
-  String get allDayLabel => r'Den ganzen Tag';
+  String get allDayLabel => r'Ganztägig';
 
   @override
   String get allowedViewDayLabel => r'Tag';
@@ -3841,19 +3842,19 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get allowedViewMonthLabel => r'Monat';
 
   @override
-  String get allowedViewScheduleLabel => r'Zeitlicher Ablauf';
+  String get allowedViewScheduleLabel => r'Zeitplan';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Timeline-Tag';
+  String get allowedViewTimelineDayLabel => r'Zeitleiste Tag';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Timeline-Monat';
+  String get allowedViewTimelineMonthLabel => r'Zeitleiste Monat"';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Timeline-Woche';
+  String get allowedViewTimelineWeekLabel => r'Zeitleiste Woche';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Zeitplan Arbeitswoche';
+  String get allowedViewTimelineWorkWeekLabel => r'Zeitleiste Arbeitswoche';
 
   @override
   String get allowedViewWeekLabel => r'Woche';
@@ -3865,10 +3866,10 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Und';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Vor oder gleich';
+  String get beforeDataGridFilteringLabel => r'Vor';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Vor';
+  String get beforeOrEqualDataGridFilteringLabel => r'Vor oder gleich';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Beginnt mit';
@@ -3948,7 +3949,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Keine Treffer';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Kein ausgewähltes Datum';
+  String get noSelectedDateCalendarLabel => r'Kein Datum ausgewählt';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Nicht leer';
@@ -4193,7 +4194,7 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Πρόγραμμα';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Ημέρα χρονολογίου';
+  String get allowedViewTimelineDayLabel => r'Ημέρα Χρονολογίου';
 
   @override
   String get allowedViewTimelineMonthLabel => r'Χρονολόγιο Μήνας';
@@ -4215,10 +4216,10 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Και';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Πριν ή ίσο';
+  String get beforeDataGridFilteringLabel => r'Πριν';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Πριν';
+  String get beforeOrEqualDataGridFilteringLabel => r'Πριν ή ίσο';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Ξεκινάει με';
@@ -4297,8 +4298,7 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Χωρίς αγώνες';
 
   @override
-  String get noSelectedDateCalendarLabel =>
-      r'Δεν υπάρχει επιλεγμένη ημερομηνία';
+  String get noSelectedDateCalendarLabel => r'Δεν έχει επιλεγεί ημερομηνία';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Οχι άδειο';
@@ -4382,7 +4382,7 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'του';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ΣΑΦΗ';
+  String get pdfSignaturePadDialogClearLabel => r'Καθαρισμός';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel =>
@@ -4392,22 +4392,22 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Χρώμα στυλό';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'ΑΠΟΘΗΚΕΥΣΕΤΕ';
+  String get pdfSignaturePadDialogSaveLabel => r'Αποθήκευση';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'αντίγραφο';
+  String get pdfTextSelectionMenuCopyLabel => r'Αντιγραφή';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Αποκορύφωμα';
+  String get pdfTextSelectionMenuHighlightLabel => r'Επισήμανση';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Στριμμένος';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Κυματιστή υπογράμμιση';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'Strikethrough';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'Διαγραφή';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'Υπογραμμίζω';
+  String get pdfTextSelectionMenuUnderlineLabel => r'Υπογράμμιση';
 
   @override
   String get rabi1Label => r'Rabi' "'" r' al-awwal';
@@ -4566,10 +4566,10 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'And';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Before Or Equal';
+  String get beforeDataGridFilteringLabel => r'Before';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Before';
+  String get beforeOrEqualDataGridFilteringLabel => r'Before Or Equal';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Begins With';
@@ -4648,7 +4648,7 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'No matches';
 
   @override
-  String get noSelectedDateCalendarLabel => r'No selected date';
+  String get noSelectedDateCalendarLabel => r'No date selected';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Not Empty';
@@ -4913,10 +4913,10 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Y';
 
   @override
-  String get beforeDataGridFilteringLabel => r'antes o igual';
+  String get beforeDataGridFilteringLabel => r'Antes';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Antes';
+  String get beforeOrEqualDataGridFilteringLabel => r'antes o igual';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Empieza con';
@@ -5049,13 +5049,14 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'CANCELAR';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'ABIERTO';
+  String get pdfHyperlinkDialogOpenLabel => r'ABRIR';
 
   @override
   String get pdfHyperlinkLabel => r'Abrir página web';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'por favor ingrese un número valido';
+  String get pdfInvalidPageNumberLabel =>
+      r'Por favor, ingrese un número válido';
 
   @override
   String get pdfNoBookmarksLabel => r'No se encontraron marcadores';
@@ -5076,7 +5077,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'de';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'CLARO';
+  String get pdfSignaturePadDialogClearLabel => r'Limpiar';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Dibuja tu firma';
@@ -5085,7 +5086,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Color de la pluma';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'AHORRAR';
+  String get pdfSignaturePadDialogSaveLabel => r'Guardar';
 
   @override
   String get rabi1Label => r'Rabí al-awwal';
@@ -5100,7 +5101,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuCopyLabel => r'Copiar';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Destacar';
+  String get pdfTextSelectionMenuHighlightLabel => r'Resaltar';
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel => r'Ondulado';
@@ -5203,7 +5204,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get textFiltersDataGridFilteringLabel => r'Filtros de texto';
 
   @override
-  String get todayLabel => r'Este Dia';
+  String get todayLabel => r'Hoy';
 
   @override
   String get weeknumberLabel => r'Semana';
@@ -5228,7 +5229,7 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get allDayLabel => r'Terve päev';
 
   @override
-  String get allowedViewDayLabel => r'päev';
+  String get allowedViewDayLabel => r'Päev';
 
   @override
   String get allowedViewMonthLabel => r'Kuu';
@@ -5258,10 +5259,10 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Ja';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Enne või Võrdne';
+  String get beforeDataGridFilteringLabel => r'Enne';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Enne';
+  String get beforeOrEqualDataGridFilteringLabel => r'Enne või Võrdne';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Algab';
@@ -5395,7 +5396,7 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'TÜHISTA';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'AVATUD';
+  String get pdfHyperlinkDialogOpenLabel => r'AVA';
 
   @override
   String get pdfHyperlinkLabel => r'Ava veebileht';
@@ -5410,19 +5411,19 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'TÜHISTA';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'Okei';
+  String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'TÜHISTA';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'AVATUD';
+  String get pdfPasswordDialogOpenLabel => r'AVA';
 
   @override
   String get pdfScrollStatusOfLabel => r'kohta';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'SELGE';
+  String get pdfSignaturePadDialogClearLabel => r'Puhasta';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Joonistage oma allkiri';
@@ -5431,16 +5432,16 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Pliiatsi värv';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'SALVESTA';
+  String get pdfSignaturePadDialogSaveLabel => r'Salvesta';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Kopeeri';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Tõstke esile';
+  String get pdfTextSelectionMenuHighlightLabel => r'Esile tõsta';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Squiggly';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Laineline';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Läbikriipsutatud';
@@ -5604,10 +5605,10 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Eta';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Aurretik Edo Berdin';
+  String get beforeDataGridFilteringLabel => r'Aurretik';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Aurretik';
+  String get beforeOrEqualDataGridFilteringLabel => r'Aurretik Edo Berdin';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Hasten da';
@@ -5769,7 +5770,7 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'de';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ARGI';
+  String get pdfSignaturePadDialogClearLabel => r'Garbitu';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Marraztu zure sinadura';
@@ -5778,7 +5779,7 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Boligrafoaren kolorea';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'GORDE';
+  String get pdfSignaturePadDialogSaveLabel => r'Gorde';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Kopiatu';
@@ -5787,7 +5788,7 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuHighlightLabel => r'Nabarmendu';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Zurrunbiloa';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Zinta';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Markatua';
@@ -5951,10 +5952,10 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'و';
 
   @override
-  String get beforeDataGridFilteringLabel => r'قبل یا برابر';
+  String get beforeDataGridFilteringLabel => r'قبل از';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'قبل از';
+  String get beforeOrEqualDataGridFilteringLabel => r'قبل یا برابر';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'شروع با';
@@ -6032,7 +6033,7 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'هیچ بازی';
 
   @override
-  String get noSelectedDateCalendarLabel => r'تاریخ انتخابی وجود ندارد';
+  String get noSelectedDateCalendarLabel => r'تاریخی انتخاب نشده است';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'خالی نیست';
@@ -6102,7 +6103,7 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'لغو';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'خوب';
+  String get pdfPaginationDialogOkLabel => r'تأیید';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'لغو';
@@ -6123,22 +6124,22 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'رنگ قلم';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'صرفه جویی';
+  String get pdfSignaturePadDialogSaveLabel => r'ذخيره';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'کپی 🀄';
+  String get pdfTextSelectionMenuCopyLabel => r'کپی';
 
   @override
   String get pdfTextSelectionMenuHighlightLabel => r'برجسته';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'خنگ';
+  String get pdfTextSelectionMenuSquigglyLabel => r'موج‌دار';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'ضربه زدن';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'خط خوردگی';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'زیر خط بکشید';
+  String get pdfTextSelectionMenuUnderlineLabel => r'زیرخط';
 
   @override
   String get rabi1Label => r'ربیع الاول';
@@ -6296,10 +6297,10 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Ja';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Ennen tai Tasa-arvoinen';
+  String get beforeDataGridFilteringLabel => r'Ennen';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Ennen';
+  String get beforeOrEqualDataGridFilteringLabel => r'Ennen tai Tasa-arvoinen';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Alkaa jollakin';
@@ -6434,7 +6435,7 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'PERUUTTAA';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'AVATA';
+  String get pdfHyperlinkDialogOpenLabel => r'Avaa';
 
   @override
   String get pdfHyperlinkLabel => r'Avaa Web-sivu';
@@ -6446,7 +6447,7 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Kirjanmerkkejä ei löytynyt';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'PERUUTTAA';
+  String get pdfPaginationDialogCancelLabel => r'Peruuta';
 
   @override
   String get pdfPaginationDialogOkLabel => r'OK';
@@ -6455,13 +6456,13 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'PERUUTTAA';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'AVATA';
+  String get pdfPasswordDialogOpenLabel => r'Avaa';
 
   @override
   String get pdfScrollStatusOfLabel => r'/';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ASIA SELVÄ';
+  String get pdfSignaturePadDialogClearLabel => r'Tyhjennä';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel =>
@@ -6471,22 +6472,22 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Kynän väri';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'TALLENTAA';
+  String get pdfSignaturePadDialogSaveLabel => r'Tallenna';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Kopio';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Kohokohta';
+  String get pdfTextSelectionMenuHighlightLabel => r'Korosta';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Koukeroinen';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Aaltoviiva';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Yliviivattu';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'Korostaa';
+  String get pdfTextSelectionMenuUnderlineLabel => r'Alleviivaus';
 
   @override
   String get rabi1Label => r'Rabi' "'" r' al-awwal';
@@ -6617,7 +6618,7 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get allowedViewDayLabel => r'Araw';
 
   @override
-  String get allowedViewMonthLabel => r'buwan';
+  String get allowedViewMonthLabel => r'Buwan';
 
   @override
   String get allowedViewScheduleLabel => r'Iskedyul';
@@ -6645,10 +6646,10 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'At';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Bago O Kapantay';
+  String get beforeDataGridFilteringLabel => r'Bago';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'dati';
+  String get beforeOrEqualDataGridFilteringLabel => r'Bago O Kapantay';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Nagsisimula sa';
@@ -6782,7 +6783,7 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'KANSELAHIN';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'BUKAS';
+  String get pdfHyperlinkDialogOpenLabel => r'Bukas';
 
   @override
   String get pdfHyperlinkLabel => r'Buksan ang Web Page';
@@ -6795,7 +6796,7 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Walang nakitang mga bookmark';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'KANSELAHIN';
+  String get pdfPaginationDialogCancelLabel => r'Kanselahin';
 
   @override
   String get pdfPaginationDialogOkLabel => r'OK';
@@ -6804,13 +6805,13 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'KANSELAHIN';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'BUKAS';
+  String get pdfPasswordDialogOpenLabel => r'Bukas';
 
   @override
   String get pdfScrollStatusOfLabel => r'ng';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'MALINAW';
+  String get pdfSignaturePadDialogClearLabel => r'I-clear';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Iguhit ang iyong lagda';
@@ -6819,7 +6820,7 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Kulay ng Panulat';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'MAGTIPID';
+  String get pdfSignaturePadDialogSaveLabel => r'I-save';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Kopya';
@@ -6828,10 +6829,10 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuHighlightLabel => r'I-highlight';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Nakapikit';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Aalugin';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'Strikethrough';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'Tanggalin';
 
   @override
   String get pdfTextSelectionMenuUnderlineLabel => r'Salungguhit';
@@ -6984,10 +6985,10 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Chronologie de la semaine de travail';
+      r'Chronologie Semaine de travail';
 
   @override
-  String get allowedViewWeekLabel => r'La semaine';
+  String get allowedViewWeekLabel => r'Semaine';
 
   @override
   String get allowedViewWorkWeekLabel => r'Semaine de travail';
@@ -6996,10 +6997,10 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Et';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Avant ou égal';
+  String get beforeDataGridFilteringLabel => r'Avant de';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Avant de';
+  String get beforeOrEqualDataGridFilteringLabel => r'Avant ou égal';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Commence par';
@@ -7133,7 +7134,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'ANNULER';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'OUVERT';
+  String get pdfHyperlinkDialogOpenLabel => r'Ouvrir';
 
   @override
   String get pdfHyperlinkLabel => r'Ouvrir la page Web';
@@ -7143,25 +7144,25 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
       r'S' "'" r'il vous plait, entrez un nombre valide';
 
   @override
-  String get pdfNoBookmarksLabel => r'Aucun favori trouvé';
+  String get pdfNoBookmarksLabel => r'Aucun signet trouvé';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'ANNULER';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'D' "'" r'ACCORD';
+  String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ANNULER';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'OUVERT';
+  String get pdfPasswordDialogOpenLabel => r'Ouvrir';
 
   @override
   String get pdfScrollStatusOfLabel => r'de';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'CLAIR';
+  String get pdfSignaturePadDialogClearLabel => r'Effacer';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel =>
@@ -7171,16 +7172,16 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Couleur du stylo';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'SAUVEGARDER';
+  String get pdfSignaturePadDialogSaveLabel => r'Enregistrer';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Copie';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Souligner';
+  String get pdfTextSelectionMenuHighlightLabel => r'Mettre en surbrillance';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Onduleux';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Surligneur vague';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Barré';
@@ -7292,7 +7293,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get todayLabel => r'Aujourd' "'" r'hui';
 
   @override
-  String get weeknumberLabel => r'La semaine';
+  String get weeknumberLabel => r'Semaine';
 }
 
 /// The translations for Galician (`gl`).
@@ -7326,13 +7327,14 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Día da cronoloxía';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Mes do cronograma';
+  String get allowedViewTimelineMonthLabel => r'Mes da cronoloxía';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Timeline Week';
+  String get allowedViewTimelineWeekLabel => r'Semana da cronoloxía';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Timeline Work Week';
+  String get allowedViewTimelineWorkWeekLabel =>
+      r'Semana de traballo da cronoloxía';
 
   @override
   String get allowedViewWeekLabel => r'Semana';
@@ -7344,10 +7346,10 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'E';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Antes Ou Igual';
+  String get beforeDataGridFilteringLabel => r'Antes';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Antes';
+  String get beforeOrEqualDataGridFilteringLabel => r'Antes Ou Igual';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Comeza por';
@@ -7462,7 +7464,7 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'Escriba o contrasinal';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'Contrasinal incorrecta';
+  String get passwordDialogInvalidPasswordLabel => r'Contrasinal incorrecto';
 
   @override
   String get pdfBookmarksLabel => r'Marcadores';
@@ -7689,10 +7691,10 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'અને';
 
   @override
-  String get beforeDataGridFilteringLabel => r'પહેલાં અથવા સમાન';
+  String get beforeDataGridFilteringLabel => r'પહેલાં';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'પહેલાં';
+  String get beforeOrEqualDataGridFilteringLabel => r'પહેલાં અથવા સમાન';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'સાથે શરૂ થાય છે';
@@ -8035,10 +8037,10 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'ו';
 
   @override
-  String get beforeDataGridFilteringLabel => r'לפני או שווה';
+  String get beforeDataGridFilteringLabel => r'לפני';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'לפני';
+  String get beforeOrEqualDataGridFilteringLabel => r'לפני או שווה';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'מתחיל עם';
@@ -8198,7 +8200,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'שֶׁל';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ברור';
+  String get pdfSignaturePadDialogClearLabel => r'לְנַקוֹת';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'צייר את החתימה שלך';
@@ -8207,7 +8209,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'צבע עט';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'להציל';
+  String get pdfSignaturePadDialogSaveLabel => r'לשמור';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'עותק';
@@ -8380,10 +8382,10 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'और';
 
   @override
-  String get beforeDataGridFilteringLabel => r'पहले या बराबर';
+  String get beforeDataGridFilteringLabel => r'पहले';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'पहले';
+  String get beforeOrEqualDataGridFilteringLabel => r'पहले या बराबर';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'साथ शुरू होता है';
@@ -8395,7 +8397,7 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get clearFilterDataGridFilteringLabel => r'स्पष्ट निस्यंदक';
 
   @override
-  String get containsDataGridFilteringLabel => r'रोकना';
+  String get containsDataGridFilteringLabel => r'में शामिल है';
 
   @override
   String get dateFiltersDataGridFilteringLabel => r'दिनांक फ़िल्टर';
@@ -8511,7 +8513,7 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'पृष्ठ पर जाओ';
 
   @override
-  String get pdfHyperlinkContentLabel => r'क्या आप पर पृष्ठ खोलना चाहते हैं';
+  String get pdfHyperlinkContentLabel => r'क्या आप पृष्ठ खोलना चाहते हैं';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'रद्द करना';
@@ -8544,7 +8546,7 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'का';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'स्पष्ट';
+  String get pdfSignaturePadDialogClearLabel => r'साफ़ करें';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'अपना हस्ताक्षर बनाएं';
@@ -8553,22 +8555,22 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'कलम का रंग';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'बचाना';
+  String get pdfSignaturePadDialogSaveLabel => r'सहेजें';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'प्रतिलिपि';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'प्रमुखता से दिखाना';
+  String get pdfTextSelectionMenuHighlightLabel => r'हाइलाइट करें';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'टेढ़ा-मेढ़ा';
+  String get pdfTextSelectionMenuSquigglyLabel => r'लहरदार रेखा';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'स्ट्राइकथ्रू';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'रेखांकन';
+  String get pdfTextSelectionMenuUnderlineLabel => r'रेखांकित करें';
 
   @override
   String get rabi1Label => r'रबी अल-अव्वल';
@@ -8728,10 +8730,10 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'I';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Prije ili jednako';
+  String get beforeDataGridFilteringLabel => r'Prije';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Prije';
+  String get beforeOrEqualDataGridFilteringLabel => r'Prije ili jednako';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Počinje sa';
@@ -8870,7 +8872,7 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'Otvori web stranicu';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Unesite važeći broj';
+  String get pdfInvalidPageNumberLabel => r'Unesite ispravan broj';
 
   @override
   String get pdfNoBookmarksLabel => r'Nema pronađenih oznaka';
@@ -8879,7 +8881,7 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'OTKAZATI';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'u redu';
+  String get pdfPaginationDialogOkLabel => r'U redu';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'OTKAZATI';
@@ -8891,7 +8893,7 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'od';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ČISTO';
+  String get pdfSignaturePadDialogClearLabel => r'Očistiti';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Nacrtajte svoj potpis';
@@ -8900,7 +8902,7 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Boja olovke';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'UŠTEDJETI';
+  String get pdfSignaturePadDialogSaveLabel => r'Spremi';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Kopirati';
@@ -8915,7 +8917,7 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuStrikethroughLabel => r'Precrtano';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'Naglasiti';
+  String get pdfTextSelectionMenuUnderlineLabel => r'Podvući';
 
   @override
   String get rabi1Label => r'Rabi' "'" r' al-awwal';
@@ -9073,10 +9075,10 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'És';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Előtte vagy egyenlő';
+  String get beforeDataGridFilteringLabel => r'Előtt';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Előtt';
+  String get beforeOrEqualDataGridFilteringLabel => r'Előtte vagy egyenlő';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Ezzel kezdődik';
@@ -9224,10 +9226,10 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Nem találhatók könyvjelzők';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'MEGSZÜNTETI';
+  String get pdfPaginationDialogCancelLabel => r'Megszakít';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'rendben';
+  String get pdfPaginationDialogOkLabel => r'Rendben';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'MEGSZÜNTETI';
@@ -9239,7 +9241,7 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'nak,-nek';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'EGYÉRTELMŰ';
+  String get pdfSignaturePadDialogClearLabel => r'Törlés';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel =>
@@ -9249,16 +9251,16 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Toll színe';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'MEGMENT';
+  String get pdfSignaturePadDialogSaveLabel => r'Mentés';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'Másolat';
+  String get pdfTextSelectionMenuCopyLabel => r'Másolás';
 
   @override
   String get pdfTextSelectionMenuHighlightLabel => r'Kiemel';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'kacskaringós';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Hullámos';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Áthúzott';
@@ -9386,7 +9388,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'հետո';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'Կամ հավասարից հետո';
+  String get afterOrEqualDataGridFilteringLabel => r'հետո կամ հավասար';
 
   @override
   String get allDayLabel => r'Ամբողջ օրը';
@@ -9423,10 +9425,10 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Եվ';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Նախքան կամ հավասարը';
+  String get beforeDataGridFilteringLabel => r'Նախքան';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Նախքան';
+  String get beforeOrEqualDataGridFilteringLabel => r'Նախքան կամ հավասարը';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Սկսվում է';
@@ -9520,7 +9522,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get numberFiltersDataGridFilteringLabel => r'Թվերի զտիչներ';
 
   @override
-  String get ofDataPagerLabel => r'-ից';
+  String get ofDataPagerLabel => r'ի';
 
   @override
   String get okDataGridFilteringLabel => r'լավ';
@@ -9575,7 +9577,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'ՉԵՂԱՐԿԵԼ';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'լավ';
+  String get pdfPaginationDialogOkLabel => r'Լավ է';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ՉԵՂԱՐԿԵԼ';
@@ -9587,7 +9589,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'-ից';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ՄԱՍՆԱԼ';
+  String get pdfSignaturePadDialogClearLabel => r'Մաքրել';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel =>
@@ -9597,7 +9599,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Գրչի գույնը';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'ՊԱՀՊԱՆԵԼ';
+  String get pdfSignaturePadDialogSaveLabel => r'Պահպանել';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Պատճենել';
@@ -9606,13 +9608,13 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuHighlightLabel => r'Ընդգծել';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Կռկռոց';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Կրկնակի թեքումով';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'Strikethrough';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'Ականջած';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'Ընդգծի՛ր';
+  String get pdfTextSelectionMenuUnderlineLabel => r'Ընդգծել';
 
   @override
   String get rabi1Label => r'Ռաբի ալ-ավալ';
@@ -9770,10 +9772,10 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Dan';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Sebelum Atau Sama';
+  String get beforeDataGridFilteringLabel => r'Sebelum';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Sebelum';
+  String get beforeOrEqualDataGridFilteringLabel => r'Sebelum Atau Sama';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Dimulai dengan';
@@ -9889,7 +9891,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'Masukkan kata kunci';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'kata sandi salah';
+  String get passwordDialogInvalidPasswordLabel => r'Kata sandi tidak valid';
 
   @override
   String get pdfBookmarksLabel => r'Bookmark';
@@ -9920,7 +9922,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Tidak ada bookmark yang ditemukan';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'MEMBATALKAN';
+  String get pdfPaginationDialogCancelLabel => r'Batal';
 
   @override
   String get pdfPaginationDialogOkLabel => r'Oke';
@@ -9935,7 +9937,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'dari';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'JERNIH';
+  String get pdfSignaturePadDialogClearLabel => r'Bersihkan';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel =>
@@ -9945,16 +9947,16 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Warna Pena';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'MENYIMPAN';
+  String get pdfSignaturePadDialogSaveLabel => r'Simpan';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'Menyalin';
+  String get pdfTextSelectionMenuCopyLabel => r'Salin';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Menyorot';
+  String get pdfTextSelectionMenuHighlightLabel => r'Sorot';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Berlekuk-lekuk';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Bergelombang';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Dicoret';
@@ -10118,10 +10120,10 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Og';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Áður eða jafnt';
+  String get beforeDataGridFilteringLabel => r'Áður';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Áður';
+  String get beforeOrEqualDataGridFilteringLabel => r'Áður eða jafnt';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Byrjar með';
@@ -10199,7 +10201,7 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Engar samsvörun';
 
   @override
-  String get noSelectedDateCalendarLabel => r'Engin valin dagsetning';
+  String get noSelectedDateCalendarLabel => r'Engin dagsetning valin';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Ekki tómt';
@@ -10266,7 +10268,7 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Engin bókamerki fundust';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'HÆTTA við';
+  String get pdfPaginationDialogCancelLabel => r'Hætta við';
 
   @override
   String get pdfPaginationDialogOkLabel => r'Allt í lagi';
@@ -10275,7 +10277,7 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'HÆTTA við';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'OPNA';
+  String get pdfPasswordDialogOpenLabel => r'Opna';
 
   @override
   String get pdfScrollStatusOfLabel => r'af';
@@ -10291,19 +10293,19 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Pennalitur';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'SPARA';
+  String get pdfSignaturePadDialogSaveLabel => r'Vista';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Afrita';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Hápunktur';
+  String get pdfTextSelectionMenuHighlightLabel => r'Merkja';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Skuggi';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Skýrt';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'Strykið í gegn';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'Ástrikun';
 
   @override
   String get pdfTextSelectionMenuUnderlineLabel => r'Undirstrika';
@@ -10465,10 +10467,10 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'E';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Prima o uguale';
+  String get beforeDataGridFilteringLabel => r'Prima';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Prima';
+  String get beforeOrEqualDataGridFilteringLabel => r'Prima o uguale';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Inizia con';
@@ -10629,7 +10631,7 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'di';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'CHIARO';
+  String get pdfSignaturePadDialogClearLabel => r'Pulisci';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Disegna la tua firma';
@@ -10644,7 +10646,7 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuCopyLabel => r'copia';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Evidenziare';
+  String get pdfTextSelectionMenuHighlightLabel => r'Evidenzia';
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel => r'Ondulato';
@@ -10811,10 +10813,10 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'と';
 
   @override
-  String get beforeDataGridFilteringLabel => r'前または等しい';
+  String get beforeDataGridFilteringLabel => r'前';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'前';
+  String get beforeOrEqualDataGridFilteringLabel => r'前または等しい';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'次で始まる';
@@ -10922,10 +10924,10 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get passwordDialogContentLabel => r'このPDFファイルを開くにはパスワードを入力してください';
 
   @override
-  String get passwordDialogHeaderTextLabel => r'守られたパスワード';
+  String get passwordDialogHeaderTextLabel => r'パスワードで保護';
 
   @override
-  String get passwordDialogHintTextLabel => r'パスワードを入力する';
+  String get passwordDialogHintTextLabel => r'パスワードを入力';
 
   @override
   String get passwordDialogInvalidPasswordLabel => r'無効なパスワード';
@@ -10967,7 +10969,7 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'キャンセル';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'開いた';
+  String get pdfPasswordDialogOpenLabel => r'開く';
 
   @override
   String get pdfScrollStatusOfLabel => r'の';
@@ -11152,10 +11154,10 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'და';
 
   @override
-  String get beforeDataGridFilteringLabel => r'ადრე ან თანაბარი';
+  String get beforeDataGridFilteringLabel => r'მანამდე';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'მანამდე';
+  String get beforeOrEqualDataGridFilteringLabel => r'ადრე ან თანაბარი';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Იწყება';
@@ -11324,7 +11326,7 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'კალმის ფერი';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'ᲒᲐᲓᲐᲠᲩᲔᲜᲐ';
+  String get pdfSignaturePadDialogSaveLabel => r'შენახვა';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'კოპირება';
@@ -11336,7 +11338,7 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuSquigglyLabel => r'ცბიერად';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'დარტყმა';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'გადახაზვა';
 
   @override
   String get pdfTextSelectionMenuUnderlineLabel => r'ხაზი გაუსვით';
@@ -11497,10 +11499,10 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Және';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Бұрын немесе Тең';
+  String get beforeDataGridFilteringLabel => r'Бұрын';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Бұрын';
+  String get beforeOrEqualDataGridFilteringLabel => r'Бұрын немесе Тең';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'-мен басталады';
@@ -11630,7 +11632,7 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get pdfHyperlinkContentLabel => r'бетті ашқыңыз келе ме';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'БАС ТАРТУ';
+  String get pdfHyperlinkDialogCancelLabel => r'Болдырмау';
 
   @override
   String get pdfHyperlinkDialogOpenLabel => r'АШЫҚ';
@@ -11645,13 +11647,13 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Ешқандай бетбелгі табылмады';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'БАС ТАРТУ';
+  String get pdfPaginationDialogCancelLabel => r'Болдырмау';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'ЖАРАЙДЫ МА';
+  String get pdfPaginationDialogOkLabel => r'ОК';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'БАС ТАРТУ';
+  String get pdfPasswordDialogCancelLabel => r'Болдырмау';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'АШЫҚ';
@@ -11843,10 +11845,10 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'និង';
 
   @override
-  String get beforeDataGridFilteringLabel => r'មុន ឬស្មើ';
+  String get beforeDataGridFilteringLabel => r'ពីមុន';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'ពីមុន';
+  String get beforeOrEqualDataGridFilteringLabel => r'មុន ឬស្មើ';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'ចាប់ផ្តើមជាមួយ';
@@ -12199,11 +12201,11 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
 
   @override
   String get beforeDataGridFilteringLabel =>
-      '\u{cae}\u{cca}\u{ca6}\u{cb2}\u{cc1}\u{20}\u{c85}\u{ca5}\u{cb5}\u{cbe}\u{20}\u{cb8}\u{cae}\u{cbe}\u{ca8}';
+      '\u{cae}\u{cca}\u{ca6}\u{cb2}\u{cc1}';
 
   @override
   String get beforeOrEqualDataGridFilteringLabel =>
-      '\u{cae}\u{cca}\u{ca6}\u{cb2}\u{cc1}';
+      '\u{cae}\u{cca}\u{ca6}\u{cb2}\u{cc1}\u{20}\u{c85}\u{ca5}\u{cb5}\u{cbe}\u{20}\u{cb8}\u{cae}\u{cbe}\u{ca8}';
 
   @override
   String get beginsWithDataGridFilteringLabel =>
@@ -12438,7 +12440,7 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel =>
-      '\u{cb8}\u{ccd}\u{c95}\u{ccd}\u{cb5}\u{cbf}\u{c97}\u{ccd}\u{cb2}\u{cbf}';
+      '\u{c95}\u{cc1}\u{c82}\u{c9c}';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel =>
@@ -12463,7 +12465,7 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
 
   @override
   String get searchDataGridFilteringLabel =>
-      '\u{cb9}\u{cc1}\u{ca1}\u{cc1}\u{c95}\u{cbf}\u{20}\u{4b}\u{61}\u{6e}\u{6e}\u{61}\u{64}\u{61}';
+      '\u{ca5}\u{cb1}\u{cca}\u{cb1}\u{ccd}\u{20}\u{c0f}';
 
   @override
   String get selectAllDataGridFilteringLabel =>
@@ -12579,7 +12581,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get allDayLabel => r'하루 종일';
 
   @override
-  String get allowedViewDayLabel => r'낮';
+  String get allowedViewDayLabel => r'일';
 
   @override
   String get allowedViewMonthLabel => r'월';
@@ -12609,10 +12611,10 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'그리고';
 
   @override
-  String get beforeDataGridFilteringLabel => r'이전 또는 같음';
+  String get beforeDataGridFilteringLabel => r'전에';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'전에';
+  String get beforeOrEqualDataGridFilteringLabel => r'이전 또는 같음';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'다음으로 시작';
@@ -12744,7 +12746,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'취소';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'열려 있는';
+  String get pdfHyperlinkDialogOpenLabel => r'열기';
 
   @override
   String get pdfHyperlinkLabel => r'웹 페이지 열기';
@@ -12765,13 +12767,13 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'취소';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'열려 있는';
+  String get pdfPasswordDialogOpenLabel => r'열기';
 
   @override
   String get pdfScrollStatusOfLabel => r'의';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'분명한';
+  String get pdfSignaturePadDialogClearLabel => r'비우기';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'서명하기';
@@ -12780,16 +12782,16 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'펜 색상';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'구하다';
+  String get pdfSignaturePadDialogSaveLabel => r'저장';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'복사';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'가장 밝은 부분';
+  String get pdfTextSelectionMenuHighlightLabel => r'강조';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'구불구불한';
+  String get pdfTextSelectionMenuSquigglyLabel => r'물결선';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'취소선';
@@ -12949,10 +12951,10 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Жана';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Мурун же барабар';
+  String get beforeDataGridFilteringLabel => r'Мурда';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Мурда';
+  String get beforeOrEqualDataGridFilteringLabel => r'Мурун же барабар';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Менен башталат';
@@ -13112,7 +13114,7 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'нын';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'CLEAR';
+  String get pdfSignaturePadDialogClearLabel => r'ТАЗАЛОО';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Колуңузду тартыңыз';
@@ -13296,10 +13298,10 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'ແລະ';
 
   @override
-  String get beforeDataGridFilteringLabel => r'ກ່ອນ ຫຼື ເທົ່າກັນ';
+  String get beforeDataGridFilteringLabel => r'ກ່ອນ';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'ກ່ອນ';
+  String get beforeOrEqualDataGridFilteringLabel => r'ກ່ອນ ຫຼື ເທົ່າກັນ';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'ເລີ່ມຕົ້ນດ້ວຍ';
@@ -13426,7 +13428,7 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ໄປທີ່ໜ້າ';
 
   @override
-  String get pdfHyperlinkContentLabel => r'ທ່ານຕ້ອງການເປີດຫນ້າຢູ່';
+  String get pdfHyperlinkContentLabel => r'ທ່ານຕ້ອງການເປີດໜ້ານີ້ບໍ?';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'ຍົກເລີກ';
@@ -13441,7 +13443,7 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get pdfInvalidPageNumberLabel => r'ກະລຸນາໃສ່ຕົວເລກທີ່ຖືກຕ້ອງ';
 
   @override
-  String get pdfNoBookmarksLabel => r'ບໍ່ພົບບຸກມາກ';
+  String get pdfNoBookmarksLabel => r'ບໍ່ມີບຸກມາກ';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'ຍົກເລີກ';
@@ -13459,7 +13461,7 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'ຂອງ';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ອະນາໄມ';
+  String get pdfSignaturePadDialogClearLabel => r'ລ້າງ';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'ແຕ້ມລາຍເຊັນຂອງເຈົ້າ';
@@ -13477,13 +13479,13 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuHighlightLabel => r'ຈຸດເດັ່ນ';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'ຂີ້ຄ້ານ';
+  String get pdfTextSelectionMenuSquigglyLabel => r'ຂີດສຸ້ມ';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'ບຸກທະລຸ';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'ຂີດໄຂ້';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'ຂີດ​ກ້ອງ';
+  String get pdfTextSelectionMenuUnderlineLabel => r'ຂີດເສັ້ນລຸ່ມ';
 
   @override
   String get rabi1Label => r'Rabi' "'" r' al-awwal';
@@ -13641,10 +13643,10 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Ir';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Prieš arba lygus';
+  String get beforeDataGridFilteringLabel => r'Prieš';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Prieš';
+  String get beforeOrEqualDataGridFilteringLabel => r'Prieš arba lygus';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Prasideda su';
@@ -13843,7 +13845,7 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   String get ramadanLabel => r'Ramadanas';
 
   @override
-  String get rowsPerPageDataPagerLabel => r'Eilučių puslapyje';
+  String get rowsPerPageDataPagerLabel => r'eilutėsPerPuslapį';
 
   @override
   String get safarLabel => r'Safaras';
@@ -13986,10 +13988,10 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Un';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Pirms vai vienāds';
+  String get beforeDataGridFilteringLabel => r'Pirms';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Pirms tam';
+  String get beforeOrEqualDataGridFilteringLabel => r'Pirms vai vienāds';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Sākas ar';
@@ -14040,7 +14042,7 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
   String get fromDataGridFilteringLabel => r'No';
 
   @override
-  String get greaterThanDataGridFilteringLabel => r'Pārāks nekā';
+  String get greaterThanDataGridFilteringLabel => r'Lielāks par';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel =>
@@ -14065,7 +14067,7 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
   String get noEventsCalendarLabel => r'Nav notikumu';
 
   @override
-  String get noMatchesDataGridFilteringLabel => r'Nav nevienas spēles';
+  String get noMatchesDataGridFilteringLabel => r'nav atbilstību';
 
   @override
   String get noSelectedDateCalendarLabel => r'Nav izvēlēts datums';
@@ -14334,10 +14336,10 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'И';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Пред или еднакви';
+  String get beforeDataGridFilteringLabel => r'Пред';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Пред';
+  String get beforeOrEqualDataGridFilteringLabel => r'Пред или еднакви';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Започнува со';
@@ -14453,7 +14455,7 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'Внесете ја лозинката';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'невалидна лозинка';
+  String get passwordDialogInvalidPasswordLabel => r'Невалидна лозинка';
 
   @override
   String get pdfBookmarksLabel => r'Обележувачи';
@@ -14484,22 +14486,22 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Не се пронајдени обележувачи';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'ОТКАЖИ';
+  String get pdfPaginationDialogCancelLabel => r'Откажи';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'добро';
+  String get pdfPaginationDialogOkLabel => r'Добро';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'ОТКАЖИ';
+  String get pdfPasswordDialogCancelLabel => r'Откажи';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'ОТВОРЕНО';
+  String get pdfPasswordDialogOpenLabel => r'Отвори';
 
   @override
   String get pdfScrollStatusOfLabel => r'на';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ЈАСНО';
+  String get pdfSignaturePadDialogClearLabel => r'Исчисти';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel =>
@@ -14509,22 +14511,22 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Боја на пенкало';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'ЗАЧУВАЈ';
+  String get pdfSignaturePadDialogSaveLabel => r'Зачувај';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Копирај';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Истакнете';
+  String get pdfTextSelectionMenuHighlightLabel => r'Истакни';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Скигливо';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Брановито';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'Премин';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'Прецртај';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'Подвлечете';
+  String get pdfTextSelectionMenuUnderlineLabel => r'Подвлечи';
 
   @override
   String get rabi1Label => r'Раби ал-аввал';
@@ -14682,10 +14684,10 @@ class SfLocalizationsMl extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'ഒപ്പം';
 
   @override
-  String get beforeDataGridFilteringLabel => r'മുമ്പോ തുല്യമോ';
+  String get beforeDataGridFilteringLabel => r'മുമ്പ്';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'മുമ്പ്';
+  String get beforeOrEqualDataGridFilteringLabel => r'മുമ്പോ തുല്യമോ';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'കൂടെ തുടങ്ങുന്നു';
@@ -14992,7 +14994,7 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
         );
 
   @override
-  String get afterDataGridFilteringLabel => r'Дараа нь';
+  String get afterDataGridFilteringLabel => r'Дараа';
 
   @override
   String get afterOrEqualDataGridFilteringLabel => r'Дараа эсвэл тэнцүү';
@@ -15031,10 +15033,10 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Тэгээд';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Өмнө эсвэл Тэнцүү';
+  String get beforeDataGridFilteringLabel => r'Өмнө нь';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Өмнө нь';
+  String get beforeOrEqualDataGridFilteringLabel => r'Өмнө эсвэл Тэнцүү';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'-аар эхэлдэг';
@@ -15127,7 +15129,7 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get numberFiltersDataGridFilteringLabel => r'Тооны шүүлтүүрүүд';
 
   @override
-  String get ofDataPagerLabel => r'-ийн';
+  String get ofDataPagerLabel => r'ийн';
 
   @override
   String get okDataGridFilteringLabel => r'БОЛЖ БАЙНА УУ';
@@ -15183,7 +15185,7 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'Цуцлах';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'БОЛЖ БАЙНА УУ';
+  String get pdfPaginationDialogOkLabel => r'Зөвшөөрөх';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'Цуцлах';
@@ -15377,10 +15379,10 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'आणि';
 
   @override
-  String get beforeDataGridFilteringLabel => r'आधी किंवा समान';
+  String get beforeDataGridFilteringLabel => r'आधी';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'आधी';
+  String get beforeOrEqualDataGridFilteringLabel => r'आधी किंवा समान';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'ने सुरुवात होते';
@@ -15520,7 +15522,7 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'वेब पृष्ठ उघडा';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'कृपया वैध क्रमांक प्रविष्ट करा';
+  String get pdfInvalidPageNumberLabel => r'कृपया एक वैध क्रमांक प्रविष्ट करा';
 
   @override
   String get pdfNoBookmarksLabel => r'कोणतेही बुकमार्क आढळले नाहीत';
@@ -15529,7 +15531,7 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'रद्द करा';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'ठीक आहे';
+  String get pdfPaginationDialogOkLabel => r'ठीक';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'रद्द करा';
@@ -15697,7 +15699,7 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get allowedViewDayLabel => r'Hari';
 
   @override
-  String get allowedViewMonthLabel => r'bulan';
+  String get allowedViewMonthLabel => r'Bulan';
 
   @override
   String get allowedViewScheduleLabel => r'Jadual';
@@ -15724,10 +15726,10 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Dan';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Sebelum Atau Sama';
+  String get beforeDataGridFilteringLabel => r'Sebelum';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Sebelum ini';
+  String get beforeOrEqualDataGridFilteringLabel => r'Sebelum Atau Sama';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Bermula dengan';
@@ -15860,10 +15862,10 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
       r'Adakah anda ingin membuka halaman di';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'BATALKAN';
+  String get pdfHyperlinkDialogCancelLabel => r'Batal';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'BUKA';
+  String get pdfHyperlinkDialogOpenLabel => r'Buka';
 
   @override
   String get pdfHyperlinkLabel => r'Buka Halaman Web';
@@ -15875,22 +15877,22 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Tiada penanda halaman ditemui';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'BATALKAN';
+  String get pdfPaginationDialogCancelLabel => r'Batal';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'okey';
+  String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'BATALKAN';
+  String get pdfPasswordDialogCancelLabel => r'Batal';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'BUKA';
+  String get pdfPasswordDialogOpenLabel => r'Buka';
 
   @override
   String get pdfScrollStatusOfLabel => r'daripada';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'JELAS';
+  String get pdfSignaturePadDialogClearLabel => r'Kosongkan';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Lukis tandatangan anda';
@@ -15899,19 +15901,19 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Warna Pen';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'JIMAT';
+  String get pdfSignaturePadDialogSaveLabel => r'Simpan';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'Salinan';
+  String get pdfTextSelectionMenuCopyLabel => r'Salin';
 
   @override
   String get pdfTextSelectionMenuHighlightLabel => r'Serlahkan';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Dengan berlekuk-lekuk';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Garis berlekuk';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'Strikethrough';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'Garis silang';
 
   @override
   String get pdfTextSelectionMenuUnderlineLabel => r'Garis bawah';
@@ -16052,16 +16054,16 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'အချိန်ဇယား';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Timeline နေ့';
+  String get allowedViewTimelineDayLabel => r'အချိန်ဇယားနေ့';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Timeline လ';
+  String get allowedViewTimelineMonthLabel => r'အချိန်ဇယားလ';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Timeline Week';
+  String get allowedViewTimelineWeekLabel => r'အချိန်ဇယားအပတ်';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Timeline အလုပ်ရက်သတ္တပတ်';
+  String get allowedViewTimelineWorkWeekLabel => r'အချိန်ဇယားအလုပ်သုံးအပတ်';
 
   @override
   String get allowedViewWeekLabel => r'အေးလေ';
@@ -16073,10 +16075,10 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'နှင့်';
 
   @override
-  String get beforeDataGridFilteringLabel => r'မီ သို့မဟုတ် သာတူညီမျှ';
+  String get beforeDataGridFilteringLabel => r'မတိုင်မီ';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'မီ';
+  String get beforeOrEqualDataGridFilteringLabel => r'မီ သို့မဟုတ် သာတူညီမျှ';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'ဖြင့်စတင်သည်။';
@@ -16208,10 +16210,10 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get pdfHyperlinkContentLabel => r'စာမျက်နှာမှာ ဖွင့်ချင်ပါသလား။';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'မလုပ်တော့ပါ။';
+  String get pdfHyperlinkDialogCancelLabel => r'ပယ်ဖျက်ပါ';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'ဖွင့်ပါ။';
+  String get pdfHyperlinkDialogOpenLabel => r'ဖွင့်မည်';
 
   @override
   String get pdfHyperlinkLabel => r'ဝဘ်စာမျက်နှာကိုဖွင့်ပါ။';
@@ -16224,22 +16226,22 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'စာညှပ်များမတွေ့ပါ။';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'မလုပ်တော့ပါ။';
+  String get pdfPaginationDialogCancelLabel => r'မလုပ်တော့ဘူး';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'အဆင်ပြေလား';
+  String get pdfPaginationDialogOkLabel => r'အတည်ပြုမည်';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'မလုပ်တော့ပါ။';
+  String get pdfPasswordDialogCancelLabel => r'ပယ်ဖျက်ပါ';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'ဖွင့်ပါ။';
+  String get pdfPasswordDialogOpenLabel => r'ဖွင့်မည်';
 
   @override
   String get pdfScrollStatusOfLabel => r'၏';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ရှင်းလင်းသော';
+  String get pdfSignaturePadDialogClearLabel => r'ရှင်းပါ';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'သင်၏လက်မှတ်ကိုဆွဲပါ။';
@@ -16248,16 +16250,16 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'ဘောပင်အရောင်';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'သိမ်းဆည်းပါ။';
+  String get pdfSignaturePadDialogSaveLabel => r'သိမ်းပါ';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'ကော်ပီ';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'အသားပေး';
+  String get pdfTextSelectionMenuHighlightLabel => r'အထင်ဖျော်';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'ဖျတ်ခနဲ';
+  String get pdfTextSelectionMenuSquigglyLabel => r'ကြောင်းပျပ်ကြည့်';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'ထိုးနှက်ချက်';
@@ -16421,10 +16423,10 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Og';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Før eller lik';
+  String get beforeDataGridFilteringLabel => r'Før';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Før';
+  String get beforeOrEqualDataGridFilteringLabel => r'Før eller lik';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Begynner med';
@@ -16558,7 +16560,7 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'AVBRYT';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'ÅPEN';
+  String get pdfHyperlinkDialogOpenLabel => r'Åpne';
 
   @override
   String get pdfHyperlinkLabel => r'Åpne webside';
@@ -16585,7 +16587,7 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'av';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'KLAR';
+  String get pdfSignaturePadDialogClearLabel => r'Fjern';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Tegn signaturen din';
@@ -16597,7 +16599,7 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogSaveLabel => r'LAGRE';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'Kopiere';
+  String get pdfTextSelectionMenuCopyLabel => r'Kopi';
 
   @override
   String get pdfTextSelectionMenuHighlightLabel => r'Fremheve';
@@ -16767,10 +16769,10 @@ class SfLocalizationsNe extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'र';
 
   @override
-  String get beforeDataGridFilteringLabel => r'अघि वा बराबर';
+  String get beforeDataGridFilteringLabel => r'पहिले';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'पहिले';
+  String get beforeOrEqualDataGridFilteringLabel => r'अघि वा बराबर';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'बाट सुरु हुन्छ';
@@ -17116,10 +17118,10 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'En';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Voor of gelijk';
+  String get beforeDataGridFilteringLabel => r'Voordat';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Voordat';
+  String get beforeOrEqualDataGridFilteringLabel => r'Voor of gelijk';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Begint met';
@@ -17241,7 +17243,7 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get pdfBookmarksLabel => r'Bladwijzers';
 
   @override
-  String get pdfEnterPageNumberLabel => r'Voer het paginanummer in';
+  String get pdfEnterPageNumberLabel => r'Voer paginanummer in';
 
   @override
   String get pdfGoToPageLabel => r'Ga naar pagina';
@@ -17259,7 +17261,7 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'Webpagina openen';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Gelieve een geldig nummer invoeren';
+  String get pdfInvalidPageNumberLabel => r'Voer een geldig nummer in';
 
   @override
   String get pdfNoBookmarksLabel => r'Geen bladwijzers gevonden';
@@ -17280,7 +17282,7 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'van';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'DUIDELIJK';
+  String get pdfSignaturePadDialogClearLabel => r'Wissen';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Teken je handtekening';
@@ -17289,19 +17291,19 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Pen Kleur';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'REDDEN';
-
-  @override
   String get rabi1Label => r'Rabi' "'" r' al-Awwal';
 
   @override
   String get rabi2Label => r'Rabi' "'" r' al-thani';
 
   @override
+  String get pdfSignaturePadDialogSaveLabel => r'Opslaan';
+
+  @override
   String get pdfTextSelectionMenuCopyLabel => r'Kopiëren';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Hoogtepunt';
+  String get pdfTextSelectionMenuHighlightLabel => r'Markeren';
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel => r'Kronkelig';
@@ -17441,13 +17443,13 @@ class SfLocalizationsNo extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Rute';
 
   @override
-  String get allowedViewTimelineDayLabel => r'Tidslinjedag';
+  String get allowedViewTimelineDayLabel => r'Tidslinje Dag';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Tidslinjemåned';
+  String get allowedViewTimelineMonthLabel => r'Tidslinje Måned';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Tidslinje uke';
+  String get allowedViewTimelineWeekLabel => r'Tidslinje Uke';
 
   @override
   String get allowedViewTimelineWorkWeekLabel => r'Tidslinje Arbeidsuke';
@@ -17462,10 +17464,10 @@ class SfLocalizationsNo extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Og';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Før eller lik';
+  String get beforeDataGridFilteringLabel => r'Før';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Før';
+  String get beforeOrEqualDataGridFilteringLabel => r'Før eller lik';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Begynner med';
@@ -17626,7 +17628,7 @@ class SfLocalizationsNo extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'av';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'KLAR';
+  String get pdfSignaturePadDialogClearLabel => r'Tøm';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Tegn signaturen din';
@@ -17635,13 +17637,13 @@ class SfLocalizationsNo extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Pennefarge';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'LAGRE';
+  String get pdfSignaturePadDialogSaveLabel => r'Lagre';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'Kopiere';
+  String get pdfTextSelectionMenuCopyLabel => r'Kopier';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Fremheve';
+  String get pdfTextSelectionMenuHighlightLabel => r'Fremhev';
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel => r'Snurrete';
@@ -17808,10 +17810,10 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'ଏବଂ';
 
   @override
-  String get beforeDataGridFilteringLabel => r'ପୂର୍ବରୁ କିମ୍ବା ସମାନ |';
+  String get beforeDataGridFilteringLabel => r'ପୂର୍ବରୁ';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'ପୂର୍ବରୁ';
+  String get beforeOrEqualDataGridFilteringLabel => r'ପୂର୍ବରୁ କିମ୍ବା ସମାନ |';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'ସହିତ ଆରମ୍ଭ ହୁଏ |';
@@ -17929,7 +17931,7 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'ପାସୱାର୍ଡ ପ୍ରବେଶ କରନ୍ତୁ |';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'ଅବ val ଧ ପାସୱାର୍ଡ |';
+  String get passwordDialogInvalidPasswordLabel => r'ଅବୈଧ ପାସୱାର୍ଡ';
 
   @override
   String get pdfBookmarksLabel => r'ବୁକମାର୍କଗୁଡିକ';
@@ -17941,7 +17943,7 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'ପୃଷ୍ଠାକୁ ଯାଆନ୍ତୁ |';
 
   @override
-  String get pdfHyperlinkContentLabel => r'ଆପଣ ପୃଷ୍ଠା ଖୋଲିବାକୁ ଚାହୁଁଛନ୍ତି କି?';
+  String get pdfHyperlinkContentLabel => r'ଆପଣ ପୃଷ୍ଠା ଖୋଲିବାକୁ ଚାହାଁନ୍ତି କି?';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'ବାତିଲ୍';
@@ -17953,11 +17955,10 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'ୱେବ୍ ପୃଷ୍ଠା ଖୋଲନ୍ତୁ |';
 
   @override
-  String get pdfInvalidPageNumberLabel =>
-      r'ଦୟାକରି ଏକ ବ valid ଧ ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ |';
+  String get pdfInvalidPageNumberLabel => r'ଦୟାକରି ଏକ ବୈଧ ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ';
 
   @override
-  String get pdfNoBookmarksLabel => r'କ book ଣସି ବୁକମାର୍କ ମିଳିଲା ନାହିଁ |';
+  String get pdfNoBookmarksLabel => r'କୌଣସି ବୁକମାର୍କ ମିଳିଲା ନାହିଁ';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'ବାତିଲ୍';
@@ -17978,7 +17979,8 @@ class SfLocalizationsOr extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogClearLabel => r'ସଫା କର |';
 
   @override
-  String get pdfSignaturePadDialogHeaderTextLabel => r'ତୁମର ଦସ୍ତଖତ ଅଙ୍କନ କର |';
+  String get pdfSignaturePadDialogHeaderTextLabel =>
+      r'ତୁମର ଦସ୍ତଖତ ଅଙ୍କନ କରନ୍ତୁ';
 
   @override
   String get pdfSignaturePadDialogPenColorLabel => r'କଲମ ରଙ୍ଗ |';
@@ -18158,10 +18160,10 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'ਅਤੇ';
 
   @override
-  String get beforeDataGridFilteringLabel => r'ਅੱਗੇ ਜਾਂ ਬਰਾਬਰ';
+  String get beforeDataGridFilteringLabel => r'ਅੱਗੇ';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'ਅੱਗੇ';
+  String get beforeOrEqualDataGridFilteringLabel => r'ਅੱਗੇ ਜਾਂ ਬਰਾਬਰ';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'ਨਾਲ ਸ਼ੁਰੂ ਹੁੰਦਾ ਹੈ';
@@ -18240,7 +18242,7 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'ਕੋਈ ਮੇਲ ਨਹੀਂ';
 
   @override
-  String get noSelectedDateCalendarLabel => r'ਕੋਈ ਚੁਣੀ ਤਾਰੀਖ ਨਹੀਂ ਹੈ';
+  String get noSelectedDateCalendarLabel => r'ਕੋਈ ਤਾਰੀਖ ਚੁਣੀ ਨਹੀਂ ਗਈ';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'ਖਾਲੀ ਨਹੀਂ';
@@ -18341,7 +18343,7 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuHighlightLabel => r'ਹਾਈਲਾਈਟ ਕਰੋ';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'squiggly';
+  String get pdfTextSelectionMenuSquigglyLabel => r'ਕੁਰਲ਼';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'ਸਟ੍ਰਾਈਕਥਰੂ';
@@ -18493,7 +18495,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get allowedViewTimelineWeekLabel => r'Tydzień osi czasu';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => r'Tydzień pracy na osi czasu';
+  String get allowedViewTimelineWorkWeekLabel => r'Tydzień roboczy osi czasu';
 
   @override
   String get allowedViewWeekLabel => r'Tydzień';
@@ -18505,10 +18507,10 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'I';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Przed Lub Równy';
+  String get beforeDataGridFilteringLabel => r'Zanim';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Zanim';
+  String get beforeOrEqualDataGridFilteringLabel => r'Przed Lub Równy';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Zaczyna się z';
@@ -18559,7 +18561,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get fromDataGridFilteringLabel => r'Z';
 
   @override
-  String get greaterThanDataGridFilteringLabel => r'Lepszy niż';
+  String get greaterThanDataGridFilteringLabel => r'Większe niż';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'Większe lub równe';
@@ -18623,7 +18625,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get passwordDialogHintTextLabel => r'Wprowadź hasło';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'nieprawidłowe hasło';
+  String get passwordDialogInvalidPasswordLabel => r'Nieprawidłowe hasło';
 
   @override
   String get pdfBookmarksLabel => r'Zakładki';
@@ -18638,10 +18640,10 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get pdfHyperlinkContentLabel => r'Czy chcesz otworzyć stronę o godz';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'ANULOWAĆ';
+  String get pdfHyperlinkDialogCancelLabel => r'Anuluj';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'OTWARTY';
+  String get pdfHyperlinkDialogOpenLabel => r'Otwórz';
 
   @override
   String get pdfHyperlinkLabel => r'Otwórz stronę internetową';
@@ -18653,22 +18655,22 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Nie znaleziono zakładek';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'ANULOWAĆ';
+  String get pdfPaginationDialogCancelLabel => r'Anuluj';
 
   @override
   String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'ANULOWAĆ';
+  String get pdfPasswordDialogCancelLabel => r'Anuluj';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'OTWARTY';
+  String get pdfPasswordDialogOpenLabel => r'Otwórz';
 
   @override
   String get pdfScrollStatusOfLabel => r'z';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'JASNE';
+  String get pdfSignaturePadDialogClearLabel => r'Wyczyść';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Narysuj swój podpis';
@@ -18677,7 +18679,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Kolor pióra';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'RATOWAĆ';
+  String get pdfSignaturePadDialogSaveLabel => r'Zapisz';
 
   @override
   String get rabi1Label => r'Rabi al-awwal';
@@ -18692,7 +18694,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuCopyLabel => r'Kopiuj';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Atrakcja';
+  String get pdfTextSelectionMenuHighlightLabel => r'Podświetl';
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel => r'Faliste';
@@ -18850,10 +18852,10 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'او';
 
   @override
-  String get beforeDataGridFilteringLabel => r'مخکې یا مساوي';
+  String get beforeDataGridFilteringLabel => r'مخکې';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'مخکې';
+  String get beforeOrEqualDataGridFilteringLabel => r'مخکې یا مساوي';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'سره پیل کیږي';
@@ -18929,7 +18931,7 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get noEventsCalendarLabel => r'هیڅ پیښه نشته';
 
   @override
-  String get noMatchesDataGridFilteringLabel => r'هیڅ لوبه نشته';
+  String get noMatchesDataGridFilteringLabel => r'هیڅ ټکي نه دي';
 
   @override
   String get noSelectedDateCalendarLabel => r'نه ټاکل شوې نیټه';
@@ -19033,10 +19035,10 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuHighlightLabel => r'روښانه کول';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'په خندا سره';
+  String get pdfTextSelectionMenuSquigglyLabel => r'موجي کرښه';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'اعتصاب';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'کرښه کول';
 
   @override
   String get pdfTextSelectionMenuUnderlineLabel => r'لاندې';
@@ -19179,14 +19181,14 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Dia da linha do tempo';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Cronograma Mês';
+  String get allowedViewTimelineMonthLabel => r'Mês da linha do tempo';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Semana Cronológica';
+  String get allowedViewTimelineWeekLabel => r'Semana da linha do tempo';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Cronograma Semana de Trabalho';
+      r'Semana de trabalho da linha do tempo';
 
   @override
   String get allowedViewWeekLabel => r'Semana';
@@ -19198,10 +19200,10 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'E';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Antes Ou Igual';
+  String get beforeDataGridFilteringLabel => r'Antes';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Antes da';
+  String get beforeOrEqualDataGridFilteringLabel => r'Antes Ou Igual';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Começa com';
@@ -19294,7 +19296,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get numberFiltersDataGridFilteringLabel => r'Filtros de número';
 
   @override
-  String get ofDataPagerLabel => r'do';
+  String get ofDataPagerLabel => r'de';
 
   @override
   String get okDataGridFilteringLabel => r'OK';
@@ -19361,7 +19363,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'do';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'CLARO';
+  String get pdfSignaturePadDialogClearLabel => r'Limpar';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Desenhe sua assinatura';
@@ -19373,7 +19375,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogSaveLabel => r'SALVAR';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'cópia de';
+  String get pdfTextSelectionMenuCopyLabel => r'Copiar';
 
   @override
   String get pdfTextSelectionMenuHighlightLabel => r'Destaque';
@@ -19505,6 +19507,9 @@ class SfLocalizationsPtPt extends SfLocalizationsPt {
 
   @override
   String get pdfEnterPageNumberLabel => r'Digite o número da página';
+
+  @override
+  String get pdfTextSelectionMenuHighlightLabel => r'Realçar';
 }
 
 /// The translations for Romanian Moldavian Moldovan (`ro`).
@@ -19538,14 +19543,14 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get allowedViewTimelineDayLabel => r'Ziua cronologică';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Cronologie Luna';
+  String get allowedViewTimelineMonthLabel => r'Mês da linha do tempo';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Săptămâna cronologică';
+  String get allowedViewTimelineWeekLabel => r'Semana da linha do tempo';
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Cronologie Săptămâna de lucru';
+      r'Semana de trabalho da linha do tempo';
 
   @override
   String get allowedViewWeekLabel => r'Săptămână';
@@ -19557,10 +19562,10 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Și';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Înainte sau egal';
+  String get beforeDataGridFilteringLabel => r'Inainte de';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Inainte de';
+  String get beforeOrEqualDataGridFilteringLabel => r'Înainte sau egal';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Începe cu';
@@ -19709,7 +19714,7 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'ANULARE';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'O.K';
+  String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ANULARE';
@@ -19721,7 +19726,7 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'de';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'CLAR';
+  String get pdfSignaturePadDialogClearLabel => r'ȘTERGE';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Desenează-ți semnătura';
@@ -19730,19 +19735,19 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Culoare stilou';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'SALVA';
+  String get pdfSignaturePadDialogSaveLabel => r'SALVEAZĂ';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'Copie';
+  String get pdfTextSelectionMenuCopyLabel => r'Copiere';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'A evidentia';
+  String get pdfTextSelectionMenuHighlightLabel => r'Evidențiere';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Squiggly';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Sinuos';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'Striat';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'Tăiere';
 
   @override
   String get pdfTextSelectionMenuUnderlineLabel => r'Subliniați';
@@ -19882,13 +19887,13 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get allowedViewScheduleLabel => r'Расписание';
 
   @override
-  String get allowedViewTimelineDayLabel => r'День';
+  String get allowedViewTimelineDayLabel => r'День временной шкалы';
 
   @override
-  String get allowedViewTimelineMonthLabel => r'Месяц';
+  String get allowedViewTimelineMonthLabel => r'Месяц временной шкалы';
 
   @override
-  String get allowedViewTimelineWeekLabel => r'Неделя временной шкалы';
+  String get allowedViewTimelineWeekLabel => r'Рабочая неделя временной шкалы';
 
   @override
   String get allowedViewTimelineWorkWeekLabel => r'Рабочая неделя';
@@ -19900,13 +19905,13 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get allowedViewWorkWeekLabel => r'Рабочая неделя';
 
   @override
-  String get andDataGridFilteringLabel => r'А также';
+  String get andDataGridFilteringLabel => r'И';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Перед или равным';
+  String get beforeDataGridFilteringLabel => r'До';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'До';
+  String get beforeOrEqualDataGridFilteringLabel => r'Перед или равным';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Начинается с';
@@ -19957,7 +19962,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get fromDataGridFilteringLabel => r'Из';
 
   @override
-  String get greaterThanDataGridFilteringLabel => r'Лучше чем';
+  String get greaterThanDataGridFilteringLabel => r'Больше чем';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'Больше или равно';
@@ -20046,7 +20051,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
 
   @override
   String get pdfInvalidPageNumberLabel =>
-      r'пожалуйста введите правильное число';
+      r'Пожалуйста, введите правильное число';
 
   @override
   String get pdfNoBookmarksLabel => r'Закладки не найдены';
@@ -20055,19 +20060,19 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'ОТМЕНИТЬ';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'ХОРОШО';
+  String get pdfPaginationDialogOkLabel => r'ОК';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ОТМЕНИТЬ';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'ОТКРЫТЫМ';
+  String get pdfPasswordDialogOpenLabel => r'ОТКРЫТЬ';
 
   @override
   String get pdfScrollStatusOfLabel => r'из';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ПРОЗРАЧНЫЙ';
+  String get pdfSignaturePadDialogClearLabel => r'ОЧИСТИТЬ';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Нарисуй свою подпись';
@@ -20076,16 +20081,16 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Цвет пера';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'СОХРАНЯТЬ';
+  String get pdfSignaturePadDialogSaveLabel => r'СОХРАНИТЬ';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Копировать';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Выделять';
+  String get pdfTextSelectionMenuHighlightLabel => r'Подсветить';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Волнистый';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Зигзаг';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Зачеркивание';
@@ -20249,10 +20254,10 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'හා';
 
   @override
-  String get beforeDataGridFilteringLabel => r'පෙර හෝ සමාන';
+  String get beforeDataGridFilteringLabel => r'කලින්';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'කලින්';
+  String get beforeOrEqualDataGridFilteringLabel => r'පෙර හෝ සමාන';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'සමඟ ආරම්භ වේ';
@@ -20386,7 +20391,7 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'අවලංගු කරන්න';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'විවෘත';
+  String get pdfHyperlinkDialogOpenLabel => r'විවෘත කරන්න';
 
   @override
   String get pdfHyperlinkLabel => r'වෙබ් පිටුව විවෘත කරන්න';
@@ -20407,13 +20412,13 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'අවලංගු කරන්න';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'විවෘත';
+  String get pdfPasswordDialogOpenLabel => r'විවෘත කරන්න';
 
   @override
   String get pdfScrollStatusOfLabel => r'වල';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'පැහැදිලිව';
+  String get pdfSignaturePadDialogClearLabel => r'මකන්න';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'ඔබේ අත්සන අඳින්න';
@@ -20428,16 +20433,16 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuCopyLabel => r'පිටපත් කරන්න';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'ඉස්මතු කරන්න';
+  String get pdfTextSelectionMenuHighlightLabel => r'ඉස්මතු කිරීම්';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Squiggly';
+  String get pdfTextSelectionMenuSquigglyLabel => r'වක්‍රක';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'පහර හරහා';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'යටින් ඉරි';
+  String get pdfTextSelectionMenuUnderlineLabel => r'යටිකුරු';
 
   @override
   String get rabi1Label => r'රබී අල්-අව්වල්';
@@ -20565,10 +20570,10 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get allDayLabel => r'Celý deň';
 
   @override
-  String get allowedViewDayLabel => r'deň';
+  String get allowedViewDayLabel => r'Deň';
 
   @override
-  String get allowedViewMonthLabel => r'mesiac';
+  String get allowedViewMonthLabel => r'Mesiac';
 
   @override
   String get allowedViewScheduleLabel => r'Rozvrh';
@@ -20586,7 +20591,7 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get allowedViewTimelineWorkWeekLabel => r'Časová os Pracovný týždeň';
 
   @override
-  String get allowedViewWeekLabel => r'týždeň';
+  String get allowedViewWeekLabel => r'Týždeň';
 
   @override
   String get allowedViewWorkWeekLabel => r'Pracovný týždeň';
@@ -20595,10 +20600,10 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'A';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Pred alebo Equal';
+  String get beforeDataGridFilteringLabel => r'Predtým';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Predtým';
+  String get beforeOrEqualDataGridFilteringLabel => r'Pred alebo Equal';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Zacina s';
@@ -20737,7 +20742,8 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get pdfHyperlinkLabel => r'Otvorte webovú stránku';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Prosím vložte platné číslo';
+  String get pdfInvalidPageNumberLabel =>
+      r'Prosím, zadajte platné číslo strany';
 
   @override
   String get pdfNoBookmarksLabel => r'Nenašli sa žiadne záložky';
@@ -20758,7 +20764,7 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'z';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'JASNÝ';
+  String get pdfSignaturePadDialogClearLabel => r'Vymazať';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Nakreslite svoj podpis';
@@ -20773,7 +20779,7 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuCopyLabel => r'Kopírovať';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Zlatý klinec';
+  String get pdfTextSelectionMenuHighlightLabel => r'Zvýrazniť';
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel => r'Squiggly';
@@ -20888,7 +20894,7 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get todayLabel => r'Dnes';
 
   @override
-  String get weeknumberLabel => r'týždeň';
+  String get weeknumberLabel => r'Týždeň';
 }
 
 /// The translations for Slovenian (`sl`).
@@ -20913,7 +20919,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get allowedViewDayLabel => r'Dan';
 
   @override
-  String get allowedViewMonthLabel => r'mesec';
+  String get allowedViewMonthLabel => r'Mesec';
 
   @override
   String get allowedViewScheduleLabel => r'Urnik';
@@ -20931,7 +20937,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get allowedViewTimelineWorkWeekLabel => r'Časovnica Delovni teden';
 
   @override
-  String get allowedViewWeekLabel => r'teden';
+  String get allowedViewWeekLabel => r'Teden';
 
   @override
   String get allowedViewWorkWeekLabel => r'Delovni teden';
@@ -20940,10 +20946,10 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'in';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Pred ali enako';
+  String get beforeDataGridFilteringLabel => r'prej';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'prej';
+  String get beforeOrEqualDataGridFilteringLabel => r'Pred ali enako';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Začne se z';
@@ -21103,7 +21109,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'od';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ČISTO';
+  String get pdfSignaturePadDialogClearLabel => r'Počisti';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Nariši svoj podpis';
@@ -21118,7 +21124,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuCopyLabel => r'Kopirati';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Označite';
+  String get pdfTextSelectionMenuHighlightLabel => r'Zaznamuj';
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel => r'Vijugasto';
@@ -21233,7 +21239,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get todayLabel => r'Danes';
 
   @override
-  String get weeknumberLabel => r'teden';
+  String get weeknumberLabel => r'Teden';
 }
 
 /// The translations for Albanian (`sq`).
@@ -21285,10 +21291,10 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Dhe';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Para Ose të Barabarta';
+  String get beforeDataGridFilteringLabel => r'Përpara';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Përpara';
+  String get beforeOrEqualDataGridFilteringLabel => r'Para Ose të Barabarta';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Fillon me';
@@ -21430,7 +21436,7 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
 
   @override
   String get pdfInvalidPageNumberLabel =>
-      r'Ju lutemi shkruani një numër të vlefshëm';
+      r'Ju lutemi shkruani një numër faqeje të vlefshëm';
 
   @override
   String get pdfNoBookmarksLabel => r'Nuk u gjetën faqeshënues';
@@ -21439,13 +21445,13 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'ANULON';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'Ne rregull';
+  String get pdfPaginationDialogOkLabel => r'Në rregull';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'ANULON';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'HAPUR';
+  String get pdfPasswordDialogOpenLabel => r'HAP';
 
   @override
   String get pdfScrollStatusOfLabel => r'e';
@@ -21470,13 +21476,13 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuHighlightLabel => r'Theksoj';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Kërcitshëm';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Zigzag';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Strikethrough';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'Nënvizoni';
+  String get pdfTextSelectionMenuUnderlineLabel => r'Nënvizoj';
 
   @override
   String get rabi1Label => r'Rabi' "'" r'ul-evvel';
@@ -21607,7 +21613,7 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get allowedViewDayLabel => r'Дан';
 
   @override
-  String get allowedViewMonthLabel => r'Месец дана';
+  String get allowedViewMonthLabel => r'Месец';
 
   @override
   String get allowedViewScheduleLabel => r'Распоред';
@@ -21635,10 +21641,10 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'И';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Пре или једнако';
+  String get beforeDataGridFilteringLabel => r'пре него што';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'пре него што';
+  String get beforeOrEqualDataGridFilteringLabel => r'Пре или једнако';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Почиње са';
@@ -21756,7 +21762,7 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get passwordDialogInvalidPasswordLabel => r'Неважећа лозинка';
 
   @override
-  String get pdfBookmarksLabel => r'обележивача';
+  String get pdfBookmarksLabel => r'Обележивачи';
 
   @override
   String get pdfEnterPageNumberLabel => r'Унесите број странице';
@@ -21769,10 +21775,10 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
       r'Да ли желите да отворите страницу на';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'ПОНИШТИТИ, ОТКАЗАТИ';
+  String get pdfHyperlinkDialogCancelLabel => r'ОТКАЖИ';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'ОПЕН';
+  String get pdfHyperlinkDialogOpenLabel => r'ОТВОРИ';
 
   @override
   String get pdfHyperlinkLabel => r'Отворите веб страницу';
@@ -21784,19 +21790,19 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Нема пронађених обележивача';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'ПОНИШТИТИ, ОТКАЗАТИ';
+  String get pdfPaginationDialogCancelLabel => r'ОТКАЖИ';
 
   @override
   String get pdfPaginationDialogOkLabel => r'У реду';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'ПОНИШТИТИ, ОТКАЗАТИ';
+  String get pdfPasswordDialogCancelLabel => r'ОТКАЖИ';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'ОПЕН';
+  String get pdfPasswordDialogOpenLabel => r'ОТВОРИ';
 
   @override
-  String get pdfScrollStatusOfLabel => r'оф';
+  String get pdfScrollStatusOfLabel => r'од';
 
   @override
   String get pdfSignaturePadDialogClearLabel => r'ЈАСНО';
@@ -21805,7 +21811,7 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogHeaderTextLabel => r'Нацртајте свој потпис';
 
   @override
-  String get pdfSignaturePadDialogPenColorLabel => r'Пен Цолор';
+  String get pdfSignaturePadDialogPenColorLabel => r'Боја пера';
 
   @override
   String get pdfSignaturePadDialogSaveLabel => r'САЧУВАТИ';
@@ -21991,10 +21997,10 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Och';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Före Eller Lika';
+  String get beforeDataGridFilteringLabel => r'Innan';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Innan';
+  String get beforeOrEqualDataGridFilteringLabel => r'Före Eller Lika';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Börjar med';
@@ -22104,13 +22110,13 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
       r'Ange lösenordet för att öppna denna PDF-fil';
 
   @override
-  String get passwordDialogHeaderTextLabel => r'Lösenord skyddat';
+  String get passwordDialogHeaderTextLabel => r'Lösenordsskyddat';
 
   @override
   String get passwordDialogHintTextLabel => r'Skriv in lösenord';
 
   @override
-  String get passwordDialogInvalidPasswordLabel => r'felaktigt lösenord';
+  String get passwordDialogInvalidPasswordLabel => r'Felaktigt lösenord';
 
   @override
   String get pdfBookmarksLabel => r'Bokmärken';
@@ -22135,7 +22141,7 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
 
   @override
   String get pdfInvalidPageNumberLabel =>
-      r'var vänlig skriv in ett giltigt nummer';
+      r'Var vänlig skriv in ett giltigt nummer';
 
   @override
   String get pdfNoBookmarksLabel => r'Inga bokmärken hittades';
@@ -22283,7 +22289,7 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get textFiltersDataGridFilteringLabel => r'Textfilter';
 
   @override
-  String get todayLabel => r'I dag';
+  String get todayLabel => r'Idag';
 
   @override
   String get weeknumberLabel => r'Vecka';
@@ -22338,10 +22344,10 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Na';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Kabla Au Sawa';
+  String get beforeDataGridFilteringLabel => r'Kabla';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Kabla';
+  String get beforeOrEqualDataGridFilteringLabel => r'Kabla Au Sawa';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Huanza Na';
@@ -22487,13 +22493,13 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Hakuna alamisho zilizopatikana';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'GHAIRI';
+  String get pdfPaginationDialogCancelLabel => r'Ghairi';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'sawa';
+  String get pdfPaginationDialogOkLabel => r'Sawa';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'GHAIRI';
+  String get pdfPasswordDialogCancelLabel => r'Ghairi';
 
   @override
   String get pdfPasswordDialogOpenLabel => r'FUNGUA';
@@ -22684,10 +22690,10 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'மற்றும்';
 
   @override
-  String get beforeDataGridFilteringLabel => r'முன் அல்லது சமம்';
+  String get beforeDataGridFilteringLabel => r'முன்பு';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'முன்பு';
+  String get beforeOrEqualDataGridFilteringLabel => r'முன் அல்லது சமம்';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'உடன் தொடங்குகிறது';
@@ -22823,7 +22829,7 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get pdfHyperlinkDialogCancelLabel => r'ரத்துசெய்';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'திறந்த';
+  String get pdfHyperlinkDialogOpenLabel => r'திற';
 
   @override
   String get pdfHyperlinkLabel => r'இணையப் பக்கத்தைத் திற';
@@ -22844,13 +22850,13 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get pdfPasswordDialogCancelLabel => r'ரத்துசெய்';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'திறந்த';
+  String get pdfPasswordDialogOpenLabel => r'திற';
 
   @override
   String get pdfScrollStatusOfLabel => r'இன்';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'தெளிவு';
+  String get pdfSignaturePadDialogClearLabel => r'அழி';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel =>
@@ -23036,13 +23042,13 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'మరియు';
 
   @override
-  String get beforeDataGridFilteringLabel => r'ముందు లేదా సమానం';
+  String get beforeDataGridFilteringLabel => r'ముందు';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'ముందు';
+  String get beforeOrEqualDataGridFilteringLabel => r'ముందు లేదా సమానం';
 
   @override
-  String get beginsWithDataGridFilteringLabel => r'ప్రారంభమవుతుంది';
+  String get beginsWithDataGridFilteringLabel => r'తో ప్రారంభమవుతుంద';
 
   @override
   String get cancelDataGridFilteringLabel => r'రద్దు చేయండి';
@@ -23090,7 +23096,7 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get fromDataGridFilteringLabel => r'నుండి';
 
   @override
-  String get greaterThanDataGridFilteringLabel => r'అంతకన్నా ఎక్కువ';
+  String get greaterThanDataGridFilteringLabel => r'కంటే ఎక్కువ';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel =>
@@ -23190,7 +23196,7 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'రద్దు చేయండి';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'అలాగే';
+  String get pdfPaginationDialogOkLabel => r'సరే';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'రద్దు చేయండి';
@@ -23211,13 +23217,13 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'పెన్ రంగు';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'సేవ్ చేయండి';
+  String get pdfSignaturePadDialogSaveLabel => r'భద్రపరచండి';
 
   @override
-  String get pdfTextSelectionMenuCopyLabel => r'కాపీ చేయండి';
+  String get pdfTextSelectionMenuCopyLabel => r'నకలు';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'హైలైట్ చేయండి';
+  String get pdfTextSelectionMenuHighlightLabel => r'హైలైట్';
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel => r'స్క్విగ్లీ';
@@ -23388,10 +23394,10 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'และ';
 
   @override
-  String get beforeDataGridFilteringLabel => r'ก่อนหรือเท่ากับ';
+  String get beforeDataGridFilteringLabel => r'ก่อน';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'ก่อน';
+  String get beforeOrEqualDataGridFilteringLabel => r'ก่อนหรือเท่ากับ';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'เริ่มต้นด้วย';
@@ -23550,7 +23556,7 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'ของ';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ชัดเจน';
+  String get pdfSignaturePadDialogClearLabel => r'ล้างข้อมูล';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'วาดลายเซ็นของคุณ';
@@ -23696,7 +23702,7 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get afterDataGridFilteringLabel => r'Pagkatapos';
 
   @override
-  String get afterOrEqualDataGridFilteringLabel => r'Pagkatapos ng Or Equal';
+  String get afterOrEqualDataGridFilteringLabel => r'Pagkatapos o Pantay';
 
   @override
   String get allDayLabel => r'Buong araw';
@@ -23733,10 +23739,10 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'At';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Bago O Kapantay';
+  String get beforeDataGridFilteringLabel => r'Bago';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'dati';
+  String get beforeOrEqualDataGridFilteringLabel => r'Bago O Kapantay';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Nagsisimula sa';
@@ -23867,10 +23873,10 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get pdfHyperlinkContentLabel => r'Gusto mo bang buksan ang pahina sa';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'KANSELAHIN';
+  String get pdfHyperlinkDialogCancelLabel => r'Kanselahin';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'BUKAS';
+  String get pdfHyperlinkDialogOpenLabel => r'Bukas';
 
   @override
   String get pdfHyperlinkLabel => r'Buksan ang Web Page';
@@ -23883,22 +23889,22 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Walang nakitang mga bookmark';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'KANSELAHIN';
+  String get pdfPaginationDialogCancelLabel => r'Kanselahin';
 
   @override
   String get pdfPaginationDialogOkLabel => r'OK';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'KANSELAHIN';
+  String get pdfPasswordDialogCancelLabel => r'Kanselahin';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'BUKAS';
+  String get pdfPasswordDialogOpenLabel => r'Bukas';
 
   @override
   String get pdfScrollStatusOfLabel => r'ng';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'MALINAW';
+  String get pdfSignaturePadDialogClearLabel => r'Maliwanag';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Iguhit ang iyong lagda';
@@ -23907,7 +23913,7 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Kulay ng Panulat';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'MAGTIPID';
+  String get pdfSignaturePadDialogSaveLabel => r'Mag-ipon';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Kopya';
@@ -23916,7 +23922,7 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuHighlightLabel => r'I-highlight';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'Nakapikit';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Guhit-guhit';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Strikethrough';
@@ -24078,16 +24084,16 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get allowedViewWeekLabel => r'Hafta';
 
   @override
-  String get allowedViewWorkWeekLabel => r'Çalışma haftası';
+  String get allowedViewWorkWeekLabel => r'Çalışma Haftası';
 
   @override
   String get andDataGridFilteringLabel => r'Ve';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Önce veya Eşit';
+  String get beforeDataGridFilteringLabel => r'Önce';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Önceki';
+  String get beforeOrEqualDataGridFilteringLabel => r'Önce veya Eşit';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'İle başlar';
@@ -24166,7 +24172,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get noMatchesDataGridFilteringLabel => r'Eşleşme yok';
 
   @override
-  String get noSelectedDateCalendarLabel => r'tarih seçilmedi';
+  String get noSelectedDateCalendarLabel => r'Tarih seçilmedi';
 
   @override
   String get notEmptyDataGridFilteringLabel => r'Boş değil';
@@ -24219,37 +24225,38 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
       r'Sayfayı şu adreste açmak istiyor musunuz?';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'İPTAL ETMEK';
+  String get pdfHyperlinkDialogCancelLabel => r'İptal Et';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'AÇIK';
+  String get pdfHyperlinkDialogOpenLabel => r'Aç';
 
   @override
   String get pdfHyperlinkLabel => r'Web Sayfasını Aç';
 
   @override
-  String get pdfInvalidPageNumberLabel => r'Lütfen geçerli bir sayı girin';
+  String get pdfInvalidPageNumberLabel =>
+      r'Lütfen geçerli bir sayfa numarası girin';
 
   @override
   String get pdfNoBookmarksLabel => r'Yer işareti bulunamadı';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'İPTAL ETMEK';
+  String get pdfPaginationDialogCancelLabel => r'İptal Et';
 
   @override
   String get pdfPaginationDialogOkLabel => r'TAMAM';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'İPTAL ETMEK';
+  String get pdfPasswordDialogCancelLabel => r'İptal';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'AÇIK';
+  String get pdfPasswordDialogOpenLabel => r'Aç';
 
   @override
   String get pdfScrollStatusOfLabel => r'nın-nin';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'TEMİZLEMEK';
+  String get pdfSignaturePadDialogClearLabel => r'Temizle';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'imzanı çiz';
@@ -24258,7 +24265,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'Kalem Rengi';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'KAYDETMEK';
+  String get pdfSignaturePadDialogSaveLabel => r'Kaydet';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Kopyala';
@@ -24406,10 +24413,10 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get allowedViewDayLabel => r'День';
 
   @override
-  String get allowedViewMonthLabel => r'місяць';
+  String get allowedViewMonthLabel => r'Місяць';
 
   @override
-  String get allowedViewScheduleLabel => r'розклад';
+  String get allowedViewScheduleLabel => r'Розклад';
 
   @override
   String get allowedViewTimelineDayLabel => r'День хронології';
@@ -24424,19 +24431,19 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get allowedViewTimelineWorkWeekLabel => r'Графік робочого тижня';
 
   @override
-  String get allowedViewWeekLabel => r'тиждень';
+  String get allowedViewWeekLabel => r'Тиждень';
 
   @override
-  String get allowedViewWorkWeekLabel => r'робочий тиждень';
+  String get allowedViewWorkWeekLabel => r'Робочий тиждень';
 
   @override
   String get andDataGridFilteringLabel => r'І';
 
   @override
-  String get beforeDataGridFilteringLabel => r'До або дорівнює';
+  String get beforeDataGridFilteringLabel => r'Раніше';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Раніше';
+  String get beforeOrEqualDataGridFilteringLabel => r'До або дорівнює';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Починається з';
@@ -24487,8 +24494,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get fromDataGridFilteringLabel => r'Від';
 
   @override
-  String get greaterThanDataGridFilteringLabel =>
-      r'Більше, ніж, величніше ніж, крутіший за';
+  String get greaterThanDataGridFilteringLabel => r'більше ніж';
 
   @override
   String get greaterThanOrEqualDataGridFilteringLabel => r'Більше або дорівнює';
@@ -24585,7 +24591,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'СКАСУВАТИ';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'в порядку';
+  String get pdfPaginationDialogOkLabel => r'ОК';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'СКАСУВАТИ';
@@ -24597,7 +24603,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'з';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'ЯСНО';
+  String get pdfSignaturePadDialogClearLabel => r'Очистити';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Намалюйте свій підпис';
@@ -24727,7 +24733,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get todayLabel => r'Сьогодні';
 
   @override
-  String get weeknumberLabel => r'тиждень';
+  String get weeknumberLabel => r'Тиждень';
 }
 
 /// The translations for Urdu (`ur`).
@@ -24779,10 +24785,10 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'اور';
 
   @override
-  String get beforeDataGridFilteringLabel => r'پہلے یا برابر';
+  String get beforeDataGridFilteringLabel => r'سے پہلے';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'اس سے پہلے';
+  String get beforeOrEqualDataGridFilteringLabel => r'پہلے یا برابر';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'سے شروع ہوتا ہے۔';
@@ -24854,7 +24860,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get muharramLabel => r'محرم ۔۔۔';
 
   @override
-  String get noEventsCalendarLabel => r'کوئی واقعات نہیں۔';
+  String get noEventsCalendarLabel => r'کوئی واقعات نہیں';
 
   @override
   String get noMatchesDataGridFilteringLabel => r'کوئی میچ نہیں';
@@ -24909,7 +24915,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'صفحے پر جائیں';
 
   @override
-  String get pdfHyperlinkContentLabel => r'کیا آپ صفحہ کو کھولنا چاہتے ہیں۔';
+  String get pdfHyperlinkContentLabel => r'کیا آپ صفحہ کھولنا چاہتے ہیں؟';
 
   @override
   String get pdfHyperlinkDialogCancelLabel => r'منسوخ کریں۔';
@@ -24925,7 +24931,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
       r'براہ مہربانی ایک درست نمبر درج کریں';
 
   @override
-  String get pdfNoBookmarksLabel => r'کوئی بک مارکس نہیں ملے';
+  String get pdfNoBookmarksLabel => r'کوئی بک مارکس نہیں ملا';
 
   @override
   String get pdfPaginationDialogCancelLabel => r'منسوخ کریں۔';
@@ -25095,7 +25101,7 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
   String get allDayLabel => r'Butun kun';
 
   @override
-  String get allowedViewDayLabel => r'kun';
+  String get allowedViewDayLabel => r'Kun';
 
   @override
   String get allowedViewMonthLabel => r'Oy';
@@ -25125,10 +25131,10 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Va';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Oldin yoki teng';
+  String get beforeDataGridFilteringLabel => r'Oldin';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Oldin';
+  String get beforeOrEqualDataGridFilteringLabel => r'Oldin yoki teng';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Bilan boshlanadi';
@@ -25460,7 +25466,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
 
   @override
   String get allowedViewTimelineWorkWeekLabel =>
-      r'Thời gian biểu Tuần làm việc';
+      r'Dòng thời gian tuần làm việc';
 
   @override
   String get allowedViewWeekLabel => r'Tuần';
@@ -25472,10 +25478,10 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Và';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Trước Hoặc Bằng';
+  String get beforeDataGridFilteringLabel => r'Trước';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Trước';
+  String get beforeOrEqualDataGridFilteringLabel => r'Trước Hoặc Bằng';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Bắt đầu với';
@@ -25601,13 +25607,13 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get pdfGoToPageLabel => r'Đi tới trang';
 
   @override
-  String get pdfHyperlinkContentLabel => r'Bạn có muốn mở trang tại';
+  String get pdfHyperlinkContentLabel => r'Bạn có muốn mở trang này không?';
 
   @override
-  String get pdfHyperlinkDialogCancelLabel => r'SỰ HỦY BỎ';
+  String get pdfHyperlinkDialogCancelLabel => r'Hủy';
 
   @override
-  String get pdfHyperlinkDialogOpenLabel => r'MỞ';
+  String get pdfHyperlinkDialogOpenLabel => r'Mở';
 
   @override
   String get pdfHyperlinkLabel => r'Mở trang web';
@@ -25619,22 +25625,22 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get pdfNoBookmarksLabel => r'Không tìm thấy dấu trang nào';
 
   @override
-  String get pdfPaginationDialogCancelLabel => r'SỰ HỦY BỎ';
+  String get pdfPaginationDialogCancelLabel => r'Hủy';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'ĐƯỢC RỒI';
+  String get pdfPaginationDialogOkLabel => r'Đồng ý';
 
   @override
-  String get pdfPasswordDialogCancelLabel => r'SỰ HỦY BỎ';
+  String get pdfPasswordDialogCancelLabel => r'Hủy';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'MỞ';
+  String get pdfPasswordDialogOpenLabel => r'Mở';
 
   @override
   String get pdfScrollStatusOfLabel => r'của';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'THÔNG THOÁNG';
+  String get pdfSignaturePadDialogClearLabel => r'Xóa';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Vẽ chữ ký của bạn';
@@ -25643,16 +25649,16 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'màu bút';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'CỨU';
+  String get pdfSignaturePadDialogSaveLabel => r'Lưu';
 
   @override
   String get pdfTextSelectionMenuCopyLabel => r'Sao chép';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'Điểm nổi bật';
+  String get pdfTextSelectionMenuHighlightLabel => r'Tô đậm';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'nguệch ngoạc';
+  String get pdfTextSelectionMenuSquigglyLabel => r'Gạch lượn sóng';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'Gạch ngang';
@@ -25816,10 +25822,10 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'和';
 
   @override
-  String get beforeDataGridFilteringLabel => r'早于或等于';
+  String get beforeDataGridFilteringLabel => r'前';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'前';
+  String get beforeOrEqualDataGridFilteringLabel => r'早于或等于';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'开始于';
@@ -25966,7 +25972,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfPaginationDialogCancelLabel => r'取消';
 
   @override
-  String get pdfPaginationDialogOkLabel => r'好的';
+  String get pdfPaginationDialogOkLabel => r'确认';
 
   @override
   String get pdfPasswordDialogCancelLabel => r'取消';
@@ -25987,7 +25993,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfSignaturePadDialogPenColorLabel => r'笔颜色';
 
   @override
-  String get pdfSignaturePadDialogSaveLabel => r'节省';
+  String get pdfSignaturePadDialogSaveLabel => r'保存';
 
   @override
   String get rabi1Label => r'拉比·奥瓦尔';
@@ -25996,7 +26002,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuCopyLabel => r'复制';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'强调';
+  String get pdfTextSelectionMenuHighlightLabel => r'突出显示';
 
   @override
   String get pdfTextSelectionMenuSquigglyLabel => r'波浪形';
@@ -26005,7 +26011,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuStrikethroughLabel => r'删除线';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'强调';
+  String get pdfTextSelectionMenuUnderlineLabel => r'下划线';
 
   @override
   String get rabi2Label => r'拉比阿勒萨尼';
@@ -26148,7 +26154,10 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get allowedViewWorkWeekLabel => r'工作週';
 
   @override
-  String get beforeDataGridFilteringLabel => r'早於或等於';
+  String get beforeDataGridFilteringLabel => r'前';
+
+  @override
+  String get beforeOrEqualDataGridFilteringLabel => r'早於或等於';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'開始於';
@@ -26253,10 +26262,10 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get pdfNoBookmarksLabel => r'找不到書籤';
 
   @override
-  String get pdfPasswordDialogOpenLabel => r'打開';
+  String get pdfPaginationDialogOkLabel => r'好的';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'清除';
+  String get pdfPasswordDialogOpenLabel => r'開啟';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'畫出你的簽名';
@@ -26274,16 +26283,16 @@ class SfLocalizationsZhHant extends SfLocalizationsZh {
   String get pdfTextSelectionMenuCopyLabel => r'複製';
 
   @override
-  String get pdfTextSelectionMenuHighlightLabel => r'強調';
+  String get pdfTextSelectionMenuHighlightLabel => r'標記';
 
   @override
-  String get pdfTextSelectionMenuSquigglyLabel => r'彎彎曲曲';
+  String get pdfTextSelectionMenuSquigglyLabel => r'波浪線';
 
   @override
   String get pdfTextSelectionMenuStrikethroughLabel => r'刪除線';
 
   @override
-  String get pdfTextSelectionMenuUnderlineLabel => r'強調';
+  String get pdfTextSelectionMenuUnderlineLabel => r'下划線';
 
   @override
   String get rabi2Label => r'拉比阿勒薩尼';
@@ -26361,6 +26370,15 @@ class SfLocalizationsZhHantTw extends SfLocalizationsZhHant {
   }) : super(
           localeName: localeName,
         );
+
+  @override
+  String get pdfPasswordDialogOpenLabel => r'打開';
+
+  @override
+  String get pdfTextSelectionMenuHighlightLabel => r'標示';
+
+  @override
+  String get pdfTextSelectionMenuUnderlineLabel => r'下劃線';
 }
 
 /// The translations for Zulu (`zu`).
@@ -26413,10 +26431,11 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
   String get andDataGridFilteringLabel => r'Futhi';
 
   @override
-  String get beforeDataGridFilteringLabel => r'Ngaphambi Noma Ukulingana';
+  String get beforeDataGridFilteringLabel => r'Ngaphambili';
 
   @override
-  String get beforeOrEqualDataGridFilteringLabel => r'Ngaphambili';
+  String get beforeOrEqualDataGridFilteringLabel =>
+      r'Ngaphambi Noma Ukulingana';
 
   @override
   String get beginsWithDataGridFilteringLabel => r'Iqala Nga';
@@ -26578,7 +26597,7 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
   String get pdfScrollStatusOfLabel => r'kwe';
 
   @override
-  String get pdfSignaturePadDialogClearLabel => r'SOLULE';
+  String get pdfSignaturePadDialogClearLabel => r'SULA';
 
   @override
   String get pdfSignaturePadDialogHeaderTextLabel => r'Dweba isiginesha yakho';
@@ -26599,7 +26618,7 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
   String get pdfTextSelectionMenuSquigglyLabel => r'Squiggly';
 
   @override
-  String get pdfTextSelectionMenuStrikethroughLabel => r'I-Strikethrough';
+  String get pdfTextSelectionMenuStrikethroughLabel => r'Thayela';
 
   @override
   String get pdfTextSelectionMenuUnderlineLabel => r'Dwebela';

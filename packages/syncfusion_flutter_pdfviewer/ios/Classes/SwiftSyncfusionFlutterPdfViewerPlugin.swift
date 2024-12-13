@@ -160,7 +160,7 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
             rendered = true
         }
         if(rendered){
-            let data = Data(bytesNoCopy: buffer, count: bufSize, deallocator: .none)
+            let data = Data(bytesNoCopy: buffer, count: bufSize, deallocator: .free)
             return FlutterStandardTypedData(bytes: data)
         }else{
             return nil
@@ -222,7 +222,7 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
             rendered = true
         }
         if(rendered){
-            let data = Data(bytesNoCopy: buffer, count: bufSize, deallocator: .none)
+            let data = Data(bytesNoCopy: buffer, count: bufSize, deallocator: .free)
             return FlutterStandardTypedData(bytes: data)
         }else{
             return nil

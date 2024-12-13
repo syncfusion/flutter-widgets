@@ -1,6 +1,6 @@
 ﻿# Flutter PDF Viewer Windows
 
-The Windows implementation of [Syncfusion Flutter PDF Viewer](https://pub.dev/packages/syncfusion_flutter_pdfviewer) plugin.
+The Windows implementation of [Syncfusion® Flutter PDF Viewer](https://pub.dev/packages/syncfusion_flutter_pdfviewer) plugin.
 
 ## Usage
 

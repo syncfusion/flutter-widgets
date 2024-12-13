@@ -58,6 +58,7 @@ class StackedColumn100Series<T, D> extends StackedSeriesBase<T, D> {
     this.borderRadius = BorderRadius.zero,
     this.spacing = 0.0,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.animationDuration,
     this.borderColor = Colors.transparent,
     super.borderWidth,

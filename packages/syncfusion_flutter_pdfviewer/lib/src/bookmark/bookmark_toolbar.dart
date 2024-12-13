@@ -53,10 +53,12 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
   SfPdfViewerThemeData? _pdfViewerThemeData;
   SfPdfViewerThemeData? _effectiveThemeData;
   SfLocalizations? _localizations;
+  bool _isMaterial3 = false;
 
   @override
   void didChangeDependencies() {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
+    _isMaterial3 = Theme.of(context).useMaterial3;
     _effectiveThemeData = Theme.of(context).useMaterial3
         ? SfPdfViewerThemeDataM3(context)
         : SfPdfViewerThemeDataM2(context);
@@ -101,7 +103,14 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
               ((Theme.of(context).colorScheme.brightness == Brightness.light)
                   ? const Color(0xFFFAFAFA)
                   : const Color(0xFF424242)),
-          boxShadow: boxShadows,
+          boxShadow: _isMaterial3 ? null : boxShadows,
+          border: _isMaterial3
+              ? Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                )
+              : null,
         ),
         child: Stack(
           children: <Widget>[

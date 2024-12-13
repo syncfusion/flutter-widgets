@@ -1,3 +1,4 @@
+export './src/theme/assistview_theme.dart';
 export './src/theme/barcodes_theme.dart';
 export './src/theme/calendar_theme.dart';
 export './src/theme/charts_theme.dart';

@@ -1,10 +1,10 @@
 name: syncfusion_flutter_pdfviewer
 description: Flutter PDF Viewer library is used to display a PDF document seamlessly and efficiently.
-version: 27.1.48
+version: 28.1.33
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_pdfviewer
 
 environment:
-  sdk: '>=2.17.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0'
   flutter: ">=1.20.0"
 
 flutter:
@@ -38,10 +38,11 @@ dependencies:
   flutter:
     sdk: flutter
   vector_math: ^2.1.0
+  web: ^1.0.0
   async: ^2.5.0
   http: ^1.0.0
   uuid: ^4.1.0
-  device_info_plus: ^9.0.2
+  device_info_plus: ^10.1.0
   intl: '>=0.18.1 <0.20.0'
 
   syncfusion_pdfviewer_platform_interface:

@@ -114,7 +114,7 @@ mixin DistancesHostBase {
 }
 
 /// An object that implements the `GetDistances` method.
-abstract class NestedDistancesHostBase {
+mixin NestedDistancesHostBase {
   /// Gets the nested distances, if a line contains a nested lines collection,
   /// otherwise null.
   ///

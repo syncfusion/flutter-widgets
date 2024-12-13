@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'assistview_theme.dart';
 import 'barcodes_theme.dart';
 import 'calendar_theme.dart';
 import 'charts_theme.dart';
@@ -274,6 +275,7 @@ class SfThemeData with Diagnosticable {
     SfMapsThemeData? mapsThemeData,
     SfTreemapThemeData? treemapThemeData,
     SfChatThemeData? chatThemeData,
+    SfAIAssistViewThemeData? assistThemeData,
   }) {
     brightness ??= Brightness.light;
     pdfViewerThemeData = pdfViewerThemeData ?? SfPdfViewerThemeData.raw();
@@ -304,6 +306,7 @@ class SfThemeData with Diagnosticable {
     dataPagerThemeData =
         dataPagerThemeData ?? SfDataPagerThemeData.raw(brightness: brightness);
     chatThemeData = chatThemeData ?? SfChatThemeData.raw();
+    assistThemeData = assistThemeData ?? SfAIAssistViewThemeData.raw();
     return SfThemeData.raw(
       brightness: brightness,
       pdfViewerThemeData: pdfViewerThemeData,
@@ -321,6 +324,7 @@ class SfThemeData with Diagnosticable {
       mapsThemeData: mapsThemeData,
       treemapThemeData: treemapThemeData,
       chatThemeData: chatThemeData,
+      assistThemeData: assistThemeData,
     );
   }
 
@@ -348,6 +352,7 @@ class SfThemeData with Diagnosticable {
     required this.dataPagerThemeData,
     required this.treemapThemeData,
     required this.chatThemeData,
+    required this.assistThemeData,
   });
 
   /// This method returns the light theme when no theme has been specified.
@@ -674,6 +679,25 @@ class SfThemeData with Diagnosticable {
   /// ```
   final SfChatThemeData chatThemeData;
 
+  /// Defines the default configuration of assistview widgets.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            assistThemeData: SfAIAssistViewThemeData()
+  ///          ),
+  ///          child: SfAIAssistView(),
+  ///        ),
+  ///      )
+  ///   );
+  /// }
+  /// ```
+  final SfAIAssistViewThemeData assistThemeData;
+
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   SfThemeData copyWith({
@@ -693,6 +717,7 @@ class SfThemeData with Diagnosticable {
     SfDataPagerThemeData? dataPagerThemeData,
     SfTreemapThemeData? treemapThemeData,
     SfChatThemeData? chatThemeData,
+    SfAIAssistViewThemeData? assistThemeData,
   }) {
     return SfThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -713,6 +738,7 @@ class SfThemeData with Diagnosticable {
       mapsThemeData: mapsThemeData ?? this.mapsThemeData,
       treemapThemeData: treemapThemeData ?? this.treemapThemeData,
       chatThemeData: chatThemeData ?? this.chatThemeData,
+      assistThemeData: assistThemeData ?? this.assistThemeData,
     );
   }
 
@@ -750,6 +776,8 @@ class SfThemeData with Diagnosticable {
       treemapThemeData:
           SfTreemapThemeData.lerp(a.treemapThemeData, b.treemapThemeData, t)!,
       chatThemeData: SfChatThemeData.lerp(a.chatThemeData, b.chatThemeData, t)!,
+      assistThemeData: SfAIAssistViewThemeData.lerp(
+          a.assistThemeData, b.assistThemeData, t)!,
     );
   }
 
@@ -774,7 +802,8 @@ class SfThemeData with Diagnosticable {
         other.rangeSliderThemeData == rangeSliderThemeData &&
         other.mapsThemeData == mapsThemeData &&
         other.treemapThemeData == treemapThemeData &&
-        other.chatThemeData == chatThemeData;
+        other.chatThemeData == chatThemeData &&
+        other.assistThemeData == assistThemeData;
   }
 
   @override
@@ -796,6 +825,7 @@ class SfThemeData with Diagnosticable {
       mapsThemeData,
       treemapThemeData,
       chatThemeData,
+      assistThemeData,
     ];
     return Object.hashAll(values);
   }
@@ -851,5 +881,8 @@ class SfThemeData with Diagnosticable {
     properties.add(DiagnosticsProperty<SfChatThemeData>(
         'chatThemeData', chatThemeData,
         defaultValue: defaultData.chatThemeData));
+    properties.add(DiagnosticsProperty<SfAIAssistViewThemeData>(
+        'assistThemeData', assistThemeData,
+        defaultValue: defaultData.assistThemeData));
   }
 }

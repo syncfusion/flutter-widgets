@@ -15,7 +15,7 @@ import 'data_label.dart';
 import 'element_widget.dart';
 
 // ignore: must_be_immutable
-class FunnelChartDataLabelPositioned
+base class FunnelChartDataLabelPositioned
     extends ParentDataWidget<ChartElementParentData>
     with LinkedListEntry<FunnelChartDataLabelPositioned> {
   FunnelChartDataLabelPositioned({

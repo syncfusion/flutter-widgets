@@ -10,6 +10,7 @@ import '../../pdf.dart';
 import 'images.dart';
 // ignore: avoid_relative_lib_imports
 import 'pdf_document.dart';
+import 'pdf_input_docs.dart';
 
 // ignore: public_member_api_docs
 void pdfImage() {
@@ -1328,6 +1329,21 @@ void pdfImage() {
           );
       savePdf(pdf.saveSync(), 'FLUT-850491-test.pdf');
       pdf.dispose();
+    });
+    test(
+        'FLUT-910219 File is corrupted while inserting the page in existing PDF document',
+        () {
+      final PdfDocument pdfDoc = PdfDocument.fromBase64String(flutInvoicePdf);
+      final PdfImage image = PdfBitmap.fromBase64String(imageJpg);
+      final size = pdfDoc.pages[0].size;
+      final PdfMargins margins = PdfMargins();
+      margins.all = 0;
+      final newPage = pdfDoc.pages.insert(0, size, margins);
+      newPage.graphics
+          .drawImage(image, Rect.fromLTWH(0, 0, size.width, size.height));
+      final List<int> bytes = pdfDoc.saveSync();
+      savePdf(bytes, 'FLUT-910219_output.pdf');
+      pdfDoc.dispose();
     });
   });
 }

@@ -1,5 +1,12 @@
 ## Unreleased
 
+**Bugs**
+
+* Now, 'tel' links in PDF documents open properly in the `SfPdfViewer` widget.
+* Now, the browser's built-in context menu is only disabled in routes with the `SfPdfViewer` widget.
+
+## [26.2.14] - 09/10/2024
+
 **General**
 
 * The compatible version of our Flutter PDF Viewer widget has been updated to Flutter SDK 3.24.0.

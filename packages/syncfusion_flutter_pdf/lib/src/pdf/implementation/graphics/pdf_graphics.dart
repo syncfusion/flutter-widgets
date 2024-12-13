@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import '../drawing/drawing.dart';
 import '../general/pdf_collection.dart';
+import '../general/windows1252encoding.dart';
 import '../io/pdf_constants.dart';
 import '../io/pdf_cross_table.dart';
 import '../io/pdf_stream_writer.dart';
@@ -314,6 +315,9 @@ class PdfGraphics {
     if (pen == null && brush == null) {
       brush = PdfSolidBrush(PdfColor(0, 0, 0));
     }
+
+    s = _normalizeText(font, s);
+
     _helper.layoutString(s, font,
         pen: pen,
         brush: brush,
@@ -1131,6 +1135,19 @@ class PdfGraphics {
       double angleX, double angleY, PdfTransformationMatrix input) {
     input.skew(-angleX, -angleY);
     return input;
+  }
+
+  String _normalizeText(PdfFont font, String text) {
+    if (font is PdfStandardFont) {
+      text = _convert(text);
+    }
+    return text;
+  }
+
+  String _convert(String text) {
+    final Windows1252Encoding encoding = Windows1252Encoding();
+    final List<int> encodedBytes = encoding.getBytes(text);
+    return String.fromCharCodes(encodedBytes);
   }
 }
 

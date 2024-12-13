@@ -29,7 +29,7 @@ typedef AnnotationMoveEndedCallback = void Function(Annotation, Offset);
 typedef AnnotationMovingCallback = void Function(Annotation, Offset);
 
 /// A widget representing an annotation.
-abstract class AnnotationView {
+mixin AnnotationView {
   /// [Annotation] instance.
   late final Annotation annotation;
 }

@@ -129,7 +129,7 @@ enum LegendScrollbarVisibility {
 }
 
 /// The legend provider.
-abstract class LegendItemProvider {
+mixin LegendItemProviderMixin {
   /// Builds the legend item.
   List<LegendItem>? buildLegendItems(int index);
 

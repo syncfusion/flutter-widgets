@@ -687,6 +687,7 @@ class PdfPageCollection {
         }
       }
       _updateCountDecrement(parent);
+      dic.isSkip = true;
     }
   }
 

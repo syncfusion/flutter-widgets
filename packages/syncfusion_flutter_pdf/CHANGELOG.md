@@ -1,3 +1,50 @@
+## [27.2.3] - 11/22/2024
+
+**Bugs**
+
+* The issue of the signature appearance being duplicated when viewing the resultant PDF in the Syncfusion viewer has been resolved.
+
+## [27.2.2] - 11/15/2024
+
+**Bugs**
+
+* The format exception that occurred while signing the document with a specific certificate using an external signer has been resolved.
+
+## [27.1.58] - 11/5/2024
+
+**Bugs**
+
+* The issue of an exception occurring when drawing emoji symbols in PDF form fields has been resolved.
+
+## [27.1.55] - 10/22/2024
+
+**Bugs**
+
+* Type casting issue occurs while extracting text lines from a specific PDF document has been resolved.
+
+## [27.1.52] - 10/08/2024
+
+**Bugs**
+
+* The issue of the file being corrupted while inserting a page into an existing PDF document has been resolved.
+
+## [27.1.50] - 09/24/2024
+
+**Bugs**
+
+* Type casting issue occurs while loading annotations from the PDF document has been resolved.
+* The issue where file size did not decrease after removing pages from the PDF document has been resolved.
+
+## [26.2.14] - 09/10/2024
+
+**General**
+
+* The compatible version of our Flutter PDF library has been updated to Flutter SDK 3.24.0.
+
+**Bugs**
+
+* The issue of incorrect bounds being retrieved from text markup annotations created with the Firefox PDF viewer has been resolved.
+
 ## [26.2.10] - 08/20/2024
 
 **Bugs**

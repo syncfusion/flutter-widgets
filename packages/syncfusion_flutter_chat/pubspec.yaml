@@ -1,10 +1,16 @@
 name: syncfusion_flutter_chat
-description: The Flutter Chat package is a UI library designed to help you create a robust chat application within your Flutter projects with highly customized options.
-version: 27.1.48
-homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_charts
+description: The Flutter Chat package is a UI library designed for creating customizable chat applications, both standard and AI-driven, using Flutter.
+version: 28.1.33
+homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_chat
+
+screenshots:
+  - description: 'This screenshot shows the customized chat user interface demo.'
+    path: screenshots/flutter_customized_chat.gif
+  - description: 'This screenshot shows the appointment selection chat user interface demo.'
+    path: screenshots/flutter_appointment_selection_chat.gif
 
 environment:
-  sdk: '>=2.17.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0'
   flutter: ">=3.22.0"
 
 dependencies:
@@ -13,24 +19,7 @@ dependencies:
   intl: '>=0.18.1 <0.20.0'
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-flutter:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700

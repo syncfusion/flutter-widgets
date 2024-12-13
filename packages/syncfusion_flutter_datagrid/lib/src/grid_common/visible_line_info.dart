@@ -7,7 +7,7 @@ import 'utility_helper.dart' hide ListBase;
 /// VisibleLines Information
 ///
 /// Contains information about a visible line (can also be a row or column).
-class VisibleLineInfo extends Comparable<VisibleLineInfo> {
+class VisibleLineInfo implements Comparable<VisibleLineInfo> {
   /// Initializes a new instance of the VisibleLineInfo class.
   ///
   /// * visibleIndex - _required_ - Visible index of the line.
@@ -383,7 +383,7 @@ class VisibleLinesCollection extends ListBase<VisibleLineInfo> {
 }
 
 /// Initializes a new instance of the `VisibleLineInfoLineIndexComparer` class.
-class VisibleLineInfoLineIndexComparer extends Comparable<VisibleLineInfo> {
+class VisibleLineInfoLineIndexComparer implements Comparable<VisibleLineInfo> {
   /// Compares the given visible lines.
   ///
   /// * x - _required_ - The visible line-1.

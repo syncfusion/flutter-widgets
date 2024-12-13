@@ -6,6 +6,9 @@ bool hasPrimaryFocus = false;
 /// Prevents default menu.
 void preventDefaultMenu() {}
 
+/// Enabled default menu.
+void enableDefaultMenu() {}
+
 /// Gets platform type.
 String getPlatformType() {
   return Platform.operatingSystem;

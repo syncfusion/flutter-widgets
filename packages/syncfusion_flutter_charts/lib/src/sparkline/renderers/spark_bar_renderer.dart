@@ -269,10 +269,18 @@ class _RenderSparkBarChart extends RenderSparkChart {
 
   @override
   void calculateRenderingPoints() {
+    if (minX == null ||
+        maxX == null ||
+        minY == null ||
+        maxY == null ||
+        dataPoints == null ||
+        areaSize == null) {
+      return;
+    }
+
     diffX = maxX! - minX!;
     diffY = maxY! - minY!;
     diffX = diffX == 0 ? 1 : diffX;
-    diffY = diffY == 0 ? 1 : diffY;
 
     _segments = <Rect>[];
     final double xInterval = dataPoints!.length > 1
@@ -287,6 +295,7 @@ class _RenderSparkBarChart extends RenderSparkChart {
     double columnWidth = areaSize!.width / (((maxX! - minX!) / xInterval) + 1);
     columnWidth -= space;
     diffY = maxY! - axisBaseValue!;
+    diffY = diffY == 0 ? 1 : diffY;
     axisHeight = getAxisHeight();
     if (coordinatePoints!.isNotEmpty) {
       coordinatePoints!.clear();
@@ -342,6 +351,14 @@ class _RenderSparkBarChart extends RenderSparkChart {
   /// Method to calculate the plot band position.
   @override
   void calculatePlotBandPosition() {
+    if (minX == null ||
+        maxX == null ||
+        minY == null ||
+        maxY == null ||
+        areaSize == null) {
+      return;
+    }
+
     final double height = areaSize!.height;
     final double start =
         (plotBand!.start ?? minY!) < minY! ? minY! : (plotBand!.start ?? minY!);

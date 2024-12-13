@@ -56,50 +56,42 @@ class _FormFieldContainerState extends State<FormFieldContainer> {
             setState(() {});
           }
         };
-        switch (formField.runtimeType) {
-          case PdfTextFormField:
+        if (formField is PdfTextFormField) {
+          formFields.add(
+            (helper as PdfTextFormFieldHelper)
+                .build(context, widget.heightPercentage),
+          );
+        } else if (formField is PdfCheckboxFormField) {
+          formFields.add(
+            (helper as PdfCheckboxFormFieldHelper)
+                .build(context, widget.heightPercentage),
+          );
+        } else if (formField is PdfComboBoxFormField) {
+          formFields.add(
+            (helper as PdfComboBoxFormFieldHelper)
+                .build(context, widget.heightPercentage),
+          );
+        } else if (formField is PdfRadioFormField) {
+          formFields.addAll(
+            (helper as PdfRadioFormFieldHelper)
+                .build(context, widget.heightPercentage),
+          );
+        } else if (formField is PdfListBoxFormField) {
+          formFields.add(
+            (helper as PdfListBoxFormFieldHelper)
+                .build(context, widget.heightPercentage),
+          );
+        } else if (formField is PdfSignatureFormField) {
+          if (helper is PdfSignatureFormFieldHelper) {
+            helper.pdfViewerController = widget.pdfViewerController;
+            helper.canShowSignaturePadDialog = widget.canShowSignaturePadDialog;
             formFields.add(
-              (helper as PdfTextFormFieldHelper)
-                  .build(context, widget.heightPercentage),
+              helper.build(
+                context,
+                widget.heightPercentage,
+              ),
             );
-            break;
-          case PdfCheckboxFormField:
-            formFields.add(
-              (helper as PdfCheckboxFormFieldHelper)
-                  .build(context, widget.heightPercentage),
-            );
-            break;
-          case PdfComboBoxFormField:
-            formFields.add(
-              (helper as PdfComboBoxFormFieldHelper)
-                  .build(context, widget.heightPercentage),
-            );
-            break;
-          case PdfRadioFormField:
-            formFields.addAll(
-              (helper as PdfRadioFormFieldHelper)
-                  .build(context, widget.heightPercentage),
-            );
-            break;
-          case PdfListBoxFormField:
-            formFields.add(
-              (helper as PdfListBoxFormFieldHelper)
-                  .build(context, widget.heightPercentage),
-            );
-            break;
-          case PdfSignatureFormField:
-            if (helper is PdfSignatureFormFieldHelper) {
-              helper.pdfViewerController = widget.pdfViewerController;
-              helper.canShowSignaturePadDialog =
-                  widget.canShowSignaturePadDialog;
-              formFields.add(
-                helper.build(
-                  context,
-                  widget.heightPercentage,
-                ),
-              );
-            }
-            break;
+          }
         }
       }
     }

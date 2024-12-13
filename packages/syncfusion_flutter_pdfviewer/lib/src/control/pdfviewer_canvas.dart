@@ -17,9 +17,6 @@ import 'pdf_page_view.dart';
 import 'pdf_scrollable.dart';
 import 'single_page_view.dart';
 
-/// Instance of TextSelectionHelper.
-TextSelectionHelper _textSelectionHelper = TextSelectionHelper();
-
 /// [PdfViewerCanvas] is a layer above the PDF page over which annotations, text selection, and text search UI level changes will be applied.
 class PdfViewerCanvas extends LeafRenderObjectWidget {
   /// Constructs PdfViewerCanvas instance with the given parameters.
@@ -34,6 +31,7 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
     this.pdfViewerController,
     this.enableDocumentLinkNavigation,
     this.enableTextSelection,
+    this.textSelectionHelper,
     this.onTextSelectionChanged,
     this.onHyperlinkClicked,
     this.onTextSelectionDragStarted,
@@ -77,6 +75,9 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
 
   /// If false,text selection is disabled.Default value is true.
   final bool enableTextSelection;
+
+  /// Instance of [TextSelectionHelper]
+  final TextSelectionHelper textSelectionHelper;
 
   /// Triggers when text selection dragging started.
   final VoidCallback onTextSelectionDragStarted;
@@ -148,6 +149,7 @@ class PdfViewerCanvas extends LeafRenderObjectWidget {
       pdfViewerController,
       enableDocumentLinkNavigation,
       enableTextSelection,
+      textSelectionHelper,
       onTextSelectionChanged,
       onHyperlinkClicked,
       onTextSelectionDragStarted,
@@ -211,6 +213,7 @@ class CanvasRenderBox extends RenderBox {
     this.pdfViewerController,
     this.enableDocumentLinkNavigation,
     this.enableTextSelection,
+    this._textSelectionHelper,
     this.onTextSelectionChanged,
     this.onHyperlinkClicked,
     this.onTextSelectionDragStarted,
@@ -337,6 +340,9 @@ class CanvasRenderBox extends RenderBox {
 
   /// Triggers when annotation is selected or deselected.
   void Function(Annotation?)? onAnnotationSelectionChanged;
+
+  /// Instance of [TextSelectionHelper]
+  late final TextSelectionHelper _textSelectionHelper;
 
   int? _viewId;
   late int _destinationPageIndex;
@@ -890,16 +896,19 @@ class CanvasRenderBox extends RenderBox {
               final bool isMailID =
                   RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
                       .hasMatch(_pdfTextWebLink!.url);
+              final bool isTel = _pdfTextWebLink!.url.startsWith('tel:');
               final String scheme = isMailID
                   ? !_pdfTextWebLink!.url.contains('mailto')
                       ? 'mailto'
                       : ''
-                  : (!_pdfTextWebLink!.url.contains('https') &&
-                          !_pdfTextWebLink!.url.contains('http'))
-                      ? 'https'
-                      : '';
+                  : isTel
+                      ? 'tel'
+                      : (!_pdfTextWebLink!.url.contains('https') &&
+                              !_pdfTextWebLink!.url.contains('http'))
+                          ? 'https'
+                          : '';
               final Uri url = !_pdfTextWebLink!.url.contains(scheme)
-                  ? scheme.contains('mailto')
+                  ? scheme.contains('mailto') || scheme.contains('tel')
                       ? Uri(scheme: scheme, path: _pdfTextWebLink!.url)
                       : Uri(scheme: scheme, host: _pdfTextWebLink!.url)
                   : Uri.parse(_pdfTextWebLink!.url);
@@ -926,7 +935,6 @@ class CanvasRenderBox extends RenderBox {
                     (_documentLinkAnnotation!.bounds.right /
                         heightPercentage))) {
               if (_documentLinkAnnotation!.destination?.page != null) {
-                _isTOCTapped = true;
                 final PdfPage destinationPage =
                     _documentLinkAnnotation!.destination!.page;
                 final int destinationPageIndex =
@@ -939,48 +947,51 @@ class CanvasRenderBox extends RenderBox {
                     destinationPageOffset.dx / widthPercentage;
                 final double positionY =
                     destinationPageOffset.dy / heightPercentage;
-                final double pageOffset =
-                    pdfPages[destinationPageIndex]!.pageOffset;
-                if (isSinglePageView) {
-                  _totalPageOffset = Offset(positionX, positionY);
-                } else {
-                  if (scrollDirection == PdfScrollDirection.horizontal) {
-                    if (pdfViewerController.zoomLevel == 1) {
-                      _totalPageOffset = Offset(pageOffset, positionY);
+                if (destinationPageIndex > 0) {
+                  _isTOCTapped = true;
+                  final double pageOffset =
+                      pdfPages[destinationPageIndex]!.pageOffset;
+                  if (isSinglePageView) {
+                    _totalPageOffset = Offset(positionX, positionY);
+                  } else {
+                    if (scrollDirection == PdfScrollDirection.horizontal) {
+                      if (pdfViewerController.zoomLevel == 1) {
+                        _totalPageOffset = Offset(pageOffset, positionY);
+                      } else {
+                        _totalPageOffset =
+                            Offset(pageOffset + positionX, positionY);
+                      }
                     } else {
                       _totalPageOffset =
-                          Offset(pageOffset + positionX, positionY);
+                          Offset(positionX, pageOffset + positionY);
                     }
-                  } else {
-                    _totalPageOffset =
-                        Offset(positionX, pageOffset + positionY);
                   }
-                }
-                _viewId = pageIndex;
-                _destinationPageIndex = destinationPageIndex;
+                  _viewId = pageIndex;
+                  _destinationPageIndex = destinationPageIndex;
 
-                /// Mark this render object as having changed its visual appearance.
-                ///
-                /// Rather than eagerly updating this render object's display list
-                /// in response to writes, we instead mark the render object as needing to
-                /// paint, which schedules a visual update. As part of the visual update, the
-                /// rendering pipeline will give this render object an opportunity to update
-                /// its display list.
-                ///
-                /// This mechanism batches the painting work so that multiple sequential
-                /// writes are coalesced, removing redundant computation.
-                ///
-                /// Once markNeedsPaint has been called on a render object,
-                /// debugNeedsPaint returns true for that render object until just after
-                /// the pipeline owner has called paint on the render object.
-                ///
-                /// See also:
-                ///
-                ///  * RepaintBoundary, to scope a subtree of render objects to their own
-                ///    layer, thus limiting the number of nodes that markNeedsPaint must mark
-                ///    dirty.
-                markNeedsPaint();
-                break;
+                  /// Mark this render object as having changed its visual appearance.
+                  ///
+                  /// Rather than eagerly updating this render object's display list
+                  /// in response to writes, we instead mark the render object as needing to
+                  /// paint, which schedules a visual update. As part of the visual update, the
+                  /// rendering pipeline will give this render object an opportunity to update
+                  /// its display list.
+                  ///
+                  /// This mechanism batches the painting work so that multiple sequential
+                  /// writes are coalesced, removing redundant computation.
+                  ///
+                  /// Once markNeedsPaint has been called on a render object,
+                  /// debugNeedsPaint returns true for that render object until just after
+                  /// the pipeline owner has called paint on the render object.
+                  ///
+                  /// See also:
+                  ///
+                  ///  * RepaintBoundary, to scope a subtree of render objects to their own
+                  ///    layer, thus limiting the number of nodes that markNeedsPaint must mark
+                  ///    dirty.
+                  markNeedsPaint();
+                  break;
+                }
               }
             }
           }

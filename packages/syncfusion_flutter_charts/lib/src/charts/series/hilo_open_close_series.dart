@@ -51,6 +51,7 @@ class HiloOpenCloseSeries<T, D> extends FinancialSeriesBase<T, D> {
     super.dataLabelSettings,
     super.initialIsVisible,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.animationDuration,
     super.borderWidth,
     super.selectionBehavior,

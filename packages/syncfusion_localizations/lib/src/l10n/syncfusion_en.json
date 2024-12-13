@@ -1,5 +1,5 @@
 {
-  "noSelectedDateCalendarLabel": "No selected date",
+  "noSelectedDateCalendarLabel": "No date selected",
   "noEventsCalendarLabel": "No events",
   "ofDataPagerLabel": "of",
   "pagesDataPagerLabel": "pages",
@@ -71,8 +71,8 @@
   "pdfHyperlinkDialogCancelLabel": "CANCEL",
   "afterDataGridFilteringLabel": "After",
   "afterOrEqualDataGridFilteringLabel": "After Or Equal",
-  "beforeDataGridFilteringLabel": "Before Or Equal",
-  "beforeOrEqualDataGridFilteringLabel": "Before",
+  "beforeDataGridFilteringLabel": "Before",
+  "beforeOrEqualDataGridFilteringLabel": "Before Or Equal",
   "beginsWithDataGridFilteringLabel": "Begins With",
   "containsDataGridFilteringLabel": "Contains",
   "doesNotBeginWithDataGridFilteringLabel": "Does Not Begin With",

@@ -37,7 +37,10 @@ DataGridRow? getRecord(DataGridConfiguration dataGridConfiguration, int index) {
   // Restricts the index if it doesn't exist in the `DataGridSource.rows` range.
   if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
     final dynamic record = getGroupElement(dataGridConfiguration, index);
-    return record is Group ? null : record;
+    if (record is DataGridRow) {
+      return record;
+    }
+    return null;
   }
 
   if (effectiveRows(dataGridConfiguration.source).isEmpty ||

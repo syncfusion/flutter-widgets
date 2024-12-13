@@ -13,7 +13,7 @@ import 'package:syncfusion_pdfviewer_platform_interface/pdfviewer_platform_inter
 import '../../pdfviewer.dart';
 import '../annotation/annotation_container.dart';
 import '../common/mobile_helper.dart'
-    if (dart.library.html) 'package:syncfusion_flutter_pdfviewer/src/common/web_helper.dart'
+    if (dart.library.js_interop) 'package:syncfusion_flutter_pdfviewer/src/common/web_helper.dart'
     as helper;
 import '../common/pdfviewer_helper.dart';
 import '../form_fields/form_field_container.dart';
@@ -42,6 +42,7 @@ class PdfPageView extends StatefulWidget {
     this.maxZoomLevel,
     this.enableDocumentLinkAnnotation,
     this.enableTextSelection,
+    this.textSelectionHelper,
     this.onTextSelectionChanged,
     this.onHyperlinkClicked,
     this.onTextSelectionDragStarted,
@@ -123,6 +124,9 @@ class PdfPageView extends StatefulWidget {
 
   /// If false,text selection is disabled.Default value is true.
   final bool enableTextSelection;
+
+  /// Text selection helper instance.
+  final TextSelectionHelper textSelectionHelper;
 
   /// Triggers when text selection is changed.
   final PdfTextSelectionChangedCallback? onTextSelectionChanged;
@@ -262,7 +266,6 @@ class PdfPageViewState extends State<PdfPageView> {
   @override
   void initState() {
     if (kIsDesktop && !widget.isMobileWebView) {
-      helper.preventDefaultMenu();
       focusNode.addListener(() {
         helper.hasPrimaryFocus = focusNode.hasFocus;
       });
@@ -426,6 +429,7 @@ class PdfPageViewState extends State<PdfPageView> {
             widget.pdfViewerController,
             widget.enableDocumentLinkAnnotation,
             widget.enableTextSelection,
+            widget.textSelectionHelper,
             widget.onTextSelectionChanged,
             widget.onHyperlinkClicked,
             widget.onTextSelectionDragStarted,
@@ -841,7 +845,7 @@ class PdfPageViewState extends State<PdfPageView> {
     final Size originalPageSize =
         widget.pdfDocument!.pages[widget.pageIndex].size;
     final double ratio = 1 / _heightPercentage;
-    final double imageFactor = ratio * widget.pdfViewerController.zoomLevel;
+    final double imageFactor = ratio * zoomLevel;
     if (widget.pdfDocument != null && _previousImageFactor != imageFactor) {
       _previousImageFactor = imageFactor;
       if (ratio < 0.5 ||
@@ -978,10 +982,9 @@ class PdfPageViewState extends State<PdfPageView> {
             widget.height * zoomLevel * _heightPercentage);
       }
     } else {
-      final double pageY = (viewportSize.height - widget.height).abs() / 2;
       pageBounds = Rect.fromLTWH(
           0,
-          pageY * zoomLevel * _heightPercentage,
+          y,
           widget.width * zoomLevel * _heightPercentage,
           widget.height * zoomLevel * _heightPercentage);
     }
@@ -1002,17 +1005,6 @@ class PdfPageViewState extends State<PdfPageView> {
                   _heightPercentage),
               0);
         }
-      } else {
-        final double verticalGreyAreaSize =
-            (widget.height - viewportSize.height).abs() / 2;
-        final double horizontalGreyAreaSize =
-            MediaQuery.of(context).orientation == Orientation.portrait
-                ? (widget.width - viewportSize.width).abs() / 2
-                : 0;
-
-        exposed = exposed.translate(
-            -(horizontalGreyAreaSize * zoomLevel * _heightPercentage),
-            -(verticalGreyAreaSize * zoomLevel * _heightPercentage));
       }
 
       double ratio = 1 / _heightPercentage;

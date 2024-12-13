@@ -771,12 +771,12 @@ class SfPaddleTooltipShape extends SfTooltipShape {
     final Offset bottomNeckCenter = Offset(
         bottomNeckRadius + neckDifference / 2,
         -thumbRadius - bottomNeckRadius * (1.0 - moveNeckValue));
-    final double leftShiftWidth = thumbCenter.dx - offset.dx - halfTextWidth;
-    double shiftPaddleWidth = leftShiftWidth < 0 ? leftShiftWidth : 0;
-    final double rightEndPosition =
-        trackRect.right + trackRect.left - offset.dx;
-    shiftPaddleWidth = thumbCenter.dx + halfTextWidth > rightEndPosition
-        ? thumbCenter.dx + halfTextWidth - rightEndPosition
+    final double leftShiftWidth = thumbCenter.dx - halfTextWidth;
+    double shiftPaddleWidth =
+        leftShiftWidth < trackRect.left ? leftShiftWidth : 0;
+    final double rightShiftWidth = thumbCenter.dx + halfTextWidth;
+    shiftPaddleWidth = rightShiftWidth > trackRect.right
+        ? rightShiftWidth - trackRect.right
         : shiftPaddleWidth;
     final double leftPaddleWidth =
         paddleTopCircleRadius + paddleTopCircleCenter.dx + shiftPaddleWidth;

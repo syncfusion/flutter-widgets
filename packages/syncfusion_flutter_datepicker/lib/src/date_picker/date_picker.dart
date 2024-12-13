@@ -11522,8 +11522,8 @@ class _PickerViewState extends State<_PickerView>
     }
   }
 
-  void _updateMouseHover(Offset globalPosition) {
-    if (_isMobilePlatform) {
+  void _updateMouseHover(Offset globalPosition, PointerDeviceKind kind) {
+    if (_isMobilePlatform || kind.name == 'touch') {
       return;
     }
 
@@ -11661,11 +11661,11 @@ class _PickerViewState extends State<_PickerView>
   }
 
   void _pointerEnterEvent(PointerEnterEvent event) {
-    _updateMouseHover(event.position);
+    _updateMouseHover(event.position, event.kind);
   }
 
   void _pointerHoverEvent(PointerHoverEvent event) {
-    _updateMouseHover(event.position);
+    _updateMouseHover(event.position, event.kind);
   }
 
   void _pointerExitEvent(PointerExitEvent event) {

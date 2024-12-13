@@ -430,13 +430,13 @@
       "type" : "text"
   },
   
-  "beforeDataGridFilteringLabel": "Before Or Equal",
+  "beforeDataGridFilteringLabel": "Before",
   "@beforeDataGridFilteringLabel": {
       "description" : "The label that is displayed in the filter view in SfDataGrid for `Before` option in drop down widget.",
       "type" : "text"
   },
   
-  "beforeOrEqualDataGridFilteringLabel": "Before",
+  "beforeOrEqualDataGridFilteringLabel": "Before Or Equal",
   "@beforeOrEqualDataGridFilteringLabel": {
       "description" : "The label that is displayed in the filter view in SfDataGrid for `Before Or Equal` option in drop down widget.",
       "type" : "text"

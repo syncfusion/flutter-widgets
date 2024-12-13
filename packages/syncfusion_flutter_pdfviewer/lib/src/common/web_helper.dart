@@ -1,19 +1,34 @@
-import 'dart:html' as html;
+import 'dart:js_interop';
+import 'package:web/web.dart' as web;
 
 /// Checks whether focus node of pdf page view has primary focus.
 bool hasPrimaryFocus = false;
 
+/// Context Menu Event Listener variable.
+JSFunction _contextMenuListener = (web.MouseEvent e) {
+  e.preventDefault();
+}.toJS;
+
+/// Keyboard Event Listener variable.
+JSFunction _keyDownListener = _preventSpecificDefaultMenu.toJS;
+
 /// Prevent default menu.
 void preventDefaultMenu() {
-  html.window.document.onKeyDown
-      .listen((html.KeyboardEvent e) => _preventSpecificDefaultMenu(e));
-  html.window.document.onContextMenu
-      .listen((html.MouseEvent e) => e.preventDefault());
+  web.window.document.addEventListener('keydown', _keyDownListener);
+  web.window.document.addEventListener('contextmenu', _contextMenuListener);
+}
+
+/// Enable default menu.
+void enableDefaultMenu() {
+  web.window.document.removeEventListener('keydown', _keyDownListener);
+  web.window.document.removeEventListener('contextmenu', _contextMenuListener);
 }
 
 /// Prevent specific default menu such as zoom panel,search.
-void _preventSpecificDefaultMenu(html.KeyboardEvent e) {
-  if (e.keyCode == 114 || (e.ctrlKey && e.keyCode == 70)) {
+void _preventSpecificDefaultMenu(web.KeyboardEvent e) {
+  if (e.keyCode == 114 ||
+      (e.ctrlKey && e.keyCode == 70) ||
+      (e.metaKey && e.keyCode == 70)) {
     e.preventDefault();
   }
   if (hasPrimaryFocus &&
@@ -25,8 +40,8 @@ void _preventSpecificDefaultMenu(html.KeyboardEvent e) {
 
 /// Gets platform type.
 String getPlatformType() {
-  if (html.window.navigator.platform!.toLowerCase().contains('macintel')) {
+  if (web.window.navigator.platform.toLowerCase().contains('macintel')) {
     return 'macos';
   }
-  return html.window.navigator.platform!.toLowerCase();
+  return web.window.navigator.platform.toLowerCase();
 }

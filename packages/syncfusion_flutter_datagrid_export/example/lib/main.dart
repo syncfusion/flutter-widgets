@@ -10,7 +10,8 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Row;
 
 // Local import
 import 'helper/save_file_mobile.dart'
-    if (dart.library.html) 'helper/save_file_web.dart' as helper;
+    if (dart.library.html) 'helper/save_file_web.dart'
+    if (dart.library.js_interop) 'helper/save_file_wasm.dart' as helper;
 
 void main() {
   runApp(const MyApp());

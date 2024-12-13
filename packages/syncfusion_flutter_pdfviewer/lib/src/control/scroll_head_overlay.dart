@@ -417,7 +417,11 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
               scrollable: true,
               insetPadding: EdgeInsets.zero,
               contentPadding: isMaterial3
-                  ? null
+                  ? const EdgeInsets.only(
+                      left: 24.0,
+                      right: 24.0,
+                      bottom: 24.0,
+                    )
                   : orientation == Orientation.portrait
                       ? const EdgeInsets.all(24)
                       : const EdgeInsets.only(right: 24, left: 24),
@@ -430,22 +434,39 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                   (Theme.of(context).colorScheme.brightness == Brightness.light
                       ? Colors.white
                       : const Color(0xFF424242)),
-              title: Text(_localizations!.pdfGoToPageLabel,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium!
-                      .copyWith(
-                        fontSize: isMaterial3 ? 24 : 20,
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.black.withOpacity(0.87)
-                            : Colors.white.withOpacity(0.87),
-                      )
-                      .merge(_pdfViewerThemeData!
-                          .paginationDialogStyle?.headerTextStyle)),
               shape: isMaterial3
                   ? null
                   : const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(4.0))),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(_localizations!.pdfGoToPageLabel,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium!
+                          .copyWith(
+                              fontSize: isMaterial3 ? 24 : 20,
+                              color: isMaterial3
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.black.withOpacity(0.87)
+                                      : Colors.white.withOpacity(0.87))
+                          .merge(_pdfViewerThemeData!
+                              .paginationDialogStyle?.headerTextStyle)),
+                  if (isMaterial3)
+                    IconButton(
+                      icon: const Icon(Icons.clear),
+                      iconSize: 24,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      onPressed: () {
+                        _textFieldController.clear();
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                ],
+              ),
               content: SingleChildScrollView(
                   child: Column(
                 children: <Widget>[
@@ -460,11 +481,12 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
                                 .textTheme
                                 .bodyLarge!
                                 .copyWith(
-                                    fontSize: 16,
-                                    color: Theme.of(context).brightness ==
-                                            Brightness.light
-                                        ? Colors.black
-                                        : Colors.white),
+                                    fontSize: 14,
+                                    fontWeight:
+                                        isMaterial3 ? FontWeight.w400 : null,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface),
                           )),
                     ),
                   _paginationTextField(context),
@@ -534,7 +556,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
     return Form(
       key: _formKey,
       child: SizedBox(
-        width: _kPdfPaginationTextFieldWidth,
+        width: isMaterial3 ? 312.0 : _kPdfPaginationTextFieldWidth,
         child: TextFormField(
           style: Theme.of(context)
               .textTheme
@@ -617,7 +639,10 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
             errorStyle: Theme.of(context)
                 .textTheme
                 .bodySmall!
-                .copyWith(fontSize: 12, color: _themeData.colorScheme.error)
+                .copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: _themeData.colorScheme.error)
                 .merge(_pdfViewerThemeData!
                     .paginationDialogStyle?.validationTextStyle),
           ),

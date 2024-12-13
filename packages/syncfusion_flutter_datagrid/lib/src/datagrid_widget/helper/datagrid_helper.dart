@@ -107,14 +107,23 @@ int resolveStartRecordIndex(
 /// Help to resolve the group from the display elements.
 dynamic getGroupElement(
     DataGridConfiguration dataGridConfiguration, int rowIndex) {
-  if (rowIndex < 0) {
-    return -1;
-  }
-  if (rowIndex >= 0) {
+  if (rowIndex >= 0 &&
+      rowIndex < dataGridConfiguration.group!.displayElements!.grouped.length) {
     return dataGridConfiguration.group!.displayElements!.grouped[rowIndex];
-  } else {
-    return -1;
   }
+  return null;
+}
+
+/// Help to get the row by the row index.
+DataGridRow? getDataRow(
+    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+    final dynamic element = getGroupElement(dataGridConfiguration, rowIndex);
+    return element is DataGridRow ? element : null;
+  }
+
+  final List<DataGridRow> rows = effectiveRows(dataGridConfiguration.source);
+  return (rowIndex >= 0 && rowIndex < rows.length) ? rows[rowIndex] : null;
 }
 
 /// Help to resolve the next grouped row from the display elements.

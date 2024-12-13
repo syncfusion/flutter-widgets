@@ -23,7 +23,7 @@
 
 **Breaking changes**
 
-* The license key is not required now to run the application with our widgets. However, you need to still have either Syncfusion commercial license or community license to use our widgets and libraries.
+* The license key is not required now to run the application with our widgets. However, you need to still have either Syncfusion<sup>&reg;</sup> commercial license or community license to use our widgets and libraries.
 
 ## [18.2.59] - 09/23/2020
 

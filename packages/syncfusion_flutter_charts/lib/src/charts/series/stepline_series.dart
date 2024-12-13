@@ -45,6 +45,7 @@ class StepLineSeries<T, D> extends XyDataSeries<T, D> {
     super.dataLabelSettings,
     super.initialIsVisible,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     super.selectionBehavior,

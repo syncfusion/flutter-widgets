@@ -304,7 +304,7 @@ class PdfSignatureHelper {
             PdfCrossTable.dereference(lastElement[PdfDictionaryProperties.t]);
         String tempName = '';
         if (name != null && name is PdfString) {
-          tempName = utf8.decode(name.data!);
+          tempName = utf8.decode(name.data!, allowMalformed: true);
         }
         if (tempName == signatureName &&
             annotationElements != null &&

@@ -356,6 +356,9 @@ class RadialBarSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
 
   @override
   List<LegendItem>? buildLegendItems(int index) {
+    if (circularYValues.isEmpty) {
+      return null;
+    }
     final num sumOfY = circularYValues
         .reduce((num value, num element) => value + element.abs());
     const double pointStartAngle = -90;
