@@ -1,3 +1,9 @@
+## [28.1.36] - 12/24/2024
+
+**General**
+
+* The compatible version of all our Flutter widgets has been updated to Flutter SDK 3.27.0.
+
 ## Unreleased
 
 **General**
