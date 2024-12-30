@@ -1878,10 +1878,10 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
 
     if (opacity != 1.0) {
       if (color != Colors.transparent) {
-        color = color.withOpacity(opacity);
+        color = color.withValues(alpha: opacity);
       }
       if (strokeColor != Colors.transparent) {
-        strokeColor = strokeColor.withOpacity(opacity);
+        strokeColor = strokeColor.withValues(alpha: opacity);
       }
     }
 
@@ -1893,12 +1893,12 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
         final double opacity = effectiveSelectionBehavior!.selectedOpacity;
         color = effectiveSelectionBehavior!.selectedColor ?? color;
         if (color != Colors.transparent) {
-          color = color.withOpacity(opacity);
+          color = color.withValues(alpha: opacity);
         }
         strokeColor =
             effectiveSelectionBehavior!.selectedBorderColor ?? strokeColor;
         if (strokeColor != Colors.transparent) {
-          strokeColor = strokeColor.withOpacity(opacity);
+          strokeColor = strokeColor.withValues(alpha: opacity);
         }
         strokeWidth =
             effectiveSelectionBehavior!.selectedBorderWidth ?? strokeWidth;
@@ -1906,12 +1906,12 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
         final double opacity = effectiveSelectionBehavior!.unselectedOpacity;
         color = effectiveSelectionBehavior!.unselectedColor ?? color;
         if (color != Colors.transparent) {
-          color = color.withOpacity(opacity);
+          color = color.withValues(alpha: opacity);
         }
         strokeColor =
             effectiveSelectionBehavior!.unselectedBorderColor ?? strokeColor;
         if (strokeColor != Colors.transparent) {
-          strokeColor = strokeColor.withOpacity(opacity);
+          strokeColor = strokeColor.withValues(alpha: opacity);
         }
         strokeWidth =
             effectiveSelectionBehavior!.unselectedBorderWidth ?? strokeWidth;
@@ -3478,8 +3478,8 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
   @override
   List<LegendItem>? buildLegendItems(int index) {
     final List<LegendItem>? items = super.buildLegendItems(index);
-    if (trendlineContainer != null) {
-      items!.addAll(trendlineContainer!.buildLegendItems(index, this)!);
+    if (trendlineContainer != null && items != null) {
+      items.addAll(trendlineContainer!.buildLegendItems(index, this)!);
     }
     return items;
   }

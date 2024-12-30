@@ -475,6 +475,7 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
         if (point.text != point.trimmedText) {
           details.text = point.trimmedText!;
           point.dataLabelSize = measureText(details.text, details.textStyle);
+          dataLabelPositioned.size = point.dataLabelSize;
           rect = getDataLabelRect(
               point.dataLabelPosition,
               seriesRenderer.dataLabelSettings.connectorLineSettings.type,

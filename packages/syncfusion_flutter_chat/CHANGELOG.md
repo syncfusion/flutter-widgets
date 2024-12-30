@@ -1,4 +1,10 @@
-## [28.1.29] - 12/12/2024
+## [28.1.36] - 24/12/2024
+
+**General**
+
+* The compatible version of our Flutter chat and AI assistView widgets has been updated to Flutter SDK 3.27.0.
+
+## [28.1.33] - 12/12/2024
 
 ### General
 

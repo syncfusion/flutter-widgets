@@ -1659,7 +1659,7 @@ class _IconTextState extends State<_IconText>
     Widget current = CustomPaint(
       size: widget.iconSize,
       painter: _LegendIconShape(
-        color: details.color!.withOpacity(widget.iconOpacity),
+        color: details.color!.withValues(alpha: widget.iconOpacity),
         iconType: details.iconType,
         iconBorderColor: details.iconBorderColor,
         iconBorderWidth: details.iconBorderWidth,
@@ -1867,8 +1867,8 @@ class _IconTextState extends State<_IconText>
                   details.text,
                   style: widget.textStyle.copyWith(
                     color: widget.textStyle.foreground == null
-                        ? widget.textStyle.color!.withOpacity(
-                            _opacityTween.evaluate(_toggleAnimation))
+                        ? widget.textStyle.color!.withValues(
+                            alpha: _opacityTween.evaluate(_toggleAnimation))
                         : widget.textStyle.foreground!.color,
                   ),
                 )

@@ -1128,7 +1128,7 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
       // by 4 to get the animation factor for mean line.
       final double opacity = (animationFactor - 0.75) * 4.0;
       final Paint meanPaint = Paint()
-        ..color = strokePaint.color.withOpacity(opacity)
+        ..color = strokePaint.color.withValues(alpha: opacity)
         ..strokeWidth = strokePaint.strokeWidth
         ..shader = strokePaint.shader
         ..style = strokePaint.style

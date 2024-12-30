@@ -339,7 +339,9 @@ Color dataLabelSurfaceColor(
 /// To get saturation color.
 Color saturatedTextColor(Color color) {
   final num contrast =
-      ((color.red * 299 + color.green * 587 + color.blue * 114) / 1000).round();
+      (((color.r * 255) * 299 + (color.g * 255) * 587 + (color.b * 255) * 114) /
+              1000)
+          .round();
   return contrast >= 128 ? Colors.black : Colors.white;
 }
 

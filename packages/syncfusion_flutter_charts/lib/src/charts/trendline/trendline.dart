@@ -2452,7 +2452,7 @@ class TrendlineRenderer extends RenderBox {
     }
 
     final Paint trendlinePaint = Paint()
-      ..color = color!.withOpacity(opacity)
+      ..color = color!.withValues(alpha: opacity)
       ..strokeWidth = width
       ..style = PaintingStyle.stroke;
 
