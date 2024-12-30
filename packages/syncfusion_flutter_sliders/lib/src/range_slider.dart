@@ -1423,8 +1423,8 @@ class _SfRangeSliderState extends State<SfRangeSlider>
     final Color labelColor = isMaterial3
         ? themeData.colorScheme.onSurfaceVariant
         : isActive
-            ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
-            : themeData.colorScheme.onSurface.withOpacity(0.32);
+            ? themeData.textTheme.bodyLarge!.color!.withValues(alpha: 0.87)
+            : themeData.colorScheme.onSurface.withValues(alpha: 0.32);
     final double minTrackHeight = math.min(
         rangeSliderThemeData.activeTrackHeight,
         rangeSliderThemeData.inactiveTrackHeight);
@@ -1477,7 +1477,7 @@ class _SfRangeSliderState extends State<SfRangeSlider>
           rangeSliderThemeData.disabledInactiveMinorTickColor ??
               effectiveThemeData.disabledInactiveMinorTickColor,
       // ignore: lines_longer_than_80_chars
-      overlayColor: widget.activeColor?.withOpacity(0.12) ??
+      overlayColor: widget.activeColor?.withValues(alpha: 0.12) ??
           rangeSliderThemeData.overlayColor ??
           effectiveThemeData.overlayColor,
       inactiveDividerColor: widget.activeColor ??
@@ -1619,8 +1619,8 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       isInversed: widget._sliderType == SliderType.horizontal &&
               Directionality.of(context) == TextDirection.rtl ||
           widget.isInversed,
-      inactiveColor:
-          widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
+      inactiveColor: widget.inactiveColor ??
+          themeData.primaryColor.withValues(alpha: 0.24),
       activeColor: widget.activeColor ?? themeData.primaryColor,
       labelPlacement: widget.labelPlacement,
       edgeLabelPlacement: widget.edgeLabelPlacement,
