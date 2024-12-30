@@ -490,7 +490,7 @@ class _AssistMessageBubbleState extends MessageBubbleState<AssistMessage> {
       midColor = Colors.white;
     } else {
       edgeColor = colorScheme.surfaceContainer;
-      midColor = colorScheme.surfaceContainer.withOpacity(0.12);
+      midColor = colorScheme.surfaceContainer.withValues(alpha: 0.12);
     }
     return _Shimmer(
       bubbleWidth: availableContentWidth() * widget.widthFactor,

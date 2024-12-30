@@ -459,14 +459,17 @@ abstract class MessageBubbleState<T> extends State<MessageBubble<T>> {
     return result;
   }
 
+  EdgeInsets effectiveMessagePadding() {
+    return widget.padding.resolve(widget.alignmentDirection);
+  }
+
   @override
+  @nonVirtual
   Widget build(BuildContext context) {
     Widget result = buildMessage(context);
-    if (widget.padding != EdgeInsets.zero) {
-      result = Padding(
-        padding: widget.padding.resolve(widget.alignmentDirection),
-        child: result,
-      );
+    final EdgeInsets effectivePadding = effectiveMessagePadding();
+    if (effectivePadding != EdgeInsets.zero) {
+      result = Padding(padding: effectivePadding, child: result);
     }
 
     return result;
