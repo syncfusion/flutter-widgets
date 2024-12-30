@@ -645,7 +645,7 @@ class SfCalendar extends StatefulWidget {
   ///        startTime: date,
   ///        endTime: date.add(Duration(hours: 2)),
   ///        enablePointerInteraction: false,
-  ///        color: Colors.grey.withOpacity(0.2),
+  ///        color: Colors.grey.withValues(alpha:0.2),
   ///        text: 'Break'));
   ///
   ///    return regions;
@@ -1922,7 +1922,7 @@ class SfCalendar extends StatefulWidget {
   ///        startTime: DateTime.now(),
   ///        endTime: DateTime.now().add(Duration(hours: 1)),
   ///        enablePointerInteraction: false,
-  ///        color: Colors.grey.withOpacity(0.2),
+  ///        color: Colors.grey.withValues(alpha:0.2),
   ///        text: 'Break'));
   ///
   ///    return regions;
@@ -3879,7 +3879,7 @@ class _SfCalendarState extends State<SfCalendar>
                 ?.merge(widget.blackoutDatesTextStyle),
         trailingDatesTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.54),
+              color: colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: isMaterial3 ? 14 : 13,
             )
             .merge(calendarThemeData.trailingDatesTextStyle)
@@ -3887,7 +3887,7 @@ class _SfCalendarState extends State<SfCalendar>
                 widget.monthViewSettings.monthCellStyle.trailingDatesTextStyle),
         leadingDatesTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.54),
+              color: colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: isMaterial3 ? 14 : 13,
             )
             .merge(calendarThemeData.leadingDatesTextStyle)
@@ -3902,7 +3902,7 @@ class _SfCalendarState extends State<SfCalendar>
             .merge(widget.todayTextStyle),
         headerTextStyle: themeData.textTheme.bodyLarge!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: isMaterial3 ? 16 : 18,
               fontWeight: FontWeight.w400,
             )
@@ -3910,14 +3910,14 @@ class _SfCalendarState extends State<SfCalendar>
             .merge(widget.headerStyle.textStyle),
         activeDatesTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: 13,
             )
             .merge(calendarThemeData.activeDatesTextStyle)
             .merge(widget.monthViewSettings.monthCellStyle.textStyle),
         timeTextStyle: themeData.textTheme.bodySmall!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.54),
+              color: colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: isMaterial3 ? 12 : 10,
               fontWeight: FontWeight.w500,
             )
@@ -3925,14 +3925,14 @@ class _SfCalendarState extends State<SfCalendar>
             .merge(widget.timeSlotViewSettings.timeTextStyle),
         viewHeaderDateTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: isMaterial3 ? 14 : 15,
             )
             .merge(calendarThemeData.viewHeaderDateTextStyle)
             .merge(widget.viewHeaderStyle.dateTextStyle),
         viewHeaderDayTextStyle: themeData.textTheme.bodySmall!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: isMaterial3 ? 12 : 11,
             )
             .merge(calendarThemeData.viewHeaderDayTextStyle)
@@ -3947,7 +3947,7 @@ class _SfCalendarState extends State<SfCalendar>
             .merge(widget.resourceViewSettings.displayNameTextStyle),
         weekNumberTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: isMaterial3 ? 14 : 13,
             )
             .merge(calendarThemeData.weekNumberTextStyle)
@@ -5803,7 +5803,7 @@ class _SfCalendarState extends State<SfCalendar>
     final double dividerHeight = _useMobilePlatformUI ? 0 : 1;
     Color dividerColor =
         widget.cellBorderColor ?? _calendarTheme.cellBorderColor!;
-    dividerColor = dividerColor.withOpacity(dividerColor.opacity * 0.5);
+    dividerColor = dividerColor.withValues(alpha: dividerColor.a * 0.5);
     int numberOfEvents = 0;
 
     double appointmentHeight = 0;
@@ -9523,7 +9523,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
     final Color headerBackgroundColor = widget.headerStyle.backgroundColor ??
         widget.calendarTheme.headerBackgroundColor!;
     final Color arrowColor =
-        headerTextColor.withOpacity(headerTextColor.opacity * 0.6);
+        headerTextColor.withValues(alpha: headerTextColor.a * 0.6);
     Color prevArrowColor = arrowColor;
     Color nextArrowColor = arrowColor;
     final TextStyle style = TextStyle(color: arrowColor);
@@ -9761,7 +9761,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         widget.maxDate,
         dates,
         widget.nonWorkingDays)) {
-      nextArrowColor = nextArrowColor.withOpacity(nextArrowColor.opacity * 0.5);
+      nextArrowColor = nextArrowColor.withValues(alpha: nextArrowColor.a * 0.5);
     }
 
     if (!DateTimeHelper.canMoveToPreviousView(
@@ -9771,7 +9771,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         widget.maxDate,
         dates,
         widget.nonWorkingDays)) {
-      prevArrowColor = prevArrowColor.withOpacity(prevArrowColor.opacity * 0.5);
+      prevArrowColor = prevArrowColor.withValues(alpha: prevArrowColor.a * 0.5);
     }
 
     MainAxisAlignment getAlignmentFromTextAlign() {
@@ -9923,7 +9923,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                       decoration: BoxDecoration(
                         color:
                             widget.showDatePickerButton && widget.isPickerShown
-                                ? Colors.grey.withOpacity(0.3)
+                                ? Colors.grey.withValues(alpha: 0.3)
                                 : headerBackgroundColor,
                       ),
 
@@ -10330,7 +10330,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       padding: EdgeInsets.all(useMobilePlatformUI ? 2 : 4),
       child: Material(
         color: isHighlighted && (isNeedIcon || useMobilePlatformUI)
-            ? Colors.grey.withOpacity(0.3)
+            ? Colors.grey.withValues(alpha: 0.3)
             : headerBackgroundColor,
         child: InkWell(
             splashColor: calendarViewSplashColor,
@@ -10642,7 +10642,7 @@ class _ScheduleLabelPainter extends CustomPainter {
         final Rect rect = Rect.fromLTWH(
             0, padding, size.width - 2, size.height - (2 * padding));
         _backgroundPainter.color =
-            calendarTheme.selectionBorderColor!.withOpacity(0.4);
+            calendarTheme.selectionBorderColor!.withValues(alpha: 0.4);
         _backgroundPainter.style = PaintingStyle.stroke;
         _backgroundPainter.strokeWidth = 2;
         canvas.drawRect(rect, _backgroundPainter);
@@ -10654,7 +10654,7 @@ class _ScheduleLabelPainter extends CustomPainter {
             padding + viewPadding,
             size.width - (isRTL ? viewPadding : padding),
             size.height - (2 * (viewPadding + padding)));
-        _backgroundPainter.color = Colors.grey.withOpacity(0.1);
+        _backgroundPainter.color = Colors.grey.withValues(alpha: 0.1);
         canvas.drawRRect(
             RRect.fromRectAndRadius(rect, const Radius.circular(4)),
             _backgroundPainter);
@@ -11090,7 +11090,7 @@ class _CustomSplash extends InteractiveInkFeature {
       ..addListener(controller.markNeedsPaint)
       ..addStatusListener(_handleAlphaStatusChanged);
     _alpha = _alphaController!.drive(IntTween(
-      begin: color.alpha,
+      begin: (color.a * 255).toInt(),
       end: 0,
     ));
 
@@ -11260,7 +11260,7 @@ class _AgendaDateTimePainter extends CustomPainter {
     /// Holds the default agenda day text style from framework text theme.
     final TextStyle agendaDayThemeTextStyle =
         themeData.textTheme.bodySmall!.copyWith(
-      color: themeData.colorScheme.onSurface.withOpacity(0.54),
+      color: themeData.colorScheme.onSurface.withValues(alpha: 0.54),
       fontSize: 10,
       fontWeight: FontWeight.w500,
     );
@@ -11394,11 +11394,11 @@ class _AgendaDateTimePainter extends CustomPainter {
           yPosition + _textPainter.height >
               agendaDateNotifier.value!.hoveringOffset.dy) {
         _linePainter.color = isToday
-            ? Colors.black.withOpacity(0.1)
+            ? Colors.black.withValues(alpha: 0.1)
             : (themeData.brightness == Brightness.dark
                     ? Colors.white
                     : Colors.black87)
-                .withOpacity(0.04);
+                .withValues(alpha: 0.04);
         _drawTodayCircle(canvas, xPosition, yPosition, padding);
       }
     }
@@ -11460,11 +11460,11 @@ class _AgendaDateTimePainter extends CustomPainter {
           (yPosition + _textPainter.height) >
               agendaDateNotifier.value!.hoveringOffset.dy) {
         _linePainter.color = isToday
-            ? Colors.black.withOpacity(0.1)
+            ? Colors.black.withValues(alpha: 0.1)
             : (themeData.brightness == Brightness.dark
                     ? Colors.white
                     : Colors.black87)
-                .withOpacity(0.04);
+                .withValues(alpha: 0.04);
         _drawTodayCircle(canvas, dateTextStartPosition, yPosition, padding);
       }
     }
