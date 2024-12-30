@@ -763,8 +763,8 @@ class _MapLineLayerState extends State<_MapLineLayer>
       animation: widget.animation,
       color: widget.color ??
           (themeData.brightness == Brightness.light
-              ? themeData.colorScheme.onSurface.withOpacity(0.44)
-              : themeData.colorScheme.onSurface.withOpacity(0.78)),
+              ? themeData.colorScheme.onSurface.withValues(alpha: 0.44)
+              : themeData.colorScheme.onSurface.withValues(alpha: 0.78)),
       width: widget.width,
       strokeCap: widget.strokeCap,
       dashArray: widget.dashArray,
@@ -1826,8 +1826,8 @@ class _MapArcLayerState extends State<_MapArcLayer>
       animation: widget.animation,
       color: widget.color ??
           (themeData.brightness == Brightness.light
-              ? themeData.colorScheme.onSurface.withOpacity(0.44)
-              : themeData.colorScheme.onSurface.withOpacity(0.78)),
+              ? themeData.colorScheme.onSurface.withValues(alpha: 0.44)
+              : themeData.colorScheme.onSurface.withValues(alpha: 0.78)),
       width: widget.width,
       dashArray: widget.dashArray,
       tooltipBuilder: widget.tooltipBuilder,
@@ -2907,8 +2907,8 @@ class _MapPolylineLayerState extends State<_MapPolylineLayer>
       animation: widget.animation,
       color: widget.color ??
           (themeData.brightness == Brightness.light
-              ? themeData.colorScheme.onSurface.withOpacity(0.44)
-              : themeData.colorScheme.onSurface.withOpacity(0.78)),
+              ? themeData.colorScheme.onSurface.withValues(alpha: 0.44)
+              : themeData.colorScheme.onSurface.withValues(alpha: 0.78)),
       width: widget.width,
       strokeCap: widget.strokeCap,
       dashArray: widget.dashArray,

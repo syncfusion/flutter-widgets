@@ -282,6 +282,6 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
     if (color == null) {
       return null;
     }
-    return color.withOpacity(_opacityTween.evaluate(_dataLabelAnimation));
+    return color.withValues(alpha: _opacityTween.evaluate(_dataLabelAnimation));
   }
 }
