@@ -311,9 +311,6 @@ class RenderLinearGauge extends RenderBox
               (axisLineSize < tickSize ? (tickSize - axisLineSize) / 2 : 0);
         }
         break;
-      // ignore: no_default_cases
-      default:
-        break;
     }
 
     _insideWidgetElementSize =
@@ -409,9 +406,6 @@ class RenderLinearGauge extends RenderBox
           }
         }
         break;
-      // ignore: no_default_cases
-      default:
-        break;
     }
   }
 
@@ -434,9 +428,6 @@ class RenderLinearGauge extends RenderBox
         break;
       case LinearElementPosition.cross:
         _measureCrossElementSize(thickness);
-        break;
-      // ignore: no_default_cases
-      default:
         break;
     }
   }
@@ -485,12 +476,7 @@ class RenderLinearGauge extends RenderBox
         return _outsideWidgetElementSize +
             _getCrossElementPosition(markerSize) +
             (_actualSizeDelta! / 2);
-      // ignore: no_default_cases
-      default:
-        break;
     }
-
-    return null;
   }
 
   double _getCrossElementPosition(double width) {
@@ -674,9 +660,6 @@ class RenderLinearGauge extends RenderBox
           case LinearElementPosition.cross:
             _measureCrossElementSize(rangeThickness);
             break;
-          // ignore: no_default_cases
-          default:
-            break;
         }
       }
     }
@@ -792,9 +775,6 @@ class RenderLinearGauge extends RenderBox
                 (_actualSizeDelta! / 2) +
                 _getCrossElementPosition(thickness);
             break;
-          // ignore: no_default_cases
-          default:
-            break;
         }
 
         _positionChildElement(range, thickness: rangeWidth);
@@ -836,9 +816,6 @@ class RenderLinearGauge extends RenderBox
             _pointY = _outsideWidgetElementSize +
                 (_actualSizeDelta! / 2) +
                 _getCrossElementPosition(barPointer.thickness);
-            break;
-          // ignore: no_default_cases
-          default:
             break;
         }
 
