@@ -23,7 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  intl: '>=0.18.1 <0.20.0'
+  intl: '>=0.18.1 <0.21.0'
   vector_math: ">=2.1.0 <=3.0.0"
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
