@@ -48,7 +48,7 @@ class AllDayAppointmentLayout extends StatefulWidget {
 
   /// Holds the selection details and user to trigger repaint to draw the
   /// selection.
-  final ValueNotifier<SelectionDetails?> repaintNotifier;
+  final ValueNotifier<AllDayPanelSelectionDetails?> repaintNotifier;
 
   /// Used to get the calendar state details.
   final UpdateCalendarState updateCalendarState;
@@ -449,7 +449,7 @@ class _AllDayAppointmentRenderWidget extends MultiChildRenderObjectWidget {
   final CalendarView view;
   final List<DateTime> visibleDates;
   final List<CalendarAppointment>? visibleAppointments;
-  final ValueNotifier<SelectionDetails?> repaintNotifier;
+  final ValueNotifier<AllDayPanelSelectionDetails?> repaintNotifier;
   final double timeLabelWidth;
   final double allDayPainterHeight;
   final bool isRTL;
@@ -766,11 +766,12 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
     _allDayHoverPosition.addListener(markNeedsPaint);
   }
 
-  ValueNotifier<SelectionDetails?> _selectionNotifier;
+  ValueNotifier<AllDayPanelSelectionDetails?> _selectionNotifier;
 
-  ValueNotifier<SelectionDetails?> get selectionNotifier => _selectionNotifier;
+  ValueNotifier<AllDayPanelSelectionDetails?> get selectionNotifier =>
+      _selectionNotifier;
 
-  set selectionNotifier(ValueNotifier<SelectionDetails?> value) {
+  set selectionNotifier(ValueNotifier<AllDayPanelSelectionDetails?> value) {
     if (_selectionNotifier == value) {
       return;
     }
@@ -1436,7 +1437,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   /// Used to pass the argument of create box painter and it is called when
   /// decoration have asynchronous data like image.
   void _updateSelectionDecorationPainter() {
-    selectionNotifier.value = SelectionDetails(
+    selectionNotifier.value = AllDayPanelSelectionDetails(
         selectionNotifier.value!.appointmentView,
         selectionNotifier.value!.selectedDate);
   }

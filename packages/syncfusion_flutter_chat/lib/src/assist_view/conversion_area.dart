@@ -538,6 +538,7 @@ class _AssistMessageBubbleState extends MessageBubbleState<AssistMessage> {
     if (widget.message.author!.avatar != null) {
       result = CircleAvatar(
         backgroundImage: widget.message.author!.avatar,
+        backgroundColor: widget.avatarBackgroundColor,
       );
     } else {
       if (widget.message.author!.name.isNotEmpty) {

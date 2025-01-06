@@ -10,7 +10,6 @@ import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
-import '../axis/datetime_category_axis.dart';
 import '../axis/logarithmic_axis.dart';
 import '../base.dart';
 import '../common/callbacks.dart';
@@ -880,8 +879,8 @@ class TrackballBehavior extends ChartBehavior {
     num yValue = yAxis.pixelToPoint(bounds, position.dx, position.dy);
 
     if (series.canFindLinearVisibleIndexes &&
-        ((xAxis is RenderCategoryAxis && xAxis.arrangeByIndex) ||
-            xAxis is RenderDateTimeCategoryAxis)) {
+        xAxis is RenderCategoryAxis &&
+        xAxis.arrangeByIndex) {
       final DoubleRange range = xAxis.visibleRange!;
       final int index = xValue.round();
       if (index <= range.maximum &&

@@ -1346,7 +1346,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   set isVertical(bool value) {
     _isVertical = value;
     if (value) {
-      effectiveLabelIntersectAction = AxisLabelIntersectAction.hide;
+      effectiveLabelIntersectAction =
+          labelIntersectAction == AxisLabelIntersectAction.none
+              ? AxisLabelIntersectAction.none
+              : AxisLabelIntersectAction.hide;
       if (_renderer is! _VerticalAxisRenderer) {
         _renderer = _VerticalAxisRenderer(this);
       }
@@ -1510,7 +1513,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     if (_labelIntersectAction != value) {
       _labelIntersectAction = value;
       if (isVertical) {
-        effectiveLabelIntersectAction = AxisLabelIntersectAction.hide;
+        effectiveLabelIntersectAction =
+            labelIntersectAction == AxisLabelIntersectAction.none
+                ? AxisLabelIntersectAction.none
+                : AxisLabelIntersectAction.hide;
       } else {
         effectiveLabelIntersectAction = labelIntersectAction;
       }
