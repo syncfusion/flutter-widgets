@@ -660,9 +660,9 @@ class RenderMarkerPointer extends RenderBox {
         overlayColor != colorScheme.transparent) {
       overlayPaint = Paint()
         ..color = overlayColor ??
-            color?.withOpacity(0.12) ??
-            gaugeThemeData.markerColor?.withOpacity(0.12) ??
-            _themeData.colorScheme.secondaryContainer.withOpacity(0.12)
+            color?.withValues(alpha: 0.12) ??
+            gaugeThemeData.markerColor?.withValues(alpha: 0.12) ??
+            _themeData.colorScheme.secondaryContainer.withValues(alpha: 0.12)
         ..style = PaintingStyle.fill;
     }
 

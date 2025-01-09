@@ -5634,8 +5634,8 @@ class _CalendarViewState extends State<_CalendarView>
   late double _timeIntervalHeight;
   final UpdateCalendarStateDetails _updateCalendarStateDetails =
       UpdateCalendarStateDetails();
-  ValueNotifier<SelectionDetails?> _allDaySelectionNotifier =
-      ValueNotifier<SelectionDetails?>(null);
+  ValueNotifier<AllDayPanelSelectionDetails?> _allDaySelectionNotifier =
+      ValueNotifier<AllDayPanelSelectionDetails?>(null);
   late ValueNotifier<Offset?> _viewHeaderNotifier;
   final ValueNotifier<Offset?> _calendarCellNotifier =
           ValueNotifier<Offset?>(null),
@@ -5803,7 +5803,8 @@ class _CalendarViewState extends State<_CalendarView>
     /// select the same month cell and move to day view then the view show
     /// calendar cell selection and all day panel selection.
     if (oldWidget.view != widget.view) {
-      _allDaySelectionNotifier = ValueNotifier<SelectionDetails?>(null);
+      _allDaySelectionNotifier =
+          ValueNotifier<AllDayPanelSelectionDetails?>(null);
       final DateTime today = DateTime.now();
       _currentTimeNotifier = ValueNotifier<int>(
           (today.day * 24 * 60) + (today.hour * 60) + today.minute);
@@ -6479,7 +6480,7 @@ class _CalendarViewState extends State<_CalendarView>
     final Widget shadowView = Divider(
       height: 1,
       thickness: 1,
-      color: borderColor.withOpacity(borderColor.opacity * 0.5),
+      color: borderColor.withValues(alpha: borderColor.a * 0.5),
     );
 
     final double timeLabelWidth = CalendarViewHelper.getTimeLabelWidth(
@@ -9401,7 +9402,7 @@ class _CalendarViewState extends State<_CalendarView>
       return;
     }
 
-    _allDaySelectionNotifier.value = SelectionDetails(view, date);
+    _allDaySelectionNotifier.value = AllDayPanelSelectionDetails(view, date);
   }
 
   //// Handles the onTap callback for day view cells, all day panel, and view
@@ -11641,13 +11642,13 @@ class _ViewHeaderViewPainter extends CustomPainter {
       if (!isDateWithInDateRange(minDate, maxDate, currentDate)) {
         dayTextStyle = dayTextStyle.copyWith(
             color: dayTextStyle.color != null
-                ? dayTextStyle.color!.withOpacity(0.38)
+                ? dayTextStyle.color!.withValues(alpha: 0.38)
                 : themeData.brightness == Brightness.light
                     ? Colors.black26
                     : Colors.white38);
         dateTextStyle = dateTextStyle.copyWith(
             color: dateTextStyle.color != null
-                ? dateTextStyle.color!.withOpacity(0.38)
+                ? dateTextStyle.color!.withValues(alpha: 0.38)
                 : themeData.brightness == Brightness.light
                     ? Colors.black26
                     : Colors.white38);
@@ -11789,7 +11790,7 @@ class _ViewHeaderViewPainter extends CustomPainter {
           hoveringColor: (themeData.brightness == Brightness.dark
                   ? Colors.white
                   : Colors.black87)
-              .withOpacity(0.04));
+              .withValues(alpha: 0.04));
     }
   }
 
@@ -11806,11 +11807,11 @@ class _ViewHeaderViewPainter extends CustomPainter {
         xPosition + dateXPosition + _dateTextPainter.width >=
             viewHeaderNotifier.value!.dx) {
       final Color hoveringColor = isToday
-          ? Colors.black.withOpacity(0.12)
+          ? Colors.black.withValues(alpha: 0.12)
           : (themeData.brightness == Brightness.dark
                   ? Colors.white
                   : Colors.black87)
-              .withOpacity(0.04);
+              .withValues(alpha: 0.04);
       _drawTodayCircle(
           canvas,
           xPosition + dateXPosition,
@@ -14104,7 +14105,7 @@ class _DraggingAppointmentRenderObject extends RenderBox
     xPosition = dragDetails.position.value!.dx;
     yPosition = dragDetails.position.value!.dy;
     _shadowPainter.color =
-        dragDetails.appointmentView!.appointment!.color.withOpacity(0.5);
+        dragDetails.appointmentView!.appointment!.color.withValues(alpha: 0.5);
 
     final RRect rect = RRect.fromRectAndRadius(
         Rect.fromLTWH(

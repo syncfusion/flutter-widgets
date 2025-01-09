@@ -876,7 +876,7 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
     rect =
         Rect.fromLTRB(leftPosition, topPosition, rightPosition, bottomPosition);
     _linePainter.style = PaintingStyle.fill;
-    _linePainter.color = Colors.grey.withOpacity(0.2);
+    _linePainter.color = Colors.grey.withValues(alpha: 0.2);
     canvas.drawRect(rect, _linePainter);
   }
 
@@ -977,7 +977,8 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
 
     _linePainter.style = PaintingStyle.stroke;
     _linePainter.strokeWidth = 2;
-    _linePainter.color = calendarTheme.selectionBorderColor!.withOpacity(0.4);
+    _linePainter.color =
+        calendarTheme.selectionBorderColor!.withValues(alpha: 0.4);
     left = left == 0 ? left - difference + padding : left - difference;
     canvas.drawRect(Rect.fromLTWH(left, top, width, height), _linePainter);
   }
@@ -1009,7 +1010,7 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
     for (int i = 0; i < count; i++) {
       final TimeRegionView view = specialRegionBounds[i];
       final CalendarTimeRegion region = view.region;
-      _linePainter.color = region.color ?? Colors.grey.withOpacity(0.2);
+      _linePainter.color = region.color ?? Colors.grey.withValues(alpha: 0.2);
       final TextStyle textStyle = themeData.textTheme.bodyMedium!
           .copyWith(fontSize: 14)
           .merge(region.textStyle ?? defaultTextStyle);
@@ -1216,12 +1217,12 @@ class TimelineViewHeaderView extends CustomPainter {
 
     final TextStyle defaultThemeViewHeaderDayTextStyle =
         themeData.textTheme.bodySmall!.copyWith(
-      color: themeData.colorScheme.onSurface.withOpacity(0.87),
+      color: themeData.colorScheme.onSurface.withValues(alpha: 0.87),
       fontSize: 11,
     );
     final TextStyle defaultThemeViewHeaderDateTextStyle =
         themeData.textTheme.bodyMedium!.copyWith(
-      color: themeData.colorScheme.onSurface.withOpacity(0.87),
+      color: themeData.colorScheme.onSurface.withValues(alpha: 0.87),
       fontSize: 15,
     );
 
@@ -1302,13 +1303,13 @@ class TimelineViewHeaderView extends CustomPainter {
       if (!isDateWithInDateRange(minDate, maxDate, currentDate)) {
         dayTextStyle = dayTextStyle.copyWith(
             color: dayTextStyle.color != null
-                ? dayTextStyle.color!.withOpacity(0.38)
+                ? dayTextStyle.color!.withValues(alpha: 0.38)
                 : themeData.brightness == Brightness.light
                     ? Colors.black26
                     : Colors.white38);
         dateTextStyle = dateTextStyle.copyWith(
             color: dateTextStyle.color != null
-                ? dateTextStyle.color!.withOpacity(0.38)
+                ? dateTextStyle.color!.withValues(alpha: 0.38)
                 : themeData.brightness == Brightness.light
                     ? Colors.black26
                     : Colors.white38);
@@ -1464,7 +1465,7 @@ class TimelineViewHeaderView extends CustomPainter {
       _hoverPainter.color = (themeData.brightness == Brightness.dark
               ? Colors.white
               : Colors.black87)
-          .withOpacity(0.04);
+          .withValues(alpha: 0.04);
       canvas.drawRect(
           Rect.fromLTRB(leftPosition, 0, rightPosition + _padding, size.height),
           _hoverPainter);

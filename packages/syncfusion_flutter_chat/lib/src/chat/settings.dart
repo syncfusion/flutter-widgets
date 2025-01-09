@@ -880,7 +880,7 @@ class ChatBubbleSettings extends MessageSettings {
     this.contentShape,
     this.widthFactor = 0.8,
     this.avatarSize = const Size.square(32.0),
-    this.padding = const EdgeInsets.symmetric(vertical: 8.0),
+    this.padding = const EdgeInsetsDirectional.only(top: 16.0),
     this.contentPadding =
         const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
     this.avatarPadding,

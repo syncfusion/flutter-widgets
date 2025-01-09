@@ -595,14 +595,14 @@ class _SfAIAssistViewState extends State<SfAIAssistView> {
       const AssistBubbleSettings(
     avatarPadding: EdgeInsetsDirectional.only(start: 16.0),
     contentPadding: EdgeInsets.all(8.0),
-    padding: EdgeInsetsDirectional.only(bottom: 24.0),
+    padding: EdgeInsetsDirectional.only(top: 24.0),
     showUserAvatar: true,
   );
   final AssistBubbleSettings _responseBubbleSettings =
       const AssistBubbleSettings(
     avatarPadding: EdgeInsetsDirectional.only(end: 16.0),
     contentPadding: EdgeInsetsDirectional.symmetric(vertical: 8.0),
-    padding: EdgeInsetsDirectional.only(bottom: 24.0),
+    padding: EdgeInsetsDirectional.only(top: 24.0),
     showUserAvatar: true,
   );
   final InputBorder _defaultInputDecorBorder = const OutlineInputBorder(

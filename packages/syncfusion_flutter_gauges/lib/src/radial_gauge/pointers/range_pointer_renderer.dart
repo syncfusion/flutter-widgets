@@ -580,7 +580,7 @@ class RenderRangePointer extends RenderBox {
           (_themeData.useMaterial3
                   ? _themeData.colorScheme.primary
                   : _themeData.colorScheme.secondaryContainer)
-              .withOpacity(0.8)
+              .withValues(alpha: 0.8)
       ..strokeWidth = _actualRangeThickness
       ..style = isFill ? PaintingStyle.fill : PaintingStyle.stroke;
 

@@ -1,4 +1,12 @@
-## [28.1.29] - 12/12/2024
+## [28.1.36] - 24/12/2024
+
+**Bugs**
+
+* \#BD661538 - Resolved a failed assertion exception that occurred when using behaviors in the Chart and attempting to display the behavior before the chart finished loading.
+* \#BD665634 - The data label tooltip now updates properly when long text is used in the data label in [CircularCharts](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CircularSeries-class.html).
+* \#GH2208 - Resolved null exception when the [isVisibleLegend](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Trendline/isVisibleInLegend.html) is set to false for trendlines in [CartesianCharts](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html).
+
+## [28.1.33] - 12/12/2024
 
 **General**
 

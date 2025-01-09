@@ -108,9 +108,6 @@ Curve getCurveAnimation(LinearAnimationType type) {
     case LinearAnimationType.slowMiddle:
       curve = Curves.slowMiddle;
       break;
-    // ignore: no_default_cases
-    default:
-      break;
   }
   return curve;
 }

@@ -1534,8 +1534,8 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
     final Color labelColor = isMaterial3
         ? themeData.colorScheme.onSurfaceVariant
         : widget.enabled
-            ? themeData.textTheme.bodyLarge!.color!.withOpacity(0.87)
-            : themeData.colorScheme.onSurface.withOpacity(0.32);
+            ? themeData.textTheme.bodyLarge!.color!.withValues(alpha: 0.87)
+            : themeData.colorScheme.onSurface.withValues(alpha: 0.32);
     final double minTrackHeight = math.min(
         rangeSelectorThemeData.activeTrackHeight,
         rangeSelectorThemeData.inactiveTrackHeight);
@@ -1592,7 +1592,7 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       disabledInactiveMinorTickColor:
           rangeSelectorThemeData.disabledInactiveMinorTickColor ??
               effectiveThemeData.disabledInactiveMinorTickColor,
-      overlayColor: widget.activeColor?.withOpacity(0.12) ??
+      overlayColor: widget.activeColor?.withValues(alpha: 0.12) ??
           rangeSelectorThemeData.overlayColor ??
           effectiveThemeData.overlayColor,
       inactiveDividerColor: widget.activeColor ??
@@ -1738,8 +1738,8 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       enableIntervalSelection: widget.enableIntervalSelection,
       deferUpdate: widget.enableDeferredUpdate,
       dragMode: widget.dragMode,
-      inactiveColor:
-          widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
+      inactiveColor: widget.inactiveColor ??
+          themeData.primaryColor.withValues(alpha: 0.24),
       activeColor: widget.activeColor ?? themeData.primaryColor,
       labelPlacement: widget.labelPlacement,
       edgeLabelPlacement: widget.edgeLabelPlacement,

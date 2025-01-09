@@ -10,7 +10,6 @@ import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
-import '../axis/datetime_category_axis.dart';
 import '../axis/logarithmic_axis.dart';
 import '../base.dart';
 import '../common/callbacks.dart';
@@ -473,7 +472,7 @@ class TrackballBehavior extends ChartBehavior {
       }
     }
 
-    _show();
+    _show(parent);
   }
 
   /// Displays the trackball at the specified point index.
@@ -510,6 +509,10 @@ class TrackballBehavior extends ChartBehavior {
   /// (e.g., CrosshairBehavior, TrackballBehavior, ZoomingBehavior).
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
+    if (parentBox == null) {
+      return;
+    }
+
     if (event is PointerMoveEvent) {
       _handlePointerMove(event);
     } else if (event is PointerHoverEvent) {
@@ -536,7 +539,7 @@ class TrackballBehavior extends ChartBehavior {
   /// Called when a pointer or mouse enter on the screen.
   @override
   void handlePointerEnter(PointerEnterEvent details) {
-    if (activationMode == ActivationMode.singleTap) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
       _showTrackball(parentBox!.globalToLocal(details.position));
     }
   }
@@ -551,7 +554,7 @@ class TrackballBehavior extends ChartBehavior {
   /// recognized in behavior.
   @override
   void handleLongPressStart(LongPressStartDetails details) {
-    if (activationMode == ActivationMode.longPress) {
+    if (parentBox != null && activationMode == ActivationMode.longPress) {
       _showTrackball(parentBox!.globalToLocal(details.globalPosition));
     }
   }
@@ -560,7 +563,7 @@ class TrackballBehavior extends ChartBehavior {
   /// recognized in behavior.
   @override
   void handleLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
-    if (activationMode == ActivationMode.longPress) {
+    if (parentBox != null && activationMode == ActivationMode.longPress) {
       _showTrackball(parentBox!.globalToLocal(details.globalPosition));
     }
   }
@@ -575,7 +578,7 @@ class TrackballBehavior extends ChartBehavior {
   /// Called when the pointer tap has contacted the screen in behavior.
   @override
   void handleTapDown(TapDownDetails details) {
-    if (activationMode == ActivationMode.singleTap) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
       _showTrackball(parentBox!.globalToLocal(details.globalPosition));
     }
   }
@@ -589,7 +592,7 @@ class TrackballBehavior extends ChartBehavior {
   /// Called when pointer tap has contacted the screen double time in behavior.
   @override
   void handleDoubleTap(Offset position) {
-    if (activationMode == ActivationMode.doubleTap) {
+    if (parentBox != null && activationMode == ActivationMode.doubleTap) {
       _showTrackball(parentBox!.globalToLocal(position));
       _hideTrackball(doubleTapHideDelay: 200);
     }
@@ -629,9 +632,8 @@ class TrackballBehavior extends ChartBehavior {
     }
   }
 
-  void _show() {
-    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (_position == null || parent == null) {
+  void _show(RenderBehaviorArea parent) {
+    if (_position == null) {
       return;
     }
 
@@ -877,8 +879,8 @@ class TrackballBehavior extends ChartBehavior {
     num yValue = yAxis.pixelToPoint(bounds, position.dx, position.dy);
 
     if (series.canFindLinearVisibleIndexes &&
-        ((xAxis is RenderCategoryAxis && xAxis.arrangeByIndex) ||
-            xAxis is RenderDateTimeCategoryAxis)) {
+        xAxis is RenderCategoryAxis &&
+        xAxis.arrangeByIndex) {
       final DoubleRange range = xAxis.visibleRange!;
       final int index = xValue.round();
       if (index <= range.maximum &&

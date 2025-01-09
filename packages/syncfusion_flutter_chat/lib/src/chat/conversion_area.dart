@@ -116,6 +116,7 @@ class _ChatConversationAreaState extends ConversationAreaState<ChatMessage> {
       index: index,
       maxWidth: width,
       widthFactor: settings.widthFactor,
+      messages: widget.messages,
       message: message,
       isOutgoing: isFromCurrentUser,
       isFirstInGroup: isLeadMessage,
@@ -182,6 +183,7 @@ class _ChatMessageBubble extends MessageBubble<ChatMessage> {
     required super.index,
     required super.maxWidth,
     super.widthFactor = 0.8,
+    required this.messages,
     required super.message,
     required super.isOutgoing,
     required super.isFirstInGroup,
@@ -218,7 +220,7 @@ class _ChatMessageBubble extends MessageBubble<ChatMessage> {
     required super.textDirection,
     required super.alignmentDirection,
   });
-
+  final List<ChatMessage> messages;
   final ChatSuggestionItemSelectedCallback? onSuggestionItemSelected;
 
   @override
@@ -228,6 +230,35 @@ class _ChatMessageBubble extends MessageBubble<ChatMessage> {
 class _ChatMessageBubbleState extends MessageBubbleState<ChatMessage> {
   @override
   _ChatMessageBubble get widget => super.widget as _ChatMessageBubble;
+
+  @override
+  EdgeInsets effectiveMessagePadding() {
+    final int messageCount = widget.messages.length;
+    final ChatMessage current = widget.message;
+    final ChatMessage? previous =
+        widget.index - 1 >= 0 ? widget.messages[widget.index - 1] : null;
+    final ChatMessage? next = widget.index + 1 < messageCount
+        ? widget.messages[widget.index + 1]
+        : null;
+
+    final EdgeInsets padding = super.effectiveMessagePadding();
+    double top = padding.top;
+    double bottom = padding.bottom;
+    if (previous != null && current.author.id == previous.author.id) {
+      top = 2.0;
+    }
+
+    if (next != null && current.author.id == next.author.id) {
+      bottom = 2.0;
+    }
+
+    return EdgeInsets.only(
+      top: top,
+      bottom: bottom,
+      left: padding.left,
+      right: padding.right,
+    );
+  }
 
   @override
   Widget? buildDefaultHeader() {
@@ -302,6 +333,7 @@ class _ChatMessageBubbleState extends MessageBubbleState<ChatMessage> {
     if (widget.message.author.avatar != null) {
       result = CircleAvatar(
         backgroundImage: widget.message.author.avatar,
+        backgroundColor: widget.avatarBackgroundColor,
       );
     } else {
       if (widget.message.author.name.isNotEmpty) {

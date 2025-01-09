@@ -1346,7 +1346,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   set isVertical(bool value) {
     _isVertical = value;
     if (value) {
-      effectiveLabelIntersectAction = AxisLabelIntersectAction.hide;
+      effectiveLabelIntersectAction =
+          labelIntersectAction == AxisLabelIntersectAction.none
+              ? AxisLabelIntersectAction.none
+              : AxisLabelIntersectAction.hide;
       if (_renderer is! _VerticalAxisRenderer) {
         _renderer = _VerticalAxisRenderer(this);
       }
@@ -1510,7 +1513,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     if (_labelIntersectAction != value) {
       _labelIntersectAction = value;
       if (isVertical) {
-        effectiveLabelIntersectAction = AxisLabelIntersectAction.hide;
+        effectiveLabelIntersectAction =
+            labelIntersectAction == AxisLabelIntersectAction.none
+                ? AxisLabelIntersectAction.none
+                : AxisLabelIntersectAction.hide;
       } else {
         effectiveLabelIntersectAction = labelIntersectAction;
       }
@@ -3814,7 +3820,7 @@ abstract class _PlotBandRenderer {
           paint.shader = plotBand.gradient!.createShader(bounds);
         } else {
           if (plotBand.opacity < 1.0) {
-            paint.color = plotBand.color.withOpacity(plotBand.opacity);
+            paint.color = plotBand.color.withValues(alpha: plotBand.opacity);
           } else {
             paint.color = plotBand.color;
           }
@@ -3828,7 +3834,7 @@ abstract class _PlotBandRenderer {
             plotBand.borderColor != Colors.transparent) {
           paint
             ..color = plotBand.opacity < 1.0
-                ? plotBand.borderColor.withOpacity(plotBand.opacity)
+                ? plotBand.borderColor.withValues(alpha: plotBand.opacity)
                 : plotBand.borderColor
             ..strokeWidth = plotBand.borderWidth
             ..style = PaintingStyle.stroke;
@@ -3894,8 +3900,8 @@ class _HorizontalPlotBandRenderer extends _PlotBandRenderer {
     if (plotBand.text.isNotEmpty) {
       TextStyle style = plotBand.textStyle;
       if (plotBand.opacity < 1.0) {
-        style =
-            style.copyWith(color: style.color?.withOpacity(plotBand.opacity));
+        style = style.copyWith(
+            color: style.color?.withValues(alpha: plotBand.opacity));
       }
       final TextSpan span = TextSpan(text: plotBand.text, style: style);
       _textPainter
@@ -3929,8 +3935,8 @@ class _VerticalPlotBandRenderer extends _PlotBandRenderer {
     if (plotBand.text.isNotEmpty) {
       TextStyle style = plotBand.textStyle;
       if (plotBand.opacity < 1.0) {
-        style =
-            style.copyWith(color: style.color?.withOpacity(plotBand.opacity));
+        style = style.copyWith(
+            color: style.color?.withValues(alpha: plotBand.opacity));
       }
       final TextSpan span = TextSpan(text: plotBand.text, style: style);
       _textPainter

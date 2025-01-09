@@ -1,4 +1,10 @@
-## [28.1.29] - 12/12/2024
+## [28.1.36] - 12/24/2024
+
+**General**
+
+* The compatible version of our Flutter treemap widget has been updated to Flutter SDK 3.27.0.
+
+## [28.1.33] - 12/12/2024
 
 **General**
 

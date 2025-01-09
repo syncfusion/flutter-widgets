@@ -393,7 +393,7 @@ class AssistMessageAuthor extends MessageAuthor {
   /// Creates a new [AssistMessageAuthor] with the specified [id], [name], and
   /// optional [avatar].
   const AssistMessageAuthor({
-    required this.id,
+    this.id,
     required this.name,
     this.avatar,
   });
@@ -424,7 +424,7 @@ class AssistMessageAuthor extends MessageAuthor {
   /// }
   /// ```
   @override
-  final String id;
+  final String? id;
 
   /// The name of the author who sent the message.
   ///

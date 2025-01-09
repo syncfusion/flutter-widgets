@@ -147,10 +147,10 @@ class _PyramidDataLabelContainerState<T, D>
   Color _dataPointColor(int dataPointIndex) {
     final DataLabelSettings settings = widget.settings;
     if (settings.color != null) {
-      return settings.color!.withOpacity(settings.opacity);
+      return settings.color!.withValues(alpha: settings.opacity);
     } else if (settings.useSeriesColor) {
       return renderer!.segments[dataPointIndex].fillPaint.color
-          .withOpacity(settings.opacity);
+          .withValues(alpha: settings.opacity);
     }
     return Colors.transparent;
   }

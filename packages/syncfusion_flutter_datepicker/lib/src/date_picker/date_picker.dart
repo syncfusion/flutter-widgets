@@ -1180,7 +1180,7 @@ class SfDateRangePicker extends StatelessWidget {
   ///          controller: _pickerController,
   ///          view: DateRangePickerView.month,
   ///          selectionMode: DateRangePickerSelectionMode.range,
-  ///          rangeSelectionColor: Colors.red.withOpacity(0.4),
+  ///          rangeSelectionColor: Colors.red.withValues(alpha:0.4),
   ///        ),
   ///      ),
   ///    );
@@ -1389,7 +1389,7 @@ class SfDateRangePicker extends StatelessWidget {
   ///                     width: 1),
   ///                shape: BoxShape.circle),
   ///            disabledDatesDecoration: BoxDecoration(
-  ///                color: const Color(0xFFDFDFDF).withOpacity(0.2),
+  ///                color: const Color(0xFFDFDFDF).withValues(alpha:0.2),
   ///                border: Border.all(color: const Color(0xFFB6B6B6),
   ///                     width: 1),
   ///                shape: BoxShape.circle),
@@ -1477,7 +1477,7 @@ class SfDateRangePicker extends StatelessWidget {
   ///                     width: 1),
   ///                shape: BoxShape.circle),
   ///            disabledDatesDecoration: BoxDecoration(
-  ///                color: const Color(0xFFDFDFDF).withOpacity(0.2),
+  ///                color: const Color(0xFFDFDFDF).withValues(alpha:0.2),
   ///                border: Border.all(color: const Color(0xFFB6B6B6),
   ///                     width: 1),
   ///                shape: BoxShape.circle),
@@ -3831,7 +3831,7 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///          controller: _pickerController,
   ///          view: HijriDatePickerView.month,
   ///          selectionMode: DateRangePickerSelectionMode.range,
-  ///          rangeSelectionColor: Colors.red.withOpacity(0.4),
+  ///          rangeSelectionColor: Colors.red.withValues(alpha:0.4),
   ///        ),
   ///      ),
   ///    );
@@ -4026,7 +4026,7 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///                fontWeight: FontWeight.w500,
   ///                color: Colors.red),
   ///            disabledDatesDecoration: BoxDecoration(
-  ///                color: const Color(0xFFDFDFDF).withOpacity(0.2),
+  ///                color: const Color(0xFFDFDFDF).withValues(alpha:0.2),
   ///                border: Border.all(color: const Color(0xFFB6B6B6),
   ///                     width: 1),
   ///                shape: BoxShape.circle),
@@ -4104,7 +4104,7 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///                fontWeight: FontWeight.w500,
   ///                color: Colors.red),
   ///            disabledDatesDecoration: BoxDecoration(
-  ///                color: const Color(0xFFDFDFDF).withOpacity(0.2),
+  ///                color: const Color(0xFFDFDFDF).withValues(alpha:0.2),
   ///                border: Border.all(color: const Color(0xFFB6B6B6),
   ///                     width: 1),
   ///                shape: BoxShape.circle),
@@ -5902,14 +5902,14 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
             effectiveThemeData.weekNumberBackgroundColor,
         viewHeaderTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: 14,
             )
             .merge(pickerTheme.viewHeaderTextStyle)
             .merge(widget.monthViewSettings.viewHeaderStyle.textStyle),
         headerTextStyle: themeData.textTheme.bodyLarge!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: 16,
               fontWeight: FontWeight.w400,
             )
@@ -5919,7 +5919,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
             (widget.monthCellStyle is DateRangePickerMonthCellStyle)
                 ? themeData.textTheme.bodyMedium!
                     .copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.54),
+                      color: colorScheme.onSurface.withValues(alpha: 0.54),
                       fontSize: 13,
                     )
                     .merge(pickerTheme.trailingDatesTextStyle)
@@ -5929,7 +5929,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
             (widget.yearCellStyle is DateRangePickerYearCellStyle)
                 ? themeData.textTheme.bodyMedium!
                     .copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.54),
+                      color: colorScheme.onSurface.withValues(alpha: 0.54),
                       fontSize: 13,
                     )
                     .merge(pickerTheme.leadingCellTextStyle)
@@ -5937,14 +5937,14 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
                 : null,
         activeDatesTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: 13,
             )
             .merge(pickerTheme.activeDatesTextStyle)
             .merge(widget.monthCellStyle.textStyle),
         cellTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: 13,
             )
             .merge(pickerTheme.cellTextStyle)
@@ -5953,7 +5953,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
             (widget.monthCellStyle is DateRangePickerMonthCellStyle)
                 ? themeData.textTheme.bodyMedium!
                     .copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.54),
+                      color: colorScheme.onSurface.withValues(alpha: 0.54),
                       fontSize: 13,
                     )
                     .merge(pickerTheme.leadingDatesTextStyle)
@@ -5961,21 +5961,21 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
                 : null,
         rangeSelectionTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: 13,
             )
             .merge(pickerTheme.rangeSelectionTextStyle)
             .merge(widget.rangeTextStyle),
         disabledDatesTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.38),
+              color: colorScheme.onSurface.withValues(alpha: 0.38),
               fontSize: 13,
             )
             .merge(pickerTheme.disabledDatesTextStyle)
             .merge(widget.monthCellStyle.disabledDatesTextStyle),
         disabledCellTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.38),
+              color: colorScheme.onSurface.withValues(alpha: 0.38),
               fontSize: 13,
             )
             .merge(pickerTheme.disabledCellTextStyle)
@@ -5989,7 +5989,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
             .merge(widget.selectionTextStyle),
         weekNumberTextStyle: themeData.textTheme.bodyMedium!
             .copyWith(
-              color: colorScheme.onSurface.withOpacity(0.87),
+              color: colorScheme.onSurface.withValues(alpha: 0.87),
               fontSize: 13,
             )
             .merge(pickerTheme.weekNumberTextStyle)
@@ -6019,7 +6019,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
                 ? pickerTheme.blackoutDatesTextStyle
                 : themeData.textTheme.bodyMedium!
                     .copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.87),
+                      color: colorScheme.onSurface.withValues(alpha: 0.87),
                       fontSize: 13,
                     )
                     .merge(pickerTheme.blackoutDatesTextStyle)
@@ -6030,7 +6030,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
                 ? pickerTheme.specialDatesTextStyle
                 : themeData.textTheme.bodyMedium!
                     .copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.87),
+                      color: colorScheme.onSurface.withValues(alpha: 0.87),
                       fontSize: 13,
                     )
                     .merge(pickerTheme.specialDatesTextStyle)
@@ -6041,7 +6041,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
                 ? pickerTheme.weekendDatesTextStyle
                 : themeData.textTheme.bodyMedium!
                     .copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.87),
+                      color: colorScheme.onSurface.withValues(alpha: 0.87),
                       fontSize: 13,
                     )
                     .merge(pickerTheme.weekendDatesTextStyle)
@@ -8031,7 +8031,7 @@ class _PickerHeaderViewState extends State<_PickerHeaderView> {
     }
 
     Color arrowColor = widget.datePickerTheme.headerTextStyle!.color!;
-    arrowColor = arrowColor.withOpacity(arrowColor.opacity * 0.6);
+    arrowColor = arrowColor.withValues(alpha: arrowColor.a * 0.6);
     Color prevArrowColor = arrowColor;
     Color nextArrowColor = arrowColor;
     final List<dynamic> dates = widget.visibleDates.value;
@@ -8043,7 +8043,7 @@ class _PickerHeaderViewState extends State<_PickerHeaderView> {
             dates,
             widget.enableMultiView,
             widget.isHijri)) {
-      nextArrowColor = nextArrowColor.withOpacity(arrowColor.opacity * 0.5);
+      nextArrowColor = nextArrowColor.withValues(alpha: arrowColor.a * 0.5);
     }
 
     if (showNavigationArrow &&
@@ -8054,7 +8054,7 @@ class _PickerHeaderViewState extends State<_PickerHeaderView> {
             dates,
             widget.enableMultiView,
             widget.isHijri)) {
-      prevArrowColor = prevArrowColor.withOpacity(arrowColor.opacity * 0.5);
+      prevArrowColor = prevArrowColor.withValues(alpha: arrowColor.a * 0.5);
     }
 
     final Widget headerText = _getHeaderText(headerWidth, isMobilePlatform);

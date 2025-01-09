@@ -446,8 +446,8 @@ class LinearShapePointer extends LeafRenderObjectWidget
     final Color shapePointerColor = isMaterial3
         ? theme.colorScheme.onSurfaceVariant
         : isDarkTheme
-            ? theme.colorScheme.onSurface.withOpacity(0.70)
-            : theme.colorScheme.onSurface.withOpacity(0.54);
+            ? theme.colorScheme.onSurface.withValues(alpha: 0.70)
+            : theme.colorScheme.onSurface.withValues(alpha: 0.54);
     return RenderLinearShapePointer(
         value: value,
         onChanged: onChanged,
@@ -484,8 +484,8 @@ class LinearShapePointer extends LeafRenderObjectWidget
     final Color shapePointerColor = isMaterial3
         ? theme.colorScheme.onSurfaceVariant
         : isDarkTheme
-            ? theme.colorScheme.onSurface.withOpacity(0.70)
-            : theme.colorScheme.onSurface.withOpacity(0.54);
+            ? theme.colorScheme.onSurface.withValues(alpha: 0.70)
+            : theme.colorScheme.onSurface.withValues(alpha: 0.54);
 
     renderObject
       ..value = value

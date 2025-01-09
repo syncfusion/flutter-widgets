@@ -1362,7 +1362,7 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
         rect.top < agendaViewNotifier.value!.hoveringOffset.dy &&
         rect.bottom > agendaViewNotifier.value!.hoveringOffset.dy) {
       if (isLargerScheduleUI) {
-        _rectPainter.color = Colors.grey.withOpacity(0.1);
+        _rectPainter.color = Colors.grey.withValues(alpha: 0.1);
         const double viewPadding = 2;
         canvas.drawRRect(
             RRect.fromRectAndRadius(
@@ -1375,7 +1375,7 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
             _rectPainter);
       } else {
         _rectPainter.color =
-            calendarTheme.selectionBorderColor!.withOpacity(0.4);
+            calendarTheme.selectionBorderColor!.withValues(alpha: 0.4);
         _rectPainter.style = PaintingStyle.stroke;
         _rectPainter.strokeWidth = 2;
         if (childCount == 0) {

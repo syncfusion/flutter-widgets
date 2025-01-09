@@ -58,7 +58,7 @@ abstract class MessageAuthor {
   const MessageAuthor();
 
   /// Unique identifier of the author.
-  abstract final String id;
+  abstract final String? id;
 
   /// Name of the author.
   abstract final String name;

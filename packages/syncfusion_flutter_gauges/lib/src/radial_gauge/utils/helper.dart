@@ -50,7 +50,9 @@ Offset getDegreeToPoint(double degree, double radius, Offset center) {
 /// Methods to get the saturation color
 Color getSaturationColor(Color color) {
   final num contrast =
-      ((color.red * 299 + color.green * 587 + color.blue * 114) / 1000).round();
+      (((color.r * 255) * 299 + (color.g * 255) * 587 + (color.b * 255) * 114) /
+              1000)
+          .round();
   final Color saturationColor =
       contrast >= 128 ? const Color(0xFF333333) : const Color(0xFFF5F5F5);
   return saturationColor;

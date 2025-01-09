@@ -581,6 +581,9 @@ class RenderBehaviorArea extends RenderBox
     _trackballEnabled = false;
     _zoomingEnabled = false;
     performZoomThroughTouch = false;
+    trackballBehavior?.parentBox = null;
+    crosshairBehavior?.parentBox = null;
+    zoomPanBehavior?.parentBox = null;
     super.dispose();
   }
 }

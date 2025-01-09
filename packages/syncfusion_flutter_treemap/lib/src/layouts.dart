@@ -21,10 +21,11 @@ Color _getSaturatedColor(Color color, double factor,
   return color == Colors.transparent
       ? color
       : Color.fromRGBO(
-          ((1 - factor) * color.red + factor * mix.red).toInt(),
-          ((1 - factor) * color.green + factor * mix.green).toInt(),
-          ((1 - factor) * color.blue + factor * mix.blue).toInt(),
-          1);
+          ((1 - factor) * (color.r * 255) + factor * (mix.r * 255)).toInt(),
+          ((1 - factor) * (color.g * 255) + factor * (mix.g * 255)).toInt(),
+          ((1 - factor) * (color.b * 255) + factor * (mix.b * 255)).toInt(),
+          1,
+        );
 }
 
 /// Ignored scaling to the label builder and item builder and provides the
@@ -2344,7 +2345,7 @@ class _BreadcrumbsState extends State<_Breadcrumbs>
       _breadcrumbs.add(widget.settings.builder(context, _current, true));
     }
     final Color dividerColor =
-        Theme.of(context).colorScheme.onSurface.withOpacity(0.54);
+        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54);
     final Widget divider = widget.settings.divider ??
         Icon(Icons.chevron_right, size: 16.0, color: dividerColor);
 
