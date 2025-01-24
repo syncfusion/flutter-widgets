@@ -886,14 +886,22 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
           final dynamic actualStart = plotBand.start;
           final dynamic actualEnd = plotBand.end;
           final num min = actualStart != null
-              ? actualValue(actualStart is num
-                  ? indexToDateTime(actualStart as int)
-                  : actualStart)
+              ? actualValue(
+                  actualStart is num
+                      ? actualStart is double
+                          ? actualStart
+                          : indexToDateTime(actualStart as int)
+                      : actualStart,
+                )
               : visibleRange!.minimum;
           num max = actualEnd != null
-              ? actualValue(actualEnd is num
-                  ? indexToDateTime(actualEnd as int)
-                  : actualEnd)
+              ? actualValue(
+                  actualEnd is num
+                      ? actualEnd is double
+                          ? actualEnd
+                          : indexToDateTime(actualEnd as int)
+                      : actualEnd,
+                )
               : visibleRange!.maximum;
 
           num extent;
@@ -901,9 +909,13 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
             extent = plotBand.repeatEvery;
             final dynamic actualRepeatUntil = plotBand.repeatUntil;
             if (actualRepeatUntil != null) {
-              max = actualValue(actualRepeatUntil is num
-                  ? indexToDateTime(actualRepeatUntil as int)
-                  : actualRepeatUntil);
+              max = actualValue(
+                actualRepeatUntil is num
+                    ? actualRepeatUntil is double
+                        ? actualRepeatUntil
+                        : indexToDateTime(actualRepeatUntil as int)
+                    : actualRepeatUntil,
+              );
               if (max > actualRange!.maximum) {
                 max = actualRange!.maximum;
               }
