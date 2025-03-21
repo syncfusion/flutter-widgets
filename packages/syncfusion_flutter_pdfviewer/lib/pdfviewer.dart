@@ -23,6 +23,7 @@ export 'src/annotation/annotation_settings.dart'
         PdfAnnotationSettings,
         PdfTextMarkupAnnotationSettings,
         PdfStickyNoteAnnotationSettings;
+export 'src/annotation/custom_annotation.dart' show CustomAnnotation;
 export 'src/annotation/sticky_notes.dart' show StickyNoteAnnotation;
 export 'src/annotation/text_markup.dart'
     show

@@ -1,0 +1,11 @@
+framework module url_launcher_ios {
+  umbrella header "url_launcher_ios-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module url_launcher_ios.Swift {
+  header "url_launcher_ios-Swift.h"
+  requires objc
+}

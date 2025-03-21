@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../pdfviewer.dart';
 import '../annotation/annotation.dart';
+import '../annotation/custom_annotation.dart';
 import '../annotation/text_markup.dart';
 import '../common/pdfviewer_helper.dart';
 import '../theme/theme.dart';
@@ -1070,6 +1071,14 @@ class CanvasRenderBox extends RenderBox {
         return true;
       }
     }
+    if (annotation is CustomAnnotation) {
+      final Rect scaledBounds = annotation.boundingBox.topLeft &
+          (annotation.boundingBox.size / pdfViewerController.zoomLevel);
+      if (scaledBounds.contains(tappedPagePosition)) {
+        return true;
+      }
+    }
+
     return false;
   }
 

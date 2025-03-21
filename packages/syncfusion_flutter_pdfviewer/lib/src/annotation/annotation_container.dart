@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'annotation.dart';
 import 'annotation_settings.dart';
 import 'annotation_view.dart' show selectionBorderThickness;
+import 'custom_annotation.dart';
 import 'sticky_notes.dart';
 import 'text_markup.dart';
 
@@ -208,6 +209,15 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
           }
           widget.onStickyNoteDoubleTapped?.call(annotation);
         },
+      );
+    } else if (annotation is CustomAnnotation) {
+      annotationView = CustomAnnotationView(
+        annotation: annotation,
+        isSelected: annotation == _selectedAnnotation,
+        heightPercentage: widget.heightPercentage,
+        selectorColor: _isLocked(annotation)
+            ? widget.annotationSettings.selector.lockedColor
+            : widget.annotationSettings.selector.color,
       );
     }
 

@@ -1,0 +1,11 @@
+framework module syncfusion_flutter_pdfviewer {
+  umbrella header "syncfusion_flutter_pdfviewer-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module syncfusion_flutter_pdfviewer.Swift {
+  header "syncfusion_flutter_pdfviewer-Swift.h"
+  requires objc
+}
