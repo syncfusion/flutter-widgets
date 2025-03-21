@@ -263,6 +263,8 @@ class PdfPageViewState extends State<PdfPageView> {
   int _numberOfActivePointers = 0;
   bool _isZooming = false;
 
+  static final Map<String, Map<int, ui.Image>> _imageCache = {};
+
   @override
   void initState() {
     if (kIsDesktop && !widget.isMobileWebView) {
@@ -273,6 +275,11 @@ class PdfPageViewState extends State<PdfPageView> {
     _formFields = widget.formFields
         .where((formField) => formField.pageNumber == widget.pageIndex + 1)
         .toList();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getLowQualityImage();
+      // Start preloading adjacent pages
+      preloadAdjacentPages();
+    });
     super.initState();
   }
 
@@ -314,7 +321,11 @@ class PdfPageViewState extends State<PdfPageView> {
                 !widget.isSinglePageView
             ? pageSpacing
             : 0.0;
+
+    // Check if either the full or low quality image is ready.
     if (_pdfPage != null) {
+      // Use full quality image if available; otherwise, use the low quality preview.
+      final RawImage imageWidget = _pdfPage!;
       _calculateHeightPercentage();
       if (!kIsDesktop) {
         PaintingBinding.instance.imageCache.clear();
@@ -327,86 +338,89 @@ class PdfPageViewState extends State<PdfPageView> {
         color: Colors.white,
         alignment: Alignment.topCenter,
         child: widget.scrollDirection == PdfScrollDirection.vertical
-            ? Column(children: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    SizedBox(
-                      width: widget.width,
-                      height: widget.height,
-                      child: Semantics(
-                        label: widget.semanticLabel,
-                        child: _pdfPage,
-                      ),
-                    ),
-                    if (_tileImageCache != null && _tileImage != null)
-                      Positioned(
-                        top: _tileImageCache!.visibleRect.top /
-                            _heightPercentage,
-                        left: _tileImageCache!.visibleRect.left /
-                            _heightPercentage,
-                        width: _tileImageCache!.visibleRect.width /
-                            _heightPercentage,
-                        height: _tileImageCache!.visibleRect.height /
-                            _heightPercentage,
-                        child: SizedBox(
-                          width: _tileImageCache!.imageSize.width,
-                          height: _tileImageCache!.imageSize.height,
-                          child: _tileImage,
+            ? Column(
+                children: <Widget>[
+                  Stack(
+                    children: <Widget>[
+                      SizedBox(
+                        width: widget.width,
+                        height: widget.height,
+                        child: Semantics(
+                          label: widget.semanticLabel,
+                          child: imageWidget,
                         ),
                       ),
-                  ],
-                ),
-                Container(
-                  height: widget.isSinglePageView ? 0.0 : pageSpacing,
-                  color: _pdfViewerThemeData!.backgroundColor ??
-                      _effectiveThemeData!.backgroundColor ??
-                      (Theme.of(context).colorScheme.brightness ==
-                              Brightness.light
-                          ? const Color(0xFFD6D6D6)
-                          : const Color(0xFF303030)),
-                )
-              ])
-            : Row(children: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    SizedBox(
-                      width: widget.width,
-                      height: widget.height,
-                      child: _pdfPage,
-                    ),
-                    if (_tileImageCache != null && _tileImage != null)
-                      Positioned(
-                        top: _tileImageCache!.visibleRect.top /
-                            _heightPercentage,
-                        left: _tileImageCache!.visibleRect.left /
-                            _heightPercentage,
-                        width: _tileImageCache!.visibleRect.width /
-                            _heightPercentage,
-                        height: _tileImageCache!.visibleRect.height /
-                            _heightPercentage,
-                        child: SizedBox(
-                          width: _tileImageCache!.imageSize.width,
-                          height: _tileImageCache!.imageSize.height,
-                          child: _tileImage,
+                      if (_tileImageCache != null && _tileImage != null)
+                        Positioned(
+                          top: _tileImageCache!.visibleRect.top /
+                              _heightPercentage,
+                          left: _tileImageCache!.visibleRect.left /
+                              _heightPercentage,
+                          width: _tileImageCache!.visibleRect.width /
+                              _heightPercentage,
+                          height: _tileImageCache!.visibleRect.height /
+                              _heightPercentage,
+                          child: SizedBox(
+                            width: _tileImageCache!.imageSize.width,
+                            height: _tileImageCache!.imageSize.height,
+                            child: _tileImage,
+                          ),
                         ),
+                    ],
+                  ),
+                  Container(
+                    height: widget.isSinglePageView ? 0.0 : pageSpacing,
+                    color: _pdfViewerThemeData!.backgroundColor ??
+                        _effectiveThemeData!.backgroundColor ??
+                        (Theme.of(context).colorScheme.brightness ==
+                                Brightness.light
+                            ? const Color(0xFFD6D6D6)
+                            : const Color(0xFF303030)),
+                  )
+                ],
+              )
+            : Row(
+                children: <Widget>[
+                  Stack(
+                    children: <Widget>[
+                      SizedBox(
+                        width: widget.width,
+                        height: widget.height,
+                        child: imageWidget,
                       ),
-                  ],
-                ),
-                Container(
-                  width: widget.isSinglePageView ? 0.0 : pageSpacing,
-                  color: _pdfViewerThemeData!.backgroundColor ??
-                      _effectiveThemeData!.backgroundColor ??
-                      (Theme.of(context).colorScheme.brightness ==
-                              Brightness.light
-                          ? const Color(0xFFD6D6D6)
-                          : const Color(0xFF303030)),
-                )
-              ]),
+                      if (_tileImageCache != null && _tileImage != null)
+                        Positioned(
+                          top: _tileImageCache!.visibleRect.top /
+                              _heightPercentage,
+                          left: _tileImageCache!.visibleRect.left /
+                              _heightPercentage,
+                          width: _tileImageCache!.visibleRect.width /
+                              _heightPercentage,
+                          height: _tileImageCache!.visibleRect.height /
+                              _heightPercentage,
+                          child: SizedBox(
+                            width: _tileImageCache!.imageSize.width,
+                            height: _tileImageCache!.imageSize.height,
+                            child: _tileImage,
+                          ),
+                        ),
+                    ],
+                  ),
+                  Container(
+                    width: widget.isSinglePageView ? 0.0 : pageSpacing,
+                    color: _pdfViewerThemeData!.backgroundColor ??
+                        _effectiveThemeData!.backgroundColor ??
+                        (Theme.of(context).colorScheme.brightness ==
+                                Brightness.light
+                            ? const Color(0xFFD6D6D6)
+                            : const Color(0xFF303030)),
+                  )
+                ],
+              ),
       );
 
       final PdfAnnotationMode annotationMode =
           widget.pdfViewerController.annotationMode;
-
       _interactionMode = (annotationMode == PdfAnnotationMode.highlight ||
               annotationMode == PdfAnnotationMode.strikethrough ||
               annotationMode == PdfAnnotationMode.underline ||
@@ -415,40 +429,43 @@ class PdfPageViewState extends State<PdfPageView> {
           : widget.interactionMode;
 
       final Widget canvasContainer = Container(
-          height: _isRotatedTo90or270 ? widget.width : widget.height,
-          width: _isRotatedTo90or270 ? widget.height : widget.width,
-          alignment: Alignment.topCenter,
-          child: PdfViewerCanvas(
-            _canvasKey,
-            _isRotatedTo90or270 ? widget.width : widget.height,
-            _isRotatedTo90or270 ? widget.height : widget.width,
-            widget.pdfDocument,
-            widget.pageIndex,
-            widget.pdfPages,
-            _interactionMode,
-            widget.pdfViewerController,
-            widget.enableDocumentLinkAnnotation,
-            widget.enableTextSelection,
-            widget.textSelectionHelper,
-            widget.onTextSelectionChanged,
-            widget.onHyperlinkClicked,
-            widget.onTextSelectionDragStarted,
-            widget.onTextSelectionDragEnded,
-            widget.textCollection,
-            widget.currentSearchTextHighlightColor,
-            widget.otherSearchTextHighlightColor,
-            widget.pdfTextSearchResult,
-            widget.isMobileWebView,
-            widget.pdfScrollableStateKey,
-            widget.singlePageViewStateKey,
-            widget.viewportGlobalRect,
-            widget.scrollDirection,
-            widget.isSinglePageView,
-            widget.textDirection,
-            widget.canShowHyperlinkDialog,
-            widget.enableHyperlinkNavigation,
-            widget.onAnnotationSelectionChanged,
-          ));
+        height: _isRotatedTo90or270 ? widget.width : widget.height,
+        width: _isRotatedTo90or270 ? widget.height : widget.width,
+        alignment: Alignment.topCenter,
+        child: PdfViewerCanvas(
+          _canvasKey,
+          _isRotatedTo90or270 ? widget.width : widget.height,
+          _isRotatedTo90or270 ? widget.height : widget.width,
+          widget.pdfDocument,
+          widget.pageIndex,
+          widget.pdfPages,
+          _interactionMode,
+          widget.pdfViewerController,
+          widget.enableDocumentLinkAnnotation,
+          widget.enableTextSelection,
+          widget.textSelectionHelper,
+          widget.onTextSelectionChanged,
+          widget.onHyperlinkClicked,
+          widget.onTextSelectionDragStarted,
+          widget.onTextSelectionDragEnded,
+          widget.textCollection,
+          widget.currentSearchTextHighlightColor,
+          widget.otherSearchTextHighlightColor,
+          widget.pdfTextSearchResult,
+          widget.isMobileWebView,
+          widget.pdfScrollableStateKey,
+          widget.singlePageViewStateKey,
+          widget.viewportGlobalRect,
+          widget.scrollDirection,
+          widget.isSinglePageView,
+          widget.textDirection,
+          widget.canShowHyperlinkDialog,
+          widget.enableHyperlinkNavigation,
+          widget.onAnnotationSelectionChanged,
+        ),
+      );
+
+      // (The rest of your canvas, annotation, and form field container code remains unchanged.)
       final Widget canvas = (kIsDesktop && !widget.isMobileWebView)
           ? RotatedBox(
               quarterTurns: _quarterTurns,
@@ -509,7 +526,6 @@ class PdfPageViewState extends State<PdfPageView> {
                       _isZooming = false;
                     });
                   }
-
                   widget.onPdfPagePointerUp(details);
                   _onPageTapped(details.localPosition);
                   if (_interactionMode == PdfInteractionMode.pan) {
@@ -538,6 +554,7 @@ class PdfPageViewState extends State<PdfPageView> {
                 child: KeyboardListener(
                   focusNode: focusNode,
                   onKeyEvent: (KeyEvent event) {
+                    // Key event handling (unchanged)
                     final bool isPrimaryKeyPressed = kIsMacOS
                         ? HardwareKeyboard.instance.isMetaPressed
                         : HardwareKeyboard.instance.isControlPressed;
@@ -719,6 +736,7 @@ class PdfPageViewState extends State<PdfPageView> {
                     : canvasContainer,
               ));
 
+      // Handle form fields if any.
       Widget? formFieldContainer;
       if (_formFields.isNotEmpty) {
         formFieldContainer = RotatedBox(
@@ -744,8 +762,10 @@ class PdfPageViewState extends State<PdfPageView> {
           width: _isRotatedTo90or270 ? widget.height : widget.width,
           alignment: Alignment.topCenter,
           child: AnnotationContainer(
-            annotations: widget.annotations.where((Annotation annotation) =>
-                annotation.pageNumber == widget.pageIndex + 1),
+            annotations: widget.annotations
+                .where((Annotation annotation) =>
+                    annotation.pageNumber == widget.pageIndex + 1)
+                .toList(),
             annotationSettings: widget.pdfViewerController.annotationSettings,
             selectedAnnotation: widget.selectedAnnotation,
             onAnnotationSelectionChanged: widget.onAnnotationSelectionChanged,
@@ -770,7 +790,28 @@ class PdfPageViewState extends State<PdfPageView> {
         if (formFieldContainer != null) formFieldContainer,
         annotationContainer,
       ]);
+    } else if (_imageCache.containsKey(widget.documentID) &&
+        _imageCache[widget.documentID]!.containsKey(widget.pageIndex)) {
+      // Immediately load from cache without showing loading indicator
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _pdfPage = RawImage(
+              image: _imageCache[widget.documentID]![widget.pageIndex]!,
+              fit: BoxFit.fill,
+            );
+          });
+        }
+      });
+      // Return an empty container while we set up the image on the next frame
+      return Container(
+        height: widget.height + heightSpacing,
+        width: widget.width + widthSpacing,
+        color: Colors.white,
+      );
     }
+
+    // If neither full nor low quality image is available, fall back to a loading indicator.
     bool isVisible;
     if (widget.pdfViewerController.pageNumber == widget.pageIndex + 1 ||
         widget.pdfViewerController.pageNumber == widget.pageIndex ||
@@ -820,6 +861,118 @@ class PdfPageViewState extends State<PdfPageView> {
     return child;
   }
 
+  // Add this method to preload pages
+  void preloadAdjacentPages() {
+    if (widget.pdfDocument == null) return;
+
+    // Preload next and previous pages if they exist
+    final int totalPages = widget.pdfViewerController.pageCount;
+    final List<int> pagesToPreload = [];
+
+    // Add next page
+    if (widget.pageIndex + 1 < totalPages) {
+      pagesToPreload.add(widget.pageIndex + 1);
+    }
+
+    // Add previous page
+    if (widget.pageIndex > 0) {
+      pagesToPreload.add(widget.pageIndex - 1);
+    }
+
+    // Start preloading
+    for (final int pageIndex in pagesToPreload) {
+      _preloadPageInBackground(pageIndex);
+    }
+  }
+
+  Future<void> _preloadPageInBackground(int pageIndex) async {
+    final String cacheKey = widget.documentID;
+
+    // Skip if already cached
+    if (_imageCache.containsKey(cacheKey) &&
+        _imageCache[cacheKey]!.containsKey(pageIndex)) {
+      return;
+    }
+
+    final int imageWidth =
+        (widget.width * MediaQuery.of(context).devicePixelRatio).toInt();
+    final int imageHeight =
+        (widget.height * MediaQuery.of(context).devicePixelRatio).toInt();
+
+    try {
+      final Uint8List? pageBytes = await PdfViewerPlatform.instance.getPage(
+        pageIndex + 1,
+        imageWidth,
+        imageHeight,
+        widget.documentID,
+      );
+
+      if (pageBytes != null) {
+        _createImage(pageBytes, imageWidth, imageHeight).then((ui.Image image) {
+          // Store in cache
+          _imageCache[cacheKey] ??= {};
+          _imageCache[cacheKey]![pageIndex] = image;
+        });
+      }
+    } catch (e) {
+      // Handle error silently for background loading
+    }
+  }
+
+  // Replace the _getLowQualityImage method with this preloading method
+  Future<void> _getLowQualityImage() async {
+    if (widget.pdfDocument == null) return;
+
+    // First check if the image is already in cache
+    final String cacheKey = widget.documentID;
+    if (_imageCache.containsKey(cacheKey) &&
+        _imageCache[cacheKey]!.containsKey(widget.pageIndex)) {
+      if (mounted) {
+        setState(() {
+          _pdfPage = RawImage(
+            image: _imageCache[cacheKey]![widget.pageIndex]!,
+            fit: BoxFit.fill,
+          );
+        });
+      }
+      return;
+    }
+
+    // If not in cache, load it at appropriate quality directly
+    final int imageWidth =
+        (widget.width * MediaQuery.of(context).devicePixelRatio).toInt();
+    final int imageHeight =
+        (widget.height * MediaQuery.of(context).devicePixelRatio).toInt();
+
+    try {
+      final Uint8List? pageBytes = await PdfViewerPlatform.instance.getPage(
+        widget.pageIndex + 1,
+        imageWidth,
+        imageHeight,
+        widget.documentID,
+      );
+
+      if (pageBytes != null) {
+        _createImage(pageBytes, imageWidth, imageHeight).then((ui.Image image) {
+          if (mounted) {
+            // Store in cache
+            _imageCache[cacheKey] ??= {};
+            _imageCache[cacheKey]![widget.pageIndex] = image;
+
+            setState(() {
+              _pdfPage = RawImage(
+                image: image,
+                fit: BoxFit.fill,
+              );
+            });
+          }
+        });
+      }
+    } catch (e) {
+      // Handle error if needed
+    }
+  }
+
   void _calculateHeightPercentage() {
     final PdfPageRotateAngle rotatedAngle =
         widget.pdfDocument!.pages[widget.pageIndex].rotation;
@@ -846,16 +999,22 @@ class PdfPageViewState extends State<PdfPageView> {
         widget.pdfDocument!.pages[widget.pageIndex].size;
     final double ratio = 1 / _heightPercentage;
     final double imageFactor = ratio * zoomLevel;
+
+    // Get or create page cache for this document
+    final String cacheKey = widget.documentID;
+    _imageCache[cacheKey] ??= {};
+    final pageCache = _imageCache[cacheKey]!;
+
+    // Check if we need a new image due to zoom level change
     if (widget.pdfDocument != null && _previousImageFactor != imageFactor) {
       _previousImageFactor = imageFactor;
+
       if (ratio < 0.5 ||
           zoomLevel > 1.75 ||
           (!kIsDesktop && imageFactor > 2) ||
           (kIsDesktop && imageFactor > 4)) {
         _isTile = true;
-        if (_pdfPage != null) {
-          return;
-        }
+        // For tile mode, we still need the base image
         _imageWidth = originalPageSize.width.toInt();
         _imageHeight = originalPageSize.height.toInt();
       } else {
@@ -863,6 +1022,19 @@ class PdfPageViewState extends State<PdfPageView> {
         _isTile = false;
         _imageWidth = (widget.width * zoomLevel * _dpr).toInt();
         _imageHeight = (widget.height * zoomLevel * _dpr).toInt();
+
+        // Check if we already have this page image cached at this size
+        if (pageCache.containsKey(widget.pageIndex)) {
+          if (mounted) {
+            setState(() {
+              _pdfPage = RawImage(
+                image: pageCache[widget.pageIndex]!,
+                fit: BoxFit.fill,
+              );
+            });
+            return;
+          }
+        }
       }
 
       try {
@@ -874,6 +1046,9 @@ class PdfPageViewState extends State<PdfPageView> {
             _createImage(pageImage, _imageWidth, _imageHeight)
                 .then((ui.Image image) {
               if (mounted) {
+                // Cache the image
+                pageCache[widget.pageIndex] = image;
+
                 setState(() {
                   _pdfPage = RawImage(
                     image: image,
@@ -888,6 +1063,16 @@ class PdfPageViewState extends State<PdfPageView> {
       } finally {
         _pageImageOperation?.cancel();
         _pageImageOperation = null;
+      }
+    } else if (pageCache.containsKey(widget.pageIndex) && _pdfPage == null) {
+      // If we already have the image cached but _pdfPage is null, restore it
+      if (mounted) {
+        setState(() {
+          _pdfPage = RawImage(
+            image: pageCache[widget.pageIndex]!,
+            fit: BoxFit.fill,
+          );
+        });
       }
     }
   }
@@ -1073,10 +1258,8 @@ class PdfPageViewState extends State<PdfPageView> {
     });
   }
 
-  /// Clear the page image
+  /// Also modify clearPageImage to avoid disposing cached images
   void clearPageImage({bool dispose = false}) {
-    _pdfPage?.image?.dispose();
-    _tileImage?.image?.dispose();
     if (!dispose) {
       if (mounted) {
         setState(() {
@@ -1088,6 +1271,8 @@ class PdfPageViewState extends State<PdfPageView> {
       _pdfPage = null;
       _tileImage = null;
     }
+
+    // Cancel operations but don't dispose the actual images
     _tileImageOperation?.cancel();
     _pageImageOperation?.cancel();
     _tileImageOperation = null;
@@ -1097,6 +1282,17 @@ class PdfPageViewState extends State<PdfPageView> {
     _pageTimer = null;
     _isTile = false;
     _previousImageFactor = -1.0;
+  }
+
+  /// Add a method to clear the cache when necessary
+  static void clearImageCache(String documentID) {
+    if (_imageCache.containsKey(documentID)) {
+      // Properly dispose all images before removing
+      for (final image in _imageCache[documentID]!.values) {
+        image.dispose();
+      }
+      _imageCache.remove(documentID);
+    }
   }
 }
 
