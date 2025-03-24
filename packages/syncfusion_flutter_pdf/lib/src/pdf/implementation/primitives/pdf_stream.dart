@@ -481,11 +481,11 @@ class PdfStream extends PdfDictionary {
       data = _encryptContent(data, writer);
     }
 
-    this[PdfDictionaryProperties.length] = PdfNumber(data!.length);
+    this[PdfDictionaryProperties.length] = PdfNumber(data != null ? data.length : 0);
     super.saveDictionary(writer, false);
     writer.write(prefix);
     writer.write(PdfOperators.newLine);
-    if (data.isNotEmpty) {
+    if (data != null && data.isNotEmpty) {
       writer.write(data);
       writer.write(PdfOperators.newLine);
     }
