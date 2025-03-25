@@ -61,7 +61,9 @@ class ChangeTracker {
 
   void _updateState() {
     _undoController?.value = UndoHistoryValue(
-        canUndo: _undoStack.isNotEmpty, canRedo: _redoStack.isNotEmpty);
+      canUndo: _undoStack.isNotEmpty,
+      canRedo: _redoStack.isNotEmpty,
+    );
   }
 
   /// Resets the undo and redo stacks.

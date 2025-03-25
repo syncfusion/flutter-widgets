@@ -19,10 +19,10 @@ Color _saturatedColor(Color color, double factor) {
 class AIAssistViewM2ThemeData extends SfAIAssistViewThemeData {
   AIAssistViewM2ThemeData(this.context)
       : super(
-          requestBubbleContentShape: const RoundedRectangleBorder(
+          requestMessageShape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
           ),
-          responseBubbleContentShape: const RoundedRectangleBorder(
+          responseMessageShape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
           ),
         );
@@ -65,11 +65,10 @@ class AIAssistViewM2ThemeData extends SfAIAssistViewThemeData {
       );
 
   @override
-  Color? get requestBubbleContentBackgroundColor =>
-      _colorScheme.surfaceContainer;
+  Color? get requestMessageBackgroundColor => _colorScheme.surfaceContainer;
 
   @override
-  Color? get responseBubbleContentBackgroundColor => Colors.transparent;
+  Color? get responseMessageBackgroundColor => Colors.transparent;
 
   @override
   Color? get requestAvatarBackgroundColor => _colorScheme.surfaceContainer;
@@ -141,10 +140,10 @@ class AIAssistViewM2ThemeData extends SfAIAssistViewThemeData {
 class AIAssistViewM3ThemeData extends SfAIAssistViewThemeData {
   AIAssistViewM3ThemeData(this.context)
       : super(
-          requestBubbleContentShape: const RoundedRectangleBorder(
+          requestMessageShape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
           ),
-          responseBubbleContentShape: const RoundedRectangleBorder(
+          responseMessageShape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
           ),
         );
@@ -187,11 +186,10 @@ class AIAssistViewM3ThemeData extends SfAIAssistViewThemeData {
       );
 
   @override
-  Color? get requestBubbleContentBackgroundColor =>
-      _colorScheme.surfaceContainer;
+  Color? get requestMessageBackgroundColor => _colorScheme.surfaceContainer;
 
   @override
-  Color? get responseBubbleContentBackgroundColor => Colors.transparent;
+  Color? get responseMessageBackgroundColor => Colors.transparent;
 
   @override
   Color? get requestAvatarBackgroundColor => _colorScheme.surfaceContainer;

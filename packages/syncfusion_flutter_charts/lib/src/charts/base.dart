@@ -318,7 +318,7 @@ class RenderChartArea extends RenderBox
   bool get validForMouseTracker => _validForMouseTracker;
 
   @override
-  MouseCursor get cursor => SystemMouseCursors.basic;
+  MouseCursor get cursor => MouseCursor.defer;
 
   @override
   PointerEnterEventListener? get onEnter => _handlePointerEnter;
@@ -446,6 +446,27 @@ class RenderChartArea extends RenderBox
     return isHit;
   }
 
+  bool _isDoubleTapGesture() {
+    if (_plotArea != null) {
+      final TooltipBehavior? tooltipBehavior = _plotArea!.tooltipBehavior;
+      final bool isSelection =
+          _plotArea!.selectionGesture == ActivationMode.doubleTap;
+      final bool isTooltip = tooltipBehavior != null &&
+          tooltipBehavior.enable &&
+          tooltipBehavior.activationMode == ActivationMode.doubleTap;
+      final bool isTrackball = trackballBehavior != null &&
+          trackballBehavior!.enable &&
+          trackballBehavior!.activationMode == ActivationMode.doubleTap;
+      final bool isCrosshair = crosshairBehavior != null &&
+          crosshairBehavior!.enable &&
+          crosshairBehavior!.activationMode == ActivationMode.doubleTap;
+      final bool isZoom =
+          zoomPanBehavior != null && zoomPanBehavior!.enableDoubleTapZooming;
+      return isSelection || isTooltip || isTrackball || isCrosshair || isZoom;
+    }
+    return false;
+  }
+
   @override
   @nonVirtual
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
@@ -456,7 +477,9 @@ class RenderChartArea extends RenderBox
     if (event is PointerDownEvent) {
       _pointerCount++;
       _tapGestureRecognizer?.addPointer(event);
-      _doubleTapGestureRecognizer?.addPointer(event);
+      if (_isDoubleTapGesture()) {
+        _doubleTapGestureRecognizer?.addPointer(event);
+      }
       _longPressGestureRecognizer?.addPointer(event);
       _horizontalDragGestureRecognizer?.addPointer(event);
       _verticalDragGestureRecognizer?.addPointer(event);
@@ -1720,7 +1743,7 @@ class RenderCartesianChartPlotArea extends RenderChartPlotArea {
           sbs = renderer;
         }
 
-        if (sbs != null) {
+        if (sbs != null && sbs.dataCount > 0) {
           maxWidth = maxWidth > sbs.width ? maxWidth : sbs.width;
           minDiff = min(sbs.primaryAxisAdjacentDataPointsMinDiff, minDiff);
         }
@@ -2195,15 +2218,27 @@ class RenderCartesianAxes extends RenderBox
       topAxesHeight = 0;
       bottomAxesHeight = 0;
       for (final RenderChartAxis axis in horizontalAxes) {
+        final double extent = axis.labelsExtent ?? spaceBetweenMultipleAxes;
         final CartesianAxesParentData childParentData =
             axis.parentData! as CartesianAxesParentData;
         childParentData.isResized = hasSize && size != constraints.biggest;
         axis.layout(horizontalAxesConstraints, parentUsesSize: true);
         if (axis.crossesAt == null || !axis.placeLabelsNearAxisLine) {
+          final double axisHeight = axis.size.height;
           if (axis.opposedPosition) {
-            topAxesHeight += axis.size.height;
+            topAxesHeight += axisHeight;
+            // Apply the padding(gap) between the multiple axes.
+            if (axis.isVisible &&
+                (topAxesHeight > axisHeight || axis.labelsExtent != null)) {
+              topAxesHeight += extent;
+            }
           } else {
-            bottomAxesHeight += axis.size.height;
+            bottomAxesHeight += axisHeight;
+            // Apply the padding(gap) between the multiple axes.
+            if (axis.isVisible &&
+                (bottomAxesHeight > axisHeight || axis.labelsExtent != null)) {
+              bottomAxesHeight += extent;
+            }
           }
         }
       }
@@ -2214,15 +2249,27 @@ class RenderCartesianAxes extends RenderBox
       leftAxesWidth = 0;
       rightAxesWidth = 0;
       for (final RenderChartAxis axis in verticalAxes) {
+        final double extent = axis.labelsExtent ?? spaceBetweenMultipleAxes;
         final CartesianAxesParentData childParentData =
             axis.parentData! as CartesianAxesParentData;
         childParentData.isResized = hasSize && size != constraints.biggest;
         axis.layout(verticalAxesConstraints, parentUsesSize: true);
         if (axis.crossesAt == null || !axis.placeLabelsNearAxisLine) {
+          final double axisWidth = axis.size.width;
           if (axis.opposedPosition) {
-            rightAxesWidth += axis.size.width;
+            rightAxesWidth += axisWidth;
+            // Apply the padding(gap) between the multiple axes.
+            if (axis.isVisible &&
+                (rightAxesWidth > axisWidth || axis.labelsExtent != null)) {
+              rightAxesWidth += extent;
+            }
           } else {
-            leftAxesWidth += axis.size.width;
+            leftAxesWidth += axisWidth;
+            // Apply the padding(gap) between the multiple axes.
+            if (axis.isVisible &&
+                (leftAxesWidth > axisWidth || axis.labelsExtent != null)) {
+              leftAxesWidth += extent;
+            }
           }
         }
       }
@@ -2254,20 +2301,24 @@ class RenderCartesianAxes extends RenderBox
     );
     measureVerticalAxes(verticalAxisConstraints);
 
-    final Rect plotAreaBounds = Rect.fromLTWH(
+    final Rect newPlotAreaBounds = Rect.fromLTWH(
       leftAxesWidth,
       topAxesHeight,
       horizontalAxisConstraints.maxWidth,
       verticalAxisConstraints.maxHeight,
     );
-    plotAreaOffset = plotAreaBounds.topLeft;
+    plotAreaOffset = newPlotAreaBounds.topLeft;
     _plotAreaConstraints = BoxConstraints(
-      maxWidth: plotAreaBounds.width,
-      maxHeight: plotAreaBounds.height,
+      maxWidth: newPlotAreaBounds.width,
+      maxHeight: newPlotAreaBounds.height,
     );
 
-    _arrangeVerticalAxes(plotAreaBounds, verticalAxes);
-    _arrangeHorizontalAxes(plotAreaBounds, horizontalAxes);
+    if (!plotAreaBounds.isEmpty && newPlotAreaBounds != plotAreaBounds) {
+      plotAreaBounds = newPlotAreaBounds;
+    }
+
+    _arrangeVerticalAxes(newPlotAreaBounds, verticalAxes);
+    _arrangeHorizontalAxes(newPlotAreaBounds, horizontalAxes);
     size = constraints.biggest;
     performPostLayout();
   }
@@ -2280,6 +2331,7 @@ class RenderCartesianAxes extends RenderBox
       final double? crossing = _crossValue(axis);
       final CartesianAxesParentData childParentData =
           axis.parentData! as CartesianAxesParentData;
+      final double extent = axis.labelsExtent ?? spaceBetweenMultipleAxes;
       if (axis.opposedPosition) {
         axis.invertElementsOrder = false;
         if (crossing != null) {
@@ -2293,6 +2345,12 @@ class RenderCartesianAxes extends RenderBox
         } else {
           childParentData.offset = rightAxisPosition;
           rightAxisPosition = rightAxisPosition.translate(axis.size.width, 0);
+          // Move the axis with padding value for multiple axes.
+          if (axis.isVisible &&
+              (rightAxisPosition != plotAreaBounds.topRight ||
+                  axis.labelsExtent != null)) {
+            rightAxisPosition = rightAxisPosition.translate(extent, 0);
+          }
         }
       } else {
         axis.invertElementsOrder = true;
@@ -2308,6 +2366,12 @@ class RenderCartesianAxes extends RenderBox
           childParentData.offset =
               leftAxisPosition.translate(-axis.size.width, 0);
           leftAxisPosition = childParentData.offset;
+          // Move the axis with padding value for multiple axes.
+          if (axis.isVisible &&
+              (leftAxisPosition != plotAreaBounds.topLeft ||
+                  axis.labelsExtent != null)) {
+            leftAxisPosition = leftAxisPosition.translate(-extent, 0);
+          }
         }
       }
     }
@@ -2321,6 +2385,7 @@ class RenderCartesianAxes extends RenderBox
       final double? crossing = _crossValue(axis);
       final CartesianAxesParentData childParentData =
           axis.parentData! as CartesianAxesParentData;
+      final double extent = axis.labelsExtent ?? spaceBetweenMultipleAxes;
       if (axis.opposedPosition) {
         axis.invertElementsOrder = true;
         if (crossing != null) {
@@ -2335,6 +2400,12 @@ class RenderCartesianAxes extends RenderBox
           childParentData.offset =
               topAxisPosition.translate(0, -axis.size.height);
           topAxisPosition = childParentData.offset;
+          // Move the axis with padding value for multiple axes.
+          if (axis.isVisible &&
+              (topAxisPosition != plotAreaBounds.topLeft ||
+                  axis.labelsExtent != null)) {
+            topAxisPosition = topAxisPosition.translate(0, -extent);
+          }
         }
       } else {
         axis.invertElementsOrder = false;
@@ -2350,6 +2421,12 @@ class RenderCartesianAxes extends RenderBox
           childParentData.offset = bottomAxisPosition;
           bottomAxisPosition =
               bottomAxisPosition.translate(0, axis.size.height);
+          // Move the axis with padding value for multiple axes.
+          if (axis.isVisible &&
+              (bottomAxisPosition != plotAreaBounds.bottomLeft ||
+                  axis.labelsExtent != null)) {
+            bottomAxisPosition = bottomAxisPosition.translate(0, extent);
+          }
         }
       }
     }

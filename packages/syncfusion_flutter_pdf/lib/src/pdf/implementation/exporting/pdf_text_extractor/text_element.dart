@@ -830,7 +830,26 @@ class TextElement {
     } else {
       tempFontSize = glyph.fontSize;
     }
-    glyph.toUnicode = glyphChar!;
+    final String glyphText = glyphChar!;
+    if (!structure.macRomanEncoded &&
+        structure.fontEncoding == 'MacRomanEncoding') {
+      String tempstring = '';
+      for (int i = 0; i < glyphText.length; i++) {
+        final int b = glyphText[i].codeUnitAt(0).toUnsigned(8);
+        if (b > 126) {
+          final String x = structure.macEncodeTable![b]!;
+          tempstring += x;
+        } else {
+          tempstring += glyphText[i];
+        }
+      }
+      if (tempstring != '') {
+        glyphChar = tempstring;
+      }
+    } else {
+      structure.macRomanEncoded = false;
+    }
+    glyph.toUnicode = glyphChar;
     if (matrix.m12 != 0 && matrix.m21 != 0) {
       glyph.isRotated = true;
       if (matrix.m12 < 0 && matrix.m21 > 0) {
@@ -969,6 +988,24 @@ class TextElement {
       if (glyphName!.contains('\u0092')) {
         glyphName = glyphName.replaceAll('\u0092', '’');
       }
+    }
+    if (!structure.macRomanEncoded &&
+        structure.fontEncoding == 'MacRomanEncoding') {
+      String tempstring = '';
+      for (int i = 0; i < glyphName.length; i++) {
+        final int b = glyphName[i].codeUnitAt(0).toUnsigned(8);
+        if (b > 126) {
+          final String x = structure.macEncodeTable![b]!;
+          tempstring += x;
+        } else {
+          tempstring += glyphName[i];
+        }
+      }
+      if (tempstring != '') {
+        glyphName = tempstring;
+      }
+    } else {
+      structure.macRomanEncoded = false;
     }
     gly.toUnicode = glyphName;
     gly.boundingRect = Rect.fromLTWH(

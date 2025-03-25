@@ -42,10 +42,11 @@ class SfPdfViewerThemeDataM2 extends SfPdfViewerThemeData {
 
   late final PdfHyperlinkDialogStyle _hyperlinkDialogStyle =
       PdfHyperlinkDialogStyle(
-          backgroundColor: colorScheme.brightness == Brightness.light
-              ? Colors.white
-              : const Color(0xFF424242),
-          closeIconColor: colorScheme.onSurfaceVariant[153]);
+    backgroundColor: colorScheme.brightness == Brightness.light
+        ? Colors.white
+        : const Color(0xFF424242),
+    closeIconColor: colorScheme.onSurfaceVariant[153],
+  );
 
   late final PdfPasswordDialogStyle _passwordDialogStyle =
       PdfPasswordDialogStyle(
@@ -95,8 +96,9 @@ class SfPdfViewerThemeDataM3 extends SfPdfViewerThemeData {
   );
 
   late final PdfScrollStatusStyle _scrollStatusStyle = PdfScrollStatusStyle(
-      backgroundColor: colorScheme.inverseSurface[255],
-      pageInfoTextStyle: TextStyle(color: colorScheme.onInverseSurface[255]));
+    backgroundColor: colorScheme.inverseSurface[255],
+    pageInfoTextStyle: TextStyle(color: colorScheme.onInverseSurface[255]),
+  );
 
   late final PdfBookmarkViewStyle _bookmarkViewStyle = PdfBookmarkViewStyle(
     backgroundColor: colorScheme.brightness == Brightness.light

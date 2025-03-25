@@ -1,4 +1,85 @@
+## [28.2.10] - 11/03/2025 
+
+**Bugs**
+
+* \#FB65781 - The [labelsExtent](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/labelsExtent.html) property now applies padding for each axis in the Cartesian axis.
+
+## Unreleased
+
+**General**
+
+*  The compatible version of our Flutter charts widget has been updated to Flutter SDK 3.29.0.
+*  The Syncfusion<sup>&reg;</sup> Flutter charts example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+*  The Syncfusion<sup>&reg;</sup> Flutter charts example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
+
+
+## [28.2.8] - 04/03/2025
+
+**Bugs**
+
+* \#BD665639 - Now, the [onDataLabelTapped](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCircularChart/onDataLabelTapped.html) callback returns the point index properly for visible data labels.
+
+## [28.2.7] - 25/02/2025
+
+**General**
+
+* The minimum Dart version of our Flutter widgets has been updated to 3.4 from 3.3.
+
+**Bugs**
+
+* \#GH1321 - Now the [trendLine](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Trendline-class.html) tooltip will update properly for all [activationMode](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/TooltipBehavior/activationMode.html).
+
+## [28.2.6] - 18/02/2025
+
+**Bugs**
+
+* \#FR195944 - Now the mouse cursor icon customization is applicable to the entire chart area.
+* \#BD688884 - Now for all activation modes, the crosshair will remains visible for a longer duration when the [shouldAlwaysShow](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CrosshairBehavior/shouldAlwaysShow.html) property is set to true.
+
+## [28.2.5] - 11/02/2025
+
+**Bugs**
+
+* \#BD686856 - Now, the gap is applied between multiple [axes](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/axes.html) in the Cartesian axis.
+* \#BD680484 - Now the tooltip appears instantly without any delay when interacting with the chart using [ActivationMode.singleTap](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ActivationMode.html).
+
+## [28.2.4] - 04/02/2025
+
+**Bugs**
+
+* \#GH2260 - Type casting exception wasn’t thrown when setting double values to the start and end properties of the [plotBands](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/plotBands.html) in the [DatetimeCategoryAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/DateTimeCategoryAxis-class.html).
+* \#BD684087 - Now horizontal axis labels update properly when using [AxisLabelIntersectAction.multipleRows](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/AxisLabelIntersectAction.html) with [LabelRotation](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/labelRotation.html).
+
+## [28.1.40] - 21/01/2025
+
+**Bugs**
+
+* \#FR195717 - The chart zoom in and out is now updated correctly when the chart key is dynamically changed. 
+
+## [28.1.39] - 15/01/2025
+
+**Bugs**
+
+* \#GH2212 - Now the axis labels will render properly when the [edgeLabelPlacement](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/edgeLabelPlacement.html) is set to 'hide'.
+* \#GH2172 - Now the [CartesianSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CartesianSeries-class.html) will render properly with multiple series when an empty data source is set.
+
+## [28.1.38] - 07/01/2025
+
+**Bugs**
+
+* \#GH2218 - Now [trackball](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/TrackballBehavior-class.html) update properly for [DateTimeCategoryAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/DateTimeCategoryAxis-class.html) with multiple series in [CartesianCharts](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html).
+
+## [28.1.37] - 31/12/2024
+
+**Bugs**
+
+* \#GH2171 - Now [LabelIntersectAction.none](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/labelIntersectAction.html) update properly for y axis in [CartesianCharts](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html).
+
 ## [28.1.36] - 24/12/2024
+
+**General**
+
+* The compatible version of our Flutter charts widget has been updated to Flutter SDK 3.27.0.
 
 **Bugs**
 

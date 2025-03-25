@@ -1714,9 +1714,12 @@ class RenderGridCell extends RenderBox
         }
         // Set origin only if the line is not footer.
         if (!newLine.isFooter) {
-          origin += isRTL && newLine.isClippedCorner
-              ? newLine.clippedSize
-              : newLine.size - newLine.clippedCorner;
+          // Adjust origin if the line is clipped.
+          if (newLine.isClipped) {
+            origin += isRTL && newLine.isClippedCorner
+                ? newLine.clippedSize
+                : newLine.size - newLine.clippedCorner;
+          }
           return false;
         }
       } else {

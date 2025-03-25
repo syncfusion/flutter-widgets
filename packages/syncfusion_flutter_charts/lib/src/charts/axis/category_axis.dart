@@ -566,8 +566,7 @@ class RenderCategoryAxis extends RenderChartAxis {
       return;
     }
 
-    final double extent =
-        labelsExtent ?? (maximumLabelWidth ?? double.maxFinite);
+    final double extent = maximumLabelWidth ?? double.maxFinite;
     labels.clear();
     for (final AxisDependent dependent in dependents) {
       if (dependent is CartesianSeriesRenderer) {

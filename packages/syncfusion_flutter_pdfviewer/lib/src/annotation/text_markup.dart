@@ -10,9 +10,8 @@ class HighlightAnnotation extends Annotation {
   /// Initializes a new instance of [HighlightAnnotation] class.
   ///
   /// The [textBoundsCollection] represents the bounds collection of the highlight annotations that are added in the multiple lines of text.
-  HighlightAnnotation({
-    required List<PdfTextLine> textBoundsCollection,
-  })  : assert(textBoundsCollection.isNotEmpty),
+  HighlightAnnotation({required List<PdfTextLine> textBoundsCollection})
+      : assert(textBoundsCollection.isNotEmpty),
         assert(_checkTextMarkupRects(textBoundsCollection)),
         super(pageNumber: textBoundsCollection.first.pageNumber) {
     _textMarkupRects = <Rect>[];
@@ -42,9 +41,8 @@ class StrikethroughAnnotation extends Annotation {
   /// Initializes a new instance of [StrikethroughAnnotation] class.
   ///
   /// The [textBoundsCollection] represents the bounds collection of the strikethrough annotations that are added in the multiple lines of text.
-  StrikethroughAnnotation({
-    required List<PdfTextLine> textBoundsCollection,
-  })  : assert(textBoundsCollection.isNotEmpty),
+  StrikethroughAnnotation({required List<PdfTextLine> textBoundsCollection})
+      : assert(textBoundsCollection.isNotEmpty),
         assert(_checkTextMarkupRects(textBoundsCollection)),
         super(pageNumber: textBoundsCollection.first.pageNumber) {
     _textMarkupRects = <Rect>[];
@@ -74,9 +72,8 @@ class UnderlineAnnotation extends Annotation {
   /// Initializes a new instance of [UnderlineAnnotation] class.
   ///
   /// The [textBoundsCollection] represents the bounds collection of the underline annotations that are added in the multiple lines of text.
-  UnderlineAnnotation({
-    required List<PdfTextLine> textBoundsCollection,
-  })  : assert(textBoundsCollection.isNotEmpty),
+  UnderlineAnnotation({required List<PdfTextLine> textBoundsCollection})
+      : assert(textBoundsCollection.isNotEmpty),
         assert(_checkTextMarkupRects(textBoundsCollection)),
         super(pageNumber: textBoundsCollection.first.pageNumber) {
     _textMarkupRects = <Rect>[];
@@ -106,9 +103,8 @@ class SquigglyAnnotation extends Annotation {
   /// Initializes a new instance of [SquigglyAnnotation] class.
   ///
   /// The [textBoundsCollection] represents the bounds collection of the squiggly annotations that are added in the multiple lines of text.
-  SquigglyAnnotation({
-    required List<PdfTextLine> textBoundsCollection,
-  })  : assert(textBoundsCollection.isNotEmpty),
+  SquigglyAnnotation({required List<PdfTextLine> textBoundsCollection})
+      : assert(textBoundsCollection.isNotEmpty),
         assert(_checkTextMarkupRects(textBoundsCollection)),
         super(pageNumber: textBoundsCollection.first.pageNumber) {
     _textMarkupRects = <Rect>[];
@@ -137,13 +133,13 @@ class SquigglyAnnotation extends Annotation {
 class TextMarkupAnnotationView extends InteractiveGraphicsView
     with AnnotationView {
   /// Creates a [TextMarkupAnnotationView].
-  TextMarkupAnnotationView(
-      {Key? key,
-      required this.annotation,
-      bool isSelected = false,
-      Color selectorColor = defaultSelectorColor,
-      double heightPercentage = 1})
-      : super(
+  TextMarkupAnnotationView({
+    Key? key,
+    required this.annotation,
+    bool isSelected = false,
+    Color selectorColor = defaultSelectorColor,
+    double heightPercentage = 1,
+  }) : super(
           key: key,
           color: annotation.color,
           strokeWidth: 1,
@@ -180,8 +176,10 @@ class TextMarkupAnnotationView extends InteractiveGraphicsView
   }
 
   @override
-  void updateRenderObject(BuildContext context,
-      covariant RenderInteractiveGraphicsView renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderInteractiveGraphicsView renderObject,
+  ) {
     if (renderObject is RenderTextMarkupAnnotationView) {
       renderObject.heightPercentage = _heightPercentage;
     }
@@ -237,7 +235,7 @@ class RenderTextMarkupAnnotationView extends RenderInteractiveGraphicsView {
   @override
   void paint(PaintingContext context, Offset offset) {
     final Canvas canvas = context.canvas;
-    final Paint paint = Paint()..color = color.withOpacity(opacity);
+    final Paint paint = Paint()..color = color.withValues(alpha: opacity);
 
     if (_textMarkupType == TextMarkupType.highlight) {
       _drawHighlight(canvas, paint, offset);
@@ -254,13 +252,14 @@ class RenderTextMarkupAnnotationView extends RenderInteractiveGraphicsView {
   Rect _getPaintRect(Rect rect, Offset offset) {
     final Rect localRect = rect.translate(-_bounds.left, -_bounds.top);
     final Offset globalOffset = Offset(
-        offset.dx + localRect.left / heightPercentage,
-        offset.dy + localRect.top / heightPercentage);
+      offset.dx + localRect.left / heightPercentage,
+      offset.dy + localRect.top / heightPercentage,
+    );
     return globalOffset & (localRect.size / heightPercentage);
   }
 
   void _drawHighlight(Canvas canvas, Paint paint, Offset offset) {
-    paint.color = color.withOpacity(opacity * 0.3);
+    paint.color = color.withValues(alpha: opacity * 0.3);
     paint.style = PaintingStyle.fill;
     final HighlightAnnotation highlightAnnotation =
         annotation as HighlightAnnotation;
@@ -277,7 +276,10 @@ class RenderTextMarkupAnnotationView extends RenderInteractiveGraphicsView {
         in (annotation as StrikethroughAnnotation)._textMarkupRects) {
       final Rect strikethroughRect = _getPaintRect(rect, offset);
       canvas.drawLine(
-          strikethroughRect.centerLeft, strikethroughRect.centerRight, paint);
+        strikethroughRect.centerLeft,
+        strikethroughRect.centerRight,
+        paint,
+      );
     }
   }
 
@@ -288,7 +290,10 @@ class RenderTextMarkupAnnotationView extends RenderInteractiveGraphicsView {
         in (annotation as UnderlineAnnotation)._textMarkupRects) {
       final Rect underlineRect = _getPaintRect(rect, offset);
       canvas.drawLine(
-          underlineRect.bottomLeft, underlineRect.bottomRight, paint);
+        underlineRect.bottomLeft,
+        underlineRect.bottomRight,
+        paint,
+      );
     }
   }
 
@@ -300,18 +305,27 @@ class RenderTextMarkupAnnotationView extends RenderInteractiveGraphicsView {
       final Rect squigglyRect = _getPaintRect(rect, offset);
 
       canvas.drawPath(
-          _getSquigglyPath(
-              Point<double>(
-                  squigglyRect.bottomLeft.dx, squigglyRect.bottomRight.dy),
-              Point<double>(
-                  squigglyRect.bottomRight.dx, squigglyRect.bottomRight.dy),
-              squigglyRect.height),
-          paint);
+        _getSquigglyPath(
+          Point<double>(
+            squigglyRect.bottomLeft.dx,
+            squigglyRect.bottomRight.dy,
+          ),
+          Point<double>(
+            squigglyRect.bottomRight.dx,
+            squigglyRect.bottomRight.dy,
+          ),
+          squigglyRect.height,
+        ),
+        paint,
+      );
     }
   }
 
   Path _getSquigglyPath(
-      Point<double> startPoint, Point<double> endPoint, double height) {
+    Point<double> startPoint,
+    Point<double> endPoint,
+    double height,
+  ) {
     final double dx = startPoint.x - endPoint.x;
     final double dy = startPoint.y - endPoint.y;
     final double length = sqrt(dx * dx + dy * dy);

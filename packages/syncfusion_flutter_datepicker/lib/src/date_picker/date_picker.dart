@@ -6873,7 +6873,11 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
               _controller.forward,
               _isMultiViewEnabled(widget),
               widget.viewSpacing,
-              widget.selectionColor ?? _datePickerTheme.selectionColor!,
+              kIsWeb &&
+                      (Theme.of(context).platform == TargetPlatform.android ||
+                          Theme.of(context).platform == TargetPlatform.iOS)
+                  ? _datePickerTheme.selectionColor!
+                  : widget.selectionColor ?? _datePickerTheme.selectionColor!,
               _isRtl,
               _textScaleFactor,
               widget.isHijri,
@@ -7007,7 +7011,11 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker>
                 _controller.forward,
                 _isMultiViewEnabled(widget),
                 widget.viewSpacing,
-                widget.selectionColor ?? _datePickerTheme.selectionColor!,
+                kIsWeb &&
+                        (Theme.of(context).platform == TargetPlatform.android ||
+                            Theme.of(context).platform == TargetPlatform.iOS)
+                    ? _datePickerTheme.selectionColor!
+                    : widget.selectionColor ?? _datePickerTheme.selectionColor!,
                 _isRtl,
                 _textScaleFactor,
                 widget.isHijri,

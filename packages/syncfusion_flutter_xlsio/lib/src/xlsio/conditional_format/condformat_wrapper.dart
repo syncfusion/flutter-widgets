@@ -75,7 +75,7 @@ class ConditionalFormatWrapper implements ConditionalFormat {
 
   @override
 
-  ///  Gets or sets one of the constants of <see cref="CFTimePeriods"/> enumeration
+  ///  Gets or sets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   CFTimePeriods get timePeriodType {
     return getCondition().timePeriodType;
@@ -83,7 +83,7 @@ class ConditionalFormatWrapper implements ConditionalFormat {
 
   @override
 
-  ///  Gets or sets one of the constants of <see cref="CFTimePeriods"/> enumeration
+  ///  Gets or sets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   set timePeriodType(CFTimePeriods value) {
     getCondition().timePeriodType = value;
@@ -345,7 +345,7 @@ class ConditionalFormatWrapper implements ConditionalFormat {
 
   @override
 
-  /// Gets or sets the text value used in <inheritdoc>SpecificText</inheritdoc> conditional formatting rule.
+  /// Gets or sets the text value used in SpecificText conditional formatting rule.
   /// The default value is null.
   String? get text {
     return getCondition().text;
@@ -353,7 +353,7 @@ class ConditionalFormatWrapper implements ConditionalFormat {
 
   @override
 
-  /// Gets or sets the text value used in <inheritdoc>SpecificText</inheritdoc> conditional formatting rule.
+  /// Gets or sets the text value used in SpecificText conditional formatting rule.
   /// The default value is null.
   set text(String? value) {
     getCondition().text = value;

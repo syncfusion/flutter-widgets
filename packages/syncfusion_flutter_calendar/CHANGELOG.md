@@ -1,3 +1,27 @@
+## Unreleased
+
+**General**
+
+*  The compatible version of our Flutter calendar widget has been updated to Flutter SDK 3.29.0.
+*  The Syncfusion<sup>&reg;</sup> Flutter calendar example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+*  The Syncfusion<sup>&reg;</sup> Flutter calendar example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
+
+**Features**
+
+* #FR46931 - Provided touch support for the [monthCellBuilder](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/monthCellBuilder.html) in the Calendar.
+
+## [28.2.7] - 25/02/2025
+
+**General**
+
+* The minimum Dart version of our Flutter widgets has been updated to 3.4 from 3.3.
+
+## [28.1.39] - 01/15/2025
+
+**Enhancements**
+
+* Now, improved the spanned appointment rendering behavior in the timelineMonth view when the when a start and end times fall within the same month and end date includes partial 24-hour periods in the Flutter event calendar.
+
 ## [28.1.36] - 12/24/2024
 
 **General**

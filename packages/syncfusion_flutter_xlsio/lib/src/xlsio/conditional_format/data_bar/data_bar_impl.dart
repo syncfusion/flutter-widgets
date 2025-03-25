@@ -175,7 +175,7 @@ class DataBarImpl implements DataBar {
     hasExtensionList = true;
     hasDiffNegativeBarColor = true;
     _negativeFillColor =
-        _negativeFillColorRgb.value.toRadixString(16).toUpperCase();
+        rgbValue(_negativeFillColorRgb).toRadixString(16).toUpperCase();
   }
 
   @override
@@ -206,7 +206,7 @@ class DataBarImpl implements DataBar {
     hasExtensionList = true;
     hasDiffNegativeBarBorderColor = true;
     _negativeBorderColor =
-        _negativeBorderColorRgb.value.toRadixString(16).toUpperCase();
+        rgbValue(_negativeBorderColorRgb).toRadixString(16).toUpperCase();
   }
 
   /// Gets or sets the value whether the data bar has extension list or not.
@@ -244,7 +244,7 @@ class DataBarImpl implements DataBar {
   @override
   set barColorRgb(Color value) {
     _barColorRgb = value;
-    _barColor = _barColorRgb.value.toRadixString(16).toUpperCase();
+    _barColor = rgbValue(_barColorRgb).toRadixString(16).toUpperCase();
     hasExtensionList = true;
   }
 
@@ -269,7 +269,7 @@ class DataBarImpl implements DataBar {
   @override
   set barAxisColorRgb(Color value) {
     _barAxisColorRgb = value;
-    _barAxisColor = _barAxisColorRgb.value.toRadixString(16).toUpperCase();
+    _barAxisColor = rgbValue(_barAxisColorRgb).toRadixString(16).toUpperCase();
     hasExtensionList = true;
   }
 
@@ -294,8 +294,15 @@ class DataBarImpl implements DataBar {
   @override
   set borderColorRgb(Color value) {
     _borderColorRgb = value;
-    _borderColor = _borderColorRgb.value.toRadixString(16).toUpperCase();
+    _borderColor = rgbValue(_borderColorRgb).toRadixString(16).toUpperCase();
     hasBorder = true;
+  }
+
+  int rgbValue(Color value) {
+    return ((value.a * 255).toInt() << 24) |
+        ((value.r * 255).toInt() << 16) |
+        ((value.g * 255).toInt() << 8) |
+        (value.b * 255).toInt();
   }
 }
 

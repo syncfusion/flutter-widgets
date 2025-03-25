@@ -43,7 +43,7 @@ class PdfGridRowStyle extends PdfGridStyleBase {
   }
 }
 
-/// Provides customization of the appearance for the <see cref="PdfGridCell"/>
+/// Provides customization of the appearance for the [PdfGridCell].
 class PdfGridCellStyle extends PdfGridRowStyle {
   /// Initializes a new instance of the [PdfGridCellStyle] class.
   PdfGridCellStyle(

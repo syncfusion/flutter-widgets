@@ -4,10 +4,10 @@ import 'package:syncfusion_flutter_core/theme.dart';
 class ChatM2ThemeData extends SfChatThemeData {
   ChatM2ThemeData(this.context)
       : super(
-          outgoingBubbleContentShape: const RoundedRectangleBorder(
+          outgoingMessageShape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
           ),
-          incomingBubbleContentShape: const RoundedRectangleBorder(
+          incomingMessageShape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
           ),
         );
@@ -50,12 +50,10 @@ class ChatM2ThemeData extends SfChatThemeData {
       );
 
   @override
-  Color? get outgoingBubbleContentBackgroundColor =>
-      _colorScheme.primaryContainer;
+  Color? get outgoingMessageBackgroundColor => _colorScheme.primaryContainer;
 
   @override
-  Color? get incomingBubbleContentBackgroundColor =>
-      _colorScheme.surfaceContainer;
+  Color? get incomingMessageBackgroundColor => _colorScheme.surfaceContainer;
 
   @override
   Color? get outgoingAvatarBackgroundColor => _colorScheme.primaryContainer;
@@ -106,10 +104,10 @@ class ChatM2ThemeData extends SfChatThemeData {
 class ChatM3ThemeData extends SfChatThemeData {
   ChatM3ThemeData(this.context)
       : super(
-          outgoingBubbleContentShape: const RoundedRectangleBorder(
+          outgoingMessageShape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
           ),
-          incomingBubbleContentShape: const RoundedRectangleBorder(
+          incomingMessageShape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
           ),
         );
@@ -152,12 +150,10 @@ class ChatM3ThemeData extends SfChatThemeData {
       );
 
   @override
-  Color? get outgoingBubbleContentBackgroundColor =>
-      _colorScheme.primaryContainer;
+  Color? get outgoingMessageBackgroundColor => _colorScheme.primaryContainer;
 
   @override
-  Color? get incomingBubbleContentBackgroundColor =>
-      _colorScheme.surfaceContainer;
+  Color? get incomingMessageBackgroundColor => _colorScheme.surfaceContainer;
 
   @override
   Color? get outgoingAvatarBackgroundColor => _colorScheme.primaryContainer;

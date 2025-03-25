@@ -1,4 +1,3 @@
-export 'src/test/images.dart';
 export 'src/xlsio/autoFilters/auto_filter.dart' show AutoFilter;
 export 'src/xlsio/autoFilters/autofilter_impl.dart' hide AutoFilterImpl;
 export 'src/xlsio/autoFilters/autofiltercollection.dart'

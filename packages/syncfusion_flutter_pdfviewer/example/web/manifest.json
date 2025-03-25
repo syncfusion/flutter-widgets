@@ -1,6 +1,6 @@
 {
-    "name": "syncfusion_flutter_pdfviewer example",
-    "short_name": "syncfusion_flutter_pdfviewer",
+    "name": "example",
+    "short_name": "example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

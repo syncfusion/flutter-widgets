@@ -361,12 +361,22 @@ class CrosshairBehavior extends ChartBehavior {
       return;
     }
 
-    if (event is PointerMoveEvent) {
+    if (event is PointerDownEvent) {
+      _handlePointerDown(event);
+    } else if (event is PointerMoveEvent) {
       _handlePointerMove(event);
     } else if (event is PointerHoverEvent) {
       _handlePointerHover(event);
-    } else if (event is PointerCancelEvent || event is PointerUpEvent) {
+    } else if (event is PointerCancelEvent) {
       _hideCrosshair(immediately: true);
+    } else if (event is PointerUpEvent) {
+      _hideCrosshair();
+    }
+  }
+
+  void _handlePointerDown(PointerDownEvent details) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
+      _showCrosshair(parentBox!.globalToLocal(details.position));
     }
   }
 

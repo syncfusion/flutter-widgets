@@ -122,6 +122,9 @@ class PdfCrossTable {
   /// internal property
   PdfDictionary? get trailer {
     _trailer ??= crossTable == null ? PdfStream() : crossTable!.trailer;
+    if (_trailer!.containsKey('XRefStm')) {
+      _trailer!.remove('XRefStm');
+    }
     return _trailer;
   }
 

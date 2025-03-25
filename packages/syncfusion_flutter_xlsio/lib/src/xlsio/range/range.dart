@@ -600,7 +600,7 @@ class Range {
     }
   }
 
-  /// Gets a <see cref='Range'/> object that represents the cells in the Range.Read-only.
+  /// Gets a see cref='Range object that represents the cells in the Range.Read-only.
   ///
   /// ```dart
   /// Workbook workbook = new Workbook();
