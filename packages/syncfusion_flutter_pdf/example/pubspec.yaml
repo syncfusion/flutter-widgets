@@ -3,7 +3,7 @@ description: Demo for creating a PDF file using syncfusion_flutter_pdf package.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -12,6 +12,7 @@ dependencies:
   open_file: ^3.3.2
   syncfusion_flutter_pdf:
     path: ../
+  web: ^1.1.0
 
 # The following section is specific to Flutter.
 flutter:

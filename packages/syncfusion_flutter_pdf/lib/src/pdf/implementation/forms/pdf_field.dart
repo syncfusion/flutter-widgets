@@ -2808,17 +2808,23 @@ class PdfFieldHelper {
     Rect bounds;
     if (array != null && array is PdfArray) {
       bounds = array.toRectangle().rect;
-      double? y = 0;
-      if ((PdfCrossTable.dereference(array[1])! as PdfNumber).value! < 0) {
-        y = (PdfCrossTable.dereference(array[1])! as PdfNumber).value
-            as double?;
-        if ((PdfCrossTable.dereference(array[1])! as PdfNumber).value! >
-            (PdfCrossTable.dereference(array[3])! as PdfNumber).value!) {
-          y = y! - bounds.height;
+      double y = 0.0;
+
+      final value1 = (PdfCrossTable.dereference(array[1])! as PdfNumber).value!;
+      final value3 = (PdfCrossTable.dereference(array[3])! as PdfNumber).value!;
+
+      final value1Double = value1.toDouble();
+      final value3Double = value3.toDouble();
+
+      if (value1Double < 0) {
+        y = value1Double;
+
+        if (value1Double > value3Double) {
+          y = y - bounds.height;
         }
       }
       bounds = Rect.fromLTWH(
-          bounds.left, y! <= 0 ? bounds.top : y, bounds.width, bounds.height);
+          bounds.left, y <= 0 ? bounds.top : y, bounds.width, bounds.height);
     } else {
       bounds = Rect.zero;
     }

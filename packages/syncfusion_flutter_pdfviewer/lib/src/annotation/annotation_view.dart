@@ -88,8 +88,10 @@ class InteractiveGraphicsView extends LeafRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context,
-      covariant RenderInteractiveGraphicsView renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderInteractiveGraphicsView renderObject,
+  ) {
     renderObject
       ..color = color
       ..opacity = opacity
@@ -264,8 +266,12 @@ class RenderInteractiveGraphicsView extends RenderBox {
   /// Draws the selection bounds for the annotation.
   void drawSelectionBounds(PaintingContext context, Offset offset) {
     final Canvas canvas = context.canvas;
-    final Rect selectorBounds =
-        Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
+    final Rect selectorBounds = Rect.fromLTWH(
+      offset.dx,
+      offset.dy,
+      size.width,
+      size.height,
+    );
     final Paint selectorPaint = Paint()
       ..color = selectorColor
       ..strokeWidth = selectorStorkeWidth

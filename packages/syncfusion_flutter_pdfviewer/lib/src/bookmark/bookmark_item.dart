@@ -43,19 +43,20 @@ const double _kPdfExpandIconRightPosition = 16.0;
 /// A material design bookmark.
 class BookmarkItem extends StatefulWidget {
   /// Creates a material design bookmark.
-  const BookmarkItem(
-      {super.key,
-      this.title = '',
-      this.height = 48,
-      required this.onNavigate,
-      required this.onExpandPressed,
-      required this.onBackPressed,
-      this.textPosition = 16,
-      this.isBorderEnabled = false,
-      this.isExpandIconVisible = false,
-      this.isBackIconVisible = false,
-      required this.isMobileWebView,
-      required this.textDirection});
+  const BookmarkItem({
+    super.key,
+    this.title = '',
+    this.height = 48,
+    required this.onNavigate,
+    required this.onExpandPressed,
+    required this.onBackPressed,
+    this.textPosition = 16,
+    this.isBorderEnabled = false,
+    this.isExpandIconVisible = false,
+    this.isBackIconVisible = false,
+    required this.isMobileWebView,
+    required this.textDirection,
+  });
 
   /// Title for the bookmark.
   final String title;
@@ -160,7 +161,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
   void _handleTapDown(TapDownDetails details) {
     setState(() {
       if (kIsDesktop && !widget.isMobileWebView) {
-        _color = const Color(0xFF000000).withOpacity(0.08);
+        _color = const Color(0xFF000000).withValues(alpha: 0.08);
       } else {
         _color = _pdfViewerThemeData!.bookmarkViewStyle?.selectionColor! ??
             _effectiveThemeData!.bookmarkViewStyle?.selectionColor! ??
@@ -229,10 +230,9 @@ class _BookmarkItemState extends State<BookmarkItem> {
                     color: _pdfViewerThemeData!
                             .bookmarkViewStyle?.backIconColor ??
                         _effectiveThemeData!.bookmarkViewStyle?.backIconColor ??
-                        Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.54),
+                        Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.54),
                     semanticLabel: 'Previous level bookmark',
                   ),
                 ),
@@ -251,11 +251,12 @@ class _BookmarkItemState extends State<BookmarkItem> {
                     .copyWith(
                       fontSize: 14,
                       color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.black.withOpacity(0.87)
-                          : Colors.white.withOpacity(0.87),
+                          ? Colors.black.withValues(alpha: 0.87)
+                          : Colors.white.withValues(alpha: 0.87),
                     )
                     .merge(
-                        _pdfViewerThemeData!.bookmarkViewStyle?.titleTextStyle),
+                      _pdfViewerThemeData!.bookmarkViewStyle?.titleTextStyle,
+                    ),
               ),
             ),
             Visibility(
@@ -274,15 +275,14 @@ class _BookmarkItemState extends State<BookmarkItem> {
                             .bookmarkViewStyle?.navigationIconColor ??
                         _effectiveThemeData!
                             .bookmarkViewStyle?.navigationIconColor ??
-                        Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.54),
+                        Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.54),
                     semanticLabel: 'Next level bookmark',
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -293,8 +293,10 @@ class _BookmarkItemState extends State<BookmarkItem> {
         onEnter: (PointerEnterEvent details) {
           setState(() {
             _color = Theme.of(context).useMaterial3
-                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.08)
-                : const Color(0xFF000000).withOpacity(0.04);
+                ? Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.08)
+                : const Color(0xFF000000).withValues(alpha: 0.04);
           });
         },
         onExit: (PointerExitEvent details) {

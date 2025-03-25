@@ -871,6 +871,11 @@ class PdfGraphics {
         PdfTemplateHelper.getHelper(template).cloneResources(crossTable);
       }
     }
+    if (PdfTemplateHelper.getHelper(template).origin.dx > 0 &&
+        PdfTemplateHelper.getHelper(template).origin.dy > 0 &&
+        template.size > size) {
+      size = template.size;
+    }
     final double scaleX =
         (template.size.width > 0) ? size.width / template.size.width : 1;
     final double scaleY =
@@ -937,7 +942,16 @@ class PdfGraphics {
         matrix.translate(location.dx, -(location.dy + 0));
       }
     } else {
-      matrix.translate(location.dx, -(location.dy + size.height));
+      if (PdfTemplateHelper.getHelper(template).origin.dx > 0 &&
+          PdfTemplateHelper.getHelper(template).origin.dy > 0 &&
+          location.dx == 0 &&
+          location.dy == 0) {
+        matrix.translate(
+            location.dx - PdfTemplateHelper.getHelper(template).origin.dx,
+            -(location.dy + size.height));
+      } else {
+        matrix.translate(location.dx, -(location.dy + size.height));
+      }
     }
     if (hasScale) {
       matrix.scale(scaleX, scaleY);
@@ -1020,10 +1034,6 @@ class PdfGraphics {
         case PathPointType.closeSubpath:
           _helper.streamWriter!.closePath();
           break;
-
-        // ignore: no_default_cases
-        default:
-          throw ArgumentError('Incorrect path formation.');
       }
     }
   }

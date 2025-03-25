@@ -13,7 +13,7 @@ import '../utils/helper.dart';
 /// It presents the general shape of data in a simple and highly condensed way.
 ///
 /// To render a bar spark chart, create the instance of [SfSparkBarChart].
-/// Set the value for `data` property which of type List<num>. Now, it shows
+/// Set the value for `data` property which of type `List<num>`. Now, it shows
 ///  the rectangular column to represent the provided data.
 ///
 /// It provides option to customize its appearance with the properties such as
@@ -65,7 +65,7 @@ class SfSparkBarChart extends StatefulWidget {
   /// The difference between the default constructor and this constructor is,
   /// in the default constructor uses its data property to get the input
   /// data value. The `data` property of the default constructor is
-  /// of type List<num>.
+  /// of type `List<num>`.
   ///
   /// The custom constructor uses its [dataCount], [xValueMapper] and
   /// [yValueMapper] to get the input data.

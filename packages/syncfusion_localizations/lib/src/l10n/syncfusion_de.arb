@@ -101,7 +101,7 @@
 "searchDataGridFilteringLabel" : "Suche", 
 "noMatchesDataGridFilteringLabel" : "Keine Treffer", 
 "okDataGridFilteringLabel" : "OK", 
-"cancelDataGridFilteringLabel" : "Absagen", 
+"cancelDataGridFilteringLabel" : "Abbrechen", 
 "showRowsWhereDataGridFilteringLabel" : "Zeig Zeilen wo", 
 "andDataGridFilteringLabel" : "Und", 
 "orDataGridFilteringLabel" : "Oder", 

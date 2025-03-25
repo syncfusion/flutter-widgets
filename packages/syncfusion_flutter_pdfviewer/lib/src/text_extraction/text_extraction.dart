@@ -14,8 +14,9 @@ class TextExtractionEngine {
   SendPort? _sendPort;
 
   final ReceivePort _receivePort = ReceivePort();
-  late final StreamQueue<dynamic> _receiveQueue =
-      StreamQueue<dynamic>(_receivePort);
+  late final StreamQueue<dynamic> _receiveQueue = StreamQueue<dynamic>(
+    _receivePort,
+  );
   Map<int, String> _textMap = <int, String>{};
 
   /// Extracts all the text from the PDF document.

@@ -605,7 +605,8 @@ class SfDataPagerState extends State<SfDataPager> {
         final int index = _resolveToItemIndex(widget.initialPageIndex);
         _handlePageItemTapped(index, _isInitialLoading);
         WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
-          final double distance = _getCumulativeSize(index);
+          final double distance = min(_getCumulativeSize(index),
+              _scrollController!.position.maxScrollExtent);
           _scrollTo(distance, canUpdate: true);
           _setCurrentPageIndex(index);
         });
@@ -939,9 +940,9 @@ class SfDataPagerState extends State<SfDataPager> {
           color: visible
               ? colorScheme.brightness == Brightness.light
                   ? _dataPagerThemeHelper!.disabledItemTextStyle!.color
-                      ?.withOpacity(0.54)
+                      ?.withValues(alpha: 0.54)
                   : _dataPagerThemeHelper!.disabledItemTextStyle!.color
-                      ?.withOpacity(0.65)
+                      ?.withValues(alpha: 0.65)
               : _dataPagerThemeHelper!.disabledItemTextStyle!.color);
     }
 

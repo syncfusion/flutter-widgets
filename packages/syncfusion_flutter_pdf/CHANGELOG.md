@@ -1,8 +1,61 @@
+## Unreleased
+
+**General**
+
+*  The compatible version of our Flutter PDF library has been updated to Flutter SDK 3.29.0.
+*  The Syncfusion<sup>&reg;</sup> Flutter PDF example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+*  The Syncfusion<sup>&reg;</sup> Flutter PDF example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
+
+**Bugs**
+
+* Fixed incorrect TextWord bounds when extracting text from a cropped PDF document.
+
+## [28.2.9] - 03/04/2025
+
+**General**
+
+* The minimum Dart version of our Flutter widgets has been updated to 3.4 from 3.3.
+
+**Bugs**
+
+* Resolved the TypeError occurs when getting the bounds of the form field in a specific document
+
+## [28.2.7] - 02/25/2025
+
+**Bugs**
+
+* Resolved the Performance issue occurs while decrypting the pdf
+
+## [28.2.5] - 02/11/2025
+
+**Bugs**
+
+* Resolved the Format exception occurs while extracting the text from the PDF document
+
+## [28.2.4] - 02/04/2025
+
+**Bugs**
+
+* Resolved the preservation issue when filling the multiline text box field.
+* Typecasting issue occurs while loading the checkbox fields in the PDF document has been resolved.
+
+## [28.1.39] - 01/14/2025
+
+**Bugs**
+
+* Resolved an issue where Unicode characters were not correctly recognized during text extraction from PDF documents.
+
+## [28.1.38] - 01/07/2025
+
+**Bugs**
+
+* The preservation issue encountered when adding annotations to a document has been resolved.
+
 ## [27.2.3] - 11/22/2024
 
 **Bugs**
 
-* The issue of the signature appearance being duplicated when viewing the resultant PDF in the Syncfusion viewer has been resolved.
+* The issue of the signature appearance being duplicated when viewing the resultant PDF in the Syncfusion<sup>&reg;</sup> viewer has been resolved.
 
 ## [27.2.2] - 11/15/2024
 
@@ -564,7 +617,7 @@
 
 Initial release
 
-**Features** 
+**Features**
 
 * Provided the support for creating a PDF document with pages and sections.
 * Provided the support for adding text, images, shapes, and more.
@@ -578,6 +631,6 @@ Initial release
 * Provided the support for creating bookmarks to the PDF.
 * Provided the support for drawing images (JPEG and PNG only) to the PDF document.
 * Provided the support for adding hyperlinks and internal document navigations.
-* Provided the support for color, pen, and brushes. 
+* Provided the support for color, pen, and brushes.
 * Provided the support for adding Chinese, Japanese, and Korean text with the standard CJK fonts.
 * Provided the support for creating and drawing PdfTemplates.

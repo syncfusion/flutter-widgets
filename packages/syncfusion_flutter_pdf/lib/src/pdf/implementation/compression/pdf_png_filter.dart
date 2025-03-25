@@ -64,9 +64,6 @@ class PdfPngFilter {
         result = _decompressPaeth(
             data, inIndex + 1, inBPR, result, resIndex, resBPR);
         break;
-      // ignore: no_default_cases
-      default:
-        throw ArgumentError.value(type, 'Unsupported PNG filter');
     }
     return result;
   }

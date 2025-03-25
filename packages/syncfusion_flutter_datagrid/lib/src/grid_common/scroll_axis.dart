@@ -917,9 +917,6 @@ abstract class ScrollAxisBase {
         start = visibleLines.firstFooterVisibleIndex;
         end = visibleLines.length - 1;
         break;
-      default:
-        start = end = -1;
-        break;
     }
     return <int>[start, end];
   }
@@ -2053,9 +2050,6 @@ class PixelScrollAxis extends ScrollAxisBase {
         p1 += headerExtent - scrollBar!.value;
         p2 += headerExtent - scrollBar!.value;
         doubleSpan = DoubleSpan(p1, p2);
-        break;
-      default:
-        doubleSpan = DoubleSpan.empty();
         break;
     }
 

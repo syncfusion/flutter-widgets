@@ -1,4 +1,124 @@
-## [28.1.36] - 24/12/2024
+## Unreleased
+
+**General**
+
+*  The compatible version of our Flutter chat and AI assistView widget has been updated to Flutter SDK 3.29.0.
+*  The Syncfusion<sup>&reg;</sup> Flutter chat and AI assistView example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+*  The Syncfusion<sup>&reg;</sup> Flutter chat and AI assistView example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
+
+## Chat
+
+### Breaking Changes
+
+Following breaking changes will occur in Chat.
+
+## SfChat:
+
+- The `bubbleHeaderBuilder` property has been renamed to `messageHeaderBuilder`.
+- The `bubbleAvatarBuilder` property has been renamed to `messageAvatarBuilder`.
+- The `bubbleContentBuilder` property has been renamed to `messageContentBuilder`.
+- The `bubbleFooterBuilder` property has been renamed to `messageFooterBuilder`.
+- The `incomingBubbleSettings` property has been renamed to `incomingMessageSettings`.
+- The `outgoingBubbleSettings` property has been renamed to `outgoingMessageSettings`.
+- The `ChatBubbleSettings` class has been renamed to `ChatMessageSettings`.
+
+## ChatComposer:
+
+- The `padding` property has been renamed to `margin`.
+
+## ChatComposer.builder():
+
+- The `padding` property has been renamed to `margin`.
+
+## ChatActionButton:
+
+- The `padding` property has been renamed to `margin`.
+
+## ChatMessageSettings:
+
+- The `showUserName` property has been renamed to `showAuthorName`.
+- The `showUserAvatar` property has been renamed to `showAuthorAvatar`.
+- The `contentBackgroundColor` property has been renamed to `backgroundColor`.
+- The `contentShape` property has been renamed to `shape`.
+- The `padding` property has been renamed to `margin`.
+- The `contentPadding` property has been renamed to `padding`.
+
+## AssistView
+
+### Breaking Changes
+
+Following breaking changes will occur in AIAssistView.
+
+## SfAIAssistView:
+
+- The `bubbleHeaderBuilder` property has been renamed to `messageHeaderBuilder`.
+- The `bubbleAvatarBuilder` property has been renamed to `messageAvatarBuilder`.
+- The `bubbleContentBuilder` property has been renamed to `messageContentBuilder`.
+- The `bubbleFooterBuilder` property has been renamed to `messageFooterBuilder`.
+- The `bubbleAlignment` property has been renamed to `messageAlignment`.
+- The `AssistBubbleAlignment` enum has been renamed to `AssistMessageAlignment`.
+- The `responseBubbleSettings` property has been renamed to `responseMessageSettings`.
+- The `requestBubbleSettings` property has been renamed to `requestMessageSettings`.
+- The `onBubbleToolbarItemSelected` property has been renamed to `onToolbarItemSelected`.
+- The `AssistBubbleToolbarItemSelectedCallback` typedef has been renamed to `AssistToolbarItemSelectedCallback`.
+- The `AssistBubbleSettings` class has been renamed to `AssistMessageSettings`.
+
+## AssistMessageSettings:
+
+- The `showUserName` property has been renamed to `showAuthorName`.
+- The `showUserAvatar` property has been renamed to `showAuthorAvatar`.
+- The `contentBackgroundColor` property has been renamed to `backgroundColor`.
+- The `contentShape` property has been renamed to `shape`.
+- The `padding` property has been renamed to `margin`.
+- The `contentPadding` property has been renamed to `padding`.
+
+## AssistSuggestionSettings:
+
+- The `padding` property has been renamed to `margin`.
+
+## AssistComposer:
+
+- The `padding` property has been renamed to `margin`.
+
+## AssistComposer.builder():
+
+- The `padding` property has been renamed to `margin`.
+
+## AssistActionButton:
+
+- The `padding` property has been renamed to `margin`.
+
+## AssistMessageToolbarSettings:
+
+- The `padding` property has been renamed to `margin`.
+
+## Core
+
+### Breaking Changes
+
+Following breaking changes will occur in core.
+
+## SfChatThemeData:
+
+- The `outgoingBubbleContentBackgroundColor` property has been renamed to `outgoingMessageBackgroundColor`.
+- The `incomingBubbleContentBackgroundColor` property has been renamed to `incomingMessageBackgroundColor`.
+- The `outgoingBubbleContentShape` property has been renamed to `outgoingMessageShape`.
+- The `incomingBubbleContentShape` property has been renamed to `incomingMessageShape`.
+
+## SfAIAssistViewThemeData:
+
+- The `requestBubbleContentBackgroundColor` property has been renamed to `requestMessageBackgroundColor`.
+- The `responseBubbleContentBackgroundColor` property has been renamed to `responseMessageBackgroundColor`.
+- The `requestBubbleContentShape` property has been renamed to `requestMessageShape`.
+- The `responseBubbleContentShape` property has been renamed to `responseMessageShape`.
+
+## [28.2.7] - 25/02/2025
+
+**General**
+
+* The minimum Dart version of our Flutter widgets has been updated to 3.4 from 3.3.
+
+## [28.1.36] - 12/24/2024
 
 **General**
 

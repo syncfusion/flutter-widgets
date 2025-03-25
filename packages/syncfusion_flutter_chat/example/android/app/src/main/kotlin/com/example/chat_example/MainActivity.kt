@@ -1,5 +1,5 @@
-package com.syncfusion.chat_example
+package com.example.chat_example
 
 import io.flutter.embedding.android.FlutterActivity
 
-class MainActivity: FlutterActivity()
+class MainActivity : FlutterActivity()

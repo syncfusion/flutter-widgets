@@ -14,7 +14,7 @@ import '../utils/helper.dart';
 /// It presents the general shape of data in a simple and highly condensed way.
 ///
 /// To render an area spark chart, create the instance of [SfSparkAreaChart].
-/// Set the value for `data` property which of type List<num>.
+/// Set the value for `data` property which of type `List<num>`.
 /// Now, it shows the filled area to represent the provided data.
 ///
 /// It provides option to customize its appearance with the properties
@@ -67,7 +67,7 @@ class SfSparkAreaChart extends StatefulWidget {
   ///
   /// The difference between the default constructor and this constructor is,
   /// in the default constructor uses its data property to get the input data value.
-  /// The `data` property of the default constructor is of type List<num>.
+  /// The `data` property of the default constructor is of type `List<num>`.
   ///
   /// The custom constructor uses its [dataCount], [xValueMapper] and
   /// [yValueMapper] to get the input data.

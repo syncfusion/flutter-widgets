@@ -992,7 +992,7 @@ class PdfPageHelper {
     final PdfDictionary? resources = PdfCrossTable.dereference(
         dictionary![PdfDictionaryProperties.resources]) as PdfDictionary?;
     final PdfTemplate template = PdfTemplateHelper.internal(
-        origin, base.size, combinedData, resources!, isLoadedPage);
+        origin, base.size, combinedData, resources!, isLoadedPage, this);
     return template;
   }
 

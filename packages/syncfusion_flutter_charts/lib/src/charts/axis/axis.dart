@@ -1727,7 +1727,7 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   set maximumLabelWidth(double? value) {
     if (_maximumLabelWidth != value) {
       _maximumLabelWidth = value;
-      assert(maximumLabelWidth != null && maximumLabelWidth! >= 0,
+      assert(maximumLabelWidth == null || maximumLabelWidth! >= 0,
           'maximumLabelWidth must not be negative');
       markNeedsLayout();
     }
@@ -2606,6 +2606,21 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     _AlignLabel betweenLabelsAlign,
     _AlignLabel endLabelAlign,
   ) {
+    if (length == 1) {
+      final AxisLabel current = visibleLabels[0];
+      current.position =
+          betweenLabelsAlign(pointToPixel(current.value), current);
+      return;
+    } else if (length <= 2) {
+      // Handles 2 visible labels when set [EdgeLabelPlacement] as hide.
+      AxisLabel current = visibleLabels[0];
+      current.position =
+          betweenLabelsAlign(pointToPixel(current.value), current);
+      current = visibleLabels[1];
+      current.position =
+          betweenLabelsAlign(pointToPixel(current.value), current);
+      return;
+    }
     late int startIndex;
     late int endIndex;
     final double extent = _renderSize.width / length;
@@ -2613,7 +2628,7 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     // The previous label which is not intersecting with the current label.
     AxisLabel source;
     AxisLabel current = visibleLabels[0];
-    final AxisLabel Function(AxisLabel, AxisLabel, double, _AlignLabel)
+    final AxisLabel Function(AxisLabel, AxisLabel, double, _AlignLabel, {int i})
         applyLabelIntersectAction = _applyLabelIntersectAction();
 
     if (edgeLabelPlacement == EdgeLabelPlacement.hide) {
@@ -2661,26 +2676,29 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       current.position =
           betweenLabelsAlign(pointToPixel(current.value), current);
       source = applyLabelIntersectAction(
-          current, source, extent, betweenLabelsAlign);
+          current, source, extent, betweenLabelsAlign,
+          i: i);
     }
 
     if (edgeLabelPlacement == EdgeLabelPlacement.hide) {
       current = visibleLabels[endIndex];
       current.position = endLabelAlign(pointToPixel(current.value), current);
       applyLabelIntersectAction(
-          current, source, edgeLabelsExtent, endLabelAlign);
+          current, source, edgeLabelsExtent, endLabelAlign,
+          i: endIndex);
       visibleLabels[length - 1].isVisible = false;
     } else {
       current = visibleLabels[endIndex];
       current.position = endLabelAlign(pointToPixel(current.value), current);
       applyLabelIntersectAction(
-          current, source, edgeLabelsExtent, endLabelAlign);
+          current, source, edgeLabelsExtent, endLabelAlign,
+          i: endIndex);
     }
   }
 
   AxisLabel Function(
-          AxisLabel source, AxisLabel target, double extent, _AlignLabel align)
-      _applyLabelIntersectAction() {
+      AxisLabel source, AxisLabel target, double extent, _AlignLabel align,
+      {int i}) _applyLabelIntersectAction() {
     switch (effectiveLabelIntersectAction) {
       case AxisLabelIntersectAction.none:
         return _applyNoneIntersectAction;
@@ -2706,18 +2724,21 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   AxisLabel _applyNoneIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+      AxisLabel current, AxisLabel source, double extent, _AlignLabel align,
+      {int i = 0}) {
     return current;
   }
 
   AxisLabel _applyHideIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+      AxisLabel current, AxisLabel source, double extent, _AlignLabel align,
+      {int i = 0}) {
     current.isVisible = !_isIntersect(current, source);
     return current.isVisible ? current : source;
   }
 
   AxisLabel _applyWrapIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+      AxisLabel current, AxisLabel source, double extent, _AlignLabel align,
+      {int i = 0}) {
     final List<String> words = current.renderText.split(RegExp(r'\s+'));
     final int wrapLength = words.length;
     final TextStyle textStyle = current.labelStyle;
@@ -2753,7 +2774,8 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   AxisLabel _applyTrimIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+      AxisLabel current, AxisLabel source, double extent, _AlignLabel align,
+      {int i = 0}) {
     final TextStyle textStyle = current.labelStyle;
     if (current.labelSize.width > extent) {
       current.renderText =
@@ -2770,20 +2792,41 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   AxisLabel _applyMultipleRowsIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+      AxisLabel current, AxisLabel source, double extent, _AlignLabel align,
+      {int i = 0}) {
     if (_isIntersect(current, source)) {
-      current.renderText = '\n${current.renderText}';
       current
         ..labelSize =
             measureText(current.renderText, current.labelStyle, labelRotation)
         ..position = align(pointToPixel(current.value), current);
+      _computeRowIndexForMultiRows(i, current);
       return source;
     }
     return current;
   }
 
+  /// Checks if the current label intersects with previous labels.
+  /// Adjusts the current label's row index to avoid overlap.
+  void _computeRowIndexForMultiRows(int length, AxisLabel current) {
+    final List<int> labelIndex = <int>[];
+    for (int i = length - 1; i >= 0; i--) {
+      final AxisLabel source = visibleLabels[i];
+      if (_isIntersect(current, source)) {
+        labelIndex.add(source._rowIndex);
+        current._rowIndex = current._rowIndex > source._rowIndex
+            ? current._rowIndex
+            : source._rowIndex + 1;
+      } else {
+        current._rowIndex = labelIndex.contains(source._rowIndex)
+            ? current._rowIndex
+            : source._rowIndex;
+      }
+    }
+  }
+
   AxisLabel _applyRotate90IntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+      AxisLabel current, AxisLabel source, double extent, _AlignLabel align,
+      {int i = 0}) {
     current
       ..labelSize =
           measureText(current.renderText, current.labelStyle, angle90Degree)
@@ -2792,7 +2835,8 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   AxisLabel _applyRotate45IntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+      AxisLabel current, AxisLabel source, double extent, _AlignLabel align,
+      {int i = 0}) {
     current
       ..labelSize =
           measureText(current.renderText, current.labelStyle, angle45Degree)
@@ -2846,15 +2890,17 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
       case EdgeLabelPlacement.shift:
         position = _centerAlignment(position, label);
+        final double actualWidth = _renderSize.width + _effectivePlotOffset;
+        final double actualHeight = _renderSize.height + _effectivePlotOffset;
         if (isVertical) {
           final double labelSize = label.labelSize.height;
-          if (position + labelSize > _renderSize.height) {
-            return _renderSize.height - labelSize;
+          if (position + labelSize > actualHeight) {
+            return actualHeight - labelSize;
           }
         } else {
           final double labelSize = label.labelSize.width;
-          if (position + labelSize > _renderSize.width) {
-            return _renderSize.width - labelSize;
+          if (position + labelSize > actualWidth) {
+            return actualWidth - labelSize;
           }
         }
     }
@@ -4314,6 +4360,11 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
 
   @override
   double _labelsMaxSize() {
+    if (axis.effectiveLabelIntersectAction ==
+        AxisLabelIntersectAction.multipleRows) {
+      return _multipleRowsLabelsMaxSize();
+    }
+
     double maxHeight = 0.0;
     final int length = axis.visibleLabels.length;
     for (int i = 0; i < length; i++) {
@@ -4322,6 +4373,45 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
     }
 
     return maxHeight;
+  }
+
+  double _multipleRowsLabelsMaxSize() {
+    final List<AxisLabel> visibleLabels = axis.visibleLabels;
+    // Calculates the max height for each row based on the _rowIndex.
+    final Map<int, double> rowMaxHeights = {};
+    for (final AxisLabel current in visibleLabels) {
+      final double labelHeight = current.labelSize.height;
+      final int rowIndex = current._rowIndex;
+      if (rowMaxHeights.containsKey(rowIndex)) {
+        rowMaxHeights[rowIndex] = max(rowMaxHeights[rowIndex]!, labelHeight);
+      } else {
+        rowMaxHeights[rowIndex] = labelHeight;
+      }
+    }
+
+    // Add 3 spacing between rows when rendering labels.
+    if (rowMaxHeights.length > 1) {
+      for (final int rowIndex in rowMaxHeights.keys) {
+        rowMaxHeights[rowIndex] = rowMaxHeights[rowIndex]! + 3;
+      }
+    }
+
+    // Set current label _rowSize using cumulative height of previous rows.
+    for (final AxisLabel current in visibleLabels) {
+      final int rowIndex = current._rowIndex;
+      if (rowIndex > 0) {
+        double cumulativeHeight = 0.0;
+        for (int i = 0; i < rowIndex; i++) {
+          if (rowMaxHeights.containsKey(i)) {
+            cumulativeHeight += rowMaxHeights[i]!;
+          }
+        }
+        current._prevRowSize = Size(current.labelSize.width, cumulativeHeight);
+      }
+    }
+
+    // Calculate the overall max height by summing the max heights of all rows.
+    return rowMaxHeights.values.fold(0.0, (sum, height) => sum + height);
   }
 
   @override
@@ -4420,7 +4510,10 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
       }
     }
 
+    final bool isMultipleRows = action == AxisLabelIntersectAction.multipleRows;
     final bool isOutSide = axis.labelPosition == ChartDataLabelPosition.outside;
+    final bool normalOrder = (!axis.invertElementsOrder && isOutSide) ||
+        (axis.invertElementsOrder && !isOutSide);
     final List<AxisLabel> axisLabels = axis.visibleLabels;
     for (final AxisLabel label in axisLabels) {
       if (!label.isVisible || label.position == null || label.position!.isNaN) {
@@ -4428,9 +4521,15 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
       }
 
       double dy = labelOffset.dy;
-      if ((axis.invertElementsOrder && isOutSide) ||
-          (!axis.invertElementsOrder && !isOutSide)) {
+      if (!normalOrder) {
         dy += _maxLabelSize - label.labelSize.height;
+        if (isMultipleRows) {
+          dy -= label._prevRowSize.height;
+        }
+      } else {
+        if (isMultipleRows) {
+          dy += label._prevRowSize.height;
+        }
       }
 
       Offset position = Offset(labelOffset.dx + label.position!, dy);
@@ -5349,12 +5448,13 @@ class AxisLabel {
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               primaryXAxis: CategoryAxis(
-  ///                      labelStyle: TextStyle(color: Colors.black),
-  ///                  )
-  ///         );
+  ///   return Container(
+  ///     child: SfCartesianChart(
+  ///       primaryXAxis: CategoryAxis(
+  ///         labelStyle: TextStyle(color: Colors.black),
+  ///       ),
+  ///     ),
+  ///   );
   /// }
   /// ```
   TextStyle labelStyle;
@@ -5382,6 +5482,31 @@ class AxisLabel {
 
   /// Specifies the label region.
   Rect? region;
+
+  /// Specifies the row index of the label when multiple rows are set.
+  ///
+  /// The `_rowIndex` determines the row position of the label.
+  /// For example:
+  /// - `_rowIndex = 0` for the first row.
+  /// - `_rowIndex = 1` for the second row.
+  /// - `_rowIndex = 2` for the third row, and so on.
+  ///
+  /// This is only applicable when multiple rows are enabled for the axis labels.
+  int _rowIndex = 0;
+
+  /// Specifies the size of the row for the label when multiple rows are set.
+  ///
+  /// The `_prevRowSize` is calculated based on the cumulative height of all
+  /// previous rows.
+  /// For example:
+  /// - For the first row (`_rowIndex = 0`), `_prevRowSize` is zero.
+  /// - For the second row (`_rowIndex = 1`), `_prevRowSize` is the height of
+  ///  the label size of the first row.
+  /// - For the third row (`_rowIndex = 2`), `_prevRowSize` is the sum of the
+  ///   heights of the first and second rows.
+  ///
+  /// This is only applicable when multiple rows are enabled for the axis labels.
+  Size _prevRowSize = Size.zero;
 }
 
 /// This class Renders the major tick lines for axis.

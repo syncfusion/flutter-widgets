@@ -112,7 +112,9 @@ class PdfDocumentLoadFailedDetails {
 class PdfTextSelectionChangedDetails {
   ///
   PdfTextSelectionChangedDetails(
-      String? selectedText, Rect? globalSelectedRegion) {
+    String? selectedText,
+    Rect? globalSelectedRegion,
+  ) {
     _selectedText = selectedText;
     _globalSelectedRegion = globalSelectedRegion;
   }
@@ -136,9 +138,7 @@ class PdfTextSelectionChangedDetails {
 /// such as [uri].
 class PdfHyperlinkClickedDetails {
   /// Creates details for [SfPdfViewer.onHyperlinkClicked] callback.
-  PdfHyperlinkClickedDetails(
-    String uri,
-  ) {
+  PdfHyperlinkClickedDetails(String uri) {
     _uri = uri;
   }
 
@@ -180,7 +180,10 @@ class PdfGestureDetails {
 class PdfFormFieldValueChangedDetails {
   /// Creates details for [SfPdfViewer.onFormFieldValueChanged] callback.
   PdfFormFieldValueChangedDetails(
-      this._formField, this._oldValue, this._newValue);
+    this._formField,
+    this._oldValue,
+    this._newValue,
+  );
   final PdfFormField _formField;
   final Object? _oldValue;
   final Object? _newValue;
