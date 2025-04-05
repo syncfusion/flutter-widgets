@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'annotation.dart';
@@ -160,28 +161,53 @@ class _CustomAnnotationViewState extends State<CustomAnnotationView> {
     // Calculate how much to scale the content to fit within the widget's bounds
     final scaleFactor = 1.0 / widget._heightPercentage;
 
-    return GestureDetector(
-      onPanUpdate: widget._canEdit
-          ? (details) =>
-              widget.onAnnotationMoving?.call(widget.annotation, details.delta)
-          : null,
-      onPanEnd: widget._canEdit
-          ? (details) =>
-              widget.onAnnotationMoved?.call(widget.annotation, Offset.zero)
-          : null,
-      onTap: () {
-        if (widget.onTap != null) {
-          widget.onTap!();
-        } else if (widget.annotation.onTap != null) {
-          widget.annotation.onTap!();
-        }
-      },
-      onDoubleTap: () {
-        if (widget.onDoubleTap != null) {
-          widget.onDoubleTap!();
-        } else if (widget.annotation.onDoubleTap != null) {
-          widget.annotation.onDoubleTap!();
-        }
+    return RawGestureDetector(
+      behavior: HitTestBehavior.translucent,
+      gestures: {
+        // Custom single-finger pan (drag) recognizer for moving annotation
+        SingleFingerPanGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+            SingleFingerPanGestureRecognizer>(
+          () => SingleFingerPanGestureRecognizer(),
+          (SingleFingerPanGestureRecognizer instance) {
+            instance
+              ..onUpdate = (DragUpdateDetails details) {
+                if (widget._canEdit)
+                  widget.onAnnotationMoving
+                      ?.call(widget.annotation, details.delta);
+              }
+              ..onEnd = (DragEndDetails details) {
+                if (widget._canEdit)
+                  widget.onAnnotationMoved
+                      ?.call(widget.annotation, Offset.zero);
+              };
+          },
+        ),
+        TapGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+          () => TapGestureRecognizer(),
+          (TapGestureRecognizer instance) {
+            instance.onTap = () {
+              if (widget.onTap != null) {
+                widget.onTap!();
+              } else if (widget.annotation.onTap != null) {
+                widget.annotation.onTap!();
+              }
+            };
+          },
+        ),
+        DoubleTapGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<DoubleTapGestureRecognizer>(
+          () => DoubleTapGestureRecognizer(),
+          (DoubleTapGestureRecognizer instance) {
+            instance.onDoubleTap = () {
+              if (widget.onDoubleTap != null) {
+                widget.onDoubleTap!();
+              } else if (widget.annotation.onDoubleTap != null) {
+                widget.annotation.onDoubleTap!();
+              }
+            };
+          },
+        ),
       },
       child: ClipRect(
         child: DecoratedBox(
@@ -204,4 +230,31 @@ class _CustomAnnotationViewState extends State<CustomAnnotationView> {
       ),
     );
   }
+}
+
+class SingleFingerPanGestureRecognizer extends PanGestureRecognizer {
+  int _activePointerCount = 0;
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    _activePointerCount++;
+    if (_activePointerCount > 1) {
+      // A second finger touched – reject this recognizer to yield to zoom
+      resolve(GestureDisposition.rejected);
+    }
+    super.addAllowedPointer(event);
+  }
+
+  @override
+  void handleEvent(PointerEvent event) {
+    if (event is PointerUpEvent || event is PointerCancelEvent) {
+      _activePointerCount =
+          (_activePointerCount - 1).clamp(0, double.infinity).toInt();
+    }
+    super.handleEvent(event);
+  }
+
+  // (Optional: override debugDescription for clarity)
+  @override
+  String get debugDescription => 'singleFingerPan';
 }
