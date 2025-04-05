@@ -1,5 +1,47 @@
 ## Unreleased
 
+**General**
+
+*  The compatible version of our Flutter PDF Viewer widget has been updated to Flutter SDK 3.29.0.
+*  The Syncfusion<sup>&reg;</sup> Flutter PDF Viewer example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+*  Provided support for [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in iOS and macOS platforms.
+
+**Features**
+
+* Provided support to load PDF documents from any source using the unified `SfPdfViewer.new` constructor.
+* Now, scrollbars will be displayed for single-page documents on desktop platforms.
+* Now, scrollbars will be displayed in Single Page Layout mode on desktop platforms.
+
+## [28.2.7] - 02/25/2025
+
+**General**
+
+* The minimum Dart version of our Flutter widgets has been updated to 3.4 from 3.3.
+* Upgraded the `intl` package to the latest version 0.20.0.
+
+**Bugs**
+
+* Now, the scroll offest value will be accurate when the `SfPdfViewer` widget is used in Single page layout mode.
+
+## [28.2.5] - 02/11/2025
+
+* Now, the application no longer crashes when loading a single-page document created using the `syncfusion_flutter_pdf` library on specific iOS devices.
+
+## [28.1.39] - 01/14/2025
+
+**Bugs**
+
+* Now, the PDF document loads properly when using newer versions of the pdf.js library on the web platform.
+* Now, the PDF document with invalid annotation bounds will be loaded properly in the `SfPdfViewer` widget.
+
+## [28.1.38] - 01/07/2024
+
+**General**
+
+* Upgraded the [`device_info_plus`](https://pub.dev/packages/device_info_plus) package to the latest version `11.0.0`.
+
+## [27.2.5] - 12/03/2024
+
 **Bugs**
 
 * Now, 'tel' links in PDF documents open properly in the `SfPdfViewer` widget.
@@ -518,7 +560,7 @@ The following platform packages have been renamed. No changes in your pubspec.ya
 
 **Features**
 
-* Now, the temporary PDF file created by Syncfusion Flutter SfPdfViewer will be inaccessible.
+* Now, the temporary PDF file created by Syncfusion<sup>&reg;</sup> Flutter SfPdfViewer will be inaccessible.
 
 ## [18.3.35-beta] - 10/01/2020
 

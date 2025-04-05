@@ -385,8 +385,6 @@ class FieldPainter {
             leftTopPen = PdfPen(PdfColor(255, 255, 255), width: borderWidth);
             rightBottomPen = PdfPen(shadowColor, width: borderWidth);
             break;
-          // ignore: no_default_cases
-          default:
         }
         break;
 
@@ -513,14 +511,21 @@ class FieldPainter {
         rectangle = Rect.fromLTWH(rectangle.left, -(rectangle.top - shift),
             rectangle.width, rectangle.height);
       }
+      graphics.drawString(text, font,
+          brush: params.foreBrush,
+          bounds: rectangle,
+          format: PdfStringFormat(
+              alignment: format.alignment, lineAlignment: format.lineAlignment)
+            ..lineLimit = false);
+    } else {
+      graphics.drawString(text, font,
+          brush: params.foreBrush,
+          bounds: rectangle,
+          format: PdfStringFormat(
+              alignment: format.alignment,
+              lineAlignment: PdfVerticalAlignment.middle)
+            ..lineLimit = false);
     }
-    graphics.drawString(text, font,
-        brush: params.foreBrush,
-        bounds: rectangle,
-        format: PdfStringFormat(
-            alignment: format.alignment,
-            lineAlignment: PdfVerticalAlignment.middle)
-          ..lineLimit = false);
   }
 
   /// internal method

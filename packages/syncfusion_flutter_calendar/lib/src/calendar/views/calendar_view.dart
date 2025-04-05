@@ -12606,7 +12606,7 @@ class _TimeRulerView extends CustomPainter {
 
 class _CalendarMultiChildContainer extends Stack {
   const _CalendarMultiChildContainer(
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       {this.painter,
       List<Widget> children = const <Widget>[],
       required this.width,
@@ -12713,6 +12713,28 @@ class _MultiChildContainerRenderObject extends RenderStack {
         newPainter.shouldRebuildSemantics(oldPainter)) {
       markNeedsSemanticsUpdate();
     }
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    RenderBox? child = firstChild;
+
+    while (child != null) {
+      final StackParentData childParentData =
+          child.parentData! as StackParentData;
+      final bool isHit = result.addWithPaintOffset(
+        offset: childParentData.offset,
+        position: position,
+        hitTest: (BoxHitTestResult result, Offset transformed) {
+          return child!.hitTest(result, position: transformed);
+        },
+      );
+      if (isHit) {
+        return true;
+      }
+      child = childParentData.nextSibling;
+    }
+    return false;
   }
 
   @override
@@ -13008,20 +13030,20 @@ double _getSingleViewWidthForTimeLineView(_CalendarViewState viewState) {
 
 class _ResizingPaintDetails {
   _ResizingPaintDetails(
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       {this.appointmentView,
       required this.position,
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       this.isAllDayPanel = false,
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       this.scrollPosition,
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       this.monthRowCount = 0,
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       this.monthCellHeight,
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       this.appointmentColor = Colors.transparent,
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       this.resizingTime});
 
   AppointmentView? appointmentView;
@@ -13562,12 +13584,12 @@ dynamic _getCalendarAppointmentToObject(
 
 class _DragPaintDetails {
   _DragPaintDetails(
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       {this.appointmentView,
       required this.position,
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       this.draggingTime,
-      // ignore: unused_element
+      // ignore: unused_element_parameter
       this.timeIntervalHeight});
 
   AppointmentView? appointmentView;

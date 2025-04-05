@@ -2024,7 +2024,6 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
       _handleCurrentInteraction(hasSelection, hasTooltip, localPosition,
           kind: details.kind);
     }
-
     dataLabelContainer?.handlePointerHover(localPosition);
     trendlineContainer?.handlePointerHover(localPosition);
   }
@@ -2053,6 +2052,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
           parent!.tooltipBehavior!.activationMode == ActivationMode.longPress;
       _handleCurrentInteraction(hasSelection, hasTooltip, localPosition);
     }
+    trendlineContainer?.handleLongPress(localPosition);
   }
 
   void handleTapUp(TapUpDetails details) {
@@ -2066,6 +2066,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
     }
 
     dataLabelContainer?.handleTapUp(localPosition);
+    trendlineContainer?.handlePointerHover(localPosition);
   }
 
   void handleDoubleTap(Offset position) {
@@ -2091,6 +2092,7 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
           parent!.tooltipBehavior!.activationMode == ActivationMode.doubleTap;
       _handleCurrentInteraction(hasSelection, hasTooltip, localPosition);
     }
+    trendlineContainer?.handleDoubleTap(localPosition);
   }
 
   ChartSegment? visibleSegmentAt(Offset position) {
@@ -3373,6 +3375,8 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       segments.clear();
       markNeedsUpdate();
     }
+
+    includeRange = controller.isVisible && value != null && value.isNotEmpty;
 
     if (_dataCount != value?.length || !listEquals(_dataSource, value)) {
       _dataSource = value;

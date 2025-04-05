@@ -53,7 +53,7 @@ class CalcEngine {
   /// returned inside double quote marks.
   bool useNoAmpersandQuotes = false;
 
-  /// A property that gets or sets the calculations of the <see cref='CalcEngine'/> computations to mimic the computations of Excel.
+  /// A property that gets or sets the calculations of the &lt;see cref='CalcEngine'/&gt; computations to mimic the computations of Excel.
   bool excelLikeComputations = false;
   final bool _currentRowNotationEnabled = true;
   static int _tokenCount = 0;
@@ -722,7 +722,7 @@ class CalcEngine {
             while (i < formula.length &&
                 (_isDigit(formula.codeUnitAt(i)) ||
                     formula[i] == parseDecimalSeparator ||
-                    formula[i] == (':'))) {
+                    formula[i] == ':')) {
               s = s + formula[i];
               i = i + 1;
             }
@@ -1569,7 +1569,7 @@ class CalcEngine {
         }
       } else {
         try {
-          if (r == ('') && !r.startsWith(_tic)) {
+          if (r == '' && !r.startsWith(_tic)) {
             count++;
           }
           if (r.contains(parseArgumentSeparator)) {
@@ -3666,7 +3666,6 @@ class CalcEngine {
     return args;
   }
 
-  /// </summary>
   List<String> _splitArgsPreservingQuotedCommas(String args) {
     // ignore: prefer_contains
     if (args.indexOf(_tic) == -1) {
@@ -3907,7 +3906,7 @@ class CalcEngine {
               throw Exception(formulaErrorStrings[_mismatchedTics]);
             }
           }
-          //Below condition is avoid to remove "\"\ while it placed inside of the String value(eg., \"<p>\"\"Req\"\" </p>\").
+          //Below condition is avoid to remove "\"\ while it placed inside of the String value(eg., \"\"\"Req\"\" \").
           if (j < text.length - 2 && text[j + 1] == _tic[0]) {
             stringTIC = true;
             j = text.indexOf(_tic, j + 2);
@@ -4167,13 +4166,13 @@ class CalcEngine {
 
   // Accepts a possible parsed formula and returns the calculated value without quotes.
   ///
-  /// <remarks>
+  /// remarks
   /// This method is useful in custom functions if you want to allow
   /// your custom functions to handle parsed formulas as arguments. In
   /// this case, calling this method at the beginning of your custom function
   /// will allow you custom function to work only with computed values, and not
   /// have to handle parsed formulas directly.
-  /// </remarks>
+  /// remarks
   String _adjustRangeArg(String range) {
     if (range.length > 1 &&
         range[0] == _bMarker &&

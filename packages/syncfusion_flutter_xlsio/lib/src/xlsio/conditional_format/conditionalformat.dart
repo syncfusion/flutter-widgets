@@ -55,7 +55,7 @@ class ConditionalFormat {
   /// ```
   late ExcelCFType formatType;
 
-  ///  Gets or sets one of the constants of <see cref="CFTimePeriods"/> enumeration
+  ///  Gets or sets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   /// ```dart
   ///  // Create a new Excel Document.

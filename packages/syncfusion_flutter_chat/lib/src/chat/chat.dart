@@ -44,19 +44,19 @@ import 'theme.dart';
 /// This is particularly useful for presenting users with a relevant or
 /// visually appealing message indicating that the conversation is
 /// currently empty.
-/// * **Bubble Header Builder**: The [SfChat.bubbleHeaderBuilder] allows you to
+/// * **Bubble Header Builder**: The [SfChat.messageHeaderBuilder] allows you to
 /// specify a custom widget to display as a header for each chat bubble. This is
 /// particularly useful for displaying additional information such as the
 /// sender's name and the timestamp associated with each message.
-/// * **Bubble Avatar Builder**: The [SfChat.bubbleAvatarBuilder] allows you to
+/// * **Bubble Avatar Builder**: The [SfChat.messageAvatarBuilder] allows you to
 /// specify a custom widget to display as an avatar within each chat bubble.
 /// This feature is especially useful for showing user avatars or
 /// profile pictures within the chat interface.
-/// * **Bubble Content Builder**: The [SfChat.bubbleContentBuilder] allows you
+/// * **Bubble Content Builder**: The [SfChat.messageContentBuilder] allows you
 /// to specify a custom widget to display as the content within each
 /// chat bubble. This is useful for customizing how the message content is
 /// presented, such as using different background colors, borders, or padding.
-/// * **Bubble Footer Builder**: The [SfChat.bubbleFooterBuilder] allows you to
+/// * **Bubble Footer Builder**: The [SfChat.messageFooterBuilder] allows you to
 /// specify a custom widget that will be displayed as a footer within each
 /// chat bubble. This is particularly useful for displaying timestamps or
 /// other additional information related to the message.
@@ -218,13 +218,13 @@ class SfChat extends StatefulWidget {
     this.composer = const ChatComposer(),
     this.actionButton,
     this.placeholderBuilder,
-    this.bubbleHeaderBuilder,
-    this.bubbleAvatarBuilder,
-    this.bubbleContentBuilder,
-    this.bubbleFooterBuilder,
+    this.messageHeaderBuilder,
+    this.messageAvatarBuilder,
+    this.messageContentBuilder,
+    this.messageFooterBuilder,
     this.onSuggestionItemSelected,
-    this.incomingBubbleSettings = const ChatBubbleSettings(),
-    this.outgoingBubbleSettings = const ChatBubbleSettings(),
+    this.incomingMessageSettings = const ChatMessageSettings(),
+    this.outgoingMessageSettings = const ChatMessageSettings(),
   });
 
   /// A list of [ChatMessage] objects that will be displayed in the chat
@@ -292,7 +292,7 @@ class SfChat extends StatefulWidget {
   ///           return const TextStyle(fontSize: 14);
   ///         },
   ///       ),
-  ///       padding: const EdgeInsets.all(10),
+  ///       margin: const EdgeInsets.all(10),
   ///       itemPadding:
   ///           const EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
   ///       orientation: Axis.horizontal,
@@ -388,9 +388,9 @@ class SfChat extends StatefulWidget {
   /// ```
   /// See also:
   /// * [messages] to load message conversations.
-  /// * [incomingBubbleSettings] to customize the appearance of incoming chat
+  /// * [incomingMessageSettings] to customize the appearance of incoming chat
   /// bubbles.
-  /// * [outgoingBubbleSettings] to customize the appearance of outgoing chat
+  /// * [outgoingMessageSettings] to customize the appearance of outgoing chat
   /// bubbles.
   final String outgoingUser;
 
@@ -571,7 +571,7 @@ class SfChat extends StatefulWidget {
   /// A callback function creates a widget to serve as a header for each chat
   /// bubble.
   ///
-  /// The [bubbleHeaderBuilder] allows you to specify a custom widget that will
+  /// The [messageHeaderBuilder] allows you to specify a custom widget that will
   /// be shown as a header within each chat bubble. This is particularly useful
   /// for displaying additional information such as the sender's name and
   /// timestamp associated with each message.
@@ -587,7 +587,7 @@ class SfChat extends StatefulWidget {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     bubbleHeaderBuilder:
+  ///     messageHeaderBuilder:
   ///       (BuildContext context, ChatMessage message) {
   ///         return Padding(
   ///           padding: EdgeInsets.all(8.0),
@@ -603,14 +603,14 @@ class SfChat extends StatefulWidget {
   ///
   /// See also:
   ///
-  /// * The `headerPadding` in [ChatBubbleSettings] for adjusting the
-  /// padding of the bubbleHeaderBuilder.
-  final ChatWidgetBuilder? bubbleHeaderBuilder;
+  /// * The `headerPadding` in [ChatMessageSettings] for adjusting the
+  /// padding of the messageHeaderBuilder.
+  final ChatWidgetBuilder? messageHeaderBuilder;
 
   /// A callback function creates a widget to display as an avatar within each
   /// chat bubble.
   ///
-  /// The [bubbleAvatarBuilder] allows you to specify a custom widget that will
+  /// The [messageAvatarBuilder] allows you to specify a custom widget that will
   /// be shown as an avatar within each chat bubble. This is particularly
   /// useful for displaying user avatars or profile pictures in the chat
   /// interface.
@@ -626,7 +626,7 @@ class SfChat extends StatefulWidget {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     bubbleAvatarBuilder:
+  ///     messageAvatarBuilder:
   ///       (BuildContext context, int index, ChatMessage message) {
   ///         return CircleAvatar(
   ///           backgroundImage: NetworkImage(
@@ -642,14 +642,14 @@ class SfChat extends StatefulWidget {
   ///
   /// See also:
   ///
-  /// * The `avatarPadding` in [ChatBubbleSettings] for adjusting the
-  /// padding of the bubbleAvatarBuilder.
-  final ChatWidgetBuilder? bubbleAvatarBuilder;
+  /// * The `avatarPadding` in [ChatMessageSettings] for adjusting the
+  /// padding of the messageAvatarBuilder.
+  final ChatWidgetBuilder? messageAvatarBuilder;
 
   /// A callback function creates a widget to display as the content of each
   /// chat bubble.
   ///
-  /// The [bubbleContentBuilder] allows you to specify a custom widget to
+  /// The [messageContentBuilder] allows you to specify a custom widget to
   /// display as the content within each chat bubble. This is useful for
   /// customizing how the message content is presented, such as using different
   /// background colors, borders, or padding.
@@ -665,7 +665,7 @@ class SfChat extends StatefulWidget {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     bubbleContentBuilder:
+  ///     messageContentBuilder:
   ///       (BuildContext context, int index, ChatMessage message) {
   ///         return Padding(
   ///           padding: EdgeInsets.all(8.0),
@@ -678,14 +678,14 @@ class SfChat extends StatefulWidget {
   ///
   /// See also
   ///
-  /// * The `contentPadding` in [ChatBubbleSettings] for adjusting the
-  /// padding around bubble's content of the bubbleContentBuilder.
-  final ChatWidgetBuilder? bubbleContentBuilder;
+  /// * The `padding` in [ChatMessageSettings] for adjusting the
+  /// padding around bubble's content of the messageContentBuilder.
+  final ChatWidgetBuilder? messageContentBuilder;
 
   /// A callback function creates a widget to display as a footer within each
   /// chat bubble.
   ///
-  /// The [bubbleFooterBuilder] allows you to specify a custom widget that will
+  /// The [messageFooterBuilder] allows you to specify a custom widget that will
   /// be shown as a footer within each chat bubble. This is particularly useful
   /// for displaying timestamps or other additional information related to the
   /// message.
@@ -701,7 +701,7 @@ class SfChat extends StatefulWidget {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     bubbleFooterBuilder:
+  ///     messageFooterBuilder:
   ///       (BuildContext context, int index, ChatMessage message) {
   ///         return Padding(
   ///           padding: EdgeInsets.all(4.0),
@@ -721,9 +721,9 @@ class SfChat extends StatefulWidget {
   ///
   /// See also:
   ///
-  /// * The `footerPadding` in [ChatBubbleSettings] for adjusting the
-  /// padding of the bubbleFooterBuilder.
-  final ChatWidgetBuilder? bubbleFooterBuilder;
+  /// * The `footerPadding` in [ChatMessageSettings] for adjusting the
+  /// padding of the messageFooterBuilder.
+  final ChatWidgetBuilder? messageFooterBuilder;
 
   /// Optional callback function that will be executed when the suggestion
   /// is selected.
@@ -768,7 +768,7 @@ class SfChat extends StatefulWidget {
 
   /// Options for changing the appearance and behavior of incoming chat bubbles.
   ///
-  /// The [incomingBubbleSettings] property allows you to configure how
+  /// The [incomingMessageSettings] property allows you to configure how
   /// incoming chat bubbles are displayed. This includes customization options
   /// for the user's avatar, username, timestamp, content background color, and
   /// various padding and shape options.
@@ -781,14 +781,14 @@ class SfChat extends StatefulWidget {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
-  ///       showUserName: true,
+  ///     incomingMessageSettings: ChatMessageSettings(
+  ///       showAuthorName: true,
   ///       showTimestamp: true,
-  ///       showUserAvatar: true,
+  ///       showAuthorAvatar: true,
   ///       widthFactor: 0.8,
   ///       avatarSize: const Size.square(32.0),
-  ///       padding: const EdgeInsets.all(2.0),
-  ///       contentPadding:
+  ///       margin: const EdgeInsets.all(2.0),
+  ///       padding:
   ///           const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
   ///       headerPadding:
   ///           const EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
@@ -797,11 +797,11 @@ class SfChat extends StatefulWidget {
   ///   );
   /// }
   /// ```
-  final ChatBubbleSettings incomingBubbleSettings;
+  final ChatMessageSettings incomingMessageSettings;
 
   /// Options for changing the appearance and behavior of outgoing chat bubbles.
   ///
-  /// The [outgoingBubbleSettings] property allows you to configure how
+  /// The [outgoingMessageSettings] property allows you to configure how
   /// incoming chat bubbles are displayed. This includes customization options
   /// for the user's avatar, username, timestamp, content background color, and
   /// various padding and shape options.
@@ -814,14 +814,14 @@ class SfChat extends StatefulWidget {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
-  ///       showUserName: true,
+  ///     outgoingMessageSettings: ChatMessageSettings(
+  ///       showAuthorName: true,
   ///       showTimestamp: true,
-  ///       showUserAvatar: true,
+  ///       showAuthorAvatar: true,
   ///       widthFactor: 0.8,
   ///       avatarSize: const Size.square(32.0),
-  ///       padding: const EdgeInsets.all(2.0),
-  ///       contentPadding:
+  ///       margin: const EdgeInsets.all(2.0),
+  ///       padding:
   ///           const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
   ///       headerPadding:
   ///           const EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
@@ -830,7 +830,7 @@ class SfChat extends StatefulWidget {
   ///   );
   /// }
   /// ```
-  final ChatBubbleSettings outgoingBubbleSettings;
+  final ChatMessageSettings outgoingMessageSettings;
 
   @override
   State<SfChat> createState() => _SfChatState();
@@ -908,41 +908,41 @@ class _SfChatState extends State<SfChat> {
       incomingAvatarBackgroundColor:
           _userDefinedThemeData.incomingAvatarBackgroundColor ??
               _defaultThemeData.incomingAvatarBackgroundColor,
-      outgoingBubbleContentBackgroundColor:
-          widget.outgoingBubbleSettings.contentBackgroundColor ??
-              _userDefinedThemeData.outgoingBubbleContentBackgroundColor ??
-              _defaultThemeData.outgoingBubbleContentBackgroundColor,
-      incomingBubbleContentBackgroundColor:
-          widget.incomingBubbleSettings.contentBackgroundColor ??
-              _userDefinedThemeData.incomingBubbleContentBackgroundColor ??
-              _defaultThemeData.incomingBubbleContentBackgroundColor,
+      outgoingMessageBackgroundColor:
+          widget.outgoingMessageSettings.backgroundColor ??
+              _userDefinedThemeData.outgoingMessageBackgroundColor ??
+              _defaultThemeData.outgoingMessageBackgroundColor,
+      incomingMessageBackgroundColor:
+          widget.incomingMessageSettings.backgroundColor ??
+              _userDefinedThemeData.incomingMessageBackgroundColor ??
+              _defaultThemeData.incomingMessageBackgroundColor,
       editorTextStyle: contentBaseTextStyle
           .merge(_userDefinedThemeData.editorTextStyle)
           .merge(widget.composer?.textStyle),
       outgoingContentTextStyle: contentBaseTextStyle
           .merge(_userDefinedThemeData.outgoingContentTextStyle)
-          .merge(widget.outgoingBubbleSettings.textStyle),
+          .merge(widget.outgoingMessageSettings.textStyle),
       incomingContentTextStyle: contentBaseTextStyle
           .merge(_userDefinedThemeData.incomingContentTextStyle)
-          .merge(widget.incomingBubbleSettings.textStyle),
+          .merge(widget.incomingMessageSettings.textStyle),
       outgoingPrimaryHeaderTextStyle: primaryHeaderBaseTextStyle
           .merge(_userDefinedThemeData.outgoingPrimaryHeaderTextStyle)
-          .merge(widget.outgoingBubbleSettings.headerTextStyle),
+          .merge(widget.outgoingMessageSettings.headerTextStyle),
       incomingPrimaryHeaderTextStyle: primaryHeaderBaseTextStyle
           .merge(_userDefinedThemeData.incomingPrimaryHeaderTextStyle)
-          .merge(widget.incomingBubbleSettings.headerTextStyle),
+          .merge(widget.incomingMessageSettings.headerTextStyle),
       outgoingSecondaryHeaderTextStyle: secondaryHeaderBaseTextStyle
           .merge(_userDefinedThemeData.outgoingSecondaryHeaderTextStyle)
-          .merge(widget.outgoingBubbleSettings.headerTextStyle),
+          .merge(widget.outgoingMessageSettings.headerTextStyle),
       incomingSecondaryHeaderTextStyle: secondaryHeaderBaseTextStyle
           .merge(_userDefinedThemeData.incomingSecondaryHeaderTextStyle)
-          .merge(widget.incomingBubbleSettings.headerTextStyle),
-      outgoingBubbleContentShape: widget.outgoingBubbleSettings.contentShape ??
-          _userDefinedThemeData.outgoingBubbleContentShape ??
-          _defaultThemeData.outgoingBubbleContentShape,
-      incomingBubbleContentShape: widget.incomingBubbleSettings.contentShape ??
-          _userDefinedThemeData.incomingBubbleContentShape ??
-          _defaultThemeData.incomingBubbleContentShape,
+          .merge(widget.incomingMessageSettings.headerTextStyle),
+      outgoingMessageShape: widget.outgoingMessageSettings.shape ??
+          _userDefinedThemeData.outgoingMessageShape ??
+          _defaultThemeData.outgoingMessageShape,
+      incomingMessageShape: widget.incomingMessageSettings.shape ??
+          _userDefinedThemeData.incomingMessageShape ??
+          _defaultThemeData.incomingMessageShape,
       suggestionItemBackgroundColor:
           _userDefinedThemeData.suggestionItemBackgroundColor ??
               _defaultThemeData.suggestionItemBackgroundColor,
@@ -1055,21 +1055,21 @@ class _SfChatState extends State<SfChat> {
         ChatConversationArea(
           outgoingUser: widget.outgoingUser,
           messages: widget.messages,
-          incomingBubbleSettings: widget.incomingBubbleSettings,
-          outgoingBubbleSettings: widget.outgoingBubbleSettings,
+          incomingBubbleSettings: widget.incomingMessageSettings,
+          outgoingBubbleSettings: widget.outgoingMessageSettings,
           placeholderBuilder: widget.placeholderBuilder,
-          bubbleHeaderBuilder: widget.bubbleHeaderBuilder,
-          bubbleAvatarBuilder: widget.bubbleAvatarBuilder,
-          bubbleContentBuilder: widget.bubbleContentBuilder,
-          bubbleFooterBuilder: widget.bubbleFooterBuilder,
+          bubbleHeaderBuilder: widget.messageHeaderBuilder,
+          bubbleAvatarBuilder: widget.messageAvatarBuilder,
+          bubbleContentBuilder: widget.messageContentBuilder,
+          bubbleFooterBuilder: widget.messageFooterBuilder,
           outgoingAvatarBackgroundColor:
               _effectiveChatThemeData.outgoingAvatarBackgroundColor,
           incomingAvatarBackgroundColor:
               _effectiveChatThemeData.incomingAvatarBackgroundColor,
           outgoingBubbleContentBackgroundColor:
-              _effectiveChatThemeData.outgoingBubbleContentBackgroundColor,
+              _effectiveChatThemeData.outgoingMessageBackgroundColor,
           incomingBubbleContentBackgroundColor:
-              _effectiveChatThemeData.incomingBubbleContentBackgroundColor,
+              _effectiveChatThemeData.incomingMessageBackgroundColor,
           outgoingPrimaryHeaderTextStyle:
               _effectiveChatThemeData.outgoingPrimaryHeaderTextStyle,
           incomingPrimaryHeaderTextStyle:
@@ -1084,9 +1084,9 @@ class _SfChatState extends State<SfChat> {
               _effectiveChatThemeData.incomingContentTextStyle,
           suggestionItemTextStyle: _suggestionTextStyle,
           outgoingBubbleContentShape:
-              _effectiveChatThemeData.outgoingBubbleContentShape,
+              _effectiveChatThemeData.outgoingMessageShape,
           incomingBubbleContentShape:
-              _effectiveChatThemeData.incomingBubbleContentShape,
+              _effectiveChatThemeData.incomingMessageShape,
           suggestionBackgroundColor:
               _effectiveChatThemeData.suggestionBackgroundColor,
           suggestionBackgroundShape:

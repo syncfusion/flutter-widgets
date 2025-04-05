@@ -4,10 +4,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../grid_common/row_column_index.dart';
+import '../../../datagrid.dart';
 import '../runtime/column.dart';
 import 'datagrid_configuration.dart';
-import 'enums.dart';
 
 /// A base class which provides the details for callbacks that use
 /// [DataGridCellTapDetails], [DataGridCellDoubleTapDetails] and
@@ -373,4 +372,24 @@ class DataGridGroupChangedDetails {
 
   /// Decides whether the group is expanded.
   final bool isExpanded;
+}
+
+/// Signature for [SfDataGrid.onCheckboxValueChanged] callbacks.
+class DataGridCheckboxValueChangedDetails {
+  ///
+  const DataGridCheckboxValueChangedDetails(
+      {required this.value, required this.row, required this.rowType});
+
+  /// Specifies the current value of the checkbox.
+  final bool value;
+
+  /// Specifies the [DataGridRow] that associates with the check box in the checkbox column.
+  ///
+  /// The value will be `null` if the checkbox is part of a column header, indicating that this checkbox is not associated with a specific data row.
+  final DataGridRow? row;
+
+  /// Specifies the row type of the checkbox in the checkbox column.
+  ///
+  /// It notifies whether the checkbox value of the data row is changed, or header row changed.
+  final RowType rowType;
 }

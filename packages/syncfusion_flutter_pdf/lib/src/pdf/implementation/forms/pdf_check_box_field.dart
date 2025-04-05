@@ -103,9 +103,16 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
         return _checked;
       }
       if (_helper.dictionary!.containsKey(PdfDictionaryProperties.v)) {
-        final PdfName chk =
-            _helper.dictionary![PdfDictionaryProperties.v]! as PdfName;
-        _checked = chk.name != 'Off';
+        if (_helper.dictionary![PdfDictionaryProperties.v]! is PdfName) {
+          final PdfName chk =
+              _helper.dictionary![PdfDictionaryProperties.v]! as PdfName;
+          _checked = chk.name != 'Off';
+        } else if (_helper.dictionary![PdfDictionaryProperties.v]!
+            is PdfString) {
+          final PdfString chk =
+              _helper.dictionary![PdfDictionaryProperties.v]! as PdfString;
+          _checked = chk.value != 'Off';
+        }
       }
     }
     return _checked;
@@ -114,12 +121,23 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
   set isChecked(bool value) {
     if (_helper.isLoadedField) {
       if (_helper.dictionary!.containsKey(PdfDictionaryProperties.v)) {
-        final PdfName chk =
-            _helper.dictionary![PdfDictionaryProperties.v]! as PdfName;
-        if (chk.name!.isNotEmpty) {
-          _checked = chk.name != 'Off';
-        } else {
-          _helper.dictionary!.remove(PdfDictionaryProperties.v);
+        if (_helper.dictionary![PdfDictionaryProperties.v]! is PdfName) {
+          final PdfName chk =
+              _helper.dictionary![PdfDictionaryProperties.v]! as PdfName;
+          if (chk.name!.isNotEmpty) {
+            _checked = chk.name != 'Off';
+          } else {
+            _helper.dictionary!.remove(PdfDictionaryProperties.v);
+          }
+        } else if (_helper.dictionary![PdfDictionaryProperties.v]!
+            is PdfString) {
+          final PdfString chk =
+              _helper.dictionary![PdfDictionaryProperties.v]! as PdfString;
+          if (chk.value!.isNotEmpty) {
+            _checked = chk.value != 'Off';
+          } else {
+            _helper.dictionary!.remove(PdfDictionaryProperties.v);
+          }
         }
       }
       PdfFormHelper.getHelper(form!).setAppearanceDictionary = true;

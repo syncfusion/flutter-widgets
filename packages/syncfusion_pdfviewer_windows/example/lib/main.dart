@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 void main() {
-  runApp(MaterialApp(
-    title: 'Syncfusion PDF Viewer Demo for Windows',
-    theme: ThemeData(
-      useMaterial3: false,
+  runApp(
+    MaterialApp(
+      title: 'Syncfusion PDF Viewer Demo for Windows',
+      theme: ThemeData(useMaterial3: false),
+      home: const HomePage(),
     ),
-    home: const HomePage(),
-  ));
+  );
 }
 
 /// Represents Homepage for Navigation
@@ -34,10 +34,7 @@ class _HomePage extends State<HomePage> {
         title: const Text('Syncfusion Flutter PDF Viewer'),
         actions: <Widget>[
           IconButton(
-            icon: const Icon(
-              Icons.bookmark,
-              color: Colors.white,
-            ),
+            icon: const Icon(Icons.bookmark, color: Colors.white),
             onPressed: () {
               _pdfViewerKey.currentState?.openBookmarkView();
             },

@@ -101,7 +101,7 @@
 "searchDataGridFilteringLabel" : "Hae", 
 "noMatchesDataGridFilteringLabel" : "Ei osumia", 
 "okDataGridFilteringLabel" : "OK", 
-"cancelDataGridFilteringLabel" : "Peruuttaa", 
+"cancelDataGridFilteringLabel" : "Peruuta", 
 "showRowsWhereDataGridFilteringLabel" : "Näytä rivit missä", 
 "andDataGridFilteringLabel" : "Ja", 
 "orDataGridFilteringLabel" : "Tai", 

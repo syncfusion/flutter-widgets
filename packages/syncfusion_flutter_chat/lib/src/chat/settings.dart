@@ -111,7 +111,7 @@ enum ChatSuggestionSelectionType {
 ///             return const TextStyle(fontSize: 14);
 ///           },
 ///          ),
-///           padding: const EdgeInsets.all(10),
+///           margin: const EdgeInsets.all(10),
 ///           itemPadding:
 ///               const EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
 ///           orientation: Axis.horizontal,
@@ -257,7 +257,7 @@ class ChatMessage extends Message {
   ///             return const TextStyle(fontSize: 14);
   ///           },
   ///          ),
-  ///       padding: const EdgeInsets.all(10),
+  ///       margin: const EdgeInsets.all(10),
   ///       itemPadding:
   ///           const EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
   ///       orientation: Axis.horizontal,
@@ -551,7 +551,7 @@ class ChatMessageSuggestion extends MessageSuggestion {
 ///           return const TextStyle(fontSize: 14);
 ///        },
 ///       ),
-///       padding: const EdgeInsets.all(10),
+///       margin: const EdgeInsets.all(10),
 ///       itemPadding:
 ///           const EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
 ///       orientation: Axis.horizontal,
@@ -570,7 +570,7 @@ class ChatSuggestionSettings extends SuggestionSettings {
     this.shape,
     this.itemShape,
     this.textStyle,
-    this.padding = const EdgeInsetsDirectional.symmetric(vertical: 5.0),
+    this.margin = const EdgeInsetsDirectional.symmetric(vertical: 5.0),
     this.itemPadding =
         const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
     this.orientation = Axis.horizontal,
@@ -710,13 +710,13 @@ class ChatSuggestionSettings extends SuggestionSettings {
   /// List<ChatMessage> _messages = <ChatMessage>[
   ///   ChatMessage(
   ///     suggestionSettings: ChatSuggestionSettings(
-  ///       padding: const EdgeInsets.only(top: 10, bottom: 10),
+  ///       margin: const EdgeInsets.only(top: 10, bottom: 10),
   ///     )
   ///   ),
   /// ];
   /// ```
   @override
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
 
   /// Padding between the content of each individual suggestion item.
   ///
@@ -829,7 +829,7 @@ class ChatSuggestionSettings extends SuggestionSettings {
 
 /// Customizes chat bubbles with these settings for a better user experience.
 ///
-/// The [ChatBubbleSettings] class provides options to customize the appearance
+/// The [ChatMessageSettings] class provides options to customize the appearance
 /// and layout of chat bubbles, including styling, and padding, and display
 /// options for elements such as the username, timestamp, and avatar.
 ///
@@ -838,27 +838,27 @@ class ChatSuggestionSettings extends SuggestionSettings {
 /// @override
 /// Widget build(BuildContext context) {
 ///   return SfChat(
-///     incomingBubbleSettings: ChatBubbleSettings(
-///       showUserName: true,
+///     incomingMessageSettings: ChatMessageSettings(
+///       showAuthorName: true,
 ///       showTimestamp: true,
-///       showUserAvatar: true,
+///       showAuthorAvatar: true,
 ///       widthFactor: 0.8,
 ///       avatarSize: const Size.square(32.0),
-///       padding: const EdgeInsets.all(2.0),
-///       contentPadding:
+///       margin: const EdgeInsets.all(2.0),
+///       padding:
 ///           const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
 ///       headerPadding:
 ///           const EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
 ///       footerPadding: const EdgeInsetsDirectional.only(top: 4.0),
 ///     ),
-///     outgoingBubbleSettings: ChatBubbleSettings(
-///       showUserName: true,
+///     outgoingMessageSettings: ChatMessageSettings(
+///       showAuthorName: true,
 ///       showTimestamp: true,
-///       showUserAvatar: true,
+///       showAuthorAvatar: true,
 ///       widthFactor: 0.8,
 ///       avatarSize: const Size.square(32.0),
-///       padding: const EdgeInsets.all(2.0),
-///       contentPadding:
+///       margin: const EdgeInsets.all(2.0),
+///       padding:
 ///           const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
 ///       headerPadding:
 ///           const EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
@@ -867,22 +867,21 @@ class ChatSuggestionSettings extends SuggestionSettings {
 ///   );
 /// }
 /// ```
-class ChatBubbleSettings extends MessageSettings {
-  /// Creates a [ChatBubbleSettings] with the given customization options.
-  const ChatBubbleSettings({
-    this.showUserName = true,
+class ChatMessageSettings extends MessageSettings {
+  /// Creates a [ChatMessageSettings] with the given customization options.
+  const ChatMessageSettings({
+    this.showAuthorName = true,
     this.showTimestamp = true,
-    this.showUserAvatar = true,
+    this.showAuthorAvatar = true,
     this.timestampFormat,
     this.textStyle,
     this.headerTextStyle,
-    this.contentBackgroundColor,
-    this.contentShape,
+    this.backgroundColor,
+    this.shape,
     this.widthFactor = 0.8,
     this.avatarSize = const Size.square(32.0),
-    this.padding = const EdgeInsetsDirectional.only(top: 16.0),
-    this.contentPadding =
-        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    this.margin = const EdgeInsetsDirectional.only(top: 16.0),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
     this.avatarPadding,
     this.headerPadding = const EdgeInsetsDirectional.only(bottom: 4.0),
     this.footerPadding = const EdgeInsetsDirectional.only(top: 4.0),
@@ -899,17 +898,17 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
-  ///       showUserName: true,
+  ///     incomingMessageSettings: ChatMessageSettings(
+  ///       showAuthorName: true,
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
-  ///       showUserName: true,
+  ///     outgoingMessageSettings: ChatMessageSettings(
+  ///       showAuthorName: true,
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final bool showUserName;
+  final bool showAuthorName;
 
   /// Customizes whether to display the timestamp within the chat bubble.
   ///
@@ -921,10 +920,10 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
+  ///     incomingMessageSettings: ChatMessageSettings(
   ///       showTimestamp: true,
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
+  ///     outgoingMessageSettings: ChatMessageSettings(
   ///       showTimestamp: true,
   ///     ),
   ///   );
@@ -943,17 +942,17 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
-  ///       showUserAvatar: true,
+  ///     incomingMessageSettings: ChatMessageSettings(
+  ///       showAuthorAvatar: true,
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
-  ///       showUserAvatar: true,
+  ///     outgoingMessageSettings: ChatMessageSettings(
+  ///       showAuthorAvatar: true,
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final bool showUserAvatar;
+  final bool showAuthorAvatar;
 
   /// Customizes the format for displaying the timestamp of the message.
   ///
@@ -965,10 +964,10 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
+  ///     incomingMessageSettings: ChatMessageSettings(
   ///       timestampFormat: DateFormat('hh:mm a'),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
+  ///     outgoingMessageSettings: ChatMessageSettings(
   ///       timestampFormat: DateFormat('hh:mm a'),
   ///     ),
   ///   );
@@ -987,10 +986,10 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
+  ///     incomingMessageSettings: ChatMessageSettings(
   ///       textStyle: TextStyle(fontSize: 14),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
+  ///     outgoingMessageSettings: ChatMessageSettings(
   ///       textStyle: TextStyle(fontSize: 14),
   ///     ),
   ///   );
@@ -1010,10 +1009,10 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
+  ///     incomingMessageSettings: ChatMessageSettings(
   ///       headerTextStyle: TextStyle(fontWeight: FontWeight.bold),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
+  ///     outgoingMessageSettings: ChatMessageSettings(
   ///       headerTextStyle: TextStyle(fontWeight: FontWeight.bold),
   ///     ),
   ///   );
@@ -1032,17 +1031,17 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
-  ///       contentBackgroundColor: Colors.grey[200],
+  ///     incomingMessageSettings: ChatMessageSettings(
+  ///       backgroundColor: Colors.grey[200],
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
-  ///       contentBackgroundColor: Colors.grey[400],
+  ///     outgoingMessageSettings: ChatMessageSettings(
+  ///       backgroundColor: Colors.grey[400],
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final Color? contentBackgroundColor;
+  final Color? backgroundColor;
 
   /// Shape of the message content, including border radius.
   ///
@@ -1054,13 +1053,13 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
-  ///       contentShape: RoundedRectangleBorder(
+  ///     incomingMessageSettings: ChatMessageSettings(
+  ///       shape: RoundedRectangleBorder(
   ///         borderRadius: BorderRadius.circular(12.0),
   ///       ),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
-  ///       contentShape: RoundedRectangleBorder(
+  ///     outgoingMessageSettings: ChatMessageSettings(
+  ///       shape: RoundedRectangleBorder(
   ///         borderRadius: BorderRadius.circular(12.0),
   ///       ),
   ///     ),
@@ -1068,7 +1067,7 @@ class ChatBubbleSettings extends MessageSettings {
   /// }
   /// ```
   @override
-  final ShapeBorder? contentShape;
+  final ShapeBorder? shape;
 
   /// Customizes the chat bubble's width as a fraction of the screen width.
   ///
@@ -1080,10 +1079,10 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
+  ///     incomingMessageSettings: ChatMessageSettings(
   ///       widthFactor: 0.8,
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
+  ///     outgoingMessageSettings: ChatMessageSettings(
   ///       widthFactor: 0.8,
   ///     ),
   ///   );
@@ -1102,10 +1101,10 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
+  ///     incomingMessageSettings: ChatMessageSettings(
   ///       avatarSize: const Size.square(35.0),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
+  ///     outgoingMessageSettings: ChatMessageSettings(
   ///       avatarSize: const Size.square(35.0),
   ///     ),
   ///   );
@@ -1124,17 +1123,17 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
-  ///       padding: const EdgeInsets.all(2.0),
+  ///     incomingMessageSettings: ChatMessageSettings(
+  ///       margin: const EdgeInsets.all(2.0),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
-  ///       padding: const EdgeInsets.all(2.0),
+  ///     outgoingMessageSettings: ChatMessageSettings(
+  ///       margin: const EdgeInsets.all(2.0),
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
 
   /// Customizes the padding around the bubble's content.
   ///
@@ -1146,19 +1145,19 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
-  ///       contentPadding:
+  ///     incomingMessageSettings: ChatMessageSettings(
+  ///       padding:
   ///           const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
-  ///       contentPadding:
+  ///     outgoingMessageSettings: ChatMessageSettings(
+  ///       padding:
   ///           const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final EdgeInsetsGeometry? contentPadding;
+  final EdgeInsetsGeometry? padding;
 
   /// Customizes the padding around the avatar within the bubble.
   ///
@@ -1170,10 +1169,10 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
+  ///     incomingMessageSettings: ChatMessageSettings(
   ///       avatarPadding: const EdgeInsets.all(4.0),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
+  ///     outgoingMessageSettings: ChatMessageSettings(
   ///       avatarPadding: const EdgeInsets.all(4.0),
   ///     ),
   ///   );
@@ -1192,11 +1191,11 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
+  ///     incomingMessageSettings: ChatMessageSettings(
   ///       headerPadding:
   ///           const EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
+  ///     outgoingMessageSettings: ChatMessageSettings(
   ///       headerPadding:
   ///           const EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
   ///     ),
@@ -1217,10 +1216,10 @@ class ChatBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfChat(
-  ///     incomingBubbleSettings: ChatBubbleSettings(
+  ///     incomingMessageSettings: ChatMessageSettings(
   ///       footerPadding: const EdgeInsetsDirectional.only(top: 4.0),
   ///     ),
-  ///     outgoingBubbleSettings: ChatBubbleSettings(
+  ///     outgoingMessageSettings: ChatMessageSettings(
   ///       footerPadding: const EdgeInsetsDirectional.only(top: 4.0),
   ///     ),
   ///   );
@@ -1251,7 +1250,7 @@ class ChatBubbleSettings extends MessageSettings {
 ///           borderRadius: BorderRadius.all(Radius.circular(42.0)))),
 ///         hintText: 'Type a message...',
 ///       ),
-///       padding: const EdgeInsets.only(top: 16.0),
+///       margin: const EdgeInsets.only(top: 16.0),
 ///     )
 ///   );
 /// }
@@ -1263,27 +1262,27 @@ class ChatBubbleSettings extends MessageSettings {
 ///   return SfChat(
 ///     composer: ChatComposer.builder(
 ///       builder: (context) => CustomChatInputWidget(),
-///       padding: const EdgeInsets.only(top: 16.0),
+///       margin: const EdgeInsets.only(top: 16.0),
 ///     )
 ///   );
 /// }
 /// ```
 class ChatComposer extends Composer {
   /// Creates a [ChatComposer] with the given [textStyle], line limits,
-  /// [decoration], and [padding].
+  /// [decoration], and [margin].
   const ChatComposer({
     this.textStyle,
     this.minLines = 1,
     this.maxLines = 6,
     this.decoration = const InputDecoration(),
-    this.padding = const EdgeInsets.only(top: 16.0),
+    this.margin = const EdgeInsets.only(top: 16.0),
   }) : builder = null;
 
   /// Creates a [ChatComposer] using a custom [builder] for the widget's
   /// construction.
   const ChatComposer.builder({
     required this.builder,
-    this.padding = const EdgeInsets.only(top: 16.0),
+    this.margin = const EdgeInsets.only(top: 16.0),
   })  : textStyle = null,
         decoration = null,
         minLines = 0,
@@ -1369,7 +1368,7 @@ class ChatComposer extends Composer {
   @override
   final InputDecoration? decoration;
 
-  /// Customizes the padding around the text input field.
+  /// Customizes the margin around the text input field.
   ///
   /// Defaults to `EdgeInsets.only(top: 16.0)`.
   ///
@@ -1380,13 +1379,13 @@ class ChatComposer extends Composer {
   /// Widget build(BuildContext context) {
   ///   return SfChat(
   ///     composer: ChatComposer(
-  ///       padding: const EdgeInsets.only(top: 16.0),
+  ///       margin: const EdgeInsets.only(top: 16.0),
   ///     )
   ///   );
   /// }
   /// ```
   @override
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
 
   /// Custom builder for constructing the widget.
   ///
@@ -1400,7 +1399,7 @@ class ChatComposer extends Composer {
   ///   return SfChat(
   ///     composer: ChatComposer.builder(
   ///       builder: (context) => CustomChatInputWidget(),
-  ///       padding: const EdgeInsets.only(top: 16.0),
+  ///       margin: const EdgeInsets.only(top: 16.0),
   ///     )
   ///   );
   /// }
@@ -1455,7 +1454,7 @@ class ChatActionButton extends ActionButton {
     this.highlightElevation,
     this.mouseCursor,
     this.shape,
-    this.padding = const EdgeInsetsDirectional.only(start: 8.0),
+    this.margin = const EdgeInsetsDirectional.only(start: 8.0),
     this.size = const Size.square(40.0),
     required this.onPressed,
   });
@@ -1722,13 +1721,13 @@ class ChatActionButton extends ActionButton {
   /// Widget build(BuildContext context) {
   ///   return SfChat(
   ///     actionButton: ChatActionButton(
-  ///       padding: EdgeInsets.all(12.0),
+  ///       margin: EdgeInsets.all(12.0),
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
 
   /// Size of the button.
   ///

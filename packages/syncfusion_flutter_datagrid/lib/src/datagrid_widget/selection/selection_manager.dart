@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide DataCell, DataRow;
 import 'package:flutter/services.dart';
 
 import '../../grid_common/row_column_index.dart';
+import '../helper/callbackargs.dart';
 import '../helper/datagrid_configuration.dart';
 import '../helper/datagrid_helper.dart' as grid_helper;
 import '../helper/enums.dart';
@@ -125,6 +126,8 @@ class RowSelectionManager extends SelectionManagerBase {
           newItems: addedItems, oldItems: removeItems)) {
         _clearSelectedRow(dataGridConfiguration);
         _addSelection(record, dataGridConfiguration);
+        _raiseCheckboxValueChanged(
+            value: true, row: record, rowType: RowType.dataRow);
         notifyListeners();
         _raiseSelectionChanged(newItems: addedItems, oldItems: removeItems);
       }
@@ -152,11 +155,15 @@ class RowSelectionManager extends SelectionManagerBase {
         if (record != null && !_selectedRows.contains(record)) {
           _clearSelectedRow(dataGridConfiguration);
           _addSelection(record, dataGridConfiguration);
+          _raiseCheckboxValueChanged(
+              value: true, row: record, rowType: RowType.dataRow);
         } else {
           _clearSelectedRow(dataGridConfiguration);
           if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
             _clearCurrentCell(dataGridConfiguration);
           }
+          _raiseCheckboxValueChanged(
+              value: false, row: record, rowType: RowType.dataRow);
         }
 
         notifyListeners();
@@ -185,8 +192,12 @@ class RowSelectionManager extends SelectionManagerBase {
           record != null) {
         if (!_selectedRows.contains(record)) {
           _addSelection(record, dataGridConfiguration);
+          _raiseCheckboxValueChanged(
+              value: true, row: record, rowType: RowType.dataRow);
         } else {
           _removeSelection(record, dataGridConfiguration);
+          _raiseCheckboxValueChanged(
+              value: false, row: record, rowType: RowType.dataRow);
         }
         notifyListeners();
         _raiseSelectionChanged(newItems: addedItems, oldItems: removeItems);
@@ -226,6 +237,8 @@ class RowSelectionManager extends SelectionManagerBase {
       if (isIndexOutsideRange(
           _pressedRowIndex, currentRecordIndex, selectedIndex)) {
         _removeSelection(selectedRow, dataGridConfiguration);
+        _raiseCheckboxValueChanged(
+            value: false, row: selectedRow, rowType: RowType.dataRow);
       }
     }
     if (dataGridConfiguration.onSelectionChanging != null ||
@@ -263,12 +276,16 @@ class RowSelectionManager extends SelectionManagerBase {
         selection_helper.getRecord(dataGridConfiguration, _pressedRowIndex);
     if (!_selectedRows.contains(pressedRecord)) {
       _addSelection(pressedRecord, dataGridConfiguration);
+      _raiseCheckboxValueChanged(
+          value: true, row: pressedRecord, rowType: RowType.dataRow);
     }
 
     if (removedItems.isNotEmpty) {
       for (final DataGridRow items in removedItems) {
         if (_selectedRows.contains(items)) {
           _removeSelection(items, dataGridConfiguration);
+          _raiseCheckboxValueChanged(
+              value: false, row: items, rowType: RowType.dataRow);
         }
       }
     }
@@ -281,6 +298,8 @@ class RowSelectionManager extends SelectionManagerBase {
         if (record != null) {
           _shiftSelectedRows.add(record);
           _addSelection(record, dataGridConfiguration);
+          _raiseCheckboxValueChanged(
+              value: true, row: record, rowType: RowType.dataRow);
         }
       }
     } else if (_pressedRowIndex > currentRecordIndex) {
@@ -291,6 +310,8 @@ class RowSelectionManager extends SelectionManagerBase {
         if (record != null) {
           _shiftSelectedRows.add(record);
           _addSelection(record, dataGridConfiguration);
+          _raiseCheckboxValueChanged(
+              value: true, row: record, rowType: RowType.dataRow);
         }
       }
     }
@@ -351,7 +372,8 @@ class RowSelectionManager extends SelectionManagerBase {
 
   void _clearSelectedRows(DataGridConfiguration dataGridConfiguration) {
     if (_selectedRows.isNotEmpty) {
-      _selectedRows.clear();
+      _selectedRows.removeWhere(
+          (row) => dataGridConfiguration.source.effectiveRows.contains(row));
       dataGridConfiguration.controller.selectedRows.clear();
       _refreshSelection();
       dataGridConfiguration.container.isDirty = true;
@@ -388,7 +410,8 @@ class RowSelectionManager extends SelectionManagerBase {
   }
 
   void _clearSelection(DataGridConfiguration dataGridConfiguration) {
-    _selectedRows.clear();
+    _selectedRows.removeWhere(
+        (row) => dataGridConfiguration.source.effectiveRows.contains(row));
     dataGridConfiguration.controller.selectedRows.clear();
     updateSelectedRow(dataGridConfiguration.controller, null);
     updateSelectedIndex(dataGridConfiguration.controller, -1);
@@ -409,8 +432,9 @@ class RowSelectionManager extends SelectionManagerBase {
   void _refreshSelection() {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
-    final DataGridRow? selectedRow =
-        _selectedRows.isNotEmpty ? _selectedRows.last : null;
+    final DataGridRow? selectedRow = _selectedRows.reversed.firstWhereOrNull(
+      (row) => effectiveRows(dataGridConfiguration.source).contains(row),
+    );
     final int recordIndex = selectedRow == null
         ? -1
         : dataGridConfiguration.source.groupedColumns.isNotEmpty
@@ -531,6 +555,9 @@ class RowSelectionManager extends SelectionManagerBase {
         .firstWhereOrNull(
             (DataRowBase dataRow) => dataRow.rowType == RowType.headerRow);
 
+    final bool isRowInEffectiveList = _selectedRows.any(
+        (row) => effectiveRows(dataGridConfiguration.source).contains(row));
+
     if (headerDataRow == null) {
       if (dataGridConfiguration.controller.selectedRows.length ==
           dataGridConfiguration.source.rows.length) {
@@ -550,7 +577,7 @@ class RowSelectionManager extends SelectionManagerBase {
     // FLUT-6617-The null check operator used on the null value exception occurred
     // While selecting and deselecting the same row in the datagrid since the selected rows are empty and headerCheckboxState is null
     // We have resolved the issue by checking the if it's null
-    if (_selectedRows.isEmpty &&
+    if ((_selectedRows.isEmpty || !isRowInEffectiveList) &&
         (dataGridConfiguration.headerCheckboxState == null ||
             dataGridConfiguration.headerCheckboxState!)) {
       dataGridConfiguration.headerCheckboxState = false;
@@ -560,8 +587,10 @@ class RowSelectionManager extends SelectionManagerBase {
         dataGridConfiguration.headerCheckboxState != null) {
       dataGridConfiguration.headerCheckboxState = null;
       headerDataCell?.updateColumn();
-    } else if (dataGridConfiguration.controller.selectedRows.length ==
-            dataGridConfiguration.source.rows.length &&
+    } else if (((dataGridConfiguration.controller.selectedRows.length ==
+                dataGridConfiguration.source.rows.length) ||
+            (dataGridConfiguration.controller.selectedRows.length ==
+                effectiveRows(dataGridConfiguration.source).length)) &&
         dataGridConfiguration.headerCheckboxState != true) {
       dataGridConfiguration.headerCheckboxState = true;
       headerDataCell?.updateColumn();
@@ -586,16 +615,26 @@ class RowSelectionManager extends SelectionManagerBase {
         ._handlePointerOperation(dataGridConfiguration, rowColumnIndex)) {
       return;
     }
-    if (!dataGridConfiguration.isShiftKeyPressed) {
+    final bool isShiftPressed = dataGridConfiguration.isShiftKeyPressed;
+    // Issue:
+    // Header checkbox selection causes shift selection to fail.
+    //
+    // Fix:
+    // After header checkbox selection, the pressed rowIndex is set to -1.
+    // To fix this, when performing shift or normal selection, if rowIndex is -1,
+    // set it to the currently tapped rowIndex.
+    if (_pressedRowIndex < 0 || !isShiftPressed) {
       _pressedRowIndex = recordIndex;
+    }
+
+    // Issue:
+    // FLUT-920028-The HeaderCheckboxState changes when tapping on the header checkbox and normal rows, while setting onSelectionChanging to false and onCurrentCellActivating to true, with the selection mode set to multiple.
+    // We resolved the issue by verifying that onSelectionChanging is set to false
+    if (!isShiftPressed && _raiseSelectionChanging()) {
       _shiftSelectedRows.clear();
       _processSelection(
           dataGridConfiguration, rowColumnIndex, previousRowColumnIndex);
-    }
-
-    if (dataGridConfiguration.isShiftKeyPressed &&
-        dataGridConfiguration.selectionMode == SelectionMode.multiple &&
-        _pressedRowIndex >= 0) {
+    } else if (dataGridConfiguration.selectionMode == SelectionMode.multiple) {
       _processShiftKeySelection(rowColumnIndex, recordIndex);
     }
   }
@@ -702,7 +741,7 @@ class RowSelectionManager extends SelectionManagerBase {
 
     final int newValue = dataGridConfiguration.controller.selectedIndex;
     if (effectiveRows(dataGridConfiguration.source).isEmpty ||
-        newValue > effectiveRows(dataGridConfiguration.source).length) {
+        newValue > effectiveRows(dataGridConfiguration.source).length - 1) {
       return;
     }
 
@@ -776,8 +815,12 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     _clearSelectedRows(dataGridConfiguration);
-    _selectedRows.addAll(newValue);
-    dataGridConfiguration.controller.selectedRows.addAll(newValue);
+    final List<DataGridRow> visibleRows = newValue
+        .where(
+            (row) => effectiveRows(dataGridConfiguration.source).contains(row))
+        .toList();
+    _selectedRows.addAll(visibleRows);
+    dataGridConfiguration.controller.selectedRows.addAll(visibleRows);
     _refreshSelection();
     dataGridConfiguration.container
       ..isDirty = true
@@ -1364,9 +1407,16 @@ class RowSelectionManager extends SelectionManagerBase {
 
     if (_raiseSelectionChanging(oldItems: removeItems, newItems: addedItems)) {
       dataGridConfiguration.controller.selectedRows.clear();
-      _selectedRows.addAll(effectiveRows(dataGridConfiguration.source));
+      _selectedRows.addAll(
+        effectiveRows(dataGridConfiguration.source)
+            .where((row) => !_selectedRows.contains(row)),
+      );
       dataGridConfiguration.controller.selectedRows
           .addAll(effectiveRows(dataGridConfiguration.source));
+
+      _raiseCheckboxValueChanged(
+          value: true, row: null, rowType: RowType.headerRow);
+
       _refreshSelection();
       dataGridConfiguration.container
         ..isDirty = true
@@ -1450,6 +1500,27 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     dataGridConfiguration.onSelectionChanged!(newItems, oldItems);
+  }
+
+  void _raiseCheckboxValueChanged({
+    required bool value,
+    required DataGridRow? row,
+    required RowType rowType,
+  }) {
+    final DataGridConfiguration dataGridConfiguration =
+        _dataGridStateDetails!();
+    if (!dataGridConfiguration.showCheckboxColumn ||
+        dataGridConfiguration.onCheckboxValueChanged == null) {
+      return;
+    }
+
+    dataGridConfiguration.onCheckboxValueChanged!(
+      DataGridCheckboxValueChangedDetails(
+        value: value,
+        row: row,
+        rowType: rowType,
+      ),
+    );
   }
 
   /// Refresh the selection state in header and cell check box when selection
@@ -1550,16 +1621,20 @@ class CurrentCellManager {
       return;
     }
 
-    final DataRowBase? dataRowBase =
-        _getDataRow(dataGridConfiguration, rowIndex);
-    if (dataRowBase != null && needToUpdateColumn) {
-      final DataCellBase? dataCellBase = _getDataCell(dataRowBase, columnIndex);
-      if (dataCellBase != null) {
-        setCurrentCellDirty(dataRowBase, dataCellBase, false);
-        dataCellBase.updateColumn();
+    // Remove the current cell from rows where the `isCurrentRow` property is true.
+    if (needToUpdateColumn &&
+        dataGridConfiguration.rowGenerator.items.isNotEmpty) {
+      for (final DataRowBase dataRowBase
+          in dataGridConfiguration.rowGenerator.items) {
+        if (dataRowBase.isCurrentRow || dataRowBase.rowIndex == rowIndex) {
+          final dataCellBase = _getDataCell(dataRowBase, columnIndex);
+          if (dataCellBase != null) {
+            setCurrentCellDirty(dataRowBase, dataCellBase, false);
+            dataCellBase.updateColumn();
+          }
+        }
       }
     }
-
     _updateCurrentRowColumnIndex(-1, -1);
   }
 
@@ -2005,9 +2080,7 @@ class CurrentCellManager {
           notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
               rowColumnIndex: rowColumnIndex, propertyName: 'editing');
           if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
-            dataGridConfiguration.group!
-                .clearDisplayElements(dataGridConfiguration);
-            updateDataSource(dataGridConfiguration.source);
+            updateDataSource(dataGridConfiguration.source, true);
             notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
                 propertyName: 'grouping');
           }
@@ -2225,6 +2298,11 @@ void handleSelectionFromCheckbox(DataGridConfiguration dataGridConfiguration,
             rowSelectionManager._shiftSelectedRows.clear();
             rowSelectionManager._pressedRowIndex = -1;
             rowSelectionManager._clearSelectedRows(dataGridConfiguration);
+            rowSelectionManager._raiseCheckboxValueChanged(
+              value: dataGridConfiguration.headerCheckboxState!,
+              row: null,
+              rowType: RowType.headerRow,
+            );
             rowSelectionManager._refreshCheckboxSelection();
             rowSelectionManager._raiseSelectionChanged(
                 oldItems: oldSelectedItems, newItems: <DataGridRow>[]);
@@ -2235,6 +2313,37 @@ void handleSelectionFromCheckbox(DataGridConfiguration dataGridConfiguration,
       } else {
         dataCell.onTouchUp();
       }
+    }
+  }
+}
+
+/// Need to refresh the selection state and selected rows after applying and clearing filters.
+void refreshSelectedRows(DataGridConfiguration dataGridConfiguration) {
+  final RowSelectionManager rowSelectionManager =
+      dataGridConfiguration.rowSelectionManager as RowSelectionManager;
+  if (dataGridConfiguration.selectionMode != SelectionMode.none &&
+      rowSelectionManager._selectedRows.isNotEmpty) {
+    // Filter selected rows to include only those that exist in effectiveRows.
+    List<DataGridRow> selectedRows = rowSelectionManager._selectedRows
+        .where(dataGridConfiguration.source.effectiveRows.contains)
+        .toList();
+
+    /// When changing the selection mode to single-row selection after filtering,
+    /// we need to retain only the last selected row.
+    if (dataGridConfiguration.selectionMode != SelectionMode.multiple &&
+        selectedRows.isNotEmpty) {
+      selectedRows = [selectedRows.last];
+      rowSelectionManager._selectedRows
+        ..clear()
+        ..addAll(selectedRows);
+    }
+
+    dataGridConfiguration.controller.selectedRows
+      ..clear()
+      ..addAll(selectedRows);
+    rowSelectionManager._refreshSelection();
+    if (dataGridConfiguration.showCheckboxColumn) {
+      rowSelectionManager._updateCheckboxStateOnHeader(dataGridConfiguration);
     }
   }
 }

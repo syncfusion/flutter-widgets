@@ -101,7 +101,7 @@ abstract class SuggestionSettings {
   abstract final WidgetStateProperty<TextStyle?>? textStyle;
 
   /// Padding between the suggestion area and individual suggestion items.
-  abstract final EdgeInsetsGeometry padding;
+  abstract final EdgeInsetsGeometry margin;
 
   /// Padding between the content of each individual suggestion item.
   abstract final EdgeInsetsGeometry itemPadding;
@@ -127,13 +127,13 @@ abstract class MessageSettings {
   const MessageSettings();
 
   /// Whether to show the user name or not.
-  abstract final bool showUserName;
+  abstract final bool showAuthorName;
 
   /// Whether to show the timestamp or not.
   abstract final bool showTimestamp;
 
   /// Whether to show the user avatar or not.
-  abstract final bool? showUserAvatar;
+  abstract final bool? showAuthorAvatar;
 
   /// Format of the timestamp.
   abstract final DateFormat? timestampFormat;
@@ -145,10 +145,10 @@ abstract class MessageSettings {
   abstract final TextStyle? headerTextStyle;
 
   /// Background color of the message content.
-  abstract final Color? contentBackgroundColor;
+  abstract final Color? backgroundColor;
 
   /// Shape of the message content.
-  abstract final ShapeBorder? contentShape;
+  abstract final ShapeBorder? shape;
 
   /// Width factor of the message content.
   abstract final double widthFactor;
@@ -157,10 +157,10 @@ abstract class MessageSettings {
   abstract final Size avatarSize;
 
   /// Padding of the message content.
-  abstract final EdgeInsetsGeometry? padding;
+  abstract final EdgeInsetsGeometry? margin;
 
   /// Padding of the message content.
-  abstract final EdgeInsetsGeometry? contentPadding;
+  abstract final EdgeInsetsGeometry? padding;
 
   /// Padding of the avatar.
   abstract final EdgeInsetsGeometry? avatarPadding;
@@ -189,7 +189,7 @@ abstract class Composer {
   abstract final InputDecoration? decoration;
 
   /// Padding of the composer.
-  abstract final EdgeInsetsGeometry padding;
+  abstract final EdgeInsetsGeometry margin;
 
   /// Builder to create custom composer.
   abstract final WidgetBuilder? builder;
@@ -239,7 +239,7 @@ abstract class ActionButton {
   abstract final ShapeBorder? shape;
 
   /// Padding of the button.
-  abstract final EdgeInsetsGeometry padding;
+  abstract final EdgeInsetsGeometry margin;
 
   /// Size of the button.
   abstract final Size size;

@@ -18,12 +18,13 @@ final double kTextSelectionMenuMargin = kIsDesktop ? 10 : 32;
 /// A text selection menu that can be used to display a list of actions
 class TextSelectionMenu extends StatefulWidget {
   /// Creates a text selection menu
-  const TextSelectionMenu(
-      {super.key,
-      this.textDirection,
-      this.onSelected,
-      this.themeData,
-      this.localizations});
+  const TextSelectionMenu({
+    super.key,
+    this.textDirection,
+    this.onSelected,
+    this.themeData,
+    this.localizations,
+  });
 
   /// Called when an item is selected
   final void Function(String)? onSelected;
@@ -71,7 +72,7 @@ class _TextSelectionMenuState extends State<TextSelectionMenu> {
             blurRadius: 4,
             offset: Offset(0, 2),
             spreadRadius: -1,
-          )
+          ),
         ],
       ),
       child: Padding(
@@ -131,13 +132,14 @@ class _TextSelectionMenuState extends State<TextSelectionMenu> {
 /// A text selection menu item that can be used to display a list of actions
 class TextSelectionMenuItem extends StatefulWidget {
   /// Creates a text selection menu item
-  const TextSelectionMenuItem(
-      {required this.title,
-      required this.mode,
-      required this.onSelected,
-      this.textDirection,
-      this.themeData,
-      super.key});
+  const TextSelectionMenuItem({
+    required this.title,
+    required this.mode,
+    required this.onSelected,
+    this.textDirection,
+    this.themeData,
+    super.key,
+  });
 
   /// Title of the text selection menu item
   final String title;
@@ -159,47 +161,28 @@ class TextSelectionMenuItem extends StatefulWidget {
 }
 
 class _TextSelectionMenuItemState extends State<TextSelectionMenuItem> {
-  bool _isHovering = false;
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        widget.onSelected?.call(widget.mode);
-      },
-      child: MouseRegion(
-        onEnter: (_) {
-          setState(() {
-            _isHovering = true;
-          });
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          widget.onSelected?.call(widget.mode);
         },
-        onExit: (_) {
-          setState(() {
-            _isHovering = false;
-          });
-        },
+        highlightColor: widget.themeData!.useMaterial3
+            ? widget.themeData!.colorScheme.primaryContainer
+            : (widget.themeData!.colorScheme.brightness == Brightness.light)
+                ? Colors.grey.withValues(alpha: 0.2)
+                : Colors.grey.withValues(alpha: 0.5),
         child: Directionality(
           textDirection: widget.textDirection ?? TextDirection.ltr,
           child: Container(
             height: kTextSelectionMenuItemHeight,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: _isHovering
-                  ? widget.themeData!.useMaterial3
-                      ? widget.themeData!.colorScheme.onSurface
-                          .withOpacity(0.08)
-                      : (widget.themeData!.colorScheme.brightness ==
-                              Brightness.light)
-                          ? Colors.grey.withOpacity(0.2)
-                          : Colors.grey.withOpacity(0.5)
-                  : Colors.transparent,
-            ),
             child: Row(
               children: <Widget>[
-                _getIcon(widget.mode),
-                const Divider(
-                  indent: 12,
-                ),
+                _getIcon(widget.themeData!.brightness.name, widget.mode),
+                const Divider(indent: 12),
                 Text(
                   widget.title,
                   overflow: TextOverflow.ellipsis,
@@ -208,8 +191,8 @@ class _TextSelectionMenuItemState extends State<TextSelectionMenuItem> {
                     color: widget.themeData!.useMaterial3
                         ? widget.themeData!.colorScheme.onSurface
                         : widget.themeData!.brightness == Brightness.light
-                            ? Colors.black.withOpacity(0.87)
-                            : Colors.white.withOpacity(0.87),
+                            ? Colors.black.withValues(alpha: 0.87)
+                            : Colors.white.withValues(alpha: 0.87),
                   ),
                 ),
               ],
@@ -220,25 +203,23 @@ class _TextSelectionMenuItemState extends State<TextSelectionMenuItem> {
     );
   }
 
-  Widget _getIcon(String mode) {
+  Widget _getIcon(String theme, String mode) {
     if (mode == 'Copy') {
       return Icon(
         Icons.copy,
         size: 16,
         color: (widget.themeData!.colorScheme.brightness == Brightness.light)
-            ? Colors.black.withOpacity(0.87)
-            : Colors.white.withOpacity(0.87),
+            ? Colors.black.withValues(alpha: 0.87)
+            : Colors.white.withValues(alpha: 0.87),
       );
     }
     mode = mode.toLowerCase().replaceAll(RegExp(r' '), '');
     return ImageIcon(
-      AssetImage('assets/$mode.png', package: 'syncfusion_flutter_pdfviewer'),
+      AssetImage(
+        'assets/icons/$theme/$mode.png',
+        package: 'syncfusion_flutter_pdfviewer',
+      ),
       size: 16,
-      color: widget.themeData!.useMaterial3
-          ? widget.themeData!.colorScheme.onSurface
-          : (widget.themeData!.colorScheme.brightness == Brightness.light)
-              ? Colors.black.withOpacity(0.87)
-              : Colors.white.withOpacity(0.87),
     );
   }
 }
@@ -258,5 +239,5 @@ enum TextSelectionMenuLocation {
   bottom,
 
   /// Center
-  center
+  center,
 }

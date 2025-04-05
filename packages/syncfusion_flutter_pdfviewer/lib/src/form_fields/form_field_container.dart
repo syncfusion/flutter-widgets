@@ -48,8 +48,9 @@ class _FormFieldContainerState extends State<FormFieldContainer> {
     final List<Widget> formFields = <Widget>[];
     if (widget.formFields.isNotEmpty) {
       for (final PdfFormField formField in widget.formFields) {
-        final PdfFormFieldHelper helper =
-            PdfFormFieldHelper.getHelper(formField);
+        final PdfFormFieldHelper helper = PdfFormFieldHelper.getHelper(
+          formField,
+        );
         _updateGlobalRect(helper);
         helper.onChanged = () {
           if (mounted) {
@@ -58,39 +59,44 @@ class _FormFieldContainerState extends State<FormFieldContainer> {
         };
         if (formField is PdfTextFormField) {
           formFields.add(
-            (helper as PdfTextFormFieldHelper)
-                .build(context, widget.heightPercentage),
+            (helper as PdfTextFormFieldHelper).build(
+              context,
+              widget.heightPercentage,
+            ),
           );
         } else if (formField is PdfCheckboxFormField) {
           formFields.add(
-            (helper as PdfCheckboxFormFieldHelper)
-                .build(context, widget.heightPercentage),
+            (helper as PdfCheckboxFormFieldHelper).build(
+              context,
+              widget.heightPercentage,
+            ),
           );
         } else if (formField is PdfComboBoxFormField) {
           formFields.add(
-            (helper as PdfComboBoxFormFieldHelper)
-                .build(context, widget.heightPercentage),
+            (helper as PdfComboBoxFormFieldHelper).build(
+              context,
+              widget.heightPercentage,
+            ),
           );
         } else if (formField is PdfRadioFormField) {
           formFields.addAll(
-            (helper as PdfRadioFormFieldHelper)
-                .build(context, widget.heightPercentage),
+            (helper as PdfRadioFormFieldHelper).build(
+              context,
+              widget.heightPercentage,
+            ),
           );
         } else if (formField is PdfListBoxFormField) {
           formFields.add(
-            (helper as PdfListBoxFormFieldHelper)
-                .build(context, widget.heightPercentage),
+            (helper as PdfListBoxFormFieldHelper).build(
+              context,
+              widget.heightPercentage,
+            ),
           );
         } else if (formField is PdfSignatureFormField) {
           if (helper is PdfSignatureFormFieldHelper) {
             helper.pdfViewerController = widget.pdfViewerController;
             helper.canShowSignaturePadDialog = widget.canShowSignaturePadDialog;
-            formFields.add(
-              helper.build(
-                context,
-                widget.heightPercentage,
-              ),
-            );
+            formFields.add(helper.build(context, widget.heightPercentage));
           }
         }
       }
@@ -103,10 +109,13 @@ class _FormFieldContainerState extends State<FormFieldContainer> {
     final renderObject = context.findRenderObject();
     if (renderObject is RenderBox && renderObject.hasSize) {
       helper.globalRect = Rect.fromPoints(
-          renderObject
-              .localToGlobal(helper.bounds.topLeft / widget.heightPercentage),
-          renderObject.localToGlobal(
-              helper.bounds.bottomRight / widget.heightPercentage));
+        renderObject.localToGlobal(
+          helper.bounds.topLeft / widget.heightPercentage,
+        ),
+        renderObject.localToGlobal(
+          helper.bounds.bottomRight / widget.heightPercentage,
+        ),
+      );
     }
   }
 }

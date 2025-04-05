@@ -82,5 +82,8 @@ const double defaultTrackballPadding = 5;
 // Specifies for default trackball tooltip width.
 const double defaultTooltipWidth = 10;
 
+// Specifies the space between multiple axes.
+const double spaceBetweenMultipleAxes = 3.0;
+
 // Specifies the tooltip event is touch or mouse.
 bool isHover = false;

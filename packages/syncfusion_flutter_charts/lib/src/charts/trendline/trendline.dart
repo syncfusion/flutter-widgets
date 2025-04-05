@@ -528,6 +528,7 @@ class _TrendlineContainerState extends State<TrendlineContainer> {
           return TrendlineWidget(
             index: index,
             isVisible: trendline.isVisible,
+            enableTooltip: trendline.enableTooltip,
             name: trendline.name,
             color: trendline.color,
             dashArray: trendline.dashArray,
@@ -569,6 +570,12 @@ class RenderTrendlineStack extends RenderBox
             TrendlineParentData> {
   CartesianSeriesRenderer? renderer;
 
+  bool get _isTooltipEnabled =>
+      renderer != null &&
+      renderer!.parent != null &&
+      renderer!.parent!.tooltipBehavior != null &&
+      renderer!.parent!.tooltipBehavior!.enable;
+
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
     bool isHit = false;
@@ -593,11 +600,37 @@ class RenderTrendlineStack extends RenderBox
   void handlePointerHover(Offset localPosition) {
     TrendlineRenderer? child = lastChild;
     while (child != null) {
-      if (child.enableTooltip &&
-          renderer != null &&
-          renderer!.parent != null &&
-          renderer!.parent!.tooltipBehavior != null) {
-        child.handlePointerHover(localPosition);
+      final bool hasTooltip = _isTooltipEnabled &&
+          renderer!.parent!.tooltipBehavior!.activationMode ==
+              ActivationMode.singleTap;
+      if (child.enableTooltip && hasTooltip) {
+        child._handleCurrentInteraction(localPosition);
+      }
+      child = childBefore(child);
+    }
+  }
+
+  void handleDoubleTap(Offset localPosition) {
+    TrendlineRenderer? child = lastChild;
+    while (child != null) {
+      final bool hasTooltip = _isTooltipEnabled &&
+          renderer!.parent!.tooltipBehavior!.activationMode ==
+              ActivationMode.doubleTap;
+      if (child.enableTooltip && hasTooltip) {
+        child._handleCurrentInteraction(localPosition);
+      }
+      child = childBefore(child);
+    }
+  }
+
+  void handleLongPress(Offset localPosition) {
+    TrendlineRenderer? child = lastChild;
+    while (child != null) {
+      final bool hasTooltip = _isTooltipEnabled &&
+          renderer!.parent!.tooltipBehavior!.activationMode ==
+              ActivationMode.longPress;
+      if (child.enableTooltip && hasTooltip) {
+        child._handleCurrentInteraction(localPosition);
       }
       child = childBefore(child);
     }
@@ -719,6 +752,7 @@ class TrendlineWidget extends LeafRenderObjectWidget {
     super.key,
     required this.index,
     required this.isVisible,
+    required this.enableTooltip,
     required this.name,
     required this.dashArray,
     required this.color,
@@ -741,6 +775,7 @@ class TrendlineWidget extends LeafRenderObjectWidget {
 
   final int index;
   final bool isVisible;
+  final bool enableTooltip;
   final String? name;
   final Color color;
   final double opacity;
@@ -765,6 +800,7 @@ class TrendlineWidget extends LeafRenderObjectWidget {
     return TrendlineRenderer()
       ..index = index
       ..isVisible = isVisible
+      ..enableTooltip = enableTooltip
       ..name = name
       ..color = color
       ..width = width
@@ -791,6 +827,7 @@ class TrendlineWidget extends LeafRenderObjectWidget {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..isVisible = isVisible
+      ..enableTooltip = enableTooltip
       ..name = name
       ..color = color
       ..width = width
@@ -1038,12 +1075,17 @@ class TrendlineRenderer extends RenderBox {
     return enableTooltip;
   }
 
-  void handlePointerHover(Offset localPosition) {
-    final int nearestPointIndex = _nearestPointIndex(localPosition);
-    if (nearestPointIndex != -1) {
-      final TooltipInfo? info = tooltipInfo(pointIndex: nearestPointIndex);
-      if (info != null) {
-        series!.parent!.behaviorArea!.raiseTooltip(info);
+  void _handleCurrentInteraction(Offset localPosition) {
+    if (series != null &&
+        series!.parent != null &&
+        !series!.parent!.isTooltipActivated) {
+      final int nearestPointIndex = _nearestPointIndex(localPosition);
+      if (nearestPointIndex != -1) {
+        final TooltipInfo? info = tooltipInfo(pointIndex: nearestPointIndex);
+        if (info != null) {
+          series!.parent!.behaviorArea!.raiseTooltip(info);
+          series!.parent!.isTooltipActivated = true;
+        }
       }
     }
   }

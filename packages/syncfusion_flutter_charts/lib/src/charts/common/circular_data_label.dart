@@ -398,16 +398,21 @@ class RenderCircularDataLabelStack<T, D> extends RenderChartElementStack {
     if (childCount > 0) {
       RenderBox? child = lastChild;
       while (child != null) {
-        final ChartElementParentData childParentData =
-            child.parentData! as ChartElementParentData;
-        if ((childParentData.offset & child.size).contains(localPosition)) {
+        final CircularDataLabelBoxParentData childParentData =
+            child.parentData! as CircularDataLabelBoxParentData;
+        if (childParentData.point!.isVisible &&
+            (childParentData.offset & child.size).contains(localPosition)) {
           return childParentData.dataPointIndex;
         }
         child = childParentData.previousSibling;
       }
     } else if (labels != null) {
-      for (int i = labels!.length - 1; i > -1; i--) {
+      final int labelsLength = labels!.length - 1;
+      for (int i = labelsLength; i > -1; i--) {
         final CircularChartDataLabelPositioned label = labels!.elementAt(i);
+        if (!label.point!.isVisible) {
+          continue;
+        }
         final Rect rect = Rect.fromLTWH(
           label.offset.dx,
           label.offset.dy,

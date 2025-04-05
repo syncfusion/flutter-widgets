@@ -1158,8 +1158,7 @@ class RenderDateTimeAxis extends RenderChartAxis {
       return;
     }
 
-    final double extent =
-        labelsExtent ?? (maximumLabelWidth ?? double.maxFinite);
+    final double extent = maximumLabelWidth ?? double.maxFinite;
     final bool isRtl = textDirection == TextDirection.rtl;
     num current = visibleRange!.minimum;
     current = _niceStart(current);

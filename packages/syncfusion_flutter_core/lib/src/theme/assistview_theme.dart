@@ -100,8 +100,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
     this.actionButtonShape,
     this.requestAvatarBackgroundColor,
     this.responseAvatarBackgroundColor,
-    this.requestBubbleContentBackgroundColor,
-    this.responseBubbleContentBackgroundColor,
+    this.requestMessageBackgroundColor,
+    this.responseMessageBackgroundColor,
     this.editorTextStyle,
     this.requestContentTextStyle,
     this.responseContentTextStyle,
@@ -110,8 +110,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
     this.requestSecondaryHeaderTextStyle,
     this.responseSecondaryHeaderTextStyle,
     this.suggestionItemTextStyle,
-    this.requestBubbleContentShape,
-    this.responseBubbleContentShape,
+    this.requestMessageShape,
+    this.responseMessageShape,
     this.suggestionBackgroundColor,
     this.suggestionBackgroundShape,
     this.suggestionItemBackgroundColor,
@@ -143,8 +143,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
     MouseCursor? actionButtonMouseCursor,
     Color? requestAvatarBackgroundColor,
     Color? responseAvatarBackgroundColor,
-    Color? requestBubbleContentBackgroundColor,
-    Color? responseBubbleContentBackgroundColor,
+    Color? requestMessageBackgroundColor,
+    Color? responseMessageBackgroundColor,
     TextStyle? editorTextStyle,
     TextStyle? requestContentTextStyle,
     TextStyle? responseContentTextStyle,
@@ -153,8 +153,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
     TextStyle? requestSecondaryHeaderTextStyle,
     TextStyle? responseSecondaryHeaderTextStyle,
     WidgetStateProperty<TextStyle?>? suggestionItemTextStyle,
-    ShapeBorder? requestBubbleContentShape,
-    ShapeBorder? responseBubbleContentShape,
+    ShapeBorder? requestMessageShape,
+    ShapeBorder? responseMessageShape,
     Color? suggestionBackgroundColor,
     ShapeBorder? suggestionBackgroundShape,
     WidgetStateProperty<Color?>? suggestionItemBackgroundColor,
@@ -181,9 +181,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
       actionButtonMouseCursor: actionButtonMouseCursor,
       requestAvatarBackgroundColor: requestAvatarBackgroundColor,
       responseAvatarBackgroundColor: responseAvatarBackgroundColor,
-      requestBubbleContentBackgroundColor: requestBubbleContentBackgroundColor,
-      responseBubbleContentBackgroundColor:
-          responseBubbleContentBackgroundColor,
+      requestMessageBackgroundColor: requestMessageBackgroundColor,
+      responseMessageBackgroundColor: responseMessageBackgroundColor,
       editorTextStyle: editorTextStyle,
       requestContentTextStyle: requestContentTextStyle,
       responseContentTextStyle: responseContentTextStyle,
@@ -192,8 +191,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
       requestSecondaryHeaderTextStyle: requestSecondaryHeaderTextStyle,
       responseSecondaryHeaderTextStyle: responseSecondaryHeaderTextStyle,
       suggestionItemTextStyle: suggestionItemTextStyle,
-      requestBubbleContentShape: requestBubbleContentShape,
-      responseBubbleContentShape: responseBubbleContentShape,
+      requestMessageShape: requestMessageShape,
+      responseMessageShape: responseMessageShape,
       suggestionBackgroundColor: suggestionBackgroundColor,
       suggestionBackgroundShape: suggestionBackgroundShape,
       suggestionItemBackgroundColor: suggestionItemBackgroundColor,
@@ -472,14 +471,14 @@ class SfAIAssistViewThemeData with Diagnosticable {
   ///   return Scaffold(
   ///     body: SfAIAssistViewTheme(
   ///       data: SfAIAssistViewThemeData(
-  ///         requestBubbleContentBackgroundColor: Colors.blueAccent,
+  ///         requestMessageBackgroundColor: Colors.blueAccent,
   ///       ),
   ///       child: SfAIAssistView(),
   ///     ),
   ///   );
   /// }
   /// ```
-  final Color? requestBubbleContentBackgroundColor;
+  final Color? requestMessageBackgroundColor;
 
   /// Background color of response message bubbles.
   ///
@@ -488,14 +487,14 @@ class SfAIAssistViewThemeData with Diagnosticable {
   ///   return Scaffold(
   ///     body: SfAIAssistViewTheme(
   ///       data: SfAIAssistViewThemeData(
-  ///         responseBubbleContentBackgroundColor: Colors.grey[300],
+  ///         responseMessageBackgroundColor: Colors.grey[300],
   ///       ),
   ///       child: SfAIAssistView(),
   ///     ),
   ///   );
   /// }
   /// ```
-  final Color? responseBubbleContentBackgroundColor;
+  final Color? responseMessageBackgroundColor;
 
   /// Text style for the message editor.
   ///
@@ -663,7 +662,7 @@ class SfAIAssistViewThemeData with Diagnosticable {
   ///   return Scaffold(
   ///     body: SfAIAssistViewTheme(
   ///       data: SfAIAssistViewThemeData(
-  ///         requestBubbleContentShape: RoundedRectangleBorder(
+  ///         requestMessageShape: RoundedRectangleBorder(
   ///           borderRadius: BorderRadius.circular(12.0),
   ///         ),
   ///       ),
@@ -672,7 +671,7 @@ class SfAIAssistViewThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final ShapeBorder? requestBubbleContentShape;
+  final ShapeBorder? requestMessageShape;
 
   /// Shape of the response message bubble.
   ///
@@ -681,7 +680,7 @@ class SfAIAssistViewThemeData with Diagnosticable {
   ///   return Scaffold(
   ///     body: SfAIAssistViewTheme(
   ///       data: SfAIAssistViewThemeData(
-  ///         responseBubbleContentShape: RoundedRectangleBorder(
+  ///         responseMessageShape: RoundedRectangleBorder(
   ///           borderRadius: BorderRadius.circular(12.0),
   ///         ),
   ///       ),
@@ -690,7 +689,7 @@ class SfAIAssistViewThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final ShapeBorder? responseBubbleContentShape;
+  final ShapeBorder? responseMessageShape;
 
   /// Background color of the suggestion area.
   ///
@@ -887,8 +886,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
     MouseCursor? actionButtonMouseCursor,
     Color? requestAvatarBackgroundColor,
     Color? responseAvatarBackgroundColor,
-    Color? requestBubbleContentBackgroundColor,
-    Color? responseBubbleContentBackgroundColor,
+    Color? requestMessageBackgroundColor,
+    Color? responseMessageBackgroundColor,
     TextStyle? editorTextStyle,
     TextStyle? requestContentTextStyle,
     TextStyle? responseContentTextStyle,
@@ -897,8 +896,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
     TextStyle? requestSecondaryHeaderTextStyle,
     TextStyle? responseSecondaryHeaderTextStyle,
     WidgetStateProperty<TextStyle?>? suggestionItemTextStyle,
-    ShapeBorder? requestBubbleContentShape,
-    ShapeBorder? responseBubbleContentShape,
+    ShapeBorder? requestMessageShape,
+    ShapeBorder? responseMessageShape,
     Color? suggestionBackgroundColor,
     ShapeBorder? suggestionBackgroundShape,
     WidgetStateProperty<Color?>? suggestionItemBackgroundColor,
@@ -942,12 +941,10 @@ class SfAIAssistViewThemeData with Diagnosticable {
           requestAvatarBackgroundColor ?? this.requestAvatarBackgroundColor,
       responseAvatarBackgroundColor:
           responseAvatarBackgroundColor ?? this.responseAvatarBackgroundColor,
-      requestBubbleContentBackgroundColor:
-          requestBubbleContentBackgroundColor ??
-              this.requestBubbleContentBackgroundColor,
-      responseBubbleContentBackgroundColor:
-          responseBubbleContentBackgroundColor ??
-              this.responseBubbleContentBackgroundColor,
+      requestMessageBackgroundColor:
+          requestMessageBackgroundColor ?? this.requestMessageBackgroundColor,
+      responseMessageBackgroundColor:
+          responseMessageBackgroundColor ?? this.responseMessageBackgroundColor,
       editorTextStyle: editorTextStyle ?? this.editorTextStyle,
       requestContentTextStyle:
           requestContentTextStyle ?? this.requestContentTextStyle,
@@ -963,10 +960,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
           this.responseSecondaryHeaderTextStyle,
       suggestionItemTextStyle:
           suggestionItemTextStyle ?? this.suggestionItemTextStyle,
-      requestBubbleContentShape:
-          requestBubbleContentShape ?? this.requestBubbleContentShape,
-      responseBubbleContentShape:
-          responseBubbleContentShape ?? this.responseBubbleContentShape,
+      requestMessageShape: requestMessageShape ?? this.requestMessageShape,
+      responseMessageShape: responseMessageShape ?? this.responseMessageShape,
       suggestionBackgroundColor:
           suggestionBackgroundColor ?? this.suggestionBackgroundColor,
       suggestionBackgroundShape:
@@ -1034,13 +1029,11 @@ class SfAIAssistViewThemeData with Diagnosticable {
           a.requestAvatarBackgroundColor, b.requestAvatarBackgroundColor, t),
       responseAvatarBackgroundColor: Color.lerp(
           a.responseAvatarBackgroundColor, b.responseAvatarBackgroundColor, t),
-      requestBubbleContentBackgroundColor: Color.lerp(
-          a.requestBubbleContentBackgroundColor,
-          b.requestBubbleContentBackgroundColor,
-          t),
-      responseBubbleContentBackgroundColor: Color.lerp(
-          a.responseBubbleContentBackgroundColor,
-          b.responseBubbleContentBackgroundColor,
+      requestMessageBackgroundColor: Color.lerp(
+          a.requestMessageBackgroundColor, b.requestMessageBackgroundColor, t),
+      responseMessageBackgroundColor: Color.lerp(
+          a.responseMessageBackgroundColor,
+          b.responseMessageBackgroundColor,
           t),
       editorTextStyle: TextStyle.lerp(a.editorTextStyle, b.editorTextStyle, t),
       requestContentTextStyle: TextStyle.lerp(
@@ -1067,10 +1060,10 @@ class SfAIAssistViewThemeData with Diagnosticable {
         t,
         TextStyle.lerp,
       ),
-      requestBubbleContentShape: ShapeBorder.lerp(
-          a.requestBubbleContentShape, b.requestBubbleContentShape, t),
-      responseBubbleContentShape: ShapeBorder.lerp(
-          a.responseBubbleContentShape, b.responseBubbleContentShape, t),
+      requestMessageShape:
+          ShapeBorder.lerp(a.requestMessageShape, b.requestMessageShape, t),
+      responseMessageShape:
+          ShapeBorder.lerp(a.responseMessageShape, b.responseMessageShape, t),
       suggestionBackgroundColor: Color.lerp(
           a.suggestionBackgroundColor, b.suggestionBackgroundColor, t),
       suggestionBackgroundShape: ShapeBorder.lerp(
@@ -1140,10 +1133,9 @@ class SfAIAssistViewThemeData with Diagnosticable {
         other.actionButtonMouseCursor == actionButtonMouseCursor &&
         other.requestAvatarBackgroundColor == requestAvatarBackgroundColor &&
         other.responseAvatarBackgroundColor == responseAvatarBackgroundColor &&
-        other.requestBubbleContentBackgroundColor ==
-            requestBubbleContentBackgroundColor &&
-        other.responseBubbleContentBackgroundColor ==
-            responseBubbleContentBackgroundColor &&
+        other.requestMessageBackgroundColor == requestMessageBackgroundColor &&
+        other.responseMessageBackgroundColor ==
+            responseMessageBackgroundColor &&
         other.editorTextStyle == editorTextStyle &&
         other.requestContentTextStyle == requestContentTextStyle &&
         other.responseContentTextStyle == responseContentTextStyle &&
@@ -1155,8 +1147,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
         other.responseSecondaryHeaderTextStyle ==
             responseSecondaryHeaderTextStyle &&
         other.suggestionItemTextStyle == suggestionItemTextStyle &&
-        other.requestBubbleContentShape == requestBubbleContentShape &&
-        other.responseBubbleContentShape == responseBubbleContentShape &&
+        other.requestMessageShape == requestMessageShape &&
+        other.responseMessageShape == responseMessageShape &&
         other.suggestionBackgroundColor == suggestionBackgroundColor &&
         other.suggestionBackgroundShape == suggestionBackgroundShape &&
         other.suggestionItemBackgroundColor == suggestionItemBackgroundColor &&
@@ -1189,8 +1181,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
       actionButtonMouseCursor,
       requestAvatarBackgroundColor,
       responseAvatarBackgroundColor,
-      requestBubbleContentBackgroundColor,
-      responseBubbleContentBackgroundColor,
+      requestMessageBackgroundColor,
+      responseMessageBackgroundColor,
       editorTextStyle,
       requestContentTextStyle,
       responseContentTextStyle,
@@ -1199,8 +1191,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
       requestSecondaryHeaderTextStyle,
       responseSecondaryHeaderTextStyle,
       suggestionItemTextStyle,
-      requestBubbleContentShape,
-      responseBubbleContentShape,
+      requestMessageShape,
+      responseMessageShape,
       suggestionBackgroundColor,
       suggestionBackgroundShape,
       suggestionItemBackgroundColor,
@@ -1331,16 +1323,16 @@ class SfAIAssistViewThemeData with Diagnosticable {
     );
     properties.add(
       ColorProperty(
-        'requestBubbleContentBackgroundColor',
-        requestBubbleContentBackgroundColor,
-        defaultValue: defaultData.requestBubbleContentBackgroundColor,
+        'requestMessageBackgroundColor',
+        requestMessageBackgroundColor,
+        defaultValue: defaultData.requestMessageBackgroundColor,
       ),
     );
     properties.add(
       ColorProperty(
-        'responseBubbleContentBackgroundColor',
-        responseBubbleContentBackgroundColor,
-        defaultValue: defaultData.responseBubbleContentBackgroundColor,
+        'responseMessageBackgroundColor',
+        responseMessageBackgroundColor,
+        defaultValue: defaultData.responseMessageBackgroundColor,
       ),
     );
     properties.add(
@@ -1402,16 +1394,16 @@ class SfAIAssistViewThemeData with Diagnosticable {
     );
     properties.add(
       DiagnosticsProperty<ShapeBorder>(
-        'requestBubbleContentShape',
-        requestBubbleContentShape,
-        defaultValue: defaultData.requestBubbleContentShape,
+        'requestMessageShape',
+        requestMessageShape,
+        defaultValue: defaultData.requestMessageShape,
       ),
     );
     properties.add(
       DiagnosticsProperty<ShapeBorder>(
-        'responseBubbleContentShape',
-        responseBubbleContentShape,
-        defaultValue: defaultData.responseBubbleContentShape,
+        'responseMessageShape',
+        responseMessageShape,
+        defaultValue: defaultData.responseMessageShape,
       ),
     );
     properties.add(

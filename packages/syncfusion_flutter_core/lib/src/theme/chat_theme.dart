@@ -99,8 +99,8 @@ class SfChatThemeData with Diagnosticable {
     this.actionButtonShape,
     this.outgoingAvatarBackgroundColor,
     this.incomingAvatarBackgroundColor,
-    this.outgoingBubbleContentBackgroundColor,
-    this.incomingBubbleContentBackgroundColor,
+    this.outgoingMessageBackgroundColor,
+    this.incomingMessageBackgroundColor,
     this.editorTextStyle,
     this.outgoingContentTextStyle,
     this.incomingContentTextStyle,
@@ -109,8 +109,8 @@ class SfChatThemeData with Diagnosticable {
     this.outgoingSecondaryHeaderTextStyle,
     this.incomingSecondaryHeaderTextStyle,
     this.suggestionItemTextStyle,
-    this.outgoingBubbleContentShape,
-    this.incomingBubbleContentShape,
+    this.outgoingMessageShape,
+    this.incomingMessageShape,
     this.suggestionBackgroundColor,
     this.suggestionBackgroundShape,
     this.suggestionItemBackgroundColor,
@@ -137,8 +137,8 @@ class SfChatThemeData with Diagnosticable {
     MouseCursor? actionButtonMouseCursor,
     Color? outgoingAvatarBackgroundColor,
     Color? incomingAvatarBackgroundColor,
-    Color? outgoingBubbleContentBackgroundColor,
-    Color? incomingBubbleContentBackgroundColor,
+    Color? outgoingMessageBackgroundColor,
+    Color? incomingMessageBackgroundColor,
     TextStyle? editorTextStyle,
     TextStyle? outgoingContentTextStyle,
     TextStyle? incomingContentTextStyle,
@@ -147,8 +147,8 @@ class SfChatThemeData with Diagnosticable {
     TextStyle? outgoingSecondaryHeaderTextStyle,
     TextStyle? incomingSecondaryHeaderTextStyle,
     WidgetStateProperty<TextStyle?>? suggestionItemTextStyle,
-    ShapeBorder? outgoingBubbleContentShape,
-    ShapeBorder? incomingBubbleContentShape,
+    ShapeBorder? outgoingMessageShape,
+    ShapeBorder? incomingMessageShape,
     Color? suggestionBackgroundColor,
     ShapeBorder? suggestionBackgroundShape,
     WidgetStateProperty<Color?>? suggestionItemBackgroundColor,
@@ -171,10 +171,8 @@ class SfChatThemeData with Diagnosticable {
       actionButtonMouseCursor: actionButtonMouseCursor,
       outgoingAvatarBackgroundColor: outgoingAvatarBackgroundColor,
       incomingAvatarBackgroundColor: incomingAvatarBackgroundColor,
-      outgoingBubbleContentBackgroundColor:
-          outgoingBubbleContentBackgroundColor,
-      incomingBubbleContentBackgroundColor:
-          incomingBubbleContentBackgroundColor,
+      outgoingMessageBackgroundColor: outgoingMessageBackgroundColor,
+      incomingMessageBackgroundColor: incomingMessageBackgroundColor,
       editorTextStyle: editorTextStyle,
       outgoingContentTextStyle: outgoingContentTextStyle,
       incomingContentTextStyle: incomingContentTextStyle,
@@ -183,8 +181,8 @@ class SfChatThemeData with Diagnosticable {
       outgoingSecondaryHeaderTextStyle: outgoingSecondaryHeaderTextStyle,
       incomingSecondaryHeaderTextStyle: incomingSecondaryHeaderTextStyle,
       suggestionItemTextStyle: suggestionItemTextStyle,
-      outgoingBubbleContentShape: outgoingBubbleContentShape,
-      incomingBubbleContentShape: incomingBubbleContentShape,
+      outgoingMessageShape: outgoingMessageShape,
+      incomingMessageShape: incomingMessageShape,
       suggestionBackgroundColor: suggestionBackgroundColor,
       suggestionBackgroundShape: suggestionBackgroundShape,
       suggestionItemBackgroundColor: suggestionItemBackgroundColor,
@@ -459,14 +457,14 @@ class SfChatThemeData with Diagnosticable {
   ///   return Scaffold(
   ///     body: SfChatTheme(
   ///       data: SfChatThemeData(
-  ///         outgoingBubbleContentBackgroundColor: Colors.blueAccent,
+  ///         outgoingMessagetBackgroundColor: Colors.blueAccent,
   ///       ),
   ///       child: SfChat(),
   ///     ),
   ///   );
   /// }
   /// ```
-  final Color? outgoingBubbleContentBackgroundColor;
+  final Color? outgoingMessageBackgroundColor;
 
   /// Background color of incoming message bubbles.
   ///
@@ -475,14 +473,14 @@ class SfChatThemeData with Diagnosticable {
   ///   return Scaffold(
   ///     body: SfChatTheme(
   ///       data: SfChatThemeData(
-  ///         incomingBubbleContentBackgroundColor: Colors.grey[300],
+  ///         incomingMessageBackgroundColor: Colors.grey[300],
   ///       ),
   ///       child: SfChat(),
   ///     ),
   ///   );
   /// }
   /// ```
-  final Color? incomingBubbleContentBackgroundColor;
+  final Color? incomingMessageBackgroundColor;
 
   /// Text style for the message editor.
   ///
@@ -650,7 +648,7 @@ class SfChatThemeData with Diagnosticable {
   ///   return Scaffold(
   ///     body: SfChatTheme(
   ///       data: SfChatThemeData(
-  ///         outgoingBubbleContentShape: RoundedRectangleBorder(
+  ///         outgoingMessageShape: RoundedRectangleBorder(
   ///           borderRadius: BorderRadius.circular(12.0),
   ///         ),
   ///       ),
@@ -659,7 +657,7 @@ class SfChatThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final ShapeBorder? outgoingBubbleContentShape;
+  final ShapeBorder? outgoingMessageShape;
 
   /// Shape of the incoming message bubble.
   ///
@@ -668,7 +666,7 @@ class SfChatThemeData with Diagnosticable {
   ///   return Scaffold(
   ///     body: SfChatTheme(
   ///       data: SfChatThemeData(
-  ///         incomingBubbleContentShape: RoundedRectangleBorder(
+  ///         incomingMessageShape: RoundedRectangleBorder(
   ///           borderRadius: BorderRadius.circular(12.0),
   ///         ),
   ///       ),
@@ -677,7 +675,7 @@ class SfChatThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final ShapeBorder? incomingBubbleContentShape;
+  final ShapeBorder? incomingMessageShape;
 
   /// Background color of the suggestion area.
   ///
@@ -785,8 +783,8 @@ class SfChatThemeData with Diagnosticable {
     MouseCursor? actionButtonMouseCursor,
     Color? outgoingAvatarBackgroundColor,
     Color? incomingAvatarBackgroundColor,
-    Color? outgoingBubbleContentBackgroundColor,
-    Color? incomingBubbleContentBackgroundColor,
+    Color? outgoingMessageBackgroundColor,
+    Color? incomingMessageBackgroundColor,
     TextStyle? editorTextStyle,
     TextStyle? outgoingContentTextStyle,
     TextStyle? incomingContentTextStyle,
@@ -795,8 +793,8 @@ class SfChatThemeData with Diagnosticable {
     TextStyle? outgoingSecondaryHeaderTextStyle,
     TextStyle? incomingSecondaryHeaderTextStyle,
     WidgetStateProperty<TextStyle?>? suggestionItemTextStyle,
-    ShapeBorder? outgoingBubbleContentShape,
-    ShapeBorder? incomingBubbleContentShape,
+    ShapeBorder? outgoingMessageShape,
+    ShapeBorder? incomingMessageShape,
     Color? suggestionBackgroundColor,
     ShapeBorder? suggestionBackgroundShape,
     WidgetStateProperty<Color?>? suggestionItemBackgroundColor,
@@ -836,12 +834,10 @@ class SfChatThemeData with Diagnosticable {
           outgoingAvatarBackgroundColor ?? this.outgoingAvatarBackgroundColor,
       incomingAvatarBackgroundColor:
           incomingAvatarBackgroundColor ?? this.incomingAvatarBackgroundColor,
-      outgoingBubbleContentBackgroundColor:
-          outgoingBubbleContentBackgroundColor ??
-              this.outgoingBubbleContentBackgroundColor,
-      incomingBubbleContentBackgroundColor:
-          incomingBubbleContentBackgroundColor ??
-              this.incomingBubbleContentBackgroundColor,
+      outgoingMessageBackgroundColor:
+          outgoingMessageBackgroundColor ?? this.outgoingMessageBackgroundColor,
+      incomingMessageBackgroundColor:
+          incomingMessageBackgroundColor ?? this.incomingMessageBackgroundColor,
       editorTextStyle: editorTextStyle ?? this.editorTextStyle,
       outgoingContentTextStyle:
           outgoingContentTextStyle ?? this.outgoingContentTextStyle,
@@ -857,10 +853,8 @@ class SfChatThemeData with Diagnosticable {
           this.incomingSecondaryHeaderTextStyle,
       suggestionItemTextStyle:
           suggestionItemTextStyle ?? this.suggestionItemTextStyle,
-      outgoingBubbleContentShape:
-          outgoingBubbleContentShape ?? this.outgoingBubbleContentShape,
-      incomingBubbleContentShape:
-          incomingBubbleContentShape ?? this.incomingBubbleContentShape,
+      outgoingMessageShape: outgoingMessageShape ?? this.outgoingMessageShape,
+      incomingMessageShape: incomingMessageShape ?? this.incomingMessageShape,
       suggestionBackgroundColor:
           suggestionBackgroundColor ?? this.suggestionBackgroundColor,
       suggestionBackgroundShape:
@@ -920,13 +914,13 @@ class SfChatThemeData with Diagnosticable {
           a.outgoingAvatarBackgroundColor, b.outgoingAvatarBackgroundColor, t),
       incomingAvatarBackgroundColor: Color.lerp(
           a.incomingAvatarBackgroundColor, b.incomingAvatarBackgroundColor, t),
-      outgoingBubbleContentBackgroundColor: Color.lerp(
-          a.outgoingBubbleContentBackgroundColor,
-          b.outgoingBubbleContentBackgroundColor,
+      outgoingMessageBackgroundColor: Color.lerp(
+          a.outgoingMessageBackgroundColor,
+          b.outgoingMessageBackgroundColor,
           t),
-      incomingBubbleContentBackgroundColor: Color.lerp(
-          a.incomingBubbleContentBackgroundColor,
-          b.incomingBubbleContentBackgroundColor,
+      incomingMessageBackgroundColor: Color.lerp(
+          a.incomingMessageBackgroundColor,
+          b.incomingMessageBackgroundColor,
           t),
       editorTextStyle: TextStyle.lerp(a.editorTextStyle, b.editorTextStyle, t),
       outgoingContentTextStyle: TextStyle.lerp(
@@ -955,10 +949,10 @@ class SfChatThemeData with Diagnosticable {
         t,
         TextStyle.lerp,
       ),
-      outgoingBubbleContentShape: ShapeBorder.lerp(
-          a.outgoingBubbleContentShape, b.outgoingBubbleContentShape, t),
-      incomingBubbleContentShape: ShapeBorder.lerp(
-          a.incomingBubbleContentShape, b.incomingBubbleContentShape, t),
+      outgoingMessageShape:
+          ShapeBorder.lerp(a.outgoingMessageShape, b.outgoingMessageShape, t),
+      incomingMessageShape:
+          ShapeBorder.lerp(a.incomingMessageShape, b.incomingMessageShape, t),
       suggestionBackgroundColor: Color.lerp(
           a.suggestionBackgroundColor, b.suggestionBackgroundColor, t),
       suggestionBackgroundShape: ShapeBorder.lerp(
@@ -1008,10 +1002,10 @@ class SfChatThemeData with Diagnosticable {
         other.actionButtonMouseCursor == actionButtonMouseCursor &&
         other.outgoingAvatarBackgroundColor == outgoingAvatarBackgroundColor &&
         other.incomingAvatarBackgroundColor == incomingAvatarBackgroundColor &&
-        other.outgoingBubbleContentBackgroundColor ==
-            outgoingBubbleContentBackgroundColor &&
-        other.incomingBubbleContentBackgroundColor ==
-            incomingBubbleContentBackgroundColor &&
+        other.outgoingMessageBackgroundColor ==
+            outgoingMessageBackgroundColor &&
+        other.incomingMessageBackgroundColor ==
+            incomingMessageBackgroundColor &&
         other.editorTextStyle == editorTextStyle &&
         other.outgoingContentTextStyle == outgoingContentTextStyle &&
         other.incomingContentTextStyle == incomingContentTextStyle &&
@@ -1024,8 +1018,8 @@ class SfChatThemeData with Diagnosticable {
         other.incomingSecondaryHeaderTextStyle ==
             incomingSecondaryHeaderTextStyle &&
         other.suggestionItemTextStyle == suggestionItemTextStyle &&
-        other.outgoingBubbleContentShape == outgoingBubbleContentShape &&
-        other.incomingBubbleContentShape == incomingBubbleContentShape &&
+        other.outgoingMessageShape == outgoingMessageShape &&
+        other.incomingMessageShape == incomingMessageShape &&
         other.suggestionBackgroundColor == suggestionBackgroundColor &&
         other.suggestionBackgroundShape == suggestionBackgroundShape &&
         other.suggestionItemBackgroundColor == suggestionItemBackgroundColor &&
@@ -1051,8 +1045,8 @@ class SfChatThemeData with Diagnosticable {
       actionButtonMouseCursor,
       outgoingAvatarBackgroundColor,
       incomingAvatarBackgroundColor,
-      outgoingBubbleContentBackgroundColor,
-      incomingBubbleContentBackgroundColor,
+      outgoingMessageBackgroundColor,
+      incomingMessageBackgroundColor,
       editorTextStyle,
       outgoingContentTextStyle,
       incomingContentTextStyle,
@@ -1061,8 +1055,8 @@ class SfChatThemeData with Diagnosticable {
       outgoingSecondaryHeaderTextStyle,
       incomingSecondaryHeaderTextStyle,
       suggestionItemTextStyle,
-      outgoingBubbleContentShape,
-      incomingBubbleContentShape,
+      outgoingMessageShape,
+      incomingMessageShape,
       suggestionBackgroundColor,
       suggestionBackgroundShape,
       suggestionItemBackgroundColor,
@@ -1189,16 +1183,16 @@ class SfChatThemeData with Diagnosticable {
     );
     properties.add(
       ColorProperty(
-        'outgoingBubbleContentBackgroundColor',
-        outgoingBubbleContentBackgroundColor,
-        defaultValue: defaultData.outgoingBubbleContentBackgroundColor,
+        'outgoingMessageBackgroundColor',
+        outgoingMessageBackgroundColor,
+        defaultValue: defaultData.outgoingMessageBackgroundColor,
       ),
     );
     properties.add(
       ColorProperty(
-        'incomingBubbleContentBackgroundColor',
-        incomingBubbleContentBackgroundColor,
-        defaultValue: defaultData.incomingBubbleContentBackgroundColor,
+        'incomingMessageBackgroundColor',
+        incomingMessageBackgroundColor,
+        defaultValue: defaultData.incomingMessageBackgroundColor,
       ),
     );
     properties.add(
@@ -1260,16 +1254,16 @@ class SfChatThemeData with Diagnosticable {
     );
     properties.add(
       DiagnosticsProperty<ShapeBorder>(
-        'outgoingBubbleContentShape',
-        outgoingBubbleContentShape,
-        defaultValue: defaultData.outgoingBubbleContentShape,
+        'outgoingMessageShape',
+        outgoingMessageShape,
+        defaultValue: defaultData.outgoingMessageShape,
       ),
     );
     properties.add(
       DiagnosticsProperty<ShapeBorder>(
-        'incomingBubbleContentShape',
-        incomingBubbleContentShape,
-        defaultValue: defaultData.incomingBubbleContentShape,
+        'incomingMessageShape',
+        incomingMessageShape,
+        defaultValue: defaultData.incomingMessageShape,
       ),
     );
     properties.add(

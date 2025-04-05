@@ -437,7 +437,7 @@ class PdfSignatureDictionary implements IPdfWrapper {
 
   /// internal method
   List<int>? getPkcs7Content() {
-    String? hasalgorithm = '';
+    String? hashAlgorithm = '';
     _SignaturePrivateKey externalSignature;
     List<List<int>>? crlBytes;
     List<int>? ocspByte;
@@ -449,7 +449,7 @@ class PdfSignatureDictionary implements IPdfWrapper {
       chain = PdfSignatureHelper.getHelper(_sig!).externalChain;
       final String digest = getDigestAlgorithm(externalSigner.hashAlgorithm);
       final _SignaturePrivateKey pks = _SignaturePrivateKey(digest);
-      hasalgorithm = pks.getHashAlgorithm();
+      hashAlgorithm = pks.getHashAlgorithm();
       externalSignature = pks;
     } else {
       String certificateAlias = '';
@@ -484,11 +484,11 @@ class PdfSignatureDictionary implements IPdfWrapper {
           ? getDigestAlgorithm(_sig!.digestAlgorithm)
           : MessageDigestAlgorithms.secureHash256;
       final _SignaturePrivateKey pks = _SignaturePrivateKey(digest, parameters);
-      hasalgorithm = pks.getHashAlgorithm();
+      hashAlgorithm = pks.getHashAlgorithm();
       externalSignature = pks;
     }
     final _PdfCmsSigner pkcs7 =
-        _PdfCmsSigner(null, chain, hasalgorithm!, false);
+        _PdfCmsSigner(null, chain, hashAlgorithm!, false);
     final IRandom source = getUnderlyingSource();
     final List<IRandom?> sources =
         List<IRandom?>.generate(_range.length ~/ 2, (int i) => null);
@@ -496,7 +496,7 @@ class PdfSignatureDictionary implements IPdfWrapper {
       sources[j ~/ 2] = _WindowRandom(source, _range[j], _range[j + 1]);
     }
     final PdfStreamReader data = _RandomStream(_RandomGroup(sources));
-    final List<int> hash = pkcs7._digestAlgorithm.digest(data, hasalgorithm)!;
+    final List<int> hash = pkcs7._digestAlgorithm.digest(data, hashAlgorithm)!;
     final List<int>? sh = pkcs7
         .getSequenceDataSet(
             hash, ocspByte, crlBytes, _sig!.cryptographicStandard)
@@ -519,13 +519,13 @@ class PdfSignatureDictionary implements IPdfWrapper {
     pkcs7.setSignedData(
         extSignature!, null, externalSignature.getEncryptionAlgorithm());
     return pkcs7.sign(hash, _sig!.timestampServer, null, ocspByte, crlBytes,
-        _sig!.cryptographicStandard, hasalgorithm);
+        _sig!.cryptographicStandard, hashAlgorithm);
   }
 
   /// internal method
   Future<List<int>?> getPkcs7ContentAsync() async {
     List<int>? pkcs7Content;
-    String? hasalgorithm = '';
+    String? hashAlgorithm = '';
     _SignaturePrivateKey? externalSignature;
     List<List<int>>? crlBytes;
     List<int>? ocspByte;
@@ -537,7 +537,7 @@ class PdfSignatureDictionary implements IPdfWrapper {
       chain = PdfSignatureHelper.getHelper(_sig!).externalChain;
       final String digest = getDigestAlgorithm(externalSigner.hashAlgorithm);
       final _SignaturePrivateKey pks = _SignaturePrivateKey(digest);
-      hasalgorithm = pks.getHashAlgorithm();
+      hashAlgorithm = pks.getHashAlgorithm();
       externalSignature = pks;
     } else {
       String certificateAlias = '';
@@ -573,13 +573,13 @@ class PdfSignatureDictionary implements IPdfWrapper {
               : MessageDigestAlgorithms.secureHash256;
           final _SignaturePrivateKey pks =
               _SignaturePrivateKey(digest, parameters);
-          hasalgorithm = pks.getHashAlgorithm();
+          hashAlgorithm = pks.getHashAlgorithm();
           externalSignature = pks;
         });
       });
     }
     final _PdfCmsSigner pkcs7 =
-        _PdfCmsSigner(null, chain, hasalgorithm!, false);
+        _PdfCmsSigner(null, chain, hashAlgorithm!, false);
     final IRandom source = getUnderlyingSource();
     final List<IRandom?> sources =
         List<IRandom?>.generate(_range.length ~/ 2, (int i) => null);
@@ -588,7 +588,7 @@ class PdfSignatureDictionary implements IPdfWrapper {
     }
     final PdfStreamReader data = _RandomStream(_RandomGroup(sources));
     await pkcs7._digestAlgorithm
-        .digestAsync(data, hasalgorithm)
+        .digestAsync(data, hashAlgorithm)
         .then((List<int>? hash) async {
       await pkcs7
           .getSequenceDataSetAsync(
@@ -627,7 +627,7 @@ class PdfSignatureDictionary implements IPdfWrapper {
                 ocspByte,
                 crlBytes,
                 _sig!.cryptographicStandard,
-                hasalgorithm);
+                hashAlgorithm);
           }
         });
       });

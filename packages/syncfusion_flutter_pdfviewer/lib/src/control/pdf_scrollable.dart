@@ -17,34 +17,34 @@ typedef OffsetChangedCallback = void Function(Offset offset);
 class PdfScrollable extends StatefulWidget {
   /// Constructor for PdfScrollable.
   const PdfScrollable(
-      this.transformationController,
-      this.canShowPaginationDialog,
-      this.canShowScrollStatus,
-      this.canShowScrollHead,
-      this.pdfViewerController,
-      this.isMobileWebView,
-      this.pdfDimension,
-      this.totalImageSize,
-      this.viewportDimension,
-      this.visibleViewportDimension,
-      this.onPdfOffsetChanged,
-      this.isPanEnabled,
-      this.maxScale,
-      this.minScale,
-      this.enableDoubleTapZooming,
-      this.interactionMode,
-      this.maxPdfPageWidth,
-      this.scaleEnabled,
-      this.maxScrollExtent,
-      this.pdfPages,
-      this.scrollDirection,
-      this.isBookmarkViewOpen,
-      this.textDirection,
-      this.child,
-      this.initiateTileRendering,
-      {Key? key,
-      this.onDoubleTap})
-      : super(key: key);
+    this.transformationController,
+    this.canShowPaginationDialog,
+    this.canShowScrollStatus,
+    this.canShowScrollHead,
+    this.pdfViewerController,
+    this.isMobileWebView,
+    this.pdfDimension,
+    this.totalImageSize,
+    this.viewportDimension,
+    this.visibleViewportDimension,
+    this.onPdfOffsetChanged,
+    this.isPanEnabled,
+    this.maxScale,
+    this.minScale,
+    this.enableDoubleTapZooming,
+    this.interactionMode,
+    this.maxPdfPageWidth,
+    this.scaleEnabled,
+    this.maxScrollExtent,
+    this.pdfPages,
+    this.scrollDirection,
+    this.isBookmarkViewOpen,
+    this.textDirection,
+    this.child,
+    this.initiateTileRendering, {
+    Key? key,
+    this.onDoubleTap,
+  }) : super(key: key);
 
   /// Transformation controller of PdfViewer.
   final TransformationController transformationController;
@@ -338,16 +338,14 @@ class PdfScrollableState extends State<PdfScrollable> {
     isScrolled = true;
     if (event is PointerScrollEvent) {
       jumpTo(
-          xOffset: currentOffset.dx + event.scrollDelta.dx,
-          yOffset: currentOffset.dy + event.scrollDelta.dy);
+        xOffset: currentOffset.dx + event.scrollDelta.dx,
+        yOffset: currentOffset.dy + event.scrollDelta.dy,
+      );
     }
     _scrollTimer?.cancel();
-    _scrollTimer = Timer(
-      const Duration(milliseconds: 100),
-      () {
-        isScrolled = false;
-      },
-    );
+    _scrollTimer = Timer(const Duration(milliseconds: 100), () {
+      isScrolled = false;
+    });
   }
 
   ///Triggers when scrolling performed by touch.
@@ -384,16 +382,20 @@ class PdfScrollableState extends State<PdfScrollable> {
           (widget.viewportDimension.width /
               widget.pdfViewerController.zoomLevel);
       offset = Offset(
-          offset.dx.clamp(
-              (_setZoomLevel ?? false) ? -widthFactor : 0, widthFactor.abs()),
-          offset.dy.clamp(
-              0,
-              (widget.pdfDimension.height -
-                      ((widget.visibleViewportDimension != null
-                              ? widget.visibleViewportDimension!.height
-                              : widget.viewportDimension.height) /
-                          widget.pdfViewerController.zoomLevel))
-                  .abs()));
+        offset.dx.clamp(
+          (_setZoomLevel ?? false) ? -widthFactor : 0,
+          widthFactor.abs(),
+        ),
+        offset.dy.clamp(
+          0,
+          (widget.pdfDimension.height -
+                  ((widget.visibleViewportDimension != null
+                          ? widget.visibleViewportDimension!.height
+                          : widget.viewportDimension.height) /
+                      widget.pdfViewerController.zoomLevel))
+              .abs(),
+        ),
+      );
       _setZoomLevel = false;
       if (kIsDesktop && !widget.isMobileWebView) {
         if (widget.viewportDimension.width >
@@ -404,12 +406,16 @@ class PdfScrollableState extends State<PdfScrollable> {
         }
       }
 
-      final Offset previousOffset =
-          _transformationController.toScene(Offset.zero);
+      final Offset previousOffset = _transformationController.toScene(
+        Offset.zero,
+      );
       _transformationController.value.translate(
-          previousOffset.dx - offset.dx, previousOffset.dy - offset.dy);
-      widget.onPdfOffsetChanged!
-          .call(_transformationController.toScene(Offset.zero));
+        previousOffset.dx - offset.dx,
+        previousOffset.dy - offset.dy,
+      );
+      widget.onPdfOffsetChanged!.call(
+        _transformationController.toScene(Offset.zero),
+      );
       setState(() {});
     }
   }
@@ -422,20 +428,26 @@ class PdfScrollableState extends State<PdfScrollable> {
     final double widthFactor = widget.pdfDimension.width -
         (widget.viewportDimension.width / widget.pdfViewerController.zoomLevel);
     offset = Offset(
-        offset.dx.clamp(-widthFactor, widthFactor.abs()),
-        offset.dy.clamp(
-            0,
-            (widget.pdfDimension.height -
-                    (widget.viewportDimension.height /
-                        widget.pdfViewerController.zoomLevel))
-                .abs()));
+      offset.dx.clamp(-widthFactor, widthFactor.abs()),
+      offset.dy.clamp(
+        0,
+        (widget.pdfDimension.height -
+                (widget.viewportDimension.height /
+                    widget.pdfViewerController.zoomLevel))
+            .abs(),
+      ),
+    );
 
-    final Offset previousOffset =
-        _transformationController.toScene(Offset.zero);
+    final Offset previousOffset = _transformationController.toScene(
+      Offset.zero,
+    );
     _transformationController.value.translate(
-        previousOffset.dx - offset.dx, previousOffset.dy - offset.dy);
-    widget.onPdfOffsetChanged!
-        .call(_transformationController.toScene(Offset.zero));
+      previousOffset.dx - offset.dx,
+      previousOffset.dy - offset.dy,
+    );
+    widget.onPdfOffsetChanged!.call(
+      _transformationController.toScene(Offset.zero),
+    );
     setState(() {});
   }
 
@@ -459,8 +471,9 @@ class PdfScrollableState extends State<PdfScrollable> {
       previousZoomLevel = currentZoomLevel;
       _setZoomLevel = true;
       final double zoomChangeFactor = zoomLevel / currentZoomLevel;
-      final Offset previousOffset =
-          _transformationController.toScene(Offset.zero);
+      final Offset previousOffset = _transformationController.toScene(
+        Offset.zero,
+      );
       _transformationController.value.scale(zoomChangeFactor, zoomChangeFactor);
       if (kIsDesktop &&
           !widget.isMobileWebView &&

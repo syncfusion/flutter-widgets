@@ -29,9 +29,11 @@ class PdfRadioFormField extends PdfFormField {
 /// Helper class for [PdfRadioFormField].
 class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
   /// Initializes a new instance of the [PdfRadioFormFieldHelper] class.
-  PdfRadioFormFieldHelper(this.pdfRadioField, int pageIndex,
-      {this.onValueChanged})
-      : super(pdfRadioField, pageIndex) {
+  PdfRadioFormFieldHelper(
+    this.pdfRadioField,
+    int pageIndex, {
+    this.onValueChanged,
+  }) : super(pdfRadioField, pageIndex) {
     bounds = pdfRadioField.bounds;
   }
 
@@ -70,13 +72,17 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
     if (radioFormField._selectedItem != newValue) {
       if (!radioFormField.items.contains(newValue)) {
         throw ArgumentError.value(
-            newValue, 'selectedItem', 'The value is not in the list of items.');
+          newValue,
+          'selectedItem',
+          'The value is not in the list of items.',
+        );
       }
       final String oldValue = radioFormField._selectedItem;
       setRadioButtonValue(newValue);
       if (onValueChanged != null) {
-        onValueChanged!(PdfFormFieldValueChangedDetails(
-            radioFormField, oldValue, newValue));
+        onValueChanged!(
+          PdfFormFieldValueChangedDetails(radioFormField, oldValue, newValue),
+        );
       }
       rebuild();
     }
@@ -118,14 +124,16 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
                     pdfRadioField.items[j].backColor.r,
                     pdfRadioField.items[j].backColor.g,
                     pdfRadioField.items[j].backColor.b,
-                    1),
+                    1,
+                  ),
             borderColor: pdfRadioField.items[j].borderColor.isEmpty
                 ? Colors.transparent
                 : Color.fromRGBO(
                     pdfRadioField.items[j].borderColor.r,
                     pdfRadioField.items[j].borderColor.g,
                     pdfRadioField.items[j].borderColor.b,
-                    1),
+                    1,
+                  ),
             borderWidth: pdfRadioField.items[j].borderWidth / heightPercentage,
             size: bounds.height / heightPercentage,
           ),
@@ -140,19 +148,19 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
 /// Customized radio button
 class PdfRadioButton extends StatefulWidget {
   /// Constructor for PdfRadioButton
-  const PdfRadioButton(
-      {Key? key,
-      required this.value,
-      required this.groupValue,
-      this.readOnly = false,
-      required this.onChanged,
-      required this.heightPercentage,
-      required this.selectionPadding,
-      required this.fillColor,
-      required this.borderColor,
-      required this.borderWidth,
-      this.size = 24.0})
-      : super(key: key);
+  const PdfRadioButton({
+    Key? key,
+    required this.value,
+    required this.groupValue,
+    this.readOnly = false,
+    required this.onChanged,
+    required this.heightPercentage,
+    required this.selectionPadding,
+    required this.fillColor,
+    required this.borderColor,
+    required this.borderWidth,
+    this.size = 24.0,
+  }) : super(key: key);
 
   /// Height percentage
   final double heightPercentage;
@@ -204,16 +212,20 @@ class _PdfRadioButtonState extends State<PdfRadioButton> {
         widget.onChanged(widget.value);
       },
       child: Padding(
-        padding:
-            EdgeInsets.all(widget.selectionPadding / widget.heightPercentage),
+        padding: EdgeInsets.all(
+          widget.selectionPadding / widget.heightPercentage,
+        ),
         child: Container(
           width: widget.size,
           height: widget.size,
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: widget.fillColor,
-              border: Border.all(
-                  color: widget.borderColor, width: widget.borderWidth)),
+            shape: BoxShape.circle,
+            color: widget.fillColor,
+            border: Border.all(
+              color: widget.borderColor,
+              width: widget.borderWidth,
+            ),
+          ),
           child: widget.groupValue == widget.value
               ? Icon(
                   Icons.circle,

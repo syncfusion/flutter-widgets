@@ -55,18 +55,16 @@ class NumberFormatInfo {
   NumberSymbols get _numberSymbols {
     if (_numberSymbolsField == null) {
       if (numberFormatSymbols[_locale] != null) {
-        _numberSymbolsField = numberFormatSymbols[_locale] as NumberSymbols;
+        _numberSymbolsField = numberFormatSymbols[_locale];
       }
       if (_numberSymbolsField == null &&
           _locale.length > 2 &&
           numberFormatSymbols[_locale.replaceAll('-', '_')] != null) {
-        _numberSymbolsField =
-            numberFormatSymbols[_locale.replaceAll('-', '_')] as NumberSymbols;
+        _numberSymbolsField = numberFormatSymbols[_locale.replaceAll('-', '_')];
       }
       if (_numberSymbolsField != null &&
           numberFormatSymbols[_locale.substring(0, 2)] != null) {
-        _numberSymbolsField =
-            numberFormatSymbols[_locale.substring(0, 2)] as NumberSymbols;
+        _numberSymbolsField = numberFormatSymbols[_locale.substring(0, 2)];
       }
     }
     return _numberSymbolsField!;

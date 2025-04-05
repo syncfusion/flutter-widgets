@@ -397,13 +397,13 @@ class ConditionalFormatImpl implements ConditionalFormat {
 
   @override
 
-  ///  Gets one of the constants of <see cref="CFTimePeriods"/> enumeration
+  ///  Gets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   CFTimePeriods get timePeriodType => _cfTimePeriod;
 
   @override
 
-  ///  Sets one of the constants of <see cref="CFTimePeriods"/> enumeration
+  ///  Sets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   set timePeriodType(CFTimePeriods value) {
     if (formatType == ExcelCFType.timePeriod) {
@@ -746,7 +746,7 @@ class ConditionalFormatImpl implements ConditionalFormat {
   @override
   set backColorRgb(Color value) {
     _backColorRgb = value;
-    _backColor = _backColorRgb.value.toRadixString(16).toUpperCase();
+    _backColor = rgbValue(_backColorRgb).toRadixString(16).toUpperCase();
   }
 
   @override
@@ -757,7 +757,7 @@ class ConditionalFormatImpl implements ConditionalFormat {
   @override
   set fontColorRgb(Color value) {
     _fontColorRgb = value;
-    _fontColor = _fontColorRgb.value.toRadixString(16).toUpperCase();
+    _fontColor = rgbValue(_fontColorRgb).toRadixString(16).toUpperCase();
   }
 
   @override
@@ -769,7 +769,7 @@ class ConditionalFormatImpl implements ConditionalFormat {
   set leftBorderColorRgb(Color value) {
     _leftBorderColorRgb = value;
     _leftBorderColor =
-        _leftBorderColorRgb.value.toRadixString(16).toUpperCase();
+        rgbValue(_leftBorderColorRgb).toRadixString(16).toUpperCase();
   }
 
   @override
@@ -781,7 +781,7 @@ class ConditionalFormatImpl implements ConditionalFormat {
   set rightBorderColorRgb(Color value) {
     _rightBorderColorRgb = value;
     _rightBorderColor =
-        _rightBorderColorRgb.value.toRadixString(16).toUpperCase();
+        rgbValue(_rightBorderColorRgb).toRadixString(16).toUpperCase();
   }
 
   @override
@@ -792,7 +792,8 @@ class ConditionalFormatImpl implements ConditionalFormat {
   @override
   set topBorderColorRgb(Color value) {
     _topBorderColorRgb = value;
-    _topBorderColor = _topBorderColorRgb.value.toRadixString(16).toUpperCase();
+    _topBorderColor =
+        rgbValue(_topBorderColorRgb).toRadixString(16).toUpperCase();
   }
 
   @override
@@ -804,6 +805,13 @@ class ConditionalFormatImpl implements ConditionalFormat {
   set bottomBorderColorRgb(Color value) {
     _bottomBorderColorRgb = value;
     _bottomBorderColor =
-        _bottomBorderColorRgb.value.toRadixString(16).toUpperCase();
+        rgbValue(_bottomBorderColorRgb).toRadixString(16).toUpperCase();
+  }
+
+  int rgbValue(Color color) {
+    return ((color.a * 255).toInt() << 24) |
+        ((color.r * 255).toInt() << 16) |
+        ((color.g * 255).toInt() << 8) |
+        (color.b * 255).toInt();
   }
 }
