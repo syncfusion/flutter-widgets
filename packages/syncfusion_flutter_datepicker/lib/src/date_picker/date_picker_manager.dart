@@ -970,8 +970,8 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
 
   /// The weekends for month view in [SfDateRangePicker].
   ///
-  /// Defaults to `<int>[6,7]` represents `<int>[DateTime.saturday,
-  ///  DateTime.sunday]`.
+  /// Defaults to `<int>[6,7]` represents
+  /// `<int>[DateTime.saturday,DateTime.sunday]`.
   ///
   /// _Note:_ The [weekendDays] will not be highlighted until it's customize by
   /// using the [DateRangePickerMonthCellStyle.weekendTextStyle] or

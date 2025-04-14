@@ -5661,9 +5661,8 @@ class SerializeWorkbook {
               }
               if (format.bCFHasExtensionList) {
                 final ConditionalFormatsImpl formats = conditions;
-                format.rangeRefernce = (formats.cellList.isNotEmpty)
-                    ? (' ${formats.cellList}')
-                    : '';
+                format.rangeRefernce =
+                    (formats.cellList.isNotEmpty) ? ' ${formats.cellList}' : '';
 
                 if ((condition.formatType == ExcelCFType.formula &&
                         condition.firstFormula != '') ||
@@ -5757,7 +5756,7 @@ class SerializeWorkbook {
 
                   final ConditionalFormatsImpl formats = conditions;
                   final String strAddress = (formats.cellList.isNotEmpty)
-                      ? (' ${formats.cellList}')
+                      ? ' ${formats.cellList}'
                       : '';
                   builder.element('xm:sqref', nest: strAddress);
                 });
@@ -5857,9 +5856,8 @@ class SerializeWorkbook {
               }
               if (format.bCFHasExtensionList) {
                 final ConditionalFormatsImpl formats = conditions;
-                format.rangeRefernce = (formats.cellList.isNotEmpty)
-                    ? (' ${formats.cellList}')
-                    : '';
+                format.rangeRefernce =
+                    (formats.cellList.isNotEmpty) ? ' ${formats.cellList}' : '';
 
                 if ((condition.formatType == ExcelCFType.formula &&
                         condition.firstFormula != '') ||
@@ -5954,7 +5952,7 @@ class SerializeWorkbook {
 
                   final ConditionalFormatsImpl formats = conditions;
                   final String strAddress = (formats.cellList.isNotEmpty)
-                      ? (' ${formats.cellList}')
+                      ? ' ${formats.cellList}'
                       : '';
                   builder.element('xm:sqref', nest: strAddress);
                 });

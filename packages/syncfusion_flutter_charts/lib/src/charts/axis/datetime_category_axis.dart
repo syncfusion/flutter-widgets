@@ -750,8 +750,7 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
       return;
     }
 
-    final double extent =
-        labelsExtent ?? (maximumLabelWidth ?? double.maxFinite);
+    final double extent = maximumLabelWidth ?? double.maxFinite;
     final bool isRtl = textDirection == TextDirection.rtl;
     num niceInterval = visibleInterval;
     final List<String> split = niceInterval.toString().split('.');
@@ -886,14 +885,10 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
           final dynamic actualStart = plotBand.start;
           final dynamic actualEnd = plotBand.end;
           final num min = actualStart != null
-              ? actualValue(actualStart is num
-                  ? indexToDateTime(actualStart as int)
-                  : actualStart)
+              ? _handleValueType(actualStart)
               : visibleRange!.minimum;
           num max = actualEnd != null
-              ? actualValue(actualEnd is num
-                  ? indexToDateTime(actualEnd as int)
-                  : actualEnd)
+              ? _handleValueType(actualEnd)
               : visibleRange!.maximum;
 
           num extent;
@@ -901,9 +896,7 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
             extent = plotBand.repeatEvery;
             final dynamic actualRepeatUntil = plotBand.repeatUntil;
             if (actualRepeatUntil != null) {
-              max = actualValue(actualRepeatUntil is num
-                  ? indexToDateTime(actualRepeatUntil as int)
-                  : actualRepeatUntil);
+              max = _handleValueType(actualRepeatUntil);
               if (max > actualRange!.maximum) {
                 max = actualRange!.maximum;
               }
@@ -926,6 +919,15 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
         }
       }
     }
+  }
+
+  num _handleValueType(dynamic value) {
+    if (value is double) {
+      return actualValue(value);
+    } else if (value is num) {
+      return actualValue(indexToDateTime(value as int));
+    }
+    return actualValue(value);
   }
 
   // Convert index to DateTime, if the plot band start/end value is index.

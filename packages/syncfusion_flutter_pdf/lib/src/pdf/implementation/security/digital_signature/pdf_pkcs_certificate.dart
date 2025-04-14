@@ -1548,10 +1548,6 @@ class _CipherUtils {
       case _CipherAlgorithm.rsa:
         asymBlockCipher = RsaAlgorithm();
         break;
-      // ignore: no_default_cases
-      default:
-        throw ArgumentError.value(
-            cipherAlgorithm, 'algorithm', 'Invalid cipher algorithm');
     }
     bool isPadded = true;
     IPadding? padding;
@@ -1612,10 +1608,6 @@ class _CipherUtils {
         case _CipherMode.cts:
           blockCipher = CipherBlockChainingMode(blockCipher);
           break;
-        // ignore: no_default_cases
-        default:
-          throw ArgumentError.value(
-              cipherMode, 'CipherMode', 'Invalid cipher algorithm');
       }
     }
     if (blockCipher != null) {

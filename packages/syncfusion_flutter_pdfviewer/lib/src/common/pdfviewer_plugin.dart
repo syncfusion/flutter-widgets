@@ -25,15 +25,17 @@ class PdfViewerPlugin {
 
   /// Retrieves original height of PDF pages.
   Future<List<dynamic>?> getPagesHeight() async {
-    _originalHeight =
-        await PdfViewerPlatform.instance.getPagesHeight(_documentID!);
+    _originalHeight = await PdfViewerPlatform.instance.getPagesHeight(
+      _documentID!,
+    );
     return _originalHeight;
   }
 
   /// Retrieves original width of PDF pages.
   Future<List<dynamic>?> getPagesWidth() async {
-    _originalWidth =
-        await PdfViewerPlatform.instance.getPagesWidth(_documentID!);
+    _originalWidth = await PdfViewerPlatform.instance.getPagesWidth(
+      _documentID!,
+    );
     return _originalWidth;
   }
 

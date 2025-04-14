@@ -33,8 +33,11 @@ const double _kPdfCloseIconRightPosition = 16.0;
 /// A material design bookmark toolbar.
 class BookmarkToolbar extends StatefulWidget {
   /// Creates a material design bookmark toolbar.
-  const BookmarkToolbar(this.onCloseButtonPressed, this.textDirection,
-      {super.key});
+  const BookmarkToolbar(
+    this.onCloseButtonPressed,
+    this.textDirection, {
+    super.key,
+  });
 
   /// A tap with a close button is occurred.
   ///
@@ -77,10 +80,7 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
   @override
   Widget build(BuildContext context) {
     const List<BoxShadow> boxShadows = <BoxShadow>[
-      BoxShadow(
-        color: Color.fromRGBO(0, 0, 0, 0.14),
-        blurRadius: 2,
-      ),
+      BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.14), blurRadius: 2),
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.12),
         blurRadius: 2,
@@ -127,13 +127,14 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
                     .copyWith(
                       fontSize: 16,
                       color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.black.withOpacity(0.87)
-                          : Colors.white.withOpacity(0.87),
+                          ? Colors.black.withValues(alpha: 0.87)
+                          : Colors.white.withValues(alpha: 0.87),
                     )
-                    .merge(_pdfViewerThemeData!
-                            .bookmarkViewStyle?.headerTextStyle ??
-                        _effectiveThemeData!
-                            .bookmarkViewStyle?.headerTextStyle),
+                    .merge(
+                      _pdfViewerThemeData!.bookmarkViewStyle?.headerTextStyle ??
+                          _effectiveThemeData!
+                              .bookmarkViewStyle?.headerTextStyle,
+                    ),
                 semanticsLabel: '',
               ),
             ),
@@ -153,7 +154,9 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
                   color: _pdfViewerThemeData!
                           .bookmarkViewStyle?.closeIconColor ??
                       _effectiveThemeData!.bookmarkViewStyle?.closeIconColor ??
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.54),
+                      Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.54),
                   semanticLabel: 'Close Bookmark',
                 ),
               ),

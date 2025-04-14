@@ -19,8 +19,11 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
   /// Initializes the PDF renderer instance in respective platform by loading the PDF from the specified path.
   @override
   Future<String> initializePdfRenderer(
-      Uint8List documentBytes, String documentID) async {
-    Settings documentData = Settings()..data = documentBytes.toJS;
+    Uint8List documentBytes,
+    String documentID,
+  ) async {
+    Settings documentData = Settings()
+      ..data = Uint8List.fromList(documentBytes).toJS;
     final documentLoader = PdfJs.getDocument(documentData);
     final PdfJsDoc pdfJsDoc = await documentLoader.promise.toDart;
     final int pagesCount = pdfJsDoc.numPages;
@@ -59,7 +62,11 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
   /// Gets the image bytes of the specified page from the document at the specified width and .
   @override
   Future<Uint8List> getPage(
-      int pageNumber, int fullWidth, int fullHeight, String documentID) async {
+    int pageNumber,
+    int fullWidth,
+    int fullHeight,
+    String documentID,
+  ) async {
     if (_documentRepo[documentID] != null) {
       PdfJsPage page =
           await (_documentRepo[documentID]!.getPage(pageNumber)).toDart;
@@ -70,8 +77,15 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
   }
 
   /// Gets the image's bytes information of the specified portion of the page.
-  Future<Uint8List?> getTileImage(int pageNumber, double scale, double x,
-      double y, double width, double height, String documentID) async {
+  Future<Uint8List?> getTileImage(
+    int pageNumber,
+    double scale,
+    double x,
+    double y,
+    double width,
+    double height,
+    String documentID,
+  ) async {
     if (_documentRepo[documentID] != null) {
       PdfJsPage page =
           await (_documentRepo[documentID]!.getPage(pageNumber)).toDart;
@@ -91,10 +105,12 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
     double height,
   ) async {
     final web.HTMLCanvasElement canvas = web.HTMLCanvasElement();
-    viewport = page.getViewport(Settings()
-      ..offsetX = -(x * scale)
-      ..offsetY = -(y * scale)
-      ..scale = scale);
+    viewport = page.getViewport(
+      Settings()
+        ..offsetX = -(x * scale)
+        ..offsetY = -(y * scale)
+        ..scale = scale,
+    );
 
     canvas
       ..height = height.toInt()
@@ -115,17 +131,24 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
   /// Closes the PDF document.
   @override
   Future<void> closeDocument(String documentID) async {
+    _documentRepo[documentID]?.destroy();
     _documentRepo[documentID] = null;
     _documentRepo.remove(documentID);
   }
 
   /// Renders the page into a canvas and return image's byte information.
-  Future<Uint8List> renderPage(PdfJsPage page, PdfJsViewport viewport,
-      int fullWidth, int fullHeight, String documentID) async {
+  Future<Uint8List> renderPage(
+    PdfJsPage page,
+    PdfJsViewport viewport,
+    int fullWidth,
+    int fullHeight,
+    String documentID,
+  ) async {
     final web.HTMLCanvasElement canvas = web.HTMLCanvasElement();
     final _viewport = page.getViewport(_settings);
-    viewport =
-        page.getViewport(Settings()..scale = (fullWidth / _viewport.width));
+    viewport = page.getViewport(
+      Settings()..scale = (fullWidth / _viewport.width),
+    );
 
     canvas
       ..width = fullWidth

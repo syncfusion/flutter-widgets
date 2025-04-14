@@ -3875,7 +3875,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get beginsWithDataGridFilteringLabel => r'Beginnt mit';
 
   @override
-  String get cancelDataGridFilteringLabel => r'Absagen';
+  String get cancelDataGridFilteringLabel => r'Abbrechen';
 
   @override
   String get clearFilterDataGridFilteringLabel => r'Filter löschen';
@@ -6306,7 +6306,7 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get beginsWithDataGridFilteringLabel => r'Alkaa jollakin';
 
   @override
-  String get cancelDataGridFilteringLabel => r'Peruuttaa';
+  String get cancelDataGridFilteringLabel => r'Peruuta';
 
   @override
   String get clearFilterDataGridFilteringLabel => r'Tyhjennä suodatin';

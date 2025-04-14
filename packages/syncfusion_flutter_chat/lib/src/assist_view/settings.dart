@@ -13,7 +13,7 @@ typedef AssistSuggestionItemSelectedCallback = void Function(
   int suggestionIndex,
 );
 
-typedef AssistBubbleToolbarItemSelectedCallback = void Function(
+typedef AssistToolbarItemSelectedCallback = void Function(
   bool selected,
   int messageIndex,
   AssistMessageToolbarItem toolbarItem,
@@ -59,16 +59,16 @@ enum AssistPlaceholderBehavior {
 ///  );
 /// }
 /// ```
-enum AssistBubbleAlignment {
-  /// - `AssistBubbleAlignment.start`, aligned all the chat bubble to the start
+enum AssistMessageAlignment {
+  /// - `AssistMessageAlignment.start`, aligned all the chat bubble to the start
   /// position.
   start,
 
-  /// - `AssistBubbleAlignment.end`, aligned all the chat bubble to the end
+  /// - `AssistMessageAlignment.end`, aligned all the chat bubble to the end
   /// position.
   end,
 
-  /// - `AssistBubbleAlignment.auto`, aligned all the chat bubble to the default
+  /// - `AssistMessageAlignment.auto`, aligned all the chat bubble to the default
   /// position.
   auto,
 }
@@ -314,7 +314,7 @@ class AssistMessage extends Message {
   ///           borderRadius: BorderRadius.circular(5),
   ///         );
   ///       }),
-  ///       padding: const EdgeInsets.only(top: 10, bottom: 10),
+  ///       margin: const EdgeInsets.only(top: 10, bottom: 10),
   ///       itemPadding:
   ///           const EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
   ///       orientation: Orientation.portrait,
@@ -648,7 +648,7 @@ class AssistMessageSuggestion extends MessageSuggestion {
 ///           borderRadius: BorderRadius.circular(5),
 ///         );
 ///       }),
-///       padding: const EdgeInsets.only(top: 10, bottom: 10),
+///       margin: const EdgeInsets.only(top: 10, bottom: 10),
 ///       itemPadding:
 ///           const EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
 ///       orientation: Orientation.portrait,
@@ -665,7 +665,7 @@ class AssistSuggestionSettings extends SuggestionSettings {
     this.shape,
     this.itemShape,
     this.textStyle,
-    this.padding = const EdgeInsetsDirectional.symmetric(vertical: 5.0),
+    this.margin = const EdgeInsetsDirectional.symmetric(vertical: 5.0),
     this.itemPadding =
         const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
     this.orientation = Axis.horizontal,
@@ -808,7 +808,7 @@ class AssistSuggestionSettings extends SuggestionSettings {
   @override
   final WidgetStateProperty<TextStyle?>? textStyle;
 
-  /// To sets the padding between the suggestion area and individual suggestion
+  /// To sets the margin between the suggestion area and individual suggestion
   /// items.
   ///
   /// Defaults to `EdgeInsets.all(5.0)`.
@@ -818,13 +818,13 @@ class AssistSuggestionSettings extends SuggestionSettings {
   /// List<AssistMessage> _messages = <AssistMessage>[
   ///   AssistMessage.response(
   ///     suggestionSettings: AssistSuggestionSettings(
-  ///       padding: const EdgeInsets.only(top: 10, bottom: 10),
+  ///       margin: const EdgeInsets.only(top: 10, bottom: 10),
   ///     )
   ///   ),
   /// ];
   /// ```
   @override
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
 
   /// To set the padding between the content of each individual suggestion item.
   ///
@@ -946,27 +946,27 @@ class AssistSuggestionSettings extends SuggestionSettings {
 /// @override
 /// Widget build(BuildContext context) {
 ///   return SfAIAssistView(
-///     requestBubbleSettings: const AssistBubbleSettings(
-///       showUserName: true,
+///     requestMessageSettings: const AssistBubbleSettings(
+///       showAuthorName: true,
 ///       showTimestamp: true,
-///       showUserAvatar: true,
+///       showAuthorAvatar: true,
 ///       widthFactor: 0.5,
 ///       avatarSize: Size.square(40.0),
-///       padding: EdgeInsets.all(2.0),
-///       contentPadding:
+///       margin: EdgeInsets.all(2.0),
+///       padding:
 ///           EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
 ///       headerPadding:
 ///           EdgeInsetsDirectional.only(top: 10.0, bottom: 14.0),
 ///       footerPadding: EdgeInsetsDirectional.only(top: 14.0),
 ///     ),
-///     responseBubbleSettings: const AssistBubbleSettings(
-///       showUserName: true,
+///     responseMessageSettings: const AssistBubbleSettings(
+///       showAuthorName: true,
 ///       showTimestamp: true,
-///       showUserAvatar: true,
+///       showAuthorAvatar: true,
 ///       widthFactor: 0.9,
 ///       avatarSize: Size.square(24.0),
-///       padding: EdgeInsets.all(2.0),
-///       contentPadding:
+///       margin: EdgeInsets.all(2.0),
+///       padding:
 ///           EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
 ///       headerPadding: EdgeInsetsDirectional.only(bottom: 10.0),
 ///       footerPadding: EdgeInsetsDirectional.only(top: 10.0),
@@ -974,26 +974,26 @@ class AssistSuggestionSettings extends SuggestionSettings {
 ///   );
 /// }
 /// ```
-class AssistBubbleSettings extends MessageSettings {
-  const AssistBubbleSettings({
-    this.showUserName = false,
+class AssistMessageSettings extends MessageSettings {
+  const AssistMessageSettings({
+    this.showAuthorName = false,
     this.showTimestamp = false,
-    this.showUserAvatar,
+    this.showAuthorAvatar,
     this.timestampFormat,
     this.textStyle,
     this.headerTextStyle,
-    this.contentBackgroundColor,
-    this.contentShape,
+    this.backgroundColor,
+    this.shape,
     this.widthFactor = 0.8,
     this.avatarSize = const Size.square(32.0),
+    this.margin,
     this.padding,
-    this.contentPadding,
     this.avatarPadding,
     this.headerPadding = const EdgeInsetsDirectional.only(bottom: 3.0),
     this.footerPadding = const EdgeInsetsDirectional.only(top: 4.0),
   });
 
-  /// The [showUserName] property is to determines whether the user name
+  /// The [showAuthorName] property is to determines whether the user name
   /// is displayed or not.
   ///
   /// Defaults to `false`.
@@ -1003,17 +1003,17 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
-  ///       showUserName: true,
+  ///     requestMessageSettings: const AssistBubbleSettings(
+  ///       showAuthorName: true,
   ///      ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
-  ///       showUserName: true,
+  ///     responseMessageSettings: const AssistBubbleSettings(
+  ///       showAuthorName: true,
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final bool showUserName;
+  final bool showAuthorName;
 
   /// The [showTimestamp] property is to determines whether the time stamp
   /// is displayed or not.
@@ -1025,10 +1025,10 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
+  ///     requestMessageSettings: const AssistBubbleSettings(
   ///       showTimestamp: true,
   ///      ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
+  ///     responseMessageSettings: const AssistBubbleSettings(
   ///       showTimestamp: true,
   ///     ),
   ///   );
@@ -1037,7 +1037,7 @@ class AssistBubbleSettings extends MessageSettings {
   @override
   final bool showTimestamp;
 
-  /// The [showUserAvatar] property is to determines whether the user avatar
+  /// The [showAuthorAvatar] property is to determines whether the user avatar
   /// is displayed or not.
   ///
   /// Example:
@@ -1045,17 +1045,17 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
-  ///       showUserAvatar: true,
+  ///     requestMessageSettings: const AssistBubbleSettings(
+  ///       showAuthorAvatar: true,
   ///      ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
-  ///       showUserAvatar: true,
+  ///     responseMessageSettings: const AssistBubbleSettings(
+  ///       showAuthorAvatar: true,
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final bool? showUserAvatar;
+  final bool? showAuthorAvatar;
 
   /// The [timestampFormat] property specifies the format used for displaying
   /// timestamps.
@@ -1065,10 +1065,10 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
+  ///     requestMessageSettings: const AssistBubbleSettings(
   ///       timestampFormat: DateFormat('hh:mm a'),
   ///      ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
+  ///     responseMessageSettings: const AssistBubbleSettings(
   ///       timestampFormat: DateFormat('hh:mm a'),
   ///     ),
   ///   );
@@ -1084,10 +1084,10 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
+  ///     requestMessageSettings: const AssistBubbleSettings(
   ///       textStyle: const TextStyle(fontSize: 14),
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
+  ///     responseMessageSettings: const AssistBubbleSettings(
   ///       textStyle: const TextStyle(fontSize: 14),
   ///     ),
   ///   );
@@ -1103,10 +1103,10 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
+  ///     requestMessageSettings: const AssistBubbleSettings(
   ///       headerTextStyle: const TextStyle(fontSize: 14),
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
+  ///     responseMessageSettings: const AssistBubbleSettings(
   ///       headerTextStyle: const TextStyle(fontSize: 14),
   ///     ),
   ///   );
@@ -1122,17 +1122,17 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
-  ///       contentBackgroundColor: Colors.blue,
+  ///     requestMessageSettings: const AssistBubbleSettings(
+  ///       backgroundColor: Colors.blue,
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
-  ///       contentBackgroundColor: Colors.blue,
+  ///     responseMessageSettings: const AssistBubbleSettings(
+  ///       backgroundColor: Colors.blue,
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final Color? contentBackgroundColor;
+  final Color? backgroundColor;
 
   /// To set the custom shape of the request and response bubble.
   ///
@@ -1141,13 +1141,13 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
-  ///       contentShape: RoundedRectangleBorder(
+  ///     requestMessageSettings: const AssistBubbleSettings(
+  ///       shape: RoundedRectangleBorder(
   ///         borderRadius: BorderRadius.circular(12.0),
   ///       ),
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
-  ///       contentShape: RoundedRectangleBorder(
+  ///     responseMessageSettings: const AssistBubbleSettings(
+  ///       shape: RoundedRectangleBorder(
   ///         borderRadius: BorderRadius.circular(12.0),
   ///       ),
   ///     ),
@@ -1155,7 +1155,7 @@ class AssistBubbleSettings extends MessageSettings {
   /// }
   /// ```
   @override
-  final ShapeBorder? contentShape;
+  final ShapeBorder? shape;
 
   /// The [widthFactor] property specifies the proportional width of a bubble.
   ///
@@ -1166,10 +1166,10 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
+  ///     requestMessageSettings: const AssistBubbleSettings(
   ///       widthFactor: 0.6,
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
+  ///     responseMessageSettings: const AssistBubbleSettings(
   ///       widthFactor: 1.0,
   ///     ),
   ///   );
@@ -1185,10 +1185,10 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
+  ///     requestMessageSettings: const AssistBubbleSettings(
   ///       avatarSize: Size.square(32.0),
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
+  ///     responseMessageSettings: const AssistBubbleSettings(
   ///       avatarSize: Size.square(32.0),
   ///     ),
   ///   );
@@ -1197,24 +1197,24 @@ class AssistBubbleSettings extends MessageSettings {
   @override
   final Size avatarSize;
 
-  /// Determine padding around the bubble.
+  /// Determine margin around the bubble.
   ///
   /// Example:
   /// ```dart
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
-  ///       padding: EdgeInsets.all(2.0),
+  ///     requestMessageSettings: const AssistBubbleSettings(
+  ///       margin: EdgeInsets.all(2.0),
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
-  ///       padding: EdgeInsets.all(2.0),
+  ///     responseMessageSettings: const AssistBubbleSettings(
+  ///       margin: EdgeInsets.all(2.0),
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
 
   /// It determines a padding around the content with in the message bubble.
   ///
@@ -1223,19 +1223,19 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
-  ///       contentPadding:
+  ///     requestMessageSettings: const AssistBubbleSettings(
+  ///       padding:
   ///          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
-  ///       contentPadding:
+  ///     responseMessageSettings: const AssistBubbleSettings(
+  ///       padding:
   ///          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final EdgeInsetsGeometry? contentPadding;
+  final EdgeInsetsGeometry? padding;
 
   /// Determine the padding around the avatar.
   ///
@@ -1244,10 +1244,10 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
+  ///     requestMessageSettings: const AssistBubbleSettings(
   ///       avatarPadding: EdgeInsets.all(10.0),
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
+  ///     responseMessageSettings: const AssistBubbleSettings(
   ///       avatarPadding: EdgeInsets.all(10.0),
   ///     ),
   ///   );
@@ -1263,11 +1263,11 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
+  ///     requestMessageSettings: const AssistBubbleSettings(
   ///        headerPadding:
   ///            EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
   ///      ),
-  ///      responseBubbleSettings: const AssistBubbleSettings(
+  ///      responseMessageSettings: const AssistBubbleSettings(
   ///        headerPadding:
   ///            EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
   ///      ),
@@ -1284,10 +1284,10 @@ class AssistBubbleSettings extends MessageSettings {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
-  ///     requestBubbleSettings: const AssistBubbleSettings(
+  ///     requestMessageSettings: const AssistBubbleSettings(
   ///       footerPadding: EdgeInsetsDirectional.only(top: 4.0),
   ///     ),
-  ///     responseBubbleSettings: const AssistBubbleSettings(
+  ///     responseMessageSettings: const AssistBubbleSettings(
   ///       footerPadding: EdgeInsetsDirectional.only(top: 4.0),
   ///     ),
   ///   );
@@ -1296,20 +1296,20 @@ class AssistBubbleSettings extends MessageSettings {
   @override
   final EdgeInsetsGeometry footerPadding;
 
-  AssistBubbleSettings mergeWith(AssistBubbleSettings settings) {
+  AssistMessageSettings mergeWith(AssistMessageSettings settings) {
     return copyWith(
-      showUserName: settings.showUserName,
+      showAuthorName: settings.showAuthorName,
       showTimestamp: settings.showTimestamp,
-      showUserAvatar: settings.showUserAvatar,
+      showAuthorAvatar: settings.showAuthorAvatar,
       timestampFormat: settings.timestampFormat,
       textStyle: settings.textStyle,
       headerTextStyle: settings.headerTextStyle,
-      contentBackgroundColor: settings.contentBackgroundColor,
-      contentShape: settings.contentShape,
+      backgroundColor: settings.backgroundColor,
+      shape: settings.shape,
       widthFactor: settings.widthFactor,
       avatarSize: settings.avatarSize,
+      margin: settings.margin,
       padding: settings.padding,
-      contentPadding: settings.contentPadding,
       avatarPadding: settings.avatarPadding,
       headerPadding: settings.headerPadding,
       footerPadding: settings.footerPadding,
@@ -1318,37 +1318,36 @@ class AssistBubbleSettings extends MessageSettings {
 
   /// Creates a copy of this bubble settings with the given fields replaced by
   /// the new values.
-  AssistBubbleSettings copyWith({
-    bool? showUserName,
+  AssistMessageSettings copyWith({
+    bool? showAuthorName,
     bool? showTimestamp,
-    bool? showUserAvatar,
+    bool? showAuthorAvatar,
     DateFormat? timestampFormat,
     TextStyle? textStyle,
     TextStyle? headerTextStyle,
-    Color? contentBackgroundColor,
-    ShapeBorder? contentShape,
+    Color? backgroundColor,
+    ShapeBorder? shape,
     double? widthFactor,
     Size? avatarSize,
+    EdgeInsetsGeometry? margin,
     EdgeInsetsGeometry? padding,
-    EdgeInsetsGeometry? contentPadding,
     EdgeInsetsGeometry? avatarPadding,
     EdgeInsetsGeometry? headerPadding,
     EdgeInsetsGeometry? footerPadding,
   }) {
-    return AssistBubbleSettings(
-      showUserName: showUserName ?? this.showUserName,
+    return AssistMessageSettings(
+      showAuthorName: showAuthorName ?? this.showAuthorName,
       showTimestamp: showTimestamp ?? this.showTimestamp,
-      showUserAvatar: showUserAvatar ?? this.showUserAvatar,
+      showAuthorAvatar: showAuthorAvatar ?? this.showAuthorAvatar,
       timestampFormat: timestampFormat ?? this.timestampFormat,
       textStyle: textStyle ?? this.textStyle,
       headerTextStyle: headerTextStyle ?? this.headerTextStyle,
-      contentBackgroundColor:
-          contentBackgroundColor ?? this.contentBackgroundColor,
-      contentShape: contentShape ?? this.contentShape,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      shape: shape ?? this.shape,
       widthFactor: widthFactor ?? this.widthFactor,
       avatarSize: avatarSize ?? this.avatarSize,
+      margin: margin ?? this.margin,
       padding: padding ?? this.padding,
-      contentPadding: contentPadding ?? this.contentPadding,
       avatarPadding: avatarPadding ?? this.avatarPadding,
       headerPadding: headerPadding ?? this.headerPadding,
       footerPadding: footerPadding ?? this.footerPadding,
@@ -1376,7 +1375,7 @@ class AssistBubbleSettings extends MessageSettings {
 ///           borderRadius: BorderRadius.all(Radius.circular(42.0)))),
 ///         hintText: 'Type a message...',
 ///       ),
-///       padding: const EdgeInsets.only(top: 16.0),
+///       margin: const EdgeInsets.only(top: 16.0),
 ///     )
 ///   );
 /// }
@@ -1388,26 +1387,26 @@ class AssistBubbleSettings extends MessageSettings {
 ///   return SfAIAssistView(
 ///     composer: AssistComposer.builder(
 ///       builder: (context) => CustomAssistInputWidget(),
-///       padding: const EdgeInsets.only(top: 16.0),
+///       margin: const EdgeInsets.only(top: 16.0),
 ///     )
 ///   );
 /// }
 /// ```
 class AssistComposer extends Composer {
   /// Creates a [AssistComposer] with the given [textStyle], line limits,
-  /// [decoration], and [padding].
+  /// [decoration], and [margin].
   const AssistComposer({
     this.textStyle,
     this.minLines = 1,
     this.maxLines = 6,
     this.decoration = const InputDecoration(),
-    this.padding = const EdgeInsets.only(top: 24.0),
+    this.margin = const EdgeInsets.only(top: 24.0),
   }) : builder = null;
 
   /// Named constructor to create a composer using a custom widget.
   const AssistComposer.builder({
     required this.builder,
-    this.padding = const EdgeInsets.only(top: 24.0),
+    this.margin = const EdgeInsets.only(top: 24.0),
   })  : maxLines = 0,
         minLines = 0,
         textStyle = null,
@@ -1491,7 +1490,7 @@ class AssistComposer extends Composer {
   @override
   final InputDecoration? decoration;
 
-  /// The padding around the composer.
+  /// The margin around the composer.
   ///
   /// Example:
   /// ```dart
@@ -1499,13 +1498,13 @@ class AssistComposer extends Composer {
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
   ///     composer: AssistComposer(
-  ///       padding: const EdgeInsets.only(top: 10.0),
+  ///       margin: const EdgeInsets.only(top: 10.0),
   ///     )
   ///   );
   /// }
   /// ```
   @override
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
 
   /// The builder to have the custom widget as composer.
   ///
@@ -1518,7 +1517,7 @@ class AssistComposer extends Composer {
   ///   return SfAIAssistView(
   ///     composer: AssistComposer.builder(
   ///       builder: (context) => CustomAssistInputWidget(),
-  ///       padding: const EdgeInsets.only(top: 16.0),
+  ///       margin: const EdgeInsets.only(top: 16.0),
   ///     )
   ///   );
   /// }
@@ -1567,7 +1566,7 @@ class AssistActionButton extends ActionButton {
     this.highlightElevation,
     this.mouseCursor,
     this.shape,
-    this.padding = const EdgeInsetsDirectional.only(start: 8.0),
+    this.margin = const EdgeInsetsDirectional.only(start: 8.0),
     this.size = const Size.square(40.0),
     required this.onPressed,
   });
@@ -1793,13 +1792,13 @@ class AssistActionButton extends ActionButton {
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
   ///     actionButton: AssistActionButton(
-  ///       padding: EdgeInsets.all(12.0),
+  ///       margin: EdgeInsets.all(12.0),
   ///     ),
   ///   );
   /// }
   /// ```
   @override
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
 
   /// Specifies the dimensions of the action button.
   ///
@@ -1960,7 +1959,7 @@ class AssistMessageToolbarItem {
 ///
 /// The [AssistMessageToolbarSettings] is used to store customize details of a
 /// toolbar item in the response bubble. It allows setting shapes, colors,
-/// padding, and spacing for both the toolbar and its individual items.
+/// margin, and spacing for both the toolbar and its individual items.
 ///
 /// Example:
 /// ```dart
@@ -1992,7 +1991,7 @@ class AssistMessageToolbarItem {
 ///           return Colors.lightBlue;
 ///         },
 ///       ),
-///       padding: const EdgeInsets.all(10),
+///       margin: const EdgeInsets.all(10),
 ///       itemPadding: const EdgeInsets.all(10),
 ///       spacing: 10,
 ///       runSpacing: 10,
@@ -2007,7 +2006,7 @@ class AssistMessageToolbarSettings {
     this.itemShape,
     this.backgroundColor,
     this.itemBackgroundColor,
-    this.padding = const EdgeInsetsDirectional.symmetric(vertical: 4.0),
+    this.margin = const EdgeInsetsDirectional.symmetric(vertical: 4.0),
     this.itemPadding = const EdgeInsets.all(9.0),
     this.spacing = 8.0,
     this.runSpacing = 8.0,
@@ -2096,7 +2095,7 @@ class AssistMessageToolbarSettings {
   /// ```
   final WidgetStateProperty<ShapeBorder?>? itemShape;
 
-  /// To set padding between the footer area and individual footer items.
+  /// To set margin between the footer area and individual footer items.
   ///
   /// Example:
   /// ```dart
@@ -2104,14 +2103,14 @@ class AssistMessageToolbarSettings {
   /// Widget build(BuildContext context) {
   ///   return SfAIAssistView(
   ///     responseToolbarSettings: AssistMessageToolbarSettings(
-  ///       padding: const EdgeInsets.all(10),
+  ///       margin: const EdgeInsets.all(10),
   ///     ),
   ///   );
   /// }
   /// ```
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
 
-  /// To set the padding between the content of each individual footer item.
+  /// To set the margin between the content of each individual footer item.
   ///
   /// Example:
   /// ```dart

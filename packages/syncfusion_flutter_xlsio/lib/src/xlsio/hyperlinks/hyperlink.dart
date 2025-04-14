@@ -67,7 +67,7 @@ class Hyperlink {
 
   /// Returns or sets the text to be displayed for the specified hyperlink.
   /// The default value is the address of the hyperlink.
-  /// ///  ```dart
+  ///  ```dart
   /// final Workbook workbook = Workbook();
   /// final Worksheet sheet = workbook.worksheets[0];
   /// final Range range = sheet.getRangeByName('A1');

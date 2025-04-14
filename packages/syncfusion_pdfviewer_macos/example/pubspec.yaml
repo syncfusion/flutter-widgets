@@ -6,7 +6,7 @@ description: Demonstrates how to use the syncfusion_pdfviewer plugin in macOS pl
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 
 dependencies:
   flutter:

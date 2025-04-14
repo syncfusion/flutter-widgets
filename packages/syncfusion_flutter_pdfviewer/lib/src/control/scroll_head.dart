@@ -16,15 +16,16 @@ const double kPdfScrollHeadSize = 36.0;
 class ScrollHead extends StatefulWidget {
   /// Constructor for ScrollHead.
   const ScrollHead(
-      this.canShowHorizontalScrollBar,
-      this.canShowVerticalScrollBar,
-      this.scrollHeadOffset,
-      this.pdfViewerController,
-      this.isMobileWebView,
-      this.scrollDirection,
-      this.isBookmarkViewOpen,
-      this.pageLayoutMode,
-      {super.key});
+    this.canShowHorizontalScrollBar,
+    this.canShowVerticalScrollBar,
+    this.scrollHeadOffset,
+    this.pdfViewerController,
+    this.isMobileWebView,
+    this.scrollDirection,
+    this.isBookmarkViewOpen,
+    this.pageLayoutMode, {
+    super.key,
+  });
 
   /// Position of the [ScrollHead] in [SfPdfViewer].
   final Offset scrollHeadOffset;
@@ -79,7 +80,11 @@ class _ScrollHeadState extends State<ScrollHead> {
   }
 
   Widget _createScrollBar(
-      bool visible, Alignment alignment, EdgeInsets edgeInsets, Size size) {
+    bool visible,
+    Alignment alignment,
+    EdgeInsets edgeInsets,
+    Size size,
+  ) {
     return Visibility(
       visible: visible,
       child: Container(
@@ -88,11 +93,7 @@ class _ScrollHeadState extends State<ScrollHead> {
         child: Material(
           color: Colors.grey,
           borderRadius: const BorderRadius.all(Radius.circular(7.0)),
-          child: Container(
-            constraints: BoxConstraints.tight(
-              size,
-            ),
-          ),
+          child: Container(constraints: BoxConstraints.tight(size)),
         ),
       ),
     );
@@ -102,20 +103,23 @@ class _ScrollHeadState extends State<ScrollHead> {
   Widget build(BuildContext context) {
     if (kIsDesktop) {
       final Widget verticalScrollBar = _createScrollBar(
-          widget.canShowVerticalScrollBar,
-          Alignment.topRight,
-          EdgeInsets.only(top: widget.scrollHeadOffset.dy),
-          const Size(10.0, 54.0));
+        widget.canShowVerticalScrollBar,
+        Alignment.topRight,
+        EdgeInsets.only(top: widget.scrollHeadOffset.dy),
+        const Size(10.0, 54.0),
+      );
       final Widget horizontalScrollBar = _createScrollBar(
-          widget.canShowHorizontalScrollBar,
-          Alignment.bottomLeft,
-          EdgeInsets.only(left: widget.scrollHeadOffset.dx),
-          const Size(54.0, 10.0));
+        widget.canShowHorizontalScrollBar,
+        Alignment.bottomLeft,
+        EdgeInsets.only(left: widget.scrollHeadOffset.dx),
+        const Size(54.0, 10.0),
+      );
 
       if (widget.scrollDirection == PdfScrollDirection.horizontal &&
           widget.pageLayoutMode != PdfPageLayoutMode.single) {
         return Stack(
-            children: <Widget>[verticalScrollBar, horizontalScrollBar]);
+          children: <Widget>[verticalScrollBar, horizontalScrollBar],
+        );
       } else if (widget.scrollDirection == PdfScrollDirection.horizontal &&
           widget.pageLayoutMode == PdfPageLayoutMode.single) {
         return horizontalScrollBar;
@@ -124,10 +128,7 @@ class _ScrollHeadState extends State<ScrollHead> {
       }
     }
     const List<BoxShadow> boxShadows = <BoxShadow>[
-      BoxShadow(
-        color: Color.fromRGBO(0, 0, 0, 0.14),
-        blurRadius: 2,
-      ),
+      BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.14), blurRadius: 2),
       BoxShadow(
         color: Color.fromRGBO(0, 0, 0, 0.12),
         blurRadius: 2,
@@ -182,7 +183,9 @@ class _ScrollHeadState extends State<ScrollHead> {
                 boxShadow: boxShadows,
               ),
               constraints: const BoxConstraints.tightFor(
-                  width: kPdfScrollHeadSize, height: kPdfScrollHeadSize),
+                width: kPdfScrollHeadSize,
+                height: kPdfScrollHeadSize,
+              ),
               child: Align(
                 child: Text(
                   '${widget.pdfViewerController.pageNumber}',
@@ -192,11 +195,13 @@ class _ScrollHeadState extends State<ScrollHead> {
                       .copyWith(
                         fontSize: _isMaterial3 ? 14 : 12,
                         color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.black.withOpacity(0.87)
-                            : Colors.white.withOpacity(0.87),
+                            ? Colors.black.withValues(alpha: 0.87)
+                            : Colors.white.withValues(alpha: 0.87),
                       )
-                      .merge(_pdfViewerThemeData!
-                          .scrollHeadStyle?.pageNumberTextStyle),
+                      .merge(
+                        _pdfViewerThemeData!
+                            .scrollHeadStyle?.pageNumberTextStyle,
+                      ),
                   semanticsLabel: widget.isBookmarkViewOpen
                       ? ''
                       : widget.pdfViewerController.pageNumber.toString(),

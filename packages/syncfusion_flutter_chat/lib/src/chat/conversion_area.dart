@@ -124,8 +124,8 @@ class _ChatConversationAreaState extends ConversationAreaState<ChatMessage> {
       avatarBuilder: widget.bubbleAvatarBuilder,
       contentBuilder: widget.bubbleContentBuilder,
       footerBuilder: widget.bubbleFooterBuilder,
-      showUserAvatar: settings.showUserAvatar,
-      showUserName: settings.showUserName,
+      showUserAvatar: settings.showAuthorAvatar,
+      showUserName: settings.showAuthorName,
       showTimestamp: settings.showTimestamp,
       timestampFormat: settings.timestampFormat,
       alignment: effectiveBubbleAlignment(isFromCurrentUser),
@@ -137,7 +137,7 @@ class _ChatConversationAreaState extends ConversationAreaState<ChatMessage> {
       secondaryHeaderTextStyle: secondaryHeaderTextStyle,
       suggestionItemTextStyle: widget.suggestionItemTextStyle,
       padding: settings.padding ?? EdgeInsets.zero,
-      contentPadding: settings.contentPadding ?? EdgeInsets.zero,
+      contentPadding: settings.padding ?? EdgeInsets.zero,
       avatarPadding:
           effectiveAvatarPadding(isFromCurrentUser, settings.avatarPadding),
       headerPadding: settings.headerPadding,
@@ -384,7 +384,7 @@ class _ChatMessageBubbleState extends MessageBubbleState<ChatMessage> {
           settings.backgroundColor ?? widget.suggestionBackgroundColor,
       itemBackgroundColor:
           settings.itemBackgroundColor ?? widget.suggestionItemBackgroundColor,
-      padding: settings.padding.resolve(widget.alignmentDirection),
+      padding: settings.margin.resolve(widget.alignmentDirection),
       itemPadding: settings.itemPadding.resolve(widget.alignmentDirection),
       onSuggestionItemSelected: widget.onSuggestionItemSelected,
     );

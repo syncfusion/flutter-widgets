@@ -44,9 +44,12 @@ class PdfTextFormField extends PdfFormField {
 /// Helper class for [PdfTextFormField].
 class PdfTextFormFieldHelper extends PdfFormFieldHelper {
   /// Initializes a new instance of the [PdfTextFormFieldHelper] class.
-  PdfTextFormFieldHelper(this.pdfTextField, int pageIndex,
-      {this.onValueChanged, this.onFocusChanged})
-      : super(pdfTextField, pageIndex) {
+  PdfTextFormFieldHelper(
+    this.pdfTextField,
+    int pageIndex, {
+    this.onValueChanged,
+    this.onFocusChanged,
+  }) : super(pdfTextField, pageIndex) {
     bounds = pdfTextField.bounds;
   }
 
@@ -136,7 +139,8 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
       setTextBoxValue(newValue);
       if (onValueChanged != null) {
         onValueChanged!(
-            PdfFormFieldValueChangedDetails(textFormField, oldValue, newValue));
+          PdfFormFieldValueChangedDetails(textFormField, oldValue, newValue),
+        );
       }
       rebuild();
     }
@@ -167,8 +171,9 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
     if (textFormField._children != null &&
         textFormField._children!.isNotEmpty) {
       for (final PdfTextFormField item in textFormField._children!) {
-        final PdfFormFieldHelper childHelper =
-            PdfFormFieldHelper.getHelper(item);
+        final PdfFormFieldHelper childHelper = PdfFormFieldHelper.getHelper(
+          item,
+        );
         if (childHelper is PdfTextFormFieldHelper &&
             childHelper.textEditingController.text != text) {
           childHelper.textEditingController.text = text;
@@ -232,23 +237,24 @@ class PdfTextFormFieldHelper extends PdfFormFieldHelper {
 /// Customized text box.
 class PdfTextBox extends StatefulWidget {
   /// Creates a text form field widget.
-  const PdfTextBox(
-      {required this.textEditingController,
-      required this.focusNode,
-      this.readOnly = false,
-      required this.font,
-      required this.fontSize,
-      this.isPassword = false,
-      required this.fillColor,
-      this.multiline = false,
-      this.maxLength = 0,
-      this.letterSpacing,
-      this.onValueChanged,
-      this.onFocusChange,
-      required this.borderColor,
-      required this.borderWidth,
-      this.textAlign = TextAlign.left,
-      super.key});
+  const PdfTextBox({
+    required this.textEditingController,
+    required this.focusNode,
+    this.readOnly = false,
+    required this.font,
+    required this.fontSize,
+    this.isPassword = false,
+    required this.fillColor,
+    this.multiline = false,
+    this.maxLength = 0,
+    this.letterSpacing,
+    this.onValueChanged,
+    this.onFocusChange,
+    required this.borderColor,
+    required this.borderWidth,
+    this.textAlign = TextAlign.left,
+    super.key,
+  });
 
   /// Text form field text editing controller.
   final TextEditingController textEditingController;
@@ -353,12 +359,16 @@ class _PdfTextBoxState extends State<PdfTextBox> {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.zero,
             borderSide: BorderSide(
-                color: widget.borderColor, width: widget.borderWidth),
+              color: widget.borderColor,
+              width: widget.borderWidth,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.zero,
             borderSide: BorderSide(
-                color: widget.borderColor, width: widget.borderWidth),
+              color: widget.borderColor,
+              width: widget.borderWidth,
+            ),
           ),
         ),
       ),

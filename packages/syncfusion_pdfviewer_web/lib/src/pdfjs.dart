@@ -12,14 +12,15 @@ extension type PdfJs(JSObject _) implements JSObject {
 }
 
 extension type Settings._(JSObject _) implements JSObject {
-  external Settings(
-      {JSUint8Array data,
-      double scale,
-      web.CanvasRenderingContext2D canvasContext,
-      PdfJsViewport viewport,
-      num annotationMode,
-      double offsetX,
-      double offsetY});
+  external Settings({
+    JSUint8Array data,
+    double scale,
+    web.CanvasRenderingContext2D canvasContext,
+    PdfJsViewport viewport,
+    num annotationMode,
+    double offsetX,
+    double offsetY,
+  });
   external set data(JSUint8Array value);
   external set scale(double value);
   external set canvasContext(web.CanvasRenderingContext2D value);
@@ -36,6 +37,7 @@ extension type PdfJsDocLoader(JSObject _) implements JSObject {
 extension type PdfJsDoc(JSObject _) implements JSObject {
   external JSPromise<PdfJsPage> getPage(int num);
   external int get numPages;
+  external void destroy();
 }
 
 extension type PdfJsPage(JSObject _) implements JSObject {

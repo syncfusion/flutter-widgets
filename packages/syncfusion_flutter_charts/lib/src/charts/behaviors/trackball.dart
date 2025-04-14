@@ -513,7 +513,9 @@ class TrackballBehavior extends ChartBehavior {
       return;
     }
 
-    if (event is PointerMoveEvent) {
+    if (event is PointerDownEvent) {
+      _handlePointerDown(event);
+    } else if (event is PointerMoveEvent) {
       _handlePointerMove(event);
     } else if (event is PointerHoverEvent) {
       _handlePointerHover(event);
@@ -521,6 +523,12 @@ class TrackballBehavior extends ChartBehavior {
       _hideTrackball(immediately: true);
     } else if (event is PointerUpEvent) {
       _hideTrackball();
+    }
+  }
+
+  void _handlePointerDown(PointerDownEvent details) {
+    if (activationMode == ActivationMode.singleTap) {
+      _showTrackball(parentBox!.globalToLocal(details.position));
     }
   }
 

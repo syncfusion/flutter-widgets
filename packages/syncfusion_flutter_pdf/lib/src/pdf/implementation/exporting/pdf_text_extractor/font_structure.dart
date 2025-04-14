@@ -179,6 +179,9 @@ class FontStructure {
   /// internal field
   bool isLayout = false;
 
+  /// internal field
+  bool macRomanEncoded = false;
+
 //Properties
   /// internal property
   String? get fontEncoding => _fontEncoding ??= getFontEncoding();
@@ -1392,8 +1395,12 @@ class FontStructure {
                           }
                           continue;
                         }
-                        if (!mapTable.containsKey(
-                            int.parse(tmpList[0], radix: 16).toSigned(64))) {
+                        if (tmpList.length > 1 &&
+                            tmpList[0] != '' &&
+                            tmpList[1] != '' &&
+                            !mapTable.containsKey(
+                                int.parse(tmpList[0], radix: 16)
+                                    .toSigned(64))) {
                           final String mapValue = String.fromCharCode(
                               int.parse(tmpList[1], radix: 16).toSigned(64));
                           mapTable[int.parse(tmpList[0], radix: 16)
@@ -2637,6 +2644,7 @@ class FontStructure {
       decodedText = mapZapf(decodedText);
     }
     if (fontEncoding == 'MacRomanEncoding') {
+      macRomanEncoded = true;
       String tempstring = '';
       for (int i = 0; i < decodedText.length; i++) {
         final int b = decodedText[i].codeUnitAt(0).toUnsigned(8);

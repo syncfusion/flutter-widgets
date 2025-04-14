@@ -560,9 +560,6 @@ class KnownColorTable {
         return 0xa6;
       case KnownColor.yellowGreen:
         return 0xa7;
-      // ignore: no_default_cases
-      default:
-        return 0x23;
     }
   }
 }

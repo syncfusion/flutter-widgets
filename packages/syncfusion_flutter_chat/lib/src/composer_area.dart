@@ -36,9 +36,9 @@ class TextEditor extends StatelessWidget {
       );
     }
 
-    if (composer.padding != EdgeInsets.zero) {
+    if (composer.margin != EdgeInsets.zero) {
       result = Padding(
-        padding: composer.padding,
+        padding: composer.margin,
         child: result,
       );
     }
@@ -170,8 +170,8 @@ class _ActionButtonWidgetState extends State<ActionButtonWidget> {
       child: _buildChild(enabled),
     );
 
-    if (widget.settings.padding != EdgeInsets.zero) {
-      result = Padding(padding: widget.settings.padding, child: result);
+    if (widget.settings.margin != EdgeInsets.zero) {
+      result = Padding(padding: widget.settings.margin, child: result);
     }
 
     if (widget.settings.tooltip != null) {

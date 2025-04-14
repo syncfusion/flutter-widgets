@@ -28,9 +28,11 @@ class PdfComboBoxFormField extends PdfFormField {
 /// Helper class for [PdfComboBoxFormField].
 class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
   /// Initializes a new instance of the [PdfComboBoxFormFieldHelper] class.
-  PdfComboBoxFormFieldHelper(this.pdfComboBoxField, int pageIndex,
-      {this.onValueChanged})
-      : super(pdfComboBoxField, pageIndex) {
+  PdfComboBoxFormFieldHelper(
+    this.pdfComboBoxField,
+    int pageIndex, {
+    this.onValueChanged,
+  }) : super(pdfComboBoxField, pageIndex) {
     bounds = pdfComboBoxField.bounds;
   }
 
@@ -67,13 +69,21 @@ class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
     if (comboBoxFormField._selectedItem != newValue) {
       if (!comboBoxFormField.items.contains(newValue)) {
         throw ArgumentError.value(
-            newValue, 'selectedItem', 'The value is not in the list of items.');
+          newValue,
+          'selectedItem',
+          'The value is not in the list of items.',
+        );
       }
       final String oldValue = comboBoxFormField._selectedItem;
       setComboBoxValue(newValue);
       if (onValueChanged != null) {
-        onValueChanged!(PdfFormFieldValueChangedDetails(
-            comboBoxFormField, oldValue, newValue));
+        onValueChanged!(
+          PdfFormFieldValueChangedDetails(
+            comboBoxFormField,
+            oldValue,
+            newValue,
+          ),
+        );
       }
       rebuild();
     }
@@ -103,15 +113,20 @@ class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
         alignment: pdfComboBoxField.textAlignment.alignmentGeometry,
         fillColor: pdfComboBoxField.backColor.isEmpty
             ? const Color.fromARGB(255, 221, 228, 255)
-            : Color.fromRGBO(pdfComboBoxField.backColor.r,
-                pdfComboBoxField.backColor.g, pdfComboBoxField.backColor.b, 1),
+            : Color.fromRGBO(
+                pdfComboBoxField.backColor.r,
+                pdfComboBoxField.backColor.g,
+                pdfComboBoxField.backColor.b,
+                1,
+              ),
         borderColor: pdfComboBoxField.borderColor.isEmpty
             ? Colors.transparent
             : Color.fromRGBO(
                 pdfComboBoxField.borderColor.r,
                 pdfComboBoxField.borderColor.g,
                 pdfComboBoxField.borderColor.b,
-                1),
+                1,
+              ),
         borderWidth: pdfComboBoxField.borderWidth / heightPercentage,
         fontSize: (pdfComboBoxField.font?.size ?? 14.0) / heightPercentage,
         onValueChanged: invokeValueChanged,
@@ -123,21 +138,22 @@ class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
 /// Customized combo box
 class PdfComboBox extends StatefulWidget {
   /// Initializes a new instance of the [PdfComboBox] class.
-  const PdfComboBox(
-      {required this.bounds,
-      required this.heightPercentage,
-      required this.items,
-      required this.selectedItem,
-      this.readOnly = false,
-      required this.fillColor,
-      this.font,
-      this.fontSize,
-      this.onValueChanged,
-      required this.borderColor,
-      required this.borderWidth,
-      this.textAlign = TextAlign.left,
-      this.alignment = Alignment.centerLeft,
-      super.key});
+  const PdfComboBox({
+    required this.bounds,
+    required this.heightPercentage,
+    required this.items,
+    required this.selectedItem,
+    this.readOnly = false,
+    required this.fillColor,
+    this.font,
+    this.fontSize,
+    this.onValueChanged,
+    required this.borderColor,
+    required this.borderWidth,
+    this.textAlign = TextAlign.left,
+    this.alignment = Alignment.centerLeft,
+    super.key,
+  });
 
   /// Combo box bounds.
   final Rect bounds;
@@ -189,9 +205,12 @@ class _PdfComboBoxState extends State<PdfComboBox> {
       textDirection: TextDirection.ltr,
       child: Container(
         decoration: BoxDecoration(
-            color: widget.fillColor,
-            border: Border.all(
-                color: widget.borderColor, width: widget.borderWidth)),
+          color: widget.fillColor,
+          border: Border.all(
+            color: widget.borderColor,
+            width: widget.borderWidth,
+          ),
+        ),
         child: DropdownButton<String>(
           alignment: widget.alignment,
           value: widget.selectedItem.isNotEmpty ? widget.selectedItem : null,

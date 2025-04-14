@@ -401,6 +401,14 @@ class ColorConditionValue extends ConditionValue {
   ///  workbook.dispose();
   /// ```
   late Color formatColorRgb;
+
+  ///Gets the rgbValue of the color
+  int get rgbValue {
+    return ((formatColorRgb.a * 255).toInt() << 24) |
+        ((formatColorRgb.r * 255).toInt() << 16) |
+        ((formatColorRgb.g * 255).toInt() << 8) |
+        (formatColorRgb.b * 255).toInt();
+  }
 }
 
 /// Represents the implementation of color condition value
@@ -454,8 +462,16 @@ class ColorConditionValueImpl implements ColorConditionValue {
   @override
   set formatColorRgb(Color value) {
     _formatColorRgb = value;
-    _formatColor = _formatColorRgb.value.toRadixString(16).toUpperCase();
+    _formatColor = rgbValue.toRadixString(16).toUpperCase();
   }
+
+  @override
+  // Gets the rgbValue of the color
+  int get rgbValue =>
+      ((_formatColorRgb.a * 255).toInt() << 24) |
+      ((_formatColorRgb.r * 255).toInt() << 16) |
+      ((_formatColorRgb.g * 255).toInt() << 8) |
+      (_formatColorRgb.b * 255).toInt();
 }
 
 /// This object wraps ConditionValue object to ensure correct parent object update.
@@ -474,8 +490,6 @@ class ColorConditionValueWrapper extends ColorConditionValue {
   late ColorScaleWrapper _parent;
 
   @override
-
-  /// <summary>
   String get formatColor {
     {
       return wrapped.formatColor;

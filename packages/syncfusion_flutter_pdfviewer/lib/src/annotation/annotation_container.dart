@@ -8,21 +8,22 @@ import 'text_markup.dart';
 /// Annotation container widget.
 class AnnotationContainer extends StatefulWidget {
   /// Constructor for annotation container widget.
-  const AnnotationContainer(
-      {required this.annotations,
-      required this.pageSize,
-      required this.annotationSettings,
-      this.selectedAnnotation,
-      this.onAnnotationSelectionChanged,
-      this.onStickyNoteDoubleTapped,
-      this.isZooming = false,
-      this.heightPercentage = 1,
-      this.zoomLevel = 1,
-      this.pageNumber = 0,
-      this.onDragStart,
-      this.onDragEnd,
-      required this.onTap,
-      super.key});
+  const AnnotationContainer({
+    required this.annotations,
+    required this.pageSize,
+    required this.annotationSettings,
+    this.selectedAnnotation,
+    this.onAnnotationSelectionChanged,
+    this.onStickyNoteDoubleTapped,
+    this.isZooming = false,
+    this.heightPercentage = 1,
+    this.zoomLevel = 1,
+    this.pageNumber = 0,
+    this.onDragStart,
+    this.onDragEnd,
+    required this.onTap,
+    super.key,
+  });
 
   /// The annotation settings.
   final PdfAnnotationSettings annotationSettings;
@@ -93,18 +94,22 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
       child: Stack(
         children: <Widget>[
           for (final Annotation annotation in annotations)
-            _getPositionedAnnotationView(annotation),
+            // Annotations with empty annotation bounds will not be rendered in the view.
+            if (!annotation.boundingBox.isEmpty)
+              _getPositionedAnnotationView(annotation),
           if (_selectedAnnotation != null &&
+              !_selectedAnnotation!.boundingBox.isEmpty &&
               widget.pageNumber == widget.selectedAnnotation!.pageNumber)
             ListenableBuilder(
-                listenable: Listenable.merge(<Listenable>[
-                  widget.selectedAnnotation!,
-                  _getTypeSettings(_selectedAnnotation!),
-                  _selectedAnnotation!,
-                ]),
-                builder: (BuildContext context, Widget? child) {
-                  return _getPositionedAnnotationView(_selectedAnnotation!);
-                })
+              listenable: Listenable.merge(<Listenable>[
+                widget.selectedAnnotation!,
+                _getTypeSettings(_selectedAnnotation!),
+                _selectedAnnotation!,
+              ]),
+              builder: (BuildContext context, Widget? child) {
+                return _getPositionedAnnotationView(_selectedAnnotation!);
+              },
+            ),
         ],
       ),
     );
@@ -162,7 +167,10 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
       return widget.annotationSettings.stickyNote;
     } else {
       throw ArgumentError.value(
-          annotation, 'annotation', 'The annotation type is not supported.');
+        annotation,
+        'annotation',
+        'The annotation type is not supported.',
+      );
     }
   }
 
@@ -251,13 +259,16 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
     if (newPosition.dx + annotation.intermediateBounds.width >
         widget.pageSize.width) {
       newPosition = Offset(
-          widget.pageSize.width - annotation.intermediateBounds.width,
-          newPosition.dy);
+        widget.pageSize.width - annotation.intermediateBounds.width,
+        newPosition.dy,
+      );
     }
     if (newPosition.dy + annotation.intermediateBounds.height >
         widget.pageSize.height) {
-      newPosition = Offset(newPosition.dx,
-          widget.pageSize.height - annotation.intermediateBounds.height);
+      newPosition = Offset(
+        newPosition.dx,
+        widget.pageSize.height - annotation.intermediateBounds.height,
+      );
     }
     if (annotation is StickyNoteAnnotation) {
       annotation.intermediateBounds = newPosition & annotation.boundingBox.size;
@@ -269,10 +280,13 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
       final renderObject = context.findRenderObject();
       if (renderObject is RenderBox) {
         annotation.globalRect = Rect.fromPoints(
-            renderObject.localToGlobal(
-                annotation.uiBounds.topLeft / widget.heightPercentage),
-            renderObject.localToGlobal(
-                annotation.uiBounds.bottomRight / widget.heightPercentage));
+          renderObject.localToGlobal(
+            annotation.uiBounds.topLeft / widget.heightPercentage,
+          ),
+          renderObject.localToGlobal(
+            annotation.uiBounds.bottomRight / widget.heightPercentage,
+          ),
+        );
       }
     }
   }

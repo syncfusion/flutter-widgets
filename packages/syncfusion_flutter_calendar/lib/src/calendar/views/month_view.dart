@@ -231,6 +231,7 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
       weekNumberPanelWidth,
       widget.isMobilePlatform,
       children: children,
+      widget.builder,
     );
   }
 
@@ -265,6 +266,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
       this.weekNumberStyle,
       this.weekNumberPanelWidth,
       this.isMobilePlatform,
+      this.builder,
       {List<Widget> children = const <Widget>[]})
       : super(children: children);
 
@@ -290,6 +292,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
   final WeekNumberStyle weekNumberStyle;
   final double weekNumberPanelWidth;
   final bool isMobilePlatform;
+  final MonthCellBuilder? builder;
 
   @override
   _MonthViewRenderObject createRenderObject(BuildContext context) {
@@ -315,7 +318,8 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
         height,
         weekNumberStyle,
         weekNumberPanelWidth,
-        isMobilePlatform);
+        isMobilePlatform,
+        builder);
   }
 
   @override
@@ -343,34 +347,37 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
       ..height = height
       ..weekNumberPanelWidth = weekNumberPanelWidth
       ..weekNumberStyle = weekNumberStyle
-      ..isMobilePlatform = isMobilePlatform;
+      ..isMobilePlatform = isMobilePlatform
+      ..builder = builder;
   }
 }
 
 class _MonthViewRenderObject extends CustomCalendarRenderObject {
   _MonthViewRenderObject(
-      this._visibleDates,
-      this._visibleAppointments,
-      this._rowCount,
-      this._monthCellStyle,
-      this._isRTL,
-      this._todayHighlightColor,
-      this._todayTextStyle,
-      this._cellBorderColor,
-      this._calendarTheme,
-      this._themeData,
-      this._calendarCellNotifier,
-      this._minDate,
-      this._maxDate,
-      this._blackoutDates,
-      this._blackoutDatesTextStyle,
-      this._showTrailingAndLeadingDates,
-      this._textScaleFactor,
-      this._width,
-      this._height,
-      this._weekNumberStyle,
-      this._weekNumberPanelWidth,
-      this._isMobilePlatform);
+    this._visibleDates,
+    this._visibleAppointments,
+    this._rowCount,
+    this._monthCellStyle,
+    this._isRTL,
+    this._todayHighlightColor,
+    this._todayTextStyle,
+    this._cellBorderColor,
+    this._calendarTheme,
+    this._themeData,
+    this._calendarCellNotifier,
+    this._minDate,
+    this._maxDate,
+    this._blackoutDates,
+    this._blackoutDatesTextStyle,
+    this._showTrailingAndLeadingDates,
+    this._textScaleFactor,
+    this._width,
+    this._height,
+    this._weekNumberStyle,
+    this._weekNumberPanelWidth,
+    this._isMobilePlatform,
+    this.builder,
+  );
 
   bool _isMobilePlatform;
 
@@ -709,6 +716,39 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     } else {
       markNeedsLayout();
     }
+  }
+
+  MonthCellBuilder? builder;
+
+  @override
+  bool hitTestSelf(Offset position) {
+    return builder != null;
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    if (builder == null) {
+      return false;
+    }
+
+    RenderBox? child = firstChild;
+
+    while (child != null) {
+      final CalendarParentData childParentData =
+          child.parentData! as CalendarParentData;
+      final bool isHit = result.addWithPaintOffset(
+        offset: childParentData.offset,
+        position: position,
+        hitTest: (BoxHitTestResult result, Offset transformed) {
+          return child!.hitTest(result, position: transformed);
+        },
+      );
+      if (isHit) {
+        return true;
+      }
+      child = childParentData.nextSibling;
+    }
+    return false;
   }
 
   /// attach will called when the render object rendered in view.

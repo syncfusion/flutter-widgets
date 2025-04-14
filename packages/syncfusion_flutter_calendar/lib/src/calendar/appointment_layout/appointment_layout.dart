@@ -875,10 +875,37 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
       /// difference between the start and end time of the appointment.
       double width = (difference.inDays + 1) * cellWidth;
 
+      /// Handles multi-span appointments that fall within the same month.
+      /// If the end date includes any partial time periods beyond full days,
+      /// the remaining time is calculated and used to extend the appointment
+      /// rendering into the next day by adding an additional width for an appointment.
+      /// Example Case:
+      /// Start: 2025-01-01 02:00
+      /// End:   2025-01-04 01:00
+      /// Total Duration: 71 hours
+      /// - Remaining Time: 71 hours % 24 = 23 hours.
+      /// - The remaining time beyond full days includes hours, minutes, and seconds.
+      /// - Adds an extra width for partial durations to ensure the appointment renders correctly.
+      final DateTime exactStartTime = appointment.exactStartTime;
+      final DateTime exactEndTime = appointment.exactEndTime;
+      final bool isSameHour = exactStartTime.hour == exactEndTime.hour;
+      final bool isMultiDaySpanWithinSameMonth =
+          exactStartTime.year == exactEndTime.year &&
+              exactStartTime.month == exactEndTime.month &&
+              (exactStartTime.hour > exactEndTime.hour ||
+                  (isSameHour && exactStartTime.minute > exactEndTime.minute) ||
+                  (isSameHour &&
+                      exactStartTime.minute == exactEndTime.minute &&
+                      exactStartTime.second > exactEndTime.second)) &&
+              difference.inSeconds % (24 * 60 * 60) > 0;
+
       /// For span appointment less than 23 hours the difference will fall
       /// as 0 hence to render the appointment on the next day, added one
       /// the width for next day.
-      if (difference.inDays == 0 && endTime.day != startTime.day) {
+      final bool isSingleDaySpan =
+          difference.inDays == 0 && endTime.day != startTime.day;
+
+      if (isSingleDaySpan || isMultiDaySpanWithinSameMonth) {
         width += cellWidth;
       }
 
