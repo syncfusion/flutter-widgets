@@ -516,22 +516,21 @@ class PdfDocument {
                       .createFormFieldsFromWidgets(_form!.fields.count);
                 }
               }
+              return _form!;
             }
           }
-        } else {
-          _form = PdfFormHelper.internal(_helper.crossTable);
-          _helper.catalog.setProperty(
-              PdfDictionaryProperties.acroForm, PdfReferenceHolder(_form));
-          _helper.catalog.form = _form;
-          return _form!;
         }
+        _form = PdfFormHelper.internal(_helper.crossTable);
+        _helper.catalog.setProperty(
+            PdfDictionaryProperties.acroForm, PdfReferenceHolder(_form));
+        _helper.catalog.form = _form;
+        return _form!;
       } else {
         return _form!;
       }
     } else {
       return _helper.catalog.form ??= PdfForm();
     }
-    return _form!;
   }
 
   //Public methods
