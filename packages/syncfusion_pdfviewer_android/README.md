@@ -7,7 +7,7 @@ The Android implementation of the [Syncfusion<sup>&reg;</sup> Flutter PDF Viewer
 **Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion<sup>&reg;</sup> commercial license or [Free Syncfusion<sup>&reg;</sup> Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 **Note:**
-This is an optional package, and it will not work for Android devices running API level 35 and above.
+This is an optional package with limited Android support. Please note that this package is not compatible with Android devices running API level 35 (Android 15) and above
 
 ## Table of contents
 - [Get the demo application](#get-the-demo-application)
