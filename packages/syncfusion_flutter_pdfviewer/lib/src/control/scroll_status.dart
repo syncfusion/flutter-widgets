@@ -72,8 +72,8 @@ class _ScrollStatusState extends State<ScrollStatus> {
                 maxWidth: MediaQuery.of(context).size.width * 0.7,
               ),
               decoration: BoxDecoration(
-                color: _pdfViewerThemeData!
-                        .scrollStatusStyle?.backgroundColor ??
+                color:
+                    _pdfViewerThemeData!.scrollStatusStyle?.backgroundColor ??
                     _effectiveThemeData!.scrollStatusStyle?.backgroundColor ??
                     const Color(0xFF757575),
                 borderRadius: Theme.of(context).useMaterial3
@@ -84,18 +84,18 @@ class _ScrollStatusState extends State<ScrollStatus> {
                 '${widget.pdfViewerController.pageNumber} ${_localizations!.pdfScrollStatusOfLabel} ${widget.pdfViewerController.pageCount}',
                 textAlign: TextAlign.center,
                 textDirection: TextDirection.ltr,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium!
+                style: Theme.of(context).textTheme.titleMedium!
                     .copyWith(
                       fontSize: Theme.of(context).useMaterial3 ? 14 : 16,
                       color: Colors.white,
                     )
                     .merge(
                       _pdfViewerThemeData!
-                              .scrollStatusStyle?.pageInfoTextStyle ??
+                              .scrollStatusStyle
+                              ?.pageInfoTextStyle ??
                           _effectiveThemeData!
-                              .scrollStatusStyle?.pageInfoTextStyle,
+                              .scrollStatusStyle
+                              ?.pageInfoTextStyle,
                     ),
               ),
             ),

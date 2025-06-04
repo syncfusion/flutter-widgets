@@ -55,10 +55,18 @@ public class SyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         guard let args = argument as? [String: Any] else {return}
         guard let documentBytes = args["documentBytes"] as? FlutterStandardTypedData else {return}
         guard let documentID = args["documentID"] as? String else {return}
+        let password = args["password"] as? String
         let byte = [UInt8](documentBytes.data)
         guard let cfData = CFDataCreate(nil, byte, byte.count) else {return}
         guard let dataProvider = CGDataProvider(data: cfData) else {return}
         guard let document = CGPDFDocument(dataProvider) else {return}
+        if let password = password, document.isEncrypted {
+            let unlocked = document.unlockWithPassword(password)
+            if !unlocked {
+                result(FlutterError(code: "PDF_UNLOCK_FAILED", message: "Failed to unlock the PDF with the provided password", details: nil))
+                return
+            }
+        }
         self.documentRepo[documentID] = document
         let pageCount = NSNumber(value: document.numberOfPages)
         result(pageCount.stringValue);

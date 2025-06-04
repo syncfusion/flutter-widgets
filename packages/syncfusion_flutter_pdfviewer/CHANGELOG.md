@@ -1,5 +1,31 @@
 ## Unreleased
 
+**Bugs**
+
+* Now, in single page layout mode, the page changes only when swiped in the scroll direction, and not when slightly panned.
+* Now, the `SfPdfViewer` widget will no longer crash with an Out of Memory exception when viewing a PDF document with large page dimensions.
+* Now, in single-page layout mode, setting the zoom level in the onPageChanged callback will not cause the page to move to the bottom in the vertical scroll direction or to the right in the horizontal scroll direction.
+* Now, the sticky note icon will maintain the same size on all pages, and the icon size is improved on mobile platforms.
+
+## [29.1.41] - 05/06/2025
+
+**Bugs**
+
+* Improved the performance in loading large password-protected documents by leveraging the password parameter supported in the native (platform) PDF rendering APIs.
+* Now, the pages will be centered in single-page layout mode when switching between pages in a PDF document with different page sizes.
+
+## [29.1.39] - 04/22/2025
+ 
+**General**
+
+* The minimum Dart version has been updated to 3.7.
+
+**Bugs**
+
+* Now, the page no longer jumps to a previous one when scrolling to the top or left edge in single page layout mode.
+
+## [29.1.33] - 03/25/2025
+
 **General**
 
 *  The compatible version of our Flutter PDF Viewer widget has been updated to Flutter SDK 3.29.0.

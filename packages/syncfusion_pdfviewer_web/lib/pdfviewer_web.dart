@@ -20,10 +20,13 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
   @override
   Future<String> initializePdfRenderer(
     Uint8List documentBytes,
-    String documentID,
-  ) async {
-    Settings documentData = Settings()
-      ..data = Uint8List.fromList(documentBytes).toJS;
+    String documentID, [
+    String? password,
+  ]) async {
+    Settings documentData =
+        Settings()
+          ..data = Uint8List.fromList(documentBytes).toJS
+          ..password = password;
     final documentLoader = PdfJs.getDocument(documentData);
     final PdfJsDoc pdfJsDoc = await documentLoader.promise.toDart;
     final int pagesCount = pdfJsDoc.numPages;
@@ -115,10 +118,11 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
     canvas
       ..height = height.toInt()
       ..width = width.toInt();
-    final renderSettings = Settings()
-      ..canvasContext = canvas.context2D
-      ..viewport = viewport
-      ..annotationMode = 0;
+    final renderSettings =
+        Settings()
+          ..canvasContext = canvas.context2D
+          ..viewport = viewport
+          ..annotationMode = 0;
     await (page.render(renderSettings)).promise.toDart;
     return canvas.context2D
         .getImageData(0, 0, width.toInt(), height.toInt())
@@ -153,10 +157,11 @@ class SyncfusionFlutterPdfViewerPlugin extends PdfViewerPlatform {
     canvas
       ..width = fullWidth
       ..height = fullHeight;
-    final renderSettings = Settings()
-      ..canvasContext = canvas.context2D
-      ..viewport = viewport
-      ..annotationMode = 0;
+    final renderSettings =
+        Settings()
+          ..canvasContext = canvas.context2D
+          ..viewport = viewport
+          ..annotationMode = 0;
     await (page.render(renderSettings)).promise.toDart;
     return canvas.context2D
         .getImageData(0, 0, fullWidth.toInt(), fullHeight.toInt())

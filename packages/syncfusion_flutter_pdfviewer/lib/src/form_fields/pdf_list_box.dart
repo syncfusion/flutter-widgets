@@ -314,12 +314,14 @@ void _showListBoxDialog(
                                 if (value) {
                                   newItems.add(
                                     listBoxHelper
-                                        .listBoxFormField._items[index],
+                                        .listBoxFormField
+                                        ._items[index],
                                   );
                                 } else {
                                   newItems.remove(
                                     listBoxHelper
-                                        .listBoxFormField._items[index],
+                                        .listBoxFormField
+                                        ._items[index],
                                   );
                                 }
                               }

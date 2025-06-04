@@ -35,27 +35,27 @@ class SfPdfViewerThemeDataM2 extends SfPdfViewerThemeData {
 
   late final PdfPaginationDialogStyle _paginationDialogStyle =
       PdfPaginationDialogStyle(
-    backgroundColor: colorScheme.brightness == Brightness.light
-        ? Colors.white
-        : const Color(0xFF424242),
-  );
+        backgroundColor: colorScheme.brightness == Brightness.light
+            ? Colors.white
+            : const Color(0xFF424242),
+      );
 
   late final PdfHyperlinkDialogStyle _hyperlinkDialogStyle =
       PdfHyperlinkDialogStyle(
-    backgroundColor: colorScheme.brightness == Brightness.light
-        ? Colors.white
-        : const Color(0xFF424242),
-    closeIconColor: colorScheme.onSurfaceVariant[153],
-  );
+        backgroundColor: colorScheme.brightness == Brightness.light
+            ? Colors.white
+            : const Color(0xFF424242),
+        closeIconColor: colorScheme.onSurfaceVariant[153],
+      );
 
   late final PdfPasswordDialogStyle _passwordDialogStyle =
       PdfPasswordDialogStyle(
-    backgroundColor: colorScheme.brightness == Brightness.light
-        ? Colors.white
-        : const Color(0xFF424242),
-    closeIconColor: colorScheme.onSurfaceVariant[153],
-    visibleIconColor: colorScheme.onSurfaceVariant[153],
-  );
+        backgroundColor: colorScheme.brightness == Brightness.light
+            ? Colors.white
+            : const Color(0xFF424242),
+        closeIconColor: colorScheme.onSurfaceVariant[153],
+        visibleIconColor: colorScheme.onSurfaceVariant[153],
+      );
 
   @override
   Color? get backgroundColor => colorScheme.brightness == Brightness.light
@@ -116,27 +116,27 @@ class SfPdfViewerThemeDataM3 extends SfPdfViewerThemeData {
 
   late final PdfPaginationDialogStyle _paginationDialogStyle =
       PdfPaginationDialogStyle(
-    backgroundColor: colorScheme.brightness == Brightness.light
-        ? const Color.fromRGBO(238, 232, 244, 1)
-        : const Color.fromRGBO(48, 45, 56, 1),
-  );
+        backgroundColor: colorScheme.brightness == Brightness.light
+            ? const Color.fromRGBO(238, 232, 244, 1)
+            : const Color.fromRGBO(48, 45, 56, 1),
+      );
 
   late final PdfHyperlinkDialogStyle _hyperlinkDialogStyle =
       PdfHyperlinkDialogStyle(
-    backgroundColor: colorScheme.brightness == Brightness.light
-        ? const Color.fromRGBO(238, 232, 244, 1)
-        : const Color.fromRGBO(48, 45, 56, 1),
-    closeIconColor: colorScheme.onSurfaceVariant[153],
-  );
+        backgroundColor: colorScheme.brightness == Brightness.light
+            ? const Color.fromRGBO(238, 232, 244, 1)
+            : const Color.fromRGBO(48, 45, 56, 1),
+        closeIconColor: colorScheme.onSurfaceVariant[153],
+      );
 
   late final PdfPasswordDialogStyle _passwordDialogStyle =
       PdfPasswordDialogStyle(
-    backgroundColor: colorScheme.brightness == Brightness.light
-        ? const Color.fromRGBO(238, 232, 244, 1)
-        : const Color.fromRGBO(48, 45, 56, 1),
-    closeIconColor: colorScheme.onSurfaceVariant[153],
-    visibleIconColor: colorScheme.onSurfaceVariant[153],
-  );
+        backgroundColor: colorScheme.brightness == Brightness.light
+            ? const Color.fromRGBO(238, 232, 244, 1)
+            : const Color.fromRGBO(48, 45, 56, 1),
+        closeIconColor: colorScheme.onSurfaceVariant[153],
+        visibleIconColor: colorScheme.onSurfaceVariant[153],
+      );
 
   @override
   Color? get backgroundColor => colorScheme.brightness == Brightness.light

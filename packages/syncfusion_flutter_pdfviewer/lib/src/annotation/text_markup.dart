@@ -11,9 +11,9 @@ class HighlightAnnotation extends Annotation {
   ///
   /// The [textBoundsCollection] represents the bounds collection of the highlight annotations that are added in the multiple lines of text.
   HighlightAnnotation({required List<PdfTextLine> textBoundsCollection})
-      : assert(textBoundsCollection.isNotEmpty),
-        assert(_checkTextMarkupRects(textBoundsCollection)),
-        super(pageNumber: textBoundsCollection.first.pageNumber) {
+    : assert(textBoundsCollection.isNotEmpty),
+      assert(_checkTextMarkupRects(textBoundsCollection)),
+      super(pageNumber: textBoundsCollection.first.pageNumber) {
     _textMarkupRects = <Rect>[];
 
     double minX = textBoundsCollection.first.bounds.left,
@@ -42,9 +42,9 @@ class StrikethroughAnnotation extends Annotation {
   ///
   /// The [textBoundsCollection] represents the bounds collection of the strikethrough annotations that are added in the multiple lines of text.
   StrikethroughAnnotation({required List<PdfTextLine> textBoundsCollection})
-      : assert(textBoundsCollection.isNotEmpty),
-        assert(_checkTextMarkupRects(textBoundsCollection)),
-        super(pageNumber: textBoundsCollection.first.pageNumber) {
+    : assert(textBoundsCollection.isNotEmpty),
+      assert(_checkTextMarkupRects(textBoundsCollection)),
+      super(pageNumber: textBoundsCollection.first.pageNumber) {
     _textMarkupRects = <Rect>[];
 
     double minX = textBoundsCollection.first.bounds.left,
@@ -73,9 +73,9 @@ class UnderlineAnnotation extends Annotation {
   ///
   /// The [textBoundsCollection] represents the bounds collection of the underline annotations that are added in the multiple lines of text.
   UnderlineAnnotation({required List<PdfTextLine> textBoundsCollection})
-      : assert(textBoundsCollection.isNotEmpty),
-        assert(_checkTextMarkupRects(textBoundsCollection)),
-        super(pageNumber: textBoundsCollection.first.pageNumber) {
+    : assert(textBoundsCollection.isNotEmpty),
+      assert(_checkTextMarkupRects(textBoundsCollection)),
+      super(pageNumber: textBoundsCollection.first.pageNumber) {
     _textMarkupRects = <Rect>[];
 
     double minX = textBoundsCollection.first.bounds.left,
@@ -104,9 +104,9 @@ class SquigglyAnnotation extends Annotation {
   ///
   /// The [textBoundsCollection] represents the bounds collection of the squiggly annotations that are added in the multiple lines of text.
   SquigglyAnnotation({required List<PdfTextLine> textBoundsCollection})
-      : assert(textBoundsCollection.isNotEmpty),
-        assert(_checkTextMarkupRects(textBoundsCollection)),
-        super(pageNumber: textBoundsCollection.first.pageNumber) {
+    : assert(textBoundsCollection.isNotEmpty),
+      assert(_checkTextMarkupRects(textBoundsCollection)),
+      super(pageNumber: textBoundsCollection.first.pageNumber) {
     _textMarkupRects = <Rect>[];
 
     double minX = textBoundsCollection.first.bounds.left,
@@ -140,21 +140,21 @@ class TextMarkupAnnotationView extends InteractiveGraphicsView
     Color selectorColor = defaultSelectorColor,
     double heightPercentage = 1,
   }) : super(
-          key: key,
-          color: annotation.color,
-          strokeWidth: 1,
-          opacity: annotation.opacity,
-          isSelected: isSelected,
-          canMove: false,
-          selectorColor: selectorColor,
-        ) {
+         key: key,
+         color: annotation.color,
+         strokeWidth: 1,
+         opacity: annotation.opacity,
+         isSelected: isSelected,
+         canMove: false,
+         selectorColor: selectorColor,
+       ) {
     _textMarkupType = annotation is HighlightAnnotation
         ? TextMarkupType.highlight
         : annotation is StrikethroughAnnotation
-            ? TextMarkupType.strikethrough
-            : annotation is UnderlineAnnotation
-                ? TextMarkupType.underline
-                : TextMarkupType.squiggly;
+        ? TextMarkupType.strikethrough
+        : annotation is UnderlineAnnotation
+        ? TextMarkupType.underline
+        : TextMarkupType.squiggly;
     _heightPercentage = heightPercentage;
   }
 
@@ -202,12 +202,12 @@ class RenderTextMarkupAnnotationView extends RenderInteractiveGraphicsView {
     required Color selectorColor,
     double heightPercentage = 1,
   }) : super(
-          strokeColor: color,
-          opacity: opacity,
-          strokeWidth: 1,
-          isSelected: isSelected,
-          selectorColor: selectorColor,
-        ) {
+         strokeColor: color,
+         opacity: opacity,
+         strokeWidth: 1,
+         isSelected: isSelected,
+         selectorColor: selectorColor,
+       ) {
     _textMarkupType = textMarkupType;
     _heightPercentage = heightPercentage;
   }
@@ -335,9 +335,11 @@ class RenderTextMarkupAnnotationView extends RenderInteractiveGraphicsView {
     final double spacing = height * 0.18;
     final Path squigglyPath = Path();
     squigglyPath.moveTo(x, y);
-    for (double distance = 0;
-        distance + spacing < length;
-        distance += spacing) {
+    for (
+      double distance = 0;
+      distance + spacing < length;
+      distance += spacing
+    ) {
       if (showUnderlineAtStart) {
         squigglyPath.lineTo(x + distance + spacing, y);
       } else {

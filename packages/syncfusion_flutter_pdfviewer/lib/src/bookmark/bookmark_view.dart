@@ -170,8 +170,9 @@ class BookmarkViewControllerState extends State<BookmarkView> {
   void _handleExpandPress(int index) {
     setState(() {
       _parentBookmark = _isExpanded ? _childBookmark : _bookmarkBase![index];
-      _childBookmark =
-          _isExpanded ? _childBookmark![index] : _bookmarkBase![index];
+      _childBookmark = _isExpanded
+          ? _childBookmark![index]
+          : _bookmarkBase![index];
       _isExpanded = true;
       _populateBookmarkList();
     });
@@ -197,8 +198,9 @@ class BookmarkViewControllerState extends State<BookmarkView> {
         ),
       );
     }
-    final int bookmarkListCount =
-        _isExpanded ? _childBookmark!.count : _bookmarkBase!.count;
+    final int bookmarkListCount = _isExpanded
+        ? _childBookmark!.count
+        : _bookmarkBase!.count;
     for (int i = 0; i < bookmarkListCount; i++) {
       final BookmarkItem bookmarkItem = BookmarkItem(
         title: _isExpanded ? _childBookmark![i].title : _bookmarkBase![i].title,
@@ -208,8 +210,9 @@ class BookmarkViewControllerState extends State<BookmarkView> {
             ? _childBookmark![i].count != 0
             : _bookmarkBase![i].count != 0,
         onNavigate: () {
-          final PdfBookmark bookmark =
-              _isExpanded ? _childBookmark![i] : _bookmarkBase![i];
+          final PdfBookmark bookmark = _isExpanded
+              ? _childBookmark![i]
+              : _bookmarkBase![i];
           widget.controller.jumpToBookmark(bookmark);
           _handleClose();
         },
@@ -268,15 +271,15 @@ class BookmarkViewControllerState extends State<BookmarkView> {
                         ),
                       ]
                     : null,
-                color: _pdfViewerThemeData!
-                        .bookmarkViewStyle?.backgroundColor ??
+                color:
+                    _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
                     _effectiveThemeData!.bookmarkViewStyle?.backgroundColor ??
                     (Theme.of(context).useMaterial3
                         ? Theme.of(context).colorScheme.surface
                         : (Theme.of(context).colorScheme.brightness ==
-                                Brightness.light
-                            ? Colors.white
-                            : const Color(0xFF212121))),
+                                  Brightness.light
+                              ? Colors.white
+                              : const Color(0xFF212121))),
               ),
               width: _isTablet ? _kPdfTabletBookmarkWidth : _totalWidth,
               child: Column(
@@ -285,41 +288,35 @@ class BookmarkViewControllerState extends State<BookmarkView> {
                   Expanded(
                     child: hasBookmark
                         ? _useMaterial3
-                            ? BookmarkTree(
-                                pdfDocument: widget.pdfDocument,
-                                onNavigate: _handleTap,
-                                key: _bookmarkTreeKey,
-                                textDirection: widget.textDirection,
-                              )
-                            : ListView.builder(
-                                itemCount: _listCount,
-                                itemBuilder: (
-                                  BuildContext context,
-                                  int index,
-                                ) {
-                                  return _bookmarkList![index];
-                                },
-                              )
+                              ? BookmarkTree(
+                                  pdfDocument: widget.pdfDocument,
+                                  onNavigate: _handleTap,
+                                  key: _bookmarkTreeKey,
+                                  textDirection: widget.textDirection,
+                                )
+                              : ListView.builder(
+                                  itemCount: _listCount,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                        return _bookmarkList![index];
+                                      },
+                                )
                         : Center(
                             child: Text(
                               _localizations!.pdfNoBookmarksLabel,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
+                              style: Theme.of(context).textTheme.bodyMedium!
                                   .copyWith(
                                     fontSize: 14,
-                                    color: Theme.of(context).brightness ==
+                                    color:
+                                        Theme.of(context).brightness ==
                                             Brightness.light
-                                        ? Colors.black.withValues(
-                                            alpha: 0.87,
-                                          )
-                                        : Colors.white.withValues(
-                                            alpha: 0.87,
-                                          ),
+                                        ? Colors.black.withValues(alpha: 0.87)
+                                        : Colors.white.withValues(alpha: 0.87),
                                   )
                                   .merge(
                                     _pdfViewerThemeData!
-                                        .bookmarkViewStyle?.titleTextStyle,
+                                        .bookmarkViewStyle
+                                        ?.titleTextStyle,
                                   ),
                             ),
                           ),
@@ -484,7 +481,8 @@ class BookmarkTreeState extends State<BookmarkTree> {
   Widget _bookMarkItems(PdfBookmark bookmark) {
     final icon = Icon(
       Icons.expand_more,
-      color: _pdfViewerThemeData!.bookmarkViewStyle?.navigationIconColor ??
+      color:
+          _pdfViewerThemeData!.bookmarkViewStyle?.navigationIconColor ??
           _effectiveThemeData!.bookmarkViewStyle?.navigationIconColor ??
           Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
       size: 18,
@@ -495,12 +493,13 @@ class BookmarkTreeState extends State<BookmarkTree> {
       itemBuilder: (context, index) {
         final node = bookmarkList[index];
         return Material(
-          color: _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
+          color:
+              _pdfViewerThemeData!.bookmarkViewStyle?.backgroundColor ??
               _effectiveThemeData!.bookmarkViewStyle?.backgroundColor ??
               Theme.of(context).colorScheme.surface,
           child: InkWell(
-            splashColor: _pdfViewerThemeData!
-                    .bookmarkViewStyle?.selectionColor! ??
+            splashColor:
+                _pdfViewerThemeData!.bookmarkViewStyle?.selectionColor! ??
                 _effectiveThemeData!.bookmarkViewStyle?.selectionColor! ??
                 ((Theme.of(context).colorScheme.brightness == Brightness.light)
                     ? const Color.fromRGBO(0, 0, 0, 0.08)
@@ -535,8 +534,8 @@ class BookmarkTreeState extends State<BookmarkTree> {
                           child: RotatedBox(
                             quarterTurns: !node.isExpanded
                                 ? widget.textDirection == TextDirection.rtl
-                                    ? 1
-                                    : 3
+                                      ? 1
+                                      : 3
                                 : 0,
                             child: icon,
                           ),
@@ -550,8 +549,8 @@ class BookmarkTreeState extends State<BookmarkTree> {
                       child: Padding(
                         padding: (!node.children.isNotEmpty)
                             ? widget.textDirection == TextDirection.rtl
-                                ? const EdgeInsets.only(right: 45.0)
-                                : const EdgeInsets.only(left: 45.0)
+                                  ? const EdgeInsets.only(right: 45.0)
+                                  : const EdgeInsets.only(left: 45.0)
                             : EdgeInsets.zero,
                         child: Align(
                           alignment: widget.textDirection == TextDirection.rtl
@@ -563,17 +562,17 @@ class BookmarkTreeState extends State<BookmarkTree> {
                                 ? TextAlign.right
                                 : TextAlign.left,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
+                            style: Theme.of(context).textTheme.bodyMedium!
                                 .copyWith(
                                   fontSize: 14,
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 )
                                 .merge(
                                   _pdfViewerThemeData!
-                                      .bookmarkViewStyle?.titleTextStyle,
+                                      .bookmarkViewStyle
+                                      ?.titleTextStyle,
                                 ),
                           ),
                         ),

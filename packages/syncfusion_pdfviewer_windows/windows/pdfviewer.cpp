@@ -45,24 +45,24 @@ namespace pdfviewer
     documentRepo.erase(docID);
   }
 
-  std::shared_ptr<PdfDocument> initializePdfRenderer(std::vector<uint8_t> data, std::string docID)
+  std::shared_ptr<PdfDocument> initializePdfRenderer(std::vector<uint8_t> data, std::string password, std::string docID)
   {
     if (documentRepo.size() == 0)
     {
       FPDF_InitLibraryWithConfig(nullptr);
     }
 
-    std::shared_ptr<PdfDocument> doc = std::make_shared<PdfDocument>(data, docID);
+    std::shared_ptr<PdfDocument> doc = std::make_shared<PdfDocument>(data, password, docID);
     documentRepo[docID] = doc;
 
     return doc;
   }
 
-  PdfDocument::PdfDocument(std::vector<uint8_t> dataRef, std::string id) : documentID{id}
+  PdfDocument::PdfDocument(std::vector<uint8_t> dataRef, std::string password, std::string id) : documentID{id}
   {
     data.swap(dataRef);
 
-    pdfDocument = FPDF_LoadMemDocument64(data.data(), data.size(), nullptr);
+    pdfDocument = FPDF_LoadMemDocument64(data.data(), data.size(), password.c_str());
   }
 
   PdfDocument::~PdfDocument() {}

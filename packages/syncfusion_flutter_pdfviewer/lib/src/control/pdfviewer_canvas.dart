@@ -488,8 +488,8 @@ class CanvasRenderBox extends RenderBox {
             buttonPadding: orientation == Orientation.portrait
                 ? const EdgeInsets.all(8)
                 : const EdgeInsets.all(6),
-            backgroundColor: _pdfViewerThemeData!
-                    .hyperlinkDialogStyle?.backgroundColor ??
+            backgroundColor:
+                _pdfViewerThemeData!.hyperlinkDialogStyle?.backgroundColor ??
                 _effectiveThemeData.hyperlinkDialogStyle?.backgroundColor ??
                 (Theme.of(context).colorScheme.brightness == Brightness.light
                     ? Colors.white
@@ -500,34 +500,34 @@ class CanvasRenderBox extends RenderBox {
                 Text(
                   _localizations.pdfHyperlinkLabel,
                   style: isMaterial3
-                      ? Theme.of(context)
-                          .textTheme
-                          .headlineMedium!
-                          .copyWith(
-                            fontSize: 24,
-                            color:
-                                Theme.of(context).brightness == Brightness.light
-                                    ? Colors.black.withValues(alpha: 0.87)
-                                    : Colors.white.withValues(alpha: 0.87),
-                          )
-                          .merge(
-                            _pdfViewerThemeData!
-                                .hyperlinkDialogStyle?.headerTextStyle,
-                          )
-                      : Theme.of(context)
-                          .textTheme
-                          .headlineMedium!
-                          .copyWith(
-                            fontSize: 20,
-                            color:
-                                Theme.of(context).brightness == Brightness.light
-                                    ? Colors.black.withValues(alpha: 0.87)
-                                    : Colors.white.withValues(alpha: 0.87),
-                          )
-                          .merge(
-                            _pdfViewerThemeData!
-                                .hyperlinkDialogStyle?.headerTextStyle,
-                          ),
+                      ? Theme.of(context).textTheme.headlineMedium!
+                            .copyWith(
+                              fontSize: 24,
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Colors.black.withValues(alpha: 0.87)
+                                  : Colors.white.withValues(alpha: 0.87),
+                            )
+                            .merge(
+                              _pdfViewerThemeData!
+                                  .hyperlinkDialogStyle
+                                  ?.headerTextStyle,
+                            )
+                      : Theme.of(context).textTheme.headlineMedium!
+                            .copyWith(
+                              fontSize: 20,
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Colors.black.withValues(alpha: 0.87)
+                                  : Colors.white.withValues(alpha: 0.87),
+                            )
+                            .merge(
+                              _pdfViewerThemeData!
+                                  .hyperlinkDialogStyle
+                                  ?.headerTextStyle,
+                            ),
                 ),
                 SizedBox(
                   height: isMaterial3 ? 40 : 36,
@@ -544,10 +544,13 @@ class CanvasRenderBox extends RenderBox {
                         : const RoundedRectangleBorder(),
                     child: Icon(
                       Icons.clear,
-                      color: _pdfViewerThemeData!
-                              .hyperlinkDialogStyle?.closeIconColor ??
+                      color:
+                          _pdfViewerThemeData!
+                              .hyperlinkDialogStyle
+                              ?.closeIconColor ??
                           _effectiveThemeData
-                              .hyperlinkDialogStyle?.closeIconColor ??
+                              .hyperlinkDialogStyle
+                              ?.closeIconColor ??
                           _themeData.colorScheme.onSurface.withValues(
                             alpha: 0.6,
                           ),
@@ -577,19 +580,19 @@ class CanvasRenderBox extends RenderBox {
                             : const EdgeInsets.fromLTRB(10, 0, 0, 8),
                         child: Text(
                           _localizations.pdfHyperlinkContentLabel,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
+                          style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(
                                 fontSize: 14,
-                                color: Theme.of(context).brightness ==
+                                color:
+                                    Theme.of(context).brightness ==
                                         Brightness.light
                                     ? Colors.black.withValues(alpha: 0.87)
                                     : Colors.white.withValues(alpha: 0.87),
                               )
                               .merge(
                                 _pdfViewerThemeData!
-                                    .hyperlinkDialogStyle?.contentTextStyle,
+                                    .hyperlinkDialogStyle
+                                    ?.contentTextStyle,
                               ),
                         ),
                       ),
@@ -605,19 +608,19 @@ class CanvasRenderBox extends RenderBox {
                         child: Text(
                           '$url?',
                           textDirection: TextDirection.ltr,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
+                          style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(
                                 fontSize: 14,
-                                color: Theme.of(context).brightness ==
+                                color:
+                                    Theme.of(context).brightness ==
                                         Brightness.light
                                     ? Colors.black.withValues(alpha: 0.87)
                                     : Colors.white.withValues(alpha: 0.87),
                               )
                               .merge(
                                 _pdfViewerThemeData!
-                                    .hyperlinkDialogStyle?.contentTextStyle,
+                                    .hyperlinkDialogStyle
+                                    ?.contentTextStyle,
                               ),
                         ),
                       ),
@@ -644,9 +647,7 @@ class CanvasRenderBox extends RenderBox {
                     : null,
                 child: Text(
                   _localizations.pdfHyperlinkDialogCancelLabel,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
+                  style: Theme.of(context).textTheme.bodyMedium!
                       .copyWith(
                         fontSize: 14,
                         fontWeight: isMaterial3 ? FontWeight.w500 : null,
@@ -656,7 +657,8 @@ class CanvasRenderBox extends RenderBox {
                       )
                       .merge(
                         _pdfViewerThemeData!
-                            .hyperlinkDialogStyle?.cancelTextStyle,
+                            .hyperlinkDialogStyle
+                            ?.cancelTextStyle,
                       ),
                 ),
               ),
@@ -679,9 +681,7 @@ class CanvasRenderBox extends RenderBox {
                       : null,
                   child: Text(
                     _localizations.pdfHyperlinkDialogOpenLabel,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
+                    style: Theme.of(context).textTheme.bodyMedium!
                         .copyWith(
                           fontSize: 14,
                           fontWeight: isMaterial3 ? FontWeight.w500 : null,
@@ -689,7 +689,8 @@ class CanvasRenderBox extends RenderBox {
                         )
                         .merge(
                           _pdfViewerThemeData!
-                              .hyperlinkDialogStyle?.openTextStyle,
+                              .hyperlinkDialogStyle
+                              ?.openTextStyle,
                         ),
                   ),
                 ),
@@ -718,11 +719,12 @@ class CanvasRenderBox extends RenderBox {
             scrollable: true,
             insetPadding: EdgeInsets.zero,
             titlePadding: isMaterial3 ? null : const EdgeInsets.all(16),
-            contentPadding:
-                isMaterial3 ? null : const EdgeInsets.symmetric(horizontal: 16),
+            contentPadding: isMaterial3
+                ? null
+                : const EdgeInsets.symmetric(horizontal: 16),
             buttonPadding: const EdgeInsets.all(24),
-            backgroundColor: _pdfViewerThemeData!
-                    .hyperlinkDialogStyle?.backgroundColor ??
+            backgroundColor:
+                _pdfViewerThemeData!.hyperlinkDialogStyle?.backgroundColor ??
                 _effectiveThemeData.hyperlinkDialogStyle?.backgroundColor ??
                 (Theme.of(context).colorScheme.brightness == Brightness.light
                     ? Colors.white
@@ -732,20 +734,19 @@ class CanvasRenderBox extends RenderBox {
               children: <Widget>[
                 Text(
                   _localizations.pdfHyperlinkLabel,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium!
+                  style: Theme.of(context).textTheme.headlineMedium!
                       .copyWith(
                         fontSize: isMaterial3 ? 24 : 20,
                         color: isMaterial3
                             ? Theme.of(context).colorScheme.onSurface
                             : Theme.of(context).brightness == Brightness.light
-                                ? Colors.black.withValues(alpha: 0.87)
-                                : Colors.white.withValues(alpha: 0.87),
+                            ? Colors.black.withValues(alpha: 0.87)
+                            : Colors.white.withValues(alpha: 0.87),
                       )
                       .merge(
                         _pdfViewerThemeData!
-                            .hyperlinkDialogStyle?.headerTextStyle,
+                            .hyperlinkDialogStyle
+                            ?.headerTextStyle,
                       ),
                 ),
                 SizedBox(
@@ -763,10 +764,13 @@ class CanvasRenderBox extends RenderBox {
                         : const RoundedRectangleBorder(),
                     child: Icon(
                       Icons.clear,
-                      color: _pdfViewerThemeData!
-                              .hyperlinkDialogStyle?.closeIconColor ??
+                      color:
+                          _pdfViewerThemeData!
+                              .hyperlinkDialogStyle
+                              ?.closeIconColor ??
                           _effectiveThemeData
-                              .hyperlinkDialogStyle?.closeIconColor ??
+                              .hyperlinkDialogStyle
+                              ?.closeIconColor ??
                           _themeData.colorScheme.onSurface.withValues(
                             alpha: 0.6,
                           ),
@@ -791,19 +795,19 @@ class CanvasRenderBox extends RenderBox {
                             : const EdgeInsets.fromLTRB(2, 0, 0, 8),
                         child: Text(
                           _localizations.pdfHyperlinkContentLabel,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
+                          style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(
                                 fontSize: 14,
-                                color: Theme.of(context).brightness ==
+                                color:
+                                    Theme.of(context).brightness ==
                                         Brightness.light
                                     ? Colors.black.withValues(alpha: 0.87)
                                     : Colors.white.withValues(alpha: 0.87),
                               )
                               .merge(
                                 _pdfViewerThemeData!
-                                    .hyperlinkDialogStyle?.contentTextStyle,
+                                    .hyperlinkDialogStyle
+                                    ?.contentTextStyle,
                               ),
                         ),
                       ),
@@ -817,19 +821,19 @@ class CanvasRenderBox extends RenderBox {
                         child: Text(
                           '$url?',
                           textDirection: TextDirection.ltr,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
+                          style: Theme.of(context).textTheme.bodyMedium!
                               .copyWith(
                                 fontSize: 14,
-                                color: Theme.of(context).brightness ==
+                                color:
+                                    Theme.of(context).brightness ==
                                         Brightness.light
                                     ? Colors.black.withValues(alpha: 0.87)
                                     : Colors.white.withValues(alpha: 0.87),
                               )
                               .merge(
                                 _pdfViewerThemeData!
-                                    .hyperlinkDialogStyle?.contentTextStyle,
+                                    .hyperlinkDialogStyle
+                                    ?.contentTextStyle,
                               ),
                         ),
                       ),
@@ -855,9 +859,7 @@ class CanvasRenderBox extends RenderBox {
                     : null,
                 child: Text(
                   _localizations.pdfHyperlinkDialogCancelLabel,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
+                  style: Theme.of(context).textTheme.bodyMedium!
                       .copyWith(
                         fontSize: 14,
                         fontWeight: isMaterial3 ? FontWeight.w500 : null,
@@ -867,7 +869,8 @@ class CanvasRenderBox extends RenderBox {
                       )
                       .merge(
                         _pdfViewerThemeData!
-                            .hyperlinkDialogStyle?.cancelTextStyle,
+                            .hyperlinkDialogStyle
+                            ?.cancelTextStyle,
                       ),
                 ),
               ),
@@ -887,9 +890,7 @@ class CanvasRenderBox extends RenderBox {
                     : null,
                 child: Text(
                   _localizations.pdfHyperlinkDialogOpenLabel,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
+                  style: Theme.of(context).textTheme.bodyMedium!
                       .copyWith(
                         fontSize: 14,
                         fontWeight: isMaterial3 ? FontWeight.w500 : null,
@@ -897,7 +898,8 @@ class CanvasRenderBox extends RenderBox {
                       )
                       .merge(
                         _pdfViewerThemeData!
-                            .hyperlinkDialogStyle?.openTextStyle,
+                            .hyperlinkDialogStyle
+                            ?.openTextStyle,
                       ),
                 ),
               ),
@@ -961,18 +963,18 @@ class CanvasRenderBox extends RenderBox {
               final bool isTel = _pdfTextWebLink!.url.startsWith('tel:');
               final String scheme = isMailID
                   ? !_pdfTextWebLink!.url.contains('mailto')
-                      ? 'mailto'
-                      : ''
+                        ? 'mailto'
+                        : ''
                   : isTel
-                      ? 'tel'
-                      : (!_pdfTextWebLink!.url.contains('https') &&
-                              !_pdfTextWebLink!.url.contains('http'))
-                          ? 'https'
-                          : '';
+                  ? 'tel'
+                  : (!_pdfTextWebLink!.url.contains('https') &&
+                        !_pdfTextWebLink!.url.contains('http'))
+                  ? 'https'
+                  : '';
               final Uri url = !_pdfTextWebLink!.url.contains(scheme)
                   ? scheme.contains('mailto') || scheme.contains('tel')
-                      ? Uri(scheme: scheme, path: _pdfTextWebLink!.url)
-                      : Uri(scheme: scheme, host: _pdfTextWebLink!.url)
+                        ? Uri(scheme: scheme, path: _pdfTextWebLink!.url)
+                        : Uri(scheme: scheme, host: _pdfTextWebLink!.url)
                   : Uri.parse(_pdfTextWebLink!.url);
               _showHyperLinkDialog(url);
               markNeedsPaint();
@@ -1077,9 +1079,7 @@ class CanvasRenderBox extends RenderBox {
 
     final List<Annotation> annotations = pdfViewerController
         .getAnnotations()
-        .where(
-          (Annotation annotation) => annotation.pageNumber == pageNumber,
-        )
+        .where((Annotation annotation) => annotation.pageNumber == pageNumber)
         .toList();
 
     annotations.sort(
@@ -1141,7 +1141,8 @@ class CanvasRenderBox extends RenderBox {
     }
 
     if (annotation is StickyNoteAnnotation) {
-      final Rect scaledBounds = annotation.boundingBox.topLeft &
+      final Rect scaledBounds =
+          annotation.boundingBox.topLeft * heightPercentage &
           (annotation.boundingBox.size / pdfViewerController.zoomLevel);
       if (scaledBounds.contains(tappedPagePosition)) {
         return true;
@@ -1318,21 +1319,30 @@ class CanvasRenderBox extends RenderBox {
         pdfDocument!,
       ).extractTextLines(startPageIndex: pageIndex);
     }
-    for (int textLineIndex = 0;
-        textLineIndex < _textSelectionHelper.textLines!.length;
-        textLineIndex++) {
+    for (
+      int textLineIndex = 0;
+      textLineIndex < _textSelectionHelper.textLines!.length;
+      textLineIndex++
+    ) {
       final double heightPercentage =
           pdfDocument!.pages[_textSelectionHelper.viewId!].size.height / height;
-      for (int wordIndex = 0;
-          wordIndex <
-              _textSelectionHelper
-                  .textLines![textLineIndex].wordCollection.length;
-          wordIndex++) {
+      for (
+        int wordIndex = 0;
+        wordIndex <
+            _textSelectionHelper
+                .textLines![textLineIndex]
+                .wordCollection
+                .length;
+        wordIndex++
+      ) {
         final TextWord textWord = _textSelectionHelper
-            .textLines![textLineIndex].wordCollection[wordIndex];
-        for (int glyphIndex = 0;
-            glyphIndex < textWord.glyphs.length;
-            glyphIndex++) {
+            .textLines![textLineIndex]
+            .wordCollection[wordIndex];
+        for (
+          int glyphIndex = 0;
+          glyphIndex < textWord.glyphs.length;
+          glyphIndex++
+        ) {
           final TextGlyph textGlyph = textWord.glyphs[glyphIndex];
           Rect glyphBounds = textGlyph.bounds;
           if (pdfViewerController.annotationMode != PdfAnnotationMode.none) {
@@ -1390,7 +1400,7 @@ class CanvasRenderBox extends RenderBox {
         }
         final double heightPercentage =
             pdfDocument!.pages[_textSelectionHelper.viewId!].size.height /
-                height;
+            height;
         if (gestureType == 'DragStart' &&
             _textSelectionHelper.mouseSelectionEnabled) {
           _textSelectionHelper.endBubbleX =
@@ -1402,21 +1412,30 @@ class CanvasRenderBox extends RenderBox {
           _textSelectionHelper.startBubbleY =
               (details.localPosition.dy as double) * heightPercentage;
         }
-        for (int textLineIndex = 0;
-            textLineIndex < _textSelectionHelper.textLines!.length;
-            textLineIndex++) {
+        for (
+          int textLineIndex = 0;
+          textLineIndex < _textSelectionHelper.textLines!.length;
+          textLineIndex++
+        ) {
           final TextLine textLine =
               _textSelectionHelper.textLines![textLineIndex];
-          for (int wordIndex = 0;
-              wordIndex <
-                  _textSelectionHelper
-                      .textLines![textLineIndex].wordCollection.length;
-              wordIndex++) {
+          for (
+            int wordIndex = 0;
+            wordIndex <
+                _textSelectionHelper
+                    .textLines![textLineIndex]
+                    .wordCollection
+                    .length;
+            wordIndex++
+          ) {
             final TextWord textWord = _textSelectionHelper
-                .textLines![textLineIndex].wordCollection[wordIndex];
-            for (int glyphIndex = 0;
-                glyphIndex < textWord.glyphs.length;
-                glyphIndex++) {
+                .textLines![textLineIndex]
+                .wordCollection[wordIndex];
+            for (
+              int glyphIndex = 0;
+              glyphIndex < textWord.glyphs.length;
+              glyphIndex++
+            ) {
               final TextGlyph textGlyph = textWord.glyphs[glyphIndex];
               if (gestureType == 'DragStart') {
                 Rect glyphBounds = textGlyph.bounds;
@@ -1579,10 +1598,12 @@ class CanvasRenderBox extends RenderBox {
         !_textSelectionHelper.isCursorExit) {
       double endBubbleValue;
       if (_rotatedAngle == PdfPageRotateAngle.rotateAngle180) {
-        endBubbleValue = -(_textSelectionHelper.finalScrollOffset -
-            _textSelectionHelper.initialScrollOffset);
+        endBubbleValue =
+            -(_textSelectionHelper.finalScrollOffset -
+                _textSelectionHelper.initialScrollOffset);
       } else {
-        endBubbleValue = _textSelectionHelper.finalScrollOffset -
+        endBubbleValue =
+            _textSelectionHelper.finalScrollOffset -
             _textSelectionHelper.initialScrollOffset;
       }
       final double heightPercentage =
@@ -1634,7 +1655,8 @@ class CanvasRenderBox extends RenderBox {
       _textSelectionHelper.endBubbleY =
           _textSelectionHelper.endBubbleY! + endBubbleValue;
     }
-    final double position = pdfViewerController.scrollOffset.dy +
+    final double position =
+        pdfViewerController.scrollOffset.dy +
         (isReachedTop ? -_jumpOffset : _jumpOffset);
 
     if (isSelectionScroll) {
@@ -1658,9 +1680,11 @@ class CanvasRenderBox extends RenderBox {
   /// Check the tap position same as the start bubble position.
   bool _checkStartBubblePosition(Offset details) {
     if (_textSelectionHelper.selectionEnabled) {
-      final double startBubbleX = _textSelectionHelper.startBubbleX! /
+      final double startBubbleX =
+          _textSelectionHelper.startBubbleX! /
           _textSelectionHelper.heightPercentage!;
-      final double startBubbleY = _textSelectionHelper.startBubbleY! /
+      final double startBubbleY =
+          _textSelectionHelper.startBubbleY! /
           _textSelectionHelper.heightPercentage!;
       if (details.dx >= startBubbleX - (_bubbleSize * _maximumZoomLevel) &&
           details.dx <= startBubbleX &&
@@ -1675,9 +1699,11 @@ class CanvasRenderBox extends RenderBox {
   /// Check the tap position same as the end bubble position.
   bool _checkEndBubblePosition(Offset details) {
     if (_textSelectionHelper.selectionEnabled) {
-      final double endBubbleX = _textSelectionHelper.endBubbleX! /
+      final double endBubbleX =
+          _textSelectionHelper.endBubbleX! /
           _textSelectionHelper.heightPercentage!;
-      final double endBubbleY = _textSelectionHelper.endBubbleY! /
+      final double endBubbleY =
+          _textSelectionHelper.endBubbleY! /
           _textSelectionHelper.heightPercentage!;
       if (details.dx >= endBubbleX &&
           details.dx <= endBubbleX + (_bubbleSize * _maximumZoomLevel) &&
@@ -1690,9 +1716,11 @@ class CanvasRenderBox extends RenderBox {
   }
 
   List<TextLine> _sortTextLines(List<TextLine> textLines) {
-    for (int textLineIndex = 0;
-        textLineIndex < textLines.length;
-        textLineIndex++) {
+    for (
+      int textLineIndex = 0;
+      textLineIndex < textLines.length;
+      textLineIndex++
+    ) {
       for (int index = textLineIndex + 1; index < textLines.length; index++) {
         if (textLines[textLineIndex].bounds.bottom >
             textLines[index].bounds.bottom) {
@@ -1717,9 +1745,11 @@ class CanvasRenderBox extends RenderBox {
       ).extractTextLines(startPageIndex: pageIndex);
       textLines = _sortTextLines(textLines);
       TextLine? textLine;
-      for (int textLineIndex = 0;
-          textLineIndex < textLines.length;
-          textLineIndex++) {
+      for (
+        int textLineIndex = 0;
+        textLineIndex < textLines.length;
+        textLineIndex++
+      ) {
         if (textLines[textLineIndex].bounds.topLeft.dy >= offset.dy) {
           textLine = textLines[textLineIndex];
           break;
@@ -1862,11 +1892,13 @@ class CanvasRenderBox extends RenderBox {
     }
     final double heightPercentage =
         pdfDocument!.pages[_textSelectionHelper.cursorPageNumber!].size.height /
-            height;
+        height;
     if (_textSelectionHelper.cursorTextLines != null) {
-      for (int textLineIndex = 0;
-          textLineIndex < _textSelectionHelper.cursorTextLines!.length;
-          textLineIndex++) {
+      for (
+        int textLineIndex = 0;
+        textLineIndex < _textSelectionHelper.cursorTextLines!.length;
+        textLineIndex++
+      ) {
         if (_textSelectionHelper.cursorTextLines![textLineIndex].bounds
             .contains(details * heightPercentage)) {
           return _textSelectionHelper.cursorTextLines![textLineIndex];
@@ -1885,13 +1917,14 @@ class CanvasRenderBox extends RenderBox {
         pdfDocument!.pages[_textSelectionHelper.cursorPageNumber!];
     final double heightPercentage =
         pdfDocument!.pages[_textSelectionHelper.cursorPageNumber!].size.height /
-            height;
+        height;
     final Offset hoverDetails = details * heightPercentage;
     for (int index = 0; index < page.annotations.count; index++) {
       final bool hasTOC =
           page.annotations[index] is PdfDocumentLinkAnnotation &&
-              enableDocumentLinkNavigation;
-      final bool hasURI = (page.annotations[index] is PdfUriAnnotation ||
+          enableDocumentLinkNavigation;
+      final bool hasURI =
+          (page.annotations[index] is PdfUriAnnotation ||
               page.annotations[index] is PdfTextWebLink) &&
           enableHyperlinkNavigation;
       if (hasTOC) {
@@ -2123,12 +2156,13 @@ class CanvasRenderBox extends RenderBox {
               Offset(_totalPageOffset.dx, _totalPageOffset.dy),
             );
           } else {
-            final double xOffSet = textDirection == TextDirection.rtl &&
+            final double xOffSet =
+                textDirection == TextDirection.rtl &&
                     scrollDirection == PdfScrollDirection.horizontal &&
                     !isSinglePageView
                 ? (pdfScrollableStateKey.currentWidget! as PdfScrollable)
-                        .maxScrollExtent -
-                    _totalPageOffset.dx
+                          .maxScrollExtent -
+                      _totalPageOffset.dx
                 : _totalPageOffset.dx;
             pdfViewerController.jumpTo(
               xOffset: xOffSet,
@@ -2204,9 +2238,11 @@ class CanvasRenderBox extends RenderBox {
           startPoint: startGlyph.bounds,
         );
       }
-      for (int textLineIndex = _textSelectionHelper.startIndex;
-          textLineIndex <= _textSelectionHelper.endIndex;
-          textLineIndex++) {
+      for (
+        int textLineIndex = _textSelectionHelper.startIndex;
+        textLineIndex <= _textSelectionHelper.endIndex;
+        textLineIndex++
+      ) {
         final TextLine line = _textSelectionHelper.textLines![textLineIndex];
         final bool isRTLText = intl.Bidi.detectRtlDirectionality(line.text);
         Rect? startPoint;
@@ -2227,13 +2263,17 @@ class CanvasRenderBox extends RenderBox {
           }
         }
         final List<TextWord> textWordCollection = line.wordCollection;
-        for (int wordIndex = 0;
-            wordIndex < textWordCollection.length;
-            wordIndex++) {
+        for (
+          int wordIndex = 0;
+          wordIndex < textWordCollection.length;
+          wordIndex++
+        ) {
           final TextWord textWord = textWordCollection[wordIndex];
-          for (int glyphIndex = 0;
-              glyphIndex < textWord.glyphs.length;
-              glyphIndex++) {
+          for (
+            int glyphIndex = 0;
+            glyphIndex < textWord.glyphs.length;
+            glyphIndex++
+          ) {
             final TextGlyph glyph = textWord.glyphs[glyphIndex];
             final bool canSelectGlyph = checkGlyphInRegion(
               glyph,
@@ -2252,7 +2292,8 @@ class CanvasRenderBox extends RenderBox {
                 glyphIndex,
               );
               _textSelectionHelper.copiedText = glyphText;
-              final Rect textRectOffset = offset.translate(
+              final Rect textRectOffset =
+                  offset.translate(
                     glyph.bounds.left / heightPercentage,
                     glyph.bounds.top / heightPercentage,
                   ) &
@@ -2503,9 +2544,11 @@ class CanvasRenderBox extends RenderBox {
     Offset startPoint = Offset.zero,
     Rect endPoint = Rect.zero,
   }) {
-    for (int textLineIndex = 0;
-        textLineIndex < _textSelectionHelper.textLines!.length;
-        textLineIndex++) {
+    for (
+      int textLineIndex = 0;
+      textLineIndex < _textSelectionHelper.textLines!.length;
+      textLineIndex++
+    ) {
       final TextLine line = _textSelectionHelper.textLines![textLineIndex];
       if (textLineIndex < _textSelectionHelper.startIndex ||
           textLineIndex > _textSelectionHelper.endIndex) {
@@ -2528,7 +2571,8 @@ class CanvasRenderBox extends RenderBox {
                 top.floor() / heightPercentage >= startPoint.dy.floor() &&
                 right.floor() <= endPoint.right.floor() &&
                 bottom.floor() <= endPoint.bottom.floor())) {
-          final Rect lineRectOffset = offset.translate(
+          final Rect lineRectOffset =
+              offset.translate(
                 left / heightPercentage,
                 top / heightPercentage,
               ) &
@@ -2556,7 +2600,8 @@ class CanvasRenderBox extends RenderBox {
     switch (theme.platform) {
       case TargetPlatform.iOS:
       case TargetPlatform.macOS:
-        _selectionColor ??= selectionTheme.selectionColor ??
+        _selectionColor ??=
+            selectionTheme.selectionColor ??
             cupertinoTheme.primaryColor.withValues(alpha: 0.40);
         _selectionHandleColor ??=
             selectionTheme.selectionHandleColor ?? cupertinoTheme.primaryColor;
@@ -2565,7 +2610,8 @@ class CanvasRenderBox extends RenderBox {
       case TargetPlatform.fuchsia:
       case TargetPlatform.linux:
       case TargetPlatform.windows:
-        _selectionColor ??= selectionTheme.selectionColor ??
+        _selectionColor ??=
+            selectionTheme.selectionColor ??
             theme.colorScheme.primary.withValues(alpha: 0.40);
         _selectionHandleColor ??=
             selectionTheme.selectionHandleColor ?? theme.colorScheme.primary;
@@ -2597,14 +2643,18 @@ class CanvasRenderBox extends RenderBox {
       _textSelectionHelper.textLines = PdfTextExtractor(
         pdfDocument!,
       ).extractTextLines(startPageIndex: _textSelectionHelper.viewId);
-      for (int textLineIndex = 0;
-          textLineIndex < _textSelectionHelper.textLines!.length;
-          textLineIndex++) {
+      for (
+        int textLineIndex = 0;
+        textLineIndex < _textSelectionHelper.textLines!.length;
+        textLineIndex++
+      ) {
         final TextLine line = _textSelectionHelper.textLines![textLineIndex];
         final List<TextWord> textWordCollection = line.wordCollection;
-        for (int wordIndex = 0;
-            wordIndex < textWordCollection.length;
-            wordIndex++) {
+        for (
+          int wordIndex = 0;
+          wordIndex < textWordCollection.length;
+          wordIndex++
+        ) {
           final TextWord textWord = textWordCollection[wordIndex];
           final Rect wordBounds = textWord.bounds;
           if (_tapDetails != null &&
@@ -2620,7 +2670,8 @@ class CanvasRenderBox extends RenderBox {
             _textSelectionHelper.endBubbleY = textWord.bounds.bottomRight.dy;
             _textSelectionHelper.startBubbleX = textWord.bounds.bottomLeft.dx;
             _textSelectionHelper.endBubbleX = textWord.bounds.bottomRight.dx;
-            final Rect textRectOffset = offset.translate(
+            final Rect textRectOffset =
+                offset.translate(
                   textWord.bounds.left / heightPercentage,
                   textWord.bounds.top / heightPercentage,
                 ) &
@@ -2656,8 +2707,9 @@ class CanvasRenderBox extends RenderBox {
             final bool isRTLGlyph = intl.Bidi.detectRtlDirectionality(
               textWord.text,
             );
-            _textSelectionHelper.firstSelectedGlyph =
-                isRTLGlyph ? textWord.glyphs.last : textWord.glyphs.first;
+            _textSelectionHelper.firstSelectedGlyph = isRTLGlyph
+                ? textWord.glyphs.last
+                : textWord.glyphs.first;
             _textSelectionHelper.selectionEnabled = true;
             _textSelectionHelper.selectedTextLines.clear();
             _textSelectionHelper.selectedTextLines.add(
@@ -2683,9 +2735,11 @@ class CanvasRenderBox extends RenderBox {
         _findStartAndEndIndex(_dragDetails!, heightPercentage, false);
       }
       if (_isRTLText ? _endBubbleDragging : _startBubbleDragging) {
-        for (int textLineIndex = _textSelectionHelper.startIndex;
-            textLineIndex <= _textSelectionHelper.endIndex;
-            textLineIndex++) {
+        for (
+          int textLineIndex = _textSelectionHelper.startIndex;
+          textLineIndex <= _textSelectionHelper.endIndex;
+          textLineIndex++
+        ) {
           final TextLine line = _textSelectionHelper.textLines![textLineIndex];
           if (!_isRTLText) {
             if (_dragDetails != null &&
@@ -2717,21 +2771,27 @@ class CanvasRenderBox extends RenderBox {
               _textSelectionHelper.endBubbleY = line.bounds.bottom;
             }
           }
-          for (int wordIndex = 0;
-              wordIndex <
-                  (_isRTLText
-                      ? _textSelectionHelper
-                          .endBubbleLine!.wordCollection.length
-                      : _textSelectionHelper
-                          .startBubbleLine!.wordCollection.length);
-              wordIndex++) {
+          for (
+            int wordIndex = 0;
+            wordIndex <
+                (_isRTLText
+                    ? _textSelectionHelper.endBubbleLine!.wordCollection.length
+                    : _textSelectionHelper
+                          .startBubbleLine!
+                          .wordCollection
+                          .length);
+            wordIndex++
+          ) {
             final TextWord textWord = _isRTLText
                 ? _textSelectionHelper.endBubbleLine!.wordCollection[wordIndex]
                 : _textSelectionHelper
-                    .startBubbleLine!.wordCollection[wordIndex];
-            for (int glyphIndex = 0;
-                glyphIndex < textWord.glyphs.length;
-                glyphIndex++) {
+                      .startBubbleLine!
+                      .wordCollection[wordIndex];
+            for (
+              int glyphIndex = 0;
+              glyphIndex < textWord.glyphs.length;
+              glyphIndex++
+            ) {
               final TextGlyph textGlyph = textWord.glyphs[glyphIndex];
               if (_startBubbleTapX >=
                       (textGlyph.bounds.bottomLeft.dx / heightPercentage) &&
@@ -2759,7 +2819,11 @@ class CanvasRenderBox extends RenderBox {
               _textSelectionHelper.startBubbleX =
                   _textSelectionHelper.startBubbleLine!.bounds.bottomLeft.dx;
               _textSelectionHelper.firstSelectedGlyph = _textSelectionHelper
-                  .startBubbleLine!.wordCollection.first.glyphs.first;
+                  .startBubbleLine!
+                  .wordCollection
+                  .first
+                  .glyphs
+                  .first;
             }
             if (_startBubbleTapX >=
                 (_textSelectionHelper.startBubbleLine!.bounds.bottomRight.dx /
@@ -2774,23 +2838,31 @@ class CanvasRenderBox extends RenderBox {
                   .bottomLeft
                   .dx;
               _textSelectionHelper.firstSelectedGlyph = _textSelectionHelper
-                  .startBubbleLine!.wordCollection.last.glyphs.last;
+                  .startBubbleLine!
+                  .wordCollection
+                  .last
+                  .glyphs
+                  .last;
             }
             if (_textSelectionHelper.startBubbleLine!.bounds.bottom /
                         heightPercentage ==
                     _textSelectionHelper.endBubbleLine!.bounds.bottom /
                         heightPercentage &&
                 _startBubbleTapX >= _endBubbleTapX) {
-              for (int wordIndex = 0;
-                  wordIndex <
-                      _textSelectionHelper
-                          .startBubbleLine!.wordCollection.length;
-                  wordIndex++) {
+              for (
+                int wordIndex = 0;
+                wordIndex <
+                    _textSelectionHelper.startBubbleLine!.wordCollection.length;
+                wordIndex++
+              ) {
                 final TextWord textWord = _textSelectionHelper
-                    .startBubbleLine!.wordCollection[wordIndex];
-                for (int glyphIndex = 0;
-                    glyphIndex < textWord.glyphs.length;
-                    glyphIndex++) {
+                    .startBubbleLine!
+                    .wordCollection[wordIndex];
+                for (
+                  int glyphIndex = 0;
+                  glyphIndex < textWord.glyphs.length;
+                  glyphIndex++
+                ) {
                   final TextGlyph textGlyph = textWord.glyphs[glyphIndex];
                   if (textGlyph.bounds.bottomRight.dx / heightPercentage ==
                       _textSelectionHelper.endBubbleX! / heightPercentage) {
@@ -2819,7 +2891,11 @@ class CanvasRenderBox extends RenderBox {
                 _textSelectionHelper.endBubbleX =
                     _textSelectionHelper.endBubbleLine!.bounds.bottomLeft.dx;
                 _textSelectionHelper.firstSelectedGlyph = _textSelectionHelper
-                    .endBubbleLine!.wordCollection.first.glyphs.first;
+                    .endBubbleLine!
+                    .wordCollection
+                    .first
+                    .glyphs
+                    .first;
               }
               if (_endBubbleTapX >=
                   (_textSelectionHelper.endBubbleLine!.bounds.bottomRight.dx /
@@ -2834,15 +2910,21 @@ class CanvasRenderBox extends RenderBox {
                     .bottomLeft
                     .dx;
                 _textSelectionHelper.firstSelectedGlyph = _textSelectionHelper
-                    .endBubbleLine!.wordCollection.last.glyphs.last;
+                    .endBubbleLine!
+                    .wordCollection
+                    .last
+                    .glyphs
+                    .last;
               }
             }
           }
         }
       } else if (_isRTLText ? _startBubbleDragging : _endBubbleDragging) {
-        for (int textLineIndex = _textSelectionHelper.startIndex;
-            textLineIndex <= _textSelectionHelper.endIndex;
-            textLineIndex++) {
+        for (
+          int textLineIndex = _textSelectionHelper.startIndex;
+          textLineIndex <= _textSelectionHelper.endIndex;
+          textLineIndex++
+        ) {
           final TextLine line = _textSelectionHelper.textLines![textLineIndex];
           if (_dragDetails != null &&
               !_isRTLText &&
@@ -2869,21 +2951,30 @@ class CanvasRenderBox extends RenderBox {
             _textSelectionHelper.startBubbleLine = line;
             _textSelectionHelper.startBubbleY = line.bounds.bottom;
           }
-          for (int wordIndex = 0;
-              wordIndex <
-                  (_isRTLText
-                      ? _textSelectionHelper
-                          .startBubbleLine!.wordCollection.length
-                      : _textSelectionHelper
-                          .endBubbleLine!.wordCollection.length);
-              wordIndex++) {
+          for (
+            int wordIndex = 0;
+            wordIndex <
+                (_isRTLText
+                    ? _textSelectionHelper
+                          .startBubbleLine!
+                          .wordCollection
+                          .length
+                    : _textSelectionHelper
+                          .endBubbleLine!
+                          .wordCollection
+                          .length);
+            wordIndex++
+          ) {
             final TextWord textWord = _isRTLText
                 ? _textSelectionHelper
-                    .startBubbleLine!.wordCollection[wordIndex]
+                      .startBubbleLine!
+                      .wordCollection[wordIndex]
                 : _textSelectionHelper.endBubbleLine!.wordCollection[wordIndex];
-            for (int glyphIndex = 0;
-                glyphIndex < textWord.glyphs.length;
-                glyphIndex++) {
+            for (
+              int glyphIndex = 0;
+              glyphIndex < textWord.glyphs.length;
+              glyphIndex++
+            ) {
               final TextGlyph textGlyph = textWord.glyphs[glyphIndex];
               if (!_isRTLText &&
                   _endBubbleTapX >=
@@ -2929,15 +3020,20 @@ class CanvasRenderBox extends RenderBox {
                     _textSelectionHelper.startBubbleLine!.bounds.bottom /
                         heightPercentage &&
                 _endBubbleTapX < _startBubbleTapX) {
-              for (int wordIndex = 0;
-                  wordIndex <
-                      _textSelectionHelper.endBubbleLine!.wordCollection.length;
-                  wordIndex++) {
+              for (
+                int wordIndex = 0;
+                wordIndex <
+                    _textSelectionHelper.endBubbleLine!.wordCollection.length;
+                wordIndex++
+              ) {
                 final TextWord textWord = _textSelectionHelper
-                    .endBubbleLine!.wordCollection[wordIndex];
-                for (int glyphIndex = 0;
-                    glyphIndex < textWord.glyphs.length;
-                    glyphIndex++) {
+                    .endBubbleLine!
+                    .wordCollection[wordIndex];
+                for (
+                  int glyphIndex = 0;
+                  glyphIndex < textWord.glyphs.length;
+                  glyphIndex++
+                ) {
                   final TextGlyph textGlyph = textWord.glyphs[glyphIndex];
                   if (textGlyph.bounds.bottomLeft.dx / heightPercentage ==
                       _textSelectionHelper.startBubbleX! / heightPercentage) {

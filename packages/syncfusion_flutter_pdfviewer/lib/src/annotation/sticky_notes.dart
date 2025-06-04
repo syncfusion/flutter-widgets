@@ -133,22 +133,22 @@ class StickyNoteAnnotationView extends InteractiveGraphicsView
     bool canEdit = true,
     Color selectorColor = defaultSelectorColor,
     double selectorStorkeWidth = 1,
-    double heightPercentage = 1,
+    double zoomLevel = 1,
   }) : super(
-          key: key,
-          color: annotation.color,
-          strokeWidth: 1,
-          opacity: annotation.opacity,
-          isSelected: isSelected,
-          selectorColor: selectorColor,
-          canMove: canEdit,
-          selectorStorkeWidth: selectorStorkeWidth,
-        ) {
-    _heightPercentage = heightPercentage;
+         key: key,
+         color: annotation.color,
+         strokeWidth: 1,
+         opacity: annotation.opacity,
+         isSelected: isSelected,
+         selectorColor: selectorColor,
+         canMove: canEdit,
+         selectorStorkeWidth: selectorStorkeWidth,
+       ) {
+    _zoomLevel = zoomLevel;
   }
 
-  /// Height percentage of the pdf page.
-  late final double _heightPercentage;
+  /// Zoom level of the pdf page.
+  late final double _zoomLevel;
 
   /// Called when the annotation is moved.
   final AnnotationMoveEndedCallback? onAnnotationMoved;
@@ -171,7 +171,7 @@ class StickyNoteAnnotationView extends InteractiveGraphicsView
       isSelected: isSelected,
       selectorColor: selectorColor,
       selectorStorkeWidth: selectorStorkeWidth,
-      heightPercentage: _heightPercentage,
+      zoomLevel: _zoomLevel,
       onAnnotationMoved: onAnnotationMoved,
       onAnnotationMoving: onAnnotationMoving,
       onDoubleTap: onDoubleTap,
@@ -186,7 +186,7 @@ class StickyNoteAnnotationView extends InteractiveGraphicsView
   ) {
     if (renderObject is RenderStickyNoteAnnotationView) {
       renderObject
-        ..heightPercentage = _heightPercentage
+        ..zoomLevel = _zoomLevel
         ..selectorStorkeWidth = selectorStorkeWidth
         ..onAnnotationMoved = onAnnotationMoved
         ..onAnnotationMoving = onAnnotationMoving
@@ -214,18 +214,18 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
     this.onAnnotationMoving,
     VoidCallback? onTap,
     void Function()? onDoubleTap,
-    double heightPercentage = 1,
-  })  : _onDoubleTap = onDoubleTap,
-        super(
-          strokeColor: color,
-          opacity: opacity,
-          strokeWidth: 1,
-          isSelected: isSelected,
-          selectorColor: selectorColor,
-          selectorStorkeWidth: selectorStorkeWidth,
-        ) {
+    double zoomLevel = 1,
+  }) : _onDoubleTap = onDoubleTap,
+       super(
+         strokeColor: color,
+         opacity: opacity,
+         strokeWidth: 1,
+         isSelected: isSelected,
+         selectorColor: selectorColor,
+         selectorStorkeWidth: selectorStorkeWidth,
+       ) {
     _onTap = onTap;
-    _heightPercentage = heightPercentage;
+    _zoomLevel = zoomLevel;
     _selectorStorkeWidth = selectorStorkeWidth;
 
     _doubleTapGestureRecognizer = DoubleTapGestureRecognizer()
@@ -238,19 +238,19 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
     _fillPath = Path();
   }
 
-  late double _heightPercentage;
+  late double _zoomLevel;
   late DoubleTapGestureRecognizer _doubleTapGestureRecognizer;
   late Path _fillPath;
   late Path _strokePath;
   late double _selectorStorkeWidth;
 
-  /// The height percentage.
-  double get heightPercentage => _heightPercentage;
-  set heightPercentage(double value) {
-    if (_heightPercentage == value) {
+  /// The zoom level
+  double get zoomLevel => _zoomLevel;
+  set zoomLevel(double value) {
+    if (_zoomLevel == value) {
       return;
     }
-    _heightPercentage = value;
+    _zoomLevel = value;
     markNeedsPaint();
   }
 
@@ -297,10 +297,10 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
   Rect _getPaintRect(Rect rect, Offset offset) {
     final Rect localRect = rect.translate(-_bounds.left, -_bounds.top);
     final Offset globalOffset = Offset(
-      offset.dx + localRect.left / heightPercentage,
-      offset.dy + localRect.top / heightPercentage,
+      offset.dx + (localRect.left / zoomLevel),
+      offset.dy + (localRect.top / zoomLevel),
     );
-    return globalOffset & (localRect.size / heightPercentage);
+    return globalOffset & (localRect.size / zoomLevel);
   }
 
   void _applyRotationTransform(Canvas canvas, int rotation, Offset offset) {
