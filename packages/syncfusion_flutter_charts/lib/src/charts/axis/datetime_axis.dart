@@ -53,6 +53,7 @@ class DateTimeAxis extends ChartAxis {
     super.labelStyle,
     this.dateFormat,
     this.intervalType = DateTimeIntervalType.auto,
+    this.labelsAtBeginning = false,
     super.interactiveTooltip,
     this.labelFormat,
     this.minimum,
@@ -110,6 +111,25 @@ class DateTimeAxis extends ChartAxis {
   /// }
   /// ```
   final String? labelFormat;
+
+  /// If true and an [intervalType] is set to a value different than `DateTimeIntervalType.auto`
+  /// the labels are positioned at the beginning of each interval, e.g., at the first of a month.
+  /// Otherwise, for `DateTimeIntervalType.years` and `DateTimeIntervalType.months` the labels are placed dynamically
+  ///
+  /// Defaults to `false`.
+  ///
+  /// Also refer [DateTimeIntervalType].
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           primaryXAxis:
+  ///             DateTimeAxis(intervalType: DateTimeIntervalType.years, labelsAtBeginning: true),
+  ///        )
+  ///    );
+  /// }
+  /// ```
+  final bool labelsAtBeginning;
 
   /// Customizes the date-time axis intervals. Intervals can be set to days,
   /// hours, milliseconds, minutes, months, seconds, years, and auto. If it is
@@ -342,6 +362,7 @@ class DateTimeAxis extends ChartAxis {
       ..dateFormat = dateFormat
       ..labelFormat = labelFormat
       ..intervalType = intervalType
+      ..labelsAtBeginning = labelsAtBeginning
       ..minimum = minimum
       ..maximum = maximum
       ..initialVisibleMinimum = initialVisibleMinimum
@@ -360,6 +381,7 @@ class DateTimeAxis extends ChartAxis {
       ..dateFormat = dateFormat
       ..labelFormat = labelFormat
       ..intervalType = intervalType
+      ..labelsAtBeginning = labelsAtBeginning
       ..minimum = minimum
       ..maximum = maximum
       ..autoScrollingDeltaType = autoScrollingDeltaType
@@ -406,6 +428,15 @@ class RenderDateTimeAxis extends RenderChartAxis {
   set intervalType(DateTimeIntervalType value) {
     if (_intervalType != value) {
       _intervalType = value;
+      markNeedsLayout();
+    }
+  }
+
+  bool get labelsAtBeginning => _labelsAtBeginning;
+  bool _labelsAtBeginning = false;
+  set labelsAtBeginning(bool value) {
+    if (_labelsAtBeginning != value) {
+      _labelsAtBeginning = value;
       markNeedsLayout();
     }
   }
@@ -1236,13 +1267,13 @@ class RenderDateTimeAxis extends RenderChartAxis {
       case DateTimeIntervalType.years:
         final int year =
             ((date.year / visibleInterval).floor() * visibleInterval).floor();
-        date = DateTime(year, date.month, date.day);
+        date = DateTime(year, labelsAtBeginning ? 1 : date.month, labelsAtBeginning ? 1 : date.day);
         break;
 
       case DateTimeIntervalType.months:
         final int month =
             ((date.month / visibleInterval) * visibleInterval).floor();
-        date = DateTime(date.year, month, date.day);
+        date = DateTime(date.year, month, labelsAtBeginning ? 1 : date.day);
         break;
 
       case DateTimeIntervalType.days:
