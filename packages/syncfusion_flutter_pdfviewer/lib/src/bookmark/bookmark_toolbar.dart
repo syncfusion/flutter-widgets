@@ -98,7 +98,8 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
         height: _kPdfHeaderBarHeight,
         margin: const EdgeInsets.only(bottom: 3),
         decoration: BoxDecoration(
-          color: _pdfViewerThemeData!.bookmarkViewStyle?.headerBarColor ??
+          color:
+              _pdfViewerThemeData!.bookmarkViewStyle?.headerBarColor ??
               _effectiveThemeData!.bookmarkViewStyle?.headerBarColor ??
               ((Theme.of(context).colorScheme.brightness == Brightness.light)
                   ? const Color(0xFFFAFAFA)
@@ -121,9 +122,7 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
               height: _kPdfHeaderTextHeight,
               child: Text(
                 _localizations!.pdfBookmarksLabel,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium!
+                style: Theme.of(context).textTheme.titleMedium!
                     .copyWith(
                       fontSize: 16,
                       color: Theme.of(context).brightness == Brightness.light
@@ -133,7 +132,8 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
                     .merge(
                       _pdfViewerThemeData!.bookmarkViewStyle?.headerTextStyle ??
                           _effectiveThemeData!
-                              .bookmarkViewStyle?.headerTextStyle,
+                              .bookmarkViewStyle
+                              ?.headerTextStyle,
                     ),
                 semanticsLabel: '',
               ),
@@ -151,8 +151,8 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
                 child: Icon(
                   Icons.close,
                   size: _kPdfCloseIconSize,
-                  color: _pdfViewerThemeData!
-                          .bookmarkViewStyle?.closeIconColor ??
+                  color:
+                      _pdfViewerThemeData!.bookmarkViewStyle?.closeIconColor ??
                       _effectiveThemeData!.bookmarkViewStyle?.closeIconColor ??
                       Theme.of(
                         context,

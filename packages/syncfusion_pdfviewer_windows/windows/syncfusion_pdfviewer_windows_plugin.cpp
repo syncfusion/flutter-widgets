@@ -75,10 +75,20 @@ namespace pdfviewer
     const auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
     auto documentBytes = arguments->find(flutter::EncodableValue("documentBytes"));
     auto documentID = arguments->find(flutter::EncodableValue("documentID"));
-    auto id = std::get<std::string>(documentID->second);
+    auto passwordIter = arguments->find(flutter::EncodableValue("password"));
+
     auto bytes = std::get<std::vector<uint8_t>>(documentBytes->second);
-    std::shared_ptr<PdfDocument> document = initializePdfRenderer(bytes, id);
-    int pageCount = FPDF_GetPageCount(document->pdfDocument);
+    std::optional<std::string> password;
+    if (passwordIter != arguments->end()) {
+        const auto& passwordValue = passwordIter->second;
+        if (!passwordValue.IsNull()) {
+            password = std::get<std::string>(passwordValue);
+        }
+    }
+
+    std::string docID = std::get<std::string>(documentID->second);
+    std::shared_ptr<PdfDocument> pdfDoc = initializePdfRenderer(bytes, password.value_or(""), docID);
+    int pageCount = FPDF_GetPageCount(pdfDoc->pdfDocument);
     result->Success(flutter::EncodableValue(std::to_string(pageCount)));
   }
 

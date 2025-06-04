@@ -124,9 +124,11 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
   void _updateChildItems() {
     if (checkboxFormField._children != null &&
         checkboxFormField._children!.isNotEmpty) {
-      for (int index = 0;
-          index < checkboxFormField._children!.length;
-          index++) {
+      for (
+        int index = 0;
+        index < checkboxFormField._children!.length;
+        index++
+      ) {
         final PdfCheckboxFormFieldHelper helper =
             PdfFormFieldHelper.getHelper(checkboxFormField._children![index])
                 as PdfCheckboxFormFieldHelper;
@@ -171,7 +173,8 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
                 pdfCheckboxField.borderColor.b,
                 1,
               ),
-        borderWidth: (pdfCheckboxField.borderWidth == 0
+        borderWidth:
+            (pdfCheckboxField.borderWidth == 0
                 ? 1
                 : pdfCheckboxField.borderWidth) /
             heightPercentage,

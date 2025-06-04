@@ -101,8 +101,9 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
 
     for (int j = 0; j < item.count; j++) {
       final Rect bounds = item[j].bounds;
-      final double selectionPadding =
-          kIsDesktop ? 0 : kFormFieldSelectionPadding;
+      final double selectionPadding = kIsDesktop
+          ? 0
+          : kFormFieldSelectionPadding;
       final Rect adjustedBounds = bounds.inflate(selectionPadding);
 
       widgets.add(
@@ -227,11 +228,7 @@ class _PdfRadioButtonState extends State<PdfRadioButton> {
             ),
           ),
           child: widget.groupValue == widget.value
-              ? Icon(
-                  Icons.circle,
-                  size: widget.size / 2.0,
-                  color: Colors.black,
-                )
+              ? Icon(Icons.circle, size: widget.size / 2.0, color: Colors.black)
               : Container(),
         ),
       ),

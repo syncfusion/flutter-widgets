@@ -75,7 +75,9 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
     List<Annotation> annotations = <Annotation>[];
     if (_selectedAnnotation != null &&
         _selectedAnnotation!.pageNumber == widget.pageNumber) {
-      _updateAnnotationGlobalRect(_selectedAnnotation!);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateAnnotationGlobalRect(_selectedAnnotation!);
+      });
       for (final Annotation annotation in widget.annotations) {
         if (annotation != _selectedAnnotation) {
           annotations.add(annotation);
@@ -123,10 +125,8 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
           return Positioned(
             left: annotation.uiBounds.left / widget.heightPercentage,
             top: annotation.uiBounds.top / widget.heightPercentage,
-            width: (annotation.uiBounds.width / widget.zoomLevel) /
-                widget.heightPercentage,
-            height: (annotation.uiBounds.height / widget.zoomLevel) /
-                widget.heightPercentage,
+            width: annotation.uiBounds.width / widget.zoomLevel,
+            height: annotation.uiBounds.height / widget.zoomLevel,
             child: Visibility(
               visible: !widget.isZooming,
               child: _getAnnotationView(annotation),
@@ -196,13 +196,12 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
         key: ValueKey<Annotation>(annotation),
         annotation: annotation,
         isSelected: annotation == _selectedAnnotation,
-        heightPercentage: widget.heightPercentage * widget.zoomLevel,
+        zoomLevel: widget.zoomLevel,
         canEdit: !isLocked,
         selectorColor: isLocked
             ? widget.annotationSettings.selector.lockedColor
             : widget.annotationSettings.selector.color,
-        selectorStorkeWidth: selectionBorderThickness /
-            (widget.heightPercentage * widget.zoomLevel),
+        selectorStorkeWidth: selectionBorderThickness / widget.zoomLevel,
         onAnnotationMoved: annotation.isSelected ? onAnnotationMoved : null,
         onAnnotationMoving: annotation.isSelected ? onAnnotationMoving : null,
         onTap: () {
@@ -256,18 +255,22 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
     if (newPosition.dy < 0) {
       newPosition = Offset(newPosition.dx, 0);
     }
-    if (newPosition.dx + annotation.intermediateBounds.width >
+    if (newPosition.dx +
+            (annotation.intermediateBounds.width * widget.heightPercentage) >
         widget.pageSize.width) {
       newPosition = Offset(
-        widget.pageSize.width - annotation.intermediateBounds.width,
+        widget.pageSize.width -
+            (annotation.intermediateBounds.width * widget.heightPercentage),
         newPosition.dy,
       );
     }
-    if (newPosition.dy + annotation.intermediateBounds.height >
+    if (newPosition.dy +
+            (annotation.intermediateBounds.height * widget.heightPercentage) >
         widget.pageSize.height) {
       newPosition = Offset(
         newPosition.dx,
-        widget.pageSize.height - annotation.intermediateBounds.height,
+        widget.pageSize.height -
+            (annotation.intermediateBounds.height * widget.heightPercentage),
       );
     }
     if (annotation is StickyNoteAnnotation) {
@@ -277,14 +280,20 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
 
   void _updateAnnotationGlobalRect(Annotation annotation) {
     if (annotation is StickyNoteAnnotation) {
+      if (!mounted) {
+        return;
+      }
       final renderObject = context.findRenderObject();
       if (renderObject is RenderBox) {
+        final Rect scaledRect =
+            annotation.uiBounds.topLeft &
+            annotation.uiBounds.size * widget.heightPercentage;
         annotation.globalRect = Rect.fromPoints(
           renderObject.localToGlobal(
-            annotation.uiBounds.topLeft / widget.heightPercentage,
+            scaledRect.topLeft / widget.heightPercentage,
           ),
           renderObject.localToGlobal(
-            annotation.uiBounds.bottomRight / widget.heightPercentage,
+            scaledRect.bottomRight / widget.heightPercentage,
           ),
         );
       }

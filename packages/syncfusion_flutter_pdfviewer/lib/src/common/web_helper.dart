@@ -45,3 +45,6 @@ String getPlatformType() {
   }
   return web.window.navigator.platform.toLowerCase();
 }
+
+/// In web, pdfium cannot loaded.
+bool isPdfiumLoaded() => false;

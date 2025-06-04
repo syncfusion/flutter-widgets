@@ -29,7 +29,7 @@ class NetworkPdf extends PdfProvider {
   ///
   /// The arguments [url] must not be null.
   NetworkPdf(String url, Map<String, String>? headers)
-      : assert(url.isNotEmpty) {
+    : assert(url.isNotEmpty) {
     _url = url;
     _headers = headers;
   }
@@ -87,7 +87,7 @@ class AssetPdf extends PdfProvider {
   ///
   /// [assetName] must not be null.
   AssetPdf(String assetName, AssetBundle? bundle)
-      : assert(assetName.isNotEmpty) {
+    : assert(assetName.isNotEmpty) {
     _pdfPath = assetName;
     _bundle = bundle;
   }

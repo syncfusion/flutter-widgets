@@ -142,22 +142,22 @@ class _ScrollHeadState extends State<ScrollHead> {
     ];
     final EdgeInsets edgeInsets =
         widget.scrollDirection == PdfScrollDirection.horizontal
-            ? EdgeInsets.only(left: widget.scrollHeadOffset.dx)
-            : EdgeInsets.only(top: widget.scrollHeadOffset.dy);
+        ? EdgeInsets.only(left: widget.scrollHeadOffset.dx)
+        : EdgeInsets.only(top: widget.scrollHeadOffset.dy);
     final BorderRadius borderRadius =
         widget.scrollDirection == PdfScrollDirection.horizontal
-            ? const BorderRadius.only(
-                topRight: Radius.circular(kPdfScrollHeadSize),
-                topLeft: Radius.circular(kPdfScrollHeadSize),
-              )
-            : const BorderRadius.only(
-                topLeft: Radius.circular(kPdfScrollHeadSize),
-                bottomLeft: Radius.circular(kPdfScrollHeadSize),
-              );
+        ? const BorderRadius.only(
+            topRight: Radius.circular(kPdfScrollHeadSize),
+            topLeft: Radius.circular(kPdfScrollHeadSize),
+          )
+        : const BorderRadius.only(
+            topLeft: Radius.circular(kPdfScrollHeadSize),
+            bottomLeft: Radius.circular(kPdfScrollHeadSize),
+          );
     final Alignment alignment =
         widget.scrollDirection == PdfScrollDirection.horizontal
-            ? Alignment.bottomLeft
-            : Alignment.topRight;
+        ? Alignment.bottomLeft
+        : Alignment.topRight;
     return Align(
       alignment: alignment,
       child: Container(
@@ -173,7 +173,8 @@ class _ScrollHeadState extends State<ScrollHead> {
                 : Alignment.centerRight,
             child: Container(
               decoration: BoxDecoration(
-                color: _pdfViewerThemeData!.scrollHeadStyle?.backgroundColor ??
+                color:
+                    _pdfViewerThemeData!.scrollHeadStyle?.backgroundColor ??
                     _effectiveThemeData!.scrollHeadStyle?.backgroundColor ??
                     (Theme.of(context).colorScheme.brightness ==
                             Brightness.light
@@ -189,9 +190,7 @@ class _ScrollHeadState extends State<ScrollHead> {
               child: Align(
                 child: Text(
                   '${widget.pdfViewerController.pageNumber}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall!
+                  style: Theme.of(context).textTheme.bodySmall!
                       .copyWith(
                         fontSize: _isMaterial3 ? 14 : 12,
                         color: Theme.of(context).brightness == Brightness.light
@@ -200,7 +199,8 @@ class _ScrollHeadState extends State<ScrollHead> {
                       )
                       .merge(
                         _pdfViewerThemeData!
-                            .scrollHeadStyle?.pageNumberTextStyle,
+                            .scrollHeadStyle
+                            ?.pageNumberTextStyle,
                       ),
                   semanticsLabel: widget.isBookmarkViewOpen
                       ? ''

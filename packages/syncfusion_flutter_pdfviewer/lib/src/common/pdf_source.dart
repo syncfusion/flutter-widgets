@@ -42,7 +42,7 @@ class URLPDFSource extends PDFSource {
   /// The [url] parameter must not be null or empty.
   /// The [headers] parameter can be used to add custom HTTP headers to the request.
   URLPDFSource(String url, {Map<String, String>? headers})
-      : assert(url.isNotEmpty) {
+    : assert(url.isNotEmpty) {
     _url = url;
     _headers = headers;
   }
@@ -98,7 +98,7 @@ class AssetPDFSource extends PDFSource {
   /// The [assetPath] parameter must not be null or empty.
   /// The [bundle] parameter is optional. If not provided, the default asset bundle will be used.
   AssetPDFSource(String assetPath, {AssetBundle? bundle})
-      : assert(assetPath.isNotEmpty) {
+    : assert(assetPath.isNotEmpty) {
     _pdfPath = assetPath;
     _bundle = bundle;
   }

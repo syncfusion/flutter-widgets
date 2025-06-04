@@ -204,9 +204,11 @@ class _DesktopScrollbarState extends State<DesktopScrollbar>
         final Offset offset = widget.controller.toScene(Offset.zero);
 
         // Determine if scrollbars should be visible based on content and viewport sizes
-        _canShowVerticalScrollbar = widget.canShowVerticalScrollbar &&
+        _canShowVerticalScrollbar =
+            widget.canShowVerticalScrollbar &&
             widget.contentSize.height * scale > widget.viewportSize.height;
-        _canShowHorizontalScrollbar = widget.canShowHorizontalScrollbar &&
+        _canShowHorizontalScrollbar =
+            widget.canShowHorizontalScrollbar &&
             widget.contentSize.width * scale > widget.viewportSize.width;
 
         Widget verticalScrollbar = const SizedBox.shrink();
@@ -230,7 +232,7 @@ class _DesktopScrollbarState extends State<DesktopScrollbar>
           // Calculate position ratio for scrollbar movement
           _widthRatio =
               (widget.viewportSize.width - _horizontalScrollbarLength) /
-                  _horizontalLimit;
+              _horizontalLimit;
 
           // Calculate left position of the scrollbar
           _left = (offset.dx * _widthRatio).clamp(
@@ -289,7 +291,7 @@ class _DesktopScrollbarState extends State<DesktopScrollbar>
           // Calculate position ratio for scrollbar movement
           _heightRatio =
               (widget.viewportSize.height - _verticalScrollbarLength) /
-                  _verticalLimit;
+              _verticalLimit;
 
           // Calculate top position of the scrollbar
           _top = (offset.dy * _heightRatio).clamp(

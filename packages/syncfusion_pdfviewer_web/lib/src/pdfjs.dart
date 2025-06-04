@@ -20,6 +20,7 @@ extension type Settings._(JSObject _) implements JSObject {
     num annotationMode,
     double offsetX,
     double offsetY,
+    String? password,
   });
   external set data(JSUint8Array value);
   external set scale(double value);
@@ -28,6 +29,7 @@ extension type Settings._(JSObject _) implements JSObject {
   external set annotationMode(num value);
   external set offsetX(double value);
   external set offsetY(double value);
+  external set password(String? value);
 }
 
 extension type PdfJsDocLoader(JSObject _) implements JSObject {
