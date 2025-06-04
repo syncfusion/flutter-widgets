@@ -3302,7 +3302,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       } else {
         document.security.userPassword = '';
         document.security.ownerPassword = '';
-        _decryptedBytes = document.saveAsBytesSync();
+        _decryptedBytes = Uint8List.fromList(document.saveSync());
       }
     } else {
       _decryptedBytes = pdfBytes;
