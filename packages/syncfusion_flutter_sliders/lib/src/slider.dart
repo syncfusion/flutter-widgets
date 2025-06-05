@@ -2035,7 +2035,9 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
             _state.tooltipAnimationController.status ==
                 AnimationStatus.completed &&
             !shouldAlwaysShowTooltip) {
-          _state.tooltipAnimationController.reverse();
+              if (_state.mounted) {
+              _state.tooltipAnimationController.reverse();
+              }
         }
       });
     }
