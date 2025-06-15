@@ -69,6 +69,7 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
     super.legendIconType,
     super.cornerStyle = CornerStyle.bothFlat,
     super.initialSelectedDataIndexes,
+    this.shadowColor,
   }) : super(
           borderColor: strokeColor,
           borderWidth: strokeWidth,
@@ -188,6 +189,8 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
   /// ```
   final bool useSeriesColor;
 
+  final Color? shadowColor;
+
   @override
   List<ChartDataPointType> get positions =>
       <ChartDataPointType>[ChartDataPointType.y];
@@ -213,7 +216,8 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
       ..trackBorderColor = trackBorderColor
       ..trackBorderWidth = trackBorderWidth
       ..trackOpacity = trackOpacity
-      ..useSeriesColor = useSeriesColor;
+      ..useSeriesColor = useSeriesColor
+      ..shadowColor = shadowColor;
     return renderer;
   }
 
@@ -227,7 +231,8 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
       ..trackBorderColor = trackBorderColor
       ..trackBorderWidth = trackBorderWidth
       ..trackOpacity = trackOpacity
-      ..useSeriesColor = useSeriesColor;
+      ..useSeriesColor = useSeriesColor
+      ..shadowColor = shadowColor;
   }
 }
 
@@ -290,6 +295,15 @@ class RadialBarSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
     }
   }
 
+  Color? get shadowColor => _shadowColor;
+  Color? _shadowColor = Colors.transparent;
+  set shadowColor(Color? value) {
+    if (_shadowColor != value) {
+      _shadowColor = value;
+      markNeedsPaint();
+    }
+  }
+
   @override
   void setData(int index, ChartSegment segment) {
     super.setData(index, segment);
@@ -330,6 +344,7 @@ class RadialBarSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
   void customizeSegment(ChartSegment segment) {
     if (segment is RadialBarSegment<T, D>) {
       updateSegmentColor(segment, borderColor, borderWidth);
+      segment._shadowColor = shadowColor;
 
       if (trackColor != Colors.transparent) {
         if (useSeriesColor) {
@@ -555,6 +570,7 @@ class RadialBarSegment<T, D> extends ChartSegment {
   double _priorEndAngle = double.nan;
   double _priorInnerRadius = double.nan;
   double _priorOuterRadius = double.nan;
+  Color? _shadowColor;
 
   /// The `_isLegendToggled` field is used to manage animations in the radial bar series.
   /// Set to `true` when a legend item is tapped to trigger the inner and outer radius animation.
@@ -687,58 +703,59 @@ class RadialBarSegment<T, D> extends ChartSegment {
       final double actualRadius = (innerRadius - outerRadius).abs() / 2;
       final Offset midPoint =
           calculateOffset(endAngle, (innerRadius + outerRadius) / 2, _center);
-      if (actualRadius > 0) {
-        double shadowWidth = actualRadius * 0.2;
-        const double sigmaRadius = 3 * 0.57735 + 0.5;
-        shadowWidth = shadowWidth < 3 ? 3 : (shadowWidth > 5 ? 5 : shadowWidth);
-        _shadowPaint = Paint()
-          ..isAntiAlias = true
+      _shadowPaint = Paint()
+        ..isAntiAlias = true
+        ..style = PaintingStyle.fill
+        ..shader = RadialGradient(
+          colors: [_shadowColor ?? Colors.black, getFillPaint().color],
+        ).createShader(Rect.fromCircle(center: midPoint, radius: 17));
+      _overFilledPaint = Paint()..isAntiAlias = true;
+      double newEndAngle = endAngle;
+      if (series.cornerStyle == CornerStyle.endCurve ||
+          series.cornerStyle == CornerStyle.bothCurve) {
+        newEndAngle =
+            (newEndAngle > 360 ? newEndAngle : (newEndAngle - 360)) + 11.5;
+        shadowPath
+          ..reset()
+          ..addPath(
+            calculateShadowArcPath(
+              innerRadius,
+              outerRadius,
+              _center,
+              newEndAngle - 11.5,
+              newEndAngle + 5.5,
+              isAnimate: true,
+            ),
+            Offset.zero,
+          );
+        overFilledPath = Path()
+          ..addArc(Rect.fromCircle(center: midPoint, radius: actualRadius),
+              degreesToRadians(newEndAngle - 20), degreesToRadians(225));
+      } else if (series.cornerStyle == CornerStyle.bothFlat ||
+          series.cornerStyle == CornerStyle.startCurve) {
+        _overFilledPaint!
           ..style = PaintingStyle.stroke
-          ..strokeWidth = shadowWidth
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, sigmaRadius);
-        _overFilledPaint = Paint()..isAntiAlias = true;
-        double newEndAngle = endAngle;
-        if (series.cornerStyle == CornerStyle.endCurve ||
-            series.cornerStyle == CornerStyle.bothCurve) {
-          newEndAngle =
-              (newEndAngle > 360 ? newEndAngle : (newEndAngle - 360)) + 11.5;
-          shadowPath
-            ..reset()
-            ..addArc(
-                Rect.fromCircle(
-                    center: midPoint,
-                    radius: actualRadius - (actualRadius * 0.05)),
-                degreesToRadians(newEndAngle + 22.5),
-                degreesToRadians(118.125));
-          overFilledPath = Path()
-            ..addArc(Rect.fromCircle(center: midPoint, radius: actualRadius),
-                degreesToRadians(newEndAngle - 20), degreesToRadians(225));
-        } else if (series.cornerStyle == CornerStyle.bothFlat ||
-            series.cornerStyle == CornerStyle.startCurve) {
-          _overFilledPaint!
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = series.borderWidth;
+          ..strokeWidth = series.borderWidth;
 
-          final Offset shadowStartPoint = calculateOffset(
-              newEndAngle, outerRadius - (outerRadius * 0.025), _center);
-          final Offset shadowEndPoint = calculateOffset(
-              newEndAngle, innerRadius + (innerRadius * 0.025), _center);
+        final Offset shadowStartPoint = calculateOffset(
+            newEndAngle, outerRadius - (outerRadius * 0.025), _center);
+        final Offset shadowEndPoint = calculateOffset(
+            newEndAngle, innerRadius + (innerRadius * 0.025), _center);
 
-          final Offset overFilledStartPoint =
-              calculateOffset(newEndAngle - 2, outerRadius, _center);
-          final Offset overFilledEndPoint =
-              calculateOffset(newEndAngle - 2, innerRadius, _center);
+        final Offset overFilledStartPoint =
+            calculateOffset(newEndAngle - 2, outerRadius, _center);
+        final Offset overFilledEndPoint =
+            calculateOffset(newEndAngle - 2, innerRadius, _center);
 
-          shadowPath
-            ..reset()
-            ..moveTo(shadowStartPoint.dx, shadowStartPoint.dy)
-            ..lineTo(shadowEndPoint.dx, shadowEndPoint.dy);
+        shadowPath
+          ..reset()
+          ..moveTo(shadowStartPoint.dx, shadowStartPoint.dy)
+          ..lineTo(shadowEndPoint.dx, shadowEndPoint.dy);
 
-          overFilledPath
-            ..reset()
-            ..moveTo(overFilledStartPoint.dx, overFilledStartPoint.dy)
-            ..lineTo(overFilledEndPoint.dx, overFilledEndPoint.dy);
-        }
+        overFilledPath
+          ..reset()
+          ..moveTo(overFilledStartPoint.dx, overFilledStartPoint.dy)
+          ..lineTo(overFilledEndPoint.dx, overFilledEndPoint.dy);
       }
     }
   }

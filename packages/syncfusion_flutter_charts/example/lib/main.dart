@@ -40,23 +40,22 @@ class _MyHomePageState extends State<_MyHomePage> {
         ),
         body: Column(children: [
           //Initialize the chart widget
-          SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
-              // Chart title
-              title: ChartTitle(text: 'Half yearly sales analysis'),
-              // Enable legend
-              legend: Legend(isVisible: true),
-              // Enable tooltip
-              tooltipBehavior: TooltipBehavior(enable: true),
-              series: <CartesianSeries<_SalesData, String>>[
-                LineSeries<_SalesData, String>(
-                    dataSource: data,
-                    xValueMapper: (_SalesData sales, _) => sales.year,
-                    yValueMapper: (_SalesData sales, _) => sales.sales,
-                    name: 'Sales',
-                    // Enable data label
-                    dataLabelSettings: DataLabelSettings(isVisible: true))
-              ]),
+          SfCircularChart(
+            series: <RadialBarSeries<_SalesData, String>>[
+              RadialBarSeries<_SalesData, String>(
+                dataSource: data,
+                xValueMapper: (_SalesData data, int index) => data.year,
+                yValueMapper: (_SalesData data, int index) => data.sales,
+                dataLabelMapper: (_SalesData data, int index) => data.year,
+                dataLabelSettings: DataLabelSettings(isVisible: true),
+                maximumValue: 30, // Defined maximum value
+                radius: '70%',
+                gap: '2%',
+                cornerStyle: CornerStyle.bothCurve,
+                // shadowColor: Colors.amberAccent,
+              ),
+            ],
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),

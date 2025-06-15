@@ -75,6 +75,39 @@ Path calculateArcPath(double innerRadius, double radius, Offset center,
   return path;
 }
 
+Path calculateShadowArcPath(double innerRadius, double radius, Offset center,
+    double startAngle, double endAngle,
+    {bool isAnimate = false}) {
+  final Path path = Path();
+  final double startRadian = degreesToRadians(startAngle);
+  final double endRadian = degreesToRadians(endAngle);
+
+  if (isAnimate) {
+    final Offset innerRadiusStartPoint = Offset(
+        innerRadius * cos(startRadian) + center.dx,
+        innerRadius * sin(startRadian) + center.dy);
+    path.moveTo(innerRadiusStartPoint.dx, innerRadiusStartPoint.dy);
+  }
+
+  final Offset radiusStartPoint = Offset(radius * cos(startRadian) + center.dx,
+      radius * sin(startRadian) + center.dy);
+
+  path.lineTo(radiusStartPoint.dx, radiusStartPoint.dy);
+  path.arcTo(Rect.fromCircle(center: center, radius: radius), startRadian,
+      endRadian - startRadian, true);
+
+  final Offset innerRadiusEndPoint = Offset(
+      innerRadius * cos(endRadian) + center.dx,
+      innerRadius * sin(endRadian) + center.dy);
+
+  path.lineTo(innerRadiusEndPoint.dx, innerRadiusEndPoint.dy);
+  path.arcTo(Rect.fromCircle(center: center, radius: innerRadius), endRadian,
+      startRadian - endRadian, true);
+  path.lineTo(radiusStartPoint.dx, radiusStartPoint.dy);
+
+  return path;
+}
+
 /// Calculate series start or end angle based on animation type.
 double calculateAngle(bool isRealTimeAnimation, int startAngle, int endAngle) {
   // Segment animation
