@@ -40,21 +40,25 @@ class _MyHomePageState extends State<_MyHomePage> {
         ),
         body: Column(children: [
           //Initialize the chart widget
-          SfCircularChart(
-            series: <RadialBarSeries<_SalesData, String>>[
-              RadialBarSeries<_SalesData, String>(
-                dataSource: data,
-                xValueMapper: (_SalesData data, int index) => data.year,
-                yValueMapper: (_SalesData data, int index) => data.sales,
-                dataLabelMapper: (_SalesData data, int index) => data.year,
-                dataLabelSettings: DataLabelSettings(isVisible: true),
-                maximumValue: 30, // Defined maximum value
-                radius: '70%',
-                gap: '2%',
-                cornerStyle: CornerStyle.bothCurve,
-                // shadowColor: Colors.amberAccent,
-              ),
-            ],
+          SizedBox(
+            height: 200,
+            width: 200,
+            child: SfCircularChart(
+              series: <RadialBarSeries<_SalesData, String>>[
+                RadialBarSeries<_SalesData, String>(
+                  dataSource: data,
+                  xValueMapper: (_SalesData data, int index) => data.year,
+                  yValueMapper: (_SalesData data, int index) => data.sales,
+                  dataLabelMapper: (_SalesData data, int index) => data.year,
+                  dataLabelSettings: DataLabelSettings(isVisible: true),
+                  maximumValue: 30, // Defined maximum value
+                  radius: '70%',
+                  gap: '2%',
+                  cornerStyle: CornerStyle.bothCurve,
+                  // shadowColor: Colors.amberAccent,
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: Padding(

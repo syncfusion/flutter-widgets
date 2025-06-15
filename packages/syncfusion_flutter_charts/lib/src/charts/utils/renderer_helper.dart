@@ -76,11 +76,12 @@ Path calculateArcPath(double innerRadius, double radius, Offset center,
 }
 
 Path calculateShadowArcPath(double innerRadius, double radius, Offset center,
-    double startAngle, double endAngle,
+    double startAngle, double endAngle, double degree,
     {bool isAnimate = false}) {
   final Path path = Path();
   final double startRadian = degreesToRadians(startAngle);
   final double endRadian = degreesToRadians(endAngle);
+  final double sweepRadian = degreesToRadians(degree);
 
   if (isAnimate) {
     final Offset innerRadiusStartPoint = Offset(
@@ -94,7 +95,7 @@ Path calculateShadowArcPath(double innerRadius, double radius, Offset center,
 
   path.lineTo(radiusStartPoint.dx, radiusStartPoint.dy);
   path.arcTo(Rect.fromCircle(center: center, radius: radius), startRadian,
-      endRadian - startRadian, true);
+      sweepRadian, true);
 
   final Offset innerRadiusEndPoint = Offset(
       innerRadius * cos(endRadian) + center.dx,
