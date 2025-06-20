@@ -1,5 +1,21 @@
 ## Unreleased
 
+**General**
+
+* The compatible version of our Flutter PDF Viewer widget has been updated to Flutter SDK 3.32.0.
+
+**Features**
+
+* Linux platform support has been provided.
+* Added support for rendering pages using the open-source PDFium library through an optional package (`syncfusion_pdfviewer_android`).
+
+**Bugs**
+
+* Now, read-only form fields are rendered with the specified background color, or with a transparent background if no color is set.
+* Now, screen readers read the selected text in PDF documents when accessibility mode is enabled.
+
+## [29.2.8] - 06/03/2025
+
 **Bugs**
 
 * Now, in single page layout mode, the page changes only when swiped in the scroll direction, and not when slightly panned.

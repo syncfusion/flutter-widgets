@@ -286,19 +286,16 @@ class ConditionValueImpl extends ConditionValue {
   ConditionValueImpl(this.type, this.value);
 
   @override
-
   /// Returns or sets one of the constants of the ConditionValueType enumeration
   /// which specifies how the threshold values for a data bar, color scale,
   /// or icon set conditional format are determined.
   late ConditionValueType type;
 
   @override
-
   /// Returns or sets threshold values for the conditional format.
   late String value;
 
   @override
-
   /// Sets the operator for the threshold values in the conditional format.
   ConditionalFormatOperator operator =
       ConditionalFormatOperator.greaterThanorEqualTo;
@@ -425,37 +422,33 @@ class ColorConditionValueImpl implements ColorConditionValue {
   late Color _formatColorRgb;
 
   @override
-
   /// Returns or sets one of the constants of the ConditionValueType enumeration
   /// which specifies how the threshold values for a data bar, color scale,
   /// or icon set conditional format are determined.
   late ConditionValueType type;
 
   @override
-
   /// Returns or sets threshold values for the conditional format.
   late String value;
 
   @override
-
   /// Sets the operator for the threshold values in the conditional format.
   ConditionalFormatOperator operator =
       ConditionalFormatOperator.greaterThanorEqualTo;
 
   @override
-
   /// The color assigned to the threshold of a color scale conditional format.
   String get formatColor => _formatColor;
 
   @override
   set formatColor(String value) {
     _formatColor = value;
-    _formatColorRgb =
-        Color(int.parse(_formatColor.substring(1, 7), radix: 16) + 0xFF000000);
+    _formatColorRgb = Color(
+      int.parse(_formatColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   @override
-
   /// The color assigned to the threshold of a color scale conditional format in Rgb.
   Color get formatColorRgb => _formatColorRgb;
 
@@ -478,7 +471,9 @@ class ColorConditionValueImpl implements ColorConditionValue {
 class ColorConditionValueWrapper extends ColorConditionValue {
   /// Initializes new instance of the wrapped.
   ColorConditionValueWrapper(
-      ColorConditionValueImpl value, ColorScaleWrapper parent) {
+    ColorConditionValueImpl value,
+    ColorScaleWrapper parent,
+  ) {
     wrapped = value;
     _parent = parent;
   }
@@ -518,7 +513,6 @@ class ColorConditionValueWrapper extends ColorConditionValue {
   }
 
   @override
-
   /// Returns one of the constants of the XlConditionValueTypes enumeration,
   /// which specifies how the threshold values for a data bar, color scale,
   /// or icon set conditional format are determined. Read-only.
@@ -536,7 +530,6 @@ class ColorConditionValueWrapper extends ColorConditionValue {
   }
 
   @override
-
   /// Returns or sets the shortest bar or longest bar threshold value for a data
   /// bar conditional format.
   String get value {
@@ -553,7 +546,6 @@ class ColorConditionValueWrapper extends ColorConditionValue {
   }
 
   @override
-
   /// Returns or sets one of the constants of the ConditionalFormatOperator enumeration,
   /// which specifes if the threshold is "greater than" or "greater than or equal to" the threshold value.
   ConditionalFormatOperator get operator {
@@ -680,32 +672,31 @@ class IconConditionValueImpl implements IconConditionValue {
 
   /// Initializes new instance of the class.
   IconConditionValueImpl.withType(
-      this.iconSet, this.index, this.type, this.value);
+    this.iconSet,
+    this.index,
+    this.type,
+    this.value,
+  );
 
   @override
-
   /// Returns or sets one of the constants of the IconConditionValueType enumeration. It specifies how the threshold values for icon set conditional format are determined.
   late ExcelIconSetType iconSet;
 
   @override
-
   /// Returns or sets index of the iconset type's individual icon index.
   late int index;
 
   @override
-
   /// Returns or sets one of the constants of the ConditionValueType enumeration
   /// which specifies how the threshold values for a data bar, color scale,
   /// or icon set conditional format are determined.
   late ConditionValueType type;
 
   @override
-
   /// Returns or sets threshold values for the conditional format.
   late String value;
 
   @override
-
   /// Sets the operator for the threshold values in the conditional format.
   ConditionalFormatOperator operator =
       ConditionalFormatOperator.greaterThanorEqualTo;
@@ -715,7 +706,9 @@ class IconConditionValueImpl implements IconConditionValue {
 class IconConditionValueWrapper implements IconConditionValue {
   /// Initializes new instance of wrapper.
   IconConditionValueWrapper(
-      IconConditionValueImpl value, IconSetWrapper parent) {
+    IconConditionValueImpl value,
+    IconSetWrapper parent,
+  ) {
     wrapped = value;
     _parent = parent;
   }
@@ -727,7 +720,6 @@ class IconConditionValueWrapper implements IconConditionValue {
   late IconSetWrapper _parent;
 
   @override
-
   /// Returns or sets IconSet for individual IconSet criteria.
   ExcelIconSetType get iconSet {
     return wrapped.iconSet;
@@ -741,7 +733,6 @@ class IconConditionValueWrapper implements IconConditionValue {
   }
 
   @override
-
   /// Gets or sets index of the iconset type's individual icon index.
   int get index {
     return wrapped.index;
@@ -755,7 +746,6 @@ class IconConditionValueWrapper implements IconConditionValue {
   }
 
   @override
-
   /// Gets or sets the condition value type
   /// which specifies how the threshold values for a data bar, color scale,
   /// or icon set conditional format are determined. Read-only.
@@ -771,7 +761,6 @@ class IconConditionValueWrapper implements IconConditionValue {
   }
 
   @override
-
   /// Gets or sets the shortest bar or longest bar threshold value for a data bar conditional format.
   String get value {
     return wrapped.value;
@@ -785,7 +774,6 @@ class IconConditionValueWrapper implements IconConditionValue {
   }
 
   @override
-
   /// Gets or sets the operator
   ConditionalFormatOperator get operator {
     return wrapped.operator;

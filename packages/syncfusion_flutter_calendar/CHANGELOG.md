@@ -2,6 +2,36 @@
 
 **General**
 
+* Upgraded the `timezone` package to the latest version 0.10.1.
+
+* The compatible version of our Flutter calendar widget has been updated to Flutter SDK 3.32.0.
+
+## [29.1.39] - 22/04/2025
+
+**General**
+
+*  The minimum Dart version has been updated to 3.7.
+
+**Bugs**
+
+* \#FB66714 - Now, the font size is no longer calculated with a negative value in [SfCalendar](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar-class.html) when placed in a constrained space.
+
+* \#FB66695 - Now, the [headerDateFormat](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/headerDateFormat.html) is applied correctly in the resource view of [SfCalendar](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar-class.html), displaying the date in the expected format.
+
+* \#FB66695 - Now, the week number in the resource view of [SfCalendar](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar-class.html), is fully visible and no longer gets cut off when sufficient space is available.
+
+* \#FB66690 - Now, the calendar cell overlay position updates correctly in the month view when the [timeRulerSize](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/TimeSlotViewSettings/timeRulerSize.html) is added in the [timeSlotViewSettings](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/timeSlotViewSettings.html) of SfCalendar.
+
+## [29.1.37] - 08/04/2025
+
+**Bugs**
+
+* \#FB66610 - Now, the interactive widgets will work on the [appointmentBuilder](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/appointmentBuilder.html) in SfCalendar.
+
+## [29.1.33] - 25/03/2025
+
+**General**
+
 *  The compatible version of our Flutter calendar widget has been updated to Flutter SDK 3.29.0.
 *  The Syncfusion<sup>&reg;</sup> Flutter calendar example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
 *  The Syncfusion<sup>&reg;</sup> Flutter calendar example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.

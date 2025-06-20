@@ -2,10 +2,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 class ChartLayoutHandler extends SingleChildRenderObjectWidget {
-  const ChartLayoutHandler({
-    super.key,
-    required super.child,
-  });
+  const ChartLayoutHandler({super.key, required super.child});
 
   @override
   RenderObject createRenderObject(BuildContext context) {

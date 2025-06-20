@@ -22,7 +22,6 @@ class IconSetImpl implements IconSet {
   bool _hasCustomIconSet = false;
 
   @override
-
   /// Returns an IconCriteria collection which represents the set of criteria for
   /// an icon set conditional formatting rule.
   List<ConditionValue> get iconCriteria {
@@ -37,7 +36,6 @@ class IconSetImpl implements IconSet {
   }
 
   @override
-
   /// Returns or sets an IconSets collection which specifies the icon set used
   /// in the conditional format.
   ExcelIconSetType get iconSet {
@@ -55,19 +53,16 @@ class IconSetImpl implements IconSet {
   }
 
   @override
-
   /// Returns or sets a Boolean value indicating if the thresholds for an icon
   /// set conditional format are determined using percentiles.
   bool percentileValues = false;
 
   @override
-
   /// Returns or sets a Boolean value indicating if the order of icons is
   /// reversed for an icon set.
   bool reverseOrder = false;
 
   @override
-
   /// Returns or sets a Boolean value indicating if only the icon is displayed
   /// for an icon set conditional format.
   bool showIconOnly = false;
@@ -104,12 +99,18 @@ class IconSetImpl implements IconSet {
     }
 
     _arrCriteria = List<ConditionValue>.filled(
-        iCount, IconConditionValueImpl(_iconSet, 0));
+      iCount,
+      IconConditionValueImpl(_iconSet, 0),
+    );
 
     for (int i = 0; i < iCount; i++) {
       final int iValue = (i * 100 / iCount).round();
       final IconConditionValue criteria = IconConditionValueImpl.withType(
-          _iconSet, i, ConditionValueType.percent, iValue.toString());
+        _iconSet,
+        i,
+        ConditionValueType.percent,
+        iValue.toString(),
+      );
       _arrCriteria[i] = criteria;
     }
   }

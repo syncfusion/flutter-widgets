@@ -2,11 +2,28 @@
 
 **General**
 
+*  The compatible version of our Flutter gauges widget has been updated to Flutter SDK 3.32.0.
+
+# [29.2.6] - 05/27/2025
+## Radial Gauge
+**Bugs**
+* #FR67597 - Now, the [WidgetPointer](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/WidgetPointer-class.html) position will update properly, when we override the valueToFactor method in the custom axis renderer to update the widget pointer position.
+
+## [29.1.39] - 04/22/2025
+
+**General**
+
+* The minimum Dart version has been updated to 3.7.
+
+## [29.1.33] - 03/25/2025
+
+**General**
+
 *  The compatible version of our Flutter gauges widget has been updated to Flutter SDK 3.29.0.
 *  The Syncfusion<sup>&reg;</sup> Flutter gauges example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
 *  The Syncfusion<sup>&reg;</sup> Flutter gauges example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
 
-## [28.2.7] - 25/02/2025
+## [28.2.7] - 02/25/2025
 
 **General**
 

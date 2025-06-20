@@ -9,11 +9,12 @@ import 'appointment_helper.dart';
 /// month view.
 class MonthAppointmentHelper {
   static void _createVisibleAppointments(
-      List<AppointmentView> appointmentCollection,
-      List<CalendarAppointment> visibleAppointments,
-      List<DateTime> visibleDates,
-      int startIndex,
-      int endIndex) {
+    List<AppointmentView> appointmentCollection,
+    List<CalendarAppointment> visibleAppointments,
+    List<DateTime> visibleDates,
+    int startIndex,
+    int endIndex,
+  ) {
     for (int i = 0; i < appointmentCollection.length; i++) {
       final AppointmentView appointmentView = appointmentCollection[i];
       appointmentView.endIndex = -1;
@@ -30,12 +31,15 @@ class MonthAppointmentHelper {
           appointment.actualStartTime.day == appointment.actualEndTime.day &&
           appointment.actualStartTime.month ==
               appointment.actualEndTime.month) {
-        final AppointmentView appointmentView =
-            _createAppointmentView(appointmentCollection);
+        final AppointmentView appointmentView = _createAppointmentView(
+          appointmentCollection,
+        );
         appointmentView.appointment = appointment;
         appointmentView.canReuse = false;
-        appointmentView.startIndex =
-            getDateIndex(appointment.actualStartTime, visibleDates);
+        appointmentView.startIndex = getDateIndex(
+          appointment.actualStartTime,
+          visibleDates,
+        );
 
         /// Check the index value before the view start index then assign the
         /// start index as visible start index
@@ -50,8 +54,10 @@ class MonthAppointmentHelper {
           appointmentView.startIndex = startIndex;
         }
 
-        appointmentView.endIndex =
-            getDateIndex(appointment.actualEndTime, visibleDates);
+        appointmentView.endIndex = getDateIndex(
+          appointment.actualEndTime,
+          visibleDates,
+        );
 
         /// Check the index value after the view end index then assign the
         /// end index as visible end index
@@ -70,12 +76,15 @@ class MonthAppointmentHelper {
           appointmentCollection.add(appointmentView);
         }
       } else {
-        final AppointmentView appointmentView =
-            _createAppointmentView(appointmentCollection);
+        final AppointmentView appointmentView = _createAppointmentView(
+          appointmentCollection,
+        );
         appointmentView.appointment = appointment;
         appointmentView.canReuse = false;
-        appointmentView.startIndex =
-            getDateIndex(appointment.actualStartTime, visibleDates);
+        appointmentView.startIndex = getDateIndex(
+          appointment.actualStartTime,
+          visibleDates,
+        );
 
         /// Check the index value before the view start index then assign the
         /// start index as visible start index
@@ -90,8 +99,10 @@ class MonthAppointmentHelper {
           appointmentView.startIndex = startIndex;
         }
 
-        appointmentView.endIndex =
-            getDateIndex(appointment.actualEndTime, visibleDates);
+        appointmentView.endIndex = getDateIndex(
+          appointment.actualEndTime,
+          visibleDates,
+        );
 
         /// Check the index value after the view end index then assign the
         /// end index as visible end index
@@ -107,34 +118,40 @@ class MonthAppointmentHelper {
         }
 
         _createAppointmentInfoForSpannedAppointment(
-            appointmentView, appointmentCollection);
+          appointmentView,
+          appointmentCollection,
+        );
       }
     }
   }
 
   static void _createAppointmentInfoForSpannedAppointment(
-      AppointmentView appointmentView,
-      List<AppointmentView> appointmentCollection) {
+    AppointmentView appointmentView,
+    List<AppointmentView> appointmentCollection,
+  ) {
     if (appointmentView.startIndex ~/ DateTime.daysPerWeek !=
         appointmentView.endIndex ~/ DateTime.daysPerWeek) {
       final int endIndex = appointmentView.endIndex;
       appointmentView.endIndex =
           (((appointmentView.startIndex ~/ DateTime.daysPerWeek) + 1) *
-                  DateTime.daysPerWeek) -
-              1;
+              DateTime.daysPerWeek) -
+          1;
       appointmentView.isSpanned = true;
       if (!appointmentCollection.contains(appointmentView)) {
         appointmentCollection.add(appointmentView);
       }
 
-      final AppointmentView appointmentView1 =
-          _createAppointmentView(appointmentCollection);
+      final AppointmentView appointmentView1 = _createAppointmentView(
+        appointmentCollection,
+      );
       appointmentView1.appointment = appointmentView.appointment;
       appointmentView1.canReuse = false;
       appointmentView1.startIndex = appointmentView.endIndex + 1;
       appointmentView1.endIndex = endIndex;
       _createAppointmentInfoForSpannedAppointment(
-          appointmentView1, appointmentCollection);
+        appointmentView1,
+        appointmentCollection,
+      );
     } else {
       appointmentView.isSpanned = true;
       if (!appointmentCollection.contains(appointmentView)) {
@@ -144,9 +161,10 @@ class MonthAppointmentHelper {
   }
 
   static void _setAppointmentPosition(
-      List<AppointmentView> appointmentViewCollection,
-      AppointmentView appointmentView,
-      int viewIndex) {
+    List<AppointmentView> appointmentViewCollection,
+    AppointmentView appointmentView,
+    int viewIndex,
+  ) {
     for (int j = 0; j < appointmentViewCollection.length; j++) {
       //// Break when the collection reaches current appointment
       if (j >= viewIndex) {
@@ -163,14 +181,19 @@ class MonthAppointmentHelper {
         appointmentView.maxPositions = appointmentView.position;
         prevAppointmentView.maxPositions = appointmentView.position;
         _setAppointmentPosition(
-            appointmentViewCollection, appointmentView, viewIndex);
+          appointmentViewCollection,
+          appointmentView,
+          viewIndex,
+        );
         break;
       }
     }
   }
 
   static bool _isInterceptAppointments(
-      AppointmentView appointmentView1, AppointmentView appointmentView2) {
+    AppointmentView appointmentView1,
+    AppointmentView appointmentView2,
+  ) {
     if (appointmentView1.startIndex <= appointmentView2.startIndex &&
             appointmentView1.endIndex >= appointmentView2.startIndex ||
         appointmentView2.startIndex <= appointmentView1.startIndex &&
@@ -192,7 +215,9 @@ class MonthAppointmentHelper {
   /// the appointments have same start date then the appointment sorted based on
   /// end date and its interval(difference between end time and start time).
   static int _orderAppointmentViewBySpanned(
-      AppointmentView appointmentView1, AppointmentView appointmentView2) {
+    AppointmentView appointmentView1,
+    AppointmentView appointmentView2,
+  ) {
     if (appointmentView1.appointment == null ||
         appointmentView2.appointment == null) {
       return 0;
@@ -202,12 +227,14 @@ class MonthAppointmentHelper {
     final CalendarAppointment appointment2 = appointmentView2.appointment!;
 
     /// Calculate the both appointment start time based on isAllDay property.
-    final DateTime startTime1 = appointment1.isAllDay
-        ? AppointmentHelper.convertToStartTime(appointment1.exactStartTime)
-        : appointment1.exactStartTime;
-    final DateTime startTime2 = appointment2.isAllDay
-        ? AppointmentHelper.convertToStartTime(appointment2.exactStartTime)
-        : appointment2.exactStartTime;
+    final DateTime startTime1 =
+        appointment1.isAllDay
+            ? AppointmentHelper.convertToStartTime(appointment1.exactStartTime)
+            : appointment1.exactStartTime;
+    final DateTime startTime2 =
+        appointment2.isAllDay
+            ? AppointmentHelper.convertToStartTime(appointment2.exactStartTime)
+            : appointment2.exactStartTime;
 
     /// Check if both the appointments does not starts with same date then
     /// order the appointment based on its start time value.
@@ -220,12 +247,14 @@ class MonthAppointmentHelper {
       return startTime1.compareTo(startTime2);
     }
 
-    final DateTime endTime1 = appointment1.isAllDay
-        ? AppointmentHelper.convertToEndTime(appointment1.exactEndTime)
-        : appointment1.exactEndTime;
-    final DateTime endTime2 = appointment2.isAllDay
-        ? AppointmentHelper.convertToEndTime(appointment2.exactEndTime)
-        : appointment2.exactEndTime;
+    final DateTime endTime1 =
+        appointment1.isAllDay
+            ? AppointmentHelper.convertToEndTime(appointment1.exactEndTime)
+            : appointment1.exactEndTime;
+    final DateTime endTime2 =
+        appointment2.isAllDay
+            ? AppointmentHelper.convertToEndTime(appointment2.exactEndTime)
+            : appointment2.exactEndTime;
 
     /// Check both the appointments have same start and end time then sort the
     /// appointments based on start time value.
@@ -249,17 +278,18 @@ class MonthAppointmentHelper {
     /// swap list index value.
     /// Eg., app1 start with Nov3 10AM and ends with Nov5 11AM and app2 starts
     /// with Nov3 9AM and ends with Nov4 11AM then swap the app1 before of app2.
-    return AppointmentHelper.getDifference(endTime2, startTime2)
-        .inMinutes
-        .abs()
-        .compareTo(AppointmentHelper.getDifference(endTime1, startTime1)
-            .inMinutes
-            .abs());
+    return AppointmentHelper.getDifference(
+      endTime2,
+      startTime2,
+    ).inMinutes.abs().compareTo(
+      AppointmentHelper.getDifference(endTime1, startTime1).inMinutes.abs(),
+    );
   }
 
   static void _updateAppointmentPosition(
-      List<AppointmentView> appointmentCollection,
-      Map<int, List<AppointmentView>> indexAppointments) {
+    List<AppointmentView> appointmentCollection,
+    Map<int, List<AppointmentView>> indexAppointments,
+  ) {
     appointmentCollection.sort(_orderAppointmentViewBySpanned);
 
     for (int j = 0; j < appointmentCollection.length; j++) {
@@ -274,9 +304,11 @@ class MonthAppointmentHelper {
 
       /// Add the appointment views to index appointment based on start and end
       /// index. It is used to get the visible index appointments.
-      for (int i = appointmentView.startIndex;
-          i <= appointmentView.endIndex;
-          i++) {
+      for (
+        int i = appointmentView.startIndex;
+        i <= appointmentView.endIndex;
+        i++
+      ) {
         /// Check the index already have appointments, if exists then add the
         /// current appointment to that collection, else create the index and
         /// create new collection with current appointment.
@@ -297,9 +329,11 @@ class MonthAppointmentHelper {
     final int count = visibleDates.length;
     DateTime dateTime = visibleDates[count - DateTime.daysPerWeek];
     int row = 0;
-    for (int i = count - DateTime.daysPerWeek;
-        i >= 0;
-        i -= DateTime.daysPerWeek) {
+    for (
+      int i = count - DateTime.daysPerWeek;
+      i >= 0;
+      i -= DateTime.daysPerWeek
+    ) {
       final DateTime currentDate = visibleDates[i];
       if (currentDate.isBefore(date) ||
           (currentDate.day == date.day &&
@@ -311,11 +345,12 @@ class MonthAppointmentHelper {
       }
     }
 
-    final DateTime endDateTime =
-        DateTimeHelper.getDateTimeValue(addDays(dateTime, 6));
+    final DateTime endDateTime = DateTimeHelper.getDateTimeValue(
+      addDays(dateTime, 6),
+    );
     int currentViewIndex = 0;
-    while (
-        dateTime.isBefore(endDateTime) || isSameDate(dateTime, endDateTime)) {
+    while (dateTime.isBefore(endDateTime) ||
+        isSameDate(dateTime, endDateTime)) {
       if (isSameDate(dateTime, date)) {
         return (row * DateTime.daysPerWeek) + currentViewIndex;
       }
@@ -328,7 +363,8 @@ class MonthAppointmentHelper {
   }
 
   static AppointmentView _createAppointmentView(
-      List<AppointmentView> appointmentCollection) {
+    List<AppointmentView> appointmentCollection,
+  ) {
     AppointmentView? appointmentView;
     for (int i = 0; i < appointmentCollection.length; i++) {
       final AppointmentView view = appointmentCollection[i];
@@ -352,14 +388,20 @@ class MonthAppointmentHelper {
   /// Update the appointment view details based on visible appointment and
   /// visible dates.
   static void updateAppointmentDetails(
-      List<CalendarAppointment> visibleAppointments,
-      List<AppointmentView> appointmentCollection,
-      List<DateTime> visibleDates,
-      Map<int, List<AppointmentView>> indexAppointments,
-      int startIndex,
-      int endIndex) {
-    _createVisibleAppointments(appointmentCollection, visibleAppointments,
-        visibleDates, startIndex, endIndex);
+    List<CalendarAppointment> visibleAppointments,
+    List<AppointmentView> appointmentCollection,
+    List<DateTime> visibleDates,
+    Map<int, List<AppointmentView>> indexAppointments,
+    int startIndex,
+    int endIndex,
+  ) {
+    _createVisibleAppointments(
+      appointmentCollection,
+      visibleAppointments,
+      visibleDates,
+      startIndex,
+      endIndex,
+    );
     if (visibleAppointments.isNotEmpty) {
       _updateAppointmentPosition(appointmentCollection, indexAppointments);
     }

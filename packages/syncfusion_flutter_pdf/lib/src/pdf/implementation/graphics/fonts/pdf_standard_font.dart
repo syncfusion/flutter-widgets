@@ -38,11 +38,16 @@ class PdfStandardFont extends PdfFont {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  PdfStandardFont(PdfFontFamily fontFamily, double size,
-      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+  PdfStandardFont(
+    PdfFontFamily fontFamily,
+    double size, {
+    PdfFontStyle? style,
+    List<PdfFontStyle>? multiStyle,
+  }) {
     _helper = PdfStandardFontHelper(this);
-    PdfFontHelper.getHelper(this)
-        .initialize(size, style: style, multiStyle: multiStyle);
+    PdfFontHelper.getHelper(
+      this,
+    ).initialize(size, style: style, multiStyle: multiStyle);
     _fontFamily = fontFamily;
     _checkStyle();
     _initializeInternals();
@@ -66,11 +71,16 @@ class PdfStandardFont extends PdfFont {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  PdfStandardFont.prototype(PdfStandardFont prototype, double size,
-      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+  PdfStandardFont.prototype(
+    PdfStandardFont prototype,
+    double size, {
+    PdfFontStyle? style,
+    List<PdfFontStyle>? multiStyle,
+  }) {
     _helper = PdfStandardFontHelper(this);
-    PdfFontHelper.getHelper(this)
-        .initialize(size, style: style, multiStyle: multiStyle);
+    PdfFontHelper.getHelper(
+      this,
+    ).initialize(size, style: style, multiStyle: multiStyle);
     _fontFamily = prototype.fontFamily;
     if (style == null && (multiStyle == null || multiStyle.isEmpty)) {
       PdfFontHelper.getHelper(this).setStyle(prototype.style, null);
@@ -114,29 +124,36 @@ class PdfStandardFont extends PdfFont {
         fontFamily == PdfFontFamily.zapfDingbats) {
       PdfFontHelper.getHelper(this).fontStyle =
           PdfFontHelper.getHelper(this).fontStyle &
-              ~(PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) |
-                  PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic));
+          ~(PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) |
+              PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic));
       PdfFontHelper.getHelper(this).style = PdfFontStyle.regular;
     }
   }
 
   /// Initializes font internals.
   void _initializeInternals() {
-    PdfFontHelper.getHelper(this).metrics =
-        PdfStandardFontMetricsFactory.getMetrics(
-            _fontFamily, PdfFontHelper.getHelper(this).fontStyle, size);
+    PdfFontHelper.getHelper(
+      this,
+    ).metrics = PdfStandardFontMetricsFactory.getMetrics(
+      _fontFamily,
+      PdfFontHelper.getHelper(this).fontStyle,
+      size,
+    );
     PdfFontHelper.getHelper(this).fontInternals = _createInternals();
   }
 
   /// Creates font's dictionary.
   PdfDictionary _createInternals() {
     final PdfDictionary dictionary = PdfDictionary();
-    dictionary[PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.font);
-    dictionary[PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.type1);
-    dictionary[PdfDictionaryProperties.baseFont] =
-        PdfName(PdfFontHelper.getHelper(this).metrics!.postScriptName);
+    dictionary[PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.font,
+    );
+    dictionary[PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.type1,
+    );
+    dictionary[PdfDictionaryProperties.baseFont] = PdfName(
+      PdfFontHelper.getHelper(this).metrics!.postScriptName,
+    );
     if (fontFamily != PdfFontFamily.symbol &&
         fontFamily != PdfFontFamily.zapfDingbats) {
       dictionary[PdfDictionaryProperties.encoding] = PdfName('WinAnsiEncoding');
@@ -410,7 +427,7 @@ class PdfStandardFontHelper {
       'ü',
       'ý',
       'þ',
-      'ÿ'
+      'ÿ',
     ];
     return _windows1252MapTable;
   }

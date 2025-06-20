@@ -16,31 +16,42 @@ import 'tooltip.dart';
 
 // Combines the two color values and returns a new saturated color. We have
 // used black color as default mix color.
-Color _getSaturatedColor(Color color, double factor,
-    [Color mix = Colors.black]) {
+Color _getSaturatedColor(
+  Color color,
+  double factor, [
+  Color mix = Colors.black,
+]) {
   return color == Colors.transparent
       ? color
       : Color.fromRGBO(
-          ((1 - factor) * (color.r * 255) + factor * (mix.r * 255)).toInt(),
-          ((1 - factor) * (color.g * 255) + factor * (mix.g * 255)).toInt(),
-          ((1 - factor) * (color.b * 255) + factor * (mix.b * 255)).toInt(),
-          1,
-        );
+        ((1 - factor) * (color.r * 255) + factor * (mix.r * 255)).toInt(),
+        ((1 - factor) * (color.g * 255) + factor * (mix.g * 255)).toInt(),
+        ((1 - factor) * (color.b * 255) + factor * (mix.b * 255)).toInt(),
+        1,
+      );
 }
 
 /// Ignored scaling to the label builder and item builder and provides the
 /// opacity animation.
 Widget _buildAnimatedBuilder(
-    TreemapTile tile, Size scale, AnimationStatus status, Widget child) {
+  TreemapTile tile,
+  Size scale,
+  AnimationStatus status,
+  Widget child,
+) {
   Size gap = Size.zero;
   if (tile.level.border != null) {
-    gap = Size(tile.level.border!.dimensions.horizontal,
-        tile.level.border!.dimensions.vertical);
+    gap = Size(
+      tile.level.border!.dimensions.horizontal,
+      tile.level.border!.dimensions.vertical,
+    );
   }
 
   if (tile.level.padding != null) {
-    gap = Size(tile.level.padding!.horizontal + gap.width,
-        tile.level.padding!.vertical + gap.height);
+    gap = Size(
+      tile.level.padding!.horizontal + gap.width,
+      tile.level.padding!.vertical + gap.height,
+    );
   }
 
   child = Transform(
@@ -53,12 +64,14 @@ Widget _buildAnimatedBuilder(
   // We have to increase the label/item builder's size while drilling down
   // to maintain its position so used [OverflowBox].
   if (scale.width < 1 || scale.height < 1) {
-    width = scale.width < 1
-        ? tile._size!.width * scale.width - gap.width
-        : tile._size!.width - gap.width;
-    height = scale.height < 1
-        ? tile._size!.height * scale.height - gap.height
-        : tile._size!.height - gap.height;
+    width =
+        scale.width < 1
+            ? tile._size!.width * scale.width - gap.width
+            : tile._size!.width - gap.width;
+    height =
+        scale.height < 1
+            ? tile._size!.height * scale.height - gap.height
+            : tile._size!.height - gap.height;
     return Align(
       alignment: Alignment.topLeft,
       child: SizedBox(
@@ -73,31 +86,35 @@ Widget _buildAnimatedBuilder(
       ),
     );
   } else {
-    width = scale.width > 1
-        ? tile._size!.width * scale.width - gap.width
-        : tile._size!.width - gap.width;
-    height = scale.height > 1
-        ? tile._size!.height * scale.height - gap.height
-        : tile._size!.height - gap.height;
+    width =
+        scale.width > 1
+            ? tile._size!.width * scale.width - gap.width
+            : tile._size!.width - gap.width;
+    height =
+        scale.height > 1
+            ? tile._size!.height * scale.height - gap.height
+            : tile._size!.height - gap.height;
     return OverflowBox(
-        alignment: Alignment.topLeft,
-        maxHeight: height > 0 ? height : 0.0,
-        maxWidth: width > 0 ? width : 0.0,
-        child: child);
+      alignment: Alignment.topLeft,
+      maxHeight: height > 0 ? height : 0.0,
+      maxWidth: width > 0 ? width : 0.0,
+      child: child,
+    );
   }
 }
 
 Widget? _buildLabeAndItemBuilder(
-    Widget current,
-    TreemapTile tile,
-    int visibleIndex,
-    AnimationStatus animationStatus,
-    Animation<double> scalingAndTranslationAnimation,
-    Animation<double> opacityAnimation,
-    Tween<Size> currentLevelScale,
-    Tween<Size> nextLevelScale,
-    Tween<double> tileOpacity,
-    Tween<double> labelAndItemBuilderOpacity) {
+  Widget current,
+  TreemapTile tile,
+  int visibleIndex,
+  AnimationStatus animationStatus,
+  Animation<double> scalingAndTranslationAnimation,
+  Animation<double> opacityAnimation,
+  Tween<Size> currentLevelScale,
+  Tween<Size> nextLevelScale,
+  Tween<double> tileOpacity,
+  Tween<double> labelAndItemBuilderOpacity,
+) {
   Size? scaleSize;
   if (animationStatus == AnimationStatus.forward &&
       visibleIndex == tile._levelIndex) {
@@ -108,30 +125,38 @@ Widget? _buildLabeAndItemBuilder(
     return Opacity(
       opacity: tileOpacity.evaluate(opacityAnimation),
       child: _buildAnimatedBuilder(
-          tile,
-          currentLevelScale.evaluate(scalingAndTranslationAnimation),
-          animationStatus,
-          current),
+        tile,
+        currentLevelScale.evaluate(scalingAndTranslationAnimation),
+        animationStatus,
+        current,
+      ),
     );
   } else if (animationStatus == AnimationStatus.reverse) {
     if (visibleIndex == tile._levelIndex) {
       scaleSize = nextLevelScale.evaluate(scalingAndTranslationAnimation);
-      scaleSize = scaleSize.width > scaleSize.height
-          ? Size(scaleSize.width / scaleSize.width,
-              scaleSize.height / scaleSize.width)
-          : Size(scaleSize.width / scaleSize.height,
-              scaleSize.height / scaleSize.height);
+      scaleSize =
+          scaleSize.width > scaleSize.height
+              ? Size(
+                scaleSize.width / scaleSize.width,
+                scaleSize.height / scaleSize.width,
+              )
+              : Size(
+                scaleSize.width / scaleSize.height,
+                scaleSize.height / scaleSize.height,
+              );
       return Opacity(
-        opacity:
-            labelAndItemBuilderOpacity.evaluate(scalingAndTranslationAnimation),
+        opacity: labelAndItemBuilderOpacity.evaluate(
+          scalingAndTranslationAnimation,
+        ),
         child: _buildAnimatedBuilder(tile, scaleSize, animationStatus, current),
       );
     } else {
       current = _buildAnimatedBuilder(
-          tile,
-          currentLevelScale.evaluate(scalingAndTranslationAnimation),
-          animationStatus,
-          current);
+        tile,
+        currentLevelScale.evaluate(scalingAndTranslationAnimation),
+        animationStatus,
+        current,
+      );
       if (tile._isDrilled) {
         current = Opacity(
           opacity: tileOpacity.evaluate(opacityAnimation),
@@ -150,7 +175,7 @@ enum PointerKind {
   touch,
 
   /// Indicates the pointer kind as hover.
-  hover
+  hover,
 }
 
 /// The [SfTreemap]'s layout type.
@@ -162,7 +187,7 @@ enum LayoutType {
   slice,
 
   /// Dice layout.
-  dice
+  dice,
 }
 
 /// Contains information about the treemap tile.
@@ -274,19 +299,30 @@ mixin _TreemapMixin {
   /// Calculates the scale and translation value by using the current
   /// drilldown tile size and offset.
   void _computeDrilldownTweenValue(
-      TreemapTile visibleTile,
-      AnimationController drilldownAnimationController,
-      GlobalKey breadcrumbKey,
-      bool isDrilledIn) {
+    TreemapTile visibleTile,
+    AnimationController drilldownAnimationController,
+    GlobalKey breadcrumbKey,
+    bool isDrilledIn,
+  ) {
     if (isDrilledIn) {
-      final Size currentScale = Size(size!.width / visibleTile._size!.width,
-          size!.height / visibleTile._size!.height);
-      final Offset currentTranslation =
-          _getTranslation(visibleTile._offset!, currentScale);
-      _scaleAndTranslationAnimation.curve =
-          const Interval(0, 0.5, curve: Curves.easeInOut);
-      _opacityAnimation.curve =
-          const Interval(0.5, 1.0, curve: Curves.easeInOut);
+      final Size currentScale = Size(
+        size!.width / visibleTile._size!.width,
+        size!.height / visibleTile._size!.height,
+      );
+      final Offset currentTranslation = _getTranslation(
+        visibleTile._offset!,
+        currentScale,
+      );
+      _scaleAndTranslationAnimation.curve = const Interval(
+        0,
+        0.5,
+        curve: Curves.easeInOut,
+      );
+      _opacityAnimation.curve = const Interval(
+        0.5,
+        1.0,
+        curve: Curves.easeInOut,
+      );
       _visibleTileTranslation
         ..begin = Offset.zero
         ..end = currentTranslation;
@@ -298,8 +334,11 @@ mixin _TreemapMixin {
         ..end = 0.0;
       drilldownAnimationController.forward(from: 0.01);
     } else {
-      _scaleAndTranslationAnimation.curve =
-          const Interval(0.5, 1.0, curve: Curves.easeInOut);
+      _scaleAndTranslationAnimation.curve = const Interval(
+        0.5,
+        1.0,
+        curve: Curves.easeInOut,
+      );
       _opacityAnimation.curve = const Interval(0, 0.5, curve: Curves.easeInOut);
       _computeDrilledOutTweenValue(visibleTile, breadcrumbKey);
       drilldownAnimationController.reverse(from: 0.99);
@@ -309,7 +348,9 @@ mixin _TreemapMixin {
   }
 
   void _computeDrilledOutTweenValue(
-      TreemapTile tappedTile, GlobalKey breadcrumbKey) {
+    TreemapTile tappedTile,
+    GlobalKey breadcrumbKey,
+  ) {
     late TreemapTile currentDrilledTile;
     if (breadcrumbKey.currentState != null) {
       final _BreadcrumbsState breadcrumbRenderBox =
@@ -326,20 +367,27 @@ mixin _TreemapMixin {
     // It represents which size we need to increase the from scale
     // value to the current level tiles.
     final Size currentLevelScale = Size(
-        size!.width / currentDrilledTile._size!.width,
-        size!.height / currentDrilledTile._size!.height);
+      size!.width / currentDrilledTile._size!.width,
+      size!.height / currentDrilledTile._size!.height,
+    );
     // It represents the offset we need to translate in the animation begin
     // to the current level tiles.
-    final Offset currentLevelTranslation =
-        _getTranslation(currentDrilledTile._offset!, currentLevelScale);
+    final Offset currentLevelTranslation = _getTranslation(
+      currentDrilledTile._offset!,
+      currentLevelScale,
+    );
     // It represents which size we need to increase the from scale
     // value to the current visible tiles.
-    final Size nextLevelScale =
-        Size(1.0 / currentLevelScale.width, 1.0 / currentLevelScale.height);
+    final Size nextLevelScale = Size(
+      1.0 / currentLevelScale.width,
+      1.0 / currentLevelScale.height,
+    );
     // It represents the offset we need to translate in the animation begin
     // to the current visible tiles.
-    final Offset nextLevelTranslation =
-        _getTranslation(currentLevelTranslation, nextLevelScale);
+    final Offset nextLevelTranslation = _getTranslation(
+      currentLevelTranslation,
+      nextLevelScale,
+    );
     _nextTileTranslation
       ..begin = nextLevelTranslation
       ..end = Offset.zero;
@@ -362,14 +410,18 @@ mixin _TreemapMixin {
 
   Offset _getTranslation(Offset tileOffset, Size scaleSize) {
     return -Offset(
-        tileOffset.dx * scaleSize.width, tileOffset.dy * scaleSize.height);
+      tileOffset.dx * scaleSize.width,
+      tileOffset.dy * scaleSize.height,
+    );
   }
 
   /// Scales to the current visible level and load its descendants
   /// with animation.
   Widget _buildAnimatedTreemap(
-      AnimationController controller, GlobalKey breadcrumbKey,
-      {TreemapLayoutDirection direction = TreemapLayoutDirection.topLeft}) {
+    AnimationController controller,
+    GlobalKey breadcrumbKey, {
+    TreemapLayoutDirection direction = TreemapLayoutDirection.topLeft,
+  }) {
     late List<TreemapTile> breadcrumbTiles;
     if (breadcrumbKey.currentState != null) {
       final _BreadcrumbsState breadcrumbRenderBox =
@@ -377,30 +429,39 @@ mixin _TreemapMixin {
       breadcrumbTiles = breadcrumbRenderBox._tiles;
     }
 
-    final TreemapTile tile = controller.status == AnimationStatus.reverse
-        ? _visibleTile
-        // Gets the previous tapped tiles.
-        : breadcrumbTiles[breadcrumbTiles.length - 2];
+    final TreemapTile tile =
+        controller.status == AnimationStatus.reverse
+            ? _visibleTile
+            // Gets the previous tapped tiles.
+            : breadcrumbTiles[breadcrumbTiles.length - 2];
 
     return AnimatedBuilder(
       animation: controller,
       builder: (BuildContext context, Widget? child) {
-        final Offset translation = _getLayoutDirectionTranslation(direction,
-            _visibleTileTranslation.evaluate(_scaleAndTranslationAnimation));
-        final Size scaleSize =
-            _visibleTileScaleSize.evaluate(_scaleAndTranslationAnimation);
+        final Offset translation = _getLayoutDirectionTranslation(
+          direction,
+          _visibleTileTranslation.evaluate(_scaleAndTranslationAnimation),
+        );
+        final Size scaleSize = _visibleTileScaleSize.evaluate(
+          _scaleAndTranslationAnimation,
+        );
         if (controller.status != AnimationStatus.reverse) {
           return Stack(
             children: <Widget>[
               Transform(
                 alignment: _getEffectiveAlignment(direction),
-                transform: Matrix4.identity()
-                  ..scale(scaleSize.width, scaleSize.height)
-                  ..leftTranslate(translation.dx, translation.dy),
+                transform:
+                    Matrix4.identity()
+                      ..scale(scaleSize.width, scaleSize.height)
+                      ..leftTranslate(translation.dx, translation.dy),
                 child: Stack(
                   clipBehavior: Clip.none,
-                  children: _buildTiles(tile._descendants!, tile.weight, size!,
-                      canLayoutTiles: false),
+                  children: _buildTiles(
+                    tile._descendants!,
+                    tile.weight,
+                    size!,
+                    canLayoutTiles: false,
+                  ),
                 ),
               ),
               if (controller.value > 0.5)
@@ -409,65 +470,89 @@ mixin _TreemapMixin {
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: _buildTiles(
-                        _visibleTile._descendants!, _visibleTile.weight, size!),
+                      _visibleTile._descendants!,
+                      _visibleTile.weight,
+                      size!,
+                    ),
                   ),
-                )
+                ),
             ],
           );
         } else {
           return _buildDrilledOutAnimatedTiles(
-              tile, breadcrumbTiles.last, scaleSize, translation, direction);
+            tile,
+            breadcrumbTiles.last,
+            scaleSize,
+            translation,
+            direction,
+          );
         }
       },
     );
   }
 
   Widget _buildDrilledOutAnimatedTiles(
-      TreemapTile tile,
-      TreemapTile lastBreadcrumbTile,
-      Size scaleSize,
-      Offset translation,
-      TreemapLayoutDirection direction) {
+    TreemapTile tile,
+    TreemapTile lastBreadcrumbTile,
+    Size scaleSize,
+    Offset translation,
+    TreemapLayoutDirection direction,
+  ) {
     final Offset descendantsTranslation = _getLayoutDirectionTranslation(
-        direction,
-        _nextTileTranslation.evaluate(_scaleAndTranslationAnimation));
-    final Size descendantsScaleSize =
-        _nextTileScaleSize.evaluate(_scaleAndTranslationAnimation);
+      direction,
+      _nextTileTranslation.evaluate(_scaleAndTranslationAnimation),
+    );
+    final Size descendantsScaleSize = _nextTileScaleSize.evaluate(
+      _scaleAndTranslationAnimation,
+    );
     return Stack(
       children: <Widget>[
         Transform(
           alignment: _getEffectiveAlignment(direction),
-          transform: Matrix4.identity()
-            ..scale(scaleSize.width, scaleSize.height)
-            ..leftTranslate(translation.dx, translation.dy),
+          transform:
+              Matrix4.identity()
+                ..scale(scaleSize.width, scaleSize.height)
+                ..leftTranslate(translation.dx, translation.dy),
           child: Stack(
             clipBehavior: Clip.none,
-            children: _buildTiles(tile._descendants!, tile.weight, size!,
-                canLayoutTiles: false),
+            children: _buildTiles(
+              tile._descendants!,
+              tile.weight,
+              size!,
+              canLayoutTiles: false,
+            ),
           ),
         ),
         Transform(
           alignment: _getEffectiveAlignment(direction),
-          transform: Matrix4.identity()
-            ..scale(descendantsScaleSize.width, descendantsScaleSize.height)
-            ..leftTranslate(
-                descendantsTranslation.dx, descendantsTranslation.dy),
+          transform:
+              Matrix4.identity()
+                ..scale(descendantsScaleSize.width, descendantsScaleSize.height)
+                ..leftTranslate(
+                  descendantsTranslation.dx,
+                  descendantsTranslation.dy,
+                ),
           child: Opacity(
             opacity: 1.0 - _tileOpacity.evaluate(_opacityAnimation),
             child: Stack(
               clipBehavior: Clip.none,
-              children: _buildTiles(lastBreadcrumbTile._descendants!,
-                  lastBreadcrumbTile.weight, size!,
-                  canLayoutTiles: false),
+              children: _buildTiles(
+                lastBreadcrumbTile._descendants!,
+                lastBreadcrumbTile.weight,
+                size!,
+                canLayoutTiles: false,
+              ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
 
   Offset _getLayoutDirectionTranslation(
-      TreemapLayoutDirection layoutDirection, Offset translation) {
+    TreemapLayoutDirection layoutDirection,
+    Offset translation,
+  ) {
     switch (layoutDirection) {
       case TreemapLayoutDirection.topLeft:
         return translation;
@@ -481,7 +566,8 @@ mixin _TreemapMixin {
   }
 
   AlignmentGeometry _getEffectiveAlignment(
-      TreemapLayoutDirection layoutDirection) {
+    TreemapLayoutDirection layoutDirection,
+  ) {
     switch (layoutDirection) {
       case TreemapLayoutDirection.topLeft:
         return Alignment.topLeft;
@@ -495,9 +581,13 @@ mixin _TreemapMixin {
   }
 
   /// Loads label builder and descendants for the tiles.
-  Widget? _getDescendants(BuildContext context, TreemapTile tile,
-      TreemapController controller, bool enableDrilldown,
-      {AnimationController? animationController}) {
+  Widget? _getDescendants(
+    BuildContext context,
+    TreemapTile tile,
+    TreemapController controller,
+    bool enableDrilldown, {
+    AnimationController? animationController,
+  }) {
     Widget? child;
     // Ignored current tile descendants while enable drilldown.
     if (enableDrilldown) {
@@ -538,20 +628,25 @@ mixin _TreemapMixin {
             // Therefore we haven't considered [TreemapLevel.padding] and
             // [TreemapLevel.border] values while passing size to children.
             child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-              // To get the actual size of the parent tile, we had taken the
-              // size of the label builder and subtracted from it.
-              tile._labelBuilderSize = Size(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                // To get the actual size of the parent tile, we had taken the
+                // size of the label builder and subtracted from it.
+                tile._labelBuilderSize = Size(
                   tile._size!.width - constraints.maxWidth,
-                  tile._size!.height - constraints.maxHeight);
-              return Stack(
-                children: _buildTiles(
+                  tile._size!.height - constraints.maxHeight,
+                );
+                return Stack(
+                  children: _buildTiles(
                     tile._descendants!,
                     tile.weight,
-                    Size(tile._size!.width - tile._labelBuilderSize.width,
-                        tile._size!.height - tile._labelBuilderSize.height)),
-              );
-            }),
+                    Size(
+                      tile._size!.width - tile._labelBuilderSize.width,
+                      tile._size!.height - tile._labelBuilderSize.height,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       );
@@ -572,21 +667,26 @@ mixin _TreemapMixin {
 
   Widget _buildDescendants(TreemapTile tile) {
     return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-      return Stack(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Stack(
           children: _buildTiles(
-        tile._descendants!,
-        tile.weight,
-        constraints.biggest,
-      ));
-    });
+            tile._descendants!,
+            tile.weight,
+            constraints.biggest,
+          ),
+        );
+      },
+    );
   }
 
   /// Creates the get tiles methods and overrides to the slice, dice
   /// and squarified class.
   List<Widget> _buildTiles(
-      Map<String, TreemapTile> source, double aggregatedWeight, Size size,
-      {bool canLayoutTiles = true}) {
+    Map<String, TreemapTile> source,
+    double aggregatedWeight,
+    Size size, {
+    bool canLayoutTiles = true,
+  }) {
     return <Widget>[];
   }
 }
@@ -691,50 +791,54 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
   late Future<bool> _computeDataSource;
 
   _SquarifiedTreemap get _squarified => _SquarifiedTreemap(
-      dataCount: widget.dataCount,
-      layoutDirection: widget.layoutDirection,
-      tooltipKey: _tooltipKey,
-      breadcrumbKey: _breadcrumbKey,
-      onSelectionChanged: widget.onSelectionChanged,
-      selectionSettings: widget.selectionSettings,
-      enableDrillDown: widget.enableDrilldown,
-      controller: _controller,
-      drilldownAnimationController: _drilldownAnimationController,
-      initialTile: TreemapTile._()
-        .._group = 'Home'
-        .._levelIndex = -1
-        .._offset = Offset.zero
-        .._descendants = _dataSource
-        .._weight = _totalWeight
-        .._isDrilled = true);
-
-  _SliceAndDiceTreemap get _sliceAndDice => _SliceAndDiceTreemap(
-        dataCount: widget.dataCount,
-        sortAscending: widget.sortAscending,
-        type: widget.layoutType,
-        tooltipKey: _tooltipKey,
-        breadcrumbKey: _breadcrumbKey,
-        onSelectionChanged: widget.onSelectionChanged,
-        selectionSettings: widget.selectionSettings,
-        enableDrillDown: widget.enableDrilldown,
-        controller: _controller,
-        drilldownAnimationController: _drilldownAnimationController,
-        initialTile: TreemapTile._()
+    dataCount: widget.dataCount,
+    layoutDirection: widget.layoutDirection,
+    tooltipKey: _tooltipKey,
+    breadcrumbKey: _breadcrumbKey,
+    onSelectionChanged: widget.onSelectionChanged,
+    selectionSettings: widget.selectionSettings,
+    enableDrillDown: widget.enableDrilldown,
+    controller: _controller,
+    drilldownAnimationController: _drilldownAnimationController,
+    initialTile:
+        TreemapTile._()
           .._group = 'Home'
           .._levelIndex = -1
           .._offset = Offset.zero
           .._descendants = _dataSource
           .._weight = _totalWeight
           .._isDrilled = true,
-      );
+  );
+
+  _SliceAndDiceTreemap get _sliceAndDice => _SliceAndDiceTreemap(
+    dataCount: widget.dataCount,
+    sortAscending: widget.sortAscending,
+    type: widget.layoutType,
+    tooltipKey: _tooltipKey,
+    breadcrumbKey: _breadcrumbKey,
+    onSelectionChanged: widget.onSelectionChanged,
+    selectionSettings: widget.selectionSettings,
+    enableDrillDown: widget.enableDrilldown,
+    controller: _controller,
+    drilldownAnimationController: _drilldownAnimationController,
+    initialTile:
+        TreemapTile._()
+          .._group = 'Home'
+          .._levelIndex = -1
+          .._offset = Offset.zero
+          .._descendants = _dataSource
+          .._weight = _totalWeight
+          .._isDrilled = true,
+  );
 
   TreemapTooltip get _tooltip =>
       TreemapTooltip(key: _tooltipKey, settings: widget.tooltipSettings);
 
   Widget _buildTreemap(BuildContext context, bool hasData) {
-    Widget current = widget.layoutType == LayoutType.squarified
-        ? _squarified
-        : _sliceAndDice;
+    Widget current =
+        widget.layoutType == LayoutType.squarified
+            ? _squarified
+            : _sliceAndDice;
 
     if (widget.enableDrilldown) {
       // ignore: no_leading_underscores_for_local_identifiers
@@ -744,13 +848,14 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
         controller: _controller,
         animationController: _drilldownAnimationController!,
         levels: widget.levels,
-        initialTile: TreemapTile._()
-          .._group = 'Home'
-          .._levelIndex = -1
-          .._offset = Offset.zero
-          .._descendants = _dataSource
-          .._weight = _totalWeight
-          .._isDrilled = true,
+        initialTile:
+            TreemapTile._()
+              .._group = 'Home'
+              .._levelIndex = -1
+              .._offset = Offset.zero
+              .._descendants = _dataSource
+              .._weight = _totalWeight
+              .._isDrilled = true,
       );
       switch (widget.breadcrumbs!.position) {
         case TreemapBreadcrumbPosition.top:
@@ -758,7 +863,7 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               _breadcrumbs,
-              Expanded(child: ClipRect(child: current))
+              Expanded(child: ClipRect(child: current)),
             ],
           );
           break;
@@ -851,8 +956,9 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
   }
 
   void _obtainDataSource() {
-    _computeDataSource =
-        _obtainDataSourceAndBindColorMappers().then((bool value) => value);
+    _computeDataSource = _obtainDataSourceAndBindColorMappers().then(
+      (bool value) => value,
+    );
   }
 
   Future<bool> _obtainDataSourceAndBindColorMappers() async {
@@ -873,8 +979,12 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
     return true;
   }
 
-  void _groupTiles(double weight, int dataIndex,
-      {int currentLevelIndex = 0, TreemapTile? ancestor}) {
+  void _groupTiles(
+    double weight,
+    int dataIndex, {
+    int currentLevelIndex = 0,
+    TreemapTile? ancestor,
+  }) {
     final TreemapLevel currentLevel = widget.levels[currentLevelIndex];
     final String? groupKey = currentLevel.groupMapper(dataIndex);
     final Color? color = currentLevel.color;
@@ -888,8 +998,12 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
     // have group key, here we have considered the [2] as child to the [0].
     if (groupKey == null) {
       if (nextLevelIndex < _levelsLength) {
-        _groupTiles(weight, dataIndex,
-            currentLevelIndex: nextLevelIndex, ancestor: ancestor);
+        _groupTiles(
+          weight,
+          dataIndex,
+          currentLevelIndex: nextLevelIndex,
+          ancestor: ancestor,
+        );
       }
       return;
     }
@@ -920,48 +1034,62 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
     // checked for the next stages.
     ((ancestor?._descendants ??= <String, TreemapTile>{}) ?? _dataSource)
         .update(
-      groupKey,
-      (TreemapTile tile) {
-        tile._weight += weight;
-        tile.indices.add(dataIndex);
-        tile._levelIndex = currentLevelIndex;
-        if (nextLevelIndex < _levelsLength) {
-          _groupTiles(weight, dataIndex,
-              currentLevelIndex: nextLevelIndex, ancestor: tile);
-        }
-        return tile;
-      },
-      ifAbsent: () {
-        final TreemapTile tile = TreemapTile._()
-          .._group = groupKey
-          .._level = currentLevel
-          .._indices = <int>[dataIndex]
-          .._weight = weight
-          .._padding = padding
-          .._levelIndex = currentLevelIndex
-          .._hasDescendants = false;
-        if (color != null) {
-          tile._color = color;
-        }
+          groupKey,
+          (TreemapTile tile) {
+            tile._weight += weight;
+            tile.indices.add(dataIndex);
+            tile._levelIndex = currentLevelIndex;
+            if (nextLevelIndex < _levelsLength) {
+              _groupTiles(
+                weight,
+                dataIndex,
+                currentLevelIndex: nextLevelIndex,
+                ancestor: tile,
+              );
+            }
+            return tile;
+          },
+          ifAbsent: () {
+            final TreemapTile tile =
+                TreemapTile._()
+                  .._group = groupKey
+                  .._level = currentLevel
+                  .._indices = <int>[dataIndex]
+                  .._weight = weight
+                  .._padding = padding
+                  .._levelIndex = currentLevelIndex
+                  .._hasDescendants = false;
+            if (color != null) {
+              tile._color = color;
+            }
 
-        if (nextLevelIndex < _levelsLength) {
-          _groupTiles(weight, dataIndex,
-              currentLevelIndex: nextLevelIndex, ancestor: tile);
-        }
-        ancestor?._hasDescendants = true;
-        return tile;
-      },
-    );
+            if (nextLevelIndex < _levelsLength) {
+              _groupTiles(
+                weight,
+                dataIndex,
+                currentLevelIndex: nextLevelIndex,
+                ancestor: tile,
+              );
+            }
+            ancestor?._hasDescendants = true;
+            return tile;
+          },
+        );
   }
 
   void _bindColorMappersIntoDataSource(Map<String, TreemapTile>? source) {
     if (source != null && source.isNotEmpty) {
-      final double baseWeight =
-          source.values.map((TreemapTile tile) => tile._weight).reduce(max);
+      final double baseWeight = source.values
+          .map((TreemapTile tile) => tile._weight)
+          .reduce(max);
       for (final TreemapTile tile in source.values) {
-        tile._color = _getColor(tile) ??
+        tile._color =
+            _getColor(tile) ??
             _getSaturatedColor(
-                _baseColor, 1 - (tile._weight / baseWeight), Colors.white);
+              _baseColor,
+              1 - (tile._weight / baseWeight),
+              Colors.white,
+            );
         _bindColorMappersIntoDataSource(tile._descendants);
       }
     }
@@ -1001,18 +1129,22 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
 
   Color? _getRangeColor(num value, List<TreemapColorMapper> colorMappers) {
     for (final TreemapColorMapper mapper in colorMappers) {
-      assert(mapper.from != null &&
-          mapper.to != null &&
-          mapper.from! <= mapper.to!);
+      assert(
+        mapper.from != null && mapper.to != null && mapper.from! <= mapper.to!,
+      );
       if ((mapper.from != null && mapper.to != null) &&
           (mapper.from! <= value && mapper.to! >= value)) {
         if (mapper.minSaturation != null && mapper.maxSaturation != null) {
           return _getSaturatedColor(
-              mapper.color,
-              1 -
-                  lerpDouble(mapper.minSaturation, mapper.maxSaturation,
-                      (value - mapper.from!) / (mapper.to! - mapper.from!))!,
-              Colors.white);
+            mapper.color,
+            1 -
+                lerpDouble(
+                  mapper.minSaturation,
+                  mapper.maxSaturation,
+                  (value - mapper.from!) / (mapper.to! - mapper.from!),
+                )!,
+            Colors.white,
+          );
         }
         return mapper.color;
       }
@@ -1040,7 +1172,9 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
     _controller = TreemapController();
     if (widget.enableDrilldown) {
       _drilldownAnimationController = AnimationController(
-          vsync: this, duration: const Duration(milliseconds: 1000));
+        vsync: this,
+        duration: const Duration(milliseconds: 1000),
+      );
       _controller.addDrillDownListener(_handleDrillDown);
     }
     _pointerController = PointerController();
@@ -1052,10 +1186,10 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
   void didUpdateWidget(Treemap oldWidget) {
     _canUpdateTileColor =
         (oldWidget.colorMappers == null && widget.colorMappers != null) ||
-            (oldWidget.colorMappers != null && widget.colorMappers == null) ||
-            (oldWidget.colorMappers != null &&
-                widget.colorMappers != null &&
-                oldWidget.colorMappers!.length != widget.colorMappers!.length);
+        (oldWidget.colorMappers != null && widget.colorMappers == null) ||
+        (oldWidget.colorMappers != null &&
+            widget.colorMappers != null &&
+            oldWidget.colorMappers!.length != widget.colorMappers!.length);
 
     if (_levelsLength != widget.levels.length) {
       _levelsLength = widget.levels.length;
@@ -1082,7 +1216,8 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
-    _isDesktop = kIsWeb ||
+    _isDesktop =
+        kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
         themeData.platform == TargetPlatform.linux;
@@ -1090,32 +1225,38 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
       future: _computeDataSource,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         return LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-          final Size size = Size(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            final Size size = Size(
               constraints.hasBoundedWidth ? constraints.maxWidth : 300,
-              constraints.hasBoundedHeight ? constraints.maxHeight : 300);
+              constraints.hasBoundedHeight ? constraints.maxHeight : 300,
+            );
 
-          // While resizing or changing orientation in an running drill down
-          // animation, force it to complete.
-          if (widget.enableDrilldown &&
-              _drilldownAnimationController!.isAnimating) {
-            _drilldownAnimationController!.value =
-                _drilldownAnimationController!.status == AnimationStatus.forward
-                    ? 1.0
-                    : 0.0;
-          }
+            // While resizing or changing orientation in an running drill down
+            // animation, force it to complete.
+            if (widget.enableDrilldown &&
+                _drilldownAnimationController!.isAnimating) {
+              _drilldownAnimationController!.value =
+                  _drilldownAnimationController!.status ==
+                          AnimationStatus.forward
+                      ? 1.0
+                      : 0.0;
+            }
 
-          return SizedBox(
-            width: size.width,
-            height: size.height,
-            child: snapshot.hasData
-                ? Stack(children: <Widget>[
-                    _buildTreemap(context, snapshot.hasData),
-                    if (_isTooltipEnabled) _tooltip,
-                  ])
-                : null,
-          );
-        });
+            return SizedBox(
+              width: size.width,
+              height: size.height,
+              child:
+                  snapshot.hasData
+                      ? Stack(
+                        children: <Widget>[
+                          _buildTreemap(context, snapshot.hasData),
+                          if (_isTooltipEnabled) _tooltip,
+                        ],
+                      )
+                      : null,
+            );
+          },
+        );
       },
     );
   }
@@ -1162,11 +1303,14 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
   // its location and size for its children.
   @override
   List<Widget> _buildTiles(
-      Map<String, TreemapTile> source, double aggregatedWeight, Size size,
-      {Offset offset = Offset.zero,
-      int start = 0,
-      int? end,
-      bool canLayoutTiles = true}) {
+    Map<String, TreemapTile> source,
+    double aggregatedWeight,
+    Size size, {
+    Offset offset = Offset.zero,
+    int start = 0,
+    int? end,
+    bool canLayoutTiles = true,
+  }) {
     final Size widgetSize = size;
     double groupArea = 0;
     double referenceArea;
@@ -1174,22 +1318,32 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
     double? groupInitialTileArea;
     final List<TreemapTile> tiles = source.values.toList();
     // Sorting the tiles in descending order.
-    tiles.sort((TreemapTile src, TreemapTile target) =>
-        target.weight.compareTo(src.weight));
+    tiles.sort(
+      (TreemapTile src, TreemapTile target) =>
+          target.weight.compareTo(src.weight),
+    );
     end ??= tiles.length;
     final List<Widget> children = <Widget>[];
     for (int i = start; i < end; i++) {
       final TreemapTile tile = tiles[i];
       if (!canLayoutTiles) {
-        children.addAll(_getTileWidgets(
-            tiles, size, offset, start, tiles.length,
-            canLayoutTiles: false));
+        children.addAll(
+          _getTileWidgets(
+            tiles,
+            size,
+            offset,
+            start,
+            tiles.length,
+            canLayoutTiles: false,
+          ),
+        );
         return children;
       } else {
         // Area of rectangle = length * width.
         // Divide the tile weight with aggregatedWeight to get the area factor.
         // Multiply it with rectangular area to get the actual area of a tile.
-        tile._area = widgetSize.height *
+        tile._area =
+            widgetSize.height *
             widgetSize.width *
             (tile.weight / aggregatedWeight);
         groupInitialTileArea ??= tile._area;
@@ -1197,8 +1351,9 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
         final double area = (groupArea + tile._area!) / size.shortestSide;
         referenceArea = groupInitialTileArea! / area;
         final double currentAspectRatio = max(
-            _getAspectRatio(referenceArea, area),
-            _getAspectRatio(tile._area! / area, area));
+          _getAspectRatio(referenceArea, area),
+          _getAspectRatio(tile._area! / area, area),
+        );
         if (prevAspectRatio == null || currentAspectRatio < prevAspectRatio) {
           prevAspectRatio = currentAspectRatio;
           groupArea += tile._area!;
@@ -1206,29 +1361,47 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
           // Aligning the tiles vertically.
           if (size.width > size.height) {
             children.addAll(
-              _getTileWidgets(tiles, Size(groupArea / size.height, size.height),
-                  offset, start, i,
-                  axis: Axis.vertical),
+              _getTileWidgets(
+                tiles,
+                Size(groupArea / size.height, size.height),
+                offset,
+                start,
+                i,
+                axis: Axis.vertical,
+              ),
             );
             offset += Offset(groupArea / size.height, 0);
-            size =
-                Size(max(0, size.width) - groupArea / size.height, size.height);
+            size = Size(
+              max(0, size.width) - groupArea / size.height,
+              size.height,
+            );
           }
           // Aligning the tiles horizontally.
           else {
-            children.addAll(_getTileWidgets(tiles,
-                Size(size.width, groupArea / size.width), offset, start, i,
-                axis: Axis.horizontal));
+            children.addAll(
+              _getTileWidgets(
+                tiles,
+                Size(size.width, groupArea / size.width),
+                offset,
+                start,
+                i,
+                axis: Axis.horizontal,
+              ),
+            );
             offset += Offset(0, groupArea / size.width);
-            size =
-                Size(size.width, max(0, size.height) - groupArea / size.width);
+            size = Size(
+              size.width,
+              max(0, size.height) - groupArea / size.width,
+            );
           }
           start = i;
           groupInitialTileArea = groupArea = tile._area!;
           referenceArea =
               tile._area! / (groupInitialTileArea / size.shortestSide);
-          prevAspectRatio =
-              _getAspectRatio(referenceArea, tile._area! / size.shortestSide);
+          prevAspectRatio = _getAspectRatio(
+            referenceArea,
+            tile._area! / size.shortestSide,
+          );
         }
       }
     }
@@ -1237,15 +1410,25 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
     // the given source.
     if (size.width > size.height) {
       children.addAll(
-        _getTileWidgets(tiles, Size(groupArea / size.height, size.height),
-            offset, start, end,
-            axis: Axis.vertical),
+        _getTileWidgets(
+          tiles,
+          Size(groupArea / size.height, size.height),
+          offset,
+          start,
+          end,
+          axis: Axis.vertical,
+        ),
       );
     } else {
       children.addAll(
-        _getTileWidgets(tiles, Size(groupArea / size.height, size.height),
-            offset, start, end,
-            axis: Axis.horizontal),
+        _getTileWidgets(
+          tiles,
+          Size(groupArea / size.height, size.height),
+          offset,
+          start,
+          end,
+          axis: Axis.horizontal,
+        ),
       );
     }
 
@@ -1253,8 +1436,14 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
   }
 
   List<Widget> _getTileWidgets(
-      List<TreemapTile> source, Size size, Offset offset, int start, int end,
-      {Axis? axis, bool canLayoutTiles = true}) {
+    List<TreemapTile> source,
+    Size size,
+    Offset offset,
+    int start,
+    int end, {
+    Axis? axis,
+    bool canLayoutTiles = true,
+  }) {
     final List<_Tile> tiles = <_Tile>[];
     for (int i = start; i < end; i++) {
       final TreemapTile tileDetails = source[i];
@@ -1272,20 +1461,26 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
         }
       }
 
-      tiles.add(_Tile(
-        size: tileDetails._size!,
-        details: tileDetails,
-        tooltipKey: widget.tooltipKey,
-        layoutDirection: widget.layoutDirection,
-        sortAscending: false,
-        controller: widget.controller,
-        onSelectionChanged: widget.onSelectionChanged,
-        selectionSettings: widget.selectionSettings,
-        drilldownAnimationController: widget.drilldownAnimationController,
-        child: _getDescendants(
-            context, tileDetails, widget.controller, widget.enableDrillDown,
-            animationController: widget.drilldownAnimationController),
-      ));
+      tiles.add(
+        _Tile(
+          size: tileDetails._size!,
+          details: tileDetails,
+          tooltipKey: widget.tooltipKey,
+          layoutDirection: widget.layoutDirection,
+          sortAscending: false,
+          controller: widget.controller,
+          onSelectionChanged: widget.onSelectionChanged,
+          selectionSettings: widget.selectionSettings,
+          drilldownAnimationController: widget.drilldownAnimationController,
+          child: _getDescendants(
+            context,
+            tileDetails,
+            widget.controller,
+            widget.enableDrillDown,
+            animationController: widget.drilldownAnimationController,
+          ),
+        ),
+      );
     }
 
     return tiles;
@@ -1297,8 +1492,12 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
 
   void _handleDrillDown(TreemapTile tile, bool isDrilledIn) {
     setState(() {
-      _computeDrilldownTweenValue(tile, widget.drilldownAnimationController!,
-          widget.breadcrumbKey, isDrilledIn);
+      _computeDrilldownTweenValue(
+        tile,
+        widget.drilldownAnimationController!,
+        widget.breadcrumbKey,
+        isDrilledIn,
+      );
     });
   }
 
@@ -1318,9 +1517,13 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
     _visibleTile = widget.initialTile;
     if (widget.enableDrillDown) {
       _scaleAndTranslationAnimation = CurvedAnimation(
-          parent: widget.drilldownAnimationController!, curve: Curves.linear);
+        parent: widget.drilldownAnimationController!,
+        curve: Curves.linear,
+      );
       _opacityAnimation = CurvedAnimation(
-          parent: widget.drilldownAnimationController!, curve: Curves.linear);
+        parent: widget.drilldownAnimationController!,
+        curve: Curves.linear,
+      );
       _tileOpacity = Tween<double>();
       _labelAndItemBuilderOpacity = Tween<double>();
       _visibleTileTranslation = Tween<Offset>();
@@ -1328,8 +1531,9 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
       _nextTileTranslation = Tween<Offset>();
       _nextTileScaleSize = Tween<Size>();
       widget.controller.addDrillDownListener(_handleDrillDown);
-      widget.drilldownAnimationController!
-          .addStatusListener(_handleAnimationStatusChange);
+      widget.drilldownAnimationController!.addStatusListener(
+        _handleAnimationStatusChange,
+      );
     }
 
     super.initState();
@@ -1339,8 +1543,9 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
   void didUpdateWidget(_SquarifiedTreemap oldWidget) {
     if (oldWidget.layoutDirection != widget.layoutDirection) {
       if (widget.tooltipKey.currentContext != null) {
-        final RenderTooltip tooltipRenderBox = widget.tooltipKey.currentContext!
-            .findRenderObject()! as RenderTooltip;
+        final RenderTooltip tooltipRenderBox =
+            widget.tooltipKey.currentContext!.findRenderObject()!
+                as RenderTooltip;
         tooltipRenderBox.hide(immediately: true);
       }
     }
@@ -1351,8 +1556,9 @@ class _SquarifiedTreemapState extends State<_SquarifiedTreemap>
   void dispose() {
     if (widget.enableDrillDown) {
       widget.controller.removeDrillDownListener(_handleDrillDown);
-      widget.drilldownAnimationController!
-          .removeStatusListener(_handleAnimationStatusChange);
+      widget.drilldownAnimationController!.removeStatusListener(
+        _handleAnimationStatusChange,
+      );
     }
 
     super.dispose();
@@ -1424,56 +1630,69 @@ class _SliceAndDiceTreemapState extends State<_SliceAndDiceTreemap>
     with SingleTickerProviderStateMixin, _TreemapMixin {
   @override
   List<Widget> _buildTiles(
-      Map<String, TreemapTile> source, double aggregatedWeight, Size size,
-      {bool canLayoutTiles = true}) {
+    Map<String, TreemapTile> source,
+    double aggregatedWeight,
+    Size size, {
+    bool canLayoutTiles = true,
+  }) {
     final List<Widget> children = <Widget>[];
     final List<TreemapTile> tiles = source.values.toList();
     Offset offset = Offset.zero;
     // Sorting the tiles in ascending/descending order based on the
     // [sortAscending].
     if (widget.sortAscending) {
-      tiles.sort((TreemapTile src, TreemapTile target) =>
-          src.weight.compareTo(target.weight));
+      tiles.sort(
+        (TreemapTile src, TreemapTile target) =>
+            src.weight.compareTo(target.weight),
+      );
     } else {
-      tiles.sort((TreemapTile target, TreemapTile src) =>
-          src.weight.compareTo(target.weight));
+      tiles.sort(
+        (TreemapTile target, TreemapTile src) =>
+            src.weight.compareTo(target.weight),
+      );
     }
     for (final TreemapTile tile in tiles) {
       if (canLayoutTiles) {
         if (widget.type == LayoutType.slice) {
           tile
-            .._size =
-                Size(size.width, size.height * (tile.weight / aggregatedWeight))
+            .._size = Size(
+              size.width,
+              size.height * (tile.weight / aggregatedWeight),
+            )
             .._offset = offset;
           offset += Offset(0, tile._size!.height);
         } else {
           tile
-            .._size =
-                Size(size.width * (tile.weight / aggregatedWeight), size.height)
+            .._size = Size(
+              size.width * (tile.weight / aggregatedWeight),
+              size.height,
+            )
             .._offset = offset;
           offset += Offset(tile._size!.width, 0);
         }
       }
 
-      children.add(_Tile(
-        type: widget.type,
-        size: tile._size!,
-        details: tile,
-        tooltipKey: widget.tooltipKey,
-        layoutDirection: TreemapLayoutDirection.topLeft,
-        sortAscending: widget.sortAscending,
-        controller: widget.controller,
-        onSelectionChanged: widget.onSelectionChanged,
-        selectionSettings: widget.selectionSettings,
-        drilldownAnimationController: widget.drilldownAnimationController,
-        child: _getDescendants(
-          context,
-          tile,
-          widget.controller,
-          widget.enableDrillDown,
-          animationController: widget.drilldownAnimationController,
+      children.add(
+        _Tile(
+          type: widget.type,
+          size: tile._size!,
+          details: tile,
+          tooltipKey: widget.tooltipKey,
+          layoutDirection: TreemapLayoutDirection.topLeft,
+          sortAscending: widget.sortAscending,
+          controller: widget.controller,
+          onSelectionChanged: widget.onSelectionChanged,
+          selectionSettings: widget.selectionSettings,
+          drilldownAnimationController: widget.drilldownAnimationController,
+          child: _getDescendants(
+            context,
+            tile,
+            widget.controller,
+            widget.enableDrillDown,
+            animationController: widget.drilldownAnimationController,
+          ),
         ),
-      ));
+      );
     }
 
     return children;
@@ -1481,8 +1700,12 @@ class _SliceAndDiceTreemapState extends State<_SliceAndDiceTreemap>
 
   void _handleDrillDown(TreemapTile tile, bool isDrilledIn) {
     setState(() {
-      _computeDrilldownTweenValue(tile, widget.drilldownAnimationController!,
-          widget.breadcrumbKey, isDrilledIn);
+      _computeDrilldownTweenValue(
+        tile,
+        widget.drilldownAnimationController!,
+        widget.breadcrumbKey,
+        isDrilledIn,
+      );
     });
   }
 
@@ -1502,9 +1725,13 @@ class _SliceAndDiceTreemapState extends State<_SliceAndDiceTreemap>
     _visibleTile = widget.initialTile;
     if (widget.enableDrillDown) {
       _scaleAndTranslationAnimation = CurvedAnimation(
-          parent: widget.drilldownAnimationController!, curve: Curves.linear);
+        parent: widget.drilldownAnimationController!,
+        curve: Curves.linear,
+      );
       _opacityAnimation = CurvedAnimation(
-          parent: widget.drilldownAnimationController!, curve: Curves.linear);
+        parent: widget.drilldownAnimationController!,
+        curve: Curves.linear,
+      );
       _tileOpacity = Tween<double>();
       _labelAndItemBuilderOpacity = Tween<double>();
       _visibleTileTranslation = Tween<Offset>();
@@ -1512,8 +1739,9 @@ class _SliceAndDiceTreemapState extends State<_SliceAndDiceTreemap>
       _nextTileTranslation = Tween<Offset>();
       _nextTileScaleSize = Tween<Size>();
       widget.controller.addDrillDownListener(_handleDrillDown);
-      widget.drilldownAnimationController!
-          .addStatusListener(_handleAnimationStatusChange);
+      widget.drilldownAnimationController!.addStatusListener(
+        _handleAnimationStatusChange,
+      );
     }
 
     super.initState();
@@ -1523,8 +1751,9 @@ class _SliceAndDiceTreemapState extends State<_SliceAndDiceTreemap>
   void dispose() {
     if (widget.enableDrillDown) {
       widget.controller.removeDrillDownListener(_handleDrillDown);
-      widget.drilldownAnimationController!
-          .removeStatusListener(_handleAnimationStatusChange);
+      widget.drilldownAnimationController!.removeStatusListener(
+        _handleAnimationStatusChange,
+      );
     }
 
     super.dispose();
@@ -1542,7 +1771,9 @@ class _SliceAndDiceTreemapState extends State<_SliceAndDiceTreemap>
         if (widget.drilldownAnimationController != null &&
             widget.drilldownAnimationController!.isAnimating) {
           return _buildAnimatedTreemap(
-              widget.drilldownAnimationController!, widget.breadcrumbKey);
+            widget.drilldownAnimationController!,
+            widget.breadcrumbKey,
+          );
         }
 
         return Stack(
@@ -1588,9 +1819,10 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dynamic ancestor = type == LayoutType.squarified
-        ? context.findAncestorStateOfType<_SquarifiedTreemapState>()!
-        : context.findAncestorStateOfType<_SliceAndDiceTreemapState>()!;
+    final dynamic ancestor =
+        type == LayoutType.squarified
+            ? context.findAncestorStateOfType<_SquarifiedTreemapState>()!
+            : context.findAncestorStateOfType<_SliceAndDiceTreemapState>()!;
 
     Widget current = _TileDecor(
       size: size,
@@ -1606,8 +1838,9 @@ class _Tile extends StatelessWidget {
     );
 
     if (details._padding != null) {
-      EdgeInsets padding =
-          details._padding!.resolve(Directionality.of(context));
+      EdgeInsets padding = details._padding!.resolve(
+        Directionality.of(context),
+      );
       // if we forward 0 -> 1st level, we need to ignore scaling to the 0th
       // level tiles only. If we backward 1 -> 0th level we need to ignore
       // scaling for both levels.
@@ -1623,18 +1856,25 @@ class _Tile extends StatelessWidget {
         // tiles.
         if (drilldownAnimationController!.status == AnimationStatus.reverse &&
             controller.visibleLevelIndex == details._levelIndex) {
-          scaleSize = ancestor._nextTileScaleSize!
-              .evaluate(ancestor._scaleAndTranslationAnimation) as Size;
+          scaleSize =
+              ancestor._nextTileScaleSize!.evaluate(
+                    ancestor._scaleAndTranslationAnimation,
+                  )
+                  as Size;
         } else {
-          scaleSize = ancestor._visibleTileScaleSize!
-              .evaluate(ancestor._scaleAndTranslationAnimation) as Size;
+          scaleSize =
+              ancestor._visibleTileScaleSize!.evaluate(
+                    ancestor._scaleAndTranslationAnimation,
+                  )
+                  as Size;
         }
 
         padding = EdgeInsets.fromLTRB(
-            padding.left / scaleSize.width,
-            padding.top / scaleSize.height,
-            padding.right / scaleSize.width,
-            padding.bottom / scaleSize.height);
+          padding.left / scaleSize.width,
+          padding.top / scaleSize.height,
+          padding.right / scaleSize.width,
+          padding.bottom / scaleSize.height,
+        );
       }
 
       current = Padding(padding: padding, child: current);
@@ -1739,9 +1979,9 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     }
     if (border != null && widget.details.level.border != null) {
       return widget.details.level.border!.copyWith(
-          side: border.side,
-          borderRadius:
-              border.borderRadius.resolve(Directionality.of(context)));
+        side: border.side,
+        borderRadius: border.borderRadius.resolve(Directionality.of(context)),
+      );
     }
     return border ?? widget.details.level.border;
   }
@@ -1749,7 +1989,8 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
   Widget _buildTileDecor(Widget child, BuildContext context) {
     Widget current = child;
     if (_canAddInteractableWidget || _ancestor.enableDrilldown) {
-      final bool allow = !_ancestor.enableDrilldown ||
+      final bool allow =
+          !_ancestor.enableDrilldown ||
           (widget.controller.visibleLevelIndex == widget.details._levelIndex &&
               !widget.drilldownAnimationController!.isAnimating);
 
@@ -1767,8 +2008,9 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
               widget.controller.hoveredTile = widget.details;
             }
 
-            treemapState
-                ._updateLegendPointer(widget.details._colorValue?.toDouble());
+            treemapState._updateLegendPointer(
+              widget.details._colorValue?.toDouble(),
+            );
           },
           onHover: (PointerHoverEvent event) {
             // Updating the [widget.controller.hoveredTile] when hover
@@ -1834,7 +2076,11 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
           widget.tooltipKey.currentContext!.findRenderObject()!
               as RenderTooltip;
       tooltipRenderBox.show(
-          globalPosition, widget.details, referenceTileSize, kind);
+        globalPosition,
+        widget.details,
+        referenceTileSize,
+        kind,
+      );
     }
   }
 
@@ -1921,15 +2167,18 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
       } else if (_ancestor.tileHoverColor == Colors.transparent) {
         _colorTween.begin = widget.details.color;
       } else if (_ancestor.tileHoverColor == null) {
-        _colorTween.begin =
-            _getSaturatedColor(widget.details.color, hoverSaturateFactor);
+        _colorTween.begin = _getSaturatedColor(
+          widget.details.color,
+          hoverSaturateFactor,
+        );
       }
     } else {
       _colorTween.begin = widget.details.color;
     }
-    _colorTween.end = selectionColor == null
-        ? _getSaturatedColor(widget.details.color, selectionSaturateFactor)
-        : selectionColor == Colors.transparent
+    _colorTween.end =
+        selectionColor == null
+            ? _getSaturatedColor(widget.details.color, selectionSaturateFactor)
+            : selectionColor == Colors.transparent
             ? widget.details.color
             : selectionColor;
   }
@@ -1940,8 +2189,9 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     }
 
     if (widget.details.indices.length < source.indices.length) {
-      return widget.details.indices
-          .any((int index) => source.indices.contains(index));
+      return widget.details.indices.any(
+        (int index) => source.indices.contains(index),
+      );
     } else if (widget.details.indices.length == source.indices.length) {
       for (final int index in widget.details.indices) {
         final bool hasIndex = source.indices.contains(index);
@@ -1978,8 +2228,10 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     } else if (_ancestor.tileHoverColor == Colors.transparent) {
       _colorTween.end = widget.details.color;
     } else {
-      _colorTween.end =
-          _getSaturatedColor(widget.details.color, _getColorFactor());
+      _colorTween.end = _getSaturatedColor(
+        widget.details.color,
+        _getColorFactor(),
+      );
     }
   }
 
@@ -1991,10 +2243,11 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     } else if (widget.drilldownAnimationController!.status ==
         AnimationStatus.reverse) {
       if (widget.details._isDrilled) {
-        _colorTween.begin = widget.ancestor._visibleTile._levelIndex + 1 ==
-                widget.details._levelIndex
-            ? widget.details.color
-            : Colors.transparent;
+        _colorTween.begin =
+            widget.ancestor._visibleTile._levelIndex + 1 ==
+                    widget.details._levelIndex
+                ? widget.details.color
+                : Colors.transparent;
         _colorTween.end = Colors.transparent;
       }
     }
@@ -2009,11 +2262,16 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     return _colorTween.evaluate(_animation)!;
   }
 
-  Widget _buildTileBorder(Widget child, EdgeInsets dimensions,
-      RoundedRectangleBorder? border, Size? scaleSize) {
+  Widget _buildTileBorder(
+    Widget child,
+    EdgeInsets dimensions,
+    RoundedRectangleBorder? border,
+    Size? scaleSize,
+  ) {
     if (border != null) {
-      BorderRadius borderRadius =
-          border.borderRadius.resolve(Directionality.of(context));
+      BorderRadius borderRadius = border.borderRadius.resolve(
+        Directionality.of(context),
+      );
       if (widget.drilldownAnimationController != null &&
           ((widget.drilldownAnimationController!.status ==
                       AnimationStatus.forward &&
@@ -2028,21 +2286,26 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
         if (widget.drilldownAnimationController!.status ==
                 AnimationStatus.reverse &&
             widget.controller.visibleLevelIndex == widget.details._levelIndex) {
-          scaleSize = widget.ancestor._nextTileScaleSize!
-              .evaluate(widget.ancestor._scaleAndTranslationAnimation) as Size;
+          scaleSize =
+              widget.ancestor._nextTileScaleSize!.evaluate(
+                    widget.ancestor._scaleAndTranslationAnimation,
+                  )
+                  as Size;
         }
 
         borderRadius = _getBorderRadius(borderRadius, scaleSize!);
         border = AnimatedBorder(
-            borderRadius: borderRadius,
-            side: border.side,
-            scaleSize: scaleSize);
+          borderRadius: borderRadius,
+          side: border.side,
+          scaleSize: scaleSize,
+        );
         dimensions = border.dimensions.resolve(Directionality.of(context));
         dimensions = EdgeInsets.fromLTRB(
-            dimensions.left / scaleSize.width,
-            dimensions.top / scaleSize.height,
-            dimensions.right / scaleSize.width,
-            dimensions.bottom / scaleSize.height);
+          dimensions.left / scaleSize.width,
+          dimensions.top / scaleSize.height,
+          dimensions.right / scaleSize.width,
+          dimensions.bottom / scaleSize.height,
+        );
       }
     }
 
@@ -2050,28 +2313,38 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
       size: widget.size,
       foregroundPainter: _BorderPainter(border),
       child: ClipPath.shape(
-          shape: border ?? const RoundedRectangleBorder(),
-          child: Padding(padding: dimensions, child: child)),
+        shape: border ?? const RoundedRectangleBorder(),
+        child: Padding(padding: dimensions, child: child),
+      ),
     );
   }
 
   BorderRadius _getBorderRadius(BorderRadius borderRadius, Size scaleSize) {
     return BorderRadius.only(
-        topRight: Radius.elliptical(borderRadius.topRight.x / scaleSize.width,
-            borderRadius.topRight.y / scaleSize.height),
-        bottomLeft: Radius.elliptical(
-            borderRadius.bottomLeft.x / scaleSize.width,
-            borderRadius.bottomLeft.y / scaleSize.height),
-        bottomRight: Radius.elliptical(
-            borderRadius.bottomRight.x / scaleSize.width,
-            borderRadius.bottomRight.y / scaleSize.height),
-        topLeft: Radius.elliptical(borderRadius.topLeft.x / scaleSize.width,
-            borderRadius.topLeft.y / scaleSize.height));
+      topRight: Radius.elliptical(
+        borderRadius.topRight.x / scaleSize.width,
+        borderRadius.topRight.y / scaleSize.height,
+      ),
+      bottomLeft: Radius.elliptical(
+        borderRadius.bottomLeft.x / scaleSize.width,
+        borderRadius.bottomLeft.y / scaleSize.height,
+      ),
+      bottomRight: Radius.elliptical(
+        borderRadius.bottomRight.x / scaleSize.width,
+        borderRadius.bottomRight.y / scaleSize.height,
+      ),
+      topLeft: Radius.elliptical(
+        borderRadius.topLeft.x / scaleSize.width,
+        borderRadius.topLeft.y / scaleSize.height,
+      ),
+    );
   }
 
   Widget? _buildItemBuilder(Widget? current) {
-    Widget? itemBuilder =
-        widget.details.level.itemBuilder!(context, widget.details);
+    Widget? itemBuilder = widget.details.level.itemBuilder!(
+      context,
+      widget.details,
+    );
     if (itemBuilder == null) {
       return current;
     }
@@ -2092,10 +2365,7 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     }
 
     if (current != null) {
-      current = Stack(children: <Widget>[
-        itemBuilder!,
-        current,
-      ]);
+      current = Stack(children: <Widget>[itemBuilder!, current]);
     } else {
       current = itemBuilder;
     }
@@ -2106,16 +2376,21 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
   @override
   void initState() {
     _mouseIsConnected = RendererBinding.instance.mouseTracker.mouseIsConnected;
-    RendererBinding.instance.mouseTracker
-        .addListener(_handleMouseTrackerChange);
+    RendererBinding.instance.mouseTracker.addListener(
+      _handleMouseTrackerChange,
+    );
 
     _controller = AnimationController(
-        duration: const Duration(milliseconds: 200), vsync: this);
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.linear);
     _animation.addListener(_rebuild);
 
-    _colorTween =
-        ColorTween(begin: widget.details.color, end: widget.details.color);
+    _colorTween = ColorTween(
+      begin: widget.details.color,
+      end: widget.details.color,
+    );
 
     widget.controller
       ..addSelectionListener(_handleSelectionChange)
@@ -2136,11 +2411,14 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
   void didUpdateWidget(_TileDecor oldWidget) {
     if (widget.sortAscending != oldWidget.sortAscending ||
         widget.details.color != oldWidget.details.color) {
-      _colorTween =
-          ColorTween(begin: widget.details.color, end: widget.details.color);
+      _colorTween = ColorTween(
+        begin: widget.details.color,
+        end: widget.details.color,
+      );
       if (widget.details.level.tooltipBuilder != null) {
-        final RenderTooltip tooltipRenderBox = widget.tooltipKey.currentContext!
-            .findRenderObject()! as RenderTooltip;
+        final RenderTooltip tooltipRenderBox =
+            widget.tooltipKey.currentContext!.findRenderObject()!
+                as RenderTooltip;
         tooltipRenderBox.hide(immediately: true);
       }
     }
@@ -2156,8 +2434,9 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
       ..removeSelectionListener(_handleSelectionChange)
       ..removeHoverListener(_handleHover);
 
-    RendererBinding.instance.mouseTracker
-        .removeListener(_handleMouseTrackerChange);
+    RendererBinding.instance.mouseTracker.removeListener(
+      _handleMouseTrackerChange,
+    );
     super.dispose();
   }
 
@@ -2172,8 +2451,11 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     Size? scaleSize;
     if (_ancestor.enableDrilldown &&
         widget.ancestor._visibleTileScaleSize.begin != null) {
-      scaleSize = widget.ancestor._visibleTileScaleSize!
-          .evaluate(widget.ancestor._scaleAndTranslationAnimation) as Size;
+      scaleSize =
+          widget.ancestor._visibleTileScaleSize!.evaluate(
+                widget.ancestor._scaleAndTranslationAnimation,
+              )
+              as Size;
     }
 
     if (widget.details.level.itemBuilder != null) {
@@ -2190,8 +2472,12 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
     final RoundedRectangleBorder? border = _getBorder();
     final EdgeInsetsGeometry dimensions = border?.dimensions ?? EdgeInsets.zero;
     if (border != null || widget.onSelectionChanged != null) {
-      current = _buildTileBorder(current,
-          dimensions.resolve(Directionality.of(context)), border, scaleSize);
+      current = _buildTileBorder(
+        current,
+        dimensions.resolve(Directionality.of(context)),
+        border,
+        scaleSize,
+      );
     }
 
     if (!widget.details.hasDescendants || _ancestor.enableDrilldown) {
@@ -2207,7 +2493,7 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
           if (widget.child != null)
             _ancestor.enableDrilldown
                 ? widget.child!
-                : Padding(padding: dimensions, child: widget.child)
+                : Padding(padding: dimensions, child: widget.child),
         ],
       );
     }
@@ -2288,9 +2574,11 @@ class _BreadcrumbsState extends State<_Breadcrumbs>
     final int nextLevelIndex = _current._levelIndex + 1;
 
     for (int i = 0; i < breadcrumbTilesLength; i++) {
-      _breadcrumbs.add(i > nextLevelIndex
-          ? fadeOutBreadcrumb[i]
-          : widget.settings.builder(context, _tiles[i], i == nextLevelIndex)!);
+      _breadcrumbs.add(
+        i > nextLevelIndex
+            ? fadeOutBreadcrumb[i]
+            : widget.settings.builder(context, _tiles[i], i == nextLevelIndex)!,
+      );
     }
   }
 
@@ -2322,7 +2610,9 @@ class _BreadcrumbsState extends State<_Breadcrumbs>
     _breadcrumbItemKey = GlobalKey();
 
     _opacityAnimation = CurvedAnimation(
-        parent: widget.animationController, curve: Curves.decelerate);
+      parent: widget.animationController,
+      curve: Curves.decelerate,
+    );
     widget.animationController.addStatusListener(_handleStatusChange);
 
     widget.controller.addDrillDownListener(_handleDrilldown);
@@ -2344,9 +2634,11 @@ class _BreadcrumbsState extends State<_Breadcrumbs>
     if (_breadcrumbs.isEmpty) {
       _breadcrumbs.add(widget.settings.builder(context, _current, true));
     }
-    final Color dividerColor =
-        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54);
-    final Widget divider = widget.settings.divider ??
+    final Color dividerColor = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.54);
+    final Widget divider =
+        widget.settings.divider ??
         Icon(Icons.chevron_right, size: 16.0, color: dividerColor);
 
     for (int i = 0; i < length; i++) {
@@ -2365,17 +2657,19 @@ class _BreadcrumbsState extends State<_Breadcrumbs>
 
         final bool canApplyOpacity =
             (widget.animationController.status == AnimationStatus.forward &&
-                    _current._levelIndex == _tiles[i]._levelIndex) ||
-                widget.animationController.status == AnimationStatus.reverse &&
-                    _current._levelIndex < _tiles[i]._levelIndex;
+                _current._levelIndex == _tiles[i]._levelIndex) ||
+            widget.animationController.status == AnimationStatus.reverse &&
+                _current._levelIndex < _tiles[i]._levelIndex;
 
-        children.add(_Breadcrumb(
-          tile: _tiles[i],
-          controller: widget.controller,
-          animation: _opacityAnimation,
-          canApplyOpacity: canApplyOpacity,
-          child: current,
-        ));
+        children.add(
+          _Breadcrumb(
+            tile: _tiles[i],
+            controller: widget.controller,
+            animation: _opacityAnimation,
+            canApplyOpacity: canApplyOpacity,
+            child: current,
+          ),
+        );
       }
     }
 
@@ -2393,12 +2687,16 @@ class _BreadcrumbsState extends State<_Breadcrumbs>
       key: _breadcrumbItemKey,
       duration: const Duration(milliseconds: 1000),
       padding: EdgeInsets.only(
-          left: padding.left, top: 11.0, bottom: 9.0, right: padding.right),
+        left: padding.left,
+        top: 11.0,
+        bottom: 9.0,
+        right: padding.right,
+      ),
       child: Stack(
         alignment: Alignment.centerLeft,
         children: <Widget>[
           Opacity(opacity: 0.0, child: divider),
-          if (current != null) current
+          if (current != null) current,
         ],
       ),
     );
@@ -2408,7 +2706,9 @@ class _BreadcrumbsState extends State<_Breadcrumbs>
     }
 
     return SingleChildScrollView(
-        scrollDirection: Axis.horizontal, child: current);
+      scrollDirection: Axis.horizontal,
+      child: current,
+    );
   }
 }
 
@@ -2440,9 +2740,10 @@ class _BreadcrumbState extends State<_Breadcrumb> {
     // State is not preserved, when a widget's visual tree is changed
     // dynamically. So that gesture widget wrapped into the ignore pointer.
     current = IgnorePointer(
-      ignoring: !((widget.animation.isCompleted ||
-              widget.animation.isDismissed) &&
-          widget.tile._levelIndex != widget.controller.visibleLevelIndex - 1),
+      ignoring:
+          !((widget.animation.isCompleted || widget.animation.isDismissed) &&
+              widget.tile._levelIndex !=
+                  widget.controller.visibleLevelIndex - 1),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(

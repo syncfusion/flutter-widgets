@@ -59,20 +59,24 @@ class PdfTextWebLink extends PdfAnnotation {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfTextWebLink(
-      {required String url,
-      String? text,
-      PdfBrush? brush,
-      PdfFont? font,
-      PdfPen? pen,
-      PdfStringFormat? format}) {
+  PdfTextWebLink({
+    required String url,
+    String? text,
+    PdfBrush? brush,
+    PdfFont? font,
+    PdfPen? pen,
+    PdfStringFormat? format,
+  }) {
     _helper = PdfTextWebLinkHelper(this);
     _initializeWebLink(text, font, pen, brush, format);
     this.url = url;
   }
 
   PdfTextWebLink._(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String? annotText) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String? annotText,
+  ) {
     _helper = PdfTextWebLinkHelper._(this, dictionary, crossTable);
     text = annotText != null && annotText.isNotEmpty ? annotText : '';
   }
@@ -231,8 +235,13 @@ class PdfTextWebLink extends PdfAnnotation {
   }
 
   // implementation
-  void _initializeWebLink(String? annotText, PdfFont? font, PdfPen? pen,
-      PdfBrush? brush, PdfStringFormat? format) {
+  void _initializeWebLink(
+    String? annotText,
+    PdfFont? font,
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfStringFormat? format,
+  ) {
     text = annotText != null && annotText.isNotEmpty ? annotText : '';
     if (font != null) {
       this.font = font;
@@ -275,7 +284,11 @@ class PdfTextWebLink extends PdfAnnotation {
           font != null ? font! : PdfStandardFont(PdfFontFamily.helvetica, 8);
       final Size textSize = pdfFont.measureString(text);
       final Rect rect = Rect.fromLTWH(
-          location.dx, location.dy, textSize.width, textSize.height);
+        location.dx,
+        location.dy,
+        textSize.width,
+        textSize.height,
+      );
       _uriAnnotation = PdfUriAnnotation(bounds: rect, uri: url);
       _uriAnnotation.border = PdfAnnotationBorder(0, 0, 0);
       page.annotations.add(_uriAnnotation);
@@ -284,8 +297,14 @@ class PdfTextWebLink extends PdfAnnotation {
   }
 
   void _drawInternal(PdfGraphics graphics, Rect bounds, PdfFont pdfFont) {
-    graphics.drawString(text, pdfFont,
-        pen: pen, brush: brush, bounds: bounds, format: stringFormat);
+    graphics.drawString(
+      text,
+      pdfFont,
+      pen: pen,
+      brush: brush,
+      bounds: bounds,
+      format: stringFormat,
+    );
   }
 
   String? _obtainUrl() {
@@ -319,8 +338,10 @@ class PdfTextWebLinkHelper extends PdfAnnotationHelper {
 
   /// internal constructor
   PdfTextWebLinkHelper._(
-      this.webLinkHelper, PdfDictionary dictionary, PdfCrossTable crossTable)
-      : super(webLinkHelper) {
+    this.webLinkHelper,
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) : super(webLinkHelper) {
     initializeExistingAnnotation(dictionary, crossTable);
   }
 
@@ -333,7 +354,10 @@ class PdfTextWebLinkHelper extends PdfAnnotationHelper {
 
   /// internal method
   static PdfTextWebLink load(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
     return PdfTextWebLink._(dictionary, crossTable, text);
   }
 

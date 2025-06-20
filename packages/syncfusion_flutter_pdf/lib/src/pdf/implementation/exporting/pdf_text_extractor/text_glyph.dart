@@ -3,8 +3,14 @@ import '../../graphics/fonts/enums.dart';
 
 /// Gets the details of character in the word.
 class TextGlyph {
-  TextGlyph._(this.text, this.fontName, this.fontStyle, this.bounds,
-      this.fontSize, this.isRotated);
+  TextGlyph._(
+    this.text,
+    this.fontName,
+    this.fontStyle,
+    this.bounds,
+    this.fontSize,
+    this.isRotated,
+  );
 
   //Fields
   /// Gets the bounds of glyph.
@@ -31,8 +37,13 @@ class TextGlyph {
 class TextGlyphHelper {
   /// internal method
   static TextGlyph initialize(
-      String text, String fontName, List<PdfFontStyle> fontStyle,
-      [Rect bounds = Rect.zero, double fontSize = 0, bool isRotated = false]) {
+    String text,
+    String fontName,
+    List<PdfFontStyle> fontStyle, [
+    Rect bounds = Rect.zero,
+    double fontSize = 0,
+    bool isRotated = false,
+  ]) {
     return TextGlyph._(text, fontName, fontStyle, bounds, fontSize, isRotated);
   }
 }

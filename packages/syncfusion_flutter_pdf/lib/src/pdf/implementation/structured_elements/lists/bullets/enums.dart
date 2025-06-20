@@ -22,7 +22,7 @@ enum PdfListMarkerAlignment {
   left,
 
   /// Right alignment for marker.
-  right
+  right,
 }
 
 /// Specifies the marker style.
@@ -66,5 +66,5 @@ enum PdfUnorderedMarkerStyle {
   customImage,
 
   /// Marker is custom template.
-  customTemplate
+  customTemplate,
 }

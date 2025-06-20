@@ -29,9 +29,11 @@ class DataValidationTable {
 
   /// Represents the method to check whether dataValidation is applied to the cell
   DataValidationImpl? findDataValidation(String dvValue) {
-    for (int dvCollection = 0;
-        dvCollection < dataValidationCollectionList.length;
-        dvCollection++) {
+    for (
+      int dvCollection = 0;
+      dvCollection < dataValidationCollectionList.length;
+      dvCollection++
+    ) {
       final DataValidationImpl? result =
           dataValidationCollectionList[dvCollection].findByCellIndex(dvValue);
       if (result != null) {

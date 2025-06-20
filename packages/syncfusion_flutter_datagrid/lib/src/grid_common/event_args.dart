@@ -16,7 +16,11 @@ class RangeChangedArgs {
   /// * oldSize - _required_ - The old size.
   /// * newSize - _required_ - The new size.
   RangeChangedArgs.fromRangeChangedArgs(
-      int from, int to, double oldSize, double newSize) {
+    int from,
+    int to,
+    double oldSize,
+    double newSize,
+  ) {
     _from = from;
     _to = to;
     _oldSize = oldSize;

@@ -47,8 +47,13 @@ class HyperlinkCollection {
   /// File('Hyperlinks.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  Hyperlink add(Range range, HyperlinkType linkType, String address,
-      [String? screenTip, String? textToDisplay]) {
+  Hyperlink add(
+    Range range,
+    HyperlinkType linkType,
+    String address, [
+    String? screenTip,
+    String? textToDisplay,
+  ]) {
     final Hyperlink hyperlink = Hyperlink(_worksheet);
     hyperlink.isHyperlinkStyle = range.builtInStyle = BuiltInStyles.hyperlink;
     hyperlink.row = range.row;
@@ -83,8 +88,12 @@ class HyperlinkCollection {
   /// File('HyperlinksImage.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  Hyperlink addImage(Picture picture, HyperlinkType linkType, String address,
-      [String? screenTip]) {
+  Hyperlink addImage(
+    Picture picture,
+    HyperlinkType linkType,
+    String address, [
+    String? screenTip,
+  ]) {
     final Hyperlink hyperlink = Hyperlink(_worksheet);
     hyperlink.type = linkType;
     hyperlink.address = address;

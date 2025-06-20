@@ -105,8 +105,10 @@ class FastLineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   @override
   int dataPointIndex(Offset position, ChartSegment segment) {
     final FastLineSegment fastLineSegment = segment as FastLineSegment<T, D>;
-    final int nearestPointIndex =
-        fastLineSegment._findNearestPoint(fastLineSegment.points, position);
+    final int nearestPointIndex = fastLineSegment._findNearestPoint(
+      fastLineSegment.points,
+      position,
+    );
     final int pointIndex = fastLineSegment._drawIndexes[nearestPointIndex];
     if (pointIndex != -1) {
       return super.actualPointIndex(pointIndex);
@@ -123,8 +125,11 @@ class FastLineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   void customizeSegment(ChartSegment segment) {
     final Color fastlineColor = color ?? paletteColor;
     updateSegmentColor(segment, fastlineColor, borderWidth);
-    updateSegmentGradient(segment,
-        gradientBounds: paintBounds, borderGradient: gradient);
+    updateSegmentGradient(
+      segment,
+      gradientBounds: paintBounds,
+      borderGradient: gradient,
+    );
   }
 
   @override
@@ -136,8 +141,12 @@ class FastLineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
     paintSegments(context, offset);
     context.canvas.restore();
@@ -163,7 +172,9 @@ class FastLineSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _drawIndexes.clear();
@@ -328,8 +339,11 @@ class FastLineSegment<T, D> extends ChartSegment {
     final MarkerSettings marker = series.markerSettings;
     final int length = points.length;
     for (int i = 0; i < length; i++) {
-      if (tooltipTouchBounds(points[i], marker.width, marker.height)
-          .contains(position)) {
+      if (tooltipTouchBounds(
+        points[i],
+        marker.width,
+        marker.height,
+      ).contains(position)) {
         return true;
       }
     }
@@ -369,14 +383,17 @@ class FastLineSegment<T, D> extends ChartSegment {
           series.markerSettings.isVisible ? marker.height / 2 : 0;
       final Offset preferredPos = Offset(dx, dy);
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![currentSegmentIndex],
         point: chartPoint,
         series: series.widget,
@@ -424,12 +441,14 @@ class FastLineSegment<T, D> extends ChartSegment {
     int? pointIndex;
     final int length = points.length;
     for (int i = 0; i < length; i++) {
-      nearPointX ??= series.isTransposed
-          ? series.xAxis!.visibleRange!.minimum
-          : points[0].dx;
-      nearPointY ??= series.isTransposed
-          ? points[0].dy
-          : series.yAxis!.visibleRange!.minimum;
+      nearPointX ??=
+          series.isTransposed
+              ? series.xAxis!.visibleRange!.minimum
+              : points[0].dx;
+      nearPointY ??=
+          series.isTransposed
+              ? points[0].dy
+              : series.yAxis!.visibleRange!.minimum;
 
       final num touchXValue = position.dx;
       final num touchYValue = position.dy;

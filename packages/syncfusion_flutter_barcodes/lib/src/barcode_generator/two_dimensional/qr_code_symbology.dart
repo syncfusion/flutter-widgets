@@ -30,12 +30,12 @@ class QRCode extends Symbology {
   ///
   /// The arguments [module] must be non-negative and greater than 0.
   ///
-  QRCode(
-      {this.codeVersion,
-      this.errorCorrectionLevel = ErrorCorrectionLevel.high,
-      this.inputMode = QRInputMode.binary,
-      int? module})
-      : super(module: module);
+  QRCode({
+    this.codeVersion,
+    this.errorCorrectionLevel = ErrorCorrectionLevel.high,
+    this.inputMode = QRInputMode.binary,
+    int? module,
+  }) : super(module: module);
 
   /// Define the version that is used to encode the amount of data.
   ///

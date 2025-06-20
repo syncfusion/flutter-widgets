@@ -45,9 +45,10 @@ class MapDataLabel extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context,
-      // ignore: library_private_types_in_public_api
-      _RenderMapDataLabel renderObject) {
+    BuildContext context,
+    // ignore: library_private_types_in_public_api
+    _RenderMapDataLabel renderObject,
+  ) {
     renderObject
       ..source = source
       ..mapDataSource = mapDataSource
@@ -69,10 +70,10 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
     required this.controller,
     required this.dataLabelAnimationController,
     required MediaQueryData mediaQueryData,
-  })  : _settings = settings,
-        _effectiveTextStyle = effectiveTextStyle,
-        _themeData = themeData,
-        _mediaQueryData = mediaQueryData {
+  }) : _settings = settings,
+       _effectiveTextStyle = effectiveTextStyle,
+       _themeData = themeData,
+       _mediaQueryData = mediaQueryData {
     _effectiveTextScaleFactor = _mediaQueryData.textScaler;
 
     _textPainter = TextPainter(textDirection: TextDirection.ltr)
@@ -142,7 +143,8 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
   }
 
   void _checkDataLabelColor() {
-    _isCustomTextColor = _settings.textStyle?.color != null ||
+    _isCustomTextColor =
+        _settings.textStyle?.color != null ||
         _themeData.dataLabelTextStyle?.color != null;
   }
 
@@ -211,22 +213,29 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
 
     String? dataLabelText;
     final TextStyle textStyle = _effectiveTextStyle.copyWith(
-        color: _getAnimatedColor(_effectiveTextStyle.color));
+      color: _getAnimatedColor(_effectiveTextStyle.color),
+    );
     final bool hasMapper = source.dataLabelMapper != null;
     mapDataSource.forEach((String key, MapModel model) {
-      dataLabelText = controller!.isInInteractive
-          ? model.visibleDataLabelText
-          : hasMapper
+      dataLabelText =
+          controller!.isInInteractive
+              ? model.visibleDataLabelText
+              : hasMapper
               ? model.dataLabelText
               : model.primaryKey;
       if (dataLabelText == null) {
         return;
       }
 
-      final TextStyle desiredTextStyle =
-          _updateLuminanceColor(textStyle, _isCustomTextColor, model);
-      _textPainter.text =
-          TextSpan(style: desiredTextStyle, text: dataLabelText);
+      final TextStyle desiredTextStyle = _updateLuminanceColor(
+        textStyle,
+        _isCustomTextColor,
+        model,
+      );
+      _textPainter.text = TextSpan(
+        style: desiredTextStyle,
+        text: dataLabelText,
+      );
       _textPainter.layout();
       if (!controller!.isInInteractive) {
         if (_settings.overflowMode == MapLabelOverflow.hide) {
@@ -236,13 +245,16 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
           }
         } else if (_settings.overflowMode == MapLabelOverflow.ellipsis) {
           final String trimmedText = getTrimText(
-              dataLabelText!,
-              desiredTextStyle,
-              model.shapeWidth!,
-              _textPainter,
-              _textPainter.width);
-          _textPainter.text =
-              TextSpan(style: desiredTextStyle, text: trimmedText);
+            dataLabelText!,
+            desiredTextStyle,
+            model.shapeWidth!,
+            _textPainter,
+            _textPainter.width,
+          );
+          _textPainter.text = TextSpan(
+            style: desiredTextStyle,
+            text: trimmedText,
+          );
           _textPainter.layout();
         }
 
@@ -254,18 +266,24 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
         ..save()
         ..translate(model.shapePathCenter!.dx, model.shapePathCenter!.dy)
         ..scale(1 / controller!.localScale);
-      _textPainter.paint(context.canvas,
-          Offset(-_textPainter.width / 2, -_textPainter.height / 2));
+      _textPainter.paint(
+        context.canvas,
+        Offset(-_textPainter.width / 2, -_textPainter.height / 2),
+      );
       context.canvas.restore();
     });
     context.canvas.restore();
   }
 
   TextStyle _updateLuminanceColor(
-      TextStyle style, bool isCustomTextStyle, MapModel model) {
+    TextStyle style,
+    bool isCustomTextStyle,
+    MapModel model,
+  ) {
     if (!isCustomTextStyle) {
-      final Brightness brightness =
-          ThemeData.estimateBrightnessForColor(_getActualShapeColor(model));
+      final Brightness brightness = ThemeData.estimateBrightnessForColor(
+        _getActualShapeColor(model),
+      );
       final Color color =
           brightness == Brightness.dark ? Colors.white : Colors.black;
       style = style.copyWith(color: _getAnimatedColor(color));

@@ -16,7 +16,7 @@ abstract class PdfSingleValueField extends PdfDynamicField {
   // constructor
   /// internal constructor
   PdfSingleValueField([PdfFont? font, PdfBrush? brush, Rect? bounds])
-      : super(font: font, bounds: bounds, brush: brush);
+    : super(font: font, bounds: bounds, brush: brush);
 
   // field
   final Map<PdfDocument?, PdfTemplateValuePair> _list =
@@ -24,13 +24,18 @@ abstract class PdfSingleValueField extends PdfDynamicField {
   final List<PdfGraphics> _painterGraphics = <PdfGraphics>[];
 
   // implementation
-  void _performDraw(PdfGraphics graphics, PdfPoint? location, double scalingX,
-      double scalingY) {
+  void _performDraw(
+    PdfGraphics graphics,
+    PdfPoint? location,
+    double scalingX,
+    double scalingY,
+  ) {
     if (PdfGraphicsHelper.getHelper(graphics).page is PdfPage) {
       final PdfPage page = PdfDynamicField.getPageFromGraphics(graphics);
       final PdfDocument? document = PdfPageHelper.getHelper(page).document;
-      final String? value =
-          PdfAutomaticFieldHelper.getHelper(this).getValue(graphics);
+      final String? value = PdfAutomaticFieldHelper.getHelper(
+        this,
+      ).getValue(graphics);
 
       if (_list.containsKey(document)) {
         final PdfTemplateValuePair pair = _list[document]!;
@@ -38,42 +43,63 @@ abstract class PdfSingleValueField extends PdfDynamicField {
           final Size size =
               PdfAutomaticFieldHelper.getHelper(this).obtainSize();
           pair.template.reset(size.width, size.height);
-          pair.template.graphics!.drawString(value!, font,
-              pen: pen,
-              brush: brush,
-              bounds: bounds.topLeft & size,
-              format: stringFormat);
+          pair.template.graphics!.drawString(
+            value!,
+            font,
+            pen: pen,
+            brush: brush,
+            bounds: bounds.topLeft & size,
+            format: stringFormat,
+          );
         }
 
         if (!_painterGraphics.contains(graphics)) {
-          final Offset drawLocation =
-              Offset(location!.x + bounds.left, location.y + bounds.top);
+          final Offset drawLocation = Offset(
+            location!.x + bounds.left,
+            location.y + bounds.top,
+          );
           graphics.drawPdfTemplate(
-              pair.template,
-              drawLocation,
-              Size(pair.template.size.width * scalingX,
-                  pair.template.size.height * scalingY));
+            pair.template,
+            drawLocation,
+            Size(
+              pair.template.size.width * scalingX,
+              pair.template.size.height * scalingY,
+            ),
+          );
           _painterGraphics.add(graphics);
         }
       } else {
         final PdfTemplate template = PdfTemplate(
-            PdfAutomaticFieldHelper.getHelper(this).obtainSize().width,
-            PdfAutomaticFieldHelper.getHelper(this).obtainSize().height);
+          PdfAutomaticFieldHelper.getHelper(this).obtainSize().width,
+          PdfAutomaticFieldHelper.getHelper(this).obtainSize().height,
+        );
         _list[document] = PdfTemplateValuePair(template, value!);
         final PdfTemplateValuePair pair = _list[document]!;
-        template.graphics!.drawString(value, font,
-            pen: pen,
-            brush: brush,
-            bounds: Rect.fromLTWH(
-                bounds.left, bounds.top, bounds.width, bounds.height),
-            format: stringFormat);
-        final Offset drawLocation =
-            Offset(location!.x + bounds.left, location.y + bounds.top);
+        template.graphics!.drawString(
+          value,
+          font,
+          pen: pen,
+          brush: brush,
+          bounds: Rect.fromLTWH(
+            bounds.left,
+            bounds.top,
+            bounds.width,
+            bounds.height,
+          ),
+          format: stringFormat,
+        );
+        final Offset drawLocation = Offset(
+          location!.x + bounds.left,
+          location.y + bounds.top,
+        );
         graphics.drawPdfTemplate(
-            pair.template,
-            drawLocation,
-            Size(pair.template.size.width * scalingX,
-                pair.template.size.height * scalingY));
+          pair.template,
+          drawLocation,
+          Size(
+            pair.template.size.width * scalingX,
+            pair.template.size.height * scalingY,
+          ),
+        );
         _painterGraphics.add(graphics);
       }
     }
@@ -84,8 +110,13 @@ abstract class PdfSingleValueField extends PdfDynamicField {
 /// [PdfSingleValueField] value
 class PdfSingleValueFieldHelper {
   /// internal method
-  static void performDraw(PdfSingleValueField field, PdfGraphics graphics,
-      PdfPoint? location, double scalingX, double scalingY) {
+  static void performDraw(
+    PdfSingleValueField field,
+    PdfGraphics graphics,
+    PdfPoint? location,
+    double scalingX,
+    double scalingY,
+  ) {
     field._performDraw(graphics, location, scalingX, scalingY);
   }
 }

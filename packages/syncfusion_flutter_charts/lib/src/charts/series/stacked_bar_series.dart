@@ -137,7 +137,9 @@ class StackedBarSeries<T, D> extends StackedSeriesBase<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, StackedBarSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    StackedBarSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..spacing = spacing
@@ -171,11 +173,12 @@ class StackedBarSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
 
   @override
   ChartDataLabelAlignment effectiveDataLabelAlignment(
-      ChartDataLabelAlignment alignment,
-      ChartDataPointType position,
-      ChartElementParentData? previous,
-      ChartElementParentData current,
-      ChartElementParentData? next) {
+    ChartDataLabelAlignment alignment,
+    ChartDataPointType position,
+    ChartElementParentData? previous,
+    ChartElementParentData current,
+    ChartElementParentData? next,
+  ) {
     return alignment == ChartDataLabelAlignment.auto ||
             alignment == ChartDataLabelAlignment.outer
         ? ChartDataLabelAlignment.top
@@ -183,8 +186,11 @@ class StackedBarSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
   }
 
   @override
-  Offset dataLabelPosition(ChartElementParentData current,
-      ChartDataLabelAlignment alignment, Size size) {
+  Offset dataLabelPosition(
+    ChartElementParentData current,
+    ChartDataLabelAlignment alignment,
+    Size size,
+  ) {
     final num x = current.x! + (sbsInfo.maximum + sbsInfo.minimum) / 2;
     final num stackValue = yValues[current.dataPointIndex];
     double y = current.y!.toDouble();
@@ -194,11 +200,21 @@ class StackedBarSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
       y = (y + (y - stackValue)) / 2;
     }
     return _calculateDataLabelPosition(
-        x, y, alignment, size, current.y!.isNegative);
+      x,
+      y,
+      alignment,
+      size,
+      current.y!.isNegative,
+    );
   }
 
-  Offset _calculateDataLabelPosition(num x, num y,
-      ChartDataLabelAlignment alignment, Size size, bool isNegative) {
+  Offset _calculateDataLabelPosition(
+    num x,
+    num y,
+    ChartDataLabelAlignment alignment,
+    Size size,
+    bool isNegative,
+  ) {
     final EdgeInsets margin = dataLabelSettings.margin;
     double translationX = 0.0;
     double translationY = 0.0;
@@ -207,29 +223,33 @@ class StackedBarSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
       case ChartDataLabelAlignment.outer:
       case ChartDataLabelAlignment.bottom:
         if (isTransposed) {
-          translationX = isNegative
-              ? -(dataLabelPadding + size.width + margin.horizontal)
-              : dataLabelPadding;
+          translationX =
+              isNegative
+                  ? -(dataLabelPadding + size.width + margin.horizontal)
+                  : dataLabelPadding;
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = isNegative
-              ? dataLabelPadding
-              : -(dataLabelPadding + size.height + margin.vertical);
+          translationY =
+              isNegative
+                  ? dataLabelPadding
+                  : -(dataLabelPadding + size.height + margin.vertical);
         }
         return translateTransform(x, y, translationX, translationY);
 
       case ChartDataLabelAlignment.top:
         if (isTransposed) {
-          translationX = isNegative
-              ? dataLabelPadding
-              : -(dataLabelPadding + size.width + margin.horizontal);
+          translationX =
+              isNegative
+                  ? dataLabelPadding
+                  : -(dataLabelPadding + size.width + margin.horizontal);
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = isNegative
-              ? -(dataLabelPadding + size.height + margin.vertical)
-              : dataLabelPadding;
+          translationY =
+              isNegative
+                  ? -(dataLabelPadding + size.height + margin.vertical)
+                  : dataLabelPadding;
         }
         return translateTransform(x, y, translationX, translationY);
 
@@ -268,12 +288,18 @@ class StackedBarSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
     final StackedBarSegment<T, D> stackedBarSegment =
         segment as StackedBarSegment<T, D>;
     updateSegmentTrackerStyle(
-        stackedBarSegment, trackColor, trackBorderColor, trackBorderWidth);
+      stackedBarSegment,
+      trackColor,
+      trackBorderColor,
+      trackBorderWidth,
+    );
     updateSegmentColor(stackedBarSegment, borderColor, borderWidth);
-    updateSegmentGradient(stackedBarSegment,
-        gradientBounds: stackedBarSegment.segmentRect?.outerRect,
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      stackedBarSegment,
+      gradientBounds: stackedBarSegment.segmentRect?.outerRect,
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
@@ -294,7 +320,9 @@ class StackedBarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldSegmentRect = null;
@@ -303,8 +331,11 @@ class StackedBarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
     }
 
     if (series.animationDuration > 0) {
-      _oldSegmentRect =
-          RRect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
+      _oldSegmentRect = RRect.lerp(
+        _oldSegmentRect,
+        segmentRect,
+        segmentAnimationFactor,
+      );
     } else {
       _oldSegmentRect = segmentRect;
     }
@@ -341,8 +372,14 @@ class StackedBarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
     );
 
     if (series.isTrackVisible) {
-      calculateTrackerBounds(left, right, borderRadius, series.trackPadding,
-          series.trackBorderWidth, series);
+      calculateTrackerBounds(
+        left,
+        right,
+        borderRadius,
+        series.trackPadding,
+        series.trackBorderWidth,
+        series,
+      );
     }
   }
 
@@ -370,18 +407,22 @@ class StackedBarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       final ChartMarker marker = series.markerAt(pointIndex);
       final double markerHeight =
           series.markerSettings.isVisible ? marker.height / 2 : 0;
-      final Offset preferredPos = tooltipPosition == TooltipPosition.pointer
-          ? position ?? segmentRect!.outerRect.topCenter
-          : segmentRect!.outerRect.topCenter;
+      final Offset preferredPos =
+          tooltipPosition == TooltipPosition.pointer
+              ? position ?? segmentRect!.outerRect.topCenter
+              : segmentRect!.outerRect.topCenter;
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -401,8 +442,10 @@ class StackedBarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
     if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       return ChartTrackballInfo<T, D>(
-        position:
-            Offset(series.pointToPixelX(x, top), series.pointToPixelY(x, top)),
+        position: Offset(
+          series.pointToPixelX(x, top),
+          series.pointToPixelY(x, top),
+        ),
         point: chartPoint,
         series: series,
         seriesIndex: series.index,
@@ -440,8 +483,11 @@ class StackedBarSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       return;
     }
 
-    final RRect? paintRRect =
-        RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+    final RRect? paintRRect = RRect.lerp(
+      _oldSegmentRect,
+      segmentRect,
+      animationFactor,
+    );
     if (paintRRect == null) {
       return;
     }

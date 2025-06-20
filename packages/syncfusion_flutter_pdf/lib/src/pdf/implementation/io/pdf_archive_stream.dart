@@ -18,16 +18,16 @@ class PdfArchiveStream extends PdfStream {
   PdfArchiveStream(PdfDocument? document) : super() {
     ArgumentError.notNull('document');
     _document = document;
-    _objects = <int>[];
-    _objectWriter = PdfWriter(_objects);
-    _objectWriter!.document = _document;
+    _objects = PdfBytesBuilder();
     _indices = <Object?, Object?>{};
+    _objectWriter = PdfWriter(null, _objects);
+    _objectWriter!.document = _document;
   }
 
   // Fields
   PdfDocument? _document;
   IPdfWriter? _objectWriter;
-  late List<int> _objects;
+  late PdfBytesBuilder _objects;
   Map<Object?, Object?>? _indices;
   late PdfArchiveStreamWriter _writer;
 
@@ -49,12 +49,11 @@ class PdfArchiveStream extends PdfStream {
   // Implementation
   @override
   void save(IPdfWriter? writer) {
-    final List<int> data = <int>[];
-    _writer = PdfArchiveStreamWriter(data);
+    _writer = PdfArchiveStreamWriter(<int>[]);
     _saveIndices();
     this[PdfDictionaryProperties.first] = PdfNumber(_writer.position!);
     _saveObjects();
-    super.data = _writer._buffer;
+    super.data = _writer._builder!.takeBytes();
     this[PdfDictionaryProperties.n] = PdfNumber(_indices!.length);
     this[PdfDictionaryProperties.type] = PdfName('ObjStm');
     super.save(writer);
@@ -63,7 +62,7 @@ class PdfArchiveStream extends PdfStream {
   void _saveIndices() {
     for (final Object? position in _indices!.keys) {
       if (position is int) {
-        _writer = PdfArchiveStreamWriter(_writer._buffer!);
+        _writer = PdfArchiveStreamWriter(_writer._builder!.takeBytes());
         _writer.write(_indices![position]);
         _writer.write(PdfOperators.whiteSpace);
         _writer.write(position);
@@ -73,7 +72,7 @@ class PdfArchiveStream extends PdfStream {
   }
 
   void _saveObjects() {
-    _writer._buffer!.addAll(_objects);
+    _writer._builder!.add(_objects.takeBytes());
   }
 
   /// internal method
@@ -91,7 +90,9 @@ class PdfArchiveStream extends PdfStream {
 
   /// internal method
   Future<void> saveObjectAsync(
-      IPdfPrimitive obj, PdfReference reference) async {
+    IPdfPrimitive obj,
+    PdfReference reference,
+  ) async {
     final int? position = _objectWriter!.position;
     _indices![position] = reference.objNum;
     final PdfEncryptor encryptor =
@@ -108,24 +109,25 @@ class PdfArchiveStream extends PdfStream {
 class PdfArchiveStreamWriter extends IPdfWriter {
   // Constructor
   /// internal constructor
-  PdfArchiveStreamWriter(List<int> buffer) {
-    _buffer = buffer;
-    length = buffer.length;
-    position = buffer.length;
+  PdfArchiveStreamWriter(List<int>? data) {
+    _builder = PdfBytesBuilder();
+    if (data != null) {
+      _builder!.add(data);
+    }
+    length = _builder!.length;
+    position = _builder!.length;
   }
 
   //Fields
-  List<int>? _buffer;
+  PdfBytesBuilder? _builder;
 
   @override
   // ignore: avoid_renaming_method_parameters
   void write(dynamic data) {
     if (data is List<int>) {
-      for (int i = 0; i < data.length; i++) {
-        _buffer!.add(data[i]);
-      }
-      length = _buffer!.length;
-      position = _buffer!.length;
+      _builder!.add(data);
+      length = _builder!.length;
+      position = _builder!.length;
     } else if (data is String) {
       write(utf8.encode(data));
     } else if (data is int) {

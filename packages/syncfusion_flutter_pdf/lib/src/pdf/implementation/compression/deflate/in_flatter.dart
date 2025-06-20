@@ -20,8 +20,11 @@ class Inflater {
     _output = DecompressedOutput();
     _input = InBuffer();
     _loopCounter = 0;
-    _codeList = List<int>.filled(HuffmanTree.maxLTree + HuffmanTree.maxDTree, 0,
-        growable: true);
+    _codeList = List<int>.filled(
+      HuffmanTree.maxLTree + HuffmanTree.maxDTree,
+      0,
+      growable: true,
+    );
     _cltcl = List<int>.filled(HuffmanTree.nCLength, 0, growable: true);
     _inflaterstate = InflaterState.readingBFinal;
   }
@@ -147,7 +150,7 @@ class Inflater {
             return <String, dynamic>{
               'result': false,
               'eob': endblock,
-              'output': _output
+              'output': _output,
             };
           }
           break;
@@ -159,7 +162,7 @@ class Inflater {
             return <String, dynamic>{
               'result': false,
               'eob': endblock,
-              'output': _output
+              'output': _output,
             };
           }
           break;
@@ -172,20 +175,20 @@ class Inflater {
             return <String, dynamic>{
               'result': true,
               'eob': endblock,
-              'output': _output
+              'output': _output,
             };
           }
           if (_output.unusedBytes == 0) {
             return <String, dynamic>{
               'result': true,
               'eob': endblock,
-              'output': _output
+              'output': _output,
             };
           }
           return <String, dynamic>{
             'result': false,
             'eob': endblock,
-            'output': _output
+            'output': _output,
           };
         // ignore: no_default_cases
         default:
@@ -200,8 +203,8 @@ class Inflater {
       return false;
     }
     _blBuffer[_getInflaterStateValue(_inflaterstate) -
-            _getInflaterStateValue(InflaterState.unCompressedByte1)] =
-        bits.toUnsigned(8);
+        _getInflaterStateValue(InflaterState.unCompressedByte1)] = bits
+        .toUnsigned(8);
     if (_inflaterstate == InflaterState.unCompressedByte4) {
       _bLength = _blBuffer[0] + (_blBuffer[1]) * 256;
       if (_bLength.toUnsigned(16) !=
@@ -209,8 +212,9 @@ class Inflater {
         throw ArgumentError.value('Ivalid block length.');
       }
     }
-    _inflaterstate =
-        _getInflaterState(_getInflaterStateValue(_inflaterstate) + 1);
+    _inflaterstate = _getInflaterState(
+      _getInflaterStateValue(_inflaterstate) + 1,
+    );
     return true;
   }
 
@@ -226,7 +230,7 @@ class Inflater {
             return <String, dynamic>{
               'result': false,
               'eob': endblock,
-              'output': _output
+              'output': _output,
             };
           }
           if (symbol < 256) {
@@ -238,7 +242,7 @@ class Inflater {
             return <String, dynamic>{
               'result': true,
               'eob': endblock,
-              'output': _output
+              'output': _output,
             };
           } else {
             symbol -= 257;
@@ -261,7 +265,7 @@ class Inflater {
               return <String, dynamic>{
                 'result': false,
                 'eob': endblock,
-                'output': _output
+                'output': _output,
               };
             }
           }
@@ -273,7 +277,7 @@ class Inflater {
             return <String, dynamic>{
               'result': false,
               'eob': endblock,
-              'output': _output
+              'output': _output,
             };
           }
           break;
@@ -284,7 +288,7 @@ class Inflater {
             return <String, dynamic>{
               'result': false,
               'eob': endblock,
-              'output': _output
+              'output': _output,
             };
           }
           break;
@@ -295,7 +299,7 @@ class Inflater {
             return <String, dynamic>{
               'result': false,
               'eob': endblock,
-              'output': _output
+              'output': _output,
             };
           }
           break;
@@ -307,7 +311,7 @@ class Inflater {
     return <String, dynamic>{
       'result': true,
       'eob': endblock,
-      'output': _output
+      'output': _output,
     };
   }
 
@@ -410,13 +414,22 @@ class Inflater {
         break;
     }
 
-    final List<int> literalTreeCodeLength =
-        List<int>.filled(HuffmanTree.maxLTree, 0);
+    final List<int> literalTreeCodeLength = List<int>.filled(
+      HuffmanTree.maxLTree,
+      0,
+    );
     List.copyRange(literalTreeCodeLength, 0, _codeList, 0, _llCodeCount);
-    final List<int> distanceTreeCodeLength =
-        List<int>.filled(HuffmanTree.maxDTree, 0);
-    List.copyRange(distanceTreeCodeLength, 0, _codeList, _llCodeCount,
-        _llCodeCount + _dCodeCount);
+    final List<int> distanceTreeCodeLength = List<int>.filled(
+      HuffmanTree.maxDTree,
+      0,
+    );
+    List.copyRange(
+      distanceTreeCodeLength,
+      0,
+      _codeList,
+      _llCodeCount,
+      _llCodeCount + _dCodeCount,
+    );
     _llTree = HuffmanTree(code: literalTreeCodeLength);
     _distanceTree = HuffmanTree(code: distanceTreeCodeLength);
     _inflaterstate = InflaterState.decodeTop;
@@ -670,7 +683,7 @@ class Inflater {
     163,
     195,
     227,
-    258
+    258,
   ];
   static const List<int> _distanceBasePosition = <int>[
     1,
@@ -704,7 +717,7 @@ class Inflater {
     16385,
     24577,
     0,
-    0
+    0,
   ];
   static const List<int> _codeOrder = <int>[
     16,
@@ -725,7 +738,7 @@ class Inflater {
     2,
     14,
     1,
-    15
+    15,
   ];
   static const List<int> _staticDistanceTreeTable = <int>[
     0x00,
@@ -759,7 +772,7 @@ class Inflater {
     0x07,
     0x17,
     0x0f,
-    0x1f
+    0x1f,
   ];
   static const List<int> _extraLengthBits = <int>[
     0,
@@ -790,6 +803,6 @@ class Inflater {
     5,
     5,
     5,
-    0
+    0,
   ];
 }

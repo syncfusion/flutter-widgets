@@ -91,7 +91,7 @@ class FormatsCollection {
     '[h]:mm:ss',
     'mm:ss.0',
     '##0.0E+0',
-    '@'
+    '@',
   ];
 
   /// Maximum number formats count in a workbook. 36 Default + 206 Custom formats.
@@ -178,9 +178,11 @@ class FormatsCollection {
     }
     if (formatString.contains(_default_exponential.toLowerCase())) {
       formatString = formatString.replaceAll(
-          _default_exponential.toLowerCase(), _default_exponential);
+        _default_exponential.toLowerCase(),
+        _default_exponential,
+      );
     }
-//      formatString = GetCustomizedString(formatString);
+    //      formatString = GetCustomizedString(formatString);
     if (_hashFormatStrings.containsKey(formatString)) {
       final Format format = _hashFormatStrings[formatString]!;
       return format.index;

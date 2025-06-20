@@ -71,49 +71,45 @@ class DataBarImpl implements DataBar {
   String? stGUID;
 
   @override
-
   /// A ConditionValue object which specifies how the shortest bar is evaluated
   /// for a data bar conditional format.
-  ConditionValue minPoint =
-      ConditionValueImpl(ConditionValueType.automatic, '0');
+  ConditionValue minPoint = ConditionValueImpl(
+    ConditionValueType.automatic,
+    '0',
+  );
 
   @override
-
   /// A ConditionValue object which specifies how the longest bar is evaluated
   /// for a data bar conditional format.
-  ConditionValue maxPoint =
-      ConditionValueImpl(ConditionValueType.automatic, '0');
+  ConditionValue maxPoint = ConditionValueImpl(
+    ConditionValueType.automatic,
+    '0',
+  );
 
   @override
-
   /// A value that specifies the length of the longest
   /// data bar as a percentage of cell width.
   int percentMax = 100;
 
   @override
-
   /// A value that specifies the length of the shortest
   /// data bar as a percentage of cell width.
   int percentMin = 0;
 
   @override
-
   /// Returns or sets a Boolean value that specifies if the value in the cell
   /// is displayed if the data bar conditional format is applied to the range.
   bool showValue = true;
 
   @override
-
   /// Represents whether the data bar has a border.
   bool hasBorder = false;
 
   @override
-
   /// Represents the axis position for the data bar.
   DataBarAxisPosition dataBarAxisPosition = _defaultAxisPosition;
 
   @override
-
   /// Represents whether the data bar has a gradient fill.
   bool get hasGradientFill {
     return _bHasGradientFill;
@@ -126,7 +122,6 @@ class DataBarImpl implements DataBar {
   }
 
   @override
-
   /// Represents the direction of the data bar.
   DataBarDirection get dataBarDirection {
     return _direction;
@@ -139,7 +134,6 @@ class DataBarImpl implements DataBar {
   }
 
   @override
-
   /// Represents the negative fill color of the data bar.
   String get negativeFillColor {
     if (hasDiffNegativeBarColor) {
@@ -155,11 +149,11 @@ class DataBarImpl implements DataBar {
     hasExtensionList = true;
     hasDiffNegativeBarColor = true;
     _negativeFillColorRgb = Color(
-        int.parse(_negativeFillColor.substring(1, 7), radix: 16) + 0xFF000000);
+      int.parse(_negativeFillColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   @override
-
   /// Represents the negative fill color of the data bar.
   Color get negativeFillColorRgb {
     if (hasDiffNegativeBarColor) {
@@ -179,7 +173,6 @@ class DataBarImpl implements DataBar {
   }
 
   @override
-
   /// Represents the negative border color of the data bar.
   String get negativeBorderColor {
     return _negativeBorderColor;
@@ -191,12 +184,11 @@ class DataBarImpl implements DataBar {
     hasExtensionList = true;
     hasDiffNegativeBarBorderColor = true;
     _negativeBorderColorRgb = Color(
-        int.parse(_negativeBorderColor.substring(1, 7), radix: 16) +
-            0xFF000000);
+      int.parse(_negativeBorderColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   @override
-
   /// Represents the negative border color of the data bar.
   Color get negativeBorderColorRgb => _negativeBorderColorRgb;
 
@@ -223,23 +215,24 @@ class DataBarImpl implements DataBar {
   }
 
   @override
-
   /// The color of the bars in a data bar conditional format.
   String get barColor => _barColor;
 
   @override
   set barColor(String value) {
     _barColor = value;
-    _barColorRgb =
-        Color(int.parse(_barColor.substring(1, 7), radix: 16) + 0xFF000000);
+    _barColorRgb = Color(
+      int.parse(_barColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
     hasExtensionList = true;
   }
 
   @override
-
   /// The color of the bars in a data bar conditional format.
-  Color get barColorRgb => _barColorRgb =
-      Color(int.parse(_barColor.substring(1, 7), radix: 16) + 0xFF000000);
+  Color get barColorRgb =>
+      _barColorRgb = Color(
+        int.parse(_barColor.substring(1, 7), radix: 16) + 0xFF000000,
+      );
 
   @override
   set barColorRgb(Color value) {
@@ -249,20 +242,19 @@ class DataBarImpl implements DataBar {
   }
 
   @override
-
   /// Represents the axis color of the data bar.
   String get barAxisColor => _barAxisColor;
 
   @override
   set barAxisColor(String value) {
     _barAxisColor = value;
-    _barAxisColorRgb =
-        Color(int.parse(_barAxisColor.substring(1, 7), radix: 16) + 0xFF000000);
+    _barAxisColorRgb = Color(
+      int.parse(_barAxisColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
     hasExtensionList = true;
   }
 
   @override
-
   /// Represents the axis color of the data bar in Rgb.
   Color get barAxisColorRgb => _barAxisColorRgb;
 
@@ -274,20 +266,19 @@ class DataBarImpl implements DataBar {
   }
 
   @override
-
   /// Represents the border color of the data bar.
   String get borderColor => _borderColor;
 
   @override
   set borderColor(String value) {
     _borderColor = value;
-    _borderColorRgb =
-        Color(int.parse(_borderColor.substring(1, 7), radix: 16) + 0xFF000000);
+    _borderColorRgb = Color(
+      int.parse(_borderColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
     hasBorder = true;
   }
 
   @override
-
   /// Represents the border color of the data bar in Rgb.
   Color get borderColorRgb => _borderColorRgb;
 

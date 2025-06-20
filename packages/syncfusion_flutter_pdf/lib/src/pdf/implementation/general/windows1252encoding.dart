@@ -255,7 +255,7 @@ class Windows1252Encoding {
     252,
     253,
     254,
-    255
+    255,
   ];
 
   List<int> getBytes(String s) {

@@ -34,29 +34,31 @@ import 'x509/x509_certificates.dart';
 class PdfSignature {
   //Constructor
   /// Initializes a new instance of the [PdfSignature] class with the page and the signature name.
-  PdfSignature(
-      {String? signedName,
-      String? locationInfo,
-      String? reason,
-      String? contactInfo,
-      List<PdfCertificationFlags>? documentPermissions,
-      CryptographicStandard cryptographicStandard = CryptographicStandard.cms,
-      DigestAlgorithm digestAlgorithm = DigestAlgorithm.sha256,
-      PdfCertificate? certificate,
-      TimestampServer? timestampServer,
-      DateTime? signedDate}) {
+  PdfSignature({
+    String? signedName,
+    String? locationInfo,
+    String? reason,
+    String? contactInfo,
+    List<PdfCertificationFlags>? documentPermissions,
+    CryptographicStandard cryptographicStandard = CryptographicStandard.cms,
+    DigestAlgorithm digestAlgorithm = DigestAlgorithm.sha256,
+    PdfCertificate? certificate,
+    TimestampServer? timestampServer,
+    DateTime? signedDate,
+  }) {
     _helper = PdfSignatureHelper(this);
     _init(
-        signedName,
-        locationInfo,
-        reason,
-        contactInfo,
-        documentPermissions,
-        cryptographicStandard,
-        digestAlgorithm,
-        certificate,
-        signedDate,
-        timestampServer);
+      signedName,
+      locationInfo,
+      reason,
+      contactInfo,
+      documentPermissions,
+      cryptographicStandard,
+      digestAlgorithm,
+      certificate,
+      signedDate,
+      timestampServer,
+    );
   }
 
   //Fields
@@ -66,7 +68,7 @@ class PdfSignature {
   //Properties
   /// Gets or sets the permission for certificated document.
   List<PdfCertificationFlags> documentPermissions = <PdfCertificationFlags>[
-    PdfCertificationFlags.forbidChanges
+    PdfCertificationFlags.forbidChanges,
   ];
 
   /// Gets or sets reason of signing.
@@ -133,16 +135,17 @@ class PdfSignature {
 
   //Implementations
   void _init(
-      String? signedName,
-      String? locationInfo,
-      String? reason,
-      String? contactInfo,
-      List<PdfCertificationFlags>? documentPermissions,
-      CryptographicStandard cryptographicStandard,
-      DigestAlgorithm digestAlgorithm,
-      PdfCertificate? pdfCertificate,
-      DateTime? signedDate,
-      TimestampServer? timestampServer) {
+    String? signedName,
+    String? locationInfo,
+    String? reason,
+    String? contactInfo,
+    List<PdfCertificationFlags>? documentPermissions,
+    CryptographicStandard cryptographicStandard,
+    DigestAlgorithm digestAlgorithm,
+    PdfCertificate? pdfCertificate,
+    DateTime? signedDate,
+    TimestampServer? timestampServer,
+  ) {
     this.cryptographicStandard = cryptographicStandard;
     this.digestAlgorithm = digestAlgorithm;
     if (signedName != null) {
@@ -173,15 +176,19 @@ class PdfSignature {
 
   /// Add external signer for signature.
   void addExternalSigner(
-      IPdfExternalSigner signer, List<List<int>> publicCertificatesData) {
+    IPdfExternalSigner signer,
+    List<List<int>> publicCertificatesData,
+  ) {
     _helper.externalSigner = signer;
     _externalRootCert = publicCertificatesData;
     if (_externalRootCert != null) {
       final X509CertificateParser parser = X509CertificateParser();
       _helper.externalChain = <X509Certificate?>[];
-      _externalRootCert!.toList().forEach((List<int> certRawData) => _helper
-          .externalChain!
-          .add(parser.readCertificate(PdfStreamReader(certRawData))));
+      _externalRootCert!.toList().forEach(
+        (List<int> certRawData) => _helper.externalChain!.add(
+          parser.readCertificate(PdfStreamReader(certRawData)),
+        ),
+      );
     }
   }
 
@@ -204,10 +211,11 @@ class PdfSignature {
   /// // Dispose the document.
   /// document.dispose();
   /// ```
-  Future<bool> createLongTermValidity(
-      {List<List<int>>? publicCertificatesData,
-      RevocationType type = RevocationType.ocspAndCrl,
-      bool includePublicCertificates = false}) async {
+  Future<bool> createLongTermValidity({
+    List<List<int>>? publicCertificatesData,
+    RevocationType type = RevocationType.ocspAndCrl,
+    bool includePublicCertificates = false,
+  }) async {
     final List<X509Certificate> x509CertificateList = <X509Certificate>[];
     if (publicCertificatesData != null) {
       final X509CertificateParser parser = X509CertificateParser();
@@ -217,9 +225,10 @@ class PdfSignature {
         x509CertificateList.add(certificate);
       }
     } else {
-      final List<X509Certificate?>? certChain = timestampServer != null
-          ? await _helper.getTimestampCertificateChain()
-          : _helper.getCertificateChain();
+      final List<X509Certificate?>? certChain =
+          timestampServer != null
+              ? await _helper.getTimestampCertificateChain()
+              : _helper.getCertificateChain();
       if (certChain != null) {
         for (final X509Certificate? certificate in certChain) {
           if (certificate != null) {
@@ -231,7 +240,10 @@ class PdfSignature {
     }
     if (x509CertificateList.isNotEmpty) {
       return _helper.getDSSDetails(
-          x509CertificateList, type, includePublicCertificates);
+        x509CertificateList,
+        type,
+        includePublicCertificates,
+      );
     } else {
       return false;
     }
@@ -283,25 +295,30 @@ class PdfSignatureHelper {
   /// internal method
   /// To check annotation last elements have signature field
   void checkAnnotationElementsContainsSignature(
-      PdfPage page, String? signatureName) {
-    if (PdfPageHelper.getHelper(page)
-        .dictionary!
-        .containsKey(PdfDictionaryProperties.annots)) {
+    PdfPage page,
+    String? signatureName,
+  ) {
+    if (PdfPageHelper.getHelper(
+      page,
+    ).dictionary!.containsKey(PdfDictionaryProperties.annots)) {
       final IPdfPrimitive? annotationElements = PdfCrossTable.dereference(
-          PdfPageHelper.getHelper(page)
-              .dictionary![PdfDictionaryProperties.annots]);
+        PdfPageHelper.getHelper(page).dictionary![PdfDictionaryProperties
+            .annots],
+      );
       IPdfPrimitive? lastElement;
       if (annotationElements != null &&
           annotationElements is PdfArray &&
           annotationElements.elements.isNotEmpty) {
         lastElement = PdfCrossTable.dereference(
-            annotationElements[annotationElements.elements.length - 1]);
+          annotationElements[annotationElements.elements.length - 1],
+        );
       }
       if (lastElement != null &&
           lastElement is PdfDictionary &&
           lastElement.containsKey(PdfDictionaryProperties.t)) {
-        final IPdfPrimitive? name =
-            PdfCrossTable.dereference(lastElement[PdfDictionaryProperties.t]);
+        final IPdfPrimitive? name = PdfCrossTable.dereference(
+          lastElement[PdfDictionaryProperties.t],
+        );
         String tempName = '';
         if (name != null && name is PdfString) {
           tempName = utf8.decode(name.data!, allowMalformed: true);
@@ -310,8 +327,9 @@ class PdfSignatureHelper {
             annotationElements != null &&
             annotationElements is PdfArray &&
             annotationElements.elements.isNotEmpty) {
-          annotationElements.elements
-              .removeAt(annotationElements.elements.length - 1);
+          annotationElements.elements.removeAt(
+            annotationElements.elements.length - 1,
+          );
         }
       }
     }
@@ -321,18 +339,22 @@ class PdfSignatureHelper {
   void catalogBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
     if (certificated) {
       IPdfPrimitive? permission = PdfCrossTable.dereference(
-          PdfDocumentHelper.getHelper(document!)
-              .catalog[PdfDictionaryProperties.perms]);
+        PdfDocumentHelper.getHelper(document!).catalog[PdfDictionaryProperties
+            .perms],
+      );
       if (permission == null) {
         permission = PdfDictionary();
-        (permission as PdfDictionary)[PdfDictionaryProperties.docMDP] =
-            PdfReferenceHolder(signatureDictionary);
-        PdfDocumentHelper.getHelper(document!)
-            .catalog[PdfDictionaryProperties.perms] = permission;
+        (permission as PdfDictionary)[PdfDictionaryProperties
+            .docMDP] = PdfReferenceHolder(signatureDictionary);
+        PdfDocumentHelper.getHelper(document!).catalog[PdfDictionaryProperties
+                .perms] =
+            permission;
       } else if (permission is PdfDictionary &&
           !permission.containsKey(PdfDictionaryProperties.docMDP)) {
-        permission.setProperty(PdfDictionaryProperties.docMDP,
-            PdfReferenceHolder(signatureDictionary));
+        permission.setProperty(
+          PdfDictionaryProperties.docMDP,
+          PdfReferenceHolder(signatureDictionary),
+        );
       }
     }
   }
@@ -343,8 +365,10 @@ class PdfSignatureHelper {
       final PdfFieldHelper helper = PdfFieldHelper.getHelper(field!);
       helper.dictionary!.encrypt =
           PdfSecurityHelper.getHelper(document!.security).encryptor.encrypt;
-      helper.dictionary!
-          .setProperty(PdfDictionaryProperties.ap, field!.appearance);
+      helper.dictionary!.setProperty(
+        PdfDictionaryProperties.ap,
+        field!.appearance,
+      );
     }
   }
 
@@ -413,8 +437,11 @@ class PdfSignatureHelper {
   }
 
   /// internal method
-  Future<bool> getDSSDetails(List<X509Certificate> certificates,
-      RevocationType type, bool includePublicCertificates) async {
+  Future<bool> getDSSDetails(
+    List<X509Certificate> certificates,
+    RevocationType type,
+    bool includePublicCertificates,
+  ) async {
     final List<List<int>> crlCollection = <List<int>>[];
     final List<List<int>> ocspCollection = <List<int>>[];
     final List<List<int>> certCollection = <List<int>>[];
@@ -429,7 +456,9 @@ class PdfSignatureHelper {
           (crlCollection.isEmpty && type == RevocationType.ocspOrCrl)) {
         final Ocsp ocsp = Ocsp();
         final List<int>? ocspBytes = await ocsp.getEncodedOcspResponse(
-            certificates[k], getRoot(certificates[k], certificates));
+          certificates[k],
+          getRoot(certificates[k], certificates),
+        );
         if (ocspBytes != null) {
           ocspCollection.add(buildOCSPResponse(ocspBytes));
         }
@@ -437,8 +466,9 @@ class PdfSignatureHelper {
       if (type == RevocationType.crl ||
           type == RevocationType.ocspAndCrl ||
           (ocspCollection.isEmpty && type == RevocationType.ocspOrCrl)) {
-        final List<List<int>> cim =
-            await RevocationList().getEncoded(certificates[k]);
+        final List<List<int>> cim = await RevocationList().getEncoded(
+          certificates[k],
+        );
         if (cim.isNotEmpty) {
           for (final List<int> crl in cim) {
             bool duplicate = false;
@@ -456,7 +486,10 @@ class PdfSignatureHelper {
       }
     }
     return initializeDssDictionary(
-        crlCollection, ocspCollection, certCollection);
+      crlCollection,
+      ocspCollection,
+      certCollection,
+    );
   }
 
   bool _listsAreEqual(List<int> list1, List<int> list2) {
@@ -472,8 +505,11 @@ class PdfSignatureHelper {
   }
 
   /// internal method
-  bool initializeDssDictionary(List<List<int>> crlCollection,
-      List<List<int>> ocspCollection, List<List<int>> certCollection) {
+  bool initializeDssDictionary(
+    List<List<int>> crlCollection,
+    List<List<int>> ocspCollection,
+    List<List<int>> certCollection,
+  ) {
     if (crlCollection.isEmpty &&
         ocspCollection.isEmpty &&
         certCollection.isEmpty) {
@@ -484,7 +520,8 @@ class PdfSignatureHelper {
       final PdfDocumentHelper helper = PdfDocumentHelper.getHelper(document!);
       if (helper.catalog.containsKey(PdfDictionaryProperties.dss)) {
         final IPdfPrimitive? dss = PdfCrossTable.dereference(
-            helper.catalog[PdfDictionaryProperties.dss]);
+          helper.catalog[PdfDictionaryProperties.dss],
+        );
         if (dss != null && dss is PdfDictionary) {
           dssDictionary = dss;
         }
@@ -498,29 +535,33 @@ class PdfSignatureHelper {
     PdfArray cetrsArray = PdfArray();
     if (dssDictionary.containsKey(PdfDictionaryProperties.ocsps)) {
       final IPdfPrimitive? dssOcsp = PdfCrossTable.dereference(
-          dssDictionary[PdfDictionaryProperties.ocsps]);
+        dssDictionary[PdfDictionaryProperties.ocsps],
+      );
       if (dssOcsp != null && dssOcsp is PdfArray) {
         ocspArray = dssOcsp;
       }
     }
     if (dssDictionary.containsKey(PdfDictionaryProperties.crls)) {
       final IPdfPrimitive? dsscrl = PdfCrossTable.dereference(
-          dssDictionary[PdfDictionaryProperties.crls]);
+        dssDictionary[PdfDictionaryProperties.crls],
+      );
       if (dsscrl != null && dsscrl is PdfArray) {
         crlArray = dsscrl;
       }
     }
     PdfDictionary vriDictionary = PdfDictionary();
     if (dssDictionary.containsKey(PdfDictionaryProperties.vri)) {
-      final IPdfPrimitive? dssVri =
-          PdfCrossTable.dereference(dssDictionary[PdfDictionaryProperties.vri]);
+      final IPdfPrimitive? dssVri = PdfCrossTable.dereference(
+        dssDictionary[PdfDictionaryProperties.vri],
+      );
       if (dssVri != null && dssVri is PdfDictionary) {
         vriDictionary = dssVri;
       }
     }
     if (dssDictionary.containsKey(PdfDictionaryProperties.certs)) {
       final IPdfPrimitive? dssCerts = PdfCrossTable.dereference(
-          dssDictionary[PdfDictionaryProperties.certs]);
+        dssDictionary[PdfDictionaryProperties.certs],
+      );
       if (dssCerts != null && dssCerts is PdfArray) {
         cetrsArray = dssCerts;
       }
@@ -551,14 +592,16 @@ class PdfSignatureHelper {
     final String vriName = getVRIName().toUpperCase();
     PdfDictionary vriDataDictionary = PdfDictionary();
     if (vriDictionary.containsKey(vriName)) {
-      final IPdfPrimitive? dssVriData =
-          PdfCrossTable.dereference(vriDictionary[vriName]);
+      final IPdfPrimitive? dssVriData = PdfCrossTable.dereference(
+        vriDictionary[vriName],
+      );
       if (dssVriData != null && dssVriData is PdfDictionary) {
         vriDataDictionary = dssVriData;
       }
       if (vriDataDictionary.containsKey(PdfDictionaryProperties.ocsp)) {
         final IPdfPrimitive? vriOCSP = PdfCrossTable.dereference(
-            vriDataDictionary[PdfDictionaryProperties.ocsp]);
+          vriDataDictionary[PdfDictionaryProperties.ocsp],
+        );
         if (vriOCSP != null && vriOCSP is PdfArray) {
           for (int i = 0; i < ocspVRI.count; i++) {
             if (!vriOCSP.contains(ocspVRI[i]!)) {
@@ -569,7 +612,8 @@ class PdfSignatureHelper {
       }
       if (vriDataDictionary.containsKey(PdfDictionaryProperties.crl)) {
         final IPdfPrimitive? vriCRL = PdfCrossTable.dereference(
-            vriDataDictionary[PdfDictionaryProperties.crl]);
+          vriDataDictionary[PdfDictionaryProperties.crl],
+        );
         if (vriCRL != null && vriCRL is PdfArray) {
           for (int i = 0; i < crlVRI.count; i++) {
             if (!vriCRL.contains(crlVRI[i]!)) {
@@ -579,27 +623,33 @@ class PdfSignatureHelper {
         }
       }
     } else {
-      vriDataDictionary.items![PdfName(PdfDictionaryProperties.ocsp)] =
-          PdfReferenceHolder(ocspArray);
-      vriDataDictionary.items![PdfName(PdfDictionaryProperties.crl)] =
-          PdfReferenceHolder(crlArray);
-      vriDictionary.items![PdfName(getVRIName().toUpperCase())] =
-          PdfReferenceHolder(vriDataDictionary);
+      vriDataDictionary.items![PdfName(
+        PdfDictionaryProperties.ocsp,
+      )] = PdfReferenceHolder(ocspArray);
+      vriDataDictionary.items![PdfName(
+        PdfDictionaryProperties.crl,
+      )] = PdfReferenceHolder(crlArray);
+      vriDictionary.items![PdfName(
+        getVRIName().toUpperCase(),
+      )] = PdfReferenceHolder(vriDataDictionary);
     }
     vriDictionary.modify();
-    dssDictionary.items![PdfName(PdfDictionaryProperties.ocsps)] =
-        PdfReferenceHolder(ocspArray);
-    dssDictionary.items![PdfName(PdfDictionaryProperties.crls)] =
-        PdfReferenceHolder(crlArray);
-    dssDictionary.items![PdfName(PdfDictionaryProperties.vri)] =
-        PdfReferenceHolder(vriDictionary);
+    dssDictionary.items![PdfName(
+      PdfDictionaryProperties.ocsps,
+    )] = PdfReferenceHolder(ocspArray);
+    dssDictionary.items![PdfName(
+      PdfDictionaryProperties.crls,
+    )] = PdfReferenceHolder(crlArray);
+    dssDictionary.items![PdfName(
+      PdfDictionaryProperties.vri,
+    )] = PdfReferenceHolder(vriDictionary);
     if (certCollection.isNotEmpty) {
-      dssDictionary.items![PdfName(PdfDictionaryProperties.certs)] =
-          PdfReferenceHolder(cetrsArray);
+      dssDictionary.items![PdfName(
+        PdfDictionaryProperties.certs,
+      )] = PdfReferenceHolder(cetrsArray);
     }
-    PdfDocumentHelper.getHelper(document!)
-            .catalog[PdfDictionaryProperties.dss] =
-        PdfReferenceHolder(dssDictionary);
+    PdfDocumentHelper.getHelper(document!).catalog[PdfDictionaryProperties
+        .dss] = PdfReferenceHolder(dssDictionary);
     dssDictionary.modify();
     return true;
   }
@@ -622,16 +672,19 @@ class PdfSignatureHelper {
   /// internal method
   String getVRIName() {
     if (_nameData == null && field != null) {
-      final PdfSignatureFieldHelper helper =
-          PdfSignatureFieldHelper.getHelper(field!);
+      final PdfSignatureFieldHelper helper = PdfSignatureFieldHelper.getHelper(
+        field!,
+      );
       if (helper.dictionary!.containsKey(PdfDictionaryProperties.v)) {
         final IPdfPrimitive? v = PdfCrossTable.dereference(
-            helper.dictionary![PdfDictionaryProperties.v]);
+          helper.dictionary![PdfDictionaryProperties.v],
+        );
         if (v != null &&
             v is PdfDictionary &&
             v.containsKey(PdfDictionaryProperties.contents)) {
-          final IPdfPrimitive? contents =
-              PdfCrossTable.dereference(v[PdfDictionaryProperties.contents]);
+          final IPdfPrimitive? contents = PdfCrossTable.dereference(
+            v[PdfDictionaryProperties.contents],
+          );
           if (contents != null && contents is PdfString) {
             _nameData = contents.data;
           }
@@ -654,9 +707,10 @@ class PdfSignatureHelper {
       if (i == 8 || i == 12 || i == 16 || i == 20) {
         buffer.write('-');
       }
-      final int digit = i == 12
-          ? 4 // Specifies the version (4) for UUID v4
-          : (i == 16 ? (random.nextInt(4) + 8) : random.nextInt(16));
+      final int digit =
+          i == 12
+              ? 4 // Specifies the version (4) for UUID v4
+              : (i == 16 ? (random.nextInt(4) + 8) : random.nextInt(16));
       buffer.write(digit.toRadixString(16));
     }
     return buffer.toString();
@@ -670,18 +724,20 @@ class PdfSignatureHelper {
             PdfSignatureFieldHelper.getHelper(field!);
         if (helper.dictionary!.containsKey(PdfDictionaryProperties.v)) {
           final IPdfPrimitive? v = PdfCrossTable.dereference(
-              helper.dictionary![PdfDictionaryProperties.v]);
+            helper.dictionary![PdfDictionaryProperties.v],
+          );
           if (v != null &&
               v is PdfDictionary &&
               v.containsKey(PdfDictionaryProperties.contents)) {
-            final IPdfPrimitive? contents =
-                PdfCrossTable.dereference(v[PdfDictionaryProperties.contents]);
+            final IPdfPrimitive? contents = PdfCrossTable.dereference(
+              v[PdfDictionaryProperties.contents],
+            );
             if (contents != null && contents is PdfString) {
               final List<int>? sigByte = contents.data;
               if (sigByte != null) {
                 final X509CertificateParser parser = X509CertificateParser();
-                final List<X509Certificate?>? certificateChain =
-                    parser.getCertificateChain(PdfStreamReader(sigByte));
+                final List<X509Certificate?>? certificateChain = parser
+                    .getCertificateChain(PdfStreamReader(sigByte));
                 if (certificateChain != null) {
                   return certificateChain;
                 }
@@ -705,19 +761,22 @@ class PdfSignatureHelper {
       input.add(base64.decode('VABlAHMAdAAgAGQAYQB0AGEA')); //Test unicode data
       input.close();
       final List<int> hash = output.events.single.bytes as List<int>;
-      final List<int> asnEncodedTimestampRequest =
-          TimeStampRequestCreator().getAsnEncodedTimestampRequest(hash);
+      final List<int> asnEncodedTimestampRequest = TimeStampRequestCreator()
+          .getAsnEncodedTimestampRequest(hash);
       final List<int>? timeStampResponse = await fetchData(
-          base.timestampServer!.uri, 'POST',
-          contentType: 'application/timestamp-query',
-          userName: base.timestampServer!.userName,
-          password: base.timestampServer!.password,
-          data: asnEncodedTimestampRequest,
-          timeOutDuration: base.timestampServer!.timeOut);
+        base.timestampServer!.uri,
+        'POST',
+        contentType: 'application/timestamp-query',
+        userName: base.timestampServer!.userName,
+        password: base.timestampServer!.password,
+        data: asnEncodedTimestampRequest,
+        timeOutDuration: base.timestampServer!.timeOut,
+      );
       if (timeStampResponse != null) {
         List<int>? encoded;
-        final Asn1Stream stream =
-            Asn1Stream(PdfStreamReader(timeStampResponse));
+        final Asn1Stream stream = Asn1Stream(
+          PdfStreamReader(timeStampResponse),
+        );
         final Asn1? asn1 = stream.readAsn1();
         if (asn1 != null &&
             asn1 is Asn1Sequence &&
@@ -732,8 +791,8 @@ class PdfSignatureHelper {
         }
         if (encoded != null) {
           final X509CertificateParser parser = X509CertificateParser();
-          final List<X509Certificate?>? certificateChain =
-              parser.getCertificateChain(PdfStreamReader(encoded));
+          final List<X509Certificate?>? certificateChain = parser
+              .getCertificateChain(PdfStreamReader(encoded));
           if (certificateChain != null) {
             return certificateChain;
           }
@@ -759,5 +818,5 @@ enum RevocationType {
   ocspAndCrl,
 
   /// Embeds OCSP or CRL data to the PDF document.
-  ocspOrCrl
+  ocspOrCrl,
 }

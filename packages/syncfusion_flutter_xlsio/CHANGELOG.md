@@ -2,6 +2,26 @@
 
 **General**
 
+* Upgraded the archive package. The Flutter XlsIO widget supports archive package version 4.0.0 and above.
+* The compatible version of our Flutter XlsIO widget has been updated to Flutter SDK 3.32.0.
+
+
+## [29.2.7] - 27/05/2025
+ 
+**Bugs**
+ 
+* Excel file gets corrupted when saving a formula containing single quotes in flutter is now resolved.
+
+## [29.1.39] - 22/04/2025
+ 
+**General**
+ 
+* The minimum Dart version has been updated to 3.7.
+
+## [29.1.33] - 25/03/2025
+
+**General**
+
 *  The compatible version of our Flutter XlsIO widget has been updated to Flutter SDK 3.29.0.
 *  The Syncfusion<sup>&reg;</sup> Flutter XlsIO example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
 *  The Syncfusion<sup>&reg;</sup> Flutter XlsIO example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.

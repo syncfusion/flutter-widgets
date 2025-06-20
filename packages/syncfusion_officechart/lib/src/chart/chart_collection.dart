@@ -103,7 +103,9 @@ class ChartCollection extends ChartHelper {
   /// Serialize the chart drawings.
   @override
   Future<void> serializeChartDrawing(
-      XmlBuilder builder, Worksheet sheet) async {
+    XmlBuilder builder,
+    Worksheet sheet,
+  ) async {
     _chartSerialization ??= ChartSerialization(sheet.workbook);
 
     _chartSerialization!.serializeChartDrawingAsync(builder, sheet);

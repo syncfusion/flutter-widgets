@@ -8,7 +8,9 @@ import '../condformat_wrapper.dart';
 class AboveBelowAverageWrapper implements AboveBelowAverage {
   /// Initializes new instance of the wrapper.
   AboveBelowAverageWrapper(
-      AboveBelowAverageImpl aboveAverage, ConditionalFormatWrapper format) {
+    AboveBelowAverageImpl aboveAverage,
+    ConditionalFormatWrapper format,
+  ) {
     _wrapped = aboveAverage;
     _format = format;
   }
@@ -21,7 +23,6 @@ class AboveBelowAverageWrapper implements AboveBelowAverage {
   late ConditionalFormatWrapper _format;
 
   @override
-
   /// Specifies whether the conditional formatting rule looks for cell values above or below the range average or standard deviation.
   ExcelCFAverageType get averageType {
     return _wrapped.averageType;
@@ -33,7 +34,6 @@ class AboveBelowAverageWrapper implements AboveBelowAverage {
   }
 
   @override
-
   /// Specifies standard deviation number for AboveAverage conditional formatting rule.
   int get stdDevValue {
     return _wrapped.stdDevValue;

@@ -235,11 +235,15 @@ abstract class MessageBubble<T> extends StatefulWidget {
     this.secondaryHeaderTextStyle,
     this.suggestionItemTextStyle,
     this.padding = const EdgeInsets.all(2.0),
-    this.contentPadding =
-        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    this.contentPadding = const EdgeInsets.symmetric(
+      horizontal: 16.0,
+      vertical: 8.0,
+    ),
     required this.avatarPadding,
-    this.headerPadding =
-        const EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
+    this.headerPadding = const EdgeInsetsDirectional.only(
+      top: 14.0,
+      bottom: 4.0,
+    ),
     this.footerPadding = const EdgeInsetsDirectional.only(top: 4.0),
     this.avatarSize = const Size.square(32.0),
     this.suggestionBackgroundColor,
@@ -297,9 +301,10 @@ abstract class MessageBubbleState<T> extends State<MessageBubble<T>> {
     final Widget? suggestion = buildSuggestion(context);
     final Widget? footer = buildFooter(context);
     return Column(
-      crossAxisAlignment: widget.alignment == BubbleAlignment.end
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          widget.alignment == BubbleAlignment.end
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       textDirection: TextDirection.ltr,
       children: <Widget>[
@@ -307,13 +312,11 @@ abstract class MessageBubbleState<T> extends State<MessageBubble<T>> {
         BubbleLayout(
           showUserAvatar: hasAvatar(),
           avatarSize: widget.avatarSize,
-          avatarPadding:
-              widget.avatarPadding.resolve(widget.alignmentDirection),
+          avatarPadding: widget.avatarPadding.resolve(
+            widget.alignmentDirection,
+          ),
           alignment: widget.alignment,
-          children: <Widget>[
-            if (avatar != null) avatar,
-            buildContent(context),
-          ],
+          children: <Widget>[if (avatar != null) avatar, buildContent(context)],
         ),
         if (suggestion != null) suggestion,
         if (footer != null) footer,
@@ -352,8 +355,9 @@ abstract class MessageBubbleState<T> extends State<MessageBubble<T>> {
         child: result,
       );
 
-      final EdgeInsets effectiveAvatarPadding =
-          widget.avatarPadding.resolve(widget.alignmentDirection);
+      final EdgeInsets effectiveAvatarPadding = widget.avatarPadding.resolve(
+        widget.alignmentDirection,
+      );
       if (effectiveAvatarPadding != EdgeInsets.zero) {
         result = Padding(padding: effectiveAvatarPadding, child: result);
       }
@@ -400,11 +404,12 @@ abstract class MessageBubbleState<T> extends State<MessageBubble<T>> {
   Widget buildText();
 
   double availableContentWidth() {
-    final double sizeToBeExcluded = hasAvatar()
-        ? widget.avatarSize.width +
-            widget.avatarPadding.horizontal +
-            widget.padding.horizontal
-        : widget.padding.horizontal;
+    final double sizeToBeExcluded =
+        hasAvatar()
+            ? widget.avatarSize.width +
+                widget.avatarPadding.horizontal +
+                widget.padding.horizontal
+            : widget.padding.horizontal;
     final double availableWidth = widget.maxWidth - sizeToBeExcluded;
     return clampDouble(
       availableWidth * widget.widthFactor,
@@ -416,8 +421,11 @@ abstract class MessageBubbleState<T> extends State<MessageBubble<T>> {
   Widget? buildSuggestion(BuildContext context);
 
   Widget? buildFooter(BuildContext context) {
-    Widget? result =
-        widget.footerBuilder?.call(context, widget.index, widget.message);
+    Widget? result = widget.footerBuilder?.call(
+      context,
+      widget.index,
+      widget.message,
+    );
     if (result != null && widget.footerPadding != EdgeInsets.zero) {
       result = Padding(
         padding: widget.footerPadding.resolve(widget.alignmentDirection),
@@ -525,10 +533,10 @@ class RenderBubbleLayout extends RenderBox
     required Size avatarSize,
     required EdgeInsets avatarPadding,
     required BubbleAlignment alignment,
-  })  : _showUserAvatar = showUserAvatar,
-        _avatarSize = avatarSize,
-        _avatarPadding = avatarPadding,
-        _alignment = alignment;
+  }) : _showUserAvatar = showUserAvatar,
+       _avatarSize = avatarSize,
+       _avatarPadding = avatarPadding,
+       _alignment = alignment;
 
   BubbleAlignment get alignment => _alignment;
   BubbleAlignment _alignment = BubbleAlignment.auto;
@@ -720,10 +728,7 @@ abstract class SuggestionAreaState<T> extends State<SuggestionArea<T>> {
     }
 
     if (widget.padding != EdgeInsets.zero) {
-      result = Padding(
-        padding: widget.padding,
-        child: result,
-      );
+      result = Padding(padding: widget.padding, child: result);
     }
 
     if (widget.shape != null &&
@@ -902,10 +907,7 @@ abstract class SuggestionItemState<T> extends State<SuggestionItem<T>> {
     invokeSelectedCallback(selectedIndex, selected: true);
   }
 
-  void invokeSelectedCallback(
-    int suggestionIndex, {
-    required bool selected,
-  });
+  void invokeSelectedCallback(int suggestionIndex, {required bool selected});
 
   Widget _buildContent(BuildContext context) {
     Widget? result;
@@ -919,10 +921,7 @@ abstract class SuggestionItemState<T> extends State<SuggestionItem<T>> {
     }
 
     if (widget.itemPadding != EdgeInsets.zero) {
-      result = Padding(
-        padding: widget.itemPadding,
-        child: result,
-      );
+      result = Padding(padding: widget.itemPadding, child: result);
     }
 
     return result;
@@ -951,8 +950,9 @@ abstract class SuggestionItemState<T> extends State<SuggestionItem<T>> {
     if (widget.enabled) {
       if (widget.selected) {
         if (widget.selectionType == SuggestionSelectionType.single) {
-          _stateChangeNotifier =
-              ValueNotifier<Set<WidgetState>>({WidgetState.selected});
+          _stateChangeNotifier = ValueNotifier<Set<WidgetState>>({
+            WidgetState.selected,
+          });
         } else {
           _stateChangeNotifier = ValueNotifier<Set<WidgetState>>({});
         }
@@ -960,8 +960,9 @@ abstract class SuggestionItemState<T> extends State<SuggestionItem<T>> {
         _stateChangeNotifier = ValueNotifier<Set<WidgetState>>({});
       }
     } else {
-      _stateChangeNotifier =
-          ValueNotifier<Set<WidgetState>>({WidgetState.disabled});
+      _stateChangeNotifier = ValueNotifier<Set<WidgetState>>({
+        WidgetState.disabled,
+      });
     }
     super.initState();
   }
@@ -1020,8 +1021,11 @@ abstract class SuggestionItemState<T> extends State<SuggestionItem<T>> {
       absorbing: !widget.enabled || widget.selected,
       child: ValueListenableBuilder<Set<WidgetState>>(
         valueListenable: _stateChangeNotifier,
-        builder:
-            (BuildContext context, Set<WidgetState> states, Widget? child) {
+        builder: (
+          BuildContext context,
+          Set<WidgetState> states,
+          Widget? child,
+        ) {
           return BorderShape(
             shape: widget.itemShape?.resolve(states),
             color: widget.itemBackgroundColor?.resolve(states),
@@ -1086,8 +1090,8 @@ class RenderBorderShapeBox extends RenderProxyBox {
     Color? color,
     this.states,
     this.shadowDetails,
-  })  : _shape = shape,
-        _color = color;
+  }) : _shape = shape,
+       _color = color;
 
   Set<WidgetState>? states;
   List<BoxShadow> Function(Set<WidgetState>)? shadowDetails;
@@ -1134,8 +1138,10 @@ class RenderBorderShapeBox extends RenderProxyBox {
         }
       }
 
-      context.canvas
-          .drawPath(shape!.getOuterPath(bounds), Paint()..color = color!);
+      context.canvas.drawPath(
+        shape!.getOuterPath(bounds),
+        Paint()..color = color!,
+      );
     }
 
     context.paintChild(child!, offset);

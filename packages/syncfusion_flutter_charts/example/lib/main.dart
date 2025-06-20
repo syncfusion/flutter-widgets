@@ -30,33 +30,34 @@ class _MyHomePageState extends State<_MyHomePage> {
     _SalesData('Feb', 28),
     _SalesData('Mar', 34),
     _SalesData('Apr', 32),
-    _SalesData('May', 40)
+    _SalesData('May', 40),
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Syncfusion Flutter chart'),
-        ),
-        body: Column(children: [
+      appBar: AppBar(title: const Text('Syncfusion Flutter chart')),
+      body: Column(
+        children: [
           //Initialize the chart widget
           SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
-              // Chart title
-              title: ChartTitle(text: 'Half yearly sales analysis'),
-              // Enable legend
-              legend: Legend(isVisible: true),
-              // Enable tooltip
-              tooltipBehavior: TooltipBehavior(enable: true),
-              series: <CartesianSeries<_SalesData, String>>[
-                LineSeries<_SalesData, String>(
-                    dataSource: data,
-                    xValueMapper: (_SalesData sales, _) => sales.year,
-                    yValueMapper: (_SalesData sales, _) => sales.sales,
-                    name: 'Sales',
-                    // Enable data label
-                    dataLabelSettings: DataLabelSettings(isVisible: true))
-              ]),
+            primaryXAxis: CategoryAxis(),
+            // Chart title
+            title: ChartTitle(text: 'Half yearly sales analysis'),
+            // Enable legend
+            legend: Legend(isVisible: true),
+            // Enable tooltip
+            tooltipBehavior: TooltipBehavior(enable: true),
+            series: <CartesianSeries<_SalesData, String>>[
+              LineSeries<_SalesData, String>(
+                dataSource: data,
+                xValueMapper: (_SalesData sales, _) => sales.year,
+                yValueMapper: (_SalesData sales, _) => sales.sales,
+                name: 'Sales',
+                // Enable data label
+                dataLabelSettings: DataLabelSettings(isVisible: true),
+              ),
+            ],
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -64,10 +65,12 @@ class _MyHomePageState extends State<_MyHomePage> {
               child: SfSparkLineChart.custom(
                 //Enable the trackball
                 trackball: SparkChartTrackball(
-                    activationMode: SparkChartActivationMode.tap),
+                  activationMode: SparkChartActivationMode.tap,
+                ),
                 //Enable marker
                 marker: SparkChartMarker(
-                    displayMode: SparkChartMarkerDisplayMode.all),
+                  displayMode: SparkChartMarkerDisplayMode.all,
+                ),
                 //Enable data label
                 labelDisplayMode: SparkChartLabelDisplayMode.all,
                 xValueMapper: (int index) => data[index].year,
@@ -75,8 +78,10 @@ class _MyHomePageState extends State<_MyHomePage> {
                 dataCount: 5,
               ),
             ),
-          )
-        ]));
+          ),
+        ],
+      ),
+    );
   }
 }
 

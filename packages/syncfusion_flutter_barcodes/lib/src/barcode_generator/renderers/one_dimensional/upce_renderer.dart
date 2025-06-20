@@ -17,8 +17,10 @@ class UPCERenderer extends SymbologyRenderer {
     if (value.contains(RegExp(r'^(?=.*?[0-9]).{6}$'))) {
       return true;
     }
-    throw ArgumentError('UPCE supports only numeric characters. '
-        'The provided value should have 6 digits.');
+    throw ArgumentError(
+      'UPCE supports only numeric characters. '
+      'The provided value should have 6 digits.',
+    );
   }
 
   /// This is quite a large method. This method could not be
@@ -26,15 +28,16 @@ class UPCERenderer extends SymbologyRenderer {
   /// to be passed
   @override
   void renderBarcode(
-      Canvas canvas,
-      Size size,
-      Offset offset,
-      String value,
-      Color foregroundColor,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      bool showValue) {
+    Canvas canvas,
+    Size size,
+    Offset offset,
+    String value,
+    Color foregroundColor,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    bool showValue,
+  ) {
     final Paint paint = getBarPaint(foregroundColor);
     final List<String> code = _getCodeValues(value);
     final int barTotalLength = _getTotalLength(code);
@@ -61,12 +64,21 @@ class UPCERenderer extends SymbologyRenderer {
 
     final double width =
         size.width - (singleDigitValues[1]! + singleDigitValues[3]!);
-    double left = symbology?.module == null
-        ? offset.dx
-        : getLeftPosition(barTotalLength, symbology?.module, width,
-            offset.dx + singleDigitValues[1]!);
+    double left =
+        symbology?.module == null
+            ? offset.dx
+            : getLeftPosition(
+              barTotalLength,
+              symbology?.module,
+              width,
+              offset.dx + singleDigitValues[1]!,
+            );
     final Rect barCodeRect = Rect.fromLTRB(
-        offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
+      offset.dx,
+      offset.dy,
+      offset.dx + size.width,
+      offset.dy + size.height,
+    );
     double ratio = 0;
     if (symbology?.module != null) {
       ratio = symbology!.module!.toDouble();
@@ -81,17 +93,22 @@ class UPCERenderer extends SymbologyRenderer {
     for (int i = 0; i < code.length; i++) {
       final String codeValue = code[i];
       final bool hasExtraHeight = getHasExtraHeight(i, code);
-      final double barHeight = hasExtraHeight
-          ? size.height +
-              (showValue ? (textSize!.height * 0.5) + textSpacing : 0)
-          : size.height;
+      final double barHeight =
+          hasExtraHeight
+              ? size.height +
+                  (showValue ? (textSize!.height * 0.5) + textSpacing : 0)
+              : size.height;
       final int codeLength = codeValue.length;
       for (int j = 0; j < codeLength; j++) {
         final bool canDraw = codeValue[j] == '1';
         if (canDraw &&
             (left >= barCodeRect.left && left + ratio < barCodeRect.right)) {
           final Rect individualBarRect = Rect.fromLTRB(
-              left, offset.dy, left + ratio, offset.dy + barHeight);
+            left,
+            offset.dy,
+            left + ratio,
+            offset.dy + barHeight,
+          );
           canvas.drawRect(individualBarRect, paint);
         }
 
@@ -113,22 +130,32 @@ class UPCERenderer extends SymbologyRenderer {
       }
     }
     if (showValue) {
-      _paintText(canvas, offset, size, _encodedValue, textStyle, textSpacing,
-          textAlign, positions, singleDigitValues);
+      _paintText(
+        canvas,
+        offset,
+        size,
+        _encodedValue,
+        textStyle,
+        textSpacing,
+        textAlign,
+        positions,
+        singleDigitValues,
+      );
     }
   }
 
   /// Method to render the input value of the barcode
   void _paintText(
-      Canvas canvas,
-      Offset offset,
-      Size size,
-      String value,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      List<double?> positions,
-      List<double?> singleDigitValues) {
+    Canvas canvas,
+    Offset offset,
+    Size size,
+    String value,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    List<double?> positions,
+    List<double?> singleDigitValues,
+  ) {
     const String value1 = '0';
     final String value2 = value.substring(1, 7);
 
@@ -136,37 +163,40 @@ class UPCERenderer extends SymbologyRenderer {
 
     // Renders the first digit of encoded value
     drawText(
-        canvas,
-        Offset(singleDigitValues[0]!, offset.dy + size.height + textSpacing),
-        Size(singleDigitValues[1]!, size.height),
-        value1,
-        textStyle,
-        textSpacing,
-        textAlign,
-        offset,
-        size);
+      canvas,
+      Offset(singleDigitValues[0]!, offset.dy + size.height + textSpacing),
+      Size(singleDigitValues[1]!, size.height),
+      value1,
+      textStyle,
+      textSpacing,
+      textAlign,
+      offset,
+      size,
+    );
     //Renders the middle six digits of encoded value
     drawText(
-        canvas,
-        Offset(positions[0]!, offset.dy),
-        Size(secondTextWidth, size.height),
-        value2,
-        textStyle,
-        textSpacing,
-        textAlign,
-        offset,
-        size);
+      canvas,
+      Offset(positions[0]!, offset.dy),
+      Size(secondTextWidth, size.height),
+      value2,
+      textStyle,
+      textSpacing,
+      textAlign,
+      offset,
+      size,
+    );
     // Renders the last digit of encoded value
     drawText(
-        canvas,
-        Offset(singleDigitValues[2]!, offset.dy + size.height + textSpacing),
-        Size(singleDigitValues[3]!, size.height),
-        value[value.length - 1],
-        textStyle,
-        textSpacing,
-        textAlign,
-        offset,
-        size);
+      canvas,
+      Offset(singleDigitValues[2]!, offset.dy + size.height + textSpacing),
+      Size(singleDigitValues[3]!, size.height),
+      value[value.length - 1],
+      textStyle,
+      textSpacing,
+      textAlign,
+      offset,
+      size,
+    );
   }
 
   /// Calculate the total length from given value
@@ -203,7 +233,7 @@ class UPCERenderer extends SymbologyRenderer {
       '6': 'EOOOEE',
       '7': 'EOEOEO',
       '8': 'EOEOOE',
-      '9': 'EOOEOE'
+      '9': 'EOOEOE',
     };
     return upceSymbology;
   }
@@ -220,7 +250,7 @@ class UPCERenderer extends SymbologyRenderer {
       'XXXXX00006',
       'XXXXX00007',
       'XXXXX00008',
-      'XXXXX00009'
+      'XXXXX00009',
     ];
   }
 
@@ -266,13 +296,13 @@ class UPCERenderer extends SymbologyRenderer {
         '0101111',
         '0111011',
         '0110111',
-        '0001011'
+        '0001011',
       ],
       'E': <String>[
         // The E (even) encoding for UPC-E
         '0100111', '0110011', '0011011', '0100001', '0011101',
-        '0111001', '0000101', '0010001', '0001001', '0010111'
-      ]
+        '0111001', '0000101', '0010001', '0001001', '0010111',
+      ],
     };
   }
 

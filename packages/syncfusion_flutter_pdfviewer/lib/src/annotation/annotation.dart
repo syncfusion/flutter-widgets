@@ -100,9 +100,10 @@ extension AnnotationExtension on Annotation {
   Rect get boundingBox => _boundingBox;
 
   /// Returns the [Rect] bounds of the [Annotation].
-  Rect get uiBounds => isSelected
-      ? _intermediateBounds.inflate(selectionBorderMargin)
-      : _boundingBox.inflate(selectionBorderMargin);
+  Rect get uiBounds =>
+      isSelected
+          ? _intermediateBounds.inflate(selectionBorderMargin)
+          : _boundingBox.inflate(selectionBorderMargin);
 
   /// Return the global bounds of the [Annotation].
   Rect get globalRect => _globalRect;

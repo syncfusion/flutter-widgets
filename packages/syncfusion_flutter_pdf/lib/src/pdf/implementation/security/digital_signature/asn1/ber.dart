@@ -12,7 +12,7 @@ class BerOctet extends DerOctet {
 
   /// internal constructor
   BerOctet.fromCollection(List<Asn1Encode> octets)
-      : super(BerOctet.getBytes(octets)) {
+    : super(BerOctet.getBytes(octets)) {
     _octets = octets;
   }
 
@@ -30,10 +30,15 @@ class BerOctet extends DerOctet {
     final List<DerOctet> collection = <DerOctet>[];
     for (int i = 0; i < value!.length; i += 1000) {
       final int endIndex = min(value!.length, i + 1000);
-      collection.add(DerOctet(List<int>.generate(
-          endIndex - i,
-          (int index) =>
-              ((i + index) < value!.length) ? value![i + index] : 0)));
+      collection.add(
+        DerOctet(
+          List<int>.generate(
+            endIndex - i,
+            (int index) =>
+                ((i + index) < value!.length) ? value![i + index] : 0,
+          ),
+        ),
+      );
     }
     return collection;
   }
@@ -144,7 +149,10 @@ class BerTagHelper implements IAsn1Tag {
     if (isExplicit) {
       if (!_isConstructed!) {
         throw ArgumentError.value(
-            isExplicit, 'isExplicit', 'Implicit tags identified');
+          isExplicit,
+          'isExplicit',
+          'Implicit tags identified',
+        );
       }
       return _helper.readObject();
     }

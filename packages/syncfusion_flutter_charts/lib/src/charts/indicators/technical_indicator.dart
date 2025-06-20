@@ -617,7 +617,9 @@ abstract class IndicatorWidget extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, IndicatorRenderer renderObject) {
+    BuildContext context,
+    IndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..vsync = vsync
@@ -664,13 +666,15 @@ abstract class IndicatorRenderer<T, D> extends RenderBox
   ChartLegendRenderCallback? onLegendItemRender;
   ChartIndicatorRenderCallback? onRenderDetailsUpdate;
 
-  final Paint _fillPaint = Paint()
-    ..isAntiAlias = true
-    ..style = PaintingStyle.fill;
-  final Paint _strokePaint = Paint()
-    ..isAntiAlias = true
-    ..style = PaintingStyle.stroke
-    ..strokeCap = StrokeCap.round;
+  final Paint _fillPaint =
+      Paint()
+        ..isAntiAlias = true
+        ..style = PaintingStyle.fill;
+  final Paint _strokePaint =
+      Paint()
+        ..isAntiAlias = true
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
 
   @override
   bool get isRepaintBoundary => true;
@@ -998,8 +1002,10 @@ abstract class IndicatorRenderer<T, D> extends RenderBox
 
     for (int i = 0; i < dataCount; i++) {
       final num xValue = xValues[i];
-      final CartesianChartPoint<D> point =
-          CartesianChartPoint<D>(x: xRawValues[i], xValue: xValue);
+      final CartesianChartPoint<D> point = CartesianChartPoint<D>(
+        x: xRawValues[i],
+        xValue: xValue,
+      );
       for (int j = 0; j < yLength; j++) {
         point[positions[j]] = yLists[j][i];
       }
@@ -1070,7 +1076,7 @@ abstract class IndicatorRenderer<T, D> extends RenderBox
   List<LegendItem>? buildLegendItems(int index) {
     if (parent != null && isVisibleInLegend) {
       return <LegendItem>[
-        ChartLegendItem(
+        CartesianLegendItem(
           text: legendItemText ?? name ?? defaultLegendItemText(),
           iconType: toLegendShapeMarkerType(legendIconType, this),
           iconColor: effectiveLegendIconColor(),
@@ -1088,9 +1094,11 @@ abstract class IndicatorRenderer<T, D> extends RenderBox
 
   void _handleLegendItemTapped(LegendItem item, bool isToggled) {
     if (onLegendTapped != null) {
-      final ChartLegendItem legendItem = item as ChartLegendItem;
-      final LegendTapArgs args =
-          LegendTapArgs(legendItem.series, legendItem.seriesIndex);
+      final CartesianLegendItem legendItem = item as CartesianLegendItem;
+      final LegendTapArgs args = LegendTapArgs(
+        legendItem.series,
+        legendItem.seriesIndex,
+      );
       onLegendTapped!(args);
     }
     effectiveIsVisible = !isToggled;
@@ -1099,7 +1107,7 @@ abstract class IndicatorRenderer<T, D> extends RenderBox
 
   void _handleLegendItemCreated(ItemRendererDetails details) {
     if (onLegendItemRender != null) {
-      final ChartLegendItem item = details.item as ChartLegendItem;
+      final CartesianLegendItem item = details.item as CartesianLegendItem;
       final LegendIconType iconType = toLegendIconType(details.iconType);
       final LegendRenderArgs args =
           LegendRenderArgs(item.seriesIndex, item.pointIndex)
@@ -1109,7 +1117,9 @@ abstract class IndicatorRenderer<T, D> extends RenderBox
       onLegendItemRender!(args);
       if (args.legendIconType != iconType) {
         details.iconType = toLegendShapeMarkerType(
-            args.legendIconType ?? LegendIconType.seriesType, this);
+          args.legendIconType ?? LegendIconType.seriesType,
+          this,
+        );
       }
 
       details

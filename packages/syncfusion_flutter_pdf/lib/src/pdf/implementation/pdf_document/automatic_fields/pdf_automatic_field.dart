@@ -23,8 +23,12 @@ import 'pdf_static_field.dart';
 /// Represents a fields which is calculated before the document saves.
 abstract class PdfAutomaticField {
   /// Initialize [PdfAutomaticField] object
-  void _internal(PdfFont? font,
-      {Rect? bounds, PdfBrush? brush, PdfAutomaticFieldHelper? helper}) {
+  void _internal(
+    PdfFont? font, {
+    Rect? bounds,
+    PdfBrush? brush,
+    PdfAutomaticFieldHelper? helper,
+  }) {
     _helper = helper!;
     this.font = font ?? PdfStandardFont(PdfFontFamily.helvetica, 8);
     if (bounds != null) {
@@ -296,9 +300,9 @@ abstract class PdfAutomaticField {
   ///```
   void draw(PdfGraphics graphics, [Offset? location]) {
     location ??= Offset.zero;
-    PdfGraphicsHelper.getHelper(graphics)
-        .autoFields!
-        .add(PdfAutomaticFieldInfo(this, PdfPoint.fromOffset(location)));
+    PdfGraphicsHelper.getHelper(graphics).autoFields!.add(
+      PdfAutomaticFieldInfo(this, PdfPoint.fromOffset(location)),
+    );
   }
 }
 
@@ -433,40 +437,71 @@ class PdfAutomaticFieldHelper {
   String? getValue(PdfGraphics graphics) {
     if (base is PdfCompositeField) {
       return PdfCompositeFieldHelper.getValue(
-          base as PdfCompositeField, graphics);
+        base as PdfCompositeField,
+        graphics,
+      );
     } else if (base is PdfDateTimeField) {
       return PdfDateTimeFieldHelper.getValue(
-          base as PdfDateTimeField, graphics);
+        base as PdfDateTimeField,
+        graphics,
+      );
     } else if (base is PdfDestinationPageNumberField) {
       return PdfDestinationPageNumberFieldHelper.getValue(
-          base as PdfDestinationPageNumberField, graphics);
+        base as PdfDestinationPageNumberField,
+        graphics,
+      );
     } else if (base is PdfPageNumberField) {
-      return PdfPageNumberFieldHelper.getHelper(base as PdfPageNumberField)
-          .getValue(graphics);
+      return PdfPageNumberFieldHelper.getHelper(
+        base as PdfPageNumberField,
+      ).getValue(graphics);
     } else if (base is PdfPageCountField) {
       return PdfPageCountFieldHelper.getValue(
-          base as PdfPageCountField, graphics);
+        base as PdfPageCountField,
+        graphics,
+      );
     }
     return graphics as String;
   }
 
   /// internal method
-  void performDraw(PdfGraphics graphics, PdfPoint? location, double scalingX,
-      double scalingY) {
+  void performDraw(
+    PdfGraphics graphics,
+    PdfPoint? location,
+    double scalingX,
+    double scalingY,
+  ) {
     if (base.bounds.height == 0 || base.bounds.width == 0) {
       final String text = getValue(graphics)!;
-      _templateSize = base.font.measureString(text,
-          layoutArea: base.bounds.size, format: base.stringFormat);
+      _templateSize = base.font.measureString(
+        text,
+        layoutArea: base.bounds.size,
+        format: base.stringFormat,
+      );
     }
     if (base is PdfStaticField) {
       PdfStaticFieldHelper.performDraw(
-          base as PdfStaticField, graphics, location, scalingX, scalingY);
+        base as PdfStaticField,
+        graphics,
+        location,
+        scalingX,
+        scalingY,
+      );
     } else if (base is PdfSingleValueField) {
       PdfSingleValueFieldHelper.performDraw(
-          base as PdfSingleValueField, graphics, location, scalingX, scalingY);
+        base as PdfSingleValueField,
+        graphics,
+        location,
+        scalingX,
+        scalingY,
+      );
     } else if (base is PdfMultipleValueField) {
-      PdfMultipleValueFieldHelper.performDraw(base as PdfMultipleValueField,
-          graphics, location, scalingX, scalingY);
+      PdfMultipleValueFieldHelper.performDraw(
+        base as PdfMultipleValueField,
+        graphics,
+        location,
+        scalingX,
+        scalingY,
+      );
     }
   }
 

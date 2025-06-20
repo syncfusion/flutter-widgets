@@ -22,41 +22,54 @@ import 'pdf_list_field_item_collection.dart';
 /// Represents base class for form's list fields.
 abstract class PdfListField extends PdfField {
   /// internal constructor
-  void _internal(PdfPage? page, String name, Rect bounds,
-      {List<PdfListFieldItem>? items,
-      PdfFont? font,
-      PdfTextAlignment? alignment,
-      PdfColor? borderColor,
-      PdfColor? foreColor,
-      PdfColor? backColor,
-      int? borderWidth,
-      PdfHighlightMode? highlightMode,
-      PdfBorderStyle? borderStyle,
-      String? tooltip,
-      PdfListFieldHelper? helper}) {
+  void _internal(
+    PdfPage? page,
+    String name,
+    Rect bounds, {
+    List<PdfListFieldItem>? items,
+    PdfFont? font,
+    PdfTextAlignment? alignment,
+    PdfColor? borderColor,
+    PdfColor? foreColor,
+    PdfColor? backColor,
+    int? borderWidth,
+    PdfHighlightMode? highlightMode,
+    PdfBorderStyle? borderStyle,
+    String? tooltip,
+    PdfListFieldHelper? helper,
+  }) {
     _helper = helper!;
-    _helper.internal(page, name, bounds,
-        font: font,
-        alignment: alignment,
-        borderColor: borderColor,
-        foreColor: foreColor,
-        backColor: backColor,
-        borderWidth: borderWidth,
-        highlightMode: highlightMode,
-        borderStyle: borderStyle,
-        tooltip: tooltip);
+    _helper.internal(
+      page,
+      name,
+      bounds,
+      font: font,
+      alignment: alignment,
+      borderColor: borderColor,
+      foreColor: foreColor,
+      backColor: backColor,
+      borderWidth: borderWidth,
+      highlightMode: highlightMode,
+      borderStyle: borderStyle,
+      tooltip: tooltip,
+    );
     _helper.dictionary!.setProperty(
-        PdfDictionaryProperties.ft, PdfName(PdfDictionaryProperties.ch));
+      PdfDictionaryProperties.ft,
+      PdfName(PdfDictionaryProperties.ch),
+    );
     if (items != null && items.isNotEmpty) {
-      items
-          .toList()
-          .forEach((PdfListFieldItem element) => this.items.add(element));
+      items.toList().forEach(
+        (PdfListFieldItem element) => this.items.add(element),
+      );
     }
   }
 
   /// internal constructor
-  void _load(PdfDictionary dictionary, PdfCrossTable crossTable,
-      PdfListFieldHelper helper) {
+  void _load(
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    PdfListFieldHelper helper,
+  ) {
     _helper = helper;
     _helper.load(dictionary, crossTable);
   }
@@ -70,8 +83,10 @@ abstract class PdfListField extends PdfField {
     if (_helper._items == null) {
       if (!_helper.isLoadedField) {
         _helper._items = PdfListFieldItemCollectionHelper.itemCollection();
-        _helper.dictionary!
-            .setProperty(PdfDictionaryProperties.opt, _helper._items);
+        _helper.dictionary!.setProperty(
+          PdfDictionaryProperties.opt,
+          _helper._items,
+        );
       } else {
         _helper._items = _getListItemCollection();
       }
@@ -145,17 +160,26 @@ abstract class PdfListField extends PdfField {
   PdfListFieldItemCollection _getListItemCollection() {
     final PdfListFieldItemCollection items =
         PdfListFieldItemCollectionHelper.itemCollection(this);
-    final IPdfPrimitive? array = PdfFieldHelper.getValue(_helper.dictionary!,
-        _helper.crossTable, PdfDictionaryProperties.opt, true);
+    final IPdfPrimitive? array = PdfFieldHelper.getValue(
+      _helper.dictionary!,
+      _helper.crossTable,
+      PdfDictionaryProperties.opt,
+      true,
+    );
     if (array != null && array is PdfArray) {
       for (int i = 0; i < array.count; i++) {
-        final IPdfPrimitive? primitive =
-            _helper.crossTable!.getObject(array[i]);
+        final IPdfPrimitive? primitive = _helper.crossTable!.getObject(
+          array[i],
+        );
         PdfListFieldItem item;
         if (primitive is PdfString) {
           final PdfString str = primitive;
           item = PdfListFieldItemHelper.load(
-              str.value, null, this, _helper.crossTable);
+            str.value,
+            null,
+            this,
+            _helper.crossTable,
+          );
         } else {
           final PdfArray arr = primitive! as PdfArray;
           final PdfString value =
@@ -163,7 +187,11 @@ abstract class PdfListField extends PdfField {
           final PdfString text =
               _helper.crossTable!.getObject(arr[1])! as PdfString;
           item = PdfListFieldItemHelper.load(
-              text.value, value.value, this, _helper.crossTable);
+            text.value,
+            value.value,
+            this,
+            _helper.crossTable,
+          );
         }
         PdfListFieldItemCollectionHelper.getHelper(items).addItem(item);
       }
@@ -185,29 +213,37 @@ class PdfListFieldHelper extends PdfFieldHelper {
   PdfListFieldItemCollection? _items;
 
   /// internal method
-  void initializeInternal(PdfPage? page, String name, Rect bounds,
-      {List<PdfListFieldItem>? items,
-      PdfFont? font,
-      PdfTextAlignment? alignment,
-      PdfColor? borderColor,
-      PdfColor? foreColor,
-      PdfColor? backColor,
-      int? borderWidth,
-      PdfHighlightMode? highlightMode,
-      PdfBorderStyle? borderStyle,
-      String? tooltip}) {
-    listField._internal(page, name, bounds,
-        items: items,
-        font: font,
-        alignment: alignment,
-        borderColor: borderColor,
-        foreColor: foreColor,
-        backColor: backColor,
-        borderWidth: borderWidth,
-        highlightMode: highlightMode,
-        borderStyle: borderStyle,
-        tooltip: tooltip,
-        helper: this);
+  void initializeInternal(
+    PdfPage? page,
+    String name,
+    Rect bounds, {
+    List<PdfListFieldItem>? items,
+    PdfFont? font,
+    PdfTextAlignment? alignment,
+    PdfColor? borderColor,
+    PdfColor? foreColor,
+    PdfColor? backColor,
+    int? borderWidth,
+    PdfHighlightMode? highlightMode,
+    PdfBorderStyle? borderStyle,
+    String? tooltip,
+  }) {
+    listField._internal(
+      page,
+      name,
+      bounds,
+      items: items,
+      font: font,
+      alignment: alignment,
+      borderColor: borderColor,
+      foreColor: foreColor,
+      backColor: backColor,
+      borderWidth: borderWidth,
+      highlightMode: highlightMode,
+      borderStyle: borderStyle,
+      tooltip: tooltip,
+      helper: this,
+    );
   }
 
   /// internal method
@@ -234,8 +270,10 @@ class PdfListFieldHelper extends PdfFieldHelper {
     } else {
       if (selectedIndex != value) {
         selectedIndex = value;
-        dictionary!
-            .setProperty(PdfDictionaryProperties.i, PdfArray(selectedIndex));
+        dictionary!.setProperty(
+          PdfDictionaryProperties.i,
+          PdfArray(selectedIndex),
+        );
       }
     }
   }
@@ -270,8 +308,10 @@ class PdfListFieldHelper extends PdfFieldHelper {
           break;
         }
       }
-      dictionary!
-          .setProperty(PdfDictionaryProperties.i, PdfArray(selectedIndex));
+      dictionary!.setProperty(
+        PdfDictionaryProperties.i,
+        PdfArray(selectedIndex),
+      );
     }
   }
 
@@ -282,13 +322,15 @@ class PdfListFieldHelper extends PdfFieldHelper {
     }
     final PdfListFieldItemCollection item =
         PdfListFieldItemCollectionHelper.itemCollection(
-            isLoadedField ? listField : null);
+          isLoadedField ? listField : null,
+        );
     for (final int index in selectedIndexes) {
       if (index > -1 &&
           listField.items.count > 0 &&
           listField.items.count > index) {
-        PdfListFieldItemCollectionHelper.getHelper(item)
-            .addItem(listField.items[index]);
+        PdfListFieldItemCollectionHelper.getHelper(
+          item,
+        ).addItem(listField.items[index]);
       }
     }
     return item;
@@ -297,8 +339,9 @@ class PdfListFieldHelper extends PdfFieldHelper {
   List<int> _obtainSelectedIndex() {
     final List<int> selectedIndex = <int>[];
     if (dictionary!.containsKey(PdfDictionaryProperties.i)) {
-      final IPdfPrimitive? array =
-          crossTable!.getObject(dictionary![PdfDictionaryProperties.i]);
+      final IPdfPrimitive? array = crossTable!.getObject(
+        dictionary![PdfDictionaryProperties.i],
+      );
       if (array != null && array is PdfArray) {
         if (array.count > 0) {
           for (int i = 0; i < array.count; i++) {
@@ -309,8 +352,9 @@ class PdfListFieldHelper extends PdfFieldHelper {
           }
         }
       } else {
-        final IPdfPrimitive? number =
-            crossTable!.getObject(dictionary![PdfDictionaryProperties.i]);
+        final IPdfPrimitive? number = crossTable!.getObject(
+          dictionary![PdfDictionaryProperties.i],
+        );
         if (number != null && number is PdfNumber) {
           selectedIndex.add(number.value!.toInt());
         }
@@ -323,8 +367,9 @@ class PdfListFieldHelper extends PdfFieldHelper {
   List<String> _obtainSelectedValue() {
     final List<String> value = <String>[];
     if (dictionary!.containsKey(PdfDictionaryProperties.v)) {
-      final IPdfPrimitive? primitive =
-          crossTable!.getObject(dictionary![PdfDictionaryProperties.v]);
+      final IPdfPrimitive? primitive = crossTable!.getObject(
+        dictionary![PdfDictionaryProperties.v],
+      );
       if (primitive is PdfString) {
         value.add(primitive.value!);
       } else {
@@ -403,15 +448,18 @@ class PdfListFieldHelper extends PdfFieldHelper {
       }
       if (selectedIndexes.isNotEmpty) {
         selectedIndexes.sort();
-        dictionary!
-            .setProperty(PdfDictionaryProperties.i, PdfArray(selectedIndexes));
+        dictionary!.setProperty(
+          PdfDictionaryProperties.i,
+          PdfArray(selectedIndexes),
+        );
       } else {
         dictionary!.remove(PdfDictionaryProperties.i);
       }
     }
     if (dictionary!.containsKey(PdfDictionaryProperties.v)) {
-      final IPdfPrimitive? primitive =
-          crossTable!.getObject(dictionary![PdfDictionaryProperties.v]);
+      final IPdfPrimitive? primitive = crossTable!.getObject(
+        dictionary![PdfDictionaryProperties.v],
+      );
       if ((primitive == null) || (primitive is PdfString)) {
         if (listField is PdfListBoxField) {
           final PdfArray array = PdfArray();

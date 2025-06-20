@@ -28,15 +28,16 @@ abstract class SymbologyRenderer {
 
   /// Method to render the barcode value
   void renderBarcode(
-      Canvas canvas,
-      Size size,
-      Offset offset,
-      String value,
-      Color foregroundColor,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      bool showValue);
+    Canvas canvas,
+    Size size,
+    Offset offset,
+    String value,
+    Color foregroundColor,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    bool showValue,
+  );
 
   /// Renders the paint for the bar code
   Paint getBarPaint(Color foregroundColor) {
@@ -48,7 +49,11 @@ abstract class SymbologyRenderer {
 
   /// Calculates the left value of the initial bar code
   double getLeftPosition(
-      int barWidth, int? module, double width, double offsetX) {
+    int barWidth,
+    int? module,
+    double width,
+    double offsetX,
+  ) {
     final int calculatedWidth = barWidth * module!;
     // Calculates the left position of the barcode based on the provided
     // module value
@@ -58,12 +63,23 @@ abstract class SymbologyRenderer {
   }
 
   /// Method to render the input value of the barcode
-  void drawText(Canvas canvas, Offset offset, Size size, String value,
-      TextStyle textStyle, double textSpacing, TextAlign textAlign,
-      [Offset? actualOffset, Size? actualSize]) {
+  void drawText(
+    Canvas canvas,
+    Offset offset,
+    Size size,
+    String value,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign, [
+    Offset? actualOffset,
+    Size? actualSize,
+  ]) {
     final TextSpan span = TextSpan(text: value, style: textStyle);
     final TextPainter textPainter = TextPainter(
-        text: span, textDirection: TextDirection.ltr, textAlign: textAlign);
+      text: span,
+      textDirection: TextDirection.ltr,
+      textAlign: textAlign,
+    );
     textPainter.layout();
     double x;
     double y;

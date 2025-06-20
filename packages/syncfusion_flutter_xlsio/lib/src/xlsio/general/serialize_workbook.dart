@@ -76,7 +76,7 @@ class SerializeWorkbook {
     'percentile',
     'formula',
     'autoMin',
-    'autoMax'
+    'autoMax',
   ];
 
   /// Names used in xml as IconSet type (order is important).
@@ -100,7 +100,7 @@ class SerializeWorkbook {
     '5Quarters',
     '3Stars',
     '3Triangles',
-    '5Boxes'
+    '5Boxes',
   ];
 
   /// Serialize workbook
@@ -124,8 +124,9 @@ class SerializeWorkbook {
           await _saveSharedStringAsync().then((_) async {
             await _saveStylesAsync().then((_) async {
               await _saveAppAsync(_workbook.builtInProperties).then((_) async {
-                await _saveCoreAsync(_workbook.builtInProperties)
-                    .then((_) async {
+                await _saveCoreAsync(_workbook.builtInProperties).then((
+                  _,
+                ) async {
                   await _saveContentTypeAsync().then((_) async {
                     await _saveTopLevelRelationAsync().then((_) async {
                       await _saveWorkbookRelationAsync();
@@ -145,69 +146,98 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('workbook', nest: () {
-      builder.namespace(
-          'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-      builder.attribute('xmlns:r',
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
+    builder.element(
+      'workbook',
+      nest: () {
+        builder.namespace(
+          'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+        );
+        builder.attribute(
+          'xmlns:r',
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+        );
 
-      builder.element('workbookPr', nest: () {
-        builder.attribute('codeName', 'ThisWorkbook');
-        builder.attribute('defaultThemeVersion', '153222');
-      });
-      _serializeWorkbookProtection(builder);
-      builder.element('bookViews', nest: () {
-        builder.element('workbookView', nest: () {
-          int firstsheet = 0;
-          if (_workbook.worksheets[0].visibility ==
-              WorksheetVisibility.hidden) {
-            for (int i = 1; i < _workbook.worksheets.count; i++) {
-              if (_workbook.worksheets[i].visibility ==
-                  WorksheetVisibility.visible) {
-                firstsheet = i;
-                break;
-              }
+        builder.element(
+          'workbookPr',
+          nest: () {
+            builder.attribute('codeName', 'ThisWorkbook');
+            builder.attribute('defaultThemeVersion', '153222');
+          },
+        );
+        _serializeWorkbookProtection(builder);
+        builder.element(
+          'bookViews',
+          nest: () {
+            builder.element(
+              'workbookView',
+              nest: () {
+                int firstsheet = 0;
+                if (_workbook.worksheets[0].visibility ==
+                    WorksheetVisibility.hidden) {
+                  for (int i = 1; i < _workbook.worksheets.count; i++) {
+                    if (_workbook.worksheets[i].visibility ==
+                        WorksheetVisibility.visible) {
+                      firstsheet = i;
+                      break;
+                    }
+                  }
+                }
+                builder.attribute('activeTab', firstsheet.toString());
+              },
+            );
+          },
+        );
+        builder.element(
+          'sheets',
+          nest: () {
+            for (int i = 0; i < _workbook.worksheets.count; i++) {
+              builder.element(
+                'sheet',
+                nest: () {
+                  builder.attribute('name', _workbook.worksheets[i].name);
+                  builder.attribute(
+                    'sheetId',
+                    _workbook.worksheets[i].index.toString(),
+                  );
+                  if (_workbook.worksheets[i].visibility ==
+                      WorksheetVisibility.hidden) {
+                    builder.attribute('state', 'hidden');
+                  }
+                  builder.attribute('r:id', 'rId${i + 1}');
+                },
+              );
             }
-          }
-          builder.attribute('activeTab', firstsheet.toString());
-        });
-      });
-      builder.element('sheets', nest: () {
-        for (int i = 0; i < _workbook.worksheets.count; i++) {
-          builder.element('sheet', nest: () {
-            builder.attribute('name', _workbook.worksheets[i].name);
-            builder.attribute(
-                'sheetId', _workbook.worksheets[i].index.toString());
-            if (_workbook.worksheets[i].visibility ==
-                WorksheetVisibility.hidden) {
-              builder.attribute('state', 'hidden');
-            }
-            builder.attribute('r:id', 'rId${i + 1}');
-          });
-        }
-      });
-      final List<Name> list = _workbook.innerNamesCollection;
-      if (list.isNotEmpty) {
-        builder.element('definedNames', nest: () {
-          for (int i = 0; i < list.length; i++) {
-            builder.element('definedName', nest: () {
-              builder.attribute('name', list[i].name);
-              builder.attribute('comment', list[i].description);
-              if (list[i].isLocal) {
-                builder.attribute(
-                  'localSheetId',
-                  _getLocalSheetIndex(_workbook, list[i]).toString(),
+          },
+        );
+        final List<Name> list = _workbook.innerNamesCollection;
+        if (list.isNotEmpty) {
+          builder.element(
+            'definedNames',
+            nest: () {
+              for (int i = 0; i < list.length; i++) {
+                builder.element(
+                  'definedName',
+                  nest: () {
+                    builder.attribute('name', list[i].name);
+                    builder.attribute('comment', list[i].description);
+                    if (list[i].isLocal) {
+                      builder.attribute(
+                        'localSheetId',
+                        _getLocalSheetIndex(_workbook, list[i]).toString(),
+                      );
+                    }
+                    if (!list[i].isVisible) {
+                      builder.attribute('hidden', '1');
+                    }
+                    builder.text(list[i].value);
+                  },
                 );
               }
-              if (!list[i].isVisible) {
-                builder.attribute('hidden', '1');
-              }
-              builder.text(list[i].value);
-            });
-          }
-        });
-      }
-    });
+            },
+          );
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'xl/workbook.xml');
@@ -217,69 +247,98 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('workbook', nest: () async {
-      builder.namespace(
-          'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-      builder.attribute('xmlns:r',
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
+    builder.element(
+      'workbook',
+      nest: () async {
+        builder.namespace(
+          'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+        );
+        builder.attribute(
+          'xmlns:r',
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+        );
 
-      builder.element('workbookPr', nest: () async {
-        builder.attribute('codeName', 'ThisWorkbook');
-        builder.attribute('defaultThemeVersion', '153222');
-      });
-      _serializeWorkbookProtectionAsync(builder);
-      builder.element('bookViews', nest: () async {
-        builder.element('workbookView', nest: () async {
-          int firstsheet = 0;
-          if (_workbook.worksheets[0].visibility ==
-              WorksheetVisibility.hidden) {
-            for (int i = 1; i < _workbook.worksheets.count; i++) {
-              if (_workbook.worksheets[i].visibility ==
-                  WorksheetVisibility.visible) {
-                firstsheet = i;
-                break;
-              }
+        builder.element(
+          'workbookPr',
+          nest: () async {
+            builder.attribute('codeName', 'ThisWorkbook');
+            builder.attribute('defaultThemeVersion', '153222');
+          },
+        );
+        _serializeWorkbookProtectionAsync(builder);
+        builder.element(
+          'bookViews',
+          nest: () async {
+            builder.element(
+              'workbookView',
+              nest: () async {
+                int firstsheet = 0;
+                if (_workbook.worksheets[0].visibility ==
+                    WorksheetVisibility.hidden) {
+                  for (int i = 1; i < _workbook.worksheets.count; i++) {
+                    if (_workbook.worksheets[i].visibility ==
+                        WorksheetVisibility.visible) {
+                      firstsheet = i;
+                      break;
+                    }
+                  }
+                }
+                builder.attribute('activeTab', firstsheet.toString());
+              },
+            );
+          },
+        );
+        builder.element(
+          'sheets',
+          nest: () async {
+            for (int i = 0; i < _workbook.worksheets.count; i++) {
+              builder.element(
+                'sheet',
+                nest: () async {
+                  builder.attribute('name', _workbook.worksheets[i].name);
+                  builder.attribute(
+                    'sheetId',
+                    _workbook.worksheets[i].index.toString(),
+                  );
+                  if (_workbook.worksheets[i].visibility ==
+                      WorksheetVisibility.hidden) {
+                    builder.attribute('state', 'hidden');
+                  }
+                  builder.attribute('r:id', 'rId${i + 1}');
+                },
+              );
             }
-          }
-          builder.attribute('activeTab', firstsheet.toString());
-        });
-      });
-      builder.element('sheets', nest: () async {
-        for (int i = 0; i < _workbook.worksheets.count; i++) {
-          builder.element('sheet', nest: () async {
-            builder.attribute('name', _workbook.worksheets[i].name);
-            builder.attribute(
-                'sheetId', _workbook.worksheets[i].index.toString());
-            if (_workbook.worksheets[i].visibility ==
-                WorksheetVisibility.hidden) {
-              builder.attribute('state', 'hidden');
-            }
-            builder.attribute('r:id', 'rId${i + 1}');
-          });
-        }
-      });
-      final List<Name> list = _workbook.innerNamesCollection;
-      if (list.isNotEmpty) {
-        builder.element('definedNames', nest: () async {
-          for (int i = 0; i < list.length; i++) {
-            builder.element('definedName', nest: () async {
-              builder.attribute('name', list[i].name);
-              builder.attribute('comment', list[i].description);
-              if (list[i].isLocal) {
-                builder.attribute(
-                  'localSheetId',
-                  _getLocalSheetIndexAsync(_workbook, list[i]).toString(),
+          },
+        );
+        final List<Name> list = _workbook.innerNamesCollection;
+        if (list.isNotEmpty) {
+          builder.element(
+            'definedNames',
+            nest: () async {
+              for (int i = 0; i < list.length; i++) {
+                builder.element(
+                  'definedName',
+                  nest: () async {
+                    builder.attribute('name', list[i].name);
+                    builder.attribute('comment', list[i].description);
+                    if (list[i].isLocal) {
+                      builder.attribute(
+                        'localSheetId',
+                        _getLocalSheetIndexAsync(_workbook, list[i]).toString(),
+                      );
+                    }
+                    if (!list[i].isVisible) {
+                      builder.attribute('hidden', '1');
+                    }
+                    builder.text(list[i].value);
+                  },
                 );
               }
-              if (!list[i].isVisible) {
-                builder.attribute('hidden', '1');
-              }
-              builder.text(list[i].value);
-            });
-          }
-        });
-      }
-    });
+            },
+          );
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(bytes, 'xl/workbook.xml');
@@ -309,41 +368,73 @@ class SerializeWorkbook {
   /// Serializes workbook protection options.
   void _serializeWorkbookProtection(XmlBuilder builder) {
     if (_workbook.isWindowProtect || _workbook.isCellProtect) {
-      builder.element('workbookProtection', nest: () {
-        if (_workbook.password != null) {
-          final int usPassword = _workbook.isPassword;
-          if (usPassword != 0) {
-            builder.attribute('workbookPassword', usPassword.toRadixString(16));
+      builder.element(
+        'workbookProtection',
+        nest: () {
+          if (_workbook.password != null) {
+            final int usPassword = _workbook.isPassword;
+            if (usPassword != 0) {
+              builder.attribute(
+                'workbookPassword',
+                usPassword.toRadixString(16),
+              );
+            }
           }
-        }
-        _serializeAttributes(
-            builder, 'lockStructure', _workbook.isCellProtect, false);
-        _serializeAttributes(
-            builder, 'lockWindows', _workbook.isWindowProtect, false);
-      });
+          _serializeAttributes(
+            builder,
+            'lockStructure',
+            _workbook.isCellProtect,
+            false,
+          );
+          _serializeAttributes(
+            builder,
+            'lockWindows',
+            _workbook.isWindowProtect,
+            false,
+          );
+        },
+      );
     }
   }
 
   Future<void> _serializeWorkbookProtectionAsync(XmlBuilder builder) async {
     if (_workbook.isWindowProtect || _workbook.isCellProtect) {
-      builder.element('workbookProtection', nest: () async {
-        if (_workbook.password != null) {
-          final int usPassword = _workbook.isPassword;
-          if (usPassword != 0) {
-            builder.attribute('workbookPassword', usPassword.toRadixString(16));
+      builder.element(
+        'workbookProtection',
+        nest: () async {
+          if (_workbook.password != null) {
+            final int usPassword = _workbook.isPassword;
+            if (usPassword != 0) {
+              builder.attribute(
+                'workbookPassword',
+                usPassword.toRadixString(16),
+              );
+            }
           }
-        }
-        _serializeAttributesAsync(
-            builder, 'lockStructure', _workbook.isCellProtect, false);
-        _serializeAttributesAsync(
-            builder, 'lockWindows', _workbook.isWindowProtect, false);
-      });
+          _serializeAttributesAsync(
+            builder,
+            'lockStructure',
+            _workbook.isCellProtect,
+            false,
+          );
+          _serializeAttributesAsync(
+            builder,
+            'lockWindows',
+            _workbook.isWindowProtect,
+            false,
+          );
+        },
+      );
     }
   }
 
   /// serialize Attributes
   void _serializeAttributes(
-      XmlBuilder builder, String attributeName, bool value, bool defaultValue) {
+    XmlBuilder builder,
+    String attributeName,
+    bool value,
+    bool defaultValue,
+  ) {
     String? strValue;
     if (value != defaultValue) {
       strValue = value ? '1' : '0';
@@ -353,8 +444,12 @@ class SerializeWorkbook {
     }
   }
 
-  Future<void> _serializeAttributesAsync(XmlBuilder builder,
-      String attributeName, bool value, bool defaultValue) async {
+  Future<void> _serializeAttributesAsync(
+    XmlBuilder builder,
+    String attributeName,
+    bool value,
+    bool defaultValue,
+  ) async {
     String? strValue;
     if (value != defaultValue) {
       strValue = value ? '1' : '0';
@@ -366,15 +461,23 @@ class SerializeWorkbook {
 
   /// Serializes attribute if it differs from default value.
   void _serializeAttributeInt(
-      XmlBuilder builder, String attributeName, int value, int defaultValue) {
+    XmlBuilder builder,
+    String attributeName,
+    int value,
+    int defaultValue,
+  ) {
     if (value != defaultValue) {
       final String strValue = value.toString();
       builder.attribute(attributeName, strValue);
     }
   }
 
-  Future<void> _serializeAttributeIntAsync(XmlBuilder builder,
-      String attributeName, int value, int defaultValue) async {
+  Future<void> _serializeAttributeIntAsync(
+    XmlBuilder builder,
+    String attributeName,
+    int value,
+    int defaultValue,
+  ) async {
     if (value != defaultValue) {
       final String strValue = value.toString();
       builder.attribute(attributeName, strValue);
@@ -450,302 +553,388 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('worksheet', nest: () {
-      builder.namespace(
-          'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-      builder.attribute('xmlns:r',
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
-      builder.attribute('xmlns:x14',
-          'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
-      builder.attribute('xmlns:mc',
-          'http://schemas.openxmlformats.org/markup-compatibility/2006');
+    builder.element(
+      'worksheet',
+      nest: () {
+        builder.namespace(
+          'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+        );
+        builder.attribute(
+          'xmlns:r',
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+        );
+        builder.attribute(
+          'xmlns:x14',
+          'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
+        );
+        builder.attribute(
+          'xmlns:mc',
+          'http://schemas.openxmlformats.org/markup-compatibility/2006',
+        );
 
-      builder.element('sheetPr', nest: () {
-        if (!sheet.isSummaryRowBelow) {
-          builder.element('OutlinePr', nest: () {
-            builder.attribute('summaryBelow', '0');
-          });
-        }
-        if (sheet.pageSetup.isFitToPage) {
-          builder.element('pageSetUpPr', nest: () {
-            builder.attribute('fitToPage', '1');
-          });
-        }
-        if (sheet.isTabColorApplied) {
-          _serializeTabColor(sheet, builder);
-        }
-      });
-      _saveSheetView(sheet, builder);
-      builder.element('sheetFormatPr', nest: () {
-        builder.attribute('defaultRowHeight', sheet.standardHeight.toString());
-      });
-
-      if (sheet.columns.count != 0) {
-        builder.element('cols', nest: () {
-          for (int i = 1; i <= sheet.columns.count; i++) {
-            final Column? column = sheet.columns[i];
-            if (column != null) {
-              builder.element('col', nest: () {
-                final int iLastColumn =
-                    _findSameColumns(sheet, column.index, _workbook);
-                builder.attribute('min', column.index.toString());
-                builder.attribute('max', iLastColumn.toString());
-                i = iLastColumn;
-                if (column.width != 0) {
-                  final double dWidth =
-                      sheet.evaluateFileColumnWidth(column.width);
-                  builder.attribute('width', dWidth.toString());
-                } else {
-                  builder.attribute('width', '8.43');
-                }
-                if (column.isHidden) {
-                  builder.attribute('hidden', '1');
-                }
-                builder.attribute('customWidth', '1');
-              });
+        builder.element(
+          'sheetPr',
+          nest: () {
+            if (!sheet.isSummaryRowBelow) {
+              builder.element(
+                'OutlinePr',
+                nest: () {
+                  builder.attribute('summaryBelow', '0');
+                },
+              );
             }
-          }
-        });
-      }
-      builder.element('sheetData', nest: () {
-        if (sheet.rows.count != 0) {
-          for (final Row? row in sheet.rows.innerList) {
-            if (row != null) {
-              builder.element('row', nest: () {
-                builder.attribute('r', row.index.toString());
-                if (row.height != 0) {
-                  builder.attribute('ht', row.height.toString());
-                  builder.attribute('customHeight', '1');
-                }
-                if (row.isHidden) {
-                  builder.attribute('hidden', '1');
-                }
-                if (row.ranges.count != 0) {
-                  for (final Range? cell in row.ranges.innerList) {
-                    if (cell != null) {
-                      if (cell.rowSpan > 0) {
-                        cell.rowSpan -= 1;
-                      }
-                      if (cell.columnSpan > 0) {
-                        cell.columnSpan -= 1;
-                      }
-                      sheet.mergeCells =
-                          _processMergeCells(cell, row.index, sheet.mergeCells);
-                      if (cell.hasCellStyle || !cell.isDefaultFormat) {
-                        cell.styleIndex = cell.cellStyle.index =
-                            _processCellStyle(
-                                cell.cellStyle as CellStyle, _workbook);
+            if (sheet.pageSetup.isFitToPage) {
+              builder.element(
+                'pageSetUpPr',
+                nest: () {
+                  builder.attribute('fitToPage', '1');
+                },
+              );
+            }
+            if (sheet.isTabColorApplied) {
+              _serializeTabColor(sheet, builder);
+            }
+          },
+        );
+        _saveSheetView(sheet, builder);
+        builder.element(
+          'sheetFormatPr',
+          nest: () {
+            builder.attribute(
+              'defaultRowHeight',
+              sheet.standardHeight.toString(),
+            );
+          },
+        );
+
+        if (sheet.columns.count != 0) {
+          builder.element(
+            'cols',
+            nest: () {
+              for (int i = 1; i <= sheet.columns.count; i++) {
+                final Column? column = sheet.columns[i];
+                if (column != null) {
+                  builder.element(
+                    'col',
+                    nest: () {
+                      final int iLastColumn = _findSameColumns(
+                        sheet,
+                        column.index,
+                        _workbook,
+                      );
+                      builder.attribute('min', column.index.toString());
+                      builder.attribute('max', iLastColumn.toString());
+                      i = iLastColumn;
+                      if (column.width != 0) {
+                        final double dWidth = sheet.evaluateFileColumnWidth(
+                          column.width,
+                        );
+                        builder.attribute('width', dWidth.toString());
                       } else {
-                        cell.styleIndex = -1;
+                        builder.attribute('width', '8.43');
                       }
-                      builder.element('c', nest: () {
-                        String? strFormula = cell.formula;
-                        builder.attribute('r', cell.addressLocal);
-                        if (cell.saveType != '' &&
-                            (strFormula == null ||
-                                strFormula == '' ||
-                                strFormula[0] != '=' ||
-                                cell.saveType == 's')) {
-                          builder.attribute('t', cell.saveType);
-                        }
-                        if (cell.styleIndex > 0) {
-                          builder.attribute('s', cell.styleIndex.toString());
-                        }
-                        String? cellValue;
-                        if (sheet.calcEngine != null &&
-                            cell.number == null &&
-                            cell.text == null &&
-                            cell.boolean == '' &&
-                            cell.errorValue == '') {
-                          cellValue = cell.calculatedValue;
-                        } else if (cell.errorValue != '') {
-                          cellValue = cell.errorValue;
-                        } else if (cell.boolean != '') {
-                          cellValue = cell.boolean;
-                        } else if (cell.number != null) {
-                          cellValue = cell.number.toString();
-                        } else if (cell.text != null) {
-                          if (cell.saveType == 's' && cell.textIndex != -1) {
-                            cellValue = cell.textIndex.toString();
-                          } else {
-                            cellValue = cell.text;
-                          }
-                        }
-                        if (strFormula != null &&
-                            strFormula != '' &&
-                            strFormula[0] == '=' &&
-                            cell.saveType != 's') {
-                          if (cell.saveType != '') {
-                            builder.attribute('t', cell.saveType);
-                          }
-                          strFormula =
-                              strFormula.substring(1).replaceAll("'", '"');
-                          final int i = strFormula.indexOf('!');
-                          int indexOfOp = (strFormula.contains('+'))
-                              ? strFormula.indexOf('+')
-                              : strFormula.indexOf('-');
-                          indexOfOp = (indexOfOp == -1)
-                              ? strFormula.indexOf('*')
-                              : indexOfOp;
-                          indexOfOp = (indexOfOp == -1)
-                              ? strFormula.indexOf('/')
-                              : indexOfOp;
-
-                          if (i != -1 &&
-                              indexOfOp != -1 &&
-                              strFormula[i - 1] == '"' &&
-                              strFormula[indexOfOp + 1] == '"') {
-                            final String cellRef =
-                                strFormula.substring(0, indexOfOp);
-                            final String operatorString =
-                                strFormula.substring(indexOfOp, indexOfOp + 1);
-                            final String sheetName =
-                                strFormula.substring(indexOfOp + 2, i - 1);
-                            strFormula =
-                                "$cellRef$operatorString'$sheetName'${strFormula.substring(i)}";
-                          }
-                          if (i != -1 &&
-                              strFormula[0] == '"' &&
-                              strFormula[i - 1] == '"') {
-                            final String sheetName =
-                                strFormula.substring(1, i - 1);
-                            strFormula =
-                                "'$sheetName'${strFormula.substring(i)}";
-                          }
-                          if (strFormula.contains('MINIFS')) {
-                            strFormula = strFormula.replaceAllMapped(
-                                RegExp('MINIFS'),
-                                (Match match) => '_xlfn.${match.group(0)}');
-                          } else if (strFormula.contains('MAXIFS')) {
-                            strFormula = strFormula.replaceAllMapped(
-                                RegExp('MAXIFS'),
-                                (Match match) => '_xlfn.${match.group(0)}');
-                          }
-                          builder.element('f', nest: strFormula);
-                        }
-                        if (cellValue != null &&
-                            (cell.saveType == 'str' || cellValue.isNotEmpty)) {
-                          builder.element('v', nest: cellValue);
-                        }
-                      });
-                    }
-                  }
+                      if (column.isHidden) {
+                        builder.attribute('hidden', '1');
+                      }
+                      builder.attribute('customWidth', '1');
+                    },
+                  );
                 }
-              });
-            }
-          }
+              }
+            },
+          );
         }
-      });
-      if (sheet.isPasswordProtected) {
-        builder.element('sheetProtection', nest: () {
-          if (sheet.algorithmName != null) {
-            // ignore: unnecessary_null_checks
-            builder.attribute('algorithmName', sheet.algorithmName!);
-            builder.attribute('hashValue', base64.encode(sheet.hashValue));
-            builder.attribute('saltValue', base64.encode(sheet.saltValue));
-            builder.attribute('spinCount', sheet.spinCount);
-          } else if (sheet.isPassword != 1) {
-            final String password = sheet.isPassword.toRadixString(16);
-            builder.attribute('password', password);
-          }
-          List<String> attributes;
-          List<bool> flags;
-          List<bool> defaultValues;
-          attributes = sheet.protectionAttributes;
-          flags = sheet.flag;
-          defaultValues = sheet.defaultValues;
-          // ignore: prefer_final_locals
-          for (int i = 0, iCount = attributes.length; i < iCount; i++) {
-            _serializeProtectionAttribute(
-                builder, attributes[i], flags[i], defaultValues[i]);
-          }
-        });
-      }
-      //Serializing AutoFilter
-      _serializeAutoFilters(builder, sheet.autoFilters);
+        builder.element(
+          'sheetData',
+          nest: () {
+            if (sheet.rows.count != 0) {
+              for (final Row? row in sheet.rows.innerList) {
+                if (row != null) {
+                  builder.element(
+                    'row',
+                    nest: () {
+                      builder.attribute('r', row.index.toString());
+                      if (row.height != 0) {
+                        builder.attribute('ht', row.height.toString());
+                        builder.attribute('customHeight', '1');
+                      }
+                      if (row.isHidden) {
+                        builder.attribute('hidden', '1');
+                      }
+                      if (row.ranges.count != 0) {
+                        for (final Range? cell in row.ranges.innerList) {
+                          if (cell != null) {
+                            if (cell.rowSpan > 0) {
+                              cell.rowSpan -= 1;
+                            }
+                            if (cell.columnSpan > 0) {
+                              cell.columnSpan -= 1;
+                            }
+                            sheet.mergeCells = _processMergeCells(
+                              cell,
+                              row.index,
+                              sheet.mergeCells,
+                            );
+                            if (cell.hasCellStyle || !cell.isDefaultFormat) {
+                              cell.styleIndex =
+                                  cell.cellStyle.index = _processCellStyle(
+                                    cell.cellStyle as CellStyle,
+                                    _workbook,
+                                  );
+                            } else {
+                              cell.styleIndex = -1;
+                            }
+                            builder.element(
+                              'c',
+                              nest: () {
+                                String? strFormula = cell.formula;
+                                builder.attribute('r', cell.addressLocal);
+                                if (cell.saveType != '' &&
+                                    (strFormula == null ||
+                                        strFormula == '' ||
+                                        strFormula[0] != '=' ||
+                                        cell.saveType == 's')) {
+                                  builder.attribute('t', cell.saveType);
+                                }
+                                if (cell.styleIndex > 0) {
+                                  builder.attribute(
+                                    's',
+                                    cell.styleIndex.toString(),
+                                  );
+                                }
+                                String? cellValue;
+                                if (sheet.calcEngine != null &&
+                                    cell.number == null &&
+                                    cell.text == null &&
+                                    cell.boolean == '' &&
+                                    cell.errorValue == '') {
+                                  cellValue = cell.calculatedValue;
+                                } else if (cell.errorValue != '') {
+                                  cellValue = cell.errorValue;
+                                } else if (cell.boolean != '') {
+                                  cellValue = cell.boolean;
+                                } else if (cell.number != null) {
+                                  cellValue = cell.number.toString();
+                                } else if (cell.text != null) {
+                                  if (cell.saveType == 's' &&
+                                      cell.textIndex != -1) {
+                                    cellValue = cell.textIndex.toString();
+                                  } else {
+                                    cellValue = cell.text;
+                                  }
+                                }
+                                if (strFormula != null &&
+                                    strFormula != '' &&
+                                    strFormula[0] == '=' &&
+                                    cell.saveType != 's') {
+                                  if (cell.saveType != '') {
+                                    builder.attribute('t', cell.saveType);
+                                  }
+                                  final int i = strFormula.indexOf('!');
+                                  int indexOfOp =
+                                      (strFormula.contains('+'))
+                                          ? strFormula.indexOf('+')
+                                          : strFormula.indexOf('-');
+                                  indexOfOp =
+                                      (indexOfOp == -1)
+                                          ? strFormula.indexOf('*')
+                                          : indexOfOp;
+                                  indexOfOp =
+                                      (indexOfOp == -1)
+                                          ? strFormula.indexOf('/')
+                                          : indexOfOp;
 
-      if (sheet.mergeCells.innerList.isNotEmpty) {
-        builder.element('mergeCells', nest: () {
-          builder.attribute(
-              'count', sheet.mergeCells.innerList.length.toString());
-          for (final MergeCell mCell in sheet.mergeCells.innerList) {
-            builder.element('mergeCell', nest: () {
-              builder.attribute('ref', mCell.reference);
-            });
-          }
-        });
-      }
-      _serializeConditionalFormatting(builder, sheet);
-      _serializeDataValidations(builder, sheet);
-      _serializeHyperlinks(builder, sheet);
-      if (sheet.pageSetup.showGridlines ||
-          sheet.pageSetup.showHeadings ||
-          sheet.pageSetup.isCenterHorizontally ||
-          sheet.pageSetup.isCenterVertically) {
-        _serializePrintOptions(builder, sheet);
-      }
-      _validatePageMargins(sheet);
-      _serializePageMargins(builder, sheet);
-
-      if (sheet.pageSetup.order == ExcelPageOrder.overThenDown ||
-          sheet.pageSetup.orientation == ExcelPageOrientation.landscape ||
-          sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed ||
-          sheet.pageSetup.isBlackAndWhite ||
-          sheet.pageSetup.isDraft ||
-          (sheet.pageSetup.printQuality != 0 &&
-              sheet.pageSetup.printQuality != 600) ||
-          !sheet.pageSetup.autoFirstPageNumber ||
-          sheet.pageSetup.fitToPagesWide > 1 ||
-          sheet.pageSetup.fitToPagesTall > 1 ||
-          sheet.pageSetup.firstPageNumber != 1 ||
-          sheet.pageSetup.paperSize != ExcelPaperSize.paperA4) {
-        _serializePageSetup(builder, sheet);
-      }
-      builder.element('headerFooter', nest: () {
-        builder.attribute('scaleWithDoc', '1');
-        builder.attribute('alignWithMargins', '0');
-        builder.attribute('differentFirst', '0');
-        builder.attribute('differentOddEven', '0');
-      });
-
-      if ((sheet.pictures.count > 0) ||
-          (sheet.charts != null && sheet.chartCount > 0)) {
-        _workbook.drawingCount++;
-        _saveDrawings(sheet);
-        if (sheet.charts != null && sheet.chartCount > 0) {
-          sheet.charts!.serializeChartsSync(sheet);
-        }
-        builder.element('drawing', nest: () {
-          int id = 1;
-          const String rId = 'rId1';
-          if (_relationId.isNotEmpty) {
-            if (sheet.hyperlinks.count > 0) {
-              for (int i = 0; i < sheet.hyperlinks.count; i++) {
-                if (sheet.hyperlinks[i].attachedType ==
-                        ExcelHyperlinkAttachedType.range &&
-                    sheet.hyperlinks[i].type != HyperlinkType.workbook) {
-                  id++;
+                                  if (i != -1 &&
+                                      indexOfOp != -1 &&
+                                      strFormula[i - 1] == '"' &&
+                                      strFormula[indexOfOp + 1] == '"') {
+                                    final String cellRef = strFormula.substring(
+                                      0,
+                                      indexOfOp,
+                                    );
+                                    final String operatorString = strFormula
+                                        .substring(indexOfOp, indexOfOp + 1);
+                                    final String sheetName = strFormula
+                                        .substring(indexOfOp + 2, i - 1);
+                                    strFormula =
+                                        "$cellRef$operatorString'$sheetName'${strFormula.substring(i)}";
+                                  }
+                                  if (i != -1 &&
+                                      strFormula[0] == '"' &&
+                                      strFormula[i - 1] == '"') {
+                                    final String sheetName = strFormula
+                                        .substring(1, i - 1);
+                                    strFormula =
+                                        "'$sheetName'${strFormula.substring(i)}";
+                                  }
+                                  if (strFormula.contains('MINIFS')) {
+                                    strFormula = strFormula.replaceAllMapped(
+                                      RegExp('MINIFS'),
+                                      (Match match) =>
+                                          '_xlfn.${match.group(0)}',
+                                    );
+                                  } else if (strFormula.contains('MAXIFS')) {
+                                    strFormula = strFormula.replaceAllMapped(
+                                      RegExp('MAXIFS'),
+                                      (Match match) =>
+                                          '_xlfn.${match.group(0)}',
+                                    );
+                                  }
+                                  builder.element('f', nest: strFormula);
+                                }
+                                if (cellValue != null &&
+                                    (cell.saveType == 'str' ||
+                                        cellValue.isNotEmpty)) {
+                                  builder.element('v', nest: cellValue);
+                                }
+                              },
+                            );
+                          }
+                        }
+                      }
+                    },
+                  );
                 }
               }
             }
-            builder.attribute('r:id', 'rId$id');
-          } else {
-            builder.attribute('r:id', rId);
+          },
+        );
+        if (sheet.isPasswordProtected) {
+          builder.element(
+            'sheetProtection',
+            nest: () {
+              if (sheet.algorithmName != null) {
+                // ignore: unnecessary_null_checks
+                builder.attribute('algorithmName', sheet.algorithmName!);
+                builder.attribute('hashValue', base64.encode(sheet.hashValue));
+                builder.attribute('saltValue', base64.encode(sheet.saltValue));
+                builder.attribute('spinCount', sheet.spinCount);
+              } else if (sheet.isPassword != 1) {
+                final String password = sheet.isPassword.toRadixString(16);
+                builder.attribute('password', password);
+              }
+              List<String> attributes;
+              List<bool> flags;
+              List<bool> defaultValues;
+              attributes = sheet.protectionAttributes;
+              flags = sheet.flag;
+              defaultValues = sheet.defaultValues;
+              // ignore: prefer_final_locals
+              for (int i = 0, iCount = attributes.length; i < iCount; i++) {
+                _serializeProtectionAttribute(
+                  builder,
+                  attributes[i],
+                  flags[i],
+                  defaultValues[i],
+                );
+              }
+            },
+          );
+        }
+        //Serializing AutoFilter
+        _serializeAutoFilters(builder, sheet.autoFilters);
+
+        if (sheet.mergeCells.innerList.isNotEmpty) {
+          builder.element(
+            'mergeCells',
+            nest: () {
+              builder.attribute(
+                'count',
+                sheet.mergeCells.innerList.length.toString(),
+              );
+              for (final MergeCell mCell in sheet.mergeCells.innerList) {
+                builder.element(
+                  'mergeCell',
+                  nest: () {
+                    builder.attribute('ref', mCell.reference);
+                  },
+                );
+              }
+            },
+          );
+        }
+        _serializeConditionalFormatting(builder, sheet);
+        _serializeDataValidations(builder, sheet);
+        _serializeHyperlinks(builder, sheet);
+        if (sheet.pageSetup.showGridlines ||
+            sheet.pageSetup.showHeadings ||
+            sheet.pageSetup.isCenterHorizontally ||
+            sheet.pageSetup.isCenterVertically) {
+          _serializePrintOptions(builder, sheet);
+        }
+        _validatePageMargins(sheet);
+        _serializePageMargins(builder, sheet);
+
+        if (sheet.pageSetup.order == ExcelPageOrder.overThenDown ||
+            sheet.pageSetup.orientation == ExcelPageOrientation.landscape ||
+            sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed ||
+            sheet.pageSetup.isBlackAndWhite ||
+            sheet.pageSetup.isDraft ||
+            (sheet.pageSetup.printQuality != 0 &&
+                sheet.pageSetup.printQuality != 600) ||
+            !sheet.pageSetup.autoFirstPageNumber ||
+            sheet.pageSetup.fitToPagesWide > 1 ||
+            sheet.pageSetup.fitToPagesTall > 1 ||
+            sheet.pageSetup.firstPageNumber != 1 ||
+            sheet.pageSetup.paperSize != ExcelPaperSize.paperA4) {
+          _serializePageSetup(builder, sheet);
+        }
+        builder.element(
+          'headerFooter',
+          nest: () {
+            builder.attribute('scaleWithDoc', '1');
+            builder.attribute('alignWithMargins', '0');
+            builder.attribute('differentFirst', '0');
+            builder.attribute('differentOddEven', '0');
+          },
+        );
+
+        if ((sheet.pictures.count > 0) ||
+            (sheet.charts != null && sheet.chartCount > 0)) {
+          _workbook.drawingCount++;
+          _saveDrawings(sheet);
+          if (sheet.charts != null && sheet.chartCount > 0) {
+            sheet.charts!.serializeChartsSync(sheet);
           }
-        });
-      }
+          builder.element(
+            'drawing',
+            nest: () {
+              int id = 1;
+              const String rId = 'rId1';
+              if (_relationId.isNotEmpty) {
+                if (sheet.hyperlinks.count > 0) {
+                  for (int i = 0; i < sheet.hyperlinks.count; i++) {
+                    if (sheet.hyperlinks[i].attachedType ==
+                            ExcelHyperlinkAttachedType.range &&
+                        sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                      id++;
+                    }
+                  }
+                }
+                builder.attribute('r:id', 'rId$id');
+              } else {
+                builder.attribute('r:id', rId);
+              }
+            },
+          );
+        }
 
-      final TableSerialization tableSerialization =
-          TableSerialization(_workbook);
-      tableSerialization.serializeTables(builder, sheet);
+        final TableSerialization tableSerialization = TableSerialization(
+          _workbook,
+        );
+        tableSerialization.serializeTables(builder, sheet);
 
-      builder.element('extLst', nest: () {
-        _serializeConditionalFormattingExt(builder, sheet);
-      });
-      final List<int> rel = _saveSheetRelations(sheet);
+        builder.element(
+          'extLst',
+          nest: () {
+            _serializeConditionalFormattingExt(builder, sheet);
+          },
+        );
+        final List<int> rel = _saveSheetRelations(sheet);
 
-      _addToArchive(rel, 'xl/worksheets/_rels/sheet${index + 1}.xml.rels');
-    });
+        _addToArchive(rel, 'xl/worksheets/_rels/sheet${index + 1}.xml.rels');
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'xl/worksheets/sheet${index + 1}.xml');
@@ -755,275 +944,361 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('worksheet', nest: () async {
-      builder.namespace(
-          'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-      builder.attribute('xmlns:r',
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
-      builder.attribute('xmlns:x14',
-          'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
-      builder.attribute('xmlns:mc',
-          'http://schemas.openxmlformats.org/markup-compatibility/2006');
+    builder.element(
+      'worksheet',
+      nest: () async {
+        builder.namespace(
+          'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+        );
+        builder.attribute(
+          'xmlns:r',
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+        );
+        builder.attribute(
+          'xmlns:x14',
+          'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
+        );
+        builder.attribute(
+          'xmlns:mc',
+          'http://schemas.openxmlformats.org/markup-compatibility/2006',
+        );
 
-      builder.element('sheetPr', nest: () async {
-        if (!sheet.isSummaryRowBelow) {
-          builder.element('OutlinePr', nest: () async {
-            builder.attribute('summaryBelow', '0');
-          });
-        }
-        if (sheet.pageSetup.isFitToPage) {
-          builder.element('pageSetUpPr', nest: () async {
-            builder.attribute('fitToPage', '1');
-          });
-        }
-        if (sheet.isTabColorApplied) {
-          _serializeTabColorAsync(sheet, builder);
-        }
-      });
-      _saveSheetViewAsync(sheet, builder);
-      builder.element('sheetFormatPr', nest: () async {
-        builder.attribute('defaultRowHeight', sheet.standardHeight.toString());
-      });
-
-      if (sheet.columns.count != 0) {
-        builder.element('cols', nest: () async {
-          for (int i = 1; i <= sheet.columns.count; i++) {
-            final Column? column = sheet.columns[i];
-            if (column != null) {
-              builder.element('col', nest: () async {
-                final int iLastColumn =
-                    _findSameColumns(sheet, column.index, _workbook);
-                builder.attribute('min', column.index.toString());
-                builder.attribute('max', iLastColumn.toString());
-                i = iLastColumn;
-                if (column.width != 0) {
-                  final double dWidth =
-                      sheet.evaluateFileColumnWidth(column.width);
-                  builder.attribute('width', dWidth.toString());
-                } else {
-                  builder.attribute('width', '8.43');
-                }
-                if (column.isHidden) {
-                  builder.attribute('hidden', '1');
-                }
-                builder.attribute('customWidth', '1');
-              });
+        builder.element(
+          'sheetPr',
+          nest: () async {
+            if (!sheet.isSummaryRowBelow) {
+              builder.element(
+                'OutlinePr',
+                nest: () async {
+                  builder.attribute('summaryBelow', '0');
+                },
+              );
             }
-          }
-        });
-      }
-      builder.element('sheetData', nest: () async {
-        if (sheet.rows.count != 0) {
-          for (final Row? row in sheet.rows.innerList) {
-            if (row != null) {
-              builder.element('row', nest: () async {
-                builder.attribute('r', row.index.toString());
-                if (row.height != 0) {
-                  builder.attribute('ht', row.height.toString());
-                  builder.attribute('customHeight', '1');
-                }
-                if (row.isHidden) {
-                  builder.attribute('hidden', '1');
-                }
-                if (row.ranges.count != 0) {
-                  for (final Range? cell in row.ranges.innerList) {
-                    if (cell != null) {
-                      if (cell.rowSpan > 0) {
-                        cell.rowSpan -= 1;
-                      }
-                      if (cell.columnSpan > 0) {
-                        cell.columnSpan -= 1;
-                      }
-                      sheet.mergeCells =
-                          _processMergeCells(cell, row.index, sheet.mergeCells);
+            if (sheet.pageSetup.isFitToPage) {
+              builder.element(
+                'pageSetUpPr',
+                nest: () async {
+                  builder.attribute('fitToPage', '1');
+                },
+              );
+            }
+            if (sheet.isTabColorApplied) {
+              _serializeTabColorAsync(sheet, builder);
+            }
+          },
+        );
+        _saveSheetViewAsync(sheet, builder);
+        builder.element(
+          'sheetFormatPr',
+          nest: () async {
+            builder.attribute(
+              'defaultRowHeight',
+              sheet.standardHeight.toString(),
+            );
+          },
+        );
 
-                      if (cell.hasCellStyle || !cell.isDefaultFormat) {
-                        cell.styleIndex = cell.cellStyle.index =
-                            _processCellStyle(
-                                cell.cellStyle as CellStyle, _workbook);
+        if (sheet.columns.count != 0) {
+          builder.element(
+            'cols',
+            nest: () async {
+              for (int i = 1; i <= sheet.columns.count; i++) {
+                final Column? column = sheet.columns[i];
+                if (column != null) {
+                  builder.element(
+                    'col',
+                    nest: () async {
+                      final int iLastColumn = _findSameColumns(
+                        sheet,
+                        column.index,
+                        _workbook,
+                      );
+                      builder.attribute('min', column.index.toString());
+                      builder.attribute('max', iLastColumn.toString());
+                      i = iLastColumn;
+                      if (column.width != 0) {
+                        final double dWidth = sheet.evaluateFileColumnWidth(
+                          column.width,
+                        );
+                        builder.attribute('width', dWidth.toString());
                       } else {
-                        cell.styleIndex = -1;
+                        builder.attribute('width', '8.43');
                       }
-                      builder.element('c', nest: () async {
-                        String? strFormula = cell.formula;
-                        builder.attribute('r', cell.addressLocal);
-                        if (cell.saveType != '' &&
-                            (strFormula == null ||
-                                strFormula == '' ||
-                                strFormula[0] != '=' ||
-                                cell.saveType == 's')) {
-                          builder.attribute('t', cell.saveType);
-                        }
-                        if (cell.styleIndex > 0) {
-                          builder.attribute('s', cell.styleIndex.toString());
-                        }
-                        String? cellValue;
-                        if (sheet.calcEngine != null &&
-                            cell.number == null &&
-                            cell.text == null &&
-                            cell.boolean == '' &&
-                            cell.errorValue == '') {
-                          cellValue = cell.calculatedValue;
-                        } else if (cell.errorValue != '') {
-                          cellValue = cell.errorValue;
-                        } else if (cell.boolean != '') {
-                          cellValue = cell.boolean;
-                        } else if (cell.number != null) {
-                          cellValue = cell.number.toString();
-                        } else if (cell.text != null) {
-                          if (cell.saveType == 's' && cell.textIndex != -1) {
-                            cellValue = cell.textIndex.toString();
-                          } else {
-                            cellValue = cell.text;
-                          }
-                        }
-                        if (strFormula != null &&
-                            strFormula != '' &&
-                            strFormula[0] == '=' &&
-                            cell.saveType != 's') {
-                          if (cell.saveType != '') {
-                            builder.attribute('t', cell.saveType);
-                          }
-                          strFormula =
-                              strFormula.substring(1).replaceAll("'", '"');
-                          final int i = strFormula.indexOf('!');
-                          if (i != -1 &&
-                              strFormula[0] == '"' &&
-                              strFormula[i - 1] == '"') {
-                            final String sheetName =
-                                strFormula.substring(1, i - 1);
-                            strFormula =
-                                "'$sheetName'${strFormula.substring(i)}";
-                          }
-                          if (strFormula.contains('MINIFS')) {
-                            strFormula = strFormula.replaceAllMapped(
-                                RegExp('MINIFS'),
-                                (Match match) => '_xlfn.${match.group(0)}');
-                          } else if (strFormula.contains('MAXIFS')) {
-                            strFormula = strFormula.replaceAllMapped(
-                                RegExp('MAXIFS'),
-                                (Match match) => '_xlfn.${match.group(0)}');
-                          }
-                          builder.element('f', nest: strFormula);
-                        }
-                        if (cellValue != null &&
-                            (cell.saveType == 'str' || cellValue.isNotEmpty)) {
-                          builder.element('v', nest: cellValue);
-                        }
-                      });
-                    }
-                  }
+                      if (column.isHidden) {
+                        builder.attribute('hidden', '1');
+                      }
+                      builder.attribute('customWidth', '1');
+                    },
+                  );
                 }
-              });
-            }
-          }
+              }
+            },
+          );
         }
-      });
-      if (sheet.isPasswordProtected) {
-        builder.element('sheetProtection', nest: () async {
-          if (sheet.algorithmName != null) {
-            // ignore: unnecessary_null_checks
-            builder.attribute('algorithmName', sheet.algorithmName!);
-            builder.attribute('hashValue', base64.encode(sheet.hashValue));
-            builder.attribute('saltValue', base64.encode(sheet.saltValue));
-            builder.attribute('spinCount', sheet.spinCount);
-          } else if (sheet.isPassword != 1) {
-            final String password = sheet.isPassword.toRadixString(16);
-            builder.attribute('password', password);
-          }
-          List<String> attributes;
-          List<bool> flags;
-          List<bool> defaultValues;
-          attributes = sheet.protectionAttributes;
-          flags = sheet.flag;
-          defaultValues = sheet.defaultValues;
-          // ignore: prefer_final_locals
-          for (int i = 0, iCount = attributes.length; i < iCount; i++) {
-            _serializeProtectionAttributeAsync(
-                builder, attributes[i], flags[i], defaultValues[i]);
-          }
-        });
-      }
-      //Serializing AutoFilter
-      _serializeAutoFiltersAsync(builder, sheet.autoFilters);
-      if (sheet.mergeCells.innerList.isNotEmpty) {
-        builder.element('mergeCells', nest: () async {
-          builder.attribute(
-              'count', sheet.mergeCells.innerList.length.toString());
-          for (final MergeCell mCell in sheet.mergeCells.innerList) {
-            builder.element('mergeCell', nest: () async {
-              builder.attribute('ref', mCell.reference);
-            });
-          }
-        });
-      }
-      _serializeConditionalFormattingAsync(builder, sheet);
-      _serializeDataValidationsAsync(builder, sheet);
-      _serializeHyperlinksAsync(builder, sheet);
-      if (sheet.pageSetup.showGridlines ||
-          sheet.pageSetup.showHeadings ||
-          sheet.pageSetup.isCenterHorizontally ||
-          sheet.pageSetup.isCenterVertically) {
-        _serializePrintOptionsAsync(builder, sheet);
-      }
-      _validatePageMarginsAsync(sheet);
-      _serializePageMarginsAsync(builder, sheet);
-      if (sheet.pageSetup.order == ExcelPageOrder.overThenDown ||
-          sheet.pageSetup.orientation == ExcelPageOrientation.landscape ||
-          sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed ||
-          sheet.pageSetup.isBlackAndWhite ||
-          sheet.pageSetup.isDraft ||
-          (sheet.pageSetup.printQuality != 0 &&
-              sheet.pageSetup.printQuality != 600) ||
-          !sheet.pageSetup.autoFirstPageNumber ||
-          sheet.pageSetup.fitToPagesWide > 1 ||
-          sheet.pageSetup.fitToPagesTall > 1 ||
-          sheet.pageSetup.firstPageNumber != 1 ||
-          sheet.pageSetup.paperSize != ExcelPaperSize.paperA4) {
-        _serializePageSetupAsync(builder, sheet);
-      }
-      builder.element('headerFooter', nest: () async {
-        builder.attribute('scaleWithDoc', '1');
-        builder.attribute('alignWithMargins', '0');
-        builder.attribute('differentFirst', '0');
-        builder.attribute('differentOddEven', '0');
-      });
+        builder.element(
+          'sheetData',
+          nest: () async {
+            if (sheet.rows.count != 0) {
+              for (final Row? row in sheet.rows.innerList) {
+                if (row != null) {
+                  builder.element(
+                    'row',
+                    nest: () async {
+                      builder.attribute('r', row.index.toString());
+                      if (row.height != 0) {
+                        builder.attribute('ht', row.height.toString());
+                        builder.attribute('customHeight', '1');
+                      }
+                      if (row.isHidden) {
+                        builder.attribute('hidden', '1');
+                      }
+                      if (row.ranges.count != 0) {
+                        for (final Range? cell in row.ranges.innerList) {
+                          if (cell != null) {
+                            if (cell.rowSpan > 0) {
+                              cell.rowSpan -= 1;
+                            }
+                            if (cell.columnSpan > 0) {
+                              cell.columnSpan -= 1;
+                            }
+                            sheet.mergeCells = _processMergeCells(
+                              cell,
+                              row.index,
+                              sheet.mergeCells,
+                            );
 
-      if ((sheet.pictures.count > 0) ||
-          (sheet.charts != null && sheet.chartCount > 0)) {
-        _workbook.drawingCount++;
-        _saveDrawingsAsync(sheet);
-        if (sheet.charts != null && sheet.chartCount > 0) {
-          sheet.charts!.serializeCharts(sheet);
-        }
-        builder.element('drawing', nest: () async {
-          int id = 1;
-          const String rId = 'rId1';
-          if (_relationId.isNotEmpty) {
-            if (sheet.hyperlinks.count > 0) {
-              for (int i = 0; i < sheet.hyperlinks.count; i++) {
-                if (sheet.hyperlinks[i].attachedType ==
-                        ExcelHyperlinkAttachedType.range &&
-                    sheet.hyperlinks[i].type != HyperlinkType.workbook) {
-                  id++;
+                            if (cell.hasCellStyle || !cell.isDefaultFormat) {
+                              cell.styleIndex =
+                                  cell.cellStyle.index = _processCellStyle(
+                                    cell.cellStyle as CellStyle,
+                                    _workbook,
+                                  );
+                            } else {
+                              cell.styleIndex = -1;
+                            }
+                            builder.element(
+                              'c',
+                              nest: () async {
+                                String? strFormula = cell.formula;
+                                builder.attribute('r', cell.addressLocal);
+                                if (cell.saveType != '' &&
+                                    (strFormula == null ||
+                                        strFormula == '' ||
+                                        strFormula[0] != '=' ||
+                                        cell.saveType == 's')) {
+                                  builder.attribute('t', cell.saveType);
+                                }
+                                if (cell.styleIndex > 0) {
+                                  builder.attribute(
+                                    's',
+                                    cell.styleIndex.toString(),
+                                  );
+                                }
+                                String? cellValue;
+                                if (sheet.calcEngine != null &&
+                                    cell.number == null &&
+                                    cell.text == null &&
+                                    cell.boolean == '' &&
+                                    cell.errorValue == '') {
+                                  cellValue = cell.calculatedValue;
+                                } else if (cell.errorValue != '') {
+                                  cellValue = cell.errorValue;
+                                } else if (cell.boolean != '') {
+                                  cellValue = cell.boolean;
+                                } else if (cell.number != null) {
+                                  cellValue = cell.number.toString();
+                                } else if (cell.text != null) {
+                                  if (cell.saveType == 's' &&
+                                      cell.textIndex != -1) {
+                                    cellValue = cell.textIndex.toString();
+                                  } else {
+                                    cellValue = cell.text;
+                                  }
+                                }
+                                if (strFormula != null &&
+                                    strFormula != '' &&
+                                    strFormula[0] == '=' &&
+                                    cell.saveType != 's') {
+                                  if (cell.saveType != '') {
+                                    builder.attribute('t', cell.saveType);
+                                  }
+                                  strFormula = strFormula
+                                      .substring(1)
+                                      .replaceAll("'", '"');
+                                  final int i = strFormula.indexOf('!');
+                                  if (i != -1 &&
+                                      strFormula[0] == '"' &&
+                                      strFormula[i - 1] == '"') {
+                                    final String sheetName = strFormula
+                                        .substring(1, i - 1);
+                                    strFormula =
+                                        "'$sheetName'${strFormula.substring(i)}";
+                                  }
+                                  if (strFormula.contains('MINIFS')) {
+                                    strFormula = strFormula.replaceAllMapped(
+                                      RegExp('MINIFS'),
+                                      (Match match) =>
+                                          '_xlfn.${match.group(0)}',
+                                    );
+                                  } else if (strFormula.contains('MAXIFS')) {
+                                    strFormula = strFormula.replaceAllMapped(
+                                      RegExp('MAXIFS'),
+                                      (Match match) =>
+                                          '_xlfn.${match.group(0)}',
+                                    );
+                                  }
+                                  builder.element('f', nest: strFormula);
+                                }
+                                if (cellValue != null &&
+                                    (cell.saveType == 'str' ||
+                                        cellValue.isNotEmpty)) {
+                                  builder.element('v', nest: cellValue);
+                                }
+                              },
+                            );
+                          }
+                        }
+                      }
+                    },
+                  );
                 }
               }
             }
-            builder.attribute('r:id', 'rId$id');
-          } else {
-            builder.attribute('r:id', rId);
+          },
+        );
+        if (sheet.isPasswordProtected) {
+          builder.element(
+            'sheetProtection',
+            nest: () async {
+              if (sheet.algorithmName != null) {
+                // ignore: unnecessary_null_checks
+                builder.attribute('algorithmName', sheet.algorithmName!);
+                builder.attribute('hashValue', base64.encode(sheet.hashValue));
+                builder.attribute('saltValue', base64.encode(sheet.saltValue));
+                builder.attribute('spinCount', sheet.spinCount);
+              } else if (sheet.isPassword != 1) {
+                final String password = sheet.isPassword.toRadixString(16);
+                builder.attribute('password', password);
+              }
+              List<String> attributes;
+              List<bool> flags;
+              List<bool> defaultValues;
+              attributes = sheet.protectionAttributes;
+              flags = sheet.flag;
+              defaultValues = sheet.defaultValues;
+              // ignore: prefer_final_locals
+              for (int i = 0, iCount = attributes.length; i < iCount; i++) {
+                _serializeProtectionAttributeAsync(
+                  builder,
+                  attributes[i],
+                  flags[i],
+                  defaultValues[i],
+                );
+              }
+            },
+          );
+        }
+        //Serializing AutoFilter
+        _serializeAutoFiltersAsync(builder, sheet.autoFilters);
+        if (sheet.mergeCells.innerList.isNotEmpty) {
+          builder.element(
+            'mergeCells',
+            nest: () async {
+              builder.attribute(
+                'count',
+                sheet.mergeCells.innerList.length.toString(),
+              );
+              for (final MergeCell mCell in sheet.mergeCells.innerList) {
+                builder.element(
+                  'mergeCell',
+                  nest: () async {
+                    builder.attribute('ref', mCell.reference);
+                  },
+                );
+              }
+            },
+          );
+        }
+        _serializeConditionalFormattingAsync(builder, sheet);
+        _serializeDataValidationsAsync(builder, sheet);
+        _serializeHyperlinksAsync(builder, sheet);
+        if (sheet.pageSetup.showGridlines ||
+            sheet.pageSetup.showHeadings ||
+            sheet.pageSetup.isCenterHorizontally ||
+            sheet.pageSetup.isCenterVertically) {
+          _serializePrintOptionsAsync(builder, sheet);
+        }
+        _validatePageMarginsAsync(sheet);
+        _serializePageMarginsAsync(builder, sheet);
+        if (sheet.pageSetup.order == ExcelPageOrder.overThenDown ||
+            sheet.pageSetup.orientation == ExcelPageOrientation.landscape ||
+            sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed ||
+            sheet.pageSetup.isBlackAndWhite ||
+            sheet.pageSetup.isDraft ||
+            (sheet.pageSetup.printQuality != 0 &&
+                sheet.pageSetup.printQuality != 600) ||
+            !sheet.pageSetup.autoFirstPageNumber ||
+            sheet.pageSetup.fitToPagesWide > 1 ||
+            sheet.pageSetup.fitToPagesTall > 1 ||
+            sheet.pageSetup.firstPageNumber != 1 ||
+            sheet.pageSetup.paperSize != ExcelPaperSize.paperA4) {
+          _serializePageSetupAsync(builder, sheet);
+        }
+        builder.element(
+          'headerFooter',
+          nest: () async {
+            builder.attribute('scaleWithDoc', '1');
+            builder.attribute('alignWithMargins', '0');
+            builder.attribute('differentFirst', '0');
+            builder.attribute('differentOddEven', '0');
+          },
+        );
+
+        if ((sheet.pictures.count > 0) ||
+            (sheet.charts != null && sheet.chartCount > 0)) {
+          _workbook.drawingCount++;
+          _saveDrawingsAsync(sheet);
+          if (sheet.charts != null && sheet.chartCount > 0) {
+            sheet.charts!.serializeCharts(sheet);
           }
-        });
-      }
-      final TableSerialization tableSerialization =
-          TableSerialization(_workbook);
-      tableSerialization.serializeTablesAsync(builder, sheet);
-      builder.element('extLst', nest: () async {
-        _serializeConditionalFormattingExtAsync(builder, sheet);
-      });
-      _addToArchiveAsync(_saveSheetRelations(sheet),
-          'xl/worksheets/_rels/sheet${index + 1}.xml.rels');
-    });
+          builder.element(
+            'drawing',
+            nest: () async {
+              int id = 1;
+              const String rId = 'rId1';
+              if (_relationId.isNotEmpty) {
+                if (sheet.hyperlinks.count > 0) {
+                  for (int i = 0; i < sheet.hyperlinks.count; i++) {
+                    if (sheet.hyperlinks[i].attachedType ==
+                            ExcelHyperlinkAttachedType.range &&
+                        sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                      id++;
+                    }
+                  }
+                }
+                builder.attribute('r:id', 'rId$id');
+              } else {
+                builder.attribute('r:id', rId);
+              }
+            },
+          );
+        }
+        final TableSerialization tableSerialization = TableSerialization(
+          _workbook,
+        );
+        tableSerialization.serializeTablesAsync(builder, sheet);
+        builder.element(
+          'extLst',
+          nest: () async {
+            _serializeConditionalFormattingExtAsync(builder, sheet);
+          },
+        );
+        _addToArchiveAsync(
+          _saveSheetRelations(sheet),
+          'xl/worksheets/_rels/sheet${index + 1}.xml.rels',
+        );
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(bytes, 'xl/worksheets/sheet${index + 1}.xml');
@@ -1031,69 +1306,81 @@ class SerializeWorkbook {
 
   /// Serializes worksheet printOptions
   void _serializePrintOptions(XmlBuilder builder, Worksheet sheet) {
-    builder.element('printOptions', nest: () {
-      if (sheet.pageSetup.isCenterHorizontally) {
-        builder.attribute('horizontalCentered', '1');
-      }
-      if (sheet.pageSetup.isCenterVertically) {
-        builder.attribute('verticalCentered', '1');
-      }
-      if (sheet.pageSetup.showHeadings) {
-        builder.attribute('headings', '1');
-      }
-      if (sheet.pageSetup.showGridlines) {
-        builder.attribute('gridLines', '1');
-      }
-    });
+    builder.element(
+      'printOptions',
+      nest: () {
+        if (sheet.pageSetup.isCenterHorizontally) {
+          builder.attribute('horizontalCentered', '1');
+        }
+        if (sheet.pageSetup.isCenterVertically) {
+          builder.attribute('verticalCentered', '1');
+        }
+        if (sheet.pageSetup.showHeadings) {
+          builder.attribute('headings', '1');
+        }
+        if (sheet.pageSetup.showGridlines) {
+          builder.attribute('gridLines', '1');
+        }
+      },
+    );
   }
 
   Future<void> _serializePrintOptionsAsync(
-      XmlBuilder builder, Worksheet sheet) async {
-    builder.element('printOptions', nest: () async {
-      if (sheet.pageSetup.isCenterHorizontally) {
-        builder.attribute('horizontalCentered', '1');
-      }
-      if (sheet.pageSetup.isCenterVertically) {
-        builder.attribute('verticalCentered', '1');
-      }
-      if (sheet.pageSetup.showHeadings) {
-        builder.attribute('headings', '1');
-      }
-      if (sheet.pageSetup.showGridlines) {
-        builder.attribute('gridLines', '1');
-      }
-    });
+    XmlBuilder builder,
+    Worksheet sheet,
+  ) async {
+    builder.element(
+      'printOptions',
+      nest: () async {
+        if (sheet.pageSetup.isCenterHorizontally) {
+          builder.attribute('horizontalCentered', '1');
+        }
+        if (sheet.pageSetup.isCenterVertically) {
+          builder.attribute('verticalCentered', '1');
+        }
+        if (sheet.pageSetup.showHeadings) {
+          builder.attribute('headings', '1');
+        }
+        if (sheet.pageSetup.showGridlines) {
+          builder.attribute('gridLines', '1');
+        }
+      },
+    );
   }
 
   /// Validate whether Page margins are fit into the Page
   void _validatePageMargins(Worksheet sheet) {
-    if ((sheet.pageSetup as PageSetupImpl)
-            .paperHight
-            .containsKey(sheet.pageSetup.paperSize) &&
-        (sheet.pageSetup as PageSetupImpl)
-            .paperWidth
-            .containsKey(sheet.pageSetup.paperSize)) {
+    if ((sheet.pageSetup as PageSetupImpl).paperHight.containsKey(
+          sheet.pageSetup.paperSize,
+        ) &&
+        (sheet.pageSetup as PageSetupImpl).paperWidth.containsKey(
+          sheet.pageSetup.paperSize,
+        )) {
       final double maxHight =
           sheet.pageSetup.topMargin + sheet.pageSetup.bottomMargin;
       final double maxWidth =
           sheet.pageSetup.leftMargin + sheet.pageSetup.rightMargin;
-      (sheet.pageSetup as PageSetupImpl)
-          .paperHight
-          .forEach((ExcelPaperSize key, double value) {
+      (sheet.pageSetup as PageSetupImpl).paperHight.forEach((
+        ExcelPaperSize key,
+        double value,
+      ) {
         if (sheet.pageSetup.paperSize == key) {
           if (maxHight > value) {
             throw Exception(
-                'Top Margin and Bottom Margin size exceeds the allowed size');
+              'Top Margin and Bottom Margin size exceeds the allowed size',
+            );
           }
         }
       });
-      (sheet.pageSetup as PageSetupImpl)
-          .paperWidth
-          .forEach((ExcelPaperSize key, double value) {
+      (sheet.pageSetup as PageSetupImpl).paperWidth.forEach((
+        ExcelPaperSize key,
+        double value,
+      ) {
         if (sheet.pageSetup.paperSize == key) {
           if (maxWidth > value) {
             throw Exception(
-                'Left Margin and Right Margin size exceeds the allowed size');
+              'Left Margin and Right Margin size exceeds the allowed size',
+            );
           }
         }
       });
@@ -1101,33 +1388,37 @@ class SerializeWorkbook {
   }
 
   Future<void> _validatePageMarginsAsync(Worksheet sheet) async {
-    if ((sheet.pageSetup as PageSetupImpl)
-            .paperHight
-            .containsKey(sheet.pageSetup.paperSize) &&
-        (sheet.pageSetup as PageSetupImpl)
-            .paperWidth
-            .containsKey(sheet.pageSetup.paperSize)) {
+    if ((sheet.pageSetup as PageSetupImpl).paperHight.containsKey(
+          sheet.pageSetup.paperSize,
+        ) &&
+        (sheet.pageSetup as PageSetupImpl).paperWidth.containsKey(
+          sheet.pageSetup.paperSize,
+        )) {
       final double maxHight =
           sheet.pageSetup.topMargin + sheet.pageSetup.bottomMargin;
       final double maxWidth =
           sheet.pageSetup.leftMargin + sheet.pageSetup.rightMargin;
-      (sheet.pageSetup as PageSetupImpl)
-          .paperHight
-          .forEach((ExcelPaperSize key, double value) {
+      (sheet.pageSetup as PageSetupImpl).paperHight.forEach((
+        ExcelPaperSize key,
+        double value,
+      ) {
         if (sheet.pageSetup.paperSize == key) {
           if (maxHight > value) {
             throw Exception(
-                'Top Margin and Bottom Margin size exceeds the allowed size');
+              'Top Margin and Bottom Margin size exceeds the allowed size',
+            );
           }
         }
       });
-      (sheet.pageSetup as PageSetupImpl)
-          .paperWidth
-          .forEach((ExcelPaperSize key, double value) {
+      (sheet.pageSetup as PageSetupImpl).paperWidth.forEach((
+        ExcelPaperSize key,
+        double value,
+      ) {
         if (sheet.pageSetup.paperSize == key) {
           if (maxWidth > value) {
             throw Exception(
-                'Left Margin and Right Margin size exceeds the allowed size');
+              'Left Margin and Right Margin size exceeds the allowed size',
+            );
           }
         }
       });
@@ -1136,153 +1427,189 @@ class SerializeWorkbook {
 
   /// Serializes pageMargins
   void _serializePageMargins(XmlBuilder builder, Worksheet sheet) {
-    builder.element('pageMargins', nest: () {
-      builder.attribute('left', sheet.pageSetup.leftMargin.toString());
-      builder.attribute('right', sheet.pageSetup.rightMargin.toString());
-      builder.attribute('top', sheet.pageSetup.topMargin.toString());
-      builder.attribute('bottom', sheet.pageSetup.bottomMargin.toString());
-      builder.attribute('header', sheet.pageSetup.headerMargin.toString());
-      builder.attribute('footer', sheet.pageSetup.footerMargin.toString());
-    });
+    builder.element(
+      'pageMargins',
+      nest: () {
+        builder.attribute('left', sheet.pageSetup.leftMargin.toString());
+        builder.attribute('right', sheet.pageSetup.rightMargin.toString());
+        builder.attribute('top', sheet.pageSetup.topMargin.toString());
+        builder.attribute('bottom', sheet.pageSetup.bottomMargin.toString());
+        builder.attribute('header', sheet.pageSetup.headerMargin.toString());
+        builder.attribute('footer', sheet.pageSetup.footerMargin.toString());
+      },
+    );
   }
 
   Future<void> _serializePageMarginsAsync(
-      XmlBuilder builder, Worksheet sheet) async {
-    builder.element('pageMargins', nest: () async {
-      builder.attribute('left', sheet.pageSetup.leftMargin.toString());
-      builder.attribute('right', sheet.pageSetup.rightMargin.toString());
-      builder.attribute('top', sheet.pageSetup.topMargin.toString());
-      builder.attribute('bottom', sheet.pageSetup.bottomMargin.toString());
-      builder.attribute('header', sheet.pageSetup.headerMargin.toString());
-      builder.attribute('footer', sheet.pageSetup.footerMargin.toString());
-    });
+    XmlBuilder builder,
+    Worksheet sheet,
+  ) async {
+    builder.element(
+      'pageMargins',
+      nest: () async {
+        builder.attribute('left', sheet.pageSetup.leftMargin.toString());
+        builder.attribute('right', sheet.pageSetup.rightMargin.toString());
+        builder.attribute('top', sheet.pageSetup.topMargin.toString());
+        builder.attribute('bottom', sheet.pageSetup.bottomMargin.toString());
+        builder.attribute('header', sheet.pageSetup.headerMargin.toString());
+        builder.attribute('footer', sheet.pageSetup.footerMargin.toString());
+      },
+    );
   }
 
   /// Serialize pageSetup
   void _serializePageSetup(XmlBuilder builder, Worksheet sheet) {
-    builder.element('pageSetup', nest: () {
-      _serializePaperSize(builder, sheet);
+    builder.element(
+      'pageSetup',
+      nest: () {
+        _serializePaperSize(builder, sheet);
 
-      if (sheet.pageSetup.firstPageNumber != 1) {
-        builder.attribute(
-            'firstPageNumber', sheet.pageSetup.firstPageNumber.toString());
-      }
-      if (sheet.pageSetup.fitToPagesWide > 1) {
-        builder.attribute(
-            'fitToWidth', sheet.pageSetup.fitToPagesWide.toString());
-      }
-      if (sheet.pageSetup.fitToPagesTall > 1) {
-        builder.attribute(
-            'fitToHeight', sheet.pageSetup.fitToPagesTall.toString());
-      }
-      if (sheet.pageSetup.order == ExcelPageOrder.overThenDown) {
-        builder.attribute('pageOrder', 'overThenDown');
-      }
-      if (sheet.pageSetup.orientation == ExcelPageOrientation.landscape) {
-        builder.attribute('orientation', 'landscape');
-      } else {
-        builder.attribute('orientation', 'portrait');
-      }
-      if (sheet.pageSetup.isBlackAndWhite) {
-        builder.attribute('blackAndWhite', '1');
-      }
-      if (sheet.pageSetup.isDraft) {
-        builder.attribute('draft', '1');
-      }
-      if (!sheet.pageSetup.autoFirstPageNumber) {
-        builder.attribute('useFirstPageNumber', '1');
-      }
-      if (sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed) {
-        switch (sheet.pageSetup.printErrors) {
-          case CellErrorPrintOptions.blank:
-            builder.attribute('errors', 'blank');
-            break;
-          case CellErrorPrintOptions.dash:
-            builder.attribute('errors', 'dash');
-            break;
-          case CellErrorPrintOptions.notAvailable:
-            builder.attribute('errors', 'NA');
-            break;
-          case CellErrorPrintOptions.displayed:
-            break;
+        if (sheet.pageSetup.firstPageNumber != 1) {
+          builder.attribute(
+            'firstPageNumber',
+            sheet.pageSetup.firstPageNumber.toString(),
+          );
         }
-      }
-      if (sheet.pageSetup.printQuality != 0 &&
-          sheet.pageSetup.printQuality != 600) {
-        if (sheet.pageSetup.printQuality <= 38528) {
+        if (sheet.pageSetup.fitToPagesWide > 1) {
           builder.attribute(
-              'horizontalDpi', sheet.pageSetup.printQuality.toString());
+            'fitToWidth',
+            sheet.pageSetup.fitToPagesWide.toString(),
+          );
+        }
+        if (sheet.pageSetup.fitToPagesTall > 1) {
           builder.attribute(
-              'verticalDpi', sheet.pageSetup.printQuality.toString());
+            'fitToHeight',
+            sheet.pageSetup.fitToPagesTall.toString(),
+          );
+        }
+        if (sheet.pageSetup.order == ExcelPageOrder.overThenDown) {
+          builder.attribute('pageOrder', 'overThenDown');
+        }
+        if (sheet.pageSetup.orientation == ExcelPageOrientation.landscape) {
+          builder.attribute('orientation', 'landscape');
         } else {
-          builder.attribute('horizontalDpi', '38528');
-          builder.attribute('verticalDpi', '38528');
+          builder.attribute('orientation', 'portrait');
         }
-      }
-    });
+        if (sheet.pageSetup.isBlackAndWhite) {
+          builder.attribute('blackAndWhite', '1');
+        }
+        if (sheet.pageSetup.isDraft) {
+          builder.attribute('draft', '1');
+        }
+        if (!sheet.pageSetup.autoFirstPageNumber) {
+          builder.attribute('useFirstPageNumber', '1');
+        }
+        if (sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed) {
+          switch (sheet.pageSetup.printErrors) {
+            case CellErrorPrintOptions.blank:
+              builder.attribute('errors', 'blank');
+              break;
+            case CellErrorPrintOptions.dash:
+              builder.attribute('errors', 'dash');
+              break;
+            case CellErrorPrintOptions.notAvailable:
+              builder.attribute('errors', 'NA');
+              break;
+            case CellErrorPrintOptions.displayed:
+              break;
+          }
+        }
+        if (sheet.pageSetup.printQuality != 0 &&
+            sheet.pageSetup.printQuality != 600) {
+          if (sheet.pageSetup.printQuality <= 38528) {
+            builder.attribute(
+              'horizontalDpi',
+              sheet.pageSetup.printQuality.toString(),
+            );
+            builder.attribute(
+              'verticalDpi',
+              sheet.pageSetup.printQuality.toString(),
+            );
+          } else {
+            builder.attribute('horizontalDpi', '38528');
+            builder.attribute('verticalDpi', '38528');
+          }
+        }
+      },
+    );
   }
 
   Future<void> _serializePageSetupAsync(
-      XmlBuilder builder, Worksheet sheet) async {
-    builder.element('pageSetup', nest: () async {
-      _serializePaperSizeAsync(builder, sheet);
-      if (sheet.pageSetup.firstPageNumber != 1) {
-        builder.attribute(
-            'firstPageNumber', sheet.pageSetup.firstPageNumber.toString());
-      }
-      if (sheet.pageSetup.fitToPagesWide > 1) {
-        builder.attribute(
-            'fitToWidth', sheet.pageSetup.fitToPagesWide.toString());
-      }
-      if (sheet.pageSetup.fitToPagesTall > 1) {
-        builder.attribute(
-            'fitToHeight', sheet.pageSetup.fitToPagesTall.toString());
-      }
-      if (sheet.pageSetup.order == ExcelPageOrder.overThenDown) {
-        builder.attribute('pageOrder', 'overThenDown');
-      }
-      if (sheet.pageSetup.orientation == ExcelPageOrientation.landscape) {
-        builder.attribute('orientation', 'landscape');
-      } else {
-        builder.attribute('orientation', 'portrait');
-      }
-      if (sheet.pageSetup.isBlackAndWhite) {
-        builder.attribute('blackAndWhite', '1');
-      }
-      if (sheet.pageSetup.isDraft) {
-        builder.attribute('draft', '1');
-      }
-      if (!sheet.pageSetup.autoFirstPageNumber) {
-        builder.attribute('useFirstPageNumber', '1');
-      }
-      if (sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed) {
-        switch (sheet.pageSetup.printErrors) {
-          case CellErrorPrintOptions.blank:
-            builder.attribute('errors', 'blank');
-            break;
-          case CellErrorPrintOptions.dash:
-            builder.attribute('errors', 'dash');
-            break;
-          case CellErrorPrintOptions.notAvailable:
-            builder.attribute('errors', 'NA');
-            break;
-          case CellErrorPrintOptions.displayed:
-            break;
+    XmlBuilder builder,
+    Worksheet sheet,
+  ) async {
+    builder.element(
+      'pageSetup',
+      nest: () async {
+        _serializePaperSizeAsync(builder, sheet);
+        if (sheet.pageSetup.firstPageNumber != 1) {
+          builder.attribute(
+            'firstPageNumber',
+            sheet.pageSetup.firstPageNumber.toString(),
+          );
         }
-      }
-      if (sheet.pageSetup.printQuality != 0 &&
-          sheet.pageSetup.printQuality != 600) {
-        if (sheet.pageSetup.printQuality <= 38528) {
+        if (sheet.pageSetup.fitToPagesWide > 1) {
           builder.attribute(
-              'horizontalDpi', sheet.pageSetup.printQuality.toString());
+            'fitToWidth',
+            sheet.pageSetup.fitToPagesWide.toString(),
+          );
+        }
+        if (sheet.pageSetup.fitToPagesTall > 1) {
           builder.attribute(
-              'verticalDpi', sheet.pageSetup.printQuality.toString());
+            'fitToHeight',
+            sheet.pageSetup.fitToPagesTall.toString(),
+          );
+        }
+        if (sheet.pageSetup.order == ExcelPageOrder.overThenDown) {
+          builder.attribute('pageOrder', 'overThenDown');
+        }
+        if (sheet.pageSetup.orientation == ExcelPageOrientation.landscape) {
+          builder.attribute('orientation', 'landscape');
         } else {
-          builder.attribute('horizontalDpi', '38528');
-          builder.attribute('verticalDpi', '38528');
+          builder.attribute('orientation', 'portrait');
         }
-      }
-    });
+        if (sheet.pageSetup.isBlackAndWhite) {
+          builder.attribute('blackAndWhite', '1');
+        }
+        if (sheet.pageSetup.isDraft) {
+          builder.attribute('draft', '1');
+        }
+        if (!sheet.pageSetup.autoFirstPageNumber) {
+          builder.attribute('useFirstPageNumber', '1');
+        }
+        if (sheet.pageSetup.printErrors != CellErrorPrintOptions.displayed) {
+          switch (sheet.pageSetup.printErrors) {
+            case CellErrorPrintOptions.blank:
+              builder.attribute('errors', 'blank');
+              break;
+            case CellErrorPrintOptions.dash:
+              builder.attribute('errors', 'dash');
+              break;
+            case CellErrorPrintOptions.notAvailable:
+              builder.attribute('errors', 'NA');
+              break;
+            case CellErrorPrintOptions.displayed:
+              break;
+          }
+        }
+        if (sheet.pageSetup.printQuality != 0 &&
+            sheet.pageSetup.printQuality != 600) {
+          if (sheet.pageSetup.printQuality <= 38528) {
+            builder.attribute(
+              'horizontalDpi',
+              sheet.pageSetup.printQuality.toString(),
+            );
+            builder.attribute(
+              'verticalDpi',
+              sheet.pageSetup.printQuality.toString(),
+            );
+          } else {
+            builder.attribute('horizontalDpi', '38528');
+            builder.attribute('verticalDpi', '38528');
+          }
+        }
+      },
+    );
   }
 
   /// Serialize paperSize
@@ -1493,7 +1820,9 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializePaperSizeAsync(
-      XmlBuilder builder, Worksheet sheet) async {
+    XmlBuilder builder,
+    Worksheet sheet,
+  ) async {
     switch (sheet.pageSetup.paperSize) {
       case ExcelPaperSize.a2Paper:
         builder.attribute('paperSize', '66');
@@ -1701,13 +2030,21 @@ class SerializeWorkbook {
 
   /// Serializes single protection option.
   void _serializeProtectionAttribute(
-      XmlBuilder builder, String attributeName, bool flag, bool defaultValue) {
+    XmlBuilder builder,
+    String attributeName,
+    bool flag,
+    bool defaultValue,
+  ) {
     final bool value = flag;
     _serializeAttributes(builder, attributeName, value, defaultValue);
   }
 
-  Future<void> _serializeProtectionAttributeAsync(XmlBuilder builder,
-      String attributeName, bool flag, bool defaultValue) async {
+  Future<void> _serializeProtectionAttributeAsync(
+    XmlBuilder builder,
+    String attributeName,
+    bool flag,
+    bool defaultValue,
+  ) async {
     final bool value = flag;
     _serializeAttributesAsync(builder, attributeName, value, defaultValue);
   }
@@ -1719,86 +2056,106 @@ class SerializeWorkbook {
       final List<String> hyperLinkType = List<String>.filled(iCount, '');
       for (int i = 0; i < sheet.hyperlinks.count; i++) {
         final Hyperlink hyperLink = sheet.hyperlinks[i];
-        hyperLinkType[i] =
-            hyperLink.attachedType.toString().split('.').toList().removeAt(1);
+        hyperLinkType[i] = hyperLink.attachedType
+            .toString()
+            .split('.')
+            .toList()
+            .removeAt(1);
       }
       if (iCount == 0 || !hyperLinkType.contains('range')) {
         return;
       }
-      builder.element('hyperlinks', nest: () {
-        int id = 1;
-        for (final Hyperlink link in sheet.hyperlinks.innerList) {
-          if (link.attachedType == ExcelHyperlinkAttachedType.range) {
-            builder.element('hyperlink', nest: () {
-              if (link.type == HyperlinkType.workbook) {
-                builder.attribute('ref', link.reference);
-                builder.attribute('location', link.address);
-              } else {
-                builder.attribute('ref', link.reference);
-                final String rId = 'rId$id';
-                builder.attribute('r:id', rId);
-                _relationId.add(rId);
-                id++;
-              }
-              if (link.screenTip != null) {
-                // ignore: unnecessary_null_checks
-                builder.attribute('tooltip', link.screenTip!);
-              }
-              if (link.textToDisplay != null) {
-                // ignore: unnecessary_null_checks
-                builder.attribute('display', link.textToDisplay!);
-              } else {
-                builder.attribute('display', link.address);
-              }
-            });
+      builder.element(
+        'hyperlinks',
+        nest: () {
+          int id = 1;
+          for (final Hyperlink link in sheet.hyperlinks.innerList) {
+            if (link.attachedType == ExcelHyperlinkAttachedType.range) {
+              builder.element(
+                'hyperlink',
+                nest: () {
+                  if (link.type == HyperlinkType.workbook) {
+                    builder.attribute('ref', link.reference);
+                    builder.attribute('location', link.address);
+                  } else {
+                    builder.attribute('ref', link.reference);
+                    final String rId = 'rId$id';
+                    builder.attribute('r:id', rId);
+                    _relationId.add(rId);
+                    id++;
+                  }
+                  if (link.screenTip != null) {
+                    // ignore: unnecessary_null_checks
+                    builder.attribute('tooltip', link.screenTip!);
+                  }
+                  if (link.textToDisplay != null) {
+                    // ignore: unnecessary_null_checks
+                    builder.attribute('display', link.textToDisplay!);
+                  } else {
+                    builder.attribute('display', link.address);
+                  }
+                },
+              );
+            }
           }
-        }
-      });
+        },
+      );
     }
   }
 
   Future<void> _serializeHyperlinksAsync(
-      XmlBuilder builder, Worksheet sheet) async {
+    XmlBuilder builder,
+    Worksheet sheet,
+  ) async {
     if (sheet.hyperlinks.count > 0) {
       final int iCount = sheet.hyperlinks.count;
       final List<String> hyperLinkType = List<String>.filled(iCount, '');
       for (int i = 0; i < sheet.hyperlinks.count; i++) {
         final Hyperlink hyperLink = sheet.hyperlinks[i];
-        hyperLinkType[i] =
-            hyperLink.attachedType.toString().split('.').toList().removeAt(1);
+        hyperLinkType[i] = hyperLink.attachedType
+            .toString()
+            .split('.')
+            .toList()
+            .removeAt(1);
       }
       if (iCount == 0 || !hyperLinkType.contains('range')) {
         return;
       }
-      builder.element('hyperlinks', nest: () async {
-        int id = 1;
-        for (final Hyperlink link in sheet.hyperlinks.innerList) {
-          if (link.attachedType == ExcelHyperlinkAttachedType.range) {
-            builder.element('hyperlink', nest: () async {
-              if (link.type == HyperlinkType.workbook) {
-                builder.attribute('ref', link.reference);
-                builder.attribute('location', link.address);
-              } else {
-                builder.attribute('ref', link.reference);
-                final String rId = 'rId$id';
-                builder.attribute('r:id', rId);
-                _relationId.add(rId);
-                id++;
-              }
-              if (link.screenTip != null) {
-                // ignore: unnecessary_null_checks
-                builder.attribute('tooltip', link.screenTip!);
-              }
-              if (link.textToDisplay != null) {
-                // ignore: unnecessary_null_checks
-                builder.attribute('display', link.textToDisplay!);
-              } else {
-                builder.attribute('display', link.address);
-              }
-            });
+      builder.element(
+        'hyperlinks',
+        nest: () async {
+          int id = 1;
+          for (final Hyperlink link in sheet.hyperlinks.innerList) {
+            if (link.attachedType == ExcelHyperlinkAttachedType.range) {
+              builder.element(
+                'hyperlink',
+                nest: () async {
+                  if (link.type == HyperlinkType.workbook) {
+                    builder.attribute('ref', link.reference);
+                    builder.attribute('location', link.address);
+                  } else {
+                    builder.attribute('ref', link.reference);
+                    final String rId = 'rId$id';
+                    builder.attribute('r:id', rId);
+                    _relationId.add(rId);
+                    id++;
+                  }
+                  if (link.screenTip != null) {
+                    // ignore: unnecessary_null_checks
+                    builder.attribute('tooltip', link.screenTip!);
+                  }
+                  if (link.textToDisplay != null) {
+                    // ignore: unnecessary_null_checks
+                    builder.attribute('display', link.textToDisplay!);
+                  } else {
+                    builder.attribute('display', link.address);
+                  }
+                },
+              );
+            }
           }
-        }
-      });
+        },
+      );
     }
   }
 
@@ -1806,178 +2163,248 @@ class SerializeWorkbook {
   void _saveDrawings(Worksheet sheet) {
     final XmlBuilder builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('xdr:wsDr', nest: () {
-      builder.attribute('xmlns:xdr',
-          'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing');
-      builder.attribute(
-          'xmlns:a', 'http://schemas.openxmlformats.org/drawingml/2006/main');
-      final int chartCount = sheet.chartCount;
-      if (chartCount != 0 && sheet.charts != null) {
-        sheet.charts!.serializeChartDrawingSync(builder, sheet);
-      }
-      final int idIndex = 0 + chartCount;
-      final List<String> idRelation = <String>[];
-      if (sheet.pictures.count != 0) {
-        int imgId = 0;
-        int idHyperlink = 1;
-        int hyperlinkCount = 0;
-        for (final Picture picture in sheet.pictures.innerList) {
-          if (picture.height != 0 && picture.width != 0) {
-            if (picture.lastRow == 0 || picture.lastRow < picture.row) {
-              _updateLastRowOffset(sheet, picture);
-            } else if (picture.lastRow != 0) {
-              picture.lastRowOffset = 0;
+    builder.element(
+      'xdr:wsDr',
+      nest: () {
+        builder.attribute(
+          'xmlns:xdr',
+          'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing',
+        );
+        builder.attribute(
+          'xmlns:a',
+          'http://schemas.openxmlformats.org/drawingml/2006/main',
+        );
+        final int chartCount = sheet.chartCount;
+        if (chartCount != 0 && sheet.charts != null) {
+          sheet.charts!.serializeChartDrawingSync(builder, sheet);
+        }
+        final int idIndex = 0 + chartCount;
+        final List<String> idRelation = <String>[];
+        if (sheet.pictures.count != 0) {
+          int imgId = 0;
+          int idHyperlink = 1;
+          int hyperlinkCount = 0;
+          for (final Picture picture in sheet.pictures.innerList) {
+            if (picture.height != 0 && picture.width != 0) {
+              if (picture.lastRow == 0 || picture.lastRow < picture.row) {
+                _updateLastRowOffset(sheet, picture);
+              } else if (picture.lastRow != 0) {
+                picture.lastRowOffset = 0;
+              }
+              if (picture.lastColumn == 0 ||
+                  picture.lastColumn < picture.column) {
+                _updateLastColumnOffSet(sheet, picture);
+              } else if (picture.lastColumn != 0) {
+                picture.lastColOffset = 0;
+              }
             }
-            if (picture.lastColumn == 0 ||
-                picture.lastColumn < picture.column) {
-              _updateLastColumnOffSet(sheet, picture);
-            } else if (picture.lastColumn != 0) {
-              picture.lastColOffset = 0;
+            imgId++;
+            builder.element(
+              'xdr:twoCellAnchor',
+              nest: () {
+                builder.attribute('editAs', 'twoCell');
+                builder.element(
+                  'xdr:from',
+                  nest: () {
+                    builder.element('xdr:col', nest: picture.column - 1);
+                    builder.element('xdr:colOff', nest: 0);
+                    builder.element('xdr:row', nest: picture.row - 1);
+                    builder.element('xdr:rowOff', nest: 0);
+                  },
+                );
+
+                builder.element(
+                  'xdr:to',
+                  nest: () {
+                    builder.element('xdr:col', nest: picture.lastColumn - 1);
+                    builder.element(
+                      'xdr:colOff',
+                      nest: picture.lastColOffset.round(),
+                    );
+                    builder.element('xdr:row', nest: picture.lastRow - 1);
+                    builder.element(
+                      'xdr:rowOff',
+                      nest: picture.lastRowOffset.round(),
+                    );
+                  },
+                );
+
+                builder.element(
+                  'xdr:pic',
+                  nest: () {
+                    builder.attribute('macro', '');
+                    builder.element(
+                      'xdr:nvPicPr',
+                      nest: () {
+                        builder.element(
+                          'xdr:cNvPr',
+                          nest: () {
+                            builder.attribute('id', imgId);
+                            builder.attribute('name', 'Picture$imgId');
+                            if (picture.isHyperlink) {
+                              builder.element(
+                                'a:hlinkClick',
+                                nest: () {
+                                  builder.attribute(
+                                    'xmlns:r',
+                                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+                                  );
+                                  int id = idIndex + imgId + idHyperlink;
+                                  String rId = 'rId$id';
+                                  if (idRelation.contains(rId)) {
+                                    id = id + 1;
+                                    rId = 'rId$id';
+                                  }
+                                  builder.attribute('r:id', rId);
+                                  idRelation.add(rId);
+                                  sheet.hyperlinkRelationId.add(rId);
+                                  idHyperlink++;
+                                  if (picture.hyperlink != null &&
+                                      picture.hyperlink!.screenTip != null) {
+                                    builder.attribute(
+                                      'tooltip',
+                                      // ignore: unnecessary_null_checks
+                                      picture.hyperlink!.screenTip!,
+                                    );
+                                  }
+                                },
+                              );
+                            }
+                          },
+                        );
+                        builder.element(
+                          'xdr:cNvPicPr',
+                          nest: () {
+                            builder.element(
+                              'a:picLocks',
+                              nest: () {
+                                builder.attribute('noChangeAspect', 1);
+                              },
+                            );
+                          },
+                        );
+                      },
+                    );
+
+                    builder.element(
+                      'xdr:blipFill',
+                      nest: () {
+                        builder.element(
+                          'a:blip',
+                          nest: () {
+                            builder.attribute(
+                              'xmlns:r',
+                              'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+                            );
+                            int id;
+                            String rId;
+                            if (idRelation.isEmpty) {
+                              id = idIndex + imgId + hyperlinkCount;
+                              rId = 'rId$id';
+                              builder.attribute('r:embed', rId);
+                              idRelation.add(rId);
+                            } else {
+                              id = idIndex + imgId + hyperlinkCount;
+                              rId = 'rId$id';
+                              if (idRelation.contains(rId)) {
+                                id = id + 1;
+                                rId = 'rId$id';
+                                if (idRelation.contains(rId)) {
+                                  id = id + 1;
+                                  rId = 'rId$id';
+                                }
+                              }
+                              builder.attribute('r:embed', rId);
+                              idRelation.add(rId);
+                              if (picture.isHyperlink) {
+                                hyperlinkCount++;
+                              }
+                            }
+                            builder.attribute('cstate', 'print');
+                          },
+                        );
+
+                        builder.element(
+                          'a:stretch',
+                          nest: () {
+                            builder.element('a:fillRect', nest: () {});
+                          },
+                        );
+                      },
+                    );
+
+                    builder.element(
+                      'xdr:spPr',
+                      nest: () {
+                        builder.element(
+                          'a:xfrm',
+                          nest: () {
+                            if (picture.rotation != 0 &&
+                                picture.rotation <= 3600 &&
+                                picture.rotation >= -3600) {
+                              builder.attribute(
+                                'rot',
+                                picture.rotation * 60000,
+                              );
+                            }
+                            if (picture.verticalFlip) {
+                              builder.attribute('flipV', '1');
+                            }
+                            if (picture.horizontalFlip) {
+                              builder.attribute('flipH', '1');
+                            }
+                            builder.element(
+                              'a:off',
+                              nest: () {
+                                builder.attribute('x', '0');
+                                builder.attribute('y', '0');
+                              },
+                            );
+                            builder.element(
+                              'a:ext',
+                              nest: () {
+                                builder.attribute('cx', '0');
+                                builder.attribute('cy', '0');
+                              },
+                            );
+                          },
+                        );
+
+                        builder.element(
+                          'a:prstGeom',
+                          nest: () {
+                            builder.attribute('prst', 'rect');
+                            builder.element('a:avLst', nest: () {});
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+                builder.element('xdr:clientData', nest: () {});
+              },
+            );
+            final List<int>? imageData = picture.imageData;
+            _workbook.imageCount += 1;
+            String imgPath;
+            if (Picture.isJpeg(imageData)) {
+              imgPath = 'xl/media/image${_workbook.imageCount}.jpeg';
+              if (!_workbook.defaultContentTypes.containsKey('jpeg')) {
+                _workbook.defaultContentTypes['jpeg'] = 'image/jpeg';
+              }
+            } else {
+              imgPath = 'xl/media/image${_workbook.imageCount}.png';
+              if (!_workbook.defaultContentTypes.containsKey('png')) {
+                _workbook.defaultContentTypes['png'] = 'image/png';
+              }
             }
-          }
-          imgId++;
-          builder.element('xdr:twoCellAnchor', nest: () {
-            builder.attribute('editAs', 'twoCell');
-            builder.element('xdr:from', nest: () {
-              builder.element('xdr:col', nest: picture.column - 1);
-              builder.element('xdr:colOff', nest: 0);
-              builder.element('xdr:row', nest: picture.row - 1);
-              builder.element('xdr:rowOff', nest: 0);
-            });
-
-            builder.element('xdr:to', nest: () {
-              builder.element('xdr:col', nest: picture.lastColumn - 1);
-              builder.element('xdr:colOff',
-                  nest: picture.lastColOffset.round());
-              builder.element('xdr:row', nest: picture.lastRow - 1);
-              builder.element('xdr:rowOff',
-                  nest: picture.lastRowOffset.round());
-            });
-
-            builder.element('xdr:pic', nest: () {
-              builder.attribute('macro', '');
-              builder.element('xdr:nvPicPr', nest: () {
-                builder.element('xdr:cNvPr', nest: () {
-                  builder.attribute('id', imgId);
-                  builder.attribute('name', 'Picture$imgId');
-                  if (picture.isHyperlink) {
-                    builder.element('a:hlinkClick', nest: () {
-                      builder.attribute('xmlns:r',
-                          'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
-                      int id = idIndex + imgId + idHyperlink;
-                      String rId = 'rId$id';
-                      if (idRelation.contains(rId)) {
-                        id = id + 1;
-                        rId = 'rId$id';
-                      }
-                      builder.attribute('r:id', rId);
-                      idRelation.add(rId);
-                      sheet.hyperlinkRelationId.add(rId);
-                      idHyperlink++;
-                      if (picture.hyperlink != null &&
-                          picture.hyperlink!.screenTip != null) {
-                        builder.attribute(
-                            'tooltip',
-                            // ignore: unnecessary_null_checks
-                            picture.hyperlink!.screenTip!);
-                      }
-                    });
-                  }
-                });
-                builder.element('xdr:cNvPicPr', nest: () {
-                  builder.element('a:picLocks', nest: () {
-                    builder.attribute('noChangeAspect', 1);
-                  });
-                });
-              });
-
-              builder.element('xdr:blipFill', nest: () {
-                builder.element('a:blip', nest: () {
-                  builder.attribute('xmlns:r',
-                      'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
-                  int id;
-                  String rId;
-                  if (idRelation.isEmpty) {
-                    id = idIndex + imgId + hyperlinkCount;
-                    rId = 'rId$id';
-                    builder.attribute('r:embed', rId);
-                    idRelation.add(rId);
-                  } else {
-                    id = idIndex + imgId + hyperlinkCount;
-                    rId = 'rId$id';
-                    if (idRelation.contains(rId)) {
-                      id = id + 1;
-                      rId = 'rId$id';
-                      if (idRelation.contains(rId)) {
-                        id = id + 1;
-                        rId = 'rId$id';
-                      }
-                    }
-                    builder.attribute('r:embed', rId);
-                    idRelation.add(rId);
-                    if (picture.isHyperlink) {
-                      hyperlinkCount++;
-                    }
-                  }
-                  builder.attribute('cstate', 'print');
-                });
-
-                builder.element('a:stretch', nest: () {
-                  builder.element('a:fillRect', nest: () {});
-                });
-              });
-
-              builder.element('xdr:spPr', nest: () {
-                builder.element('a:xfrm', nest: () {
-                  if (picture.rotation != 0 &&
-                      picture.rotation <= 3600 &&
-                      picture.rotation >= -3600) {
-                    builder.attribute('rot', picture.rotation * 60000);
-                  }
-                  if (picture.verticalFlip) {
-                    builder.attribute('flipV', '1');
-                  }
-                  if (picture.horizontalFlip) {
-                    builder.attribute('flipH', '1');
-                  }
-                  builder.element('a:off', nest: () {
-                    builder.attribute('x', '0');
-                    builder.attribute('y', '0');
-                  });
-                  builder.element('a:ext', nest: () {
-                    builder.attribute('cx', '0');
-                    builder.attribute('cy', '0');
-                  });
-                });
-
-                builder.element('a:prstGeom', nest: () {
-                  builder.attribute('prst', 'rect');
-                  builder.element('a:avLst', nest: () {});
-                });
-              });
-            });
-            builder.element('xdr:clientData', nest: () {});
-          });
-          final List<int>? imageData = picture.imageData;
-          _workbook.imageCount += 1;
-          String imgPath;
-          if (Picture.isJpeg(imageData)) {
-            imgPath = 'xl/media/image${_workbook.imageCount}.jpeg';
-            if (!_workbook.defaultContentTypes.containsKey('jpeg')) {
-              _workbook.defaultContentTypes['jpeg'] = 'image/jpeg';
+            if (imageData != null) {
+              _addToArchive(imageData, imgPath);
             }
-          } else {
-            imgPath = 'xl/media/image${_workbook.imageCount}.png';
-            if (!_workbook.defaultContentTypes.containsKey('png')) {
-              _workbook.defaultContentTypes['png'] = 'image/png';
-            }
-          }
-          if (imageData != null) {
-            _addToArchive(imageData, imgPath);
           }
         }
-      }
-    });
+      },
+    );
     _saveDrawingRelations(sheet);
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
@@ -1987,183 +2414,255 @@ class SerializeWorkbook {
   Future<void> _saveDrawingsAsync(Worksheet sheet) async {
     final XmlBuilder builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('xdr:wsDr', nest: () async {
-      builder.attribute('xmlns:xdr',
-          'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing');
-      builder.attribute(
-          'xmlns:a', 'http://schemas.openxmlformats.org/drawingml/2006/main');
-      final int chartCount = sheet.chartCount;
-      if (chartCount != 0 && sheet.charts != null) {
-        sheet.charts!.serializeChartDrawing(builder, sheet);
-      }
-      final int idIndex = 0 + chartCount;
-      final List<String> idRelation = <String>[];
-      if (sheet.pictures.count != 0) {
-        int imgId = 0;
-        int idHyperlink = 1;
-        int hyperlinkCount = 0;
-        for (final Picture picture in sheet.pictures.innerList) {
-          if (picture.height != 0 && picture.width != 0) {
-            if (picture.lastRow == 0 || picture.lastRow < picture.row) {
-              _updateLastRowOffsetAsync(sheet, picture);
-            } else if (picture.lastRow != 0) {
-              picture.lastRowOffset = 0;
+    builder.element(
+      'xdr:wsDr',
+      nest: () async {
+        builder.attribute(
+          'xmlns:xdr',
+          'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing',
+        );
+        builder.attribute(
+          'xmlns:a',
+          'http://schemas.openxmlformats.org/drawingml/2006/main',
+        );
+        final int chartCount = sheet.chartCount;
+        if (chartCount != 0 && sheet.charts != null) {
+          sheet.charts!.serializeChartDrawing(builder, sheet);
+        }
+        final int idIndex = 0 + chartCount;
+        final List<String> idRelation = <String>[];
+        if (sheet.pictures.count != 0) {
+          int imgId = 0;
+          int idHyperlink = 1;
+          int hyperlinkCount = 0;
+          for (final Picture picture in sheet.pictures.innerList) {
+            if (picture.height != 0 && picture.width != 0) {
+              if (picture.lastRow == 0 || picture.lastRow < picture.row) {
+                _updateLastRowOffsetAsync(sheet, picture);
+              } else if (picture.lastRow != 0) {
+                picture.lastRowOffset = 0;
+              }
+              if (picture.lastColumn == 0 ||
+                  picture.lastColumn < picture.column) {
+                _updateLastColumnOffSetAsync(sheet, picture);
+              } else if (picture.lastColumn != 0) {
+                picture.lastColOffset = 0;
+              }
             }
-            if (picture.lastColumn == 0 ||
-                picture.lastColumn < picture.column) {
-              _updateLastColumnOffSetAsync(sheet, picture);
-            } else if (picture.lastColumn != 0) {
-              picture.lastColOffset = 0;
+            imgId++;
+            builder.element(
+              'xdr:twoCellAnchor',
+              nest: () async {
+                builder.attribute('editAs', 'twoCell');
+                builder.element(
+                  'xdr:from',
+                  nest: () async {
+                    builder.element('xdr:col', nest: picture.column - 1);
+                    builder.element('xdr:colOff', nest: 0);
+                    builder.element('xdr:row', nest: picture.row - 1);
+                    builder.element('xdr:rowOff', nest: 0);
+                  },
+                );
+
+                builder.element(
+                  'xdr:to',
+                  nest: () async {
+                    builder.element('xdr:col', nest: picture.lastColumn - 1);
+                    builder.element(
+                      'xdr:colOff',
+                      nest: picture.lastColOffset.round(),
+                    );
+                    builder.element('xdr:row', nest: picture.lastRow - 1);
+                    builder.element(
+                      'xdr:rowOff',
+                      nest: picture.lastRowOffset.round(),
+                    );
+                  },
+                );
+
+                builder.element(
+                  'xdr:pic',
+                  nest: () async {
+                    builder.attribute('macro', '');
+                    builder.element(
+                      'xdr:nvPicPr',
+                      nest: () async {
+                        builder.element(
+                          'xdr:cNvPr',
+                          nest: () async {
+                            builder.attribute('id', imgId);
+                            builder.attribute('name', 'Picture$imgId');
+                            if (picture.isHyperlink) {
+                              builder.element(
+                                'a:hlinkClick',
+                                nest: () async {
+                                  builder.attribute(
+                                    'xmlns:r',
+                                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+                                  );
+                                  int id = idIndex + imgId + idHyperlink;
+                                  String rId = 'rId$id';
+                                  if (idRelation.contains(rId)) {
+                                    id = id + 1;
+                                    rId = 'rId$id';
+                                  }
+                                  builder.attribute('r:id', rId);
+                                  idRelation.add(rId);
+                                  sheet.hyperlinkRelationId.add(rId);
+                                  idHyperlink++;
+                                  if (picture.hyperlink != null &&
+                                      picture.hyperlink!.screenTip != null) {
+                                    builder.attribute(
+                                      'tooltip',
+                                      // ignore: unnecessary_null_checks
+                                      picture.hyperlink!.screenTip!,
+                                    );
+                                  }
+                                },
+                              );
+                            }
+                          },
+                        );
+                        builder.element(
+                          'xdr:cNvPicPr',
+                          nest: () async {
+                            builder.element(
+                              'a:picLocks',
+                              nest: () async {
+                                builder.attribute('noChangeAspect', 1);
+                              },
+                            );
+                          },
+                        );
+                      },
+                    );
+
+                    builder.element(
+                      'xdr:blipFill',
+                      nest: () async {
+                        builder.element(
+                          'a:blip',
+                          nest: () async {
+                            builder.attribute(
+                              'xmlns:r',
+                              'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+                            );
+                            int id;
+                            String rId;
+                            if (idRelation.isEmpty) {
+                              id = idIndex + imgId + hyperlinkCount;
+                              rId = 'rId$id';
+                              builder.attribute('r:embed', rId);
+                              idRelation.add(rId);
+                            } else {
+                              id = idIndex + imgId + hyperlinkCount;
+                              rId = 'rId$id';
+                              if (idRelation.contains(rId)) {
+                                id = id + 1;
+                                rId = 'rId$id';
+                                if (idRelation.contains(rId)) {
+                                  id = id + 1;
+                                  rId = 'rId$id';
+                                }
+                              }
+                              builder.attribute('r:embed', rId);
+                              idRelation.add(rId);
+                              if (picture.isHyperlink) {
+                                hyperlinkCount++;
+                              }
+                            }
+                            builder.attribute('cstate', 'print');
+                          },
+                        );
+
+                        builder.element(
+                          'a:stretch',
+                          nest: () async {
+                            builder.element('a:fillRect', nest: () async {});
+                          },
+                        );
+                      },
+                    );
+
+                    builder.element(
+                      'xdr:spPr',
+                      nest: () async {
+                        builder.element(
+                          'a:xfrm',
+                          nest: () async {
+                            if (picture.rotation != 0 &&
+                                picture.rotation <= 3600 &&
+                                picture.rotation >= -3600) {
+                              builder.attribute(
+                                'rot',
+                                picture.rotation * 60000,
+                              );
+                            }
+                            if (picture.verticalFlip) {
+                              builder.attribute('flipV', '1');
+                            }
+                            if (picture.horizontalFlip) {
+                              builder.attribute('flipH', '1');
+                            }
+                            builder.element(
+                              'a:off',
+                              nest: () async {
+                                builder.attribute('x', '0');
+                                builder.attribute('y', '0');
+                              },
+                            );
+                            builder.element(
+                              'a:ext',
+                              nest: () async {
+                                builder.attribute('cx', '0');
+                                builder.attribute('cy', '0');
+                              },
+                            );
+                          },
+                        );
+
+                        builder.element(
+                          'a:prstGeom',
+                          nest: () async {
+                            builder.attribute('prst', 'rect');
+                            builder.element('a:avLst', nest: () async {});
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+                builder.element('xdr:clientData', nest: () async {});
+              },
+            );
+            final List<int>? imageData = picture.imageData;
+            _workbook.imageCount += 1;
+            String imgPath;
+            if (Picture.isJpeg(imageData)) {
+              imgPath = 'xl/media/image${_workbook.imageCount}.jpeg';
+              if (!_workbook.defaultContentTypes.containsKey('jpeg')) {
+                _workbook.defaultContentTypes['jpeg'] = 'image/jpeg';
+              }
+            } else {
+              imgPath = 'xl/media/image${_workbook.imageCount}.png';
+              if (!_workbook.defaultContentTypes.containsKey('png')) {
+                _workbook.defaultContentTypes['png'] = 'image/png';
+              }
             }
-          }
-          imgId++;
-          builder.element('xdr:twoCellAnchor', nest: () async {
-            builder.attribute('editAs', 'twoCell');
-            builder.element('xdr:from', nest: () async {
-              builder.element('xdr:col', nest: picture.column - 1);
-              builder.element('xdr:colOff', nest: 0);
-              builder.element('xdr:row', nest: picture.row - 1);
-              builder.element('xdr:rowOff', nest: 0);
-            });
-
-            builder.element('xdr:to', nest: () async {
-              builder.element('xdr:col', nest: picture.lastColumn - 1);
-              builder.element('xdr:colOff',
-                  nest: picture.lastColOffset.round());
-              builder.element('xdr:row', nest: picture.lastRow - 1);
-              builder.element('xdr:rowOff',
-                  nest: picture.lastRowOffset.round());
-            });
-
-            builder.element('xdr:pic', nest: () async {
-              builder.attribute('macro', '');
-              builder.element('xdr:nvPicPr', nest: () async {
-                builder.element('xdr:cNvPr', nest: () async {
-                  builder.attribute('id', imgId);
-                  builder.attribute('name', 'Picture$imgId');
-                  if (picture.isHyperlink) {
-                    builder.element('a:hlinkClick', nest: () async {
-                      builder.attribute('xmlns:r',
-                          'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
-                      int id = idIndex + imgId + idHyperlink;
-                      String rId = 'rId$id';
-                      if (idRelation.contains(rId)) {
-                        id = id + 1;
-                        rId = 'rId$id';
-                      }
-                      builder.attribute('r:id', rId);
-                      idRelation.add(rId);
-                      sheet.hyperlinkRelationId.add(rId);
-                      idHyperlink++;
-                      if (picture.hyperlink != null &&
-                          picture.hyperlink!.screenTip != null) {
-                        builder.attribute(
-                            'tooltip',
-                            // ignore: unnecessary_null_checks
-                            picture.hyperlink!.screenTip!);
-                      }
-                    });
-                  }
-                });
-                builder.element('xdr:cNvPicPr', nest: () async {
-                  builder.element('a:picLocks', nest: () async {
-                    builder.attribute('noChangeAspect', 1);
-                  });
-                });
-              });
-
-              builder.element('xdr:blipFill', nest: () async {
-                builder.element('a:blip', nest: () async {
-                  builder.attribute('xmlns:r',
-                      'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
-                  int id;
-                  String rId;
-                  if (idRelation.isEmpty) {
-                    id = idIndex + imgId + hyperlinkCount;
-                    rId = 'rId$id';
-                    builder.attribute('r:embed', rId);
-                    idRelation.add(rId);
-                  } else {
-                    id = idIndex + imgId + hyperlinkCount;
-                    rId = 'rId$id';
-                    if (idRelation.contains(rId)) {
-                      id = id + 1;
-                      rId = 'rId$id';
-                      if (idRelation.contains(rId)) {
-                        id = id + 1;
-                        rId = 'rId$id';
-                      }
-                    }
-                    builder.attribute('r:embed', rId);
-                    idRelation.add(rId);
-                    if (picture.isHyperlink) {
-                      hyperlinkCount++;
-                    }
-                  }
-                  builder.attribute('cstate', 'print');
-                });
-
-                builder.element('a:stretch', nest: () async {
-                  builder.element('a:fillRect', nest: () async {});
-                });
-              });
-
-              builder.element('xdr:spPr', nest: () async {
-                builder.element('a:xfrm', nest: () async {
-                  if (picture.rotation != 0 &&
-                      picture.rotation <= 3600 &&
-                      picture.rotation >= -3600) {
-                    builder.attribute('rot', picture.rotation * 60000);
-                  }
-                  if (picture.verticalFlip) {
-                    builder.attribute('flipV', '1');
-                  }
-                  if (picture.horizontalFlip) {
-                    builder.attribute('flipH', '1');
-                  }
-                  builder.element('a:off', nest: () async {
-                    builder.attribute('x', '0');
-                    builder.attribute('y', '0');
-                  });
-                  builder.element('a:ext', nest: () async {
-                    builder.attribute('cx', '0');
-                    builder.attribute('cy', '0');
-                  });
-                });
-
-                builder.element('a:prstGeom', nest: () async {
-                  builder.attribute('prst', 'rect');
-                  builder.element('a:avLst', nest: () async {});
-                });
-              });
-            });
-            builder.element('xdr:clientData', nest: () async {});
-          });
-          final List<int>? imageData = picture.imageData;
-          _workbook.imageCount += 1;
-          String imgPath;
-          if (Picture.isJpeg(imageData)) {
-            imgPath = 'xl/media/image${_workbook.imageCount}.jpeg';
-            if (!_workbook.defaultContentTypes.containsKey('jpeg')) {
-              _workbook.defaultContentTypes['jpeg'] = 'image/jpeg';
+            if (imageData != null) {
+              _addToArchiveAsync(imageData, imgPath);
             }
-          } else {
-            imgPath = 'xl/media/image${_workbook.imageCount}.png';
-            if (!_workbook.defaultContentTypes.containsKey('png')) {
-              _workbook.defaultContentTypes['png'] = 'image/png';
-            }
-          }
-          if (imageData != null) {
-            _addToArchiveAsync(imageData, imgPath);
           }
         }
-      }
-    });
+      },
+    );
     _saveDrawingRelationsAsync(sheet);
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(
-        bytes, 'xl/drawings/drawing${_workbook.drawingCount}.xml');
+      bytes,
+      'xl/drawings/drawing${_workbook.drawingCount}.xml',
+    );
   }
 
   /// Serialize drawing relations.
@@ -2171,162 +2670,212 @@ class SerializeWorkbook {
     int idIndex = 0;
     final XmlBuilder builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('Relationships', nest: () {
-      builder.namespace(
-          'http://schemas.openxmlformats.org/package/2006/relationships');
-      if (sheet.chartCount != 0) {
-        final int length = sheet.chartCount;
-        for (int i = 1; i <= length; i++) {
-          builder.element('Relationship', nest: () {
-            builder.attribute('Id', 'rId${idIndex + i}');
-            builder.attribute('Type',
-                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart');
-            builder.attribute('Target',
-                '/xl/charts/chart${sheet.workbook.chartCount + i}.xml');
-          });
+    builder.element(
+      'Relationships',
+      nest: () {
+        builder.namespace(
+          'http://schemas.openxmlformats.org/package/2006/relationships',
+        );
+        if (sheet.chartCount != 0) {
+          final int length = sheet.chartCount;
+          for (int i = 1; i <= length; i++) {
+            builder.element(
+              'Relationship',
+              nest: () {
+                builder.attribute('Id', 'rId${idIndex + i}');
+                builder.attribute(
+                  'Type',
+                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart',
+                );
+                builder.attribute(
+                  'Target',
+                  '/xl/charts/chart${sheet.workbook.chartCount + i}.xml',
+                );
+              },
+            );
+          }
+          idIndex = length;
         }
-        idIndex = length;
-      }
-      if (sheet.hyperlinks.count > 0) {
-        final int length = sheet.hyperlinks.count;
-        int j = 0;
-        for (int i = 0; i < length; i++) {
-          if (sheet.hyperlinks[i].attachedType ==
-              ExcelHyperlinkAttachedType.shape) {
-            builder.element('Relationship', nest: () {
-              builder.attribute('Id', sheet.hyperlinkRelationId[j]);
-              builder.attribute('Type',
-                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
-              if (sheet.hyperlinks[i].type == HyperlinkType.workbook) {
-                String address = sheet.hyperlinks[i].address;
-                address = address.startsWith('#') ? address : '#$address';
-                builder.attribute('Target', address);
-              } else {
-                builder.attribute('Target', sheet.hyperlinks[i].address);
-              }
-              if (sheet.hyperlinks[i].type != HyperlinkType.workbook) {
-                builder.attribute('TargetMode', 'External');
-              }
-            });
-            j++;
+        if (sheet.hyperlinks.count > 0) {
+          final int length = sheet.hyperlinks.count;
+          int j = 0;
+          for (int i = 0; i < length; i++) {
+            if (sheet.hyperlinks[i].attachedType ==
+                ExcelHyperlinkAttachedType.shape) {
+              builder.element(
+                'Relationship',
+                nest: () {
+                  builder.attribute('Id', sheet.hyperlinkRelationId[j]);
+                  builder.attribute(
+                    'Type',
+                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+                  );
+                  if (sheet.hyperlinks[i].type == HyperlinkType.workbook) {
+                    String address = sheet.hyperlinks[i].address;
+                    address = address.startsWith('#') ? address : '#$address';
+                    builder.attribute('Target', address);
+                  } else {
+                    builder.attribute('Target', sheet.hyperlinks[i].address);
+                  }
+                  if (sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                    builder.attribute('TargetMode', 'External');
+                  }
+                },
+              );
+              j++;
+            }
           }
         }
-      }
-      if (sheet.pictures.count != 0) {
-        final int length = sheet.pictures.count;
-        int id = _workbook.imageCount - sheet.pictures.count;
-        int idHyperlink = 0;
-        for (int i = 1; i <= length; i++) {
-          id++;
-          builder.element('Relationship', nest: () {
-            String imgPath;
-            if (Picture.isPng(sheet.pictures[i - 1].imageData)) {
-              imgPath = '/xl/media/image$id.png';
-            } else {
-              imgPath = '/xl/media/image$id.jpeg';
-            }
-            if (sheet.pictures[i - 1].isHyperlink) {
-              builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
-              builder.attribute('Type',
-                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
-              builder.attribute('Target', imgPath);
-              idHyperlink++;
-            } else {
-              builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
-              builder.attribute('Type',
-                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
-              builder.attribute('Target', imgPath);
-            }
-          });
+        if (sheet.pictures.count != 0) {
+          final int length = sheet.pictures.count;
+          int id = _workbook.imageCount - sheet.pictures.count;
+          int idHyperlink = 0;
+          for (int i = 1; i <= length; i++) {
+            id++;
+            builder.element(
+              'Relationship',
+              nest: () {
+                String imgPath;
+                if (Picture.isPng(sheet.pictures[i - 1].imageData)) {
+                  imgPath = '/xl/media/image$id.png';
+                } else {
+                  imgPath = '/xl/media/image$id.jpeg';
+                }
+                if (sheet.pictures[i - 1].isHyperlink) {
+                  builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
+                  builder.attribute(
+                    'Type',
+                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+                  );
+                  builder.attribute('Target', imgPath);
+                  idHyperlink++;
+                } else {
+                  builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
+                  builder.attribute(
+                    'Type',
+                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+                  );
+                  builder.attribute('Target', imgPath);
+                }
+              },
+            );
+          }
         }
-      }
-    });
+      },
+    );
 
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(
-        bytes, 'xl/drawings/_rels/drawing${_workbook.drawingCount}.xml.rels');
+      bytes,
+      'xl/drawings/_rels/drawing${_workbook.drawingCount}.xml.rels',
+    );
   }
 
   Future<void> _saveDrawingRelationsAsync(Worksheet sheet) async {
     int idIndex = 0;
     final XmlBuilder builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('Relationships', nest: () async {
-      builder.namespace(
-          'http://schemas.openxmlformats.org/package/2006/relationships');
-      if (sheet.chartCount != 0) {
-        final int length = sheet.chartCount;
-        for (int i = 1; i <= length; i++) {
-          builder.element('Relationship', nest: () async {
-            builder.attribute('Id', 'rId${idIndex + i}');
-            builder.attribute('Type',
-                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart');
-            builder.attribute('Target',
-                '/xl/charts/chart${sheet.workbook.chartCount + i}.xml');
-          });
+    builder.element(
+      'Relationships',
+      nest: () async {
+        builder.namespace(
+          'http://schemas.openxmlformats.org/package/2006/relationships',
+        );
+        if (sheet.chartCount != 0) {
+          final int length = sheet.chartCount;
+          for (int i = 1; i <= length; i++) {
+            builder.element(
+              'Relationship',
+              nest: () async {
+                builder.attribute('Id', 'rId${idIndex + i}');
+                builder.attribute(
+                  'Type',
+                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart',
+                );
+                builder.attribute(
+                  'Target',
+                  '/xl/charts/chart${sheet.workbook.chartCount + i}.xml',
+                );
+              },
+            );
+          }
+          idIndex = length;
         }
-        idIndex = length;
-      }
-      if (sheet.hyperlinks.count > 0) {
-        final int length = sheet.hyperlinks.count;
-        int j = 0;
-        for (int i = 0; i < length; i++) {
-          if (sheet.hyperlinks[i].attachedType ==
-              ExcelHyperlinkAttachedType.shape) {
-            builder.element('Relationship', nest: () async {
-              builder.attribute('Id', sheet.hyperlinkRelationId[j]);
-              builder.attribute('Type',
-                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
-              if (sheet.hyperlinks[i].type == HyperlinkType.workbook) {
-                String address = sheet.hyperlinks[i].address;
-                address = address.startsWith('#') ? address : '#$address';
-                builder.attribute('Target', address);
-              } else {
-                builder.attribute('Target', sheet.hyperlinks[i].address);
-              }
-              if (sheet.hyperlinks[i].type != HyperlinkType.workbook) {
-                builder.attribute('TargetMode', 'External');
-              }
-            });
-            j++;
+        if (sheet.hyperlinks.count > 0) {
+          final int length = sheet.hyperlinks.count;
+          int j = 0;
+          for (int i = 0; i < length; i++) {
+            if (sheet.hyperlinks[i].attachedType ==
+                ExcelHyperlinkAttachedType.shape) {
+              builder.element(
+                'Relationship',
+                nest: () async {
+                  builder.attribute('Id', sheet.hyperlinkRelationId[j]);
+                  builder.attribute(
+                    'Type',
+                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+                  );
+                  if (sheet.hyperlinks[i].type == HyperlinkType.workbook) {
+                    String address = sheet.hyperlinks[i].address;
+                    address = address.startsWith('#') ? address : '#$address';
+                    builder.attribute('Target', address);
+                  } else {
+                    builder.attribute('Target', sheet.hyperlinks[i].address);
+                  }
+                  if (sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                    builder.attribute('TargetMode', 'External');
+                  }
+                },
+              );
+              j++;
+            }
           }
         }
-      }
-      if (sheet.pictures.count != 0) {
-        final int length = sheet.pictures.count;
-        int id = _workbook.imageCount - sheet.pictures.count;
-        int idHyperlink = 0;
-        for (int i = 1; i <= length; i++) {
-          id++;
-          builder.element('Relationship', nest: () async {
-            String imgPath;
-            if (Picture.isPng(sheet.pictures[i - 1].imageData)) {
-              imgPath = '/xl/media/image$id.png';
-            } else {
-              imgPath = '/xl/media/image$id.jpeg';
-            }
-            if (sheet.pictures[i - 1].isHyperlink) {
-              builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
-              builder.attribute('Type',
-                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
-              builder.attribute('Target', imgPath);
-              idHyperlink++;
-            } else {
-              builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
-              builder.attribute('Type',
-                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
-              builder.attribute('Target', imgPath);
-            }
-          });
+        if (sheet.pictures.count != 0) {
+          final int length = sheet.pictures.count;
+          int id = _workbook.imageCount - sheet.pictures.count;
+          int idHyperlink = 0;
+          for (int i = 1; i <= length; i++) {
+            id++;
+            builder.element(
+              'Relationship',
+              nest: () async {
+                String imgPath;
+                if (Picture.isPng(sheet.pictures[i - 1].imageData)) {
+                  imgPath = '/xl/media/image$id.png';
+                } else {
+                  imgPath = '/xl/media/image$id.jpeg';
+                }
+                if (sheet.pictures[i - 1].isHyperlink) {
+                  builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
+                  builder.attribute(
+                    'Type',
+                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+                  );
+                  builder.attribute('Target', imgPath);
+                  idHyperlink++;
+                } else {
+                  builder.attribute('Id', 'rId${idIndex + i + idHyperlink}');
+                  builder.attribute(
+                    'Type',
+                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+                  );
+                  builder.attribute('Target', imgPath);
+                }
+              },
+            );
+          }
         }
-      }
-    });
+      },
+    );
 
     final String stringXml = builder.buildDocument().copy().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(
-        bytes, 'xl/drawings/_rels/drawing${_workbook.drawingCount}.xml.rels');
+      bytes,
+      'xl/drawings/_rels/drawing${_workbook.drawingCount}.xml.rels',
+    );
   }
 
   /// Updates the picture shape last row offset.
@@ -2340,9 +2889,9 @@ class SerializeWorkbook {
       if (sheet.rows.count != 0 &&
           iCurRow - 1 < sheet.rows.count &&
           sheet.rows[iCurRow] != null) {
-        iRowHeight = _convertToPixels((sheet.rows[iCurRow]!.height == 0)
-            ? 15
-            : sheet.rows[iCurRow]!.height);
+        iRowHeight = _convertToPixels(
+          (sheet.rows[iCurRow]!.height == 0) ? 15 : sheet.rows[iCurRow]!.height,
+        );
       } else {
         iRowHeight = _convertToPixels(15);
       }
@@ -2356,9 +2905,11 @@ class SerializeWorkbook {
         if (sheet.rows.count != 0 &&
             iCurRow < sheet.rows.count &&
             sheet.rows[iCurRow] != null) {
-          rowHiddenHeight = _convertToPixels((sheet.rows[iCurRow]!.height == 0)
-              ? 15
-              : sheet.rows[iCurRow]!.height);
+          rowHiddenHeight = _convertToPixels(
+            (sheet.rows[iCurRow]!.height == 0)
+                ? 15
+                : sheet.rows[iCurRow]!.height,
+          );
         } else {
           rowHiddenHeight = _convertToPixels(15);
         }
@@ -2378,7 +2929,9 @@ class SerializeWorkbook {
   }
 
   Future<void> _updateLastRowOffsetAsync(
-      Worksheet sheet, Picture picture) async {
+    Worksheet sheet,
+    Picture picture,
+  ) async {
     double iCurHeight = picture.height.toDouble();
     int iCurRow = picture.row;
     int iCurOffset = 0;
@@ -2388,9 +2941,9 @@ class SerializeWorkbook {
       if (sheet.rows.count != 0 &&
           iCurRow - 1 < sheet.rows.count &&
           sheet.rows[iCurRow] != null) {
-        iRowHeight = _convertToPixels((sheet.rows[iCurRow]!.height == 0)
-            ? 15
-            : sheet.rows[iCurRow]!.height);
+        iRowHeight = _convertToPixels(
+          (sheet.rows[iCurRow]!.height == 0) ? 15 : sheet.rows[iCurRow]!.height,
+        );
       } else {
         iRowHeight = _convertToPixels(15);
       }
@@ -2404,9 +2957,11 @@ class SerializeWorkbook {
         if (sheet.rows.count != 0 &&
             iCurRow < sheet.rows.count &&
             sheet.rows[iCurRow] != null) {
-          rowHiddenHeight = _convertToPixels((sheet.rows[iCurRow]!.height == 0)
-              ? 15
-              : sheet.rows[iCurRow]!.height);
+          rowHiddenHeight = _convertToPixels(
+            (sheet.rows[iCurRow]!.height == 0)
+                ? 15
+                : sheet.rows[iCurRow]!.height,
+          );
         } else {
           rowHiddenHeight = _convertToPixels(15);
         }
@@ -2451,8 +3006,9 @@ class SerializeWorkbook {
         if (sheet.columns.count != 0 &&
             iCurCol - 1 < sheet.columns.count &&
             col != null) {
-          colHiddenWidth =
-              _columnWidthToPixels(col.width == 0 ? 8.43 : col.width);
+          colHiddenWidth = _columnWidthToPixels(
+            col.width == 0 ? 8.43 : col.width,
+          );
         } else {
           colHiddenWidth = _columnWidthToPixels(8.43);
         }
@@ -2473,7 +3029,9 @@ class SerializeWorkbook {
   }
 
   Future<void> _updateLastColumnOffSetAsync(
-      Worksheet sheet, Picture picture) async {
+    Worksheet sheet,
+    Picture picture,
+  ) async {
     double iCurWidth = picture.width.toDouble();
     int iCurCol = picture.column;
     double iCurOffset = 0;
@@ -2498,8 +3056,9 @@ class SerializeWorkbook {
         if (sheet.columns.count != 0 &&
             iCurCol - 1 < sheet.columns.count &&
             col != null) {
-          colHiddenWidth =
-              _columnWidthToPixels(col.width == 0 ? 8.43 : col.width);
+          colHiddenWidth = _columnWidthToPixels(
+            col.width == 0 ? 8.43 : col.width,
+          );
         } else {
           colHiddenWidth = _columnWidthToPixels(8.43);
         }
@@ -2527,11 +3086,13 @@ class SerializeWorkbook {
   /// Converts column width to pixels.
   static double _columnWidthToPixels(double val) {
     const int dDigitWidth = 7;
-    final double fileWidth = (val > 1)
-        ? ((val * dDigitWidth + 5) / dDigitWidth * 256.0) / 256.0
-        : (val * (dDigitWidth + 5) / dDigitWidth * 256.0) / 256.0;
+    final double fileWidth =
+        (val > 1)
+            ? ((val * dDigitWidth + 5) / dDigitWidth * 256.0) / 256.0
+            : (val * (dDigitWidth + 5) / dDigitWidth * 256.0) / 256.0;
     return _trunc(
-        ((256 * fileWidth + _trunc(128 / dDigitWidth)) / 256) * dDigitWidth);
+      ((256 * fileWidth + _trunc(128 / dDigitWidth)) / 256) * dDigitWidth,
+    );
   }
 
   /// Trucates the given value.
@@ -2544,221 +3105,279 @@ class SerializeWorkbook {
   List<int> _saveSheetRelations(Worksheet sheet) {
     final XmlBuilder builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('Relationships', nest: () {
-      builder.namespace(
-          'http://schemas.openxmlformats.org/package/2006/relationships');
+    builder.element(
+      'Relationships',
+      nest: () {
+        builder.namespace(
+          'http://schemas.openxmlformats.org/package/2006/relationships',
+        );
 
-      if (sheet.hyperlinks.count > 0) {
-        int id = 1;
-        for (final Hyperlink link in sheet.hyperlinks.innerList) {
-          if (link.attachedType == ExcelHyperlinkAttachedType.range &&
-              link.type != HyperlinkType.workbook) {
-            builder.element('Relationship', nest: () {
-              builder.attribute('Id', 'rId$id');
-              builder.attribute('Type',
-                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
-              builder.attribute('Target', link.address);
-              builder.attribute('TargetMode', 'External');
-            });
-            id++;
-          }
-        }
-      }
-      if (sheet.pictures.count > 0) {
-        builder.element('Relationship', nest: () {
-          int id = 1;
-          const String rId = 'rId1';
-          if (_relationId.isNotEmpty) {
-            if (sheet.hyperlinks.count > 0) {
-              for (int i = 0; i < sheet.hyperlinks.count; i++) {
-                if (sheet.hyperlinks[i].attachedType ==
-                        ExcelHyperlinkAttachedType.range &&
-                    sheet.hyperlinks[i].type != HyperlinkType.workbook) {
-                  id++;
-                }
-              }
-            }
-            builder.attribute('Id', 'rId$id');
-          } else {
-            builder.attribute('Id', rId);
-          }
-          builder.attribute('Type',
-              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing');
-          builder.attribute(
-              'Target', '../drawings/drawing${_workbook.drawingCount}.xml');
-        });
-      } else if (sheet.charts != null && sheet.chartCount > 0) {
-        builder.element('Relationship', nest: () {
-          int id = 1;
-          const String rId = 'rId1';
-          if (_relationId.isNotEmpty) {
-            if (sheet.hyperlinks.count > 0) {
-              for (int i = 0; i < sheet.hyperlinks.count; i++) {
-                if (sheet.hyperlinks[i].attachedType ==
-                        ExcelHyperlinkAttachedType.range &&
-                    sheet.hyperlinks[i].type != HyperlinkType.workbook) {
-                  id++;
-                }
-              }
-            }
-            builder.attribute('Id', 'rId$id');
-          } else {
-            builder.attribute('Id', rId);
-          }
-          builder.attribute('Type',
-              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing');
-          builder.attribute(
-              'Target', '../drawings/drawing${_workbook.drawingCount}.xml');
-        });
-      }
-      final int length = sheet.tableCollection.count;
-      int rid;
-      int index;
-      int id = 1;
-      if (length > 0) {
         if (sheet.hyperlinks.count > 0) {
-          for (int hyperlinkCount = 0;
-              hyperlinkCount < sheet.hyperlinks.count;
-              hyperlinkCount++) {
-            if (sheet.hyperlinks[hyperlinkCount].attachedType ==
-                    ExcelHyperlinkAttachedType.range &&
-                sheet.hyperlinks[hyperlinkCount].type !=
-                    HyperlinkType.workbook) {
+          int id = 1;
+          for (final Hyperlink link in sheet.hyperlinks.innerList) {
+            if (link.attachedType == ExcelHyperlinkAttachedType.range &&
+                link.type != HyperlinkType.workbook) {
+              builder.element(
+                'Relationship',
+                nest: () {
+                  builder.attribute('Id', 'rId$id');
+                  builder.attribute(
+                    'Type',
+                    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+                  );
+                  builder.attribute('Target', link.address);
+                  builder.attribute('TargetMode', 'External');
+                },
+              );
               id++;
             }
           }
         }
         if (sheet.pictures.count > 0) {
-          for (int pictureCount = 0;
+          builder.element(
+            'Relationship',
+            nest: () {
+              int id = 1;
+              const String rId = 'rId1';
+              if (_relationId.isNotEmpty) {
+                if (sheet.hyperlinks.count > 0) {
+                  for (int i = 0; i < sheet.hyperlinks.count; i++) {
+                    if (sheet.hyperlinks[i].attachedType ==
+                            ExcelHyperlinkAttachedType.range &&
+                        sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                      id++;
+                    }
+                  }
+                }
+                builder.attribute('Id', 'rId$id');
+              } else {
+                builder.attribute('Id', rId);
+              }
+              builder.attribute(
+                'Type',
+                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
+              );
+              builder.attribute(
+                'Target',
+                '../drawings/drawing${_workbook.drawingCount}.xml',
+              );
+            },
+          );
+        } else if (sheet.charts != null && sheet.chartCount > 0) {
+          builder.element(
+            'Relationship',
+            nest: () {
+              int id = 1;
+              const String rId = 'rId1';
+              if (_relationId.isNotEmpty) {
+                if (sheet.hyperlinks.count > 0) {
+                  for (int i = 0; i < sheet.hyperlinks.count; i++) {
+                    if (sheet.hyperlinks[i].attachedType ==
+                            ExcelHyperlinkAttachedType.range &&
+                        sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                      id++;
+                    }
+                  }
+                }
+                builder.attribute('Id', 'rId$id');
+              } else {
+                builder.attribute('Id', rId);
+              }
+              builder.attribute(
+                'Type',
+                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
+              );
+              builder.attribute(
+                'Target',
+                '../drawings/drawing${_workbook.drawingCount}.xml',
+              );
+            },
+          );
+        }
+        final int length = sheet.tableCollection.count;
+        int rid;
+        int index;
+        int id = 1;
+        if (length > 0) {
+          if (sheet.hyperlinks.count > 0) {
+            for (
+              int hyperlinkCount = 0;
+              hyperlinkCount < sheet.hyperlinks.count;
+              hyperlinkCount++
+            ) {
+              if (sheet.hyperlinks[hyperlinkCount].attachedType ==
+                      ExcelHyperlinkAttachedType.range &&
+                  sheet.hyperlinks[hyperlinkCount].type !=
+                      HyperlinkType.workbook) {
+                id++;
+              }
+            }
+          }
+          if (sheet.pictures.count > 0) {
+            for (
+              int pictureCount = 0;
               pictureCount < sheet.pictures.count;
-              pictureCount++) {
-            id++;
+              pictureCount++
+            ) {
+              id++;
+            }
           }
-        }
-        if (sheet.chartCount > 0) {
-          for (int chartCount = 0;
+          if (sheet.chartCount > 0) {
+            for (
+              int chartCount = 0;
               chartCount < sheet.chartCount;
-              chartCount++) {
-            id++;
+              chartCount++
+            ) {
+              id++;
+            }
           }
-        }
-        for (int tableCount = _workbook.previousTableCount;
+          for (
+            int tableCount = _workbook.previousTableCount;
             tableCount < _workbook.tableCount;
-            tableCount++) {
-          builder.element('Relationship', nest: () {
-            rid = id++;
-            index = tableCount + 1;
-            builder.attribute('Id', 'rId$rid');
-            builder.attribute('Type',
-                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/table');
-            builder.attribute('Target', '../tables/table$index.xml');
-          });
+            tableCount++
+          ) {
+            builder.element(
+              'Relationship',
+              nest: () {
+                rid = id++;
+                index = tableCount + 1;
+                builder.attribute('Id', 'rId$rid');
+                builder.attribute(
+                  'Type',
+                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/table',
+                );
+                builder.attribute('Target', '../tables/table$index.xml');
+              },
+            );
+          }
+          _workbook.previousTableCount = _workbook.tableCount;
         }
-        _workbook.previousTableCount = _workbook.tableCount;
-      }
-    });
+      },
+    );
     final String stringXml = builder.buildDocument().copy().toString();
     return utf8.encode(stringXml);
   }
 
   /// Serialize sheet view.
   static void _saveSheetView(Worksheet sheet, XmlBuilder builder) {
-    builder.element('sheetViews', nest: () {
-      builder.element('sheetView', nest: () {
-        builder.attribute('workbookViewId', '0');
-        if (sheet.isRightToLeft) {
-          builder.attribute('rightToLeft', '1');
-        }
-        if (!sheet.showGridlines) {
-          builder.attribute('showGridLines', '0');
-        }
-        if (sheet.isFreezePane ||
-            sheet.verticalSplit != 0 ||
-            sheet.horizontalSplit != 0) {
-          _savePane(sheet, builder);
-        }
-      });
-    });
+    builder.element(
+      'sheetViews',
+      nest: () {
+        builder.element(
+          'sheetView',
+          nest: () {
+            builder.attribute('workbookViewId', '0');
+            if (sheet.isRightToLeft) {
+              builder.attribute('rightToLeft', '1');
+            }
+            if (!sheet.showGridlines) {
+              builder.attribute('showGridLines', '0');
+            }
+            if (sheet.isFreezePane ||
+                sheet.verticalSplit != 0 ||
+                sheet.horizontalSplit != 0) {
+              _savePane(sheet, builder);
+            }
+          },
+        );
+      },
+    );
   }
 
   static Future<void> _saveSheetViewAsync(
-      Worksheet sheet, XmlBuilder builder) async {
-    builder.element('sheetViews', nest: () async {
-      builder.element('sheetView', nest: () async {
-        builder.attribute('workbookViewId', '0');
-        if (sheet.isRightToLeft) {
-          builder.attribute('rightToLeft', '1');
-        }
-        if (!sheet.showGridlines) {
-          builder.attribute('showGridLines', '0');
-        }
-        if (sheet.isFreezePane ||
-            sheet.verticalSplit != 0 ||
-            sheet.horizontalSplit != 0) {
-          _savePaneAsync(sheet, builder);
-        }
-      });
-    });
+    Worksheet sheet,
+    XmlBuilder builder,
+  ) async {
+    builder.element(
+      'sheetViews',
+      nest: () async {
+        builder.element(
+          'sheetView',
+          nest: () async {
+            builder.attribute('workbookViewId', '0');
+            if (sheet.isRightToLeft) {
+              builder.attribute('rightToLeft', '1');
+            }
+            if (!sheet.showGridlines) {
+              builder.attribute('showGridLines', '0');
+            }
+            if (sheet.isFreezePane ||
+                sheet.verticalSplit != 0 ||
+                sheet.horizontalSplit != 0) {
+              _savePaneAsync(sheet, builder);
+            }
+          },
+        );
+      },
+    );
   }
 
   /// Serialize worksheet Pane.
   static void _savePane(Worksheet sheet, XmlBuilder builder) {
-    builder.element('pane', nest: () {
-      if (sheet.verticalSplit != 0) {
-        builder.attribute('xSplit', sheet.verticalSplit.toString());
-      }
-      if (sheet.horizontalSplit != 0) {
-        builder.attribute('ySplit', sheet.horizontalSplit.toString());
-      }
-      if (sheet.topLeftCell != '') {
-        builder.attribute('topLeftCell', sheet.topLeftCell);
-      }
-      switch (sheet.activePane) {
-        case ActivePane.bottomRight:
-          builder.attribute('activePane', 'bottomRight');
-          break;
-        case ActivePane.bottomLeft:
-          builder.attribute('activePane', 'bottomLeft');
-          break;
-        case ActivePane.topRight:
-          builder.attribute('activePane', 'topRight');
-          break;
-        case ActivePane.topLeft:
-          builder.attribute('activePane', 'topLeft');
-          break;
-      }
-      builder.attribute('state', 'frozen');
-    });
+    builder.element(
+      'pane',
+      nest: () {
+        if (sheet.verticalSplit != 0) {
+          builder.attribute('xSplit', sheet.verticalSplit.toString());
+        }
+        if (sheet.horizontalSplit != 0) {
+          builder.attribute('ySplit', sheet.horizontalSplit.toString());
+        }
+        if (sheet.topLeftCell != '') {
+          builder.attribute('topLeftCell', sheet.topLeftCell);
+        }
+        switch (sheet.activePane) {
+          case ActivePane.bottomRight:
+            builder.attribute('activePane', 'bottomRight');
+            break;
+          case ActivePane.bottomLeft:
+            builder.attribute('activePane', 'bottomLeft');
+            break;
+          case ActivePane.topRight:
+            builder.attribute('activePane', 'topRight');
+            break;
+          case ActivePane.topLeft:
+            builder.attribute('activePane', 'topLeft');
+            break;
+        }
+        builder.attribute('state', 'frozen');
+      },
+    );
   }
 
   static Future<void> _savePaneAsync(
-      Worksheet sheet, XmlBuilder builder) async {
-    builder.element('pane', nest: () async {
-      if (sheet.verticalSplit != 0) {
-        builder.attribute('xSplit', sheet.verticalSplit.toString());
-      }
-      if (sheet.horizontalSplit != 0) {
-        builder.attribute('ySplit', sheet.horizontalSplit.toString());
-      }
-      if (sheet.topLeftCell != '') {
-        builder.attribute('topLeftCell', sheet.topLeftCell);
-      }
-      switch (sheet.activePane) {
-        case ActivePane.bottomRight:
-          builder.attribute('activePane', 'bottomRight');
-          break;
-        case ActivePane.bottomLeft:
-          builder.attribute('activePane', 'bottomLeft');
-          break;
-        case ActivePane.topRight:
-          builder.attribute('activePane', 'topRight');
-          break;
-        case ActivePane.topLeft:
-          builder.attribute('activePane', 'topLeft');
-          break;
-      }
-      builder.attribute('state', 'frozen');
-    });
+    Worksheet sheet,
+    XmlBuilder builder,
+  ) async {
+    builder.element(
+      'pane',
+      nest: () async {
+        if (sheet.verticalSplit != 0) {
+          builder.attribute('xSplit', sheet.verticalSplit.toString());
+        }
+        if (sheet.horizontalSplit != 0) {
+          builder.attribute('ySplit', sheet.horizontalSplit.toString());
+        }
+        if (sheet.topLeftCell != '') {
+          builder.attribute('topLeftCell', sheet.topLeftCell);
+        }
+        switch (sheet.activePane) {
+          case ActivePane.bottomRight:
+            builder.attribute('activePane', 'bottomRight');
+            break;
+          case ActivePane.bottomLeft:
+            builder.attribute('activePane', 'bottomLeft');
+            break;
+          case ActivePane.topRight:
+            builder.attribute('activePane', 'topRight');
+            break;
+          case ActivePane.topLeft:
+            builder.attribute('activePane', 'topLeft');
+            break;
+        }
+        builder.attribute('state', 'frozen');
+      },
+    );
   }
 
   /// Serialize workbook shared string.
@@ -2767,25 +3386,39 @@ class SerializeWorkbook {
     final int length = _workbook.sharedStrings.length;
     if (length > 0) {
       builder.processing('xml', 'version="1.0"');
-      builder.element('sst', nest: () {
-        builder.attribute('xmlns',
-            'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-        builder.attribute('uniqueCount', length.toString());
-        builder.attribute('count', _workbook.sharedStringCount.toString());
-        _workbook.sharedStrings.forEach((String key, int value) {
-          if (key.indexOf('<r>') != 0) {
-            builder.element('si', nest: () {
-              builder.element('t', nest: () {
-                builder.text(key);
-              });
-            });
-          } else {
-            builder.element('si', nest: () {
-              builder.text(key);
-            });
-          }
-        });
-      });
+      builder.element(
+        'sst',
+        nest: () {
+          builder.attribute(
+            'xmlns',
+            'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+          );
+          builder.attribute('uniqueCount', length.toString());
+          builder.attribute('count', _workbook.sharedStringCount.toString());
+          _workbook.sharedStrings.forEach((String key, int value) {
+            if (key.indexOf('<r>') != 0) {
+              builder.element(
+                'si',
+                nest: () {
+                  builder.element(
+                    't',
+                    nest: () {
+                      builder.text(key);
+                    },
+                  );
+                },
+              );
+            } else {
+              builder.element(
+                'si',
+                nest: () {
+                  builder.text(key);
+                },
+              );
+            }
+          });
+        },
+      );
       final String stringXml = builder.buildDocument().toString();
       final List<int> bytes = utf8.encode(stringXml);
       _addToArchive(bytes, 'xl/sharedStrings.xml');
@@ -2797,25 +3430,39 @@ class SerializeWorkbook {
     final int length = _workbook.sharedStrings.length;
     if (length > 0) {
       builder.processing('xml', 'version="1.0"');
-      builder.element('sst', nest: () async {
-        builder.attribute('xmlns',
-            'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-        builder.attribute('uniqueCount', length.toString());
-        builder.attribute('count', _workbook.sharedStringCount.toString());
-        _workbook.sharedStrings.forEach((String key, int value) {
-          if (key.indexOf('<r>') != 0) {
-            builder.element('si', nest: () async {
-              builder.element('t', nest: () async {
-                builder.text(key);
-              });
-            });
-          } else {
-            builder.element('si', nest: () async {
-              builder.text(key);
-            });
-          }
-        });
-      });
+      builder.element(
+        'sst',
+        nest: () async {
+          builder.attribute(
+            'xmlns',
+            'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+          );
+          builder.attribute('uniqueCount', length.toString());
+          builder.attribute('count', _workbook.sharedStringCount.toString());
+          _workbook.sharedStrings.forEach((String key, int value) {
+            if (key.indexOf('<r>') != 0) {
+              builder.element(
+                'si',
+                nest: () async {
+                  builder.element(
+                    't',
+                    nest: () async {
+                      builder.text(key);
+                    },
+                  );
+                },
+              );
+            } else {
+              builder.element(
+                'si',
+                nest: () async {
+                  builder.text(key);
+                },
+              );
+            }
+          });
+        },
+      );
       final String stringXml = builder.buildDocument().toString();
       final List<int> bytes = utf8.encode(stringXml);
       _addToArchiveAsync(bytes, 'xl/sharedStrings.xml');
@@ -2827,19 +3474,24 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('Properties', nest: () {
-      builder.attribute('xmlns',
-          'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties');
-      builder.element('Application', nest: 'Essential XlsIO');
+    builder.element(
+      'Properties',
+      nest: () {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
+        );
+        builder.element('Application', nest: 'Essential XlsIO');
 
-      if (builtInProperties.manager != null) {
-        builder.element('Manager', nest: builtInProperties.manager);
-      }
+        if (builtInProperties.manager != null) {
+          builder.element('Manager', nest: builtInProperties.manager);
+        }
 
-      if (builtInProperties.company != null) {
-        builder.element('Company', nest: builtInProperties.company);
-      }
-    });
+        if (builtInProperties.company != null) {
+          builder.element('Company', nest: builtInProperties.company);
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'docProps/app.xml');
@@ -2849,19 +3501,24 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('Properties', nest: () async {
-      builder.attribute('xmlns',
-          'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties');
-      builder.element('Application', nest: 'Essential XlsIO');
+    builder.element(
+      'Properties',
+      nest: () async {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
+        );
+        builder.element('Application', nest: 'Essential XlsIO');
 
-      if (builtInProperties.manager != null) {
-        builder.element('Manager', nest: builtInProperties.manager);
-      }
+        if (builtInProperties.manager != null) {
+          builder.element('Manager', nest: builtInProperties.manager);
+        }
 
-      if (builtInProperties.company != null) {
-        builder.element('Company', nest: builtInProperties.company);
-      }
-    });
+        if (builtInProperties.company != null) {
+          builder.element('Company', nest: builtInProperties.company);
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(bytes, 'docProps/app.xml');
@@ -2872,60 +3529,79 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('cp:coreProperties', nest: () {
-      builder.attribute('xmlns:cp',
-          'http://schemas.openxmlformats.org/package/2006/metadata/core-properties');
-      builder.attribute('xmlns:dc', 'http://purl.org/dc/elements/1.1/');
-      builder.attribute('xmlns:dcterms', 'http://purl.org/dc/terms/');
-      builder.attribute('xmlns:dcmitype', 'http://purl.org/dc/dcmitype/');
-      builder.attribute(
-          'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-      final DateTime createdDate = DateTime.now();
+    builder.element(
+      'cp:coreProperties',
+      nest: () {
+        builder.attribute(
+          'xmlns:cp',
+          'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
+        );
+        builder.attribute('xmlns:dc', 'http://purl.org/dc/elements/1.1/');
+        builder.attribute('xmlns:dcterms', 'http://purl.org/dc/terms/');
+        builder.attribute('xmlns:dcmitype', 'http://purl.org/dc/dcmitype/');
+        builder.attribute(
+          'xmlns:xsi',
+          'http://www.w3.org/2001/XMLSchema-instance',
+        );
+        final DateTime createdDate = DateTime.now();
 
-      if (builtInProperties.author != null) {
-        builder.element('dc:creator', nest: builtInProperties.author);
-      }
-      if (builtInProperties.subject != null) {
-        builder.element('dc:subject', nest: builtInProperties.subject);
-      }
-      if (builtInProperties.category != null) {
-        builder.element('dc:category', nest: builtInProperties.category);
-      }
-      if (builtInProperties.comments != null) {
-        builder.element('dc:description', nest: builtInProperties.comments);
-      }
-      if (builtInProperties.title != null) {
-        builder.element('dc:title', nest: builtInProperties.title);
-      }
-      if (builtInProperties.tags != null) {
-        builder.element('dc:keywords', nest: builtInProperties.tags);
-      }
-      if (builtInProperties.status != null) {
-        builder.element('dc:contentStatus', nest: builtInProperties.status);
-      }
-      if (builtInProperties.createdDate != null) {
-        builder.element('dcterms:created', nest: () {
-          builder.attribute('xsi:type', 'dcterms:W3CDTF');
-          builder.text(builtInProperties.createdDate!.toIso8601String());
-        });
-      } else {
-        builder.element('dcterms:created', nest: () {
-          builder.attribute('xsi:type', 'dcterms:W3CDTF');
-          builder.text(createdDate.toIso8601String());
-        });
-      }
-      if (builtInProperties.modifiedDate != null) {
-        builder.element('dcterms:modified', nest: () {
-          builder.attribute('xsi:type', 'dcterms:W3CDTF');
-          builder.text(builtInProperties.modifiedDate!.toIso8601String());
-        });
-      } else {
-        builder.element('dcterms:modified', nest: () {
-          builder.attribute('xsi:type', 'dcterms:W3CDTF');
-          builder.text(createdDate.toIso8601String());
-        });
-      }
-    });
+        if (builtInProperties.author != null) {
+          builder.element('dc:creator', nest: builtInProperties.author);
+        }
+        if (builtInProperties.subject != null) {
+          builder.element('dc:subject', nest: builtInProperties.subject);
+        }
+        if (builtInProperties.category != null) {
+          builder.element('dc:category', nest: builtInProperties.category);
+        }
+        if (builtInProperties.comments != null) {
+          builder.element('dc:description', nest: builtInProperties.comments);
+        }
+        if (builtInProperties.title != null) {
+          builder.element('dc:title', nest: builtInProperties.title);
+        }
+        if (builtInProperties.tags != null) {
+          builder.element('dc:keywords', nest: builtInProperties.tags);
+        }
+        if (builtInProperties.status != null) {
+          builder.element('dc:contentStatus', nest: builtInProperties.status);
+        }
+        if (builtInProperties.createdDate != null) {
+          builder.element(
+            'dcterms:created',
+            nest: () {
+              builder.attribute('xsi:type', 'dcterms:W3CDTF');
+              builder.text(builtInProperties.createdDate!.toIso8601String());
+            },
+          );
+        } else {
+          builder.element(
+            'dcterms:created',
+            nest: () {
+              builder.attribute('xsi:type', 'dcterms:W3CDTF');
+              builder.text(createdDate.toIso8601String());
+            },
+          );
+        }
+        if (builtInProperties.modifiedDate != null) {
+          builder.element(
+            'dcterms:modified',
+            nest: () {
+              builder.attribute('xsi:type', 'dcterms:W3CDTF');
+              builder.text(builtInProperties.modifiedDate!.toIso8601String());
+            },
+          );
+        } else {
+          builder.element(
+            'dcterms:modified',
+            nest: () {
+              builder.attribute('xsi:type', 'dcterms:W3CDTF');
+              builder.text(createdDate.toIso8601String());
+            },
+          );
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'docProps/core.xml');
@@ -2935,60 +3611,79 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('cp:coreProperties', nest: () async {
-      builder.attribute('xmlns:cp',
-          'http://schemas.openxmlformats.org/package/2006/metadata/core-properties');
-      builder.attribute('xmlns:dc', 'http://purl.org/dc/elements/1.1/');
-      builder.attribute('xmlns:dcterms', 'http://purl.org/dc/terms/');
-      builder.attribute('xmlns:dcmitype', 'http://purl.org/dc/dcmitype/');
-      builder.attribute(
-          'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-      final DateTime createdDate = DateTime.now();
+    builder.element(
+      'cp:coreProperties',
+      nest: () async {
+        builder.attribute(
+          'xmlns:cp',
+          'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
+        );
+        builder.attribute('xmlns:dc', 'http://purl.org/dc/elements/1.1/');
+        builder.attribute('xmlns:dcterms', 'http://purl.org/dc/terms/');
+        builder.attribute('xmlns:dcmitype', 'http://purl.org/dc/dcmitype/');
+        builder.attribute(
+          'xmlns:xsi',
+          'http://www.w3.org/2001/XMLSchema-instance',
+        );
+        final DateTime createdDate = DateTime.now();
 
-      if (builtInProperties.author != null) {
-        builder.element('dc:creator', nest: builtInProperties.author);
-      }
-      if (builtInProperties.subject != null) {
-        builder.element('dc:subject', nest: builtInProperties.subject);
-      }
-      if (builtInProperties.category != null) {
-        builder.element('dc:category', nest: builtInProperties.category);
-      }
-      if (builtInProperties.comments != null) {
-        builder.element('dc:description', nest: builtInProperties.comments);
-      }
-      if (builtInProperties.title != null) {
-        builder.element('dc:title', nest: builtInProperties.title);
-      }
-      if (builtInProperties.tags != null) {
-        builder.element('dc:keywords', nest: builtInProperties.tags);
-      }
-      if (builtInProperties.status != null) {
-        builder.element('dc:contentStatus', nest: builtInProperties.status);
-      }
-      if (builtInProperties.createdDate != null) {
-        builder.element('dcterms:created', nest: () async {
-          builder.attribute('xsi:type', 'dcterms:W3CDTF');
-          builder.text(builtInProperties.createdDate!.toIso8601String());
-        });
-      } else {
-        builder.element('dcterms:created', nest: () async {
-          builder.attribute('xsi:type', 'dcterms:W3CDTF');
-          builder.text(createdDate.toIso8601String());
-        });
-      }
-      if (builtInProperties.modifiedDate != null) {
-        builder.element('dcterms:modified', nest: () async {
-          builder.attribute('xsi:type', 'dcterms:W3CDTF');
-          builder.text(builtInProperties.modifiedDate!.toIso8601String());
-        });
-      } else {
-        builder.element('dcterms:modified', nest: () async {
-          builder.attribute('xsi:type', 'dcterms:W3CDTF');
-          builder.text(createdDate.toIso8601String());
-        });
-      }
-    });
+        if (builtInProperties.author != null) {
+          builder.element('dc:creator', nest: builtInProperties.author);
+        }
+        if (builtInProperties.subject != null) {
+          builder.element('dc:subject', nest: builtInProperties.subject);
+        }
+        if (builtInProperties.category != null) {
+          builder.element('dc:category', nest: builtInProperties.category);
+        }
+        if (builtInProperties.comments != null) {
+          builder.element('dc:description', nest: builtInProperties.comments);
+        }
+        if (builtInProperties.title != null) {
+          builder.element('dc:title', nest: builtInProperties.title);
+        }
+        if (builtInProperties.tags != null) {
+          builder.element('dc:keywords', nest: builtInProperties.tags);
+        }
+        if (builtInProperties.status != null) {
+          builder.element('dc:contentStatus', nest: builtInProperties.status);
+        }
+        if (builtInProperties.createdDate != null) {
+          builder.element(
+            'dcterms:created',
+            nest: () async {
+              builder.attribute('xsi:type', 'dcterms:W3CDTF');
+              builder.text(builtInProperties.createdDate!.toIso8601String());
+            },
+          );
+        } else {
+          builder.element(
+            'dcterms:created',
+            nest: () async {
+              builder.attribute('xsi:type', 'dcterms:W3CDTF');
+              builder.text(createdDate.toIso8601String());
+            },
+          );
+        }
+        if (builtInProperties.modifiedDate != null) {
+          builder.element(
+            'dcterms:modified',
+            nest: () async {
+              builder.attribute('xsi:type', 'dcterms:W3CDTF');
+              builder.text(builtInProperties.modifiedDate!.toIso8601String());
+            },
+          );
+        } else {
+          builder.element(
+            'dcterms:modified',
+            nest: () async {
+              builder.attribute('xsi:type', 'dcterms:W3CDTF');
+              builder.text(createdDate.toIso8601String());
+            },
+          );
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(bytes, 'docProps/core.xml');
@@ -2998,107 +3693,175 @@ class SerializeWorkbook {
   void _saveContentType() {
     final XmlBuilder builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('Types', nest: () {
-      builder.attribute('xmlns',
-          'http://schemas.openxmlformats.org/package/2006/content-types');
+    builder.element(
+      'Types',
+      nest: () {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/package/2006/content-types',
+        );
 
-      builder.element('Default', nest: () {
-        builder.attribute('Extension', 'xml');
-        builder.attribute('ContentType', 'application/xml');
-      });
-      builder.element('Default', nest: () {
-        builder.attribute('Extension', 'rels');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-package.relationships+xml');
-      });
-      builder.element('Override', nest: () {
-        builder.attribute('PartName', '/xl/styles.xml');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml');
-      });
-      builder.element('Override', nest: () {
-        builder.attribute('PartName', '/xl/workbook.xml');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml');
-      });
-      builder.element('Override', nest: () {
-        builder.attribute('PartName', '/docProps/app.xml');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-officedocument.extended-properties+xml');
-      });
-      builder.element('Override', nest: () {
-        builder.attribute('PartName', '/docProps/core.xml');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-package.core-properties+xml');
-      });
-      final int length = _workbook.worksheets.count;
-      int drawingIndex = 1;
-      int chartIndex = 1;
-      for (int i = 0; i < length; i++) {
-        final int index = i + 1;
-        builder.element('Override', nest: () {
-          builder.attribute('PartName', '/xl/worksheets/sheet$index.xml');
-          builder.attribute('ContentType',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');
-        });
-        if ((_workbook.imageCount > 0 &&
-                _workbook.worksheets[i].pictures.count > 0) ||
-            _workbook.worksheets[i].charts != null &&
-                _workbook.worksheets[i].chartCount > 0) {
-          if (_workbook.worksheets[i].charts != null &&
-              _workbook.worksheets[i].chartCount > 0) {
-            final int chartCount = _workbook.worksheets[i].chartCount;
-            for (int index = 1; index <= chartCount; index++) {
-              builder.element('Override', nest: () {
-                builder.attribute(
-                    'PartName', '/xl/charts/chart$chartIndex.xml');
-                builder.attribute('ContentType',
-                    'application/vnd.openxmlformats-officedocument.drawingml.chart+xml');
-              });
-              chartIndex++;
-            }
-          }
-          builder.element('Override', nest: () {
+        builder.element(
+          'Default',
+          nest: () {
+            builder.attribute('Extension', 'xml');
+            builder.attribute('ContentType', 'application/xml');
+          },
+        );
+        builder.element(
+          'Default',
+          nest: () {
+            builder.attribute('Extension', 'rels');
             builder.attribute(
-                'PartName', '/xl/drawings/drawing$drawingIndex.xml');
-            builder.attribute('ContentType',
-                'application/vnd.openxmlformats-officedocument.drawing+xml');
-          });
-          drawingIndex++;
-        }
-      }
-
-      for (int tableCount = 0;
-          tableCount < _workbook.tableCount;
-          tableCount++) {
-        final int tableIndex = tableCount + 1;
-        builder.element('Override', nest: () {
-          builder.attribute('PartName', '/xl/tables/table$tableIndex.xml');
-          builder.attribute('ContentType',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml');
-        });
-      }
-
-      if (_workbook.imageCount > 0) {
-        for (final dynamic key in _workbook.defaultContentType.keys) {
-          builder.element('Default', nest: () {
-            builder.attribute('Extension', key);
+              'ContentType',
+              'application/vnd.openxmlformats-package.relationships+xml',
+            );
+          },
+        );
+        builder.element(
+          'Override',
+          nest: () {
+            builder.attribute('PartName', '/xl/styles.xml');
             builder.attribute(
+              'ContentType',
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml',
+            );
+          },
+        );
+        builder.element(
+          'Override',
+          nest: () {
+            builder.attribute('PartName', '/xl/workbook.xml');
+            builder.attribute(
+              'ContentType',
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml',
+            );
+          },
+        );
+        builder.element(
+          'Override',
+          nest: () {
+            builder.attribute('PartName', '/docProps/app.xml');
+            builder.attribute(
+              'ContentType',
+              'application/vnd.openxmlformats-officedocument.extended-properties+xml',
+            );
+          },
+        );
+        builder.element(
+          'Override',
+          nest: () {
+            builder.attribute('PartName', '/docProps/core.xml');
+            builder.attribute(
+              'ContentType',
+              'application/vnd.openxmlformats-package.core-properties+xml',
+            );
+          },
+        );
+        final int length = _workbook.worksheets.count;
+        int drawingIndex = 1;
+        int chartIndex = 1;
+        for (int i = 0; i < length; i++) {
+          final int index = i + 1;
+          builder.element(
+            'Override',
+            nest: () {
+              builder.attribute('PartName', '/xl/worksheets/sheet$index.xml');
+              builder.attribute(
                 'ContentType',
-                // ignore: unnecessary_null_checks
-                _workbook.defaultContentTypes[key]!);
-          });
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml',
+              );
+            },
+          );
+          if ((_workbook.imageCount > 0 &&
+                  _workbook.worksheets[i].pictures.count > 0) ||
+              _workbook.worksheets[i].charts != null &&
+                  _workbook.worksheets[i].chartCount > 0) {
+            if (_workbook.worksheets[i].charts != null &&
+                _workbook.worksheets[i].chartCount > 0) {
+              final int chartCount = _workbook.worksheets[i].chartCount;
+              for (int index = 1; index <= chartCount; index++) {
+                builder.element(
+                  'Override',
+                  nest: () {
+                    builder.attribute(
+                      'PartName',
+                      '/xl/charts/chart$chartIndex.xml',
+                    );
+                    builder.attribute(
+                      'ContentType',
+                      'application/vnd.openxmlformats-officedocument.drawingml.chart+xml',
+                    );
+                  },
+                );
+                chartIndex++;
+              }
+            }
+            builder.element(
+              'Override',
+              nest: () {
+                builder.attribute(
+                  'PartName',
+                  '/xl/drawings/drawing$drawingIndex.xml',
+                );
+                builder.attribute(
+                  'ContentType',
+                  'application/vnd.openxmlformats-officedocument.drawing+xml',
+                );
+              },
+            );
+            drawingIndex++;
+          }
         }
-      }
 
-      if (_workbook.sharedStringCount > 0) {
-        builder.element('Override', nest: () {
-          builder.attribute('PartName', '/xl/sharedStrings.xml');
-          builder.attribute('ContentType',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml');
-        });
-      }
-    });
+        for (
+          int tableCount = 0;
+          tableCount < _workbook.tableCount;
+          tableCount++
+        ) {
+          final int tableIndex = tableCount + 1;
+          builder.element(
+            'Override',
+            nest: () {
+              builder.attribute('PartName', '/xl/tables/table$tableIndex.xml');
+              builder.attribute(
+                'ContentType',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml',
+              );
+            },
+          );
+        }
+
+        if (_workbook.imageCount > 0) {
+          for (final dynamic key in _workbook.defaultContentType.keys) {
+            builder.element(
+              'Default',
+              nest: () {
+                builder.attribute('Extension', key);
+                builder.attribute(
+                  'ContentType',
+                  // ignore: unnecessary_null_checks
+                  _workbook.defaultContentTypes[key]!,
+                );
+              },
+            );
+          }
+        }
+
+        if (_workbook.sharedStringCount > 0) {
+          builder.element(
+            'Override',
+            nest: () {
+              builder.attribute('PartName', '/xl/sharedStrings.xml');
+              builder.attribute(
+                'ContentType',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml',
+              );
+            },
+          );
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, '[Content_Types].xml');
@@ -3107,107 +3870,175 @@ class SerializeWorkbook {
   Future<void> _saveContentTypeAsync() async {
     final XmlBuilder builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('Types', nest: () async {
-      builder.attribute('xmlns',
-          'http://schemas.openxmlformats.org/package/2006/content-types');
+    builder.element(
+      'Types',
+      nest: () async {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/package/2006/content-types',
+        );
 
-      builder.element('Default', nest: () async {
-        builder.attribute('Extension', 'xml');
-        builder.attribute('ContentType', 'application/xml');
-      });
-      builder.element('Default', nest: () async {
-        builder.attribute('Extension', 'rels');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-package.relationships+xml');
-      });
-      builder.element('Override', nest: () async {
-        builder.attribute('PartName', '/xl/styles.xml');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml');
-      });
-      builder.element('Override', nest: () async {
-        builder.attribute('PartName', '/xl/workbook.xml');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml');
-      });
-      builder.element('Override', nest: () async {
-        builder.attribute('PartName', '/docProps/app.xml');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-officedocument.extended-properties+xml');
-      });
-      builder.element('Override', nest: () async {
-        builder.attribute('PartName', '/docProps/core.xml');
-        builder.attribute('ContentType',
-            'application/vnd.openxmlformats-package.core-properties+xml');
-      });
-      final int length = _workbook.worksheets.count;
-      int drawingIndex = 1;
-      int chartIndex = 1;
-      for (int i = 0; i < length; i++) {
-        final int index = i + 1;
-        builder.element('Override', nest: () async {
-          builder.attribute('PartName', '/xl/worksheets/sheet$index.xml');
-          builder.attribute('ContentType',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');
-        });
-        if ((_workbook.imageCount > 0 &&
-                _workbook.worksheets[i].pictures.count > 0) ||
-            _workbook.worksheets[i].charts != null &&
-                _workbook.worksheets[i].chartCount > 0) {
-          if (_workbook.worksheets[i].charts != null &&
-              _workbook.worksheets[i].chartCount > 0) {
-            final int chartCount = _workbook.worksheets[i].chartCount;
-            for (int index = 1; index <= chartCount; index++) {
-              builder.element('Override', nest: () async {
-                builder.attribute(
-                    'PartName', '/xl/charts/chart$chartIndex.xml');
-                builder.attribute('ContentType',
-                    'application/vnd.openxmlformats-officedocument.drawingml.chart+xml');
-              });
-              chartIndex++;
-            }
-          }
-          builder.element('Override', nest: () async {
+        builder.element(
+          'Default',
+          nest: () async {
+            builder.attribute('Extension', 'xml');
+            builder.attribute('ContentType', 'application/xml');
+          },
+        );
+        builder.element(
+          'Default',
+          nest: () async {
+            builder.attribute('Extension', 'rels');
             builder.attribute(
-                'PartName', '/xl/drawings/drawing$drawingIndex.xml');
-            builder.attribute('ContentType',
-                'application/vnd.openxmlformats-officedocument.drawing+xml');
-          });
-          drawingIndex++;
-        }
-      }
-
-      for (int tableCount = 0;
-          tableCount < _workbook.tableCount;
-          tableCount++) {
-        final int tableIndex = tableCount + 1;
-        builder.element('Override', nest: () async {
-          builder.attribute('PartName', '/xl/tables/table$tableIndex.xml');
-          builder.attribute('ContentType',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml');
-        });
-      }
-
-      if (_workbook.imageCount > 0) {
-        for (final dynamic key in _workbook.defaultContentType.keys) {
-          builder.element('Default', nest: () async {
-            builder.attribute('Extension', key);
+              'ContentType',
+              'application/vnd.openxmlformats-package.relationships+xml',
+            );
+          },
+        );
+        builder.element(
+          'Override',
+          nest: () async {
+            builder.attribute('PartName', '/xl/styles.xml');
             builder.attribute(
+              'ContentType',
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml',
+            );
+          },
+        );
+        builder.element(
+          'Override',
+          nest: () async {
+            builder.attribute('PartName', '/xl/workbook.xml');
+            builder.attribute(
+              'ContentType',
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml',
+            );
+          },
+        );
+        builder.element(
+          'Override',
+          nest: () async {
+            builder.attribute('PartName', '/docProps/app.xml');
+            builder.attribute(
+              'ContentType',
+              'application/vnd.openxmlformats-officedocument.extended-properties+xml',
+            );
+          },
+        );
+        builder.element(
+          'Override',
+          nest: () async {
+            builder.attribute('PartName', '/docProps/core.xml');
+            builder.attribute(
+              'ContentType',
+              'application/vnd.openxmlformats-package.core-properties+xml',
+            );
+          },
+        );
+        final int length = _workbook.worksheets.count;
+        int drawingIndex = 1;
+        int chartIndex = 1;
+        for (int i = 0; i < length; i++) {
+          final int index = i + 1;
+          builder.element(
+            'Override',
+            nest: () async {
+              builder.attribute('PartName', '/xl/worksheets/sheet$index.xml');
+              builder.attribute(
                 'ContentType',
-                // ignore: unnecessary_null_checks
-                _workbook.defaultContentTypes[key]!);
-          });
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml',
+              );
+            },
+          );
+          if ((_workbook.imageCount > 0 &&
+                  _workbook.worksheets[i].pictures.count > 0) ||
+              _workbook.worksheets[i].charts != null &&
+                  _workbook.worksheets[i].chartCount > 0) {
+            if (_workbook.worksheets[i].charts != null &&
+                _workbook.worksheets[i].chartCount > 0) {
+              final int chartCount = _workbook.worksheets[i].chartCount;
+              for (int index = 1; index <= chartCount; index++) {
+                builder.element(
+                  'Override',
+                  nest: () async {
+                    builder.attribute(
+                      'PartName',
+                      '/xl/charts/chart$chartIndex.xml',
+                    );
+                    builder.attribute(
+                      'ContentType',
+                      'application/vnd.openxmlformats-officedocument.drawingml.chart+xml',
+                    );
+                  },
+                );
+                chartIndex++;
+              }
+            }
+            builder.element(
+              'Override',
+              nest: () async {
+                builder.attribute(
+                  'PartName',
+                  '/xl/drawings/drawing$drawingIndex.xml',
+                );
+                builder.attribute(
+                  'ContentType',
+                  'application/vnd.openxmlformats-officedocument.drawing+xml',
+                );
+              },
+            );
+            drawingIndex++;
+          }
         }
-      }
 
-      if (_workbook.sharedStringCount > 0) {
-        builder.element('Override', nest: () async {
-          builder.attribute('PartName', '/xl/sharedStrings.xml');
-          builder.attribute('ContentType',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml');
-        });
-      }
-    });
+        for (
+          int tableCount = 0;
+          tableCount < _workbook.tableCount;
+          tableCount++
+        ) {
+          final int tableIndex = tableCount + 1;
+          builder.element(
+            'Override',
+            nest: () async {
+              builder.attribute('PartName', '/xl/tables/table$tableIndex.xml');
+              builder.attribute(
+                'ContentType',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml',
+              );
+            },
+          );
+        }
+
+        if (_workbook.imageCount > 0) {
+          for (final dynamic key in _workbook.defaultContentType.keys) {
+            builder.element(
+              'Default',
+              nest: () async {
+                builder.attribute('Extension', key);
+                builder.attribute(
+                  'ContentType',
+                  // ignore: unnecessary_null_checks
+                  _workbook.defaultContentTypes[key]!,
+                );
+              },
+            );
+          }
+        }
+
+        if (_workbook.sharedStringCount > 0) {
+          builder.element(
+            'Override',
+            nest: () async {
+              builder.attribute('PartName', '/xl/sharedStrings.xml');
+              builder.attribute(
+                'ContentType',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml',
+              );
+            },
+          );
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(bytes, '[Content_Types].xml');
@@ -3218,39 +4049,59 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('Relationships', nest: () {
-      builder.attribute('xmlns',
-          'http://schemas.openxmlformats.org/package/2006/relationships');
+    builder.element(
+      'Relationships',
+      nest: () {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/package/2006/relationships',
+        );
 
-      final int length = _workbook.worksheets.count;
-      int count = 0;
-      int index;
-      for (int i = 0; i < length; i++, count++) {
-        builder.element('Relationship', nest: () {
-          index = i + 1;
-          builder.attribute('Id', 'rId$index');
-          builder.attribute('Type',
-              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet');
-          builder.attribute('Target', 'worksheets/sheet$index.xml');
-        });
-      }
-      count = ++count;
-      builder.element('Relationship', nest: () {
-        builder.attribute('Id', 'rId$count');
-        builder.attribute('Type',
-            'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles');
-        builder.attribute('Target', 'styles.xml');
-      });
-      if (_workbook.sharedStringCount > 0) {
+        final int length = _workbook.worksheets.count;
+        int count = 0;
+        int index;
+        for (int i = 0; i < length; i++, count++) {
+          builder.element(
+            'Relationship',
+            nest: () {
+              index = i + 1;
+              builder.attribute('Id', 'rId$index');
+              builder.attribute(
+                'Type',
+                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
+              );
+              builder.attribute('Target', 'worksheets/sheet$index.xml');
+            },
+          );
+        }
         count = ++count;
-        builder.element('Relationship', nest: () {
-          builder.attribute('Id', 'rId$count');
-          builder.attribute('Type',
-              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings');
-          builder.attribute('Target', 'sharedStrings.xml');
-        });
-      }
-    });
+        builder.element(
+          'Relationship',
+          nest: () {
+            builder.attribute('Id', 'rId$count');
+            builder.attribute(
+              'Type',
+              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+            );
+            builder.attribute('Target', 'styles.xml');
+          },
+        );
+        if (_workbook.sharedStringCount > 0) {
+          count = ++count;
+          builder.element(
+            'Relationship',
+            nest: () {
+              builder.attribute('Id', 'rId$count');
+              builder.attribute(
+                'Type',
+                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
+              );
+              builder.attribute('Target', 'sharedStrings.xml');
+            },
+          );
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'xl/_rels/workbook.xml.rels');
@@ -3260,39 +4111,59 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('Relationships', nest: () async {
-      builder.attribute('xmlns',
-          'http://schemas.openxmlformats.org/package/2006/relationships');
+    builder.element(
+      'Relationships',
+      nest: () async {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/package/2006/relationships',
+        );
 
-      final int length = _workbook.worksheets.count;
-      int count = 0;
-      int index;
-      for (int i = 0; i < length; i++, count++) {
-        builder.element('Relationship', nest: () async {
-          index = i + 1;
-          builder.attribute('Id', 'rId$index');
-          builder.attribute('Type',
-              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet');
-          builder.attribute('Target', 'worksheets/sheet$index.xml');
-        });
-      }
-      count = ++count;
-      builder.element('Relationship', nest: () async {
-        builder.attribute('Id', 'rId$count');
-        builder.attribute('Type',
-            'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles');
-        builder.attribute('Target', 'styles.xml');
-      });
-      if (_workbook.sharedStringCount > 0) {
+        final int length = _workbook.worksheets.count;
+        int count = 0;
+        int index;
+        for (int i = 0; i < length; i++, count++) {
+          builder.element(
+            'Relationship',
+            nest: () async {
+              index = i + 1;
+              builder.attribute('Id', 'rId$index');
+              builder.attribute(
+                'Type',
+                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
+              );
+              builder.attribute('Target', 'worksheets/sheet$index.xml');
+            },
+          );
+        }
         count = ++count;
-        builder.element('Relationship', nest: () async {
-          builder.attribute('Id', 'rId$count');
-          builder.attribute('Type',
-              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings');
-          builder.attribute('Target', 'sharedStrings.xml');
-        });
-      }
-    });
+        builder.element(
+          'Relationship',
+          nest: () async {
+            builder.attribute('Id', 'rId$count');
+            builder.attribute(
+              'Type',
+              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+            );
+            builder.attribute('Target', 'styles.xml');
+          },
+        );
+        if (_workbook.sharedStringCount > 0) {
+          count = ++count;
+          builder.element(
+            'Relationship',
+            nest: () async {
+              builder.attribute('Id', 'rId$count');
+              builder.attribute(
+                'Type',
+                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings',
+              );
+              builder.attribute('Target', 'sharedStrings.xml');
+            },
+          );
+        }
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(bytes, 'xl/_rels/workbook.xml.rels');
@@ -3303,31 +4174,51 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('Relationships', nest: () {
-      builder.attribute('xmlns',
-          'http://schemas.openxmlformats.org/package/2006/relationships');
+    builder.element(
+      'Relationships',
+      nest: () {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/package/2006/relationships',
+        );
 
-      builder.element('Relationship', nest: () {
-        builder.attribute('Id', 'rId1');
-        builder.attribute('Type',
-            'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument');
-        builder.attribute('Target', 'xl/workbook.xml');
-      });
+        builder.element(
+          'Relationship',
+          nest: () {
+            builder.attribute('Id', 'rId1');
+            builder.attribute(
+              'Type',
+              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
+            );
+            builder.attribute('Target', 'xl/workbook.xml');
+          },
+        );
 
-      builder.element('Relationship', nest: () {
-        builder.attribute('Id', 'rId2');
-        builder.attribute('Type',
-            'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties');
-        builder.attribute('Target', 'docProps/app.xml');
-      });
+        builder.element(
+          'Relationship',
+          nest: () {
+            builder.attribute('Id', 'rId2');
+            builder.attribute(
+              'Type',
+              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties',
+            );
+            builder.attribute('Target', 'docProps/app.xml');
+          },
+        );
 
-      builder.element('Relationship', nest: () {
-        builder.attribute('Id', 'rId3');
-        builder.attribute('Type',
-            'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties');
-        builder.attribute('Target', 'docProps/core.xml');
-      });
-    });
+        builder.element(
+          'Relationship',
+          nest: () {
+            builder.attribute('Id', 'rId3');
+            builder.attribute(
+              'Type',
+              'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
+            );
+            builder.attribute('Target', 'docProps/core.xml');
+          },
+        );
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, '_rels/.rels');
@@ -3337,31 +4228,51 @@ class SerializeWorkbook {
     final XmlBuilder builder = XmlBuilder();
 
     builder.processing('xml', 'version="1.0"');
-    builder.element('Relationships', nest: () async {
-      builder.attribute('xmlns',
-          'http://schemas.openxmlformats.org/package/2006/relationships');
+    builder.element(
+      'Relationships',
+      nest: () async {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/package/2006/relationships',
+        );
 
-      builder.element('Relationship', nest: () async {
-        builder.attribute('Id', 'rId1');
-        builder.attribute('Type',
-            'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument');
-        builder.attribute('Target', 'xl/workbook.xml');
-      });
+        builder.element(
+          'Relationship',
+          nest: () async {
+            builder.attribute('Id', 'rId1');
+            builder.attribute(
+              'Type',
+              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
+            );
+            builder.attribute('Target', 'xl/workbook.xml');
+          },
+        );
 
-      builder.element('Relationship', nest: () async {
-        builder.attribute('Id', 'rId2');
-        builder.attribute('Type',
-            'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties');
-        builder.attribute('Target', 'docProps/app.xml');
-      });
+        builder.element(
+          'Relationship',
+          nest: () async {
+            builder.attribute('Id', 'rId2');
+            builder.attribute(
+              'Type',
+              'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties',
+            );
+            builder.attribute('Target', 'docProps/app.xml');
+          },
+        );
 
-      builder.element('Relationship', nest: () async {
-        builder.attribute('Id', 'rId3');
-        builder.attribute('Type',
-            'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties');
-        builder.attribute('Target', 'docProps/core.xml');
-      });
-    });
+        builder.element(
+          'Relationship',
+          nest: () async {
+            builder.attribute('Id', 'rId3');
+            builder.attribute(
+              'Type',
+              'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
+            );
+            builder.attribute('Target', 'docProps/core.xml');
+          },
+        );
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(bytes, '_rels/.rels');
@@ -3372,24 +4283,33 @@ class SerializeWorkbook {
     _updateCellStyleXfs();
     final XmlBuilder builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('styleSheet', nest: () {
-      builder.attribute(
-          'xmlns', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-      builder.attribute('xmlns:mc',
-          'http://schemas.openxmlformats.org/markup-compatibility/2006');
-      builder.attribute('mc:Ignorable', 'x14ac');
-      builder.attribute('xmlns:x14ac',
-          'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac');
+    builder.element(
+      'styleSheet',
+      nest: () {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+        );
+        builder.attribute(
+          'xmlns:mc',
+          'http://schemas.openxmlformats.org/markup-compatibility/2006',
+        );
+        builder.attribute('mc:Ignorable', 'x14ac');
+        builder.attribute(
+          'xmlns:x14ac',
+          'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac',
+        );
 
-      _saveNumberFormats(builder);
-      _saveFonts(builder);
-      _saveFills(builder);
-      _saveBorders(builder);
-      _saveCellStyleXfs(builder);
-      _saveCellXfs(builder);
-      _saveGlobalCellstyles(builder);
-      _serialiseDxfs(builder);
-    });
+        _saveNumberFormats(builder);
+        _saveFonts(builder);
+        _saveFills(builder);
+        _saveBorders(builder);
+        _saveCellStyleXfs(builder);
+        _saveCellXfs(builder);
+        _saveGlobalCellstyles(builder);
+        _serialiseDxfs(builder);
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'xl/styles.xml');
@@ -3399,24 +4319,33 @@ class SerializeWorkbook {
     _updateCellStyleXfsAsync();
     final XmlBuilder builder = XmlBuilder();
     builder.processing('xml', 'version="1.0"');
-    builder.element('styleSheet', nest: () async {
-      builder.attribute(
-          'xmlns', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-      builder.attribute('xmlns:mc',
-          'http://schemas.openxmlformats.org/markup-compatibility/2006');
-      builder.attribute('mc:Ignorable', 'x14ac');
-      builder.attribute('xmlns:x14ac',
-          'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac');
+    builder.element(
+      'styleSheet',
+      nest: () async {
+        builder.attribute(
+          'xmlns',
+          'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+        );
+        builder.attribute(
+          'xmlns:mc',
+          'http://schemas.openxmlformats.org/markup-compatibility/2006',
+        );
+        builder.attribute('mc:Ignorable', 'x14ac');
+        builder.attribute(
+          'xmlns:x14ac',
+          'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac',
+        );
 
-      _saveNumberFormatsAsync(builder);
-      _saveFontsAsync(builder);
-      _saveFillsAsync(builder);
-      _saveBordersAsync(builder);
-      _saveCellStyleXfsAsync(builder);
-      _saveCellXfsAsync(builder);
-      _saveGlobalCellstylesAsync(builder);
-      _serialiseDxfsAsync(builder);
-    });
+        _saveNumberFormatsAsync(builder);
+        _saveFontsAsync(builder);
+        _saveFillsAsync(builder);
+        _saveBordersAsync(builder);
+        _saveCellStyleXfsAsync(builder);
+        _saveCellXfsAsync(builder);
+        _saveGlobalCellstylesAsync(builder);
+        _serialiseDxfsAsync(builder);
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(bytes, 'xl/styles.xml');
@@ -3555,8 +4484,9 @@ class SerializeWorkbook {
           final Format format = _workbook.innerFormats[style.numberFormatIndex];
           cellXfs.numberFormatId = format.index;
         } else {
-          cellXfs.numberFormatId =
-              _workbook.innerFormats.createFormat(style.numberFormat);
+          cellXfs.numberFormatId = _workbook.innerFormats.createFormat(
+            style.numberFormat,
+          );
         }
       } else {
         if (style.numberFormat == 'GENERAL' && style.numberFormatIndex == 14) {
@@ -3568,10 +4498,16 @@ class SerializeWorkbook {
       //Add alignment
       cellXfs.alignment = Alignment();
       cellXfs.alignment!.indent = style.indent;
-      cellXfs.alignment!.horizontal =
-          style.hAlign.toString().split('.').toList().removeAt(1);
-      cellXfs.alignment!.vertical =
-          style.vAlign.toString().split('.').toList().removeAt(1);
+      cellXfs.alignment!.horizontal = style.hAlign
+          .toString()
+          .split('.')
+          .toList()
+          .removeAt(1);
+      cellXfs.alignment!.vertical = style.vAlign
+          .toString()
+          .split('.')
+          .toList()
+          .removeAt(1);
       cellXfs.alignment!.wrapText = style.wrapText ? 1 : 0;
       cellXfs.alignment!.rotation = style.rotation;
 
@@ -3658,8 +4594,9 @@ class SerializeWorkbook {
           final Format format = _workbook.innerFormats[style.numberFormatIndex];
           cellXfs.numberFormatId = format.index;
         } else {
-          cellXfs.numberFormatId =
-              _workbook.innerFormats.createFormat(style.numberFormat);
+          cellXfs.numberFormatId = _workbook.innerFormats.createFormat(
+            style.numberFormat,
+          );
         }
       } else {
         if (style.numberFormat == 'GENERAL' && style.numberFormatIndex == 14) {
@@ -3671,10 +4608,16 @@ class SerializeWorkbook {
       //Add alignment
       cellXfs.alignment = Alignment();
       cellXfs.alignment!.indent = style.indent;
-      cellXfs.alignment!.horizontal =
-          style.hAlign.toString().split('.').toList().removeAt(1);
-      cellXfs.alignment!.vertical =
-          style.vAlign.toString().split('.').toList().removeAt(1);
+      cellXfs.alignment!.horizontal = style.hAlign
+          .toString()
+          .split('.')
+          .toList()
+          .removeAt(1);
+      cellXfs.alignment!.vertical = style.vAlign
+          .toString()
+          .split('.')
+          .toList()
+          .removeAt(1);
       cellXfs.alignment!.wrapText = style.wrapText ? 1 : 0;
       cellXfs.alignment!.rotation = style.rotation;
 
@@ -3696,476 +4639,712 @@ class SerializeWorkbook {
   void _saveNumberFormats(XmlBuilder builder) {
     final List<Format> arrFormats = _workbook.innerFormats.getUsedFormats();
     if (arrFormats.isNotEmpty) {
-      builder.element('numFmts', nest: () {
-        builder.attribute('count', arrFormats.length.toString());
-        for (int i = 0; i < arrFormats.length; i++) {
-          builder.element('numFmt', nest: () {
-            builder.attribute('numFmtId', arrFormats[i].index.toString());
-            final String formatString =
-                arrFormats[i].formatString!.replaceAll("'", '"');
-            builder.attribute('formatCode', formatString);
-          });
-        }
-      });
+      builder.element(
+        'numFmts',
+        nest: () {
+          builder.attribute('count', arrFormats.length.toString());
+          for (int i = 0; i < arrFormats.length; i++) {
+            builder.element(
+              'numFmt',
+              nest: () {
+                builder.attribute('numFmtId', arrFormats[i].index.toString());
+                final String formatString = arrFormats[i].formatString!
+                    .replaceAll("'", '"');
+                builder.attribute('formatCode', formatString);
+              },
+            );
+          }
+        },
+      );
     }
   }
 
   Future<void> _saveNumberFormatsAsync(XmlBuilder builder) async {
     final List<Format> arrFormats = _workbook.innerFormats.getUsedFormats();
     if (arrFormats.isNotEmpty) {
-      builder.element('numFmts', nest: () async {
-        builder.attribute('count', arrFormats.length.toString());
-        for (int i = 0; i < arrFormats.length; i++) {
-          builder.element('numFmt', nest: () async {
-            builder.attribute('numFmtId', arrFormats[i].index.toString());
-            final String formatString =
-                arrFormats[i].formatString!.replaceAll("'", '"');
-            builder.attribute('formatCode', formatString);
-          });
-        }
-      });
+      builder.element(
+        'numFmts',
+        nest: () async {
+          builder.attribute('count', arrFormats.length.toString());
+          for (int i = 0; i < arrFormats.length; i++) {
+            builder.element(
+              'numFmt',
+              nest: () async {
+                builder.attribute('numFmtId', arrFormats[i].index.toString());
+                final String formatString = arrFormats[i].formatString!
+                    .replaceAll("'", '"');
+                builder.attribute('formatCode', formatString);
+              },
+            );
+          }
+        },
+      );
     }
   }
 
   /// Serialize fonts.
   void _saveFonts(XmlBuilder builder) {
-    builder.element('fonts', nest: () {
-      builder.attribute('count', _workbook.fonts.length.toString());
-      if (_workbook.fonts.isNotEmpty) {
-        for (int i = 0; i < _workbook.fonts.length; i++) {
-          final Font font = _workbook.fonts[i];
-          builder.element('font', nest: () {
-            if (font.bold) {
-              builder.element('b', nest: () {});
-            }
-            if (font.italic) {
-              builder.element('i', nest: () {});
-            }
-            if (font.underline) {
-              builder.element('u', nest: () {});
-            }
-            builder.element('sz', nest: () {
-              builder.attribute('val', font.size.toString());
-            });
-            builder.element('color', nest: () {
-              builder.attribute('rgb', font.color);
-            });
-            builder.element('name', nest: () {
-              builder.attribute('val', font.name);
-            });
-          });
+    builder.element(
+      'fonts',
+      nest: () {
+        builder.attribute('count', _workbook.fonts.length.toString());
+        if (_workbook.fonts.isNotEmpty) {
+          for (int i = 0; i < _workbook.fonts.length; i++) {
+            final Font font = _workbook.fonts[i];
+            builder.element(
+              'font',
+              nest: () {
+                if (font.bold) {
+                  builder.element('b', nest: () {});
+                }
+                if (font.italic) {
+                  builder.element('i', nest: () {});
+                }
+                if (font.underline) {
+                  builder.element('u', nest: () {});
+                }
+                builder.element(
+                  'sz',
+                  nest: () {
+                    builder.attribute('val', font.size.toString());
+                  },
+                );
+                builder.element(
+                  'color',
+                  nest: () {
+                    builder.attribute('rgb', font.color);
+                  },
+                );
+                builder.element(
+                  'name',
+                  nest: () {
+                    builder.attribute('val', font.name);
+                  },
+                );
+              },
+            );
+          }
         }
-      }
-    });
+      },
+    );
   }
 
   Future<void> _saveFontsAsync(XmlBuilder builder) async {
-    builder.element('fonts', nest: () async {
-      builder.attribute('count', _workbook.fonts.length.toString());
-      if (_workbook.fonts.isNotEmpty) {
-        for (int i = 0; i < _workbook.fonts.length; i++) {
-          final Font font = _workbook.fonts[i];
-          builder.element('font', nest: () async {
-            if (font.bold) {
-              builder.element('b', nest: () async {});
-            }
-            if (font.italic) {
-              builder.element('i', nest: () async {});
-            }
-            if (font.underline) {
-              builder.element('u', nest: () async {});
-            }
-            builder.element('sz', nest: () async {
-              builder.attribute('val', font.size.toString());
-            });
-            builder.element('color', nest: () async {
-              builder.attribute('rgb', font.color);
-            });
-            builder.element('name', nest: () async {
-              builder.attribute('val', font.name);
-            });
-          });
+    builder.element(
+      'fonts',
+      nest: () async {
+        builder.attribute('count', _workbook.fonts.length.toString());
+        if (_workbook.fonts.isNotEmpty) {
+          for (int i = 0; i < _workbook.fonts.length; i++) {
+            final Font font = _workbook.fonts[i];
+            builder.element(
+              'font',
+              nest: () async {
+                if (font.bold) {
+                  builder.element('b', nest: () async {});
+                }
+                if (font.italic) {
+                  builder.element('i', nest: () async {});
+                }
+                if (font.underline) {
+                  builder.element('u', nest: () async {});
+                }
+                builder.element(
+                  'sz',
+                  nest: () async {
+                    builder.attribute('val', font.size.toString());
+                  },
+                );
+                builder.element(
+                  'color',
+                  nest: () async {
+                    builder.attribute('rgb', font.color);
+                  },
+                );
+                builder.element(
+                  'name',
+                  nest: () async {
+                    builder.attribute('val', font.name);
+                  },
+                );
+              },
+            );
+          }
         }
-      }
-    });
+      },
+    );
   }
 
   /// Serialize fills.
   void _saveFills(XmlBuilder builder) {
-    builder.element('fills', nest: () {
-      builder.attribute('count', (_workbook.fills.length + 2).toString());
-      builder.element('fill', nest: () {
-        builder.element('patternFill', nest: () {
-          builder.attribute('patternType', 'none');
-        });
-      });
-      builder.element('fill', nest: () {
-        builder.element('patternFill', nest: () {
-          builder.attribute('patternType', 'gray125');
-        });
-      });
-      if (_workbook.fills.isNotEmpty) {
-        _workbook.fills.forEach((String key, int value) {
-          builder.element('fill', nest: () {
-            builder.element('patternFill', nest: () {
-              builder.attribute('patternType', 'solid');
-              builder.element('fgColor', nest: () {
-                builder.attribute('rgb', key);
-              });
-              builder.element('bgColor', nest: () {
-                builder.attribute('rgb', 'FFFFFFFF');
-              });
-            });
+    builder.element(
+      'fills',
+      nest: () {
+        builder.attribute('count', (_workbook.fills.length + 2).toString());
+        builder.element(
+          'fill',
+          nest: () {
+            builder.element(
+              'patternFill',
+              nest: () {
+                builder.attribute('patternType', 'none');
+              },
+            );
+          },
+        );
+        builder.element(
+          'fill',
+          nest: () {
+            builder.element(
+              'patternFill',
+              nest: () {
+                builder.attribute('patternType', 'gray125');
+              },
+            );
+          },
+        );
+        if (_workbook.fills.isNotEmpty) {
+          _workbook.fills.forEach((String key, int value) {
+            builder.element(
+              'fill',
+              nest: () {
+                builder.element(
+                  'patternFill',
+                  nest: () {
+                    builder.attribute('patternType', 'solid');
+                    builder.element(
+                      'fgColor',
+                      nest: () {
+                        builder.attribute('rgb', key);
+                      },
+                    );
+                    builder.element(
+                      'bgColor',
+                      nest: () {
+                        builder.attribute('rgb', 'FFFFFFFF');
+                      },
+                    );
+                  },
+                );
+              },
+            );
           });
-        });
-      }
-    });
+        }
+      },
+    );
   }
 
   Future<void> _saveFillsAsync(XmlBuilder builder) async {
-    builder.element('fills', nest: () async {
-      builder.attribute('count', (_workbook.fills.length + 2).toString());
-      builder.element('fill', nest: () async {
-        builder.element('patternFill', nest: () async {
-          builder.attribute('patternType', 'none');
-        });
-      });
-      builder.element('fill', nest: () async {
-        builder.element('patternFill', nest: () async {
-          builder.attribute('patternType', 'gray125');
-        });
-      });
-      if (_workbook.fills.isNotEmpty) {
-        _workbook.fills.forEach((String key, int value) {
-          builder.element('fill', nest: () async {
-            builder.element('patternFill', nest: () async {
-              builder.attribute('patternType', 'solid');
-              builder.element('fgColor', nest: () async {
-                builder.attribute('rgb', key);
-              });
-              builder.element('bgColor', nest: () async {
-                builder.attribute('rgb', 'FFFFFFFF');
-              });
-            });
+    builder.element(
+      'fills',
+      nest: () async {
+        builder.attribute('count', (_workbook.fills.length + 2).toString());
+        builder.element(
+          'fill',
+          nest: () async {
+            builder.element(
+              'patternFill',
+              nest: () async {
+                builder.attribute('patternType', 'none');
+              },
+            );
+          },
+        );
+        builder.element(
+          'fill',
+          nest: () async {
+            builder.element(
+              'patternFill',
+              nest: () async {
+                builder.attribute('patternType', 'gray125');
+              },
+            );
+          },
+        );
+        if (_workbook.fills.isNotEmpty) {
+          _workbook.fills.forEach((String key, int value) {
+            builder.element(
+              'fill',
+              nest: () async {
+                builder.element(
+                  'patternFill',
+                  nest: () async {
+                    builder.attribute('patternType', 'solid');
+                    builder.element(
+                      'fgColor',
+                      nest: () async {
+                        builder.attribute('rgb', key);
+                      },
+                    );
+                    builder.element(
+                      'bgColor',
+                      nest: () async {
+                        builder.attribute('rgb', 'FFFFFFFF');
+                      },
+                    );
+                  },
+                );
+              },
+            );
           });
-        });
-      }
-    });
+        }
+      },
+    );
   }
 
   /// Serialize borders.
   void _saveBorders(XmlBuilder builder) {
-    builder.element('borders', nest: () {
-      builder.attribute('count', (_workbook.borders.length + 1).toString());
-      builder.element('border', nest: () {
-        builder.element('left', nest: () {});
-        builder.element('right', nest: () {});
-        builder.element('top', nest: () {});
-        builder.element('bottom', nest: () {});
-        builder.element('diagonal', nest: () {});
-      });
-      if (_workbook.borders.isNotEmpty) {
-        for (final Borders borders in _workbook.borders) {
-          if (Workbook.isAllBorder(borders)) {
-            builder.element('border', nest: () {
-              _serializeBorder(borders.all, builder, 'left');
-              _serializeBorder(borders.all, builder, 'right');
-              _serializeBorder(borders.all, builder, 'top');
-              _serializeBorder(borders.all, builder, 'bottom');
-              _serializeBorder(borders.all, builder, 'diagonal');
-            });
-          } else {
-            _serializeBorders(borders, builder);
+    builder.element(
+      'borders',
+      nest: () {
+        builder.attribute('count', (_workbook.borders.length + 1).toString());
+        builder.element(
+          'border',
+          nest: () {
+            builder.element('left', nest: () {});
+            builder.element('right', nest: () {});
+            builder.element('top', nest: () {});
+            builder.element('bottom', nest: () {});
+            builder.element('diagonal', nest: () {});
+          },
+        );
+        if (_workbook.borders.isNotEmpty) {
+          for (final Borders borders in _workbook.borders) {
+            if (Workbook.isAllBorder(borders)) {
+              builder.element(
+                'border',
+                nest: () {
+                  _serializeBorder(borders.all, builder, 'left');
+                  _serializeBorder(borders.all, builder, 'right');
+                  _serializeBorder(borders.all, builder, 'top');
+                  _serializeBorder(borders.all, builder, 'bottom');
+                  _serializeBorder(borders.all, builder, 'diagonal');
+                },
+              );
+            } else {
+              _serializeBorders(borders, builder);
+            }
           }
         }
-      }
-    });
+      },
+    );
   }
 
   Future<void> _saveBordersAsync(XmlBuilder builder) async {
-    builder.element('borders', nest: () async {
-      builder.attribute('count', (_workbook.borders.length + 1).toString());
-      builder.element('border', nest: () async {
-        builder.element('left', nest: () async {});
-        builder.element('right', nest: () async {});
-        builder.element('top', nest: () async {});
-        builder.element('bottom', nest: () async {});
-        builder.element('diagonal', nest: () async {});
-      });
-      if (_workbook.borders.isNotEmpty) {
-        for (final Borders borders in _workbook.borders) {
-          if (Workbook.isAllBorder(borders)) {
-            builder.element('border', nest: () async {
-              _serializeBorderAsync(borders.all, builder, 'left');
-              _serializeBorderAsync(borders.all, builder, 'right');
-              _serializeBorderAsync(borders.all, builder, 'top');
-              _serializeBorderAsync(borders.all, builder, 'bottom');
-              _serializeBorderAsync(borders.all, builder, 'diagonal');
-            });
-          } else {
-            _serializeBordersAsync(borders, builder);
+    builder.element(
+      'borders',
+      nest: () async {
+        builder.attribute('count', (_workbook.borders.length + 1).toString());
+        builder.element(
+          'border',
+          nest: () async {
+            builder.element('left', nest: () async {});
+            builder.element('right', nest: () async {});
+            builder.element('top', nest: () async {});
+            builder.element('bottom', nest: () async {});
+            builder.element('diagonal', nest: () async {});
+          },
+        );
+        if (_workbook.borders.isNotEmpty) {
+          for (final Borders borders in _workbook.borders) {
+            if (Workbook.isAllBorder(borders)) {
+              builder.element(
+                'border',
+                nest: () async {
+                  _serializeBorderAsync(borders.all, builder, 'left');
+                  _serializeBorderAsync(borders.all, builder, 'right');
+                  _serializeBorderAsync(borders.all, builder, 'top');
+                  _serializeBorderAsync(borders.all, builder, 'bottom');
+                  _serializeBorderAsync(borders.all, builder, 'diagonal');
+                },
+              );
+            } else {
+              _serializeBordersAsync(borders, builder);
+            }
           }
         }
-      }
-    });
+      },
+    );
   }
 
   /// serializeBorders collection.
   void _serializeBorders(Borders borders, XmlBuilder builder) {
-    builder.element('border', nest: () {
-      _serializeBorder(borders.left, builder, 'left');
-      _serializeBorder(borders.right, builder, 'right');
-      _serializeBorder(borders.top, builder, 'top');
-      _serializeBorder(borders.bottom, builder, 'bottom');
-    });
+    builder.element(
+      'border',
+      nest: () {
+        _serializeBorder(borders.left, builder, 'left');
+        _serializeBorder(borders.right, builder, 'right');
+        _serializeBorder(borders.top, builder, 'top');
+        _serializeBorder(borders.bottom, builder, 'bottom');
+      },
+    );
   }
 
   Future<void> _serializeBordersAsync(
-      Borders borders, XmlBuilder builder) async {
-    builder.element('border', nest: () async {
-      _serializeBorderAsync(borders.left, builder, 'left');
-      _serializeBorderAsync(borders.right, builder, 'right');
-      _serializeBorderAsync(borders.top, builder, 'top');
-      _serializeBorderAsync(borders.bottom, builder, 'bottom');
-    });
+    Borders borders,
+    XmlBuilder builder,
+  ) async {
+    builder.element(
+      'border',
+      nest: () async {
+        _serializeBorderAsync(borders.left, builder, 'left');
+        _serializeBorderAsync(borders.right, builder, 'right');
+        _serializeBorderAsync(borders.top, builder, 'top');
+        _serializeBorderAsync(borders.bottom, builder, 'bottom');
+      },
+    );
   }
 
   /// Serialize borders.
   void _serializeBorder(Border border, XmlBuilder builder, String borderType) {
-    builder.element(borderType, nest: () {
-      builder.attribute(
-          'style', border.lineStyle.toString().split('.').toList().removeAt(1));
-      builder.element('color', nest: () {
-        if (border.color.length == 7) {
-          builder.attribute('rgb', 'FF${border.color.replaceAll('#', '')}');
-        } else {
-          builder.attribute('rgb', border.color);
-        }
-      });
-    });
+    builder.element(
+      borderType,
+      nest: () {
+        builder.attribute(
+          'style',
+          border.lineStyle.toString().split('.').toList().removeAt(1),
+        );
+        builder.element(
+          'color',
+          nest: () {
+            if (border.color.length == 7) {
+              builder.attribute('rgb', 'FF${border.color.replaceAll('#', '')}');
+            } else {
+              builder.attribute('rgb', border.color);
+            }
+          },
+        );
+      },
+    );
   }
 
   Future<void> _serializeBorderAsync(
-      Border border, XmlBuilder builder, String borderType) async {
-    builder.element(borderType, nest: () async {
-      builder.attribute(
-          'style', border.lineStyle.toString().split('.').toList().removeAt(1));
-      builder.element('color', nest: () async {
-        if (border.color.length == 7) {
-          builder.attribute('rgb', 'FF${border.color.replaceAll('#', '')}');
-        } else {
-          builder.attribute('rgb', border.color);
-        }
-      });
-    });
+    Border border,
+    XmlBuilder builder,
+    String borderType,
+  ) async {
+    builder.element(
+      borderType,
+      nest: () async {
+        builder.attribute(
+          'style',
+          border.lineStyle.toString().split('.').toList().removeAt(1),
+        );
+        builder.element(
+          'color',
+          nest: () async {
+            if (border.color.length == 7) {
+              builder.attribute('rgb', 'FF${border.color.replaceAll('#', '')}');
+            } else {
+              builder.attribute('rgb', border.color);
+            }
+          },
+        );
+      },
+    );
   }
 
   /// Serialize cell styles xfs.
   void _saveCellStyleXfs(XmlBuilder builder) {
-    builder.element('cellStyleXfs', nest: () {
-      builder.attribute(
-          'count', (_workbook.cellStyleXfs.length + 1).toString());
-      builder.element('xf', nest: () {
-        builder.attribute('numFmtId', '0');
-        builder.attribute('fontId', '0');
-        builder.attribute('fillId', '0');
-        builder.attribute('borderId', '0');
-      });
-      if (_workbook.cellStyleXfs.isNotEmpty) {
-        for (final CellStyleXfs cellStyleXfs in _workbook.cellStyleXfs) {
-          builder.element('xf', nest: () {
-            builder.attribute(
-                'numFmtId', cellStyleXfs.numberFormatId.toString());
-            builder.attribute('fontId', cellStyleXfs.fontId.toString());
-            builder.attribute('fillId', cellStyleXfs.fillId.toString());
-            builder.attribute('borderId', cellStyleXfs.borderId.toString());
-          });
+    builder.element(
+      'cellStyleXfs',
+      nest: () {
+        builder.attribute(
+          'count',
+          (_workbook.cellStyleXfs.length + 1).toString(),
+        );
+        builder.element(
+          'xf',
+          nest: () {
+            builder.attribute('numFmtId', '0');
+            builder.attribute('fontId', '0');
+            builder.attribute('fillId', '0');
+            builder.attribute('borderId', '0');
+          },
+        );
+        if (_workbook.cellStyleXfs.isNotEmpty) {
+          for (final CellStyleXfs cellStyleXfs in _workbook.cellStyleXfs) {
+            builder.element(
+              'xf',
+              nest: () {
+                builder.attribute(
+                  'numFmtId',
+                  cellStyleXfs.numberFormatId.toString(),
+                );
+                builder.attribute('fontId', cellStyleXfs.fontId.toString());
+                builder.attribute('fillId', cellStyleXfs.fillId.toString());
+                builder.attribute('borderId', cellStyleXfs.borderId.toString());
+              },
+            );
+          }
         }
-      }
-    });
+      },
+    );
   }
 
   Future<void> _saveCellStyleXfsAsync(XmlBuilder builder) async {
-    builder.element('cellStyleXfs', nest: () async {
-      builder.attribute(
-          'count', (_workbook.cellStyleXfs.length + 1).toString());
-      builder.element('xf', nest: () async {
-        builder.attribute('numFmtId', '0');
-        builder.attribute('fontId', '0');
-        builder.attribute('fillId', '0');
-        builder.attribute('borderId', '0');
-      });
-      if (_workbook.cellStyleXfs.isNotEmpty) {
-        for (final CellStyleXfs cellStyleXfs in _workbook.cellStyleXfs) {
-          builder.element('xf', nest: () async {
-            builder.attribute(
-                'numFmtId', cellStyleXfs.numberFormatId.toString());
-            builder.attribute('fontId', cellStyleXfs.fontId.toString());
-            builder.attribute('fillId', cellStyleXfs.fillId.toString());
-            builder.attribute('borderId', cellStyleXfs.borderId.toString());
-          });
+    builder.element(
+      'cellStyleXfs',
+      nest: () async {
+        builder.attribute(
+          'count',
+          (_workbook.cellStyleXfs.length + 1).toString(),
+        );
+        builder.element(
+          'xf',
+          nest: () async {
+            builder.attribute('numFmtId', '0');
+            builder.attribute('fontId', '0');
+            builder.attribute('fillId', '0');
+            builder.attribute('borderId', '0');
+          },
+        );
+        if (_workbook.cellStyleXfs.isNotEmpty) {
+          for (final CellStyleXfs cellStyleXfs in _workbook.cellStyleXfs) {
+            builder.element(
+              'xf',
+              nest: () async {
+                builder.attribute(
+                  'numFmtId',
+                  cellStyleXfs.numberFormatId.toString(),
+                );
+                builder.attribute('fontId', cellStyleXfs.fontId.toString());
+                builder.attribute('fillId', cellStyleXfs.fillId.toString());
+                builder.attribute('borderId', cellStyleXfs.borderId.toString());
+              },
+            );
+          }
         }
-      }
-    });
+      },
+    );
   }
 
   /// Serialize cell styles xfs.
   void _saveCellXfs(XmlBuilder builder) {
-    builder.element('cellXfs', nest: () {
-      builder.attribute('count', _workbook.cellXfs.length.toString());
-      if (_workbook.cellXfs.isNotEmpty) {
-        for (final CellXfs cellXf in _workbook.cellXfs) {
-          builder.element('xf', nest: () {
-            builder.attribute('numFmtId', cellXf.numberFormatId.toString());
-            builder.attribute('fontId', cellXf.fontId.toString());
-            builder.attribute('fillId', cellXf.fillId.toString());
-            builder.attribute('borderId', cellXf.borderId.toString());
-            builder.attribute('xfId', cellXf.xfId.toString());
-            _saveAlignment(cellXf, builder);
-            _saveProtection(cellXf, builder);
-          });
+    builder.element(
+      'cellXfs',
+      nest: () {
+        builder.attribute('count', _workbook.cellXfs.length.toString());
+        if (_workbook.cellXfs.isNotEmpty) {
+          for (final CellXfs cellXf in _workbook.cellXfs) {
+            builder.element(
+              'xf',
+              nest: () {
+                builder.attribute('numFmtId', cellXf.numberFormatId.toString());
+                builder.attribute('fontId', cellXf.fontId.toString());
+                builder.attribute('fillId', cellXf.fillId.toString());
+                builder.attribute('borderId', cellXf.borderId.toString());
+                builder.attribute('xfId', cellXf.xfId.toString());
+                _saveAlignment(cellXf, builder);
+                _saveProtection(cellXf, builder);
+              },
+            );
+          }
         }
-      }
-    });
+      },
+    );
   }
 
   Future<void> _saveCellXfsAsync(XmlBuilder builder) async {
-    builder.element('cellXfs', nest: () async {
-      builder.attribute('count', _workbook.cellXfs.length.toString());
-      if (_workbook.cellXfs.isNotEmpty) {
-        for (final CellXfs cellXf in _workbook.cellXfs) {
-          builder.element('xf', nest: () async {
-            builder.attribute('numFmtId', cellXf.numberFormatId.toString());
-            builder.attribute('fontId', cellXf.fontId.toString());
-            builder.attribute('fillId', cellXf.fillId.toString());
-            builder.attribute('borderId', cellXf.borderId.toString());
-            builder.attribute('xfId', cellXf.xfId.toString());
-            _saveAlignmentAsync(cellXf, builder);
-            _saveProtectionAsync(cellXf, builder);
-          });
+    builder.element(
+      'cellXfs',
+      nest: () async {
+        builder.attribute('count', _workbook.cellXfs.length.toString());
+        if (_workbook.cellXfs.isNotEmpty) {
+          for (final CellXfs cellXf in _workbook.cellXfs) {
+            builder.element(
+              'xf',
+              nest: () async {
+                builder.attribute('numFmtId', cellXf.numberFormatId.toString());
+                builder.attribute('fontId', cellXf.fontId.toString());
+                builder.attribute('fillId', cellXf.fillId.toString());
+                builder.attribute('borderId', cellXf.borderId.toString());
+                builder.attribute('xfId', cellXf.xfId.toString());
+                _saveAlignmentAsync(cellXf, builder);
+                _saveProtectionAsync(cellXf, builder);
+              },
+            );
+          }
         }
-      }
-    });
+      },
+    );
   }
 
   ///Serialize Protection.
   void _saveProtection(CellStyleXfs cellXf, XmlBuilder builder) {
     if (cellXf.locked != 1) {
-      builder.element('protection', nest: () {
-        builder.attribute('locked', cellXf.locked.toString());
-      });
+      builder.element(
+        'protection',
+        nest: () {
+          builder.attribute('locked', cellXf.locked.toString());
+        },
+      );
     }
   }
 
   Future<void> _saveProtectionAsync(
-      CellStyleXfs cellXf, XmlBuilder builder) async {
+    CellStyleXfs cellXf,
+    XmlBuilder builder,
+  ) async {
     if (cellXf.locked != 1) {
-      builder.element('protection', nest: () async {
-        builder.attribute('locked', cellXf.locked.toString());
-      });
+      builder.element(
+        'protection',
+        nest: () async {
+          builder.attribute('locked', cellXf.locked.toString());
+        },
+      );
     }
   }
 
   /// Serialize alignment.
   void _saveAlignment(CellStyleXfs cellXf, XmlBuilder builder) {
-    builder.element('alignment', nest: () {
-      if (cellXf.alignment != null) {
-        if (cellXf.alignment!.horizontal != '') {
-          builder.attribute(
-              'horizontal', cellXf.alignment!.horizontal.toLowerCase());
+    builder.element(
+      'alignment',
+      nest: () {
+        if (cellXf.alignment != null) {
+          if (cellXf.alignment!.horizontal != '') {
+            builder.attribute(
+              'horizontal',
+              cellXf.alignment!.horizontal.toLowerCase(),
+            );
+          }
+          if (cellXf.alignment!.indent != 0) {
+            builder.attribute('indent', cellXf.alignment!.indent.toString());
+          } else if (cellXf.alignment!.rotation != 0) {
+            builder.attribute(
+              'textRotation',
+              cellXf.alignment!.rotation.toString(),
+            );
+          }
+          if (cellXf.alignment!.vertical != '') {
+            builder.attribute(
+              'vertical',
+              cellXf.alignment!.vertical.toLowerCase(),
+            );
+          }
+          builder.attribute('wrapText', cellXf.alignment!.wrapText.toString());
         }
-        if (cellXf.alignment!.indent != 0) {
-          builder.attribute('indent', cellXf.alignment!.indent.toString());
-        } else if (cellXf.alignment!.rotation != 0) {
-          builder.attribute(
-              'textRotation', cellXf.alignment!.rotation.toString());
-        }
-        if (cellXf.alignment!.vertical != '') {
-          builder.attribute(
-              'vertical', cellXf.alignment!.vertical.toLowerCase());
-        }
-        builder.attribute('wrapText', cellXf.alignment!.wrapText.toString());
-      }
-    });
+      },
+    );
   }
 
   Future<void> _saveAlignmentAsync(
-      CellStyleXfs cellXf, XmlBuilder builder) async {
-    builder.element('alignment', nest: () async {
-      if (cellXf.alignment != null) {
-        if (cellXf.alignment!.horizontal != '') {
-          builder.attribute(
-              'horizontal', cellXf.alignment!.horizontal.toLowerCase());
+    CellStyleXfs cellXf,
+    XmlBuilder builder,
+  ) async {
+    builder.element(
+      'alignment',
+      nest: () async {
+        if (cellXf.alignment != null) {
+          if (cellXf.alignment!.horizontal != '') {
+            builder.attribute(
+              'horizontal',
+              cellXf.alignment!.horizontal.toLowerCase(),
+            );
+          }
+          if (cellXf.alignment!.indent != 0) {
+            builder.attribute('indent', cellXf.alignment!.indent.toString());
+          } else if (cellXf.alignment!.rotation != 0) {
+            builder.attribute(
+              'textRotation',
+              cellXf.alignment!.rotation.toString(),
+            );
+          }
+          if (cellXf.alignment!.vertical != '') {
+            builder.attribute(
+              'vertical',
+              cellXf.alignment!.vertical.toLowerCase(),
+            );
+          }
+          builder.attribute('wrapText', cellXf.alignment!.wrapText.toString());
         }
-        if (cellXf.alignment!.indent != 0) {
-          builder.attribute('indent', cellXf.alignment!.indent.toString());
-        } else if (cellXf.alignment!.rotation != 0) {
-          builder.attribute(
-              'textRotation', cellXf.alignment!.rotation.toString());
-        }
-        if (cellXf.alignment!.vertical != '') {
-          builder.attribute(
-              'vertical', cellXf.alignment!.vertical.toLowerCase());
-        }
-        builder.attribute('wrapText', cellXf.alignment!.wrapText.toString());
-      }
-    });
+      },
+    );
   }
 
   /// Serialize cell styles.
   void _saveGlobalCellstyles(XmlBuilder builder) {
     final int length = _workbook.globalStyles.length + 1;
-    builder.element('cellStyles', nest: () {
-      builder.attribute('count', length.toString());
-      builder.element('cellStyle', nest: () {
-        builder.attribute('name', 'Normal');
-        builder.attribute('xfId', '0');
-        builder.attribute('builtinId', '0');
-      });
-      _workbook.globalStyles.forEach((String key, GlobalStyle value) {
-        builder.element('cellStyle', nest: () {
-          if (key != '') {
-            builder.attribute('name', key);
-            builder.attribute(
-                'xfId', _workbook.globalStyles[key]!.xfId.toString());
-            if (_workbook.globalStyles[key]!.builtinId != 0) {
-              builder.attribute('builtinId',
-                  _workbook.globalStyles[key]!.builtinId.toString());
-            }
-          }
+    builder.element(
+      'cellStyles',
+      nest: () {
+        builder.attribute('count', length.toString());
+        builder.element(
+          'cellStyle',
+          nest: () {
+            builder.attribute('name', 'Normal');
+            builder.attribute('xfId', '0');
+            builder.attribute('builtinId', '0');
+          },
+        );
+        _workbook.globalStyles.forEach((String key, GlobalStyle value) {
+          builder.element(
+            'cellStyle',
+            nest: () {
+              if (key != '') {
+                builder.attribute('name', key);
+                builder.attribute(
+                  'xfId',
+                  _workbook.globalStyles[key]!.xfId.toString(),
+                );
+                if (_workbook.globalStyles[key]!.builtinId != 0) {
+                  builder.attribute(
+                    'builtinId',
+                    _workbook.globalStyles[key]!.builtinId.toString(),
+                  );
+                }
+              }
+            },
+          );
         });
-      });
-    });
+      },
+    );
   }
 
   Future<void> _saveGlobalCellstylesAsync(XmlBuilder builder) async {
     final int length = _workbook.globalStyles.length + 1;
-    builder.element('cellStyles', nest: () async {
-      builder.attribute('count', length.toString());
-      builder.element('cellStyle', nest: () async {
-        builder.attribute('name', 'Normal');
-        builder.attribute('xfId', '0');
-        builder.attribute('builtinId', '0');
-      });
-      _workbook.globalStyles.forEach((String key, GlobalStyle value) {
-        builder.element('cellStyle', nest: () async {
-          if (key != '') {
-            builder.attribute('name', key);
-            builder.attribute(
-                'xfId', _workbook.globalStyles[key]!.xfId.toString());
-            if (_workbook.globalStyles[key]!.builtinId != 0) {
-              builder.attribute('builtinId',
-                  _workbook.globalStyles[key]!.builtinId.toString());
-            }
-          }
+    builder.element(
+      'cellStyles',
+      nest: () async {
+        builder.attribute('count', length.toString());
+        builder.element(
+          'cellStyle',
+          nest: () async {
+            builder.attribute('name', 'Normal');
+            builder.attribute('xfId', '0');
+            builder.attribute('builtinId', '0');
+          },
+        );
+        _workbook.globalStyles.forEach((String key, GlobalStyle value) {
+          builder.element(
+            'cellStyle',
+            nest: () async {
+              if (key != '') {
+                builder.attribute('name', key);
+                builder.attribute(
+                  'xfId',
+                  _workbook.globalStyles[key]!.xfId.toString(),
+                );
+                if (_workbook.globalStyles[key]!.builtinId != 0) {
+                  builder.attribute(
+                    'builtinId',
+                    _workbook.globalStyles[key]!.builtinId.toString(),
+                  );
+                }
+              }
+            },
+          );
         });
-      });
-    });
+      },
+    );
   }
 
   /// Process the Merge cell.
   MergedCellCollection _processMergeCells(
-      Range cell, int rowIndex, MergedCellCollection mergeCells) {
+    Range cell,
+    int rowIndex,
+    MergedCellCollection mergeCells,
+  ) {
     if (cell.rowSpan != 0 || cell.columnSpan != 0) {
       final MergeCell mCell = MergeCell();
       mCell.x = cell.index;
@@ -4173,8 +5352,10 @@ class SerializeWorkbook {
       mCell.y = rowIndex;
       mCell.height = cell.rowSpan;
       final String startCell = Range.getCellName(mCell.y, mCell.x);
-      final String endCell =
-          Range.getCellName(rowIndex + mCell.height, cell.index + mCell.width);
+      final String endCell = Range.getCellName(
+        rowIndex + mCell.height,
+        cell.index + mCell.width,
+      );
       mCell.reference = '$startCell:$endCell';
       mergeCells.addCell(mCell);
       final ExtendCell start = ExtendCell();
@@ -4190,7 +5371,10 @@ class SerializeWorkbook {
 
   /// Update merged cell styles
   void _updatedMergedCellStyles(
-      ExtendCell sCell, ExtendCell eCell, Range cell) {
+    ExtendCell sCell,
+    ExtendCell eCell,
+    Range cell,
+  ) {
     final Workbook workbook = cell.workbook;
     for (int x = sCell.x; x <= eCell.x; x++) {
       for (int y = sCell.y; y <= eCell.y; y++) {
@@ -4215,10 +5399,11 @@ class SerializeWorkbook {
     }
 
     for (int dvTable = 0; dvTable < dataValidationTable.count; dvTable++) {
-      for (int dvCollection = 0;
-          dvCollection <
-              dataValidationTable.dataValidationCollectionList.length;
-          dvCollection++) {
+      for (
+        int dvCollection = 0;
+        dvCollection < dataValidationTable.dataValidationCollectionList.length;
+        dvCollection++
+      ) {
         final DataValidationCollection dataValidationCollection =
             dataValidationTable.dataValidationCollectionList[dvCollection];
         _serializeDataValidationCollection(builder, dataValidationCollection);
@@ -4227,7 +5412,9 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeDataValidationsAsync(
-      XmlBuilder builder, Worksheet sheet) async {
+    XmlBuilder builder,
+    Worksheet sheet,
+  ) async {
     final DataValidationTable dataValidationTable = sheet.dataValidationTable;
 
     if (dataValidationTable.count == 0) {
@@ -4235,69 +5422,114 @@ class SerializeWorkbook {
     }
 
     for (int dvTable = 0; dvTable < dataValidationTable.count; dvTable++) {
-      for (int dvCollection = 0;
-          dvCollection <
-              dataValidationTable.dataValidationCollectionList.length;
-          dvCollection++) {
+      for (
+        int dvCollection = 0;
+        dvCollection < dataValidationTable.dataValidationCollectionList.length;
+        dvCollection++
+      ) {
         final DataValidationCollection dataValidationCollection =
             dataValidationTable.dataValidationCollectionList[dvCollection];
         _serializeDataValidationCollectionAsync(
-            builder, dataValidationCollection);
+          builder,
+          dataValidationCollection,
+        );
       }
     }
   }
 
   ///Serialize DataValidation Collection
   void _serializeDataValidationCollection(
-      XmlBuilder builder, DataValidationCollection dataValidationCollection) {
+    XmlBuilder builder,
+    DataValidationCollection dataValidationCollection,
+  ) {
     if (dataValidationCollection.count == 0) {
       return;
     }
 
-    builder.element('dataValidations', nest: () {
-      _serializeAttributeInt(
-          builder, 'count', dataValidationCollection.count, 0);
+    builder.element(
+      'dataValidations',
+      nest: () {
+        _serializeAttributeInt(
+          builder,
+          'count',
+          dataValidationCollection.count,
+          0,
+        );
 
-      if (dataValidationCollection.isPromptBoxPositionFixedVal) {
-        _serializeAttributeInt(builder, 'xWindow',
-            dataValidationCollection.promptBoxVPositionVal, 0);
+        if (dataValidationCollection.isPromptBoxPositionFixedVal) {
+          _serializeAttributeInt(
+            builder,
+            'xWindow',
+            dataValidationCollection.promptBoxVPositionVal,
+            0,
+          );
 
-        _serializeAttributeInt(builder, 'yWindow',
-            dataValidationCollection.promptBoxHPositionVal, 0);
-      }
+          _serializeAttributeInt(
+            builder,
+            'yWindow',
+            dataValidationCollection.promptBoxHPositionVal,
+            0,
+          );
+        }
 
-      for (int dvList = 0;
+        for (
+          int dvList = 0;
           dvList < dataValidationCollection.dataValidationList.length;
-          dvList++) {
-        _serializeDataValidation(
-            builder, dataValidationCollection.dataValidationList[dvList]);
-      }
-    });
+          dvList++
+        ) {
+          _serializeDataValidation(
+            builder,
+            dataValidationCollection.dataValidationList[dvList],
+          );
+        }
+      },
+    );
   }
 
-  Future<void> _serializeDataValidationCollectionAsync(XmlBuilder builder,
-      DataValidationCollection dataValidationCollection) async {
+  Future<void> _serializeDataValidationCollectionAsync(
+    XmlBuilder builder,
+    DataValidationCollection dataValidationCollection,
+  ) async {
     if (dataValidationCollection.count == 0) {
       return;
     }
 
-    builder.element('dataValidations', nest: () async {
-      _serializeAttributeIntAsync(
-          builder, 'count', dataValidationCollection.count, 0);
-      if (dataValidationCollection.isPromptBoxPositionFixedVal) {
-        _serializeAttributeIntAsync(builder, 'xWindow',
-            dataValidationCollection.promptBoxVPositionVal, 0);
-        _serializeAttributeIntAsync(builder, 'yWindow',
-            dataValidationCollection.promptBoxHPositionVal, 0);
-      }
+    builder.element(
+      'dataValidations',
+      nest: () async {
+        _serializeAttributeIntAsync(
+          builder,
+          'count',
+          dataValidationCollection.count,
+          0,
+        );
+        if (dataValidationCollection.isPromptBoxPositionFixedVal) {
+          _serializeAttributeIntAsync(
+            builder,
+            'xWindow',
+            dataValidationCollection.promptBoxVPositionVal,
+            0,
+          );
+          _serializeAttributeIntAsync(
+            builder,
+            'yWindow',
+            dataValidationCollection.promptBoxHPositionVal,
+            0,
+          );
+        }
 
-      for (int dvList = 0;
+        for (
+          int dvList = 0;
           dvList < dataValidationCollection.dataValidationList.length;
-          dvList++) {
-        _serializeDataValidationAsync(
-            builder, dataValidationCollection.dataValidationList[dvList]);
-      }
-    });
+          dvList++
+        ) {
+          _serializeDataValidationAsync(
+            builder,
+            dataValidationCollection.dataValidationList[dvList],
+          );
+        }
+      },
+    );
   }
 
   ///DataType properties for DataValidation
@@ -4345,7 +5577,8 @@ class SerializeWorkbook {
 
   ///ComparisonOperator properties for DataValidation
   String _getComparisonOperator(
-      ExcelDataValidationComparisonOperator dataValComparisonOperator) {
+    ExcelDataValidationComparisonOperator dataValComparisonOperator,
+  ) {
     switch (dataValComparisonOperator) {
       case ExcelDataValidationComparisonOperator.equal:
         return 'equal';
@@ -4374,15 +5607,23 @@ class SerializeWorkbook {
   }
 
   ///method for comparing String value
-  void _serializeDataValStringAttribute(XmlBuilder builder,
-      String attributeName, String value, String defaultValue) {
+  void _serializeDataValStringAttribute(
+    XmlBuilder builder,
+    String attributeName,
+    String value,
+    String defaultValue,
+  ) {
     if (value != defaultValue) {
       builder.attribute(attributeName, value);
     }
   }
 
-  Future<void> _serializeDataValStringAttributeAsync(XmlBuilder builder,
-      String attributeName, String value, String defaultValue) async {
+  Future<void> _serializeDataValStringAttributeAsync(
+    XmlBuilder builder,
+    String attributeName,
+    String value,
+    String defaultValue,
+  ) async {
     if (value != defaultValue) {
       builder.attribute(attributeName, value);
     }
@@ -4390,381 +5631,471 @@ class SerializeWorkbook {
 
   /// Serialize DataValidation
   void _serializeDataValidation(
-      XmlBuilder builder, DataValidationImpl dataValidationImpl) {
-    builder.element('dataValidation', nest: () {
-      final ExcelDataValidationType dataType = dataValidationImpl.allowType;
+    XmlBuilder builder,
+    DataValidationImpl dataValidationImpl,
+  ) {
+    builder.element(
+      'dataValidation',
+      nest: () {
+        final ExcelDataValidationType dataType = dataValidationImpl.allowType;
 
-      if (dataType != ExcelDataValidationType.any) {
-        builder.attribute('type', _getDataType(dataType));
-      }
-
-      final ExcelDataValidationErrorStyle errorStyle =
-          dataValidationImpl.errorStyle;
-
-      if (errorStyle != ExcelDataValidationErrorStyle.stop) {
-        builder.attribute('errorStyle', _getErrorStyle(errorStyle));
-      }
-      final ExcelDataValidationComparisonOperator comparisonOperator =
-          dataValidationImpl.comparisonOperator;
-
-      if (comparisonOperator != ExcelDataValidationComparisonOperator.between &&
-          _getDataType(dataType) != 'custom') {
-        builder.attribute(
-            'operator', _getComparisonOperator(comparisonOperator));
-      }
-
-      _serializeAttributes(
-          builder, 'allowBlank', dataValidationImpl.isEmptyCellAllowed, false);
-
-      _serializeAttributes(builder, 'showDropDown',
-          dataValidationImpl.isSuppressDropDownArrow, false);
-
-      _serializeAttributes(
-          builder, 'showInputMessage', dataValidationImpl.showPromptBox, false);
-
-      _serializeAttributes(
-          builder, 'showErrorMessage', dataValidationImpl.showErrorBox, false);
-
-      _serializeDataValStringAttribute(
-          builder, 'errorTitle', dataValidationImpl.errorBoxTitle, '');
-
-      _serializeDataValStringAttribute(
-          builder, 'error', dataValidationImpl.errorBoxText, '');
-
-      _serializeDataValStringAttribute(
-          builder, 'promptTitle', dataValidationImpl.promptBoxTitle, '');
-
-      _serializeDataValStringAttribute(
-          builder, 'prompt', dataValidationImpl.promptBoxText, '');
-
-      _serializeDataValStringAttribute(
-          builder, 'sqref', dataValidationImpl.cellRange, '');
-
-      if ('textLength' == _getDataType(dataType) ||
-          'decimal' == _getDataType(dataType) ||
-          'whole' == _getDataType(dataType)) {
-        final String firstFormula = dataValidationImpl.firstFormula;
-        final String secondFormula = dataValidationImpl.secondFormula;
-        if (firstFormula != '') {
-          builder.element('formula1', nest: firstFormula);
+        if (dataType != ExcelDataValidationType.any) {
+          builder.attribute('type', _getDataType(dataType));
         }
-        if (secondFormula != '') {
-          builder.element('formula2', nest: secondFormula);
+
+        final ExcelDataValidationErrorStyle errorStyle =
+            dataValidationImpl.errorStyle;
+
+        if (errorStyle != ExcelDataValidationErrorStyle.stop) {
+          builder.attribute('errorStyle', _getErrorStyle(errorStyle));
         }
-      } else if ('time' == _getDataType(dataType)) {
-        final String firstFormula = dataValidationImpl.firstFormula;
-        final String secondFormula = dataValidationImpl.secondFormula;
-        final List<String> firstFormulaCheck = firstFormula.split(':');
-        final List<String> secondFormulaCheck = secondFormula.split(':');
-        late Duration duration;
-        late double firstFormulaVal;
-        late double secondFormulaVal;
-        late String firstTimeVal;
-        late String secondTimeVal;
-        if (firstFormulaCheck.length == 2) {
-          final int? hour = int.tryParse(firstFormulaCheck[0]);
-          final int? min = int.tryParse(firstFormulaCheck[1]);
+        final ExcelDataValidationComparisonOperator comparisonOperator =
+            dataValidationImpl.comparisonOperator;
 
-          if (hour != null && min != null) {
-            duration = Duration(hours: hour, minutes: min);
+        if (comparisonOperator !=
+                ExcelDataValidationComparisonOperator.between &&
+            _getDataType(dataType) != 'custom') {
+          builder.attribute(
+            'operator',
+            _getComparisonOperator(comparisonOperator),
+          );
+        }
 
-            firstFormulaVal = (duration.inMinutes / 60) / 24;
-            firstTimeVal = firstFormulaVal.toString();
-          } else {
-            firstTimeVal = firstFormula;
+        _serializeAttributes(
+          builder,
+          'allowBlank',
+          dataValidationImpl.isEmptyCellAllowed,
+          false,
+        );
+
+        _serializeAttributes(
+          builder,
+          'showDropDown',
+          dataValidationImpl.isSuppressDropDownArrow,
+          false,
+        );
+
+        _serializeAttributes(
+          builder,
+          'showInputMessage',
+          dataValidationImpl.showPromptBox,
+          false,
+        );
+
+        _serializeAttributes(
+          builder,
+          'showErrorMessage',
+          dataValidationImpl.showErrorBox,
+          false,
+        );
+
+        _serializeDataValStringAttribute(
+          builder,
+          'errorTitle',
+          dataValidationImpl.errorBoxTitle,
+          '',
+        );
+
+        _serializeDataValStringAttribute(
+          builder,
+          'error',
+          dataValidationImpl.errorBoxText,
+          '',
+        );
+
+        _serializeDataValStringAttribute(
+          builder,
+          'promptTitle',
+          dataValidationImpl.promptBoxTitle,
+          '',
+        );
+
+        _serializeDataValStringAttribute(
+          builder,
+          'prompt',
+          dataValidationImpl.promptBoxText,
+          '',
+        );
+
+        _serializeDataValStringAttribute(
+          builder,
+          'sqref',
+          dataValidationImpl.cellRange,
+          '',
+        );
+
+        if ('textLength' == _getDataType(dataType) ||
+            'decimal' == _getDataType(dataType) ||
+            'whole' == _getDataType(dataType)) {
+          final String firstFormula = dataValidationImpl.firstFormula;
+          final String secondFormula = dataValidationImpl.secondFormula;
+          if (firstFormula != '') {
+            builder.element('formula1', nest: firstFormula);
           }
-        }
-
-        if (firstFormulaCheck.length == 3) {
-          final int? hour = int.tryParse(firstFormulaCheck[0]);
-          final int? min = int.tryParse(firstFormulaCheck[1]);
-          final int? sec = int.tryParse(firstFormulaCheck[2]);
-
-          if (hour != null && min != null && sec != null) {
-            duration = Duration(hours: hour, minutes: min, seconds: sec);
-
-            firstFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
-            firstTimeVal = firstFormulaVal.toString();
-          } else {
-            firstTimeVal = firstFormula;
+          if (secondFormula != '') {
+            builder.element('formula2', nest: secondFormula);
           }
-        }
+        } else if ('time' == _getDataType(dataType)) {
+          final String firstFormula = dataValidationImpl.firstFormula;
+          final String secondFormula = dataValidationImpl.secondFormula;
+          final List<String> firstFormulaCheck = firstFormula.split(':');
+          final List<String> secondFormulaCheck = secondFormula.split(':');
+          late Duration duration;
+          late double firstFormulaVal;
+          late double secondFormulaVal;
+          late String firstTimeVal;
+          late String secondTimeVal;
+          if (firstFormulaCheck.length == 2) {
+            final int? hour = int.tryParse(firstFormulaCheck[0]);
+            final int? min = int.tryParse(firstFormulaCheck[1]);
 
-        if (secondFormulaCheck.length == 2) {
-          final int? hour = int.tryParse(secondFormulaCheck[0]);
-          final int? min = int.tryParse(secondFormulaCheck[1]);
+            if (hour != null && min != null) {
+              duration = Duration(hours: hour, minutes: min);
 
-          if (hour != null && min != null) {
-            duration = Duration(hours: hour, minutes: min);
-
-            secondFormulaVal = (duration.inMinutes / 60) / 24;
-            secondTimeVal = secondFormulaVal.toString();
-          } else {
-            secondTimeVal = secondFormula;
-          }
-        }
-
-        if (secondFormulaCheck.length == 3) {
-          final int? hour = int.tryParse(secondFormulaCheck[0]);
-          final int? min = int.tryParse(secondFormulaCheck[1]);
-          final int? sec = int.tryParse(secondFormulaCheck[2]);
-
-          if (hour != null && min != null && sec != null) {
-            duration = Duration(hours: hour, minutes: min, seconds: sec);
-
-            secondFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
-            secondTimeVal = secondFormulaVal.toString();
-          } else {
-            secondTimeVal = secondFormula;
-          }
-        }
-
-        if (firstFormulaCheck.length != 2 && firstFormulaCheck.length != 3) {
-          firstTimeVal = firstFormula;
-        }
-        if (secondFormulaCheck.length != 2 && secondFormulaCheck.length != 3) {
-          secondTimeVal = secondFormula;
-        }
-        if (firstTimeVal != '') {
-          builder.element('formula1', nest: firstTimeVal);
-        }
-        if (secondTimeVal != '') {
-          builder.element('formula2', nest: secondTimeVal);
-        }
-      } else if ('list' == _getDataType(dataType)) {
-        final List<String> firstFormula = dataValidationImpl.listOfValues;
-        late String listOfValues = '';
-        if (firstFormula.isNotEmpty) {
-          for (int listVal = 0; listVal < firstFormula.length; listVal++) {
-            late String comma;
-            if (listVal == 0) {
-              comma = '';
+              firstFormulaVal = (duration.inMinutes / 60) / 24;
+              firstTimeVal = firstFormulaVal.toString();
             } else {
-              comma = ',';
+              firstTimeVal = firstFormula;
+            }
+          }
+
+          if (firstFormulaCheck.length == 3) {
+            final int? hour = int.tryParse(firstFormulaCheck[0]);
+            final int? min = int.tryParse(firstFormulaCheck[1]);
+            final int? sec = int.tryParse(firstFormulaCheck[2]);
+
+            if (hour != null && min != null && sec != null) {
+              duration = Duration(hours: hour, minutes: min, seconds: sec);
+
+              firstFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
+              firstTimeVal = firstFormulaVal.toString();
+            } else {
+              firstTimeVal = firstFormula;
+            }
+          }
+
+          if (secondFormulaCheck.length == 2) {
+            final int? hour = int.tryParse(secondFormulaCheck[0]);
+            final int? min = int.tryParse(secondFormulaCheck[1]);
+
+            if (hour != null && min != null) {
+              duration = Duration(hours: hour, minutes: min);
+
+              secondFormulaVal = (duration.inMinutes / 60) / 24;
+              secondTimeVal = secondFormulaVal.toString();
+            } else {
+              secondTimeVal = secondFormula;
+            }
+          }
+
+          if (secondFormulaCheck.length == 3) {
+            final int? hour = int.tryParse(secondFormulaCheck[0]);
+            final int? min = int.tryParse(secondFormulaCheck[1]);
+            final int? sec = int.tryParse(secondFormulaCheck[2]);
+
+            if (hour != null && min != null && sec != null) {
+              duration = Duration(hours: hour, minutes: min, seconds: sec);
+
+              secondFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
+              secondTimeVal = secondFormulaVal.toString();
+            } else {
+              secondTimeVal = secondFormula;
+            }
+          }
+
+          if (firstFormulaCheck.length != 2 && firstFormulaCheck.length != 3) {
+            firstTimeVal = firstFormula;
+          }
+          if (secondFormulaCheck.length != 2 &&
+              secondFormulaCheck.length != 3) {
+            secondTimeVal = secondFormula;
+          }
+          if (firstTimeVal != '') {
+            builder.element('formula1', nest: firstTimeVal);
+          }
+          if (secondTimeVal != '') {
+            builder.element('formula2', nest: secondTimeVal);
+          }
+        } else if ('list' == _getDataType(dataType)) {
+          final List<String> firstFormula = dataValidationImpl.listOfValues;
+          late String listOfValues = '';
+          if (firstFormula.isNotEmpty) {
+            for (int listVal = 0; listVal < firstFormula.length; listVal++) {
+              late String comma;
+              if (listVal == 0) {
+                comma = '';
+              } else {
+                comma = ',';
+              }
+
+              listOfValues = listOfValues + comma + firstFormula[listVal];
             }
 
-            listOfValues = listOfValues + comma + firstFormula[listVal];
+            builder.element('formula1', nest: '" $listOfValues"');
+          } else {
+            final String firstFormulaSelect =
+                dataValidationImpl.dataRangeVal.addressGlobal;
+
+            builder.element('formula1', nest: firstFormulaSelect);
           }
-
-          builder.element('formula1', nest: '" $listOfValues"');
+        } else if ('custom' == _getDataType(dataType)) {
+          final String firstFormula = dataValidationImpl.firstFormula;
+          final String secondFormula = dataValidationImpl.secondFormula;
+          if (firstFormula.isNotEmpty) {
+            builder.element('formula1', nest: firstFormula);
+          } else if (firstFormula == '' && secondFormula.isNotEmpty) {
+            builder.element('formula1', nest: secondFormula);
+          }
         } else {
-          final String firstFormulaSelect =
-              dataValidationImpl.dataRangeVal.addressGlobal;
-
-          builder.element('formula1', nest: firstFormulaSelect);
+          final DateTime firstDateTime = dataValidationImpl.firstDateTimeVal;
+          final DateTime secondDateTime = dataValidationImpl.secondDateTime;
+          final String firstDateTimeVal =
+              Range.toOADate(firstDateTime).toString();
+          final String secondDateTimeVal =
+              Range.toOADate(secondDateTime).toString();
+          if (firstDateTime != DateTime(1)) {
+            builder.element('formula1', nest: firstDateTimeVal);
+          }
+          if (secondDateTime != DateTime(1)) {
+            builder.element('formula2', nest: secondDateTimeVal);
+          }
         }
-      } else if ('custom' == _getDataType(dataType)) {
-        final String firstFormula = dataValidationImpl.firstFormula;
-        final String secondFormula = dataValidationImpl.secondFormula;
-        if (firstFormula.isNotEmpty) {
-          builder.element('formula1', nest: firstFormula);
-        } else if (firstFormula == '' && secondFormula.isNotEmpty) {
-          builder.element('formula1', nest: secondFormula);
-        }
-      } else {
-        final DateTime firstDateTime = dataValidationImpl.firstDateTimeVal;
-        final DateTime secondDateTime = dataValidationImpl.secondDateTime;
-        final String firstDateTimeVal =
-            Range.toOADate(firstDateTime).toString();
-        final String secondDateTimeVal =
-            Range.toOADate(secondDateTime).toString();
-        if (firstDateTime != DateTime(1)) {
-          builder.element('formula1', nest: firstDateTimeVal);
-        }
-        if (secondDateTime != DateTime(1)) {
-          builder.element('formula2', nest: secondDateTimeVal);
-        }
-      }
-    });
+      },
+    );
   }
 
   Future<void> _serializeDataValidationAsync(
-      XmlBuilder builder, DataValidationImpl dataValidationImpl) async {
-    builder.element('dataValidation', nest: () {
-      final ExcelDataValidationType dataType = dataValidationImpl.allowType;
+    XmlBuilder builder,
+    DataValidationImpl dataValidationImpl,
+  ) async {
+    builder.element(
+      'dataValidation',
+      nest: () {
+        final ExcelDataValidationType dataType = dataValidationImpl.allowType;
 
-      if (dataType != ExcelDataValidationType.any) {
-        builder.attribute('type', _getDataType(dataType));
-      }
-
-      final ExcelDataValidationErrorStyle errorStyle =
-          dataValidationImpl.errorStyle;
-
-      if (errorStyle != ExcelDataValidationErrorStyle.stop) {
-        builder.attribute('errorStyle', _getErrorStyle(errorStyle));
-      }
-      final ExcelDataValidationComparisonOperator comparisonOperator =
-          dataValidationImpl.comparisonOperator;
-
-      if (comparisonOperator != ExcelDataValidationComparisonOperator.between &&
-          _getDataType(dataType) != 'custom') {
-        builder.attribute(
-            'operator', _getComparisonOperator(comparisonOperator));
-      }
-
-      _serializeAttributesAsync(
-          builder, 'allowBlank', dataValidationImpl.isEmptyCellAllowed, false);
-
-      _serializeAttributesAsync(builder, 'showDropDown',
-          dataValidationImpl.isSuppressDropDownArrow, false);
-
-      _serializeAttributesAsync(
-          builder, 'showInputMessage', dataValidationImpl.showPromptBox, false);
-
-      _serializeAttributesAsync(
-          builder, 'showErrorMessage', dataValidationImpl.showErrorBox, false);
-
-      _serializeDataValStringAttributeAsync(
-          builder, 'errorTitle', dataValidationImpl.errorBoxTitle, '');
-
-      _serializeDataValStringAttributeAsync(
-          builder, 'error', dataValidationImpl.errorBoxText, '');
-
-      _serializeDataValStringAttributeAsync(
-          builder, 'promptTitle', dataValidationImpl.promptBoxTitle, '');
-
-      _serializeDataValStringAttributeAsync(
-          builder, 'prompt', dataValidationImpl.promptBoxText, '');
-
-      _serializeDataValStringAttributeAsync(
-          builder, 'sqref', dataValidationImpl.cellRange, '');
-
-      if ('textLength' == _getDataType(dataType) ||
-          'decimal' == _getDataType(dataType) ||
-          'whole' == _getDataType(dataType)) {
-        final String firstFormula = dataValidationImpl.firstFormula;
-        final String secondFormula = dataValidationImpl.secondFormula;
-        if (firstFormula != '') {
-          builder.element('formula1', nest: firstFormula);
+        if (dataType != ExcelDataValidationType.any) {
+          builder.attribute('type', _getDataType(dataType));
         }
-        if (secondFormula != '') {
-          builder.element('formula2', nest: secondFormula);
+
+        final ExcelDataValidationErrorStyle errorStyle =
+            dataValidationImpl.errorStyle;
+
+        if (errorStyle != ExcelDataValidationErrorStyle.stop) {
+          builder.attribute('errorStyle', _getErrorStyle(errorStyle));
         }
-      } else if ('time' == _getDataType(dataType)) {
-        final String firstFormula = dataValidationImpl.firstFormula;
-        final String secondFormula = dataValidationImpl.secondFormula;
-        final List<String> firstFormulaCheck = firstFormula.split(':');
-        final List<String> secondFormulaCheck = secondFormula.split(':');
-        late Duration duration;
-        late double firstFormulaVal;
-        late double secondFormulaVal;
-        late String firstTimeVal;
-        late String secondTimeVal;
-        if (firstFormulaCheck.length == 2) {
-          final int? hour = int.tryParse(firstFormulaCheck[0]);
-          final int? min = int.tryParse(firstFormulaCheck[1]);
+        final ExcelDataValidationComparisonOperator comparisonOperator =
+            dataValidationImpl.comparisonOperator;
 
-          if (hour != null && min != null) {
-            duration = Duration(hours: hour, minutes: min);
+        if (comparisonOperator !=
+                ExcelDataValidationComparisonOperator.between &&
+            _getDataType(dataType) != 'custom') {
+          builder.attribute(
+            'operator',
+            _getComparisonOperator(comparisonOperator),
+          );
+        }
 
-            firstFormulaVal = (duration.inMinutes / 60) / 24;
-            firstTimeVal = firstFormulaVal.toString();
-          } else {
-            firstTimeVal = firstFormula;
+        _serializeAttributesAsync(
+          builder,
+          'allowBlank',
+          dataValidationImpl.isEmptyCellAllowed,
+          false,
+        );
+
+        _serializeAttributesAsync(
+          builder,
+          'showDropDown',
+          dataValidationImpl.isSuppressDropDownArrow,
+          false,
+        );
+
+        _serializeAttributesAsync(
+          builder,
+          'showInputMessage',
+          dataValidationImpl.showPromptBox,
+          false,
+        );
+
+        _serializeAttributesAsync(
+          builder,
+          'showErrorMessage',
+          dataValidationImpl.showErrorBox,
+          false,
+        );
+
+        _serializeDataValStringAttributeAsync(
+          builder,
+          'errorTitle',
+          dataValidationImpl.errorBoxTitle,
+          '',
+        );
+
+        _serializeDataValStringAttributeAsync(
+          builder,
+          'error',
+          dataValidationImpl.errorBoxText,
+          '',
+        );
+
+        _serializeDataValStringAttributeAsync(
+          builder,
+          'promptTitle',
+          dataValidationImpl.promptBoxTitle,
+          '',
+        );
+
+        _serializeDataValStringAttributeAsync(
+          builder,
+          'prompt',
+          dataValidationImpl.promptBoxText,
+          '',
+        );
+
+        _serializeDataValStringAttributeAsync(
+          builder,
+          'sqref',
+          dataValidationImpl.cellRange,
+          '',
+        );
+
+        if ('textLength' == _getDataType(dataType) ||
+            'decimal' == _getDataType(dataType) ||
+            'whole' == _getDataType(dataType)) {
+          final String firstFormula = dataValidationImpl.firstFormula;
+          final String secondFormula = dataValidationImpl.secondFormula;
+          if (firstFormula != '') {
+            builder.element('formula1', nest: firstFormula);
           }
-        }
-
-        if (firstFormulaCheck.length == 3) {
-          final int? hour = int.tryParse(firstFormulaCheck[0]);
-          final int? min = int.tryParse(firstFormulaCheck[1]);
-          final int? sec = int.tryParse(firstFormulaCheck[2]);
-
-          if (hour != null && min != null && sec != null) {
-            duration = Duration(hours: hour, minutes: min, seconds: sec);
-
-            firstFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
-            firstTimeVal = firstFormulaVal.toString();
-          } else {
-            firstTimeVal = firstFormula;
+          if (secondFormula != '') {
+            builder.element('formula2', nest: secondFormula);
           }
-        }
+        } else if ('time' == _getDataType(dataType)) {
+          final String firstFormula = dataValidationImpl.firstFormula;
+          final String secondFormula = dataValidationImpl.secondFormula;
+          final List<String> firstFormulaCheck = firstFormula.split(':');
+          final List<String> secondFormulaCheck = secondFormula.split(':');
+          late Duration duration;
+          late double firstFormulaVal;
+          late double secondFormulaVal;
+          late String firstTimeVal;
+          late String secondTimeVal;
+          if (firstFormulaCheck.length == 2) {
+            final int? hour = int.tryParse(firstFormulaCheck[0]);
+            final int? min = int.tryParse(firstFormulaCheck[1]);
 
-        if (secondFormulaCheck.length == 2) {
-          final int? hour = int.tryParse(secondFormulaCheck[0]);
-          final int? min = int.tryParse(secondFormulaCheck[1]);
+            if (hour != null && min != null) {
+              duration = Duration(hours: hour, minutes: min);
 
-          if (hour != null && min != null) {
-            duration = Duration(hours: hour, minutes: min);
-
-            secondFormulaVal = (duration.inMinutes / 60) / 24;
-            secondTimeVal = secondFormulaVal.toString();
-          } else {
-            secondTimeVal = secondFormula;
-          }
-        }
-
-        if (secondFormulaCheck.length == 3) {
-          final int? hour = int.tryParse(secondFormulaCheck[0]);
-          final int? min = int.tryParse(secondFormulaCheck[1]);
-          final int? sec = int.tryParse(secondFormulaCheck[2]);
-
-          if (hour != null && min != null && sec != null) {
-            duration = Duration(hours: hour, minutes: min, seconds: sec);
-
-            secondFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
-            secondTimeVal = secondFormulaVal.toString();
-          } else {
-            secondTimeVal = secondFormula;
-          }
-        }
-
-        if (firstFormulaCheck.length != 2 && firstFormulaCheck.length != 3) {
-          firstTimeVal = firstFormula;
-        }
-        if (secondFormulaCheck.length != 2 && secondFormulaCheck.length != 3) {
-          secondTimeVal = secondFormula;
-        }
-        if (firstTimeVal != '') {
-          builder.element('formula1', nest: firstTimeVal);
-        }
-        if (secondTimeVal != '') {
-          builder.element('formula2', nest: secondTimeVal);
-        }
-      } else if ('list' == _getDataType(dataType)) {
-        final List<String> firstFormula = dataValidationImpl.listOfValues;
-        late String listOfValues = '';
-        if (firstFormula.isNotEmpty) {
-          for (int listVal = 0; listVal < firstFormula.length; listVal++) {
-            late String comma;
-            if (listVal == 0) {
-              comma = '';
+              firstFormulaVal = (duration.inMinutes / 60) / 24;
+              firstTimeVal = firstFormulaVal.toString();
             } else {
-              comma = ',';
+              firstTimeVal = firstFormula;
+            }
+          }
+
+          if (firstFormulaCheck.length == 3) {
+            final int? hour = int.tryParse(firstFormulaCheck[0]);
+            final int? min = int.tryParse(firstFormulaCheck[1]);
+            final int? sec = int.tryParse(firstFormulaCheck[2]);
+
+            if (hour != null && min != null && sec != null) {
+              duration = Duration(hours: hour, minutes: min, seconds: sec);
+
+              firstFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
+              firstTimeVal = firstFormulaVal.toString();
+            } else {
+              firstTimeVal = firstFormula;
+            }
+          }
+
+          if (secondFormulaCheck.length == 2) {
+            final int? hour = int.tryParse(secondFormulaCheck[0]);
+            final int? min = int.tryParse(secondFormulaCheck[1]);
+
+            if (hour != null && min != null) {
+              duration = Duration(hours: hour, minutes: min);
+
+              secondFormulaVal = (duration.inMinutes / 60) / 24;
+              secondTimeVal = secondFormulaVal.toString();
+            } else {
+              secondTimeVal = secondFormula;
+            }
+          }
+
+          if (secondFormulaCheck.length == 3) {
+            final int? hour = int.tryParse(secondFormulaCheck[0]);
+            final int? min = int.tryParse(secondFormulaCheck[1]);
+            final int? sec = int.tryParse(secondFormulaCheck[2]);
+
+            if (hour != null && min != null && sec != null) {
+              duration = Duration(hours: hour, minutes: min, seconds: sec);
+
+              secondFormulaVal = ((duration.inSeconds / 60) / 60) / 24;
+              secondTimeVal = secondFormulaVal.toString();
+            } else {
+              secondTimeVal = secondFormula;
+            }
+          }
+
+          if (firstFormulaCheck.length != 2 && firstFormulaCheck.length != 3) {
+            firstTimeVal = firstFormula;
+          }
+          if (secondFormulaCheck.length != 2 &&
+              secondFormulaCheck.length != 3) {
+            secondTimeVal = secondFormula;
+          }
+          if (firstTimeVal != '') {
+            builder.element('formula1', nest: firstTimeVal);
+          }
+          if (secondTimeVal != '') {
+            builder.element('formula2', nest: secondTimeVal);
+          }
+        } else if ('list' == _getDataType(dataType)) {
+          final List<String> firstFormula = dataValidationImpl.listOfValues;
+          late String listOfValues = '';
+          if (firstFormula.isNotEmpty) {
+            for (int listVal = 0; listVal < firstFormula.length; listVal++) {
+              late String comma;
+              if (listVal == 0) {
+                comma = '';
+              } else {
+                comma = ',';
+              }
+
+              listOfValues = listOfValues + comma + firstFormula[listVal];
             }
 
-            listOfValues = listOfValues + comma + firstFormula[listVal];
+            builder.element('formula1', nest: '" $listOfValues"');
+          } else {
+            final String firstFormulaSelect =
+                dataValidationImpl.dataRangeVal.addressGlobal;
+
+            builder.element('formula1', nest: firstFormulaSelect);
           }
-
-          builder.element('formula1', nest: '" $listOfValues"');
+        } else if ('custom' == _getDataType(dataType)) {
+          final String firstFormula = dataValidationImpl.firstFormula;
+          final String secondFormula = dataValidationImpl.secondFormula;
+          if (firstFormula.isNotEmpty) {
+            builder.element('formula1', nest: firstFormula);
+          } else if (firstFormula == '' && secondFormula.isNotEmpty) {
+            builder.element('formula1', nest: secondFormula);
+          }
         } else {
-          final String firstFormulaSelect =
-              dataValidationImpl.dataRangeVal.addressGlobal;
-
-          builder.element('formula1', nest: firstFormulaSelect);
+          final DateTime firstDateTime = dataValidationImpl.firstDateTimeVal;
+          final DateTime secondDateTime = dataValidationImpl.secondDateTime;
+          final String firstDateTimeVal =
+              Range.toOADate(firstDateTime).toString();
+          final String secondDateTimeVal =
+              Range.toOADate(secondDateTime).toString();
+          if (firstDateTime != DateTime(1)) {
+            builder.element('formula1', nest: firstDateTimeVal);
+          }
+          if (secondDateTime != DateTime(1)) {
+            builder.element('formula2', nest: secondDateTimeVal);
+          }
         }
-      } else if ('custom' == _getDataType(dataType)) {
-        final String firstFormula = dataValidationImpl.firstFormula;
-        final String secondFormula = dataValidationImpl.secondFormula;
-        if (firstFormula.isNotEmpty) {
-          builder.element('formula1', nest: firstFormula);
-        } else if (firstFormula == '' && secondFormula.isNotEmpty) {
-          builder.element('formula1', nest: secondFormula);
-        }
-      } else {
-        final DateTime firstDateTime = dataValidationImpl.firstDateTimeVal;
-        final DateTime secondDateTime = dataValidationImpl.secondDateTime;
-        final String firstDateTimeVal =
-            Range.toOADate(firstDateTime).toString();
-        final String secondDateTimeVal =
-            Range.toOADate(secondDateTime).toString();
-        if (firstDateTime != DateTime(1)) {
-          builder.element('formula1', nest: firstDateTimeVal);
-        }
-        if (secondDateTime != DateTime(1)) {
-          builder.element('formula2', nest: secondDateTimeVal);
-        }
-      }
-    });
+      },
+    );
   }
 
   void _serializeConditionalFormatting(XmlBuilder builder, Worksheet sheet) {
@@ -4776,7 +6107,12 @@ class SerializeWorkbook {
         final ConditionalFormatsImpl conditionalFormats =
             sheet.conditionalFormats[i];
         final List<dynamic> result = _serializeConditionalFormats(
-            builder, _iDxfIndex, iPriority, iPriorityCount, conditionalFormats);
+          builder,
+          _iDxfIndex,
+          iPriority,
+          iPriorityCount,
+          conditionalFormats,
+        );
         _iDxfIndex = result[0] as int;
         iPriority = result[1] as int;
         iPriorityCount = result[2] as int;
@@ -4785,7 +6121,9 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeConditionalFormattingAsync(
-      XmlBuilder builder, Worksheet sheet) async {
+    XmlBuilder builder,
+    Worksheet sheet,
+  ) async {
     if (sheet.conditionalFormats.isNotEmpty) {
       final int iCount = sheet.conditionalFormats.length;
       int iPriority = 1;
@@ -4794,7 +6132,12 @@ class SerializeWorkbook {
         final ConditionalFormatsImpl conditionalFormats =
             sheet.conditionalFormats[i];
         final List<dynamic> result = _serializeConditionalFormats(
-            builder, _iDxfIndex, iPriority, iPriorityCount, conditionalFormats);
+          builder,
+          _iDxfIndex,
+          iPriority,
+          iPriorityCount,
+          conditionalFormats,
+        );
         _iDxfIndex = result[0] as int;
         iPriority = result[1] as int;
         iPriorityCount = result[2] as int;
@@ -4802,8 +6145,13 @@ class SerializeWorkbook {
     }
   }
 
-  List<dynamic> _serializeConditionalFormats(XmlBuilder builder, int iDxfIndex,
-      int iPriority, int iPriorityCount, ConditionalFormatsImpl formats) {
+  List<dynamic> _serializeConditionalFormats(
+    XmlBuilder builder,
+    int iDxfIndex,
+    int iPriority,
+    int iPriorityCount,
+    ConditionalFormatsImpl formats,
+  ) {
     final int iRulesCount = formats.count;
     bool serializeCF = false;
     if (iRulesCount == 0) {
@@ -4828,32 +6176,42 @@ class SerializeWorkbook {
       }
     }
     if (serializeCF) {
-      builder.element('conditionalFormatting', nest: () {
-        builder.attribute('sqref', formats.cellList);
-        int iCount = iRulesCount + iPriorityCount;
-        iPriorityCount += iRulesCount;
-        for (int i = 0; i < iRulesCount; i++) {
-          final ConditionalFormat condition = formats.innerList[i];
-          if (!(condition as ConditionalFormatImpl).bCFHasExtensionList) {
-            final List<dynamic> result = _serializeCondition(
-                builder, condition, '', iDxfIndex, iPriority, iCount);
-            iDxfIndex = result[0] as int;
-            iPriority = result[1] as int;
-            iCount = result[2] as int;
+      builder.element(
+        'conditionalFormatting',
+        nest: () {
+          builder.attribute('sqref', formats.cellList);
+          int iCount = iRulesCount + iPriorityCount;
+          iPriorityCount += iRulesCount;
+          for (int i = 0; i < iRulesCount; i++) {
+            final ConditionalFormat condition = formats.innerList[i];
+            if (!(condition as ConditionalFormatImpl).bCFHasExtensionList) {
+              final List<dynamic> result = _serializeCondition(
+                builder,
+                condition,
+                '',
+                iDxfIndex,
+                iPriority,
+                iCount,
+              );
+              iDxfIndex = result[0] as int;
+              iPriority = result[1] as int;
+              iCount = result[2] as int;
+            }
           }
-        }
-      });
+        },
+      );
     }
     return <dynamic>[iDxfIndex, iPriority, iPriorityCount];
   }
 
   List<dynamic> _serializeCondition(
-      XmlBuilder builder,
-      ConditionalFormat condition,
-      String prefix,
-      int iDxfIndex,
-      int iPriority,
-      int iCount) {
+    XmlBuilder builder,
+    ConditionalFormat condition,
+    String prefix,
+    int iDxfIndex,
+    int iPriority,
+    int iCount,
+  ) {
     final ConditionalFormatImpl condFormat = condition as ConditionalFormatImpl;
     IconSetImpl? iconSet;
     if (condFormat.iconSet != null) {
@@ -4862,125 +6220,182 @@ class SerializeWorkbook {
     final ExcelCFType cfType = condition.formatType;
     final ExcelComparisonOperator comparisonOperator = condition.operator;
     final CFTimePeriods cfTimePeriod = condition.timePeriodType;
-    builder.element('${prefix}cfRule', nest: () {
-      builder.attribute('type', _getCFType(cfType, comparisonOperator));
-      if (_checkFormat(condition)) {
-        builder.attribute('dxfId', iDxfIndex.toString());
-        iDxfIndex++;
-      }
-      if (condition.stopIfTrue) {
-        builder.attribute('stopIfTrue', '1');
-      }
-      if (cfType == ExcelCFType.cellValue) {
-        builder.attribute(
-            'operator', _getCFComparisonOperatorName(condition.operator));
-      }
-      if (cfType == ExcelCFType.specificText) {
-        builder.attribute(
-            'operator', _getCFComparisonOperatorName(condition.operator));
-        // ignore: unnecessary_null_checks
-        builder.attribute('text', condition.text!);
-      }
-      if (cfType == ExcelCFType.timePeriod) {
-        builder.attribute('timePeriod', _getCFTimePeriodType(cfTimePeriod));
-      }
-
-      builder.attribute('priority', iCount);
-      iCount--;
-
-      if (cfType == ExcelCFType.topBottom) {
-        _serializeAttributes(builder, 'bottom',
-            condition.topBottom!.type == ExcelCFTopBottomType.bottom, false);
-        _serializeAttributes(
-            builder, 'percent', condition.topBottom!.percent, false);
-        builder.attribute('rank', condition.topBottom!.rank.toString());
-      }
-      if (cfType == ExcelCFType.aboveBelowAverage) {
-        final String avgStrType = condition.aboveBelowAverage!.averageType
-            .toString()
-            .split('.')
-            .toList()
-            .removeAt(1)
-            .toLowerCase();
-        _serializeAttributes(
-            builder, 'aboveAverage', !avgStrType.contains('below'), true);
-        _serializeAttributes(
-            builder, 'equalAverage', avgStrType.contains('equal'), false);
-        if (avgStrType.contains('stddev')) {
+    builder.element(
+      '${prefix}cfRule',
+      nest: () {
+        builder.attribute('type', _getCFType(cfType, comparisonOperator));
+        if (_checkFormat(condition)) {
+          builder.attribute('dxfId', iDxfIndex.toString());
+          iDxfIndex++;
+        }
+        if (condition.stopIfTrue) {
+          builder.attribute('stopIfTrue', '1');
+        }
+        if (cfType == ExcelCFType.cellValue) {
           builder.attribute(
-              'stdDev', condition.aboveBelowAverage!.stdDevValue.toString());
+            'operator',
+            _getCFComparisonOperatorName(condition.operator),
+          );
         }
-      }
-      if (condition.firstFormula != '') {
-        String v1 = condition.firstFormula;
-        if (v1[0] == '=') {
-          v1 = v1.substring(1);
+        if (cfType == ExcelCFType.specificText) {
+          builder.attribute(
+            'operator',
+            _getCFComparisonOperatorName(condition.operator),
+          );
+          // ignore: unnecessary_null_checks
+          builder.attribute('text', condition.text!);
         }
-        v1 = v1.replaceAll("'", '"');
-        builder.element('${prefix}formula', nest: v1);
-      }
-      if (condition.secondFormula != '') {
-        String v1 = condition.secondFormula;
-        if (v1[0] == '=') {
-          v1 = v1.substring(1);
+        if (cfType == ExcelCFType.timePeriod) {
+          builder.attribute('timePeriod', _getCFTimePeriodType(cfTimePeriod));
         }
-        v1 = v1.replaceAll("'", '"');
-        builder.element('${prefix}formula', nest: v1);
-      }
-      if (cfType == ExcelCFType.dataBar) {
-        _serializeDataBar(builder, condition.dataBar!);
-      }
-      if (cfType == ExcelCFType.colorScale) {
-        _serializeColorScale(builder, condition.colorScale!);
-      } else if (cfType == ExcelCFType.iconSet) {
-        if (condFormat.bCFHasExtensionList ||
-            (iconSet != null && iconSet.isCustom)) {
-          _serializeIconSet(builder, iconSet!, condFormat.bCFHasExtensionList,
-              iconSet.isCustom);
-        } else {
-          _serializeIconSet(builder, iconSet!, false, false);
-        }
-      }
-      if (condition.dataBar != null &&
-          (condition.dataBar! as DataBarImpl).hasExtensionList) {
-        builder.element('extLst', nest: () {
-          builder.namespace(
-              'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-          builder.element('ext', nest: () {
-            builder.namespace(
-                'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
 
-            builder.attribute('uri', '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}');
-            builder.attribute('xmlns:x14',
-                'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
+        builder.attribute('priority', iCount);
+        iCount--;
 
-            builder.element('x14:id',
-                nest: (condition.dataBar! as DataBarImpl).stGUID);
-          });
-        });
-      }
-    });
+        if (cfType == ExcelCFType.topBottom) {
+          _serializeAttributes(
+            builder,
+            'bottom',
+            condition.topBottom!.type == ExcelCFTopBottomType.bottom,
+            false,
+          );
+          _serializeAttributes(
+            builder,
+            'percent',
+            condition.topBottom!.percent,
+            false,
+          );
+          builder.attribute('rank', condition.topBottom!.rank.toString());
+        }
+        if (cfType == ExcelCFType.aboveBelowAverage) {
+          final String avgStrType =
+              condition.aboveBelowAverage!.averageType
+                  .toString()
+                  .split('.')
+                  .toList()
+                  .removeAt(1)
+                  .toLowerCase();
+          _serializeAttributes(
+            builder,
+            'aboveAverage',
+            !avgStrType.contains('below'),
+            true,
+          );
+          _serializeAttributes(
+            builder,
+            'equalAverage',
+            avgStrType.contains('equal'),
+            false,
+          );
+          if (avgStrType.contains('stddev')) {
+            builder.attribute(
+              'stdDev',
+              condition.aboveBelowAverage!.stdDevValue.toString(),
+            );
+          }
+        }
+        if (condition.firstFormula != '') {
+          String v1 = condition.firstFormula;
+          if (v1[0] == '=') {
+            v1 = v1.substring(1);
+          }
+          v1 = v1.replaceAll("'", '"');
+          builder.element('${prefix}formula', nest: v1);
+        }
+        if (condition.secondFormula != '') {
+          String v1 = condition.secondFormula;
+          if (v1[0] == '=') {
+            v1 = v1.substring(1);
+          }
+          v1 = v1.replaceAll("'", '"');
+          builder.element('${prefix}formula', nest: v1);
+        }
+        if (cfType == ExcelCFType.dataBar) {
+          _serializeDataBar(builder, condition.dataBar!);
+        }
+        if (cfType == ExcelCFType.colorScale) {
+          _serializeColorScale(builder, condition.colorScale!);
+        } else if (cfType == ExcelCFType.iconSet) {
+          if (condFormat.bCFHasExtensionList ||
+              (iconSet != null && iconSet.isCustom)) {
+            _serializeIconSet(
+              builder,
+              iconSet!,
+              condFormat.bCFHasExtensionList,
+              iconSet.isCustom,
+            );
+          } else {
+            _serializeIconSet(builder, iconSet!, false, false);
+          }
+        }
+        if (condition.dataBar != null &&
+            (condition.dataBar! as DataBarImpl).hasExtensionList) {
+          builder.element(
+            'extLst',
+            nest: () {
+              builder.namespace(
+                'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+              );
+              builder.element(
+                'ext',
+                nest: () {
+                  builder.namespace(
+                    'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+                  );
+
+                  builder.attribute(
+                    'uri',
+                    '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}',
+                  );
+                  builder.attribute(
+                    'xmlns:x14',
+                    'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
+                  );
+
+                  builder.element(
+                    'x14:id',
+                    nest: (condition.dataBar! as DataBarImpl).stGUID,
+                  );
+                },
+              );
+            },
+          );
+        }
+      },
+    );
     return <dynamic>[iDxfIndex, iPriority, iCount];
   }
 
   /// Serializes color scale of conditional format.
   void _serializeColorScale(XmlBuilder builder, ColorScale colorScale) {
-    builder.element('colorScale', nest: () {
-      final List<ColorConditionValue> arrConditions = colorScale.criteria;
-      for (int i = 0; i < arrConditions.length; i++) {
-        _serializeConditionValueObject(
-            builder, arrConditions[i], false, false, false);
-      }
+    builder.element(
+      'colorScale',
+      nest: () {
+        final List<ColorConditionValue> arrConditions = colorScale.criteria;
+        for (int i = 0; i < arrConditions.length; i++) {
+          _serializeConditionValueObject(
+            builder,
+            arrConditions[i],
+            false,
+            false,
+            false,
+          );
+        }
 
-      for (int i = 0; i < arrConditions.length; i++) {
-        _serializeRgbColor(builder, 'color', arrConditions[i].formatColor);
-      }
-    });
+        for (int i = 0; i < arrConditions.length; i++) {
+          _serializeRgbColor(builder, 'color', arrConditions[i].formatColor);
+        }
+      },
+    );
   }
 
   /// Serializes icon set.
-  void _serializeIconSet(XmlBuilder builder, IconSet iconSet,
-      bool cfHasExtensionList, bool isCustom) {
+  void _serializeIconSet(
+    XmlBuilder builder,
+    IconSet iconSet,
+    bool cfHasExtensionList,
+    bool isCustom,
+  ) {
     String element;
     if (cfHasExtensionList || isCustom) {
       element = 'x14:iconSet';
@@ -4988,141 +6403,194 @@ class SerializeWorkbook {
       element = 'iconSet';
     }
 
-    builder.element(element, nest: () {
-      final int index = iconSet.iconSet.index;
-      final String strType = _iconSetTypeNames[index];
+    builder.element(
+      element,
+      nest: () {
+        final int index = iconSet.iconSet.index;
+        final String strType = _iconSetTypeNames[index];
 
-      builder.attribute('iconSet', strType);
-      _serializeAttributes(builder, 'percent', iconSet.percentileValues, false);
-      _serializeAttributes(builder, 'reverse', iconSet.reverseOrder, false);
-      _serializeAttributes(builder, 'showValue', !iconSet.showIconOnly, true);
+        builder.attribute('iconSet', strType);
+        _serializeAttributes(
+          builder,
+          'percent',
+          iconSet.percentileValues,
+          false,
+        );
+        _serializeAttributes(builder, 'reverse', iconSet.reverseOrder, false);
+        _serializeAttributes(builder, 'showValue', !iconSet.showIconOnly, true);
 
-      if (isCustom) {
-        _serializeAttributes(builder, 'custom', true, false);
-      }
-
-      final List<ConditionValue> arrConditions = iconSet.iconCriteria;
-      for (int i = 0; i < arrConditions.length; i++) {
-        _serializeConditionValueObject(
-            builder, arrConditions[i], true, cfHasExtensionList, isCustom);
-      }
-      if (isCustom) {
-        for (int i = 0; i < arrConditions.length; i++) {
-          _serializeCustomCFIcon(
-              builder, arrConditions[i] as IconConditionValue, true);
+        if (isCustom) {
+          _serializeAttributes(builder, 'custom', true, false);
         }
-      }
-    });
+
+        final List<ConditionValue> arrConditions = iconSet.iconCriteria;
+        for (int i = 0; i < arrConditions.length; i++) {
+          _serializeConditionValueObject(
+            builder,
+            arrConditions[i],
+            true,
+            cfHasExtensionList,
+            isCustom,
+          );
+        }
+        if (isCustom) {
+          for (int i = 0; i < arrConditions.length; i++) {
+            _serializeCustomCFIcon(
+              builder,
+              arrConditions[i] as IconConditionValue,
+              true,
+            );
+          }
+        }
+      },
+    );
   }
 
   /// Serializes data bar.
   void _serializeDataBar(XmlBuilder builder, DataBar dataBar) {
-    builder.element('dataBar', nest: () {
-      _serializeAttributeInt(builder, 'minLength', dataBar.percentMin, 0);
-      _serializeAttributeInt(builder, 'maxLength', dataBar.percentMax, 100);
-      _serializeAttributes(builder, 'showValue', dataBar.showValue, true);
+    builder.element(
+      'dataBar',
+      nest: () {
+        _serializeAttributeInt(builder, 'minLength', dataBar.percentMin, 0);
+        _serializeAttributeInt(builder, 'maxLength', dataBar.percentMax, 100);
+        _serializeAttributes(builder, 'showValue', dataBar.showValue, true);
 
-      _serializeConditionValueObjectForDataBar(
-          builder, dataBar.minPoint, false, true);
-      _serializeConditionValueObjectForDataBar(
-          builder, dataBar.maxPoint, false, false);
-      _serializeRgbColor(builder, 'color', dataBar.barColor);
-    });
+        _serializeConditionValueObjectForDataBar(
+          builder,
+          dataBar.minPoint,
+          false,
+          true,
+        );
+        _serializeConditionValueObjectForDataBar(
+          builder,
+          dataBar.maxPoint,
+          false,
+          false,
+        );
+        _serializeRgbColor(builder, 'color', dataBar.barColor);
+      },
+    );
   }
 
   /// Serializes conditional value object.
   void _serializeConditionValueObject(
-      XmlBuilder builder,
-      ConditionValue conditionValue,
-      bool isIconSet,
-      bool cfHasExtensionList,
-      bool isCustom) {
+    XmlBuilder builder,
+    ConditionValue conditionValue,
+    bool isIconSet,
+    bool cfHasExtensionList,
+    bool isCustom,
+  ) {
     String prefix = '';
     if (cfHasExtensionList || isCustom) {
       prefix = 'x14:';
     }
-    builder.element('${prefix}cfvo', nest: () {
-      final int index = conditionValue.type.index;
-      final String strType = _valueTypes[index];
-      String value = conditionValue.value;
+    builder.element(
+      '${prefix}cfvo',
+      nest: () {
+        final int index = conditionValue.type.index;
+        final String strType = _valueTypes[index];
+        String value = conditionValue.value;
 
-      builder.attribute('type', strType);
+        builder.attribute('type', strType);
 
-      if (strType == 'formula' && value.startsWith(Range.equalsSign)) {
-        value = value.replaceAll(Range.equalsSign, '');
-      }
+        if (strType == 'formula' && value.startsWith(Range.equalsSign)) {
+          value = value.replaceAll(Range.equalsSign, '');
+        }
 
-      if (!cfHasExtensionList) {
-        builder.attribute('val', value);
-      } else if (!cfHasExtensionList) {
-        builder.attribute('val', value);
-      }
+        if (!cfHasExtensionList) {
+          builder.attribute('val', value);
+        } else if (!cfHasExtensionList) {
+          builder.attribute('val', value);
+        }
 
-      builder.attribute('gte', conditionValue.operator.index.toString());
+        builder.attribute('gte', conditionValue.operator.index.toString());
 
-      if (cfHasExtensionList || isCustom) {
-        builder.element('xm:f', nest: value);
-      }
-    });
+        if (cfHasExtensionList || isCustom) {
+          builder.element('xm:f', nest: value);
+        }
+      },
+    );
   }
 
   /// Serializes conditional value object.
-  void _serializeConditionValueObjectForDataBar(XmlBuilder builder,
-      ConditionValue conditionValue, bool isIconSet, bool isMinPoint) {
-    builder.element('cfvo', nest: () {
-      int index = conditionValue.type.index;
-      if (index == 7) {
-        if (isMinPoint) {
-          index = 2;
-        } else {
-          index = 3;
+  void _serializeConditionValueObjectForDataBar(
+    XmlBuilder builder,
+    ConditionValue conditionValue,
+    bool isIconSet,
+    bool isMinPoint,
+  ) {
+    builder.element(
+      'cfvo',
+      nest: () {
+        int index = conditionValue.type.index;
+        if (index == 7) {
+          if (isMinPoint) {
+            index = 2;
+          } else {
+            index = 3;
+          }
         }
-      }
-      final String strType = _valueTypes[index];
-      builder.attribute('type', strType);
-      builder.attribute('val', conditionValue.value);
-      if (isIconSet) {
-        builder.attribute('gte', conditionValue.operator.index.toString());
-      }
-    });
+        final String strType = _valueTypes[index];
+        builder.attribute('type', strType);
+        builder.attribute('val', conditionValue.value);
+        if (isIconSet) {
+          builder.attribute('gte', conditionValue.operator.index.toString());
+        }
+      },
+    );
   }
 
   /// Serializes Custom iconset object.
   void _serializeCustomCFIcon(
-      XmlBuilder builder, IconConditionValue conditionValue, bool isIconSet) {
-    builder.element('x14:cfIcon', nest: () {
-      String iconType = '';
-      if (conditionValue.iconSet.toString() == '-1') {
-        iconType = 'NoIcons';
-      } else {
-        iconType = _iconSetTypeNames[conditionValue.iconSet.index];
-      }
-      final String iconIndex = conditionValue.index.toString();
-      builder.attribute('iconSet', iconType);
-      builder.attribute('iconId', iconIndex);
-    });
+    XmlBuilder builder,
+    IconConditionValue conditionValue,
+    bool isIconSet,
+  ) {
+    builder.element(
+      'x14:cfIcon',
+      nest: () {
+        String iconType = '';
+        if (conditionValue.iconSet.toString() == '-1') {
+          iconType = 'NoIcons';
+        } else {
+          iconType = _iconSetTypeNames[conditionValue.iconSet.index];
+        }
+        final String iconIndex = conditionValue.index.toString();
+        builder.attribute('iconSet', iconType);
+        builder.attribute('iconId', iconIndex);
+      },
+    );
   }
 
   /// Serializes Rgb color value.
   void _serializeRgbColor(XmlBuilder builder, String tagName, String color) {
-    builder.element(tagName, nest: () {
-      String colorValue = color;
-      if (colorValue.length <= 7) {
-        colorValue = 'FF${color.replaceAll('#', '')}';
-      }
-      builder.attribute('rgb', colorValue);
-    });
+    builder.element(
+      tagName,
+      nest: () {
+        String colorValue = color;
+        if (colorValue.length <= 7) {
+          colorValue = 'FF${color.replaceAll('#', '')}';
+        }
+        builder.attribute('rgb', colorValue);
+      },
+    );
   }
 
   Future<void> _serializeRgbColorAsync(
-      XmlBuilder builder, String tagName, String color) async {
-    builder.element(tagName, nest: () async {
-      String colorValue = color;
-      if (colorValue.length <= 7) {
-        colorValue = 'FF${color.replaceAll('#', '')}';
-      }
-      builder.attribute('rgb', colorValue);
-    });
+    XmlBuilder builder,
+    String tagName,
+    String color,
+  ) async {
+    builder.element(
+      tagName,
+      nest: () async {
+        String colorValue = color;
+        if (colorValue.length <= 7) {
+          colorValue = 'FF${color.replaceAll('#', '')}';
+        }
+        builder.attribute('rgb', colorValue);
+      },
+    );
   }
 
   /// Returns CF type string name.
@@ -5182,7 +6650,8 @@ class SerializeWorkbook {
 
   /// Returns CF comparison operator string name.
   String _getCFComparisonOperatorName(
-      ExcelComparisonOperator comparisonOperator) {
+    ExcelComparisonOperator comparisonOperator,
+  ) {
     switch (comparisonOperator) {
       case ExcelComparisonOperator.between:
         return 'between';
@@ -5241,170 +6710,236 @@ class SerializeWorkbook {
 
   /// Serialize Dxfs.
   void _serialiseDxfs(XmlBuilder builder) {
-    builder.element('dxfs', nest: () {
-      for (final Worksheet sheet in _workbook.worksheets.innerList) {
-        if (sheet.autoFilters.innerList.isNotEmpty) {
-          for (int i = 0; i < sheet.autoFilters.count; i++) {
-            if (sheet.autoFilters[i].filterType ==
-                ExcelFilterType.colorFilter) {
-              _serializeDxfColorFilter(
-                  builder, sheet.autoFilters[i] as AutoFilterImpl);
+    builder.element(
+      'dxfs',
+      nest: () {
+        for (final Worksheet sheet in _workbook.worksheets.innerList) {
+          if (sheet.autoFilters.innerList.isNotEmpty) {
+            for (int i = 0; i < sheet.autoFilters.count; i++) {
+              if (sheet.autoFilters[i].filterType ==
+                  ExcelFilterType.colorFilter) {
+                _serializeDxfColorFilter(
+                  builder,
+                  sheet.autoFilters[i] as AutoFilterImpl,
+                );
+              }
             }
           }
-        }
-        if (sheet.conditionalFormats.isNotEmpty) {
-          final int iCount = sheet.conditionalFormats.length;
-          for (int i = 0; i < iCount; i++) {
-            final ConditionalFormatsImpl condFormats =
-                sheet.conditionalFormats[i];
-            for (final ConditionalFormatImpl condition
-                in condFormats.innerList) {
-              if (_checkFormat(condition)) {
-                _serializeDxf(builder, condition);
+          if (sheet.conditionalFormats.isNotEmpty) {
+            final int iCount = sheet.conditionalFormats.length;
+            for (int i = 0; i < iCount; i++) {
+              final ConditionalFormatsImpl condFormats =
+                  sheet.conditionalFormats[i];
+              for (final ConditionalFormatImpl condition
+                  in condFormats.innerList) {
+                if (_checkFormat(condition)) {
+                  _serializeDxf(builder, condition);
+                }
               }
             }
           }
         }
-      }
-    });
+      },
+    );
   }
 
   Future<void> _serialiseDxfsAsync(XmlBuilder builder) async {
-    builder.element('dxfs', nest: () async {
-      for (final Worksheet sheet in _workbook.worksheets.innerList) {
-        if (sheet.autoFilters.innerList.isNotEmpty) {
-          for (int i = 0; i < sheet.autoFilters.count; i++) {
-            if (sheet.autoFilters[i].filterType ==
-                ExcelFilterType.colorFilter) {
-              _serializeDxfColorFilterAsync(
-                  builder, sheet.autoFilters[i] as AutoFilterImpl);
+    builder.element(
+      'dxfs',
+      nest: () async {
+        for (final Worksheet sheet in _workbook.worksheets.innerList) {
+          if (sheet.autoFilters.innerList.isNotEmpty) {
+            for (int i = 0; i < sheet.autoFilters.count; i++) {
+              if (sheet.autoFilters[i].filterType ==
+                  ExcelFilterType.colorFilter) {
+                _serializeDxfColorFilterAsync(
+                  builder,
+                  sheet.autoFilters[i] as AutoFilterImpl,
+                );
+              }
             }
           }
-        }
-        if (sheet.conditionalFormats.isNotEmpty) {
-          final int iCount = sheet.conditionalFormats.length;
-          for (int i = 0; i < iCount; i++) {
-            final ConditionalFormatsImpl condFormats =
-                sheet.conditionalFormats[i];
-            for (final ConditionalFormatImpl condition
-                in condFormats.innerList) {
-              if (_checkFormat(condition)) {
-                _serializeDxfAsync(builder, condition);
+          if (sheet.conditionalFormats.isNotEmpty) {
+            final int iCount = sheet.conditionalFormats.length;
+            for (int i = 0; i < iCount; i++) {
+              final ConditionalFormatsImpl condFormats =
+                  sheet.conditionalFormats[i];
+              for (final ConditionalFormatImpl condition
+                  in condFormats.innerList) {
+                if (_checkFormat(condition)) {
+                  _serializeDxfAsync(builder, condition);
+                }
               }
             }
           }
         }
-      }
-    });
+      },
+    );
   }
 
   ///Serialize color filter dxf style.
   void _serializeDxfColorFilter(XmlBuilder builder, AutoFilterImpl autoFilter) {
-    builder.element('dxf', nest: () {
-      _serializeDxfColorFilterFill(
-          builder, autoFilter.filteredItems as ColorFilter);
-    });
+    builder.element(
+      'dxf',
+      nest: () {
+        _serializeDxfColorFilterFill(
+          builder,
+          autoFilter.filteredItems as ColorFilter,
+        );
+      },
+    );
   }
 
   Future<void> _serializeDxfColorFilterAsync(
-      XmlBuilder builder, AutoFilterImpl autoFilter) async {
-    builder.element('dxf', nest: () async {
-      _serializeDxfColorFilterFillAsync(
-          builder, autoFilter.filteredItems as ColorFilter);
-    });
+    XmlBuilder builder,
+    AutoFilterImpl autoFilter,
+  ) async {
+    builder.element(
+      'dxf',
+      nest: () async {
+        _serializeDxfColorFilterFillAsync(
+          builder,
+          autoFilter.filteredItems as ColorFilter,
+        );
+      },
+    );
   }
 
   ///Serialize dxf color filter style fill.
   void _serializeDxfColorFilterFill(
-      XmlBuilder builder, ColorFilter colorFilter) {
+    XmlBuilder builder,
+    ColorFilter colorFilter,
+  ) {
     String foreColor;
-    builder.element('fill', nest: () {
-      builder.element('patternFill', nest: () {
-        if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor &&
-            colorFilter.color == '#000000') {
-          builder.attribute('patternType', 'none');
-        } else {
-          builder.attribute('patternType', 'solid');
-        }
+    builder.element(
+      'fill',
+      nest: () {
+        builder.element(
+          'patternFill',
+          nest: () {
+            if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor &&
+                colorFilter.color == '#000000') {
+              builder.attribute('patternType', 'none');
+            } else {
+              builder.attribute('patternType', 'solid');
+            }
 
-        if (colorFilter.color == '#000000') {
-          if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor) {
-            builder.element('fgColor', nest: () {
-              builder.attribute('indexed', '64');
-            });
-          } else {
-            builder.element('fgColor', nest: () {
-              builder.attribute('indexed', '66');
-            });
-          }
-        } else {
-          if (colorFilter.color.length == 7) {
-            foreColor = 'FF${colorFilter.color.replaceAll('#', '')}';
-          } else {
-            foreColor = colorFilter.color;
-          }
-          builder.element('fgColor', nest: () {
-            builder.attribute('rgb', foreColor);
-          });
-        }
-      });
-    });
+            if (colorFilter.color == '#000000') {
+              if (colorFilter.colorFilterType ==
+                  ExcelColorFilterType.cellColor) {
+                builder.element(
+                  'fgColor',
+                  nest: () {
+                    builder.attribute('indexed', '64');
+                  },
+                );
+              } else {
+                builder.element(
+                  'fgColor',
+                  nest: () {
+                    builder.attribute('indexed', '66');
+                  },
+                );
+              }
+            } else {
+              if (colorFilter.color.length == 7) {
+                foreColor = 'FF${colorFilter.color.replaceAll('#', '')}';
+              } else {
+                foreColor = colorFilter.color;
+              }
+              builder.element(
+                'fgColor',
+                nest: () {
+                  builder.attribute('rgb', foreColor);
+                },
+              );
+            }
+          },
+        );
+      },
+    );
   }
 
   Future<void> _serializeDxfColorFilterFillAsync(
-      XmlBuilder builder, ColorFilter colorFilter) async {
+    XmlBuilder builder,
+    ColorFilter colorFilter,
+  ) async {
     String foreColor;
-    builder.element('fill', nest: () async {
-      builder.element('patternFill', nest: () async {
-        if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor &&
-            colorFilter.color == '#000000') {
-          builder.attribute('patternType', 'none');
-        } else {
-          builder.attribute('patternType', 'solid');
-        }
+    builder.element(
+      'fill',
+      nest: () async {
+        builder.element(
+          'patternFill',
+          nest: () async {
+            if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor &&
+                colorFilter.color == '#000000') {
+              builder.attribute('patternType', 'none');
+            } else {
+              builder.attribute('patternType', 'solid');
+            }
 
-        if (colorFilter.color == '#000000') {
-          if (colorFilter.colorFilterType == ExcelColorFilterType.cellColor) {
-            builder.element('fgColor', nest: () async {
-              builder.attribute('indexed', '64');
-            });
-          } else {
-            builder.element('fgColor', nest: () async {
-              builder.attribute('indexed', '66');
-            });
-          }
-        } else {
-          if (colorFilter.color.length == 7) {
-            foreColor = 'FF${colorFilter.color.replaceAll('#', '')}';
-          } else {
-            foreColor = colorFilter.color;
-          }
-          builder.element('fgColor', nest: () async {
-            builder.attribute('rgb', foreColor);
-          });
-        }
-      });
-    });
+            if (colorFilter.color == '#000000') {
+              if (colorFilter.colorFilterType ==
+                  ExcelColorFilterType.cellColor) {
+                builder.element(
+                  'fgColor',
+                  nest: () async {
+                    builder.attribute('indexed', '64');
+                  },
+                );
+              } else {
+                builder.element(
+                  'fgColor',
+                  nest: () async {
+                    builder.attribute('indexed', '66');
+                  },
+                );
+              }
+            } else {
+              if (colorFilter.color.length == 7) {
+                foreColor = 'FF${colorFilter.color.replaceAll('#', '')}';
+              } else {
+                foreColor = colorFilter.color;
+              }
+              builder.element(
+                'fgColor',
+                nest: () async {
+                  builder.attribute('rgb', foreColor);
+                },
+              );
+            }
+          },
+        );
+      },
+    );
   }
 
   /// Serializes Dxf style.
   void _serializeDxf(XmlBuilder builder, ConditionalFormatImpl condition) {
-    builder.element('dxf', nest: () {
-      _serializeDxfFont(builder, condition);
-      _serializeDxfNumberFormat(builder, condition);
-      _serializeDxfFill(builder, condition);
-      _serializeDxfBorders(builder, condition);
-    });
+    builder.element(
+      'dxf',
+      nest: () {
+        _serializeDxfFont(builder, condition);
+        _serializeDxfNumberFormat(builder, condition);
+        _serializeDxfFill(builder, condition);
+        _serializeDxfBorders(builder, condition);
+      },
+    );
   }
 
   Future<void> _serializeDxfAsync(
-      XmlBuilder builder, ConditionalFormatImpl condition) async {
-    builder.element('dxf', nest: () async {
-      _serializeDxfFontAsync(builder, condition);
-      _serializeDxfNumberFormatAsync(builder, condition);
-      _serializeDxfFillAsync(builder, condition);
-      _serializeDxfBordersAsync(builder, condition);
-    });
+    XmlBuilder builder,
+    ConditionalFormatImpl condition,
+  ) async {
+    builder.element(
+      'dxf',
+      nest: () async {
+        _serializeDxfFontAsync(builder, condition);
+        _serializeDxfNumberFormatAsync(builder, condition);
+        _serializeDxfFillAsync(builder, condition);
+        _serializeDxfBordersAsync(builder, condition);
+      },
+    );
   }
 
   /// Serializes Dxf style font.
@@ -5413,61 +6948,77 @@ class SerializeWorkbook {
         condition.isItalic ||
         condition.underline ||
         condition.fontColor != '#000000') {
-      builder.element('font', nest: () {
-        if (condition.isBold) {
-          builder.element('b', nest: () {});
-        }
-        if (condition.isItalic) {
-          builder.element('i', nest: () {});
-        }
-        if (condition.underline) {
-          builder.element('u', nest: () {});
-        }
-        String fontColor;
-        if (condition.fontColor.length <= 7) {
-          fontColor = 'FF${condition.fontColor.replaceAll('#', '')}';
-        } else {
-          fontColor = condition.fontColor;
-        }
-        builder.element('color', nest: () {
-          builder.attribute('rgb', fontColor);
-        });
-      });
+      builder.element(
+        'font',
+        nest: () {
+          if (condition.isBold) {
+            builder.element('b', nest: () {});
+          }
+          if (condition.isItalic) {
+            builder.element('i', nest: () {});
+          }
+          if (condition.underline) {
+            builder.element('u', nest: () {});
+          }
+          String fontColor;
+          if (condition.fontColor.length <= 7) {
+            fontColor = 'FF${condition.fontColor.replaceAll('#', '')}';
+          } else {
+            fontColor = condition.fontColor;
+          }
+          builder.element(
+            'color',
+            nest: () {
+              builder.attribute('rgb', fontColor);
+            },
+          );
+        },
+      );
     }
   }
 
   Future<void> _serializeDxfFontAsync(
-      XmlBuilder builder, ConditionalFormatImpl condition) async {
+    XmlBuilder builder,
+    ConditionalFormatImpl condition,
+  ) async {
     if (condition.isBold ||
         condition.isItalic ||
         condition.underline ||
         condition.fontColor != '#000000') {
-      builder.element('font', nest: () async {
-        if (condition.isBold) {
-          builder.element('b', nest: () async {});
-        }
-        if (condition.isItalic) {
-          builder.element('i', nest: () async {});
-        }
-        if (condition.underline) {
-          builder.element('u', nest: () async {});
-        }
-        String fontColor;
-        if (condition.fontColor.length <= 7) {
-          fontColor = 'FF${condition.fontColor.replaceAll('#', '')}';
-        } else {
-          fontColor = condition.fontColor;
-        }
-        builder.element('color', nest: () async {
-          builder.attribute('rgb', fontColor);
-        });
-      });
+      builder.element(
+        'font',
+        nest: () async {
+          if (condition.isBold) {
+            builder.element('b', nest: () async {});
+          }
+          if (condition.isItalic) {
+            builder.element('i', nest: () async {});
+          }
+          if (condition.underline) {
+            builder.element('u', nest: () async {});
+          }
+          String fontColor;
+          if (condition.fontColor.length <= 7) {
+            fontColor = 'FF${condition.fontColor.replaceAll('#', '')}';
+          } else {
+            fontColor = condition.fontColor;
+          }
+          builder.element(
+            'color',
+            nest: () async {
+              builder.attribute('rgb', fontColor);
+            },
+          );
+        },
+      );
     }
   }
 
   /// Serializes Dxf number format.
   void _serializeDxfNumberFormat(
-      XmlBuilder builder, ConditionalFormatImpl condition) {
+    XmlBuilder builder,
+    ConditionalFormatImpl condition,
+  ) {
     if (condition.numberFormat != 'General') {
       int index;
       Format? format;
@@ -5477,16 +7028,24 @@ class SerializeWorkbook {
       } else {
         index = _workbook.innerFormats.createFormat(condition.numberFormat);
       }
-      builder.element('numFmt', nest: () {
-        builder.attribute('numFmtId', index.toString());
-        final String formatString = format!.formatString!.replaceAll("'", '"');
-        builder.attribute('formatCode', formatString);
-      });
+      builder.element(
+        'numFmt',
+        nest: () {
+          builder.attribute('numFmtId', index.toString());
+          final String formatString = format!.formatString!.replaceAll(
+            "'",
+            '"',
+          );
+          builder.attribute('formatCode', formatString);
+        },
+      );
     }
   }
 
   Future<void> _serializeDxfNumberFormatAsync(
-      XmlBuilder builder, ConditionalFormatImpl condition) async {
+    XmlBuilder builder,
+    ConditionalFormatImpl condition,
+  ) async {
     if (condition.numberFormat != 'General') {
       int index;
       Format? format;
@@ -5496,11 +7055,17 @@ class SerializeWorkbook {
       } else {
         index = _workbook.innerFormats.createFormat(condition.numberFormat);
       }
-      builder.element('numFmt', nest: () async {
-        builder.attribute('numFmtId', index.toString());
-        final String formatString = format!.formatString!.replaceAll("'", '"');
-        builder.attribute('formatCode', formatString);
-      });
+      builder.element(
+        'numFmt',
+        nest: () async {
+          builder.attribute('numFmtId', index.toString());
+          final String formatString = format!.formatString!.replaceAll(
+            "'",
+            '"',
+          );
+          builder.attribute('formatCode', formatString);
+        },
+      );
     }
   }
 
@@ -5513,18 +7078,29 @@ class SerializeWorkbook {
       } else {
         backColor = condition.backColor;
       }
-      builder.element('fill', nest: () {
-        builder.element('patternFill', nest: () {
-          builder.element('bgColor', nest: () {
-            builder.attribute('rgb', backColor);
-          });
-        });
-      });
+      builder.element(
+        'fill',
+        nest: () {
+          builder.element(
+            'patternFill',
+            nest: () {
+              builder.element(
+                'bgColor',
+                nest: () {
+                  builder.attribute('rgb', backColor);
+                },
+              );
+            },
+          );
+        },
+      );
     }
   }
 
   Future<void> _serializeDxfFillAsync(
-      XmlBuilder builder, ConditionalFormatImpl condition) async {
+    XmlBuilder builder,
+    ConditionalFormatImpl condition,
+  ) async {
     String backColor;
     if (condition.backColor != '#FFFFFF') {
       if (condition.backColor.length == 7) {
@@ -5532,102 +7108,183 @@ class SerializeWorkbook {
       } else {
         backColor = condition.backColor;
       }
-      builder.element('fill', nest: () async {
-        builder.element('patternFill', nest: () async {
-          builder.element('bgColor', nest: () async {
-            builder.attribute('rgb', backColor);
-          });
-        });
-      });
+      builder.element(
+        'fill',
+        nest: () async {
+          builder.element(
+            'patternFill',
+            nest: () async {
+              builder.element(
+                'bgColor',
+                nest: () async {
+                  builder.attribute('rgb', backColor);
+                },
+              );
+            },
+          );
+        },
+      );
     }
   }
 
   /// Serializes Dxf borders.
   void _serializeDxfBorders(
-      XmlBuilder builder, ConditionalFormatImpl condition) {
+    XmlBuilder builder,
+    ConditionalFormatImpl condition,
+  ) {
     if (condition.leftBorderStyle != LineStyle.none ||
         condition.rightBorderStyle != LineStyle.none ||
         condition.topBorderStyle != LineStyle.none ||
         condition.bottomBorderStyle != LineStyle.none) {
-      builder.element('border', nest: () {
-        if (condition.leftBorderStyle != LineStyle.none) {
-          _serializeDxfBorder(builder, 'left', condition.leftBorderStyle,
-              condition.leftBorderColor);
-        }
-        if (condition.rightBorderStyle != LineStyle.none) {
-          _serializeDxfBorder(builder, 'right', condition.rightBorderStyle,
-              condition.rightBorderColor);
-        }
-        if (condition.topBorderStyle != LineStyle.none) {
-          _serializeDxfBorder(builder, 'top', condition.topBorderStyle,
-              condition.topBorderColor);
-        }
-        if (condition.bottomBorderStyle != LineStyle.none) {
-          _serializeDxfBorder(builder, 'bottom', condition.bottomBorderStyle,
-              condition.bottomBorderColor);
-        }
-      });
+      builder.element(
+        'border',
+        nest: () {
+          if (condition.leftBorderStyle != LineStyle.none) {
+            _serializeDxfBorder(
+              builder,
+              'left',
+              condition.leftBorderStyle,
+              condition.leftBorderColor,
+            );
+          }
+          if (condition.rightBorderStyle != LineStyle.none) {
+            _serializeDxfBorder(
+              builder,
+              'right',
+              condition.rightBorderStyle,
+              condition.rightBorderColor,
+            );
+          }
+          if (condition.topBorderStyle != LineStyle.none) {
+            _serializeDxfBorder(
+              builder,
+              'top',
+              condition.topBorderStyle,
+              condition.topBorderColor,
+            );
+          }
+          if (condition.bottomBorderStyle != LineStyle.none) {
+            _serializeDxfBorder(
+              builder,
+              'bottom',
+              condition.bottomBorderStyle,
+              condition.bottomBorderColor,
+            );
+          }
+        },
+      );
     }
   }
 
   Future<void> _serializeDxfBordersAsync(
-      XmlBuilder builder, ConditionalFormatImpl condition) async {
+    XmlBuilder builder,
+    ConditionalFormatImpl condition,
+  ) async {
     if (condition.leftBorderStyle != LineStyle.none ||
         condition.rightBorderStyle != LineStyle.none ||
         condition.topBorderStyle != LineStyle.none ||
         condition.bottomBorderStyle != LineStyle.none) {
-      builder.element('border', nest: () async {
-        if (condition.leftBorderStyle != LineStyle.none) {
-          _serializeDxfBorderAsync(builder, 'left', condition.leftBorderStyle,
-              condition.leftBorderColor);
-        }
-        if (condition.rightBorderStyle != LineStyle.none) {
-          _serializeDxfBorderAsync(builder, 'right', condition.rightBorderStyle,
-              condition.rightBorderColor);
-        }
-        if (condition.topBorderStyle != LineStyle.none) {
-          _serializeDxfBorderAsync(builder, 'top', condition.topBorderStyle,
-              condition.topBorderColor);
-        }
-        if (condition.bottomBorderStyle != LineStyle.none) {
-          _serializeDxfBorderAsync(builder, 'bottom',
-              condition.bottomBorderStyle, condition.bottomBorderColor);
-        }
-      });
+      builder.element(
+        'border',
+        nest: () async {
+          if (condition.leftBorderStyle != LineStyle.none) {
+            _serializeDxfBorderAsync(
+              builder,
+              'left',
+              condition.leftBorderStyle,
+              condition.leftBorderColor,
+            );
+          }
+          if (condition.rightBorderStyle != LineStyle.none) {
+            _serializeDxfBorderAsync(
+              builder,
+              'right',
+              condition.rightBorderStyle,
+              condition.rightBorderColor,
+            );
+          }
+          if (condition.topBorderStyle != LineStyle.none) {
+            _serializeDxfBorderAsync(
+              builder,
+              'top',
+              condition.topBorderStyle,
+              condition.topBorderColor,
+            );
+          }
+          if (condition.bottomBorderStyle != LineStyle.none) {
+            _serializeDxfBorderAsync(
+              builder,
+              'bottom',
+              condition.bottomBorderStyle,
+              condition.bottomBorderColor,
+            );
+          }
+        },
+      );
     }
   }
 
   /// Serializes Dxf border.
-  void _serializeDxfBorder(XmlBuilder builder, String value,
-      LineStyle borderStyle, String borderColor) {
-    builder.element(value, nest: () {
-      final String strStyle =
-          borderStyle.toString().split('.').toList().removeAt(1).toLowerCase();
-      builder.attribute('style', strStyle);
-      builder.element('color', nest: () {
-        if (borderColor.length <= 7) {
-          builder.attribute('rgb', 'FF${borderColor.replaceAll('#', '')}');
-        } else {
-          builder.attribute('rgb', borderColor);
-        }
-      });
-    });
+  void _serializeDxfBorder(
+    XmlBuilder builder,
+    String value,
+    LineStyle borderStyle,
+    String borderColor,
+  ) {
+    builder.element(
+      value,
+      nest: () {
+        final String strStyle =
+            borderStyle
+                .toString()
+                .split('.')
+                .toList()
+                .removeAt(1)
+                .toLowerCase();
+        builder.attribute('style', strStyle);
+        builder.element(
+          'color',
+          nest: () {
+            if (borderColor.length <= 7) {
+              builder.attribute('rgb', 'FF${borderColor.replaceAll('#', '')}');
+            } else {
+              builder.attribute('rgb', borderColor);
+            }
+          },
+        );
+      },
+    );
   }
 
-  Future<void> _serializeDxfBorderAsync(XmlBuilder builder, String value,
-      LineStyle borderStyle, String borderColor) async {
-    builder.element(value, nest: () async {
-      final String strStyle =
-          borderStyle.toString().split('.').toList().removeAt(1).toLowerCase();
-      builder.attribute('style', strStyle);
-      builder.element('color', nest: () async {
-        if (borderColor.length <= 7) {
-          builder.attribute('rgb', 'FF${borderColor.replaceAll('#', '')}');
-        } else {
-          builder.attribute('rgb', borderColor);
-        }
-      });
-    });
+  Future<void> _serializeDxfBorderAsync(
+    XmlBuilder builder,
+    String value,
+    LineStyle borderStyle,
+    String borderColor,
+  ) async {
+    builder.element(
+      value,
+      nest: () async {
+        final String strStyle =
+            borderStyle
+                .toString()
+                .split('.')
+                .toList()
+                .removeAt(1)
+                .toLowerCase();
+        builder.attribute('style', strStyle);
+        builder.element(
+          'color',
+          nest: () async {
+            if (borderColor.length <= 7) {
+              builder.attribute('rgb', 'FF${borderColor.replaceAll('#', '')}');
+            } else {
+              builder.attribute('rgb', borderColor);
+            }
+          },
+        );
+      },
+    );
   }
 
   /// Serializes conditional formattings.
@@ -5640,193 +7297,307 @@ class SerializeWorkbook {
     int iPriorityCount = 0;
 
     if (hasExtensionList) {
-      builder.element('ext', nest: () {
-        builder.namespace(
-            'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-        builder.attribute('uri', '{78C0D931-6437-407d-A8EE-F0AAD7539E65}');
-        builder.attribute('xmlns:x14',
-            'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
+      builder.element(
+        'ext',
+        nest: () {
+          builder.namespace(
+            'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+          );
+          builder.attribute('uri', '{78C0D931-6437-407d-A8EE-F0AAD7539E65}');
+          builder.attribute(
+            'xmlns:x14',
+            'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
+          );
 
-        builder.element('x14:conditionalFormattings', nest: () {
-          for (final ConditionalFormats conditions
-              in sheet.conditionalFormats) {
-            for (int i = 0; i < conditions.count; i++) {
-              final ConditionalFormat condition =
-                  (conditions as ConditionalFormatsImpl).innerList[i];
-              final ConditionalFormatImpl format =
-                  condition as ConditionalFormatImpl;
-              IconSetImpl? iconSet;
-              if (format.iconSet != null) {
-                iconSet = format.iconSet! as IconSetImpl;
-              }
-              if (format.bCFHasExtensionList) {
-                final ConditionalFormatsImpl formats = conditions;
-                format.rangeRefernce =
-                    (formats.cellList.isNotEmpty) ? ' ${formats.cellList}' : '';
+          builder.element(
+            'x14:conditionalFormattings',
+            nest: () {
+              for (final ConditionalFormats conditions
+                  in sheet.conditionalFormats) {
+                for (int i = 0; i < conditions.count; i++) {
+                  final ConditionalFormat condition =
+                      (conditions as ConditionalFormatsImpl).innerList[i];
+                  final ConditionalFormatImpl format =
+                      condition as ConditionalFormatImpl;
+                  IconSetImpl? iconSet;
+                  if (format.iconSet != null) {
+                    iconSet = format.iconSet! as IconSetImpl;
+                  }
+                  if (format.bCFHasExtensionList) {
+                    final ConditionalFormatsImpl formats = conditions;
+                    format.rangeRefernce =
+                        (formats.cellList.isNotEmpty)
+                            ? ' ${formats.cellList}'
+                            : '';
 
-                if ((condition.formatType == ExcelCFType.formula &&
-                        condition.firstFormula != '') ||
-                    condition.formatType == ExcelCFType.specificText &&
-                        condition.firstFormula != '' &&
-                        (condition.operator ==
-                                ExcelComparisonOperator.beginsWith ||
-                            condition.operator ==
-                                ExcelComparisonOperator.endsWith ||
-                            condition.operator ==
-                                ExcelComparisonOperator.containsText ||
-                            condition.operator ==
-                                ExcelComparisonOperator.notContainsText) ||
-                    condition.formatType == ExcelCFType.cellValue &&
-                        condition.firstFormula != '' &&
-                        (condition.operator == ExcelComparisonOperator.equal ||
-                            condition.operator ==
-                                ExcelComparisonOperator.notEqual ||
-                            condition.operator ==
-                                ExcelComparisonOperator.greater ||
-                            condition.operator ==
-                                ExcelComparisonOperator.greaterOrEqual ||
-                            condition.operator ==
-                                ExcelComparisonOperator.less ||
-                            condition.operator ==
-                                ExcelComparisonOperator.lessOrEqual ||
-                            (condition.secondFormula != '' &&
-                                (condition.operator ==
-                                        ExcelComparisonOperator.between ||
-                                    condition.operator ==
-                                        ExcelComparisonOperator.notBetween)))) {
-                  builder.element('x14:conditionalFormatting', nest: () {
-                    builder.attribute('xmlns:xm',
-                        'http://schemas.microsoft.com/office/excel/2006/main');
-                    builder.element('x14:cfRule', nest: () {
-                      builder.attribute('type',
-                          _getCFType(condition.formatType, condition.operator));
-                      if (format.priority > 1) {
+                    if ((condition.formatType == ExcelCFType.formula &&
+                            condition.firstFormula != '') ||
+                        condition.formatType == ExcelCFType.specificText &&
+                            condition.firstFormula != '' &&
+                            (condition.operator ==
+                                    ExcelComparisonOperator.beginsWith ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.endsWith ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.containsText ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.notContainsText) ||
+                        condition.formatType == ExcelCFType.cellValue &&
+                            condition.firstFormula != '' &&
+                            (condition.operator ==
+                                    ExcelComparisonOperator.equal ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.notEqual ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.greater ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.greaterOrEqual ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.less ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.lessOrEqual ||
+                                (condition.secondFormula != '' &&
+                                    (condition.operator ==
+                                            ExcelComparisonOperator.between ||
+                                        condition.operator ==
+                                            ExcelComparisonOperator
+                                                .notBetween)))) {
+                      builder.element(
+                        'x14:conditionalFormatting',
+                        nest: () {
+                          builder.attribute(
+                            'xmlns:xm',
+                            'http://schemas.microsoft.com/office/excel/2006/main',
+                          );
+                          builder.element(
+                            'x14:cfRule',
+                            nest: () {
+                              builder.attribute(
+                                'type',
+                                _getCFType(
+                                  condition.formatType,
+                                  condition.operator,
+                                ),
+                              );
+                              if (format.priority > 1) {
+                                builder.attribute(
+                                  'priority',
+                                  format.priority.toString(),
+                                );
+                              } else {
+                                builder.attribute(
+                                  'priority',
+                                  iPriority.toString(),
+                                );
+                                iPriority++;
+                              }
+                              if (condition.formatType ==
+                                      ExcelCFType.cellValue ||
+                                  condition.formatType ==
+                                      ExcelCFType.specificText) {
+                                builder.attribute(
+                                  'operator',
+                                  _getCFComparisonOperatorName(
+                                    condition.operator,
+                                  ),
+                                );
+                              }
+                              // writer.WriteAttributeString(IdAttributeName, format.ST_GUID.ToString());
+                              final ConditionalFormatImpl conFormatImpl =
+                                  condition;
+                              final String strFormula1 =
+                                  conFormatImpl.firstFormula;
+                              final String strFormula2 =
+                                  conFormatImpl.secondFormula;
+                              if (strFormula1 != '' && strFormula1 != '') {
+                                builder.element('xm:f', nest: strFormula1);
+                              }
+                              if (strFormula2 != '' && strFormula2 != '') {
+                                builder.element('xm:f', nest: strFormula2);
+                              } else if (format.range != null) {
+                                builder.element(
+                                  'xm:f',
+                                  nest: format.range!.addressGlobal,
+                                );
+                              }
+
+                              builder.element(
+                                'dxf',
+                                nest: () {
+                                  _serializeDxfFont(builder, condition);
+                                  _serializeDxfFill(builder, condition);
+                                  _serializeDxfBorders(builder, condition);
+                                },
+                              );
+                            },
+                          );
+                          builder.element(
+                            'xm:sqref',
+                            nest: format.rangeRefernce,
+                          );
+                        },
+                      );
+                    }
+                  }
+                  if (condition.iconSet != null &&
+                      (format.bCFHasExtensionList ||
+                          format.iconSet!.iconSet ==
+                              ExcelIconSetType.threeStars ||
+                          (iconSet != null && iconSet.isCustom) ||
+                          format.iconSet!.iconSet ==
+                              ExcelIconSetType.fiveBoxes ||
+                          format.iconSet!.iconSet ==
+                              ExcelIconSetType.threeTriangles)) {
+                    final int iDxfIndex = _iDxfIndex;
+
+                    builder.element(
+                      'x14:conditionalFormatting',
+                      nest: () {
                         builder.attribute(
-                            'priority', format.priority.toString());
-                      } else {
-                        builder.attribute('priority', iPriority.toString());
-                        iPriority++;
-                      }
-                      if (condition.formatType == ExcelCFType.cellValue ||
-                          condition.formatType == ExcelCFType.specificText) {
-                        builder.attribute('operator',
-                            _getCFComparisonOperatorName(condition.operator));
-                      }
-                      // writer.WriteAttributeString(IdAttributeName, format.ST_GUID.ToString());
-                      final ConditionalFormatImpl conFormatImpl = condition;
-                      final String strFormula1 = conFormatImpl.firstFormula;
-                      final String strFormula2 = conFormatImpl.secondFormula;
-                      if (strFormula1 != '' && strFormula1 != '') {
-                        builder.element('xm:f', nest: strFormula1);
-                      }
-                      if (strFormula2 != '' && strFormula2 != '') {
-                        builder.element('xm:f', nest: strFormula2);
-                      } else if (format.range != null) {
-                        builder.element('xm:f',
-                            nest: format.range!.addressGlobal);
-                      }
+                          'xmlns:xm',
+                          'http://schemas.microsoft.com/office/excel/2006/main',
+                        );
+                        final List<dynamic> result = _serializeCondition(
+                          builder,
+                          condition,
+                          'x14:',
+                          iDxfIndex,
+                          iPriority,
+                          iPriorityCount,
+                        );
+                        _iDxfIndex = result[0] as int;
+                        iPriority = result[1] as int;
+                        iPriorityCount = result[2] as int;
 
-                      builder.element('dxf', nest: () {
-                        _serializeDxfFont(builder, condition);
-                        _serializeDxfFill(builder, condition);
-                        _serializeDxfBorders(builder, condition);
-                      });
-                    });
-                    builder.element('xm:sqref', nest: format.rangeRefernce);
-                  });
+                        final ConditionalFormatsImpl formats = conditions;
+                        final String strAddress =
+                            (formats.cellList.isNotEmpty)
+                                ? ' ${formats.cellList}'
+                                : '';
+                        builder.element('xm:sqref', nest: strAddress);
+                      },
+                    );
+                  }
+                  if (condition.dataBar != null &&
+                      (condition.dataBar! as DataBarImpl).hasExtensionList) {
+                    final DataBar dataBar = condition.dataBar!;
+                    final DataBarImpl dataBarImpl = dataBar as DataBarImpl;
+
+                    builder.element(
+                      'x14:conditionalFormatting',
+                      nest: () {
+                        builder.element(
+                          'x14:cfRule',
+                          nest: () {
+                            builder.attribute('type', 'dataBar');
+                            // ignore: unnecessary_null_checks
+                            builder.attribute('id', dataBarImpl.stGUID!);
+
+                            builder.element(
+                              'x14:dataBar',
+                              nest: () {
+                                builder.attribute(
+                                  'border',
+                                  (dataBar.hasBorder) ? '1' : '0',
+                                );
+                                builder.attribute(
+                                  'gradient',
+                                  (dataBar.hasGradientFill) ? '1' : '0',
+                                );
+                                builder.attribute(
+                                  'minLength',
+                                  dataBar.percentMin.toString(),
+                                );
+                                builder.attribute(
+                                  'maxLength',
+                                  dataBar.percentMax.toString(),
+                                );
+                                builder.attribute(
+                                  'direction',
+                                  dataBar.dataBarDirection.toString().substring(
+                                    17,
+                                  ),
+                                );
+                                builder.attribute(
+                                  'negativeBarColorSameAsPositive',
+                                  (dataBarImpl.hasDiffNegativeBarColor)
+                                      ? '0'
+                                      : '1',
+                                );
+                                builder.attribute(
+                                  'negativeBarBorderColorSameAsPositive',
+                                  (dataBarImpl.hasDiffNegativeBarBorderColor)
+                                      ? '0'
+                                      : '1',
+                                );
+                                builder.attribute(
+                                  'axisPosition',
+                                  dataBar.dataBarAxisPosition
+                                      .toString()
+                                      .substring(20),
+                                );
+
+                                _serializeConditionValueObjectExt(
+                                  builder,
+                                  dataBar.minPoint,
+                                  false,
+                                  true,
+                                );
+                                _serializeConditionValueObjectExt(
+                                  builder,
+                                  dataBar.maxPoint,
+                                  false,
+                                  false,
+                                );
+
+                                if (dataBar.borderColor != '') {
+                                  _serializeRgbColor(
+                                    builder,
+                                    'x14:borderColor',
+                                    dataBar.borderColor,
+                                  );
+                                }
+                                if (dataBar.negativeFillColor != '') {
+                                  _serializeRgbColor(
+                                    builder,
+                                    'x14:negativeFillColor',
+                                    dataBar.negativeFillColor,
+                                  );
+                                }
+                                if (dataBar.negativeBorderColor != '') {
+                                  _serializeRgbColor(
+                                    builder,
+                                    'x14:negativeBorderColor',
+                                    dataBar.negativeBorderColor,
+                                  );
+                                }
+                                if (dataBar.barAxisColor != '') {
+                                  _serializeRgbColor(
+                                    builder,
+                                    'x14:axisColor',
+                                    dataBar.barAxisColor,
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
                 }
               }
-              if (condition.iconSet != null &&
-                  (format.bCFHasExtensionList ||
-                      format.iconSet!.iconSet == ExcelIconSetType.threeStars ||
-                      (iconSet != null && iconSet.isCustom) ||
-                      format.iconSet!.iconSet == ExcelIconSetType.fiveBoxes ||
-                      format.iconSet!.iconSet ==
-                          ExcelIconSetType.threeTriangles)) {
-                final int iDxfIndex = _iDxfIndex;
-
-                builder.element('x14:conditionalFormatting', nest: () {
-                  builder.attribute('xmlns:xm',
-                      'http://schemas.microsoft.com/office/excel/2006/main');
-                  final List<dynamic> result = _serializeCondition(builder,
-                      condition, 'x14:', iDxfIndex, iPriority, iPriorityCount);
-                  _iDxfIndex = result[0] as int;
-                  iPriority = result[1] as int;
-                  iPriorityCount = result[2] as int;
-
-                  final ConditionalFormatsImpl formats = conditions;
-                  final String strAddress = (formats.cellList.isNotEmpty)
-                      ? ' ${formats.cellList}'
-                      : '';
-                  builder.element('xm:sqref', nest: strAddress);
-                });
-              }
-              if (condition.dataBar != null &&
-                  (condition.dataBar! as DataBarImpl).hasExtensionList) {
-                final DataBar dataBar = condition.dataBar!;
-                final DataBarImpl dataBarImpl = dataBar as DataBarImpl;
-
-                builder.element('x14:conditionalFormatting', nest: () {
-                  builder.element('x14:cfRule', nest: () {
-                    builder.attribute('type', 'dataBar');
-                    // ignore: unnecessary_null_checks
-                    builder.attribute('id', dataBarImpl.stGUID!);
-
-                    builder.element('x14:dataBar', nest: () {
-                      builder.attribute(
-                          'border', (dataBar.hasBorder) ? '1' : '0');
-                      builder.attribute(
-                          'gradient', (dataBar.hasGradientFill) ? '1' : '0');
-                      builder.attribute(
-                          'minLength', dataBar.percentMin.toString());
-                      builder.attribute(
-                          'maxLength', dataBar.percentMax.toString());
-                      builder.attribute('direction',
-                          dataBar.dataBarDirection.toString().substring(17));
-                      builder.attribute('negativeBarColorSameAsPositive',
-                          (dataBarImpl.hasDiffNegativeBarColor) ? '0' : '1');
-                      builder.attribute(
-                          'negativeBarBorderColorSameAsPositive',
-                          (dataBarImpl.hasDiffNegativeBarBorderColor)
-                              ? '0'
-                              : '1');
-                      builder.attribute('axisPosition',
-                          dataBar.dataBarAxisPosition.toString().substring(20));
-
-                      _serializeConditionValueObjectExt(
-                          builder, dataBar.minPoint, false, true);
-                      _serializeConditionValueObjectExt(
-                          builder, dataBar.maxPoint, false, false);
-
-                      if (dataBar.borderColor != '') {
-                        _serializeRgbColor(
-                            builder, 'x14:borderColor', dataBar.borderColor);
-                      }
-                      if (dataBar.negativeFillColor != '') {
-                        _serializeRgbColor(builder, 'x14:negativeFillColor',
-                            dataBar.negativeFillColor);
-                      }
-                      if (dataBar.negativeBorderColor != '') {
-                        _serializeRgbColor(builder, 'x14:negativeBorderColor',
-                            dataBar.negativeBorderColor);
-                      }
-                      if (dataBar.barAxisColor != '') {
-                        _serializeRgbColor(
-                            builder, 'x14:axisColor', dataBar.barAxisColor);
-                      }
-                    });
-                  });
-                });
-              }
-            }
-          }
-        });
-      });
+            },
+          );
+        },
+      );
     }
   }
 
   Future<void> _serializeConditionalFormattingExtAsync(
-      XmlBuilder builder, Worksheet sheet) async {
+    XmlBuilder builder,
+    Worksheet sheet,
+  ) async {
     final bool hasExtensionList = _hasExtensionListOnCF(sheet);
     if (!hasExtensionList) {
       return;
@@ -5835,190 +7606,300 @@ class SerializeWorkbook {
     int iPriorityCount = 0;
 
     if (hasExtensionList) {
-      builder.element('ext', nest: () async {
-        builder.namespace(
-            'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-        builder.attribute('uri', '{78C0D931-6437-407d-A8EE-F0AAD7539E65}');
-        builder.attribute('xmlns:x14',
-            'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
+      builder.element(
+        'ext',
+        nest: () async {
+          builder.namespace(
+            'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+          );
+          builder.attribute('uri', '{78C0D931-6437-407d-A8EE-F0AAD7539E65}');
+          builder.attribute(
+            'xmlns:x14',
+            'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
+          );
 
-        builder.element('x14:conditionalFormattings', nest: () async {
-          for (final ConditionalFormats conditions
-              in sheet.conditionalFormats) {
-            for (int i = 0; i < conditions.count; i++) {
-              final ConditionalFormat condition =
-                  (conditions as ConditionalFormatsImpl).innerList[i];
-              final ConditionalFormatImpl format =
-                  condition as ConditionalFormatImpl;
-              IconSetImpl? iconSet;
-              if (format.iconSet != null) {
-                iconSet = format.iconSet! as IconSetImpl;
-              }
-              if (format.bCFHasExtensionList) {
-                final ConditionalFormatsImpl formats = conditions;
-                format.rangeRefernce =
-                    (formats.cellList.isNotEmpty) ? ' ${formats.cellList}' : '';
+          builder.element(
+            'x14:conditionalFormattings',
+            nest: () async {
+              for (final ConditionalFormats conditions
+                  in sheet.conditionalFormats) {
+                for (int i = 0; i < conditions.count; i++) {
+                  final ConditionalFormat condition =
+                      (conditions as ConditionalFormatsImpl).innerList[i];
+                  final ConditionalFormatImpl format =
+                      condition as ConditionalFormatImpl;
+                  IconSetImpl? iconSet;
+                  if (format.iconSet != null) {
+                    iconSet = format.iconSet! as IconSetImpl;
+                  }
+                  if (format.bCFHasExtensionList) {
+                    final ConditionalFormatsImpl formats = conditions;
+                    format.rangeRefernce =
+                        (formats.cellList.isNotEmpty)
+                            ? ' ${formats.cellList}'
+                            : '';
 
-                if ((condition.formatType == ExcelCFType.formula &&
-                        condition.firstFormula != '') ||
-                    condition.formatType == ExcelCFType.specificText &&
-                        condition.firstFormula != '' &&
-                        (condition.operator ==
-                                ExcelComparisonOperator.beginsWith ||
-                            condition.operator ==
-                                ExcelComparisonOperator.endsWith ||
-                            condition.operator ==
-                                ExcelComparisonOperator.containsText ||
-                            condition.operator ==
-                                ExcelComparisonOperator.notContainsText) ||
-                    condition.formatType == ExcelCFType.cellValue &&
-                        condition.firstFormula != '' &&
-                        (condition.operator == ExcelComparisonOperator.equal ||
-                            condition.operator ==
-                                ExcelComparisonOperator.notEqual ||
-                            condition.operator ==
-                                ExcelComparisonOperator.greater ||
-                            condition.operator ==
-                                ExcelComparisonOperator.greaterOrEqual ||
-                            condition.operator ==
-                                ExcelComparisonOperator.less ||
-                            condition.operator ==
-                                ExcelComparisonOperator.lessOrEqual ||
-                            (condition.secondFormula != '' &&
-                                (condition.operator ==
-                                        ExcelComparisonOperator.between ||
-                                    condition.operator ==
-                                        ExcelComparisonOperator.notBetween)))) {
-                  builder.element('x14:conditionalFormatting', nest: () async {
-                    builder.attribute('xmlns:xm',
-                        'http://schemas.microsoft.com/office/excel/2006/main');
-                    builder.element('x14:cfRule', nest: () async {
-                      builder.attribute('type',
-                          _getCFType(condition.formatType, condition.operator));
+                    if ((condition.formatType == ExcelCFType.formula &&
+                            condition.firstFormula != '') ||
+                        condition.formatType == ExcelCFType.specificText &&
+                            condition.firstFormula != '' &&
+                            (condition.operator ==
+                                    ExcelComparisonOperator.beginsWith ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.endsWith ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.containsText ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.notContainsText) ||
+                        condition.formatType == ExcelCFType.cellValue &&
+                            condition.firstFormula != '' &&
+                            (condition.operator ==
+                                    ExcelComparisonOperator.equal ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.notEqual ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.greater ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.greaterOrEqual ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.less ||
+                                condition.operator ==
+                                    ExcelComparisonOperator.lessOrEqual ||
+                                (condition.secondFormula != '' &&
+                                    (condition.operator ==
+                                            ExcelComparisonOperator.between ||
+                                        condition.operator ==
+                                            ExcelComparisonOperator
+                                                .notBetween)))) {
+                      builder.element(
+                        'x14:conditionalFormatting',
+                        nest: () async {
+                          builder.attribute(
+                            'xmlns:xm',
+                            'http://schemas.microsoft.com/office/excel/2006/main',
+                          );
+                          builder.element(
+                            'x14:cfRule',
+                            nest: () async {
+                              builder.attribute(
+                                'type',
+                                _getCFType(
+                                  condition.formatType,
+                                  condition.operator,
+                                ),
+                              );
 
-                      if (format.priority > 1) {
+                              if (format.priority > 1) {
+                                builder.attribute(
+                                  'priority',
+                                  format.priority.toString(),
+                                );
+                              } else {
+                                builder.attribute(
+                                  'priority',
+                                  iPriority.toString(),
+                                );
+                                iPriority++;
+                              }
+                              if (condition.formatType ==
+                                      ExcelCFType.cellValue ||
+                                  condition.formatType ==
+                                      ExcelCFType.specificText) {
+                                builder.attribute(
+                                  'operator',
+                                  _getCFComparisonOperatorName(
+                                    condition.operator,
+                                  ),
+                                );
+                              }
+                              // writer.WriteAttributeString(IdAttributeName, format.ST_GUID.ToString());
+                              final ConditionalFormatImpl conFormatImpl =
+                                  condition;
+                              final String strFormula1 =
+                                  conFormatImpl.firstFormula;
+                              final String strFormula2 =
+                                  conFormatImpl.secondFormula;
+                              if (strFormula1 != '' && strFormula1 != '') {
+                                builder.element('xm:f', nest: strFormula1);
+                              }
+                              if (strFormula2 != '' && strFormula2 != '') {
+                                builder.element('xm:f', nest: strFormula2);
+                              } else if (format.range != null) {
+                                builder.element(
+                                  'xm:f',
+                                  nest: format.range!.addressGlobal,
+                                );
+                              }
+
+                              builder.element(
+                                'dxf',
+                                nest: () async {
+                                  _serializeDxfFontAsync(builder, condition);
+                                  _serializeDxfFillAsync(builder, condition);
+                                  _serializeDxfBordersAsync(builder, condition);
+                                },
+                              );
+                            },
+                          );
+                          builder.element(
+                            'xm:sqref',
+                            nest: format.rangeRefernce,
+                          );
+                        },
+                      );
+                    }
+                  }
+                  if (condition.iconSet != null &&
+                      (format.bCFHasExtensionList ||
+                          format.iconSet!.iconSet ==
+                              ExcelIconSetType.threeStars ||
+                          (iconSet != null && iconSet.isCustom) ||
+                          format.iconSet!.iconSet ==
+                              ExcelIconSetType.fiveBoxes ||
+                          format.iconSet!.iconSet ==
+                              ExcelIconSetType.threeTriangles)) {
+                    final int iDxfIndex = _iDxfIndex;
+
+                    builder.element(
+                      'x14:conditionalFormatting',
+                      nest: () {
                         builder.attribute(
-                            'priority', format.priority.toString());
-                      } else {
-                        builder.attribute('priority', iPriority.toString());
-                        iPriority++;
-                      }
-                      if (condition.formatType == ExcelCFType.cellValue ||
-                          condition.formatType == ExcelCFType.specificText) {
-                        builder.attribute('operator',
-                            _getCFComparisonOperatorName(condition.operator));
-                      }
-                      // writer.WriteAttributeString(IdAttributeName, format.ST_GUID.ToString());
-                      final ConditionalFormatImpl conFormatImpl = condition;
-                      final String strFormula1 = conFormatImpl.firstFormula;
-                      final String strFormula2 = conFormatImpl.secondFormula;
-                      if (strFormula1 != '' && strFormula1 != '') {
-                        builder.element('xm:f', nest: strFormula1);
-                      }
-                      if (strFormula2 != '' && strFormula2 != '') {
-                        builder.element('xm:f', nest: strFormula2);
-                      } else if (format.range != null) {
-                        builder.element('xm:f',
-                            nest: format.range!.addressGlobal);
-                      }
+                          'xmlns:xm',
+                          'http://schemas.microsoft.com/office/excel/2006/main',
+                        );
+                        final List<dynamic> result = _serializeCondition(
+                          builder,
+                          condition,
+                          'x14:',
+                          iDxfIndex,
+                          iPriority,
+                          iPriorityCount,
+                        );
+                        _iDxfIndex = result[0] as int;
+                        iPriority = result[1] as int;
+                        iPriorityCount = result[2] as int;
 
-                      builder.element('dxf', nest: () async {
-                        _serializeDxfFontAsync(builder, condition);
-                        _serializeDxfFillAsync(builder, condition);
-                        _serializeDxfBordersAsync(builder, condition);
-                      });
-                    });
-                    builder.element('xm:sqref', nest: format.rangeRefernce);
-                  });
+                        final ConditionalFormatsImpl formats = conditions;
+                        final String strAddress =
+                            (formats.cellList.isNotEmpty)
+                                ? ' ${formats.cellList}'
+                                : '';
+                        builder.element('xm:sqref', nest: strAddress);
+                      },
+                    );
+                  }
+                  if (condition.dataBar != null &&
+                      (condition.dataBar! as DataBarImpl).hasExtensionList) {
+                    final DataBar dataBar = condition.dataBar!;
+                    final DataBarImpl dataBarImpl = dataBar as DataBarImpl;
+
+                    builder.element(
+                      'x14:conditionalFormatting',
+                      nest: () async {
+                        builder.element(
+                          'x14:cfRule',
+                          nest: () async {
+                            builder.attribute('type', 'dataBar');
+                            // ignore: unnecessary_null_checks
+                            builder.attribute('id', dataBarImpl.stGUID!);
+
+                            builder.element(
+                              'x14:dataBar',
+                              nest: () async {
+                                builder.attribute(
+                                  'border',
+                                  (dataBar.hasBorder) ? '1' : '0',
+                                );
+                                builder.attribute(
+                                  'gradient',
+                                  (dataBar.hasGradientFill) ? '1' : '0',
+                                );
+                                builder.attribute(
+                                  'minLength',
+                                  dataBar.percentMin.toString(),
+                                );
+                                builder.attribute(
+                                  'maxLength',
+                                  dataBar.percentMax.toString(),
+                                );
+                                builder.attribute(
+                                  'direction',
+                                  dataBar.dataBarDirection.toString().substring(
+                                    17,
+                                  ),
+                                );
+                                builder.attribute(
+                                  'negativeBarColorSameAsPositive',
+                                  (dataBarImpl.hasDiffNegativeBarColor)
+                                      ? '0'
+                                      : '1',
+                                );
+                                builder.attribute(
+                                  'negativeBarBorderColorSameAsPositive',
+                                  (dataBarImpl.hasDiffNegativeBarBorderColor)
+                                      ? '0'
+                                      : '1',
+                                );
+                                builder.attribute(
+                                  'axisPosition',
+                                  dataBar.dataBarAxisPosition
+                                      .toString()
+                                      .substring(20),
+                                );
+
+                                _serializeConditionValueObjectExtAsync(
+                                  builder,
+                                  dataBar.minPoint,
+                                  false,
+                                  true,
+                                );
+                                _serializeConditionValueObjectExtAsync(
+                                  builder,
+                                  dataBar.maxPoint,
+                                  false,
+                                  false,
+                                );
+                                if (dataBar.borderColor != '') {
+                                  _serializeRgbColorAsync(
+                                    builder,
+                                    'x14:borderColor',
+                                    dataBar.borderColor,
+                                  );
+                                }
+                                if (dataBar.negativeFillColor != '') {
+                                  _serializeRgbColorAsync(
+                                    builder,
+                                    'x14:negativeFillColor',
+                                    dataBar.negativeFillColor,
+                                  );
+                                }
+                                if (dataBar.negativeBorderColor != '') {
+                                  _serializeRgbColorAsync(
+                                    builder,
+                                    'x14:negativeBorderColor',
+                                    dataBar.negativeBorderColor,
+                                  );
+                                }
+                                if (dataBar.barAxisColor != '') {
+                                  _serializeRgbColorAsync(
+                                    builder,
+                                    'x14:axisColor',
+                                    dataBar.barAxisColor,
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
                 }
               }
-              if (condition.iconSet != null &&
-                  (format.bCFHasExtensionList ||
-                      format.iconSet!.iconSet == ExcelIconSetType.threeStars ||
-                      (iconSet != null && iconSet.isCustom) ||
-                      format.iconSet!.iconSet == ExcelIconSetType.fiveBoxes ||
-                      format.iconSet!.iconSet ==
-                          ExcelIconSetType.threeTriangles)) {
-                final int iDxfIndex = _iDxfIndex;
-
-                builder.element('x14:conditionalFormatting', nest: () {
-                  builder.attribute('xmlns:xm',
-                      'http://schemas.microsoft.com/office/excel/2006/main');
-                  final List<dynamic> result = _serializeCondition(builder,
-                      condition, 'x14:', iDxfIndex, iPriority, iPriorityCount);
-                  _iDxfIndex = result[0] as int;
-                  iPriority = result[1] as int;
-                  iPriorityCount = result[2] as int;
-
-                  final ConditionalFormatsImpl formats = conditions;
-                  final String strAddress = (formats.cellList.isNotEmpty)
-                      ? ' ${formats.cellList}'
-                      : '';
-                  builder.element('xm:sqref', nest: strAddress);
-                });
-              }
-              if (condition.dataBar != null &&
-                  (condition.dataBar! as DataBarImpl).hasExtensionList) {
-                final DataBar dataBar = condition.dataBar!;
-                final DataBarImpl dataBarImpl = dataBar as DataBarImpl;
-
-                builder.element('x14:conditionalFormatting', nest: () async {
-                  builder.element('x14:cfRule', nest: () async {
-                    builder.attribute('type', 'dataBar');
-                    // ignore: unnecessary_null_checks
-                    builder.attribute('id', dataBarImpl.stGUID!);
-
-                    builder.element('x14:dataBar', nest: () async {
-                      builder.attribute(
-                          'border', (dataBar.hasBorder) ? '1' : '0');
-                      builder.attribute(
-                          'gradient', (dataBar.hasGradientFill) ? '1' : '0');
-                      builder.attribute(
-                          'minLength', dataBar.percentMin.toString());
-                      builder.attribute(
-                          'maxLength', dataBar.percentMax.toString());
-                      builder.attribute('direction',
-                          dataBar.dataBarDirection.toString().substring(17));
-                      builder.attribute('negativeBarColorSameAsPositive',
-                          (dataBarImpl.hasDiffNegativeBarColor) ? '0' : '1');
-                      builder.attribute(
-                          'negativeBarBorderColorSameAsPositive',
-                          (dataBarImpl.hasDiffNegativeBarBorderColor)
-                              ? '0'
-                              : '1');
-                      builder.attribute('axisPosition',
-                          dataBar.dataBarAxisPosition.toString().substring(20));
-
-                      _serializeConditionValueObjectExtAsync(
-                          builder, dataBar.minPoint, false, true);
-                      _serializeConditionValueObjectExtAsync(
-                          builder, dataBar.maxPoint, false, false);
-                      if (dataBar.borderColor != '') {
-                        _serializeRgbColorAsync(
-                            builder, 'x14:borderColor', dataBar.borderColor);
-                      }
-                      if (dataBar.negativeFillColor != '') {
-                        _serializeRgbColorAsync(builder,
-                            'x14:negativeFillColor', dataBar.negativeFillColor);
-                      }
-                      if (dataBar.negativeBorderColor != '') {
-                        _serializeRgbColorAsync(
-                            builder,
-                            'x14:negativeBorderColor',
-                            dataBar.negativeBorderColor);
-                      }
-                      if (dataBar.barAxisColor != '') {
-                        _serializeRgbColorAsync(
-                            builder, 'x14:axisColor', dataBar.barAxisColor);
-                      }
-                    });
-                  });
-                });
-              }
-            }
-          }
-        });
-      });
+            },
+          );
+        },
+      );
     }
   }
 
@@ -6064,44 +7945,60 @@ class SerializeWorkbook {
   }
 
   /// Serializes conditional value object.
-  void _serializeConditionValueObjectExt(XmlBuilder builder,
-      ConditionValue conditionValue, bool isIconSet, bool isMinPoint) {
-    builder.element('x14:cfvo', nest: () {
-      int index = conditionValue.type.index;
-      if (!isIconSet) {
-        index = index == 7
-            ? isMinPoint
-                ? 7
-                : 8
-            : index;
-      }
-      final String strType = _valueTypes[index];
-      builder.attribute('type', strType);
-      builder.attribute('val', conditionValue.value);
-      if (isIconSet) {
-        builder.attribute('gte', conditionValue.operator.index.toString());
-      }
-    });
+  void _serializeConditionValueObjectExt(
+    XmlBuilder builder,
+    ConditionValue conditionValue,
+    bool isIconSet,
+    bool isMinPoint,
+  ) {
+    builder.element(
+      'x14:cfvo',
+      nest: () {
+        int index = conditionValue.type.index;
+        if (!isIconSet) {
+          index =
+              index == 7
+                  ? isMinPoint
+                      ? 7
+                      : 8
+                  : index;
+        }
+        final String strType = _valueTypes[index];
+        builder.attribute('type', strType);
+        builder.attribute('val', conditionValue.value);
+        if (isIconSet) {
+          builder.attribute('gte', conditionValue.operator.index.toString());
+        }
+      },
+    );
   }
 
-  Future<void> _serializeConditionValueObjectExtAsync(XmlBuilder builder,
-      ConditionValue conditionValue, bool isIconSet, bool isMinPoint) async {
-    builder.element('x14:cfvo', nest: () async {
-      int index = conditionValue.type.index;
-      if (!isIconSet) {
-        index = index == 7
-            ? isMinPoint
-                ? 7
-                : 8
-            : index;
-      }
-      final String strType = _valueTypes[index];
-      builder.attribute('type', strType);
-      builder.attribute('val', conditionValue.value);
-      if (isIconSet) {
-        builder.attribute('gte', conditionValue.operator.index.toString());
-      }
-    });
+  Future<void> _serializeConditionValueObjectExtAsync(
+    XmlBuilder builder,
+    ConditionValue conditionValue,
+    bool isIconSet,
+    bool isMinPoint,
+  ) async {
+    builder.element(
+      'x14:cfvo',
+      nest: () async {
+        int index = conditionValue.type.index;
+        if (!isIconSet) {
+          index =
+              index == 7
+                  ? isMinPoint
+                      ? 7
+                      : 8
+                  : index;
+        }
+        final String strType = _valueTypes[index];
+        builder.attribute('type', strType);
+        builder.attribute('val', conditionValue.value);
+        if (isIconSet) {
+          builder.attribute('gte', conditionValue.operator.index.toString());
+        }
+      },
+    );
   }
 
   // Check whether to apply format or not.
@@ -6132,7 +8029,10 @@ class SerializeWorkbook {
   /// Checks whether columns after iColumnIndex have the same settings and
   /// returns the last number in the sequence.
   static int _findSameColumns(
-      Worksheet sheet, int iColumnIndex, Workbook workbook) {
+    Worksheet sheet,
+    int iColumnIndex,
+    Workbook workbook,
+  ) {
     final Column? currentColumn = sheet.columns[iColumnIndex];
 
     while (iColumnIndex <= sheet.columns.count) {
@@ -6153,23 +8053,28 @@ class SerializeWorkbook {
 
   ///Serializes auto filters.
   void _serializeAutoFilters(
-      XmlBuilder builder, AutoFilterCollection? autoFilters) {
+    XmlBuilder builder,
+    AutoFilterCollection? autoFilters,
+  ) {
     if (autoFilters == null || autoFilters.innerList.isEmpty) {
       return;
     }
     if (!_isTableAutoFlter(autoFilters.worksheet)) {
-      builder.element('autoFilter', nest: () {
-        builder.attribute('ref', autoFilters.filterRange.addressLocal);
+      builder.element(
+        'autoFilter',
+        nest: () {
+          builder.attribute('ref', autoFilters.filterRange.addressLocal);
 
-        // ignore: always_specify_types
-        for (int i = 0; i < autoFilters.count; i++) {
-          final AutoFilterImpl autoFilter = autoFilters[i] as AutoFilterImpl;
+          // ignore: always_specify_types
+          for (int i = 0; i < autoFilters.count; i++) {
+            final AutoFilterImpl autoFilter = autoFilters[i] as AutoFilterImpl;
 
-          if (autoFilter.isFiltered) {
-            serializeFilterColumn(builder, autoFilter);
+            if (autoFilter.isFiltered) {
+              serializeFilterColumn(builder, autoFilter);
+            }
           }
-        }
-      });
+        },
+      );
     }
   }
 
@@ -6185,125 +8090,164 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeAutoFiltersAsync(
-      XmlBuilder builder, AutoFilterCollection? autoFilters) async {
+    XmlBuilder builder,
+    AutoFilterCollection? autoFilters,
+  ) async {
     if (autoFilters == null || autoFilters.innerList.isEmpty) {
       return;
     }
-    builder.element('autoFilter', nest: () async {
-      builder.attribute('ref', autoFilters.filterRange.addressLocal);
+    builder.element(
+      'autoFilter',
+      nest: () async {
+        builder.attribute('ref', autoFilters.filterRange.addressLocal);
 
-      // ignore: always_specify_types
-      for (int i = 0; i < autoFilters.count; i++) {
-        final AutoFilterImpl autoFilter = autoFilters[i] as AutoFilterImpl;
+        // ignore: always_specify_types
+        for (int i = 0; i < autoFilters.count; i++) {
+          final AutoFilterImpl autoFilter = autoFilters[i] as AutoFilterImpl;
 
-        if (autoFilter.isFiltered) {
-          _serializeFilterColumnAsync(builder, autoFilter);
+          if (autoFilter.isFiltered) {
+            _serializeFilterColumnAsync(builder, autoFilter);
+          }
         }
-      }
-    });
+      },
+    );
   }
 
   /// Serializes filter column.
-  void serializeFilterColumn(
-    XmlBuilder builder,
-    AutoFilterImpl autoFilter,
-  ) {
-    builder.element('filterColumn', nest: () {
-      _serializeAttributeInt(builder, 'colId', autoFilter.colIndex - 1, -1);
+  void serializeFilterColumn(XmlBuilder builder, AutoFilterImpl autoFilter) {
+    builder.element(
+      'filterColumn',
+      nest: () {
+        _serializeAttributeInt(builder, 'colId', autoFilter.colIndex - 1, -1);
 
-      switch (autoFilter.filterType) {
-        case ExcelFilterType.combinationFilter:
-          _serializeFilters(builder, autoFilter);
-          break;
-        case ExcelFilterType.customFilter:
-          _serializeCustomFilter(builder, autoFilter);
-          break;
-        case ExcelFilterType.dynamicFilter:
-          _serializeDateFilter(
-              builder, autoFilter.filteredItems as DynamicFilter);
-          break;
-        case ExcelFilterType.colorFilter:
-          _serializeColorFilter(
-              builder, autoFilter.filteredItems as ColorFilter);
-          break;
-        case ExcelFilterType.iconFilter:
-          break;
-        case ExcelFilterType.notUsed:
-          break;
-      }
-    });
+        switch (autoFilter.filterType) {
+          case ExcelFilterType.combinationFilter:
+            _serializeFilters(builder, autoFilter);
+            break;
+          case ExcelFilterType.customFilter:
+            _serializeCustomFilter(builder, autoFilter);
+            break;
+          case ExcelFilterType.dynamicFilter:
+            _serializeDateFilter(
+              builder,
+              autoFilter.filteredItems as DynamicFilter,
+            );
+            break;
+          case ExcelFilterType.colorFilter:
+            _serializeColorFilter(
+              builder,
+              autoFilter.filteredItems as ColorFilter,
+            );
+            break;
+          case ExcelFilterType.iconFilter:
+            break;
+          case ExcelFilterType.notUsed:
+            break;
+        }
+      },
+    );
   }
 
   Future<void> _serializeFilterColumnAsync(
     XmlBuilder builder,
     AutoFilterImpl autoFilter,
   ) async {
-    builder.element('filterColumn', nest: () async {
-      _serializeAttributeIntAsync(
-          builder, 'colId', autoFilter.colIndex - 1, -1);
-      switch (autoFilter.filterType) {
-        case ExcelFilterType.combinationFilter:
-          _serializeFiltersAsync(builder, autoFilter);
-          break;
-        case ExcelFilterType.customFilter:
-          _serializeCustomFilterAsync(builder, autoFilter);
-          break;
-        case ExcelFilterType.dynamicFilter:
-          _serializeDateFilterAsync(
-              builder, autoFilter.filteredItems as DynamicFilter);
-          break;
-        case ExcelFilterType.colorFilter:
-          _serializeColorFilterAsync(
-              builder, autoFilter.filteredItems as ColorFilter);
-          break;
-        case ExcelFilterType.iconFilter:
-          break;
-        case ExcelFilterType.notUsed:
-          break;
-      }
-    });
+    builder.element(
+      'filterColumn',
+      nest: () async {
+        _serializeAttributeIntAsync(
+          builder,
+          'colId',
+          autoFilter.colIndex - 1,
+          -1,
+        );
+        switch (autoFilter.filterType) {
+          case ExcelFilterType.combinationFilter:
+            _serializeFiltersAsync(builder, autoFilter);
+            break;
+          case ExcelFilterType.customFilter:
+            _serializeCustomFilterAsync(builder, autoFilter);
+            break;
+          case ExcelFilterType.dynamicFilter:
+            _serializeDateFilterAsync(
+              builder,
+              autoFilter.filteredItems as DynamicFilter,
+            );
+            break;
+          case ExcelFilterType.colorFilter:
+            _serializeColorFilterAsync(
+              builder,
+              autoFilter.filteredItems as ColorFilter,
+            );
+            break;
+          case ExcelFilterType.iconFilter:
+            break;
+          case ExcelFilterType.notUsed:
+            break;
+        }
+      },
+    );
   }
 
   /// Serialize color filter.
   void _serializeColorFilter(XmlBuilder builder, ColorFilter filter) {
-    builder.element('colorFilter', nest: () {
-      builder.attribute('dxfId', _iDxfIndex.toString());
-      _iDxfIndex++;
-      if (filter.colorFilterType == ExcelColorFilterType.fontColor) {
-        builder.attribute('cellColor', '0');
-      }
-    });
+    builder.element(
+      'colorFilter',
+      nest: () {
+        builder.attribute('dxfId', _iDxfIndex.toString());
+        _iDxfIndex++;
+        if (filter.colorFilterType == ExcelColorFilterType.fontColor) {
+          builder.attribute('cellColor', '0');
+        }
+      },
+    );
   }
 
   Future<void> _serializeColorFilterAsync(
-      XmlBuilder builder, ColorFilter filter) async {
-    builder.element('colorFilter', nest: () async {
-      builder.attribute('dxfId', _iDxfIndex.toString());
-      _iDxfIndex++;
-      if (filter.colorFilterType == ExcelColorFilterType.fontColor) {
-        builder.attribute('cellColor', '0');
-      }
-    });
+    XmlBuilder builder,
+    ColorFilter filter,
+  ) async {
+    builder.element(
+      'colorFilter',
+      nest: () async {
+        builder.attribute('dxfId', _iDxfIndex.toString());
+        _iDxfIndex++;
+        if (filter.colorFilterType == ExcelColorFilterType.fontColor) {
+          builder.attribute('cellColor', '0');
+        }
+      },
+    );
   }
 
   /// Serialize the dynmaic filter.
   void _serializeDateFilter(XmlBuilder builder, DynamicFilter filter) {
     if (filter.dateFilterType != DynamicFilterType.none) {
-      builder.element('dynamicFilter', nest: () {
-        final String? dateTime =
-            _convertDateFilterTypeToString(filter.dateFilterType);
-        builder.attribute('type', dateTime.toString());
-      });
+      builder.element(
+        'dynamicFilter',
+        nest: () {
+          final String? dateTime = _convertDateFilterTypeToString(
+            filter.dateFilterType,
+          );
+          builder.attribute('type', dateTime.toString());
+        },
+      );
     }
   }
 
   Future<void> _serializeDateFilterAsync(
-      XmlBuilder builder, DynamicFilter filter) async {
+    XmlBuilder builder,
+    DynamicFilter filter,
+  ) async {
     if (filter.dateFilterType != DynamicFilterType.none) {
-      builder.element('dynamicFilter', nest: () async {
-        builder.attribute('type',
-            _convertDateFilterTypeToString(filter.dateFilterType).toString());
-      });
+      builder.element(
+        'dynamicFilter',
+        nest: () async {
+          builder.attribute(
+            'type',
+            _convertDateFilterTypeToString(filter.dateFilterType).toString(),
+          );
+        },
+      );
     }
   }
 
@@ -6413,29 +8357,43 @@ class SerializeWorkbook {
 
   ///SerializeCombination filter
   void _serializeFilters(XmlBuilder builder, AutoFilterImpl autoFilter) {
-    builder.element('filters', nest: () {
-      if (autoFilter.filteredItems.filterType ==
-          ExcelFilterType.combinationFilter) {
-        _serializeCombinationFilters(
-            builder, autoFilter.filteredItems as CombinationFilter);
-      }
-    });
+    builder.element(
+      'filters',
+      nest: () {
+        if (autoFilter.filteredItems.filterType ==
+            ExcelFilterType.combinationFilter) {
+          _serializeCombinationFilters(
+            builder,
+            autoFilter.filteredItems as CombinationFilter,
+          );
+        }
+      },
+    );
   }
 
   Future<void> _serializeFiltersAsync(
-      XmlBuilder builder, AutoFilterImpl autoFilter) async {
-    builder.element('filters', nest: () async {
-      if (autoFilter.filteredItems.filterType ==
-          ExcelFilterType.combinationFilter) {
-        _serializeCombinationFiltersAsync(
-            builder, autoFilter.filteredItems as CombinationFilter);
-      }
-    });
+    XmlBuilder builder,
+    AutoFilterImpl autoFilter,
+  ) async {
+    builder.element(
+      'filters',
+      nest: () async {
+        if (autoFilter.filteredItems.filterType ==
+            ExcelFilterType.combinationFilter) {
+          _serializeCombinationFiltersAsync(
+            builder,
+            autoFilter.filteredItems as CombinationFilter,
+          );
+        }
+      },
+    );
   }
 
   ///SerializeCombination filter
   void _serializeCombinationFilters(
-      XmlBuilder builder, CombinationFilter combinationFilter) {
+    XmlBuilder builder,
+    CombinationFilter combinationFilter,
+  ) {
     if (combinationFilter.isBlank) {
       builder.attribute('blank', 1);
     }
@@ -6453,7 +8411,9 @@ class SerializeWorkbook {
   }
 
   Future<void> _serializeCombinationFiltersAsync(
-      XmlBuilder builder, CombinationFilter combinationFilter) async {
+    XmlBuilder builder,
+    CombinationFilter combinationFilter,
+  ) async {
     if (combinationFilter.isBlank) {
       builder.attribute('blank', 1);
     }
@@ -6465,7 +8425,9 @@ class SerializeWorkbook {
           break;
         case ExcelCombinationFilterType.dateTimeFilter:
           _serializeDateTimeFilterAsync(
-              builder, multipleFilter as DateTimeFilter);
+            builder,
+            multipleFilter as DateTimeFilter,
+          );
           break;
       }
     }
@@ -6475,68 +8437,76 @@ class SerializeWorkbook {
   void _serializeDateTimeFilter(XmlBuilder builder, DateTimeFilter filter) {
     final DateTimeFilterType dateGroup = filter.groupingType;
     final DateTime date = filter.dateTimeValue;
-    builder.element('dateGroupItem', nest: () {
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.year)) {
-        builder.attribute('year', date.year.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.month)) {
-        builder.attribute('month', date.month.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.day)) {
-        builder.attribute('day', date.day.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.hour)) {
-        builder.attribute('hour', date.hour.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.minute)) {
-        builder.attribute('minute', date.minute.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.second)) {
-        builder.attribute('second', date.second.toString());
-      }
-      final String dateTimeStr = _getDateTimeString(dateGroup);
-      builder.attribute('dateTimeGrouping', dateTimeStr);
-    });
+    builder.element(
+      'dateGroupItem',
+      nest: () {
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.year)) {
+          builder.attribute('year', date.year.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.month)) {
+          builder.attribute('month', date.month.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.day)) {
+          builder.attribute('day', date.day.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.hour)) {
+          builder.attribute('hour', date.hour.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.minute)) {
+          builder.attribute('minute', date.minute.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.second)) {
+          builder.attribute('second', date.second.toString());
+        }
+        final String dateTimeStr = _getDateTimeString(dateGroup);
+        builder.attribute('dateTimeGrouping', dateTimeStr);
+      },
+    );
   }
 
   Future<void> _serializeDateTimeFilterAsync(
-      XmlBuilder builder, DateTimeFilter filter) async {
+    XmlBuilder builder,
+    DateTimeFilter filter,
+  ) async {
     final DateTimeFilterType dateGroup = filter.groupingType;
     final DateTime date = filter.dateTimeValue;
-    builder.element('dateGroupItem', nest: () {
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.year)) {
-        builder.attribute('year', date.year.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.month)) {
-        builder.attribute('month', date.month.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.day)) {
-        builder.attribute('day', date.day.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.hour)) {
-        builder.attribute('hour', date.hour.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.minute)) {
-        builder.attribute('minute', date.minute.toString());
-      }
-      if (_getDateTimevalue(dateGroup) >=
-          _getDateTimevalue(DateTimeFilterType.second)) {
-        builder.attribute('second', date.second.toString());
-      }
-      final String dateTimeStr = _getDateTimeString(dateGroup);
-      builder.attribute('dateTimeGrouping', dateTimeStr);
-    });
+    builder.element(
+      'dateGroupItem',
+      nest: () {
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.year)) {
+          builder.attribute('year', date.year.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.month)) {
+          builder.attribute('month', date.month.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.day)) {
+          builder.attribute('day', date.day.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.hour)) {
+          builder.attribute('hour', date.hour.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.minute)) {
+          builder.attribute('minute', date.minute.toString());
+        }
+        if (_getDateTimevalue(dateGroup) >=
+            _getDateTimevalue(DateTimeFilterType.second)) {
+          builder.attribute('second', date.second.toString());
+        }
+        final String dateTimeStr = _getDateTimeString(dateGroup);
+        builder.attribute('dateTimeGrouping', dateTimeStr);
+      },
+    );
   }
 
   /// Get the int value based on date time grouping type.
@@ -6577,64 +8547,104 @@ class SerializeWorkbook {
 
   ///Serialization of filter
   void _serializeFilter(XmlBuilder builder, String strFilterValue) {
-    builder.element('filter', nest: () {
-      builder.attribute('val', strFilterValue);
-    });
+    builder.element(
+      'filter',
+      nest: () {
+        builder.attribute('val', strFilterValue);
+      },
+    );
   }
 
   Future<void> _serializeFilterAsync(
-      XmlBuilder builder, String strFilterValue) async {
-    builder.element('filter', nest: () async {
-      builder.attribute('val', strFilterValue);
-    });
+    XmlBuilder builder,
+    String strFilterValue,
+  ) async {
+    builder.element(
+      'filter',
+      nest: () async {
+        builder.attribute('val', strFilterValue);
+      },
+    );
   }
 
   /// Serializes custom filters.
   void _serializeCustomFilter(XmlBuilder builder, AutoFilterImpl autoFilter) {
-    builder.element('customFilters', nest: () {
-      final bool isAnd = autoFilter.logicalOperator == ExcelLogicalOperator.and;
-      _serializeAttributes(builder, 'and', isAnd, false);
-      if (autoFilter.isFirstCondition) {
-        __serializeCustomFilters(
-            builder, autoFilter.firstCondition, autoFilter);
-      }
-      if (autoFilter.isSecondCondition) {
-        __serializeCustomFilters(
-            builder, autoFilter.firstCondition, autoFilter);
-        __serializeCustomFilters(
-            builder, autoFilter.secondCondition, autoFilter);
-      }
-    });
+    builder.element(
+      'customFilters',
+      nest: () {
+        final bool isAnd =
+            autoFilter.logicalOperator == ExcelLogicalOperator.and;
+        _serializeAttributes(builder, 'and', isAnd, false);
+        if (autoFilter.isFirstCondition) {
+          __serializeCustomFilters(
+            builder,
+            autoFilter.firstCondition,
+            autoFilter,
+          );
+        }
+        if (autoFilter.isSecondCondition) {
+          __serializeCustomFilters(
+            builder,
+            autoFilter.firstCondition,
+            autoFilter,
+          );
+          __serializeCustomFilters(
+            builder,
+            autoFilter.secondCondition,
+            autoFilter,
+          );
+        }
+      },
+    );
   }
 
   Future<void> _serializeCustomFilterAsync(
-      XmlBuilder builder, AutoFilterImpl autoFilter) async {
-    builder.element('customFilters', nest: () async {
-      final bool isAnd = autoFilter.logicalOperator == ExcelLogicalOperator.and;
-      _serializeAttributesAsync(builder, 'and', isAnd, false);
-      if (autoFilter.isFirstCondition) {
-        __serializeCustomFiltersAsync(
-            builder, autoFilter.firstCondition, autoFilter);
-      }
-      if (autoFilter.isSecondCondition) {
-        __serializeCustomFiltersAsync(
-            builder, autoFilter.firstCondition, autoFilter);
-        __serializeCustomFiltersAsync(
-            builder, autoFilter.secondCondition, autoFilter);
-      }
-    });
+    XmlBuilder builder,
+    AutoFilterImpl autoFilter,
+  ) async {
+    builder.element(
+      'customFilters',
+      nest: () async {
+        final bool isAnd =
+            autoFilter.logicalOperator == ExcelLogicalOperator.and;
+        _serializeAttributesAsync(builder, 'and', isAnd, false);
+        if (autoFilter.isFirstCondition) {
+          __serializeCustomFiltersAsync(
+            builder,
+            autoFilter.firstCondition,
+            autoFilter,
+          );
+        }
+        if (autoFilter.isSecondCondition) {
+          __serializeCustomFiltersAsync(
+            builder,
+            autoFilter.firstCondition,
+            autoFilter,
+          );
+          __serializeCustomFiltersAsync(
+            builder,
+            autoFilter.secondCondition,
+            autoFilter,
+          );
+        }
+      },
+    );
   }
 
   /// Serializes custom filters.
-  void __serializeCustomFilters(XmlBuilder builder,
-      AutoFilterCondition autoFilterCondition, AutoFilterImpl autoFilter) {
+  void __serializeCustomFilters(
+    XmlBuilder builder,
+    AutoFilterCondition autoFilterCondition,
+    AutoFilterImpl autoFilter,
+  ) {
     _customFilterCondition(builder, autoFilterCondition, autoFilter, 0);
   }
 
   Future<void> __serializeCustomFiltersAsync(
-      XmlBuilder builder,
-      AutoFilterCondition autoFilterCondition,
-      AutoFilterImpl autoFilter) async {
+    XmlBuilder builder,
+    AutoFilterCondition autoFilterCondition,
+    AutoFilterImpl autoFilter,
+  ) async {
     _customFilterConditionAsync(builder, autoFilterCondition, autoFilter, 0);
   }
 
@@ -6672,83 +8682,93 @@ class SerializeWorkbook {
 
   ///Serialize custom filter
   void _customFilterCondition(
-      XmlBuilder builder,
-      AutoFilterCondition autoFilterCondition,
-      AutoFilterImpl autoFilter,
-      int dataindex) {
+    XmlBuilder builder,
+    AutoFilterCondition autoFilterCondition,
+    AutoFilterImpl autoFilter,
+    int dataindex,
+  ) {
     ExcelFilterCondition conditionOperator =
         autoFilterCondition.conditionOperator;
-    builder.element('customFilter', nest: () {
-      if (autoFilterCondition.dataType ==
-          ExcelFilterDataType.matchAllNonBlanks) {
-        builder.attribute('operator', 'notEqual');
-        builder.attribute('val', 0);
-      } else {
-        conditionOperator = autoFilterCondition.conditionOperator;
-        final String operatorValue =
-            _getAFconditionalOperatorName(conditionOperator);
+    builder.element(
+      'customFilter',
+      nest: () {
+        if (autoFilterCondition.dataType ==
+            ExcelFilterDataType.matchAllNonBlanks) {
+          builder.attribute('operator', 'notEqual');
+          builder.attribute('val', 0);
+        } else {
+          conditionOperator = autoFilterCondition.conditionOperator;
+          final String operatorValue = _getAFconditionalOperatorName(
+            conditionOperator,
+          );
 
-        if (operatorValue != 'equal') {
-          builder.attribute('operator', operatorValue);
-        }
-        Object strval = _conditionValue(autoFilterCondition);
-        if (conditionOperator == ExcelFilterCondition.contains ||
-            conditionOperator == ExcelFilterCondition.doesNotContain ||
-            conditionOperator == ExcelFilterCondition.beginsWith ||
-            conditionOperator == ExcelFilterCondition.doesNotBeginWith) {
-          strval = '$strval*';
-        }
+          if (operatorValue != 'equal') {
+            builder.attribute('operator', operatorValue);
+          }
+          Object strval = _conditionValue(autoFilterCondition);
+          if (conditionOperator == ExcelFilterCondition.contains ||
+              conditionOperator == ExcelFilterCondition.doesNotContain ||
+              conditionOperator == ExcelFilterCondition.beginsWith ||
+              conditionOperator == ExcelFilterCondition.doesNotBeginWith) {
+            strval = '$strval*';
+          }
 
-        if (conditionOperator == ExcelFilterCondition.contains ||
-            conditionOperator == ExcelFilterCondition.doesNotContain ||
-            conditionOperator == ExcelFilterCondition.endsWith ||
-            conditionOperator == ExcelFilterCondition.doesNotEndWith) {
-          strval = '*$strval';
-        }
+          if (conditionOperator == ExcelFilterCondition.contains ||
+              conditionOperator == ExcelFilterCondition.doesNotContain ||
+              conditionOperator == ExcelFilterCondition.endsWith ||
+              conditionOperator == ExcelFilterCondition.doesNotEndWith) {
+            strval = '*$strval';
+          }
 
-        builder.attribute('val', strval);
-      }
-    });
+          builder.attribute('val', strval);
+        }
+      },
+    );
   }
 
   Future<void> _customFilterConditionAsync(
-      XmlBuilder builder,
-      AutoFilterCondition autoFilterCondition,
-      AutoFilterImpl autoFilter,
-      int dataindex) async {
+    XmlBuilder builder,
+    AutoFilterCondition autoFilterCondition,
+    AutoFilterImpl autoFilter,
+    int dataindex,
+  ) async {
     ExcelFilterCondition conditionOperator =
         autoFilterCondition.conditionOperator;
-    builder.element('customFilter', nest: () {
-      if (autoFilterCondition.dataType ==
-          ExcelFilterDataType.matchAllNonBlanks) {
-        builder.attribute('operator', 'notEqual');
-        builder.attribute('val', 0);
-      } else {
-        conditionOperator = autoFilterCondition.conditionOperator;
-        final String operatorValue =
-            _getAFconditionalOperatorName(conditionOperator);
+    builder.element(
+      'customFilter',
+      nest: () {
+        if (autoFilterCondition.dataType ==
+            ExcelFilterDataType.matchAllNonBlanks) {
+          builder.attribute('operator', 'notEqual');
+          builder.attribute('val', 0);
+        } else {
+          conditionOperator = autoFilterCondition.conditionOperator;
+          final String operatorValue = _getAFconditionalOperatorName(
+            conditionOperator,
+          );
 
-        if (operatorValue != 'equal') {
-          builder.attribute('operator', operatorValue);
-        }
-        Object strval = _conditionValue(autoFilterCondition);
-        if (conditionOperator == ExcelFilterCondition.contains ||
-            conditionOperator == ExcelFilterCondition.doesNotContain ||
-            conditionOperator == ExcelFilterCondition.beginsWith ||
-            conditionOperator == ExcelFilterCondition.doesNotBeginWith) {
-          strval = '$strval*';
-        }
+          if (operatorValue != 'equal') {
+            builder.attribute('operator', operatorValue);
+          }
+          Object strval = _conditionValue(autoFilterCondition);
+          if (conditionOperator == ExcelFilterCondition.contains ||
+              conditionOperator == ExcelFilterCondition.doesNotContain ||
+              conditionOperator == ExcelFilterCondition.beginsWith ||
+              conditionOperator == ExcelFilterCondition.doesNotBeginWith) {
+            strval = '$strval*';
+          }
 
-        if (conditionOperator == ExcelFilterCondition.contains ||
-            conditionOperator == ExcelFilterCondition.doesNotContain ||
-            conditionOperator == ExcelFilterCondition.endsWith ||
-            conditionOperator == ExcelFilterCondition.doesNotEndWith) {
-          strval = '*$strval';
-        }
+          if (conditionOperator == ExcelFilterCondition.contains ||
+              conditionOperator == ExcelFilterCondition.doesNotContain ||
+              conditionOperator == ExcelFilterCondition.endsWith ||
+              conditionOperator == ExcelFilterCondition.doesNotEndWith) {
+            strval = '*$strval';
+          }
 
-        builder.attribute('val', strval);
-      }
-    });
+          builder.attribute('val', strval);
+        }
+      },
+    );
   }
 
   /// Returns auto filter condition value.
@@ -6784,13 +8804,18 @@ class SerializeWorkbook {
     } else {
       worksheetTabColor = sheet.tabColor;
     }
-    builder.element('tabColor', nest: () {
-      builder.attribute('rgb', worksheetTabColor);
-    });
+    builder.element(
+      'tabColor',
+      nest: () {
+        builder.attribute('rgb', worksheetTabColor);
+      },
+    );
   }
 
   Future<void> _serializeTabColorAsync(
-      Worksheet sheet, XmlBuilder builder) async {
+    Worksheet sheet,
+    XmlBuilder builder,
+  ) async {
     String worksheetTabColor = '';
 
     if (sheet.tabColor.length == 7) {
@@ -6798,8 +8823,11 @@ class SerializeWorkbook {
     } else {
       worksheetTabColor = sheet.tabColor;
     }
-    builder.element('tabColor', nest: () async {
-      builder.attribute('rgb', worksheetTabColor);
-    });
+    builder.element(
+      'tabColor',
+      nest: () async {
+        builder.attribute('rgb', worksheetTabColor);
+      },
+    );
   }
 }

@@ -920,10 +920,10 @@ class SfAIAssistViewThemeData with Diagnosticable {
           actionButtonSplashColor ?? this.actionButtonSplashColor,
       actionButtonDisabledForegroundColor:
           actionButtonDisabledForegroundColor ??
-              this.actionButtonDisabledForegroundColor,
+          this.actionButtonDisabledForegroundColor,
       actionButtonDisabledBackgroundColor:
           actionButtonDisabledBackgroundColor ??
-              this.actionButtonDisabledBackgroundColor,
+          this.actionButtonDisabledBackgroundColor,
       actionButtonElevation:
           actionButtonElevation ?? this.actionButtonElevation,
       actionButtonFocusElevation:
@@ -954,9 +954,11 @@ class SfAIAssistViewThemeData with Diagnosticable {
           requestPrimaryHeaderTextStyle ?? this.requestPrimaryHeaderTextStyle,
       responsePrimaryHeaderTextStyle:
           responsePrimaryHeaderTextStyle ?? this.responsePrimaryHeaderTextStyle,
-      requestSecondaryHeaderTextStyle: requestSecondaryHeaderTextStyle ??
+      requestSecondaryHeaderTextStyle:
+          requestSecondaryHeaderTextStyle ??
           this.requestSecondaryHeaderTextStyle,
-      responseSecondaryHeaderTextStyle: responseSecondaryHeaderTextStyle ??
+      responseSecondaryHeaderTextStyle:
+          responseSecondaryHeaderTextStyle ??
           this.responseSecondaryHeaderTextStyle,
       suggestionItemTextStyle:
           suggestionItemTextStyle ?? this.suggestionItemTextStyle,
@@ -973,7 +975,8 @@ class SfAIAssistViewThemeData with Diagnosticable {
           responseToolbarBackgroundColor ?? this.responseToolbarBackgroundColor,
       responseToolbarBackgroundShape:
           responseToolbarBackgroundShape ?? this.responseToolbarBackgroundShape,
-      responseToolbarItemBackgroundColor: responseToolbarItemBackgroundColor ??
+      responseToolbarItemBackgroundColor:
+          responseToolbarItemBackgroundColor ??
           this.responseToolbarItemBackgroundColor,
       responseToolbarItemShape:
           responseToolbarItemShape ?? this.responseToolbarItemShape,
@@ -981,93 +984,164 @@ class SfAIAssistViewThemeData with Diagnosticable {
   }
 
   static SfAIAssistViewThemeData? lerp(
-      SfAIAssistViewThemeData? a, SfAIAssistViewThemeData? b, double t) {
+    SfAIAssistViewThemeData? a,
+    SfAIAssistViewThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return SfAIAssistViewThemeData(
       actionButtonForegroundColor: Color.lerp(
-          a!.actionButtonForegroundColor, b!.actionButtonForegroundColor, t),
+        a!.actionButtonForegroundColor,
+        b!.actionButtonForegroundColor,
+        t,
+      ),
       actionButtonBackgroundColor: Color.lerp(
-          a.actionButtonBackgroundColor, b.actionButtonBackgroundColor, t),
-      actionButtonFocusColor:
-          Color.lerp(a.actionButtonFocusColor, b.actionButtonFocusColor, t),
-      actionButtonHoverColor:
-          Color.lerp(a.actionButtonHoverColor, b.actionButtonHoverColor, t),
-      actionButtonSplashColor:
-          Color.lerp(a.actionButtonSplashColor, b.actionButtonSplashColor, t),
+        a.actionButtonBackgroundColor,
+        b.actionButtonBackgroundColor,
+        t,
+      ),
+      actionButtonFocusColor: Color.lerp(
+        a.actionButtonFocusColor,
+        b.actionButtonFocusColor,
+        t,
+      ),
+      actionButtonHoverColor: Color.lerp(
+        a.actionButtonHoverColor,
+        b.actionButtonHoverColor,
+        t,
+      ),
+      actionButtonSplashColor: Color.lerp(
+        a.actionButtonSplashColor,
+        b.actionButtonSplashColor,
+        t,
+      ),
       actionButtonDisabledForegroundColor: Color.lerp(
-          a.actionButtonDisabledForegroundColor,
-          b.actionButtonDisabledForegroundColor,
-          t),
+        a.actionButtonDisabledForegroundColor,
+        b.actionButtonDisabledForegroundColor,
+        t,
+      ),
       actionButtonDisabledBackgroundColor: Color.lerp(
-          a.actionButtonDisabledBackgroundColor,
-          b.actionButtonDisabledBackgroundColor,
-          t),
+        a.actionButtonDisabledBackgroundColor,
+        b.actionButtonDisabledBackgroundColor,
+        t,
+      ),
       actionButtonElevation:
           lerpDouble(a.actionButtonElevation, b.actionButtonElevation, t) ??
-              0.0,
-      actionButtonFocusElevation: lerpDouble(
-              a.actionButtonFocusElevation, b.actionButtonFocusElevation, t) ??
           0.0,
-      actionButtonHoverElevation: lerpDouble(
-              a.actionButtonHoverElevation, b.actionButtonHoverElevation, t) ??
+      actionButtonFocusElevation:
+          lerpDouble(
+            a.actionButtonFocusElevation,
+            b.actionButtonFocusElevation,
+            t,
+          ) ??
           0.0,
-      actionButtonDisabledElevation: lerpDouble(a.actionButtonDisabledElevation,
-              b.actionButtonDisabledElevation, t) ??
+      actionButtonHoverElevation:
+          lerpDouble(
+            a.actionButtonHoverElevation,
+            b.actionButtonHoverElevation,
+            t,
+          ) ??
           0.0,
-      actionButtonHighlightElevation: lerpDouble(
-              a.actionButtonHighlightElevation,
-              b.actionButtonHighlightElevation,
-              t) ??
+      actionButtonDisabledElevation:
+          lerpDouble(
+            a.actionButtonDisabledElevation,
+            b.actionButtonDisabledElevation,
+            t,
+          ) ??
           0.0,
-      actionButtonShape:
-          ShapeBorder.lerp(a.actionButtonShape, b.actionButtonShape, t),
+      actionButtonHighlightElevation:
+          lerpDouble(
+            a.actionButtonHighlightElevation,
+            b.actionButtonHighlightElevation,
+            t,
+          ) ??
+          0.0,
+      actionButtonShape: ShapeBorder.lerp(
+        a.actionButtonShape,
+        b.actionButtonShape,
+        t,
+      ),
       actionButtonMouseCursor:
           t < 0.5 ? a.actionButtonMouseCursor : b.actionButtonMouseCursor,
       requestAvatarBackgroundColor: Color.lerp(
-          a.requestAvatarBackgroundColor, b.requestAvatarBackgroundColor, t),
+        a.requestAvatarBackgroundColor,
+        b.requestAvatarBackgroundColor,
+        t,
+      ),
       responseAvatarBackgroundColor: Color.lerp(
-          a.responseAvatarBackgroundColor, b.responseAvatarBackgroundColor, t),
+        a.responseAvatarBackgroundColor,
+        b.responseAvatarBackgroundColor,
+        t,
+      ),
       requestMessageBackgroundColor: Color.lerp(
-          a.requestMessageBackgroundColor, b.requestMessageBackgroundColor, t),
+        a.requestMessageBackgroundColor,
+        b.requestMessageBackgroundColor,
+        t,
+      ),
       responseMessageBackgroundColor: Color.lerp(
-          a.responseMessageBackgroundColor,
-          b.responseMessageBackgroundColor,
-          t),
+        a.responseMessageBackgroundColor,
+        b.responseMessageBackgroundColor,
+        t,
+      ),
       editorTextStyle: TextStyle.lerp(a.editorTextStyle, b.editorTextStyle, t),
       requestContentTextStyle: TextStyle.lerp(
-          a.requestContentTextStyle, b.requestContentTextStyle, t),
+        a.requestContentTextStyle,
+        b.requestContentTextStyle,
+        t,
+      ),
       responseContentTextStyle: TextStyle.lerp(
-          a.responseContentTextStyle, b.responseContentTextStyle, t),
+        a.responseContentTextStyle,
+        b.responseContentTextStyle,
+        t,
+      ),
       requestPrimaryHeaderTextStyle: TextStyle.lerp(
-          a.requestPrimaryHeaderTextStyle, b.requestPrimaryHeaderTextStyle, t),
+        a.requestPrimaryHeaderTextStyle,
+        b.requestPrimaryHeaderTextStyle,
+        t,
+      ),
       responsePrimaryHeaderTextStyle: TextStyle.lerp(
-          a.responsePrimaryHeaderTextStyle,
-          b.responsePrimaryHeaderTextStyle,
-          t),
+        a.responsePrimaryHeaderTextStyle,
+        b.responsePrimaryHeaderTextStyle,
+        t,
+      ),
       requestSecondaryHeaderTextStyle: TextStyle.lerp(
-          a.requestSecondaryHeaderTextStyle,
-          b.requestSecondaryHeaderTextStyle,
-          t),
+        a.requestSecondaryHeaderTextStyle,
+        b.requestSecondaryHeaderTextStyle,
+        t,
+      ),
       responseSecondaryHeaderTextStyle: TextStyle.lerp(
-          a.responseSecondaryHeaderTextStyle,
-          b.responseSecondaryHeaderTextStyle,
-          t),
+        a.responseSecondaryHeaderTextStyle,
+        b.responseSecondaryHeaderTextStyle,
+        t,
+      ),
       suggestionItemTextStyle: WidgetStateProperty.lerp<TextStyle?>(
         a.suggestionItemTextStyle,
         b.suggestionItemTextStyle,
         t,
         TextStyle.lerp,
       ),
-      requestMessageShape:
-          ShapeBorder.lerp(a.requestMessageShape, b.requestMessageShape, t),
-      responseMessageShape:
-          ShapeBorder.lerp(a.responseMessageShape, b.responseMessageShape, t),
+      requestMessageShape: ShapeBorder.lerp(
+        a.requestMessageShape,
+        b.requestMessageShape,
+        t,
+      ),
+      responseMessageShape: ShapeBorder.lerp(
+        a.responseMessageShape,
+        b.responseMessageShape,
+        t,
+      ),
       suggestionBackgroundColor: Color.lerp(
-          a.suggestionBackgroundColor, b.suggestionBackgroundColor, t),
+        a.suggestionBackgroundColor,
+        b.suggestionBackgroundColor,
+        t,
+      ),
       suggestionBackgroundShape: ShapeBorder.lerp(
-          a.suggestionBackgroundShape, b.suggestionBackgroundShape, t),
+        a.suggestionBackgroundShape,
+        b.suggestionBackgroundShape,
+        t,
+      ),
       suggestionItemBackgroundColor: WidgetStateProperty.lerp<Color?>(
         a.suggestionItemBackgroundColor,
         b.suggestionItemBackgroundColor,
@@ -1081,13 +1155,15 @@ class SfAIAssistViewThemeData with Diagnosticable {
         ShapeBorder.lerp,
       ),
       responseToolbarBackgroundColor: Color.lerp(
-          a.responseToolbarBackgroundColor,
-          b.responseToolbarBackgroundColor,
-          t),
+        a.responseToolbarBackgroundColor,
+        b.responseToolbarBackgroundColor,
+        t,
+      ),
       responseToolbarBackgroundShape: ShapeBorder.lerp(
-          a.responseToolbarBackgroundShape,
-          b.responseToolbarBackgroundShape,
-          t),
+        a.responseToolbarBackgroundShape,
+        b.responseToolbarBackgroundShape,
+        t,
+      ),
       responseToolbarItemBackgroundColor: WidgetStateProperty.lerp<Color?>(
         a.responseToolbarItemBackgroundColor,
         b.responseToolbarItemBackgroundColor,

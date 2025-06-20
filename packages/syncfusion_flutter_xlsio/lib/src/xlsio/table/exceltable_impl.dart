@@ -101,8 +101,12 @@ class ExcelTableImpl implements ExcelTable {
       if (value) {
         totalsRowShown = true;
         if (_location.lastRow < iMaxRow) {
-          final Range beforeTotalRow = worksheet.getRangeByIndex(_location.row,
-              _location.column, _location.lastRow, _location.lastColumn);
+          final Range beforeTotalRow = worksheet.getRangeByIndex(
+            _location.row,
+            _location.column,
+            _location.lastRow,
+            _location.lastColumn,
+          );
           _location = _checkTotalsRange(beforeTotalRow);
           _totalRowCount = 1;
         }
@@ -116,7 +120,11 @@ class ExcelTableImpl implements ExcelTable {
   Range _checkTotalsRange(Range range) {
     if (range.row <= range.lastRow) {
       range = worksheet.getRangeByIndex(
-          range.row, range.column, range.lastRow + 1, range.lastColumn);
+        range.row,
+        range.column,
+        range.lastRow + 1,
+        range.lastColumn,
+      );
     }
     return range;
   }
@@ -206,20 +214,34 @@ class ExcelTableImpl implements ExcelTable {
       if (!worksheet.workbook.isSaving) {
         if (value == false) {
           worksheet
-              .getRangeByIndex(dataRange.row, dataRange.column, dataRange.row,
-                  dataRange.lastColumn)
+              .getRangeByIndex(
+                dataRange.row,
+                dataRange.column,
+                dataRange.row,
+                dataRange.lastColumn,
+              )
               .text = '';
-          dataRange = worksheet.getRangeByIndex(dataRange.row + 1,
-              dataRange.column, dataRange.lastRow, dataRange.lastColumn);
+          dataRange = worksheet.getRangeByIndex(
+            dataRange.row + 1,
+            dataRange.column,
+            dataRange.lastRow,
+            dataRange.lastColumn,
+          );
         } else {
           final int iHeaderRow = dataRange.row - 1;
-          dataRange = worksheet.getRangeByIndex(iHeaderRow, dataRange.column,
-              dataRange.lastRow, dataRange.lastColumn);
+          dataRange = worksheet.getRangeByIndex(
+            iHeaderRow,
+            dataRange.column,
+            dataRange.lastRow,
+            dataRange.lastColumn,
+          );
           final int iFirstColumn = dataRange.column;
 
-          for (int columnCount = 0;
-              columnCount < _columns.length;
-              columnCount++) {
+          for (
+            int columnCount = 0;
+            columnCount < _columns.length;
+            columnCount++
+          ) {
             final int iColumn = iFirstColumn + columnCount;
             worksheet
                 .getRangeByIndex(iHeaderRow, iColumn, iHeaderRow, iColumn)
@@ -284,9 +306,11 @@ class ExcelTableImpl implements ExcelTable {
     _columns = <ExcelTableColumn>[];
     final List<String> columnNames = <String>[];
 
-    for (int columnCount = _location.column;
-        columnCount <= _location.lastColumn;
-        columnCount++) {
+    for (
+      int columnCount = _location.column;
+      columnCount <= _location.lastColumn;
+      columnCount++
+    ) {
       final Range range = worksheet.getRangeByIndex(_location.row, columnCount);
       String? strColumnName = range.text;
       if (strColumnName == null || strColumnName.isEmpty) {
@@ -299,8 +323,14 @@ class ExcelTableImpl implements ExcelTable {
         range.text = strColumnName;
       }
       columnNames.add(strColumnName);
-      _columns.add(ExcelTableColumnImpl(
-          strColumnName, _columns.length + 1, this, columnCount));
+      _columns.add(
+        ExcelTableColumnImpl(
+          strColumnName,
+          _columns.length + 1,
+          this,
+          columnCount,
+        ),
+      );
     }
 
     updateColumnNames(columnNames);
@@ -345,7 +375,8 @@ class ExcelTableImpl implements ExcelTable {
 
     if (int.tryParse(name[0]) != null) {
       throw Exception(
-          'This is not a valid name. Name should start with letter or underscore.');
+        'This is not a valid name. Name should start with letter or underscore.',
+      );
     }
     final List<String> arr = <String>[
       '~',
@@ -370,7 +401,7 @@ class ExcelTableImpl implements ExcelTable {
       '<',
       '>',
       ',',
-      ' '
+      ' ',
     ];
 
     for (int arrayLength = 0; arrayLength < arr.length; arrayLength++) {
@@ -382,7 +413,8 @@ class ExcelTableImpl implements ExcelTable {
     }
     if (count != 0) {
       throw Exception(
-          'This is not a valid name. Name should not contain space or characters not allowed.');
+        'This is not a valid name. Name should not contain space or characters not allowed.',
+      );
     }
   }
 }

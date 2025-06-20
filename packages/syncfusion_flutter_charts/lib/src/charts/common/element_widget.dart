@@ -26,11 +26,7 @@ mixin ChartElementParentDataMixin<T, D> {
 }
 
 class ChartFadeTransition extends FadeTransition {
-  const ChartFadeTransition({
-    super.key,
-    required super.opacity,
-    super.child,
-  });
+  const ChartFadeTransition({super.key, required super.opacity, super.child});
 
   @override
   RenderChartFadeTransition createRenderObject(BuildContext context) {
@@ -176,10 +172,7 @@ class ChartElementParentData extends ContainerBoxParentData<RenderBox> {
 }
 
 class ChartElementStack extends MultiChildRenderObjectWidget {
-  const ChartElementStack({
-    super.key,
-    super.children,
-  });
+  const ChartElementStack({super.key, super.children});
 
   @override
   RenderChartElementStack createRenderObject(BuildContext context) {
@@ -188,7 +181,9 @@ class ChartElementStack extends MultiChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderChartElementStack renderObject) {
+    BuildContext context,
+    RenderChartElementStack renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
   }
 }
@@ -217,14 +212,13 @@ class RenderChartElementStack extends RenderBox
 }
 
 abstract class CustomConstrainedLayoutBuilder<
-    ConstraintType extends Constraints> extends RenderObjectWidget {
-  const CustomConstrainedLayoutBuilder({
-    super.key,
-    required this.builder,
-  });
+  ConstraintType extends Constraints
+>
+    extends RenderObjectWidget {
+  const CustomConstrainedLayoutBuilder({super.key, required this.builder});
 
   final Widget Function(BuildContext context, ConstraintType constraints)
-      builder;
+  builder;
 
   @override
   RenderObjectElement createElement() =>
@@ -232,18 +226,20 @@ abstract class CustomConstrainedLayoutBuilder<
 
   @protected
   bool updateShouldRebuild(
-          covariant CustomConstrainedLayoutBuilder<ConstraintType> oldWidget) =>
-      true;
+    covariant CustomConstrainedLayoutBuilder<ConstraintType> oldWidget,
+  ) => true;
 }
 
 class CustomLayoutBuilderElement<ConstraintType extends Constraints>
     extends RenderObjectElement {
   CustomLayoutBuilderElement(
-      CustomConstrainedLayoutBuilder<ConstraintType> super.widget);
+    CustomConstrainedLayoutBuilder<ConstraintType> super.widget,
+  );
 
   @override
   CustomRenderConstrainedLayoutBuilder<ConstraintType, RenderObject>
-      get renderObject => super.renderObject
+  get renderObject =>
+      super.renderObject
           as CustomRenderConstrainedLayoutBuilder<ConstraintType, RenderObject>;
 
   Element? _child;
@@ -308,9 +304,10 @@ class CustomLayoutBuilderElement<ConstraintType extends Constraints>
             ErrorDescription('building $widget'),
             e,
             stack,
-            informationCollector: () => <DiagnosticsNode>[
-              if (kDebugMode) DiagnosticsDebugCreator(DebugCreator(this)),
-            ],
+            informationCollector:
+                () => <DiagnosticsNode>[
+                  if (kDebugMode) DiagnosticsDebugCreator(DebugCreator(this)),
+                ],
           ),
         );
       }
@@ -323,9 +320,10 @@ class CustomLayoutBuilderElement<ConstraintType extends Constraints>
             ErrorDescription('building $widget'),
             e,
             stack,
-            informationCollector: () => <DiagnosticsNode>[
-              if (kDebugMode) DiagnosticsDebugCreator(DebugCreator(this)),
-            ],
+            informationCollector:
+                () => <DiagnosticsNode>[
+                  if (kDebugMode) DiagnosticsDebugCreator(DebugCreator(this)),
+                ],
           ),
         );
         _child = updateChild(null, built, slot);
@@ -347,22 +345,28 @@ class CustomLayoutBuilderElement<ConstraintType extends Constraints>
 
   @override
   void moveRenderObjectChild(
-      RenderObject child, Object? oldSlot, Object? newSlot) {
+    RenderObject child,
+    Object? oldSlot,
+    Object? newSlot,
+  ) {
     assert(false);
   }
 
   @override
   void removeRenderObjectChild(RenderObject child, Object? slot) {
     final CustomRenderConstrainedLayoutBuilder<ConstraintType, RenderObject>
-        renderObject = this.renderObject;
+    renderObject = this.renderObject;
     assert(renderObject.child == child);
     renderObject.child = null;
     assert(renderObject == this.renderObject);
   }
 }
 
-mixin CustomRenderConstrainedLayoutBuilder<ConstraintType extends Constraints,
-    ChildType extends RenderObject> on RenderObjectWithChildMixin<ChildType> {
+mixin CustomRenderConstrainedLayoutBuilder<
+  ConstraintType extends Constraints,
+  ChildType extends RenderObject
+>
+    on RenderObjectWithChildMixin<ChildType> {
   LayoutCallback<ConstraintType>? _callback;
 
   void updateCallback(LayoutCallback<ConstraintType>? value) {
@@ -394,10 +398,7 @@ mixin CustomRenderConstrainedLayoutBuilder<ConstraintType extends Constraints,
 
 class CustomLayoutBuilder
     extends CustomConstrainedLayoutBuilder<BoxConstraints> {
-  const CustomLayoutBuilder({
-    super.key,
-    required super.builder,
-  });
+  const CustomLayoutBuilder({super.key, required super.builder});
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
@@ -434,11 +435,13 @@ class CustomRenderLayoutBuilder extends RenderBox
 
   @override
   Size computeDryLayout(BoxConstraints constraints) {
-    assert(debugCannotComputeDryLayout(
-      reason:
-          'Calculating the dry layout would require running the layout callback '
-          'speculatively, which might mutate the live render object tree.',
-    ));
+    assert(
+      debugCannotComputeDryLayout(
+        reason:
+            'Calculating the dry layout would require running the layout callback '
+            'speculatively, which might mutate the live render object tree.',
+      ),
+    );
     return Size.zero;
   }
 

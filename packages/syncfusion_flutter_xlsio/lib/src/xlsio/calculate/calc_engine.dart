@@ -27,7 +27,7 @@ class CalcEngine {
       _tokenGreaterEq,
       _tokenNoEqual,
       _tokenAnd,
-      _tokenOr
+      _tokenOr,
     ];
 
     _dateTime1900Double = Range.toOADate(_dateTime1900);
@@ -205,7 +205,7 @@ class CalcEngine {
     '#DIV/0!',
     '#NUM!',
     '#NAME?',
-    '#NULL!'
+    '#NULL!',
   ];
 
   /// The list of error strings which are used within the Essential Calculate internally. Users can make changes to this internal error strings.
@@ -241,7 +241,7 @@ class CalcEngine {
     'iterations do not converge', ////27
     'Control named "{0}" is already registered', ////28
     'Calculation overflow', ////29
-    'Missing sheet' ////30
+    'Missing sheet', ////30
   ];
 
   /// A static property that gets/sets character by which string starts with, can be treated as formula.
@@ -663,14 +663,16 @@ class CalcEngine {
               return formulaErrorStrings[_badIndex];
             }
             if (_libraryFunctions![name] != null) {
-              final int j =
-                  formula.substring(i + ii + 1).indexOf(_rightBracket);
+              final int j = formula
+                  .substring(i + ii + 1)
+                  .indexOf(_rightBracket);
               String args = formula.substring(i + ii + 2, i + ii + 2 + j - 1);
 
               try {
                 final String function = _libraryFunctions![name] as String;
-                final List<String> argArray =
-                    _splitArgsPreservingQuotedCommas(args);
+                final List<String> argArray = _splitArgsPreservingQuotedCommas(
+                  args,
+                );
                 final StringBuffer sb = StringBuffer();
                 const bool isFormulaUpdated = false;
                 for (int index = 0; index < argArray.length; index++) {
@@ -759,9 +761,10 @@ class CalcEngine {
                       // ignore: prefer_contains
                       formula.substring(i).indexOf('!') == -1) {
                     // ignore: prefer_contains
-                    errIndex = (formula.substring(i).indexOf('#N/A') > -1)
-                        ? (formula.substring(i).indexOf('#N/A') + 4 + i)
-                        : (formula.substring(i).indexOf('?') + 1 + i);
+                    errIndex =
+                        (formula.substring(i).contains('#N/A'))
+                            ? (formula.substring(i).indexOf('#N/A') + 4 + i)
+                            : (formula.substring(i).indexOf('?') + 1 + i);
                   } else {
                     errIndex = formula.substring(i).indexOf('!') + 1 + i;
                   }
@@ -894,11 +897,16 @@ class CalcEngine {
                       val = (d1 < d) ? _trueValueStr : _falseValueStr;
                     }
                   } else {
-                    val = (s2.toUpperCase().replaceAll(_tic, '').compareTo(
-                                s1.toUpperCase().replaceAll(_tic, '')) <
-                            0)
-                        ? _trueValueStr
-                        : _falseValueStr;
+                    val =
+                        (s2
+                                    .toUpperCase()
+                                    .replaceAll(_tic, '')
+                                    .compareTo(
+                                      s1.toUpperCase().replaceAll(_tic, ''),
+                                    ) <
+                                0)
+                            ? _trueValueStr
+                            : _falseValueStr;
                   }
                 }
 
@@ -934,11 +942,16 @@ class CalcEngine {
                       val = (d1 > d) ? _trueValueStr : _falseValueStr;
                     }
                   } else {
-                    val = (s2.toUpperCase().replaceAll(_tic, '').compareTo(
-                                s1.toUpperCase().replaceAll(_tic, '')) >
-                            0)
-                        ? _trueValueStr
-                        : _falseValueStr;
+                    val =
+                        (s2
+                                    .toUpperCase()
+                                    .replaceAll(_tic, '')
+                                    .compareTo(
+                                      s1.toUpperCase().replaceAll(_tic, ''),
+                                    ) >
+                                0)
+                            ? _trueValueStr
+                            : _falseValueStr;
                   }
                 }
 
@@ -961,17 +974,19 @@ class CalcEngine {
                   d = double.tryParse(s1.replaceAll(_tic, ''));
                   d1 = double.tryParse(s2.replaceAll(_tic, ''));
                   if (d == null && d1 == null) {
-                    val = (s1.replaceAll(_tic, '').toUpperCase() ==
-                            s2.replaceAll(_tic, '').toUpperCase())
-                        ? _trueValueStr
-                        : _falseValueStr;
+                    val =
+                        (s1.replaceAll(_tic, '').toUpperCase() ==
+                                s2.replaceAll(_tic, '').toUpperCase())
+                            ? _trueValueStr
+                            : _falseValueStr;
                   } else {
                     val = _falseValueStr;
                   }
                 } else {
-                  val = (s1.toUpperCase() == s2.toUpperCase())
-                      ? _trueValueStr
-                      : _falseValueStr;
+                  val =
+                      (s1.toUpperCase() == s2.toUpperCase())
+                          ? _trueValueStr
+                          : _falseValueStr;
                 }
 
                 stack.push(val);
@@ -1006,11 +1021,16 @@ class CalcEngine {
                       val = (d1 >= d) ? _trueValueStr : _falseValueStr;
                     }
                   } else {
-                    val = (s1.toUpperCase().replaceAll(_tic, '').compareTo(
-                                s2.toUpperCase().replaceAll(_tic, '')) <=
-                            0)
-                        ? _trueValueStr
-                        : _falseValueStr;
+                    val =
+                        (s1
+                                    .toUpperCase()
+                                    .replaceAll(_tic, '')
+                                    .compareTo(
+                                      s2.toUpperCase().replaceAll(_tic, ''),
+                                    ) <=
+                                0)
+                            ? _trueValueStr
+                            : _falseValueStr;
                   }
                 }
                 stack.push(val);
@@ -1045,11 +1065,16 @@ class CalcEngine {
                       val = (d1 >= d) ? _trueValueStr : _falseValueStr;
                     }
                   } else {
-                    val = (s2.toUpperCase().replaceAll(_tic, '').compareTo(
-                                s1.toUpperCase().replaceAll(_tic, '')) >=
-                            0)
-                        ? _trueValueStr
-                        : _falseValueStr;
+                    val =
+                        (s2
+                                    .toUpperCase()
+                                    .replaceAll(_tic, '')
+                                    .compareTo(
+                                      s1.toUpperCase().replaceAll(_tic, ''),
+                                    ) >=
+                                0)
+                            ? _trueValueStr
+                            : _falseValueStr;
                   }
                 }
 
@@ -1077,18 +1102,20 @@ class CalcEngine {
                     d = double.tryParse(s1.replaceAll(_tic, ''));
                     d1 = double.tryParse(s2.replaceAll(_tic, ''));
                     if (d == null && d1 == null) {
-                      val = (s1.replaceAll(_tic, '').toUpperCase() !=
-                              s2.replaceAll(_tic, '').toUpperCase())
-                          ? _trueValueStr
-                          : _falseValueStr;
+                      val =
+                          (s1.replaceAll(_tic, '').toUpperCase() !=
+                                  s2.replaceAll(_tic, '').toUpperCase())
+                              ? _trueValueStr
+                              : _falseValueStr;
                     } else {
                       val = _trueValueStr;
                     }
                   } else {
-                    val = (s1.toUpperCase().replaceAll(_tic, '') !=
-                            s2.toUpperCase().replaceAll(_tic, ''))
-                        ? _trueValueStr
-                        : _falseValueStr;
+                    val =
+                        (s1.toUpperCase().replaceAll(_tic, '') !=
+                                s2.toUpperCase().replaceAll(_tic, ''))
+                            ? _trueValueStr
+                            : _falseValueStr;
                   }
                 }
 
@@ -1628,7 +1655,8 @@ class CalcEngine {
             if (_errorStrings.contains(argument1)) {
               return argument1;
             }
-            final bool flag = argument1.replaceAll(_tic, '') == 'true' ||
+            final bool flag =
+                argument1.replaceAll(_tic, '') == 'true' ||
                 argument1.replaceAll(_tic, '') == 'false';
             if ((!_isCellReference(s[0]) &&
                     !flag &&
@@ -1731,12 +1759,14 @@ class CalcEngine {
     }
     final String sheet = _getSheetToken(r);
     i = r.indexOf(':');
-    int row = (argCount == 1)
-        ? 1
-        : double.tryParse(_getValueFromArg(args[1]))!.toInt();
-    int col = (argCount <= 2)
-        ? 1
-        : double.tryParse(_getValueFromArg(args[2]))!.toInt();
+    int row =
+        (argCount == 1)
+            ? 1
+            : double.tryParse(_getValueFromArg(args[1]))!.toInt();
+    int col =
+        (argCount <= 2)
+            ? 1
+            : double.tryParse(_getValueFromArg(args[2]))!.toInt();
     int top = _getRowIndex(r.substring(0, i));
     int bottom = _getRowIndex(r.substring(i + 1));
     if (!(top != -1 || bottom == -1) == (top == -1 || bottom != -1)) {
@@ -1948,9 +1978,10 @@ class CalcEngine {
             return _errorStrings[4];
           }
           d = double.tryParse(s1);
-          sum &= s1 == ''
-              ? _trueValueStr.toLowerCase() == 'true'
-              : ((s1 == _trueValueStr) || d != null && d != 0);
+          sum &=
+              s1 == ''
+                  ? _trueValueStr.toLowerCase() == 'true'
+                  : ((s1 == _trueValueStr) || d != null && d != 0);
           if (!sum) {
             return _falseValueStr;
           }
@@ -1984,7 +2015,8 @@ class CalcEngine {
           return _errorStrings[4];
         }
         d = double.tryParse(s1);
-        sum &= (s1.replaceAll(_tic, '').toLowerCase() == 'true') ||
+        sum &=
+            (s1.replaceAll(_tic, '').toLowerCase() == 'true') ||
             d != null && d != 0;
         if (!sum) {
           return _falseValueStr;
@@ -2017,9 +2049,10 @@ class CalcEngine {
             return _errorStrings[4];
           }
           d = double.tryParse(s1);
-          sum &= s1 == ''
-              ? _trueValueStr.toLowerCase() == 'true'
-              : ((s1 == _trueValueStr) || d != null && d != 0);
+          sum &=
+              s1 == ''
+                  ? _trueValueStr.toLowerCase() == 'true'
+                  : ((s1 == _trueValueStr) || d != null && d != 0);
           if (!sum) {
             return _falseValueStr;
           }
@@ -2053,7 +2086,8 @@ class CalcEngine {
           return _errorStrings[4];
         }
         d = double.tryParse(s1);
-        sum |= (s1.replaceAll(_tic, '').toLowerCase() == 'true') ||
+        sum |=
+            (s1.replaceAll(_tic, '').toLowerCase() == 'true') ||
             d != null && d != 0;
         if (sum) {
           return _trueValueStr;
@@ -2239,7 +2273,7 @@ class CalcEngine {
     date = DateTime.tryParse(o.toString());
     return <dynamic>[
       (date != null && date.difference(_dateTime1900).inDays >= 0),
-      date
+      date,
     ];
   }
 
@@ -2365,7 +2399,7 @@ class CalcEngine {
         _lastIndexOfAny(text, _tokens) != (text.length - 2)) {
       text = text.toUpperCase();
     }
-// ignore: prefer_contains
+    // ignore: prefer_contains
     if (text.indexOf(_sheetToken) > -1) {
       ////Replace sheet references with tokens.
       final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
@@ -2446,8 +2480,8 @@ class CalcEngine {
     while (rightParens > -1) {
       int parenCount = 0;
       int leftParens = rightParens - 1;
-      while (
-          leftParens > -1 && (formula[leftParens] != '(' || parenCount != 0)) {
+      while (leftParens > -1 &&
+          (formula[leftParens] != '(' || parenCount != 0)) {
         if (formula[leftParens] == ')') {
           parenCount++;
         } else if (formula[leftParens] == ')') {
@@ -2481,7 +2515,9 @@ class CalcEngine {
           _ignoreBracet = false;
         }
         final String s = formula.substring(
-            leftParens, leftParens + rightParens - leftParens + 1);
+          leftParens,
+          leftParens + rightParens - leftParens + 1,
+        );
         formula =
             '${formula.substring(0, i + 1)}q${formula.substring(i + 1, i + 1 + len)}${s.replaceAll('(', _leftBracket).replaceAll(')', _rightBracket)}${formula.substring(rightParens + 1)}';
       } else {
@@ -2603,7 +2639,7 @@ class CalcEngine {
         '=',
         '&',
         ':',
-        '%'
+        '%',
       ];
       if ((tempText.length == 1 && d == 0) ||
           tempText.length - 1 == d &&
@@ -2622,61 +2658,76 @@ class CalcEngine {
     bool needToContinue = true;
 
     List<dynamic> result;
-    result = _parseSimpleFromMarkers(text, <String>[_tokenEP, _tokenEM],
-        <String>[_charEP, _charEM], needToContinue);
+    result = _parseSimpleFromMarkers(
+      text,
+      <String>[_tokenEP, _tokenEM],
+      <String>[_charEP, _charEM],
+      needToContinue,
+    );
     text = result[0] as String;
     needToContinue = result[1] as bool;
     result = _parseSimpleFromMarkers(
-        text, <String>[_tokenOr], <String>[_charOr], needToContinue);
+      text,
+      <String>[_tokenOr],
+      <String>[_charOr],
+      needToContinue,
+    );
     text = result[0] as String;
     needToContinue = result[1] as bool;
     if (needToContinue) {
       result = _parseSimpleFromMarkers(
-          text,
-          <String>[_tokenMultiply, _tokenDivide],
-          <String>[_charMultiply, _charDivide],
-          needToContinue);
+        text,
+        <String>[_tokenMultiply, _tokenDivide],
+        <String>[_charMultiply, _charDivide],
+        needToContinue,
+      );
       text = result[0] as String;
       needToContinue = result[1] as bool;
     }
 
     if (needToContinue) {
       result = _parseSimpleFromMarkers(
-          text,
-          <String>[_tokenAdd, _tokenSubtract],
-          <String>[_charAdd, _charSubtract],
-          needToContinue);
+        text,
+        <String>[_tokenAdd, _tokenSubtract],
+        <String>[_charAdd, _charSubtract],
+        needToContinue,
+      );
       text = result[0] as String;
       needToContinue = result[1] as bool;
     }
 
     if (needToContinue) {
       result = _parseSimpleFromMarkers(
-          text, <String>[_tokenAnd], <String>[_charAnd], needToContinue);
+        text,
+        <String>[_tokenAnd],
+        <String>[_charAnd],
+        needToContinue,
+      );
       text = result[0] as String;
       needToContinue = result[1] as bool;
     }
 
     if (needToContinue) {
       result = _parseSimpleFromMarkers(
-          text,
-          <String>[
-            _tokenLess,
-            _tokenGreater,
-            _tokenEqual,
-            _tokenLesseq,
-            _tokenGreaterEq,
-            _tokenNoEqual
-          ],
-          <String>[
-            _charLess,
-            _charGreater,
-            _charEqual,
-            _charLesseq,
-            _charGreaterEq,
-            _charNoEqual
-          ],
-          needToContinue);
+        text,
+        <String>[
+          _tokenLess,
+          _tokenGreater,
+          _tokenEqual,
+          _tokenLesseq,
+          _tokenGreaterEq,
+          _tokenNoEqual,
+        ],
+        <String>[
+          _charLess,
+          _charGreater,
+          _charEqual,
+          _charLesseq,
+          _charGreaterEq,
+          _charNoEqual,
+        ],
+        needToContinue,
+      );
       text = result[0] as String;
       needToContinue = result[1] as bool;
     }
@@ -2684,8 +2735,12 @@ class CalcEngine {
     return text;
   }
 
-  List<dynamic> _parseSimpleFromMarkers(String text, List<String> markers,
-      List<String> operators, bool needToContinue) {
+  List<dynamic> _parseSimpleFromMarkers(
+    String text,
+    List<String> markers,
+    List<String> operators,
+    bool needToContinue,
+  ) {
     int i;
     String op = '';
     for (final String c in operators) {
@@ -2726,8 +2781,12 @@ class CalcEngine {
       ////Leading unary minus.
       text = text.substring(1).replaceAll('-', '„');
       text = '0-$text';
-      final List<dynamic> iResult = _parseSimpleFromMarkers(text,
-          <String>[_tokenSubtract], <String>[_charSubtract], needToContinue);
+      final List<dynamic> iResult = _parseSimpleFromMarkers(
+        text,
+        <String>[_tokenSubtract],
+        <String>[_charSubtract],
+        needToContinue,
+      );
       text = iResult[0] as String;
       needToContinue = iResult[1] as bool;
       text = text.replaceAll('„', '-');
@@ -2751,7 +2810,8 @@ class CalcEngine {
           if (!isNotOperator) {
             if (i < 1 && text[i] != '-') {
               throw Exception(
-                  formulaErrorStrings[_operatorsCannotStartAnExpression]);
+                formulaErrorStrings[_operatorsCannotStartAnExpression],
+              );
             }
 
             ////Process left argument.
@@ -2819,8 +2879,10 @@ class CalcEngine {
                 j--;
               }
 
-              left =
-                  text.substring(j + 1, j + 1 + i - j - 1); ////'n' for number
+              left = text.substring(
+                j + 1,
+                j + 1 + i - j - 1,
+              ); ////'n' for number
               leftIndex = j + 1;
               if (!_findNamedRange) {
                 if (left == _trueValueStr) {
@@ -2853,7 +2915,8 @@ class CalcEngine {
               ////Add error check for 2%.
               if (j > -1 && period && text[j] == parseDecimalSeparator) {
                 throw Exception(
-                    formulaErrorStrings[_numberContains2DecimalPoints]);
+                  formulaErrorStrings[_numberContains2DecimalPoints],
+                );
               }
 
               j = j + 1;
@@ -2922,8 +2985,10 @@ class CalcEngine {
                   j = j + 1;
                   left = text.substring(j, j + i - j);
 
-                  final List<String?> leftValue =
-                      _getCellsFromArgs(left, false);
+                  final List<String?> leftValue = _getCellsFromArgs(
+                    left,
+                    false,
+                  );
                   if (leftValue.isNotEmpty) {
                     left = leftValue[0]!;
                   }
@@ -2943,7 +3008,8 @@ class CalcEngine {
           ////Process right argument.
           if (i == text.length - 1) {
             throw Exception(
-                formulaErrorStrings[_expressionCannotEndWithAnOperator]);
+              formulaErrorStrings[_expressionCannotEndWithAnOperator],
+            );
           } else {
             j = i + 1;
 
@@ -3076,8 +3142,10 @@ class CalcEngine {
 
                 right = text.substring(i + 1, i + 1 + j - i);
 
-                final List<String?> rightValue =
-                    _getCellsFromArgs(right, false);
+                final List<String?> rightValue = _getCellsFromArgs(
+                  right,
+                  false,
+                );
                 if (rightValue.isNotEmpty) {
                   right = rightValue[0]!;
                 }
@@ -3107,7 +3175,8 @@ class CalcEngine {
               rightIndex = j + 1;
             } else {
               throw Exception(
-                  formulaErrorStrings[_invalidCharactersFollowingAnOperator]);
+                formulaErrorStrings[_invalidCharactersFollowingAnOperator],
+              );
             }
           }
 
@@ -3343,13 +3412,15 @@ class CalcEngine {
   String _getValueComputeFormulaIfNecessary(int row, int col, Worksheet grd) {
     try {
       bool alreadyComputed = false;
-      FormulaInfo? formula = _formulaInfoTable!.containsKey(_cell)
-          ? _formulaInfoTable![_cell] as FormulaInfo
-          : null;
+      FormulaInfo? formula =
+          _formulaInfoTable!.containsKey(_cell)
+              ? _formulaInfoTable![_cell] as FormulaInfo
+              : null;
       final Object o = grd.getValueRowCol(row, col);
-      String? val = (o.toString() != '')
-          ? o.toString()
-          : ''; ////null; //xx _grid[row, col];
+      String? val =
+          (o.toString() != '')
+              ? o.toString()
+              : ''; ////null; //xx _grid[row, col];
       DateTime? result;
       result = DateTime.tryParse(val);
       if (double.tryParse(val.replaceAll(_tic, '')) == null && result != null) {
@@ -3682,7 +3753,9 @@ class CalcEngine {
     for (final String s in results) {
       String s1 = s;
       s1 = _setStrings(
-          s1, formulaStrings); ////replace tokens with original Strings
+        s1,
+        formulaStrings,
+      ); ////replace tokens with original Strings
       pieces.add(s1);
     }
     return pieces;
@@ -3783,8 +3856,9 @@ class CalcEngine {
     int sheetLoc = text.indexOf(_sheetToken);
     int start = 0;
     while (sheetLoc > 0) {
-      final int colonLoc =
-          text.substring(start, start + sheetLoc).lastIndexOf(':');
+      final int colonLoc = text
+          .substring(start, start + sheetLoc)
+          .lastIndexOf(':');
       if (colonLoc > -1) {
         {
           start = sheetLoc + start;
@@ -3950,10 +4024,13 @@ class CalcEngine {
 
         // To check if the function contains CELL formula embedded with other formulas like INDEX,IF...
         final int q1 = _findLastqNotInBrackets(formula.substring(0, q));
-        final String s1 = q1 >= 0
-            ? formula.substring(
-                q1, q1 + formula.substring(q1).indexOf(_rightBracket))
-            : '';
+        final String s1 =
+            q1 >= 0
+                ? formula.substring(
+                  q1,
+                  q1 + formula.substring(q1).indexOf(_rightBracket),
+                )
+                : '';
 
         // Below code has been added to check whether the Value formula is interior of SUMPRODUCT
         if ((s.contains('qVALUE') ||
@@ -4089,12 +4166,13 @@ class CalcEngine {
     final DateTime dt = DateTime.now();
 
     if (excelLikeComputations) {
-      final DateTime? result =
-          DateTime.tryParse('${dt.year}/${dt.month}/${dt.day}');
+      final DateTime? result = DateTime.tryParse(
+        '${dt.year}/${dt.month}/${dt.day}',
+      );
       if (result != null) {
         final String date = DateFormat(
-                _grid!.workbook.cultureInfo.dateTimeFormat.shortDatePattern)
-            .format(result);
+          _grid!.workbook.cultureInfo.dateTimeFormat.shortDatePattern,
+        ).format(result);
         return date;
       }
     }
@@ -4116,9 +4194,10 @@ class CalcEngine {
     if (!range.contains(parseArgumentSeparator)) {
       range = _adjustRangeArg(range);
     }
-    final List<String> ar = _isSeparatorInTIC(range) ////range.IndexOf(TIC) > 0
-        ? _getStringArray(range)
-        : _splitArgsPreservingQuotedCommas(range);
+    final List<String> ar =
+        _isSeparatorInTIC(range) ////range.IndexOf(TIC) > 0
+            ? _getStringArray(range)
+            : _splitArgsPreservingQuotedCommas(range);
     if (range.isEmpty) {
       return formulaErrorStrings[_wrongNumberArguments];
     }
@@ -4157,8 +4236,10 @@ class CalcEngine {
     }
 
     if (excelLikeComputations) {
-      final String newText =
-          text.substring(text.indexOf(_tic) + 1, text.lastIndexOf(_tic) - 1);
+      final String newText = text.substring(
+        text.indexOf(_tic) + 1,
+        text.lastIndexOf(_tic) - 1,
+      );
       return newText;
     }
     return text;
@@ -4269,9 +4350,12 @@ class CalcEngine {
       while (d < 1) {
         m--;
         final DateTime date = DateTime(y, m + 1);
-        x = DateTime(date.year, date.month, date.day)
-            .add(const Duration(hours: -1))
-            .day;
+        x =
+            DateTime(
+              date.year,
+              date.month,
+              date.day,
+            ).add(const Duration(hours: -1)).day;
         d = x + d;
       }
     }
@@ -4375,7 +4459,8 @@ class CalcEngine {
             col += count - s2.length;
           }
 
-          sumRange = sumRange.substring(0, i + 1) +
+          sumRange =
+              sumRange.substring(0, i + 1) +
               getAlphaLabel(col) +
               row.toString();
           s2 = _getCellsFromArgs(sumRange);
@@ -4392,7 +4477,12 @@ class CalcEngine {
       for (int index = 0; index < count; ++index) {
         s = _getValueFromArg(s1[index]); //// +criteria;
         final bool criteriaMatched = _checkForCriteriaMatch(
-            s.toUpperCase(), op, criteria.toUpperCase(), isNumber, compare);
+          s.toUpperCase(),
+          op,
+          criteria.toUpperCase(),
+          isNumber,
+          compare,
+        );
         if (criteriaMatched) {
           if (isLastcriteria && criterias.length == 1) {
             cellCount++;
@@ -4478,7 +4568,12 @@ class CalcEngine {
 
   /// Below method used to find whether the criteria is matched with the Tokens "=",">",">=" or not.
   bool _checkForCriteriaMatch(
-      String s, String op, String criteria, bool isNumber, double compare) {
+    String s,
+    String op,
+    String criteria,
+    bool isNumber,
+    double compare,
+  ) {
     final String tempcriteria = criteria;
     double? d = 0.0;
     //Below condition has added to match the number when ita text value.eg(s1=\"2\" and comapre="2")
@@ -4513,7 +4608,6 @@ class CalcEngine {
             }
             return isMatch;
           }
-
           // Below code has been added avoid to throw argument exception when criteria length was higher than s length.
           else if (!isstartswith && !isendswith) {
             final List<String> criterias = criteria.split('*');
@@ -4540,8 +4634,9 @@ class CalcEngine {
         }
       case _tokenGreaterEq:
         //Below code has been added to compare the value when the criteria is string.
-        final int tempString =
-            s.toUpperCase().compareTo(criteria.toUpperCase());
+        final int tempString = s.toUpperCase().compareTo(
+          criteria.toUpperCase(),
+        );
         if (isNumber) {
           d = double.tryParse(s);
           final bool value = d != null;
@@ -4551,8 +4646,9 @@ class CalcEngine {
         }
       case _tokenGreater:
         //Below code has been added to compare the value when the criteria is string.
-        final int tempString =
-            s.toUpperCase().compareTo(criteria.toUpperCase());
+        final int tempString = s.toUpperCase().compareTo(
+          criteria.toUpperCase(),
+        );
         if (isNumber) {
           d = double.tryParse(s);
           final bool value = d != null;
@@ -4562,8 +4658,9 @@ class CalcEngine {
         }
       case _tokenLess:
         //Below code has been added to compare the value when the criteria is string.
-        final int tempString =
-            s.toUpperCase().compareTo(criteria.toUpperCase());
+        final int tempString = s.toUpperCase().compareTo(
+          criteria.toUpperCase(),
+        );
         if (isNumber) {
           d = double.tryParse(s);
           final bool value = d != null;
@@ -4573,8 +4670,9 @@ class CalcEngine {
         }
       case _tokenLesseq:
         //Below code has been added to compare the value when the criteria is string.
-        final int tempString =
-            s.toUpperCase().compareTo(criteria.toUpperCase());
+        final int tempString = s.toUpperCase().compareTo(
+          criteria.toUpperCase(),
+        );
         if (isNumber) {
           d = double.tryParse(s);
           final bool value = d != null;
@@ -4699,7 +4797,8 @@ class CalcEngine {
           } else if (startCol != col) {
             col += count - s2.length;
           }
-          calculateRange = calculateRange.substring(0, i + 1) +
+          calculateRange =
+              calculateRange.substring(0, i + 1) +
               getAlphaLabel(col) +
               row.toString();
           s2 = _getCellsFromArgs(calculateRange);
@@ -4718,7 +4817,12 @@ class CalcEngine {
       for (int index = 0; index < count; ++index) {
         s = _getValueFromArg(s1[index]);
         final bool criteriaMatched = _checkForCriteriaMatch(
-            s.toUpperCase(), op, criteria.toUpperCase(), isNumber, compare);
+          s.toUpperCase(),
+          op,
+          criteria.toUpperCase(),
+          isNumber,
+          compare,
+        );
         if (criteriaMatched) {
           //Below code has been modified to check the index of criteria.
           if (tempList.isNotEmpty && v != 0) {
@@ -4891,7 +4995,12 @@ class CalcEngine {
         s = _getValueFromArg(s1[index]); //// +criteria;
         //Below condition has been added to check whether the criteria is number, expression or text. For example, criteria can be expressed as 32, ">32", B4, "apples", or "32".
         final bool criteriaMatched = _checkForCriteriaMatch(
-            s.toUpperCase(), op, criteria.toUpperCase(), isNumber, compare);
+          s.toUpperCase(),
+          op,
+          criteria.toUpperCase(),
+          isNumber,
+          compare,
+        );
         //Below code has been added to count the number of occurences of values which the criteria satisfies.
         if (criteriaMatched) {
           if (isCountif && isLastcriteria ||
@@ -4957,8 +5066,10 @@ class CalcEngine {
     final int col = d.toInt();
     bool match = true, rangeLookup = true;
     if (s.length == 4) {
-      match = rangeLookup = (_getValueFromArg(s[3]) == _trueValueStr) ||
-          (_getValueFromArg(s[3].replaceAll(_tic, '')) == '1');
+      match =
+          rangeLookup =
+              (_getValueFromArg(s[3]) == _trueValueStr) ||
+              (_getValueFromArg(s[3].replaceAll(_tic, '')) == '1');
     }
     d = double.tryParse(lookUp);
     final bool typeIsNumber = d != null;
@@ -5039,13 +5150,19 @@ class CalcEngine {
       if (!cachingEnabled) {
         //To avoid grid resetting at run time when the grid has dependent sheets.
         if (dependentGrid != null) {
-          s1 = _getValueFromParentObjectGrid(row, col1, true, dependentGrid)
-              .toUpperCase()
-              .replaceAll('"', '');
+          s1 = _getValueFromParentObjectGrid(
+            row,
+            col1,
+            true,
+            dependentGrid,
+          ).toUpperCase().replaceAll('"', '');
         } else {
-          s1 = _getValueFromParentObjectGrid(row, col1, true, _grid)
-              .toUpperCase()
-              .replaceAll('"', '');
+          s1 = _getValueFromParentObjectGrid(
+            row,
+            col1,
+            true,
+            _grid,
+          ).toUpperCase().replaceAll('"', '');
         }
         DateTime? matchDateTime;
         double? doubleMatchValue;
@@ -5119,15 +5236,26 @@ class CalcEngine {
       //To return proper value when grid type is ICalcData.
       if (dependentGrid != null) {
         val = _getValueFromParentObjectGrid(
-            lastRow, col + col1 - 1, true, dependentGrid);
+          lastRow,
+          col + col1 - 1,
+          true,
+          dependentGrid,
+        );
       } else {
-        val =
-            _getValueFromParentObjectGrid(lastRow, col + col1 - 1, true, _grid);
+        val = _getValueFromParentObjectGrid(
+          lastRow,
+          col + col1 - 1,
+          true,
+          _grid,
+        );
       }
       if (val == '' &&
-          !_getValueFromParentObjectGrid(lastRow, col + col1 - 1, false, _grid)
-              .toUpperCase()
-              .startsWith('=IF')) {
+          !_getValueFromParentObjectGrid(
+            lastRow,
+            col + col1 - 1,
+            false,
+            _grid,
+          ).toUpperCase().startsWith('=IF')) {
         val = '0';
       }
       if (val.isNotEmpty && val[0] == CalcEngine._formulaCharacter) {
@@ -5187,13 +5315,18 @@ class CalcEngine {
     return val.toString();
   }
 
-  String _getValueFromParentObjectGrid(int row, int col, bool calculateFormula,
-      [Worksheet? grd]) {
+  String _getValueFromParentObjectGrid(
+    int row,
+    int col,
+    bool calculateFormula, [
+    Worksheet? grd,
+  ]) {
     final SheetFamilyItem? family = _getSheetFamilyItem(grd);
-    String cell1 = (family!.parentObjectToToken == null ||
-            family.parentObjectToToken!.isEmpty)
-        ? ''
-        : family.parentObjectToToken![grd].toString();
+    String cell1 =
+        (family!.parentObjectToToken == null ||
+                family.parentObjectToToken!.isEmpty)
+            ? ''
+            : family.parentObjectToToken![grd].toString();
     cell1 = cell1 + getAlphaLabel(col) + row.toString();
     final Worksheet? saveGrid = _grid;
     final String saveCell = _cell;
@@ -5308,7 +5441,8 @@ class CalcEngine {
         if (height != criteriaHeight) {
           row = startRow + criteriaHeight;
         }
-        sumRange = getAlphaLabel(startCol) +
+        sumRange =
+            getAlphaLabel(startCol) +
             sumRange.substring(1, i + 1) +
             getAlphaLabel(col) +
             row.toString();
@@ -5344,7 +5478,12 @@ class CalcEngine {
       }
       //Below code has beeb added to calculate SUMIF formula when criteria contains *.
       final bool criteriaMatched = _checkForCriteriaMatch(
-          s.toUpperCase(), op, criteria.toUpperCase(), isNumber, compare);
+        s.toUpperCase(),
+        op,
+        criteria.toUpperCase(),
+        isNumber,
+        compare,
+      );
       if (criteriaMatched) {
         s = s2[index]!;
         s = _getValueFromArg(s);
@@ -5402,7 +5541,8 @@ class CalcEngine {
         // Below code has been added to calculate when the ranges contain array and cell range.("1,1,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",G5:G30).
         else if (ranges[i].startsWith(parseArgumentSeparator) &&
             _isCellReference(
-                ranges[i].replaceAll(parseArgumentSeparator, ''))) {
+              ranges[i].replaceAll(parseArgumentSeparator, ''),
+            )) {
           ranges[i] = ranges[i].replaceAll(parseArgumentSeparator, '');
         }
       }
@@ -5470,20 +5610,25 @@ class CalcEngine {
           cells ??= _getCellsFromArgs(val);
           int s = 0;
           if ((val == '') && (strArray != '')) {
-            final List<String> args =
-                _splitArgsPreservingQuotedCommas(strArray);
-            final List<String> tempLogicList =
-                args[0].replaceAll(_tic, '').split(';');
-            final List<String> tempLogicList1 =
-                args[1].replaceAll(_tic, '').split(';');
+            final List<String> args = _splitArgsPreservingQuotedCommas(
+              strArray,
+            );
+            final List<String> tempLogicList = args[0]
+                .replaceAll(_tic, '')
+                .split(';');
+            final List<String> tempLogicList1 = args[1]
+                .replaceAll(_tic, '')
+                .split(';');
             {
               for (s = 0; s <= tempLogicList.length - 1; s++) {
                 if (s + 1 != args.length) {
-                  logicTest = _getValueFromArg(_bMarker +
-                      tempLogicList[s] +
-                      tempLogicList1[s] +
-                      logicalVal +
-                      _bMarker);
+                  logicTest = _getValueFromArg(
+                    _bMarker +
+                        tempLogicList[s] +
+                        tempLogicList1[s] +
+                        logicalVal +
+                        _bMarker,
+                  );
                 }
                 finalStringValue += '$logicTest;';
               }
@@ -5493,16 +5638,21 @@ class CalcEngine {
           } else {
             for (s = 0; s <= cells.length - 1; s++) {
               logicTest = _getValueFromArg(
-                  _bMarker + cells[s]! + logicalVal + _bMarker);
+                _bMarker + cells[s]! + logicalVal + _bMarker,
+              );
               finalStringValue += '$logicTest;';
             }
           }
           if (j == tempr.length - 1) {
-            strArray =
-                finalStringValue.substring(0, finalStringValue.length - 1);
+            strArray = finalStringValue.substring(
+              0,
+              finalStringValue.length - 1,
+            );
           } else {
-            finalStringValue =
-                finalStringValue.substring(0, finalStringValue.length - 1);
+            finalStringValue = finalStringValue.substring(
+              0,
+              finalStringValue.length - 1,
+            );
             strArray += _tic + finalStringValue + _tic + parseArgumentSeparator;
           }
           finalStringValue = '';
@@ -5510,7 +5660,12 @@ class CalcEngine {
         // perform multiplication
         List<dynamic> result;
         result = _performMultiplication(
-            strArray, indexValue, count, vector, errorString);
+          strArray,
+          indexValue,
+          count,
+          vector,
+          errorString,
+        );
         indexValue = result[0] as bool;
         count = result[1] as int;
         vector = result[2] as List<double>?;
@@ -5563,10 +5718,19 @@ class CalcEngine {
         for (int row = row1; row <= row2; ++row) {
           for (int col = col1; col <= col2; ++col) {
             d = double.tryParse(
-                _getValueFromParentObjectGrid(row, col, true, grd)
-                    .replaceAll(_tic, ''));
-            final String v = _getValueFromParentObjectGrid(row, col, true, grd)
-                .replaceAll(_tic, '');
+              _getValueFromParentObjectGrid(
+                row,
+                col,
+                true,
+                grd,
+              ).replaceAll(_tic, ''),
+            );
+            final String v = _getValueFromParentObjectGrid(
+              row,
+              col,
+              true,
+              grd,
+            ).replaceAll(_tic, '');
             if (v == 'true' || v == 'false') {
               indexValue = v.contains('true');
             } else {
@@ -5605,7 +5769,12 @@ class CalcEngine {
         // perform multiplication
         List<dynamic> result;
         result = _performMultiplication(
-            tempr, indexValue, count, vector, errorString);
+          tempr,
+          indexValue,
+          count,
+          vector,
+          errorString,
+        );
         indexValue = result[0] as bool;
         count = result[1] as int;
         vector = result[2] as List<double>?;
@@ -5634,8 +5803,13 @@ class CalcEngine {
     return sum.toString();
   }
 
-  List<dynamic> _performMultiplication(String strArray, bool? indexValue,
-      int count, List<double>? vector, String errorString) {
+  List<dynamic> _performMultiplication(
+    String strArray,
+    bool? indexValue,
+    int count,
+    List<double>? vector,
+    String errorString,
+  ) {
     // perform multiplication
     List<String> tempRangs;
     List<String> temArray;
@@ -5643,7 +5817,8 @@ class CalcEngine {
     double? d = 0;
     if (strArray.contains(';')) {
       tempRangs = strArray.split(';');
-      final int listLength = tempRangs.length *
+      final int listLength =
+          tempRangs.length *
           _splitArgsPreservingQuotedCommas(tempRangs[0]).length;
       temArray = List<String>.filled(listLength, '');
     }
@@ -5651,9 +5826,10 @@ class CalcEngine {
     else if (strArray.contains(',')) {
       tempRangs = strArray.split(',');
       temArray = List<String>.filled(
-          tempRangs.length *
-              _splitArgsPreservingQuotedCommas(tempRangs[0]).length,
-          '');
+        tempRangs.length *
+            _splitArgsPreservingQuotedCommas(tempRangs[0]).length,
+        '',
+      );
     } else {
       tempRangs = _splitArgsPreservingQuotedCommas(strArray);
       temArray = List<String>.filled(tempRangs.length, '');
@@ -5713,8 +5889,9 @@ class CalcEngine {
     bool nohits = true;
     range = _adjustRangeArg(range);
     //Below condition has been modified to calculate when provided the numeric value as string.
-    final List<String> ranges =
-        _splitArgsPreservingQuotedCommas(range.replaceAll(_tic, ''));
+    final List<String> ranges = _splitArgsPreservingQuotedCommas(
+      range.replaceAll(_tic, ''),
+    );
     for (final String r in ranges) {
       ////is a cellrange
       if (r.contains(':')) {

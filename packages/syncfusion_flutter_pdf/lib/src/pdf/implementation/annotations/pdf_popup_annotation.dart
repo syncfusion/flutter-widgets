@@ -33,22 +33,40 @@ class PdfPopupAnnotation extends PdfAnnotation {
   /// final List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
-  PdfPopupAnnotation(Rect bounds, String text,
-      {bool? open,
-      String? author,
-      PdfColor? color,
-      String? subject,
-      double? opacity,
-      DateTime? modifiedDate,
-      PdfPopupIcon? icon,
-      List<PdfAnnotationFlags>? flags,
-      bool? setAppearance}) {
-    _helper = PdfPopupAnnotationHelper(this, bounds, text, open, author, color,
-        subject, opacity, modifiedDate, icon, flags, setAppearance);
+  PdfPopupAnnotation(
+    Rect bounds,
+    String text, {
+    bool? open,
+    String? author,
+    PdfColor? color,
+    String? subject,
+    double? opacity,
+    DateTime? modifiedDate,
+    PdfPopupIcon? icon,
+    List<PdfAnnotationFlags>? flags,
+    bool? setAppearance,
+  }) {
+    _helper = PdfPopupAnnotationHelper(
+      this,
+      bounds,
+      text,
+      open,
+      author,
+      color,
+      subject,
+      opacity,
+      modifiedDate,
+      icon,
+      flags,
+      setAppearance,
+    );
   }
 
   PdfPopupAnnotation._(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
     _helper = PdfPopupAnnotationHelper._(this, dictionary, crossTable, text);
   }
 
@@ -86,38 +104,44 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
   //Constructor
   /// internal constructor
   PdfPopupAnnotationHelper(
-      this.popupAnnotation,
-      Rect bounds,
-      String text,
-      bool? open,
-      String? author,
-      PdfColor? color,
-      String? subject,
-      double? opacity,
-      DateTime? modifiedDate,
-      PdfPopupIcon? icon,
-      List<PdfAnnotationFlags>? flags,
-      bool? setAppearance)
-      : super(popupAnnotation) {
+    this.popupAnnotation,
+    Rect bounds,
+    String text,
+    bool? open,
+    String? author,
+    PdfColor? color,
+    String? subject,
+    double? opacity,
+    DateTime? modifiedDate,
+    PdfPopupIcon? icon,
+    List<PdfAnnotationFlags>? flags,
+    bool? setAppearance,
+  ) : super(popupAnnotation) {
     initializeAnnotation(
-        bounds: bounds,
-        text: text,
-        color: color,
-        author: author,
-        subject: subject,
-        modifiedDate: modifiedDate,
-        opacity: opacity,
-        flags: flags,
-        setAppearance: setAppearance);
+      bounds: bounds,
+      text: text,
+      color: color,
+      author: author,
+      subject: subject,
+      modifiedDate: modifiedDate,
+      opacity: opacity,
+      flags: flags,
+      setAppearance: setAppearance,
+    );
     this.open = open ??= false;
     dictionary!.setProperty(
-        PdfDictionaryProperties.subtype, PdfName(PdfDictionaryProperties.text));
+      PdfDictionaryProperties.subtype,
+      PdfName(PdfDictionaryProperties.text),
+    );
     this.icon = icon ?? PdfPopupIcon.note;
   }
 
-  PdfPopupAnnotationHelper._(this.popupAnnotation, PdfDictionary dictionary,
-      PdfCrossTable crossTable, String text)
-      : super(popupAnnotation) {
+  PdfPopupAnnotationHelper._(
+    this.popupAnnotation,
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) : super(popupAnnotation) {
     this.text = text;
     initializeExistingAnnotation(dictionary, crossTable);
   }
@@ -135,7 +159,10 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
 
   /// internal method
   static PdfPopupAnnotation load(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
     return PdfPopupAnnotation._(dictionary, crossTable, text);
   }
 
@@ -159,16 +186,19 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
   set icon(PdfPopupIcon value) {
     if (_icon != value) {
       _icon = value;
-      dictionary!
-          .setName(PdfName(PdfDictionaryProperties.name), getEnumName(_icon));
+      dictionary!.setName(
+        PdfName(PdfDictionaryProperties.name),
+        getEnumName(_icon),
+      );
     }
   }
 
   /// Internal method.
   bool obtainOpen() {
     if (dictionary!.containsKey(PdfDictionaryProperties.open)) {
-      final IPdfPrimitive? open =
-          PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.open]);
+      final IPdfPrimitive? open = PdfCrossTable.dereference(
+        dictionary![PdfDictionaryProperties.open],
+      );
       if (open != null && open is PdfBoolean) {
         return open.value ?? false;
       }
@@ -179,8 +209,9 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
   /// Internal method.
   PdfPopupIcon obtainIcon() {
     if (dictionary!.containsKey(PdfDictionaryProperties.name)) {
-      final IPdfPrimitive? icon =
-          PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.name]);
+      final IPdfPrimitive? icon = PdfCrossTable.dereference(
+        dictionary![PdfDictionaryProperties.name],
+      );
       if (icon != null && icon is PdfName) {
         return getIconName(icon.name.toString());
       } else if (icon != null && icon is PdfString) {
@@ -213,26 +244,32 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
 
   /// Internal method.
   void save() {
-    final PdfAnnotationHelper helper =
-        PdfAnnotationHelper.getHelper(popupAnnotation);
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(
+      popupAnnotation,
+    );
     if (PdfAnnotationCollectionHelper.getHelper(
-            popupAnnotation.page!.annotations)
-        .flatten) {
+      popupAnnotation.page!.annotations,
+    ).flatten) {
       helper.flatten = true;
     }
     if (helper.isLoadedAnnotation) {
       if (helper.setAppearance) {
-        popupAnnotation.appearance.normal =
-            PdfTemplate(bounds.width, bounds.height);
+        popupAnnotation.appearance.normal = PdfTemplate(
+          bounds.width,
+          bounds.height,
+        );
         drawIcon(popupAnnotation.appearance.normal.graphics!);
         dictionary!.setProperty(
-            PdfDictionaryProperties.ap, popupAnnotation.appearance);
+          PdfDictionaryProperties.ap,
+          popupAnnotation.appearance,
+        );
       }
       if (helper.flatten) {
         bool isFlattenPopup = true;
         if (dictionary!.containsKey(PdfDictionaryProperties.f)) {
-          final IPdfPrimitive? flag =
-              PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.f]);
+          final IPdfPrimitive? flag = PdfCrossTable.dereference(
+            dictionary![PdfDictionaryProperties.f],
+          );
           if (flag != null && flag is PdfNumber && flag.value == 30) {
             if (!helper.flattenPopups) {
               isFlattenPopup = false;
@@ -241,7 +278,8 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
         }
         if (dictionary![PdfDictionaryProperties.ap] != null && isFlattenPopup) {
           IPdfPrimitive? dic = PdfCrossTable.dereference(
-              dictionary![PdfDictionaryProperties.ap]);
+            dictionary![PdfDictionaryProperties.ap],
+          );
           PdfTemplate template;
           if (dic != null && dic is PdfDictionary) {
             dic = PdfCrossTable.dereference(dic[PdfDictionaryProperties.n]);
@@ -252,8 +290,11 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
                 page!.graphics.save();
                 page!.graphics.setTransparency(opacity);
               }
-              page!.graphics
-                  .drawPdfTemplate(template, bounds.topLeft, bounds.size);
+              page!.graphics.drawPdfTemplate(
+                template,
+                bounds.topLeft,
+                bounds.size,
+              );
               if (!setAppearance && opacity < 1) {
                 page!.graphics.restore();
               }
@@ -267,12 +308,17 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
       if (helper.setAppearance || helper.flatten) {
         drawIcon(popupAnnotation.appearance.normal.graphics!);
         if (helper.flatten) {
-          page!.graphics.drawPdfTemplate(popupAnnotation.appearance.normal,
-              bounds.topLeft, popupAnnotation.appearance.normal.size);
+          page!.graphics.drawPdfTemplate(
+            popupAnnotation.appearance.normal,
+            bounds.topLeft,
+            popupAnnotation.appearance.normal.size,
+          );
           page!.annotations.remove(popupAnnotation);
         } else {
           dictionary!.setProperty(
-              PdfDictionaryProperties.ap, popupAnnotation.appearance);
+            PdfDictionaryProperties.ap,
+            popupAnnotation.appearance,
+          );
         }
       }
     }
@@ -284,13 +330,15 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
   /// Internal method.
   void drawIcon(PdfGraphics graphics) {
     if (dictionary!.containsKey(PdfDictionaryProperties.name)) {
-      final IPdfPrimitive? name =
-          PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.name]);
+      final IPdfPrimitive? name = PdfCrossTable.dereference(
+        dictionary![PdfDictionaryProperties.name],
+      );
       if (name != null && name is PdfName && name.name == 'Comment') {
         if (flatten) {
           popupAnnotation.appearance.normal = PdfTemplate(
-              bounds.width > 24 ? bounds.width : 24,
-              bounds.height > 22 ? bounds.height : 22);
+            bounds.width > 24 ? bounds.width : 24,
+            bounds.height > 22 ? bounds.height : 22,
+          );
           graphics = popupAnnotation.appearance.normal.graphics!;
         }
         final PdfPen pen = PdfPen(PdfColor(0, 0, 0), width: 0.3);
@@ -299,7 +347,7 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
         final List<Offset> points = <Offset>[
           const Offset(7, 15.45),
           const Offset(9, 16.15),
-          const Offset(4, 19)
+          const Offset(4, 19),
         ];
         final PdfPath path = PdfPath();
         if (color.isEmpty == true) {
@@ -311,14 +359,23 @@ class PdfPopupAnnotationHelper extends PdfAnnotationHelper {
           template.graphics!.setTransparency(opacity);
         }
         template.graphics!.drawRectangle(
-            bounds: const Rect.fromLTWH(0, 0, 24, 22), pen: pen, brush: brush);
-        template.graphics!
-            .drawPolygon(points, pen: pen, brush: PdfBrushes.white);
+          bounds: const Rect.fromLTWH(0, 0, 24, 22),
+          pen: pen,
+          brush: brush,
+        );
+        template.graphics!.drawPolygon(
+          points,
+          pen: pen,
+          brush: PdfBrushes.white,
+        );
         path.addEllipse(const Rect.fromLTWH(2.5, 2.5, 19, 14));
         template.graphics!.drawPath(pen: pen, brush: PdfBrushes.white, path);
         template.graphics!.drawArc(
-            const Rect.fromLTWH(2.5, 2.5, 19, 14), 110.7, 10.3,
-            pen: pen1);
+          const Rect.fromLTWH(2.5, 2.5, 19, 14),
+          110.7,
+          10.3,
+          pen: pen1,
+        );
         if (opacity < 1) {
           template.graphics!.restore();
         }

@@ -17,12 +17,19 @@ import '../theme.dart';
 import '../utils.dart';
 
 Offset _pixelFromLatLng(MapLatLng latLng, double scale) {
-  final double latitude =
-      latLng.latitude.clamp(minimumLatitude, maximumLatitude);
-  final double longitude =
-      latLng.longitude.clamp(minimumLongitude, maximumLongitude);
+  final double latitude = latLng.latitude.clamp(
+    minimumLatitude,
+    maximumLatitude,
+  );
+  final double longitude = latLng.longitude.clamp(
+    minimumLongitude,
+    maximumLongitude,
+  );
   return pixelFromLatLng(
-      latitude, longitude, Size.square(getTotalTileWidth(scale)));
+    latitude,
+    longitude,
+    Size.square(getTotalTileWidth(scale)),
+  );
 }
 
 MapLatLng _pixelToLatLng(Offset point, double scale) {
@@ -115,10 +122,13 @@ class MapTileLayerController extends MapLayerController {
   /// Converts pixel point to [MapLatLng].
   MapLatLng pixelToLatLng(Offset position) {
     final Offset localPointCenterDiff = Offset(
-        (_state._size!.width / 2) - position.dx,
-        (_state._size!.height / 2) - position.dy);
-    final Offset actualCenterPixelPosition =
-        _pixelFromLatLng(_state._currentFocalLatLng, _state._currentZoomLevel);
+      (_state._size!.width / 2) - position.dx,
+      (_state._size!.height / 2) - position.dy,
+    );
+    final Offset actualCenterPixelPosition = _pixelFromLatLng(
+      _state._currentFocalLatLng,
+      _state._currentZoomLevel,
+    );
     final Offset newCenterPoint =
         actualCenterPixelPosition - localPointCenterDiff;
     return _pixelToLatLng(newCenterPoint, _state._currentZoomLevel);
@@ -228,15 +238,19 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void _requestAndPopulateNewTiles() {
     _updateZoomLevel();
     final double tileCount = pow(2, _nextZoomLevel).toDouble();
-    final Offset actualCenterPixelPosition =
-        _pixelFromLatLng(_currentFocalLatLng, _currentZoomLevel);
+    final Offset actualCenterPixelPosition = _pixelFromLatLng(
+      _currentFocalLatLng,
+      _currentZoomLevel,
+    );
     final Rect newVisibleBounds = Rect.fromCenter(
-        center: actualCenterPixelPosition,
-        width: _size!.width,
-        height: _size!.height);
+      center: actualCenterPixelPosition,
+      width: _size!.width,
+      height: _size!.height,
+    );
     final MapLatLngBounds visibleLatLngBounds = MapLatLngBounds(
-        _pixelToLatLng(newVisibleBounds.topRight, _currentZoomLevel),
-        _pixelToLatLng(newVisibleBounds.bottomLeft, _currentZoomLevel));
+      _pixelToLatLng(newVisibleBounds.topRight, _currentZoomLevel),
+      _pixelToLatLng(newVisibleBounds.bottomLeft, _currentZoomLevel),
+    );
     _updateVisibleBounds(visibleLatLngBounds);
     final Offset halfSize = Offset(_size!.width, _size!.height) / 2;
 
@@ -261,8 +275,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     for (int i = startX; i <= endX; i++) {
       for (int j = startY; j <= endY; j++) {
-        final _MapTileCoordinate tileCoordinate =
-            _MapTileCoordinate(i, j, _nextZoomLevel);
+        final _MapTileCoordinate tileCoordinate = _MapTileCoordinate(
+          i,
+          j,
+          _nextZoomLevel,
+        );
 
         if ((tileCoordinate.x < _globalTileStart.dx ||
                 tileCoordinate.x > globalTileEnd.dx) ||
@@ -281,11 +298,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     final Offset tileCenter = Offset((startX + endX) / 2, (startY + endY) / 2);
-    tileCoordinates.sort((_MapTileCoordinate a, _MapTileCoordinate b) =>
-        (a.distanceTo(Offset(a.x.toDouble(), a.y.toDouble()), tileCenter) -
-                b.distanceTo(
-                    Offset(b.x.toDouble(), b.y.toDouble()), tileCenter))
-            .toInt());
+    tileCoordinates.sort(
+      (_MapTileCoordinate a, _MapTileCoordinate b) =>
+          (a.distanceTo(Offset(a.x.toDouble(), a.y.toDouble()), tileCenter) -
+                  b.distanceTo(
+                    Offset(b.x.toDouble(), b.y.toDouble()),
+                    tileCenter,
+                  ))
+              .toInt(),
+    );
 
     for (int i = 0; i < tileCoordinates.length; i++) {
       _addTile(tileCoordinates[i]);
@@ -296,17 +317,18 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final TileZoomLevelDetails level = _levels[_nextZoomLevel]!;
     Offset topRight =
         _pixelFromLatLng(latLngBounds.northeast, level.zoomLevel) -
-            level.origin!;
+        level.origin!;
     // Adjust the topRight value based on the current scale value.
-    topRight = Offset(topRight.dx * level.scale, topRight.dy * level.scale) +
+    topRight =
+        Offset(topRight.dx * level.scale, topRight.dy * level.scale) +
         level.translatePoint;
     Offset bottomLeft =
         _pixelFromLatLng(latLngBounds.southwest, level.zoomLevel) -
-            level.origin!;
+        level.origin!;
     // Adjust the bottomLeft value based on the current scale value.
     bottomLeft =
         Offset(bottomLeft.dx * level.scale, bottomLeft.dy * level.scale) +
-            level.translatePoint;
+        level.translatePoint;
     _controller!.visibleBounds = Rect.fromPoints(bottomLeft, topRight);
   }
 
@@ -352,7 +374,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           (_zoomController != null &&
               _zoomController!.actionType == ActionType.pinch)) {
         _updateZoomLevelTransform(
-            level, _currentFocalLatLng, _currentZoomLevel);
+          level,
+          _currentFocalLatLng,
+          _currentZoomLevel,
+        );
       }
     }
 
@@ -391,7 +416,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   // Calculate amount of scale and translation for each zoom level while
   // scaling.
   void _updateZoomLevelTransform(
-      TileZoomLevelDetails level, MapLatLng center, double zoom) {
+    TileZoomLevelDetails level,
+    MapLatLng center,
+    double zoom,
+  ) {
     if (level.origin == null) {
       return;
     }
@@ -399,8 +427,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         getTotalTileWidth(zoom) / getTotalTileWidth(level.zoomLevel);
     final Offset scaledPixelOrigin = _getLevelOrigin(center, zoom);
     level.translatePoint = Offset(
-        (level.origin!.dx * currentScale) - scaledPixelOrigin.dx,
-        (level.origin!.dy * currentScale) - scaledPixelOrigin.dy);
+      (level.origin!.dx * currentScale) - scaledPixelOrigin.dx,
+      (level.origin!.dy * currentScale) - scaledPixelOrigin.dy,
+    );
     level.scale = currentScale;
 
     if (level.zoomLevel == _nextZoomLevel) {
@@ -428,10 +457,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       xyzKey: tileFactorToKey,
       tilePos: Offset(tileLeftPos, tileTopPos),
       level: _levels[tileFactor.z]!,
-      image: Image.network(
-        url,
-        fit: BoxFit.fill,
-      ),
+      image: Image.network(url, fit: BoxFit.fill),
     );
   }
 
@@ -574,22 +600,25 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final List<Widget> children = <Widget>[];
     Widget current;
 
-    current = Stack(children: <Widget>[
-      _buildTiles(),
-      if (_hasSublayer)
-        SublayerContainer(ancestor: _ancestor, children: widget.sublayers!),
-      if (_markers != null && _markers!.isNotEmpty)
-        MarkerContainer(
-          markerTooltipBuilder: widget.markerTooltipBuilder,
-          controller: _controller!,
-          themeData: _mapsThemeData,
-          children: _markers,
-        ),
-    ]);
+    current = Stack(
+      children: <Widget>[
+        _buildTiles(),
+        if (_hasSublayer)
+          SublayerContainer(ancestor: _ancestor, children: widget.sublayers!),
+        if (_markers != null && _markers!.isNotEmpty)
+          MarkerContainer(
+            markerTooltipBuilder: widget.markerTooltipBuilder,
+            controller: _controller!,
+            themeData: _mapsThemeData,
+            children: _markers,
+          ),
+      ],
+    );
 
     children.add(current);
     if (widget.zoomPanBehavior != null) {
-      children.add(BehaviorView(
+      children.add(
+        BehaviorView(
           zoomLevel: _currentZoomLevel,
           focalLatLng: _currentFocalLatLng,
           controller: _controller!,
@@ -597,24 +626,30 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           onWillZoom: widget.onWillZoom,
           onWillPan: widget.onWillPan,
           enableMouseWheelZooming:
-              widget.zoomPanBehavior!.enableMouseWheelZooming));
+              widget.zoomPanBehavior!.enableMouseWheelZooming,
+        ),
+      );
       if (_isDesktop && widget.zoomPanBehavior!.showToolbar) {
-        children.add(MapToolbar(
-          zoomPanBehavior: widget.zoomPanBehavior!,
-          controller: _controller,
-        ));
+        children.add(
+          MapToolbar(
+            zoomPanBehavior: widget.zoomPanBehavior!,
+            controller: _controller,
+          ),
+        );
       }
     }
 
     if (_hasTooltipBuilder()) {
-      children.add(MapTooltip(
-        key: _controller!.tooltipKey,
-        controller: _controller,
-        sublayers: widget.sublayers,
-        markerTooltipBuilder: widget.markerTooltipBuilder,
-        tooltipSettings: widget.tooltipSettings,
-        themeData: _mapsThemeData,
-      ));
+      children.add(
+        MapTooltip(
+          key: _controller!.tooltipKey,
+          controller: _controller,
+          sublayers: widget.sublayers,
+          markerTooltipBuilder: widget.markerTooltipBuilder,
+          tooltipSettings: widget.tooltipSettings,
+          themeData: _mapsThemeData,
+        ),
+      );
     }
 
     return SizedBox(
@@ -636,10 +671,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     setState(() {
       _currentZoomLevel = _zoomController!.zoomLevel;
       final Offset point = Offset(
-          (_size!.width / 2) - _zoomController!.actualRect.left,
-          (_size!.height / 2) - _zoomController!.actualRect.top);
+        (_size!.width / 2) - _zoomController!.actualRect.left,
+        (_size!.height / 2) - _zoomController!.actualRect.top,
+      );
       final MapLatLng newFocalLatLng = pixelToLatLng(
-          point, Size.square(getTotalTileWidth(_currentZoomLevel)));
+        point,
+        Size.square(getTotalTileWidth(_currentZoomLevel)),
+      );
       _currentFocalLatLng = newFocalLatLng;
       _handleTransform();
       if (_hasSublayer) {
@@ -667,12 +705,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void _initializeController() {
     _ancestor =
         context.dependOnInheritedWidgetOfExactType<MapLayerInheritedWidget>()!;
-    _controller ??= _ancestor.controller
-      ..tileZoomLevel = _currentZoomLevel
-      ..visibleFocalLatLng = _currentFocalLatLng;
+    _controller ??=
+        _ancestor.controller
+          ..tileZoomLevel = _currentZoomLevel
+          ..visibleFocalLatLng = _currentFocalLatLng;
     if (_ancestor.zoomController != null) {
-      _zoomController ??= _ancestor.zoomController!
-        ..addListener(_handledZoomPanChange);
+      _zoomController ??=
+          _ancestor.zoomController!..addListener(_handledZoomPanChange);
     }
   }
 
@@ -680,16 +719,22 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final MapLatLngBounds? bounds =
         widget.zoomPanBehavior?.latLngBounds ?? widget.initialLatLngBounds;
     if (bounds != null) {
-      final double zoomLevel =
-          getZoomLevel(bounds, _controller!.layerType!, _size!);
+      final double zoomLevel = getZoomLevel(
+        bounds,
+        _controller!.layerType!,
+        _size!,
+      );
       _currentFocalLatLng = getFocalLatLng(bounds);
       if (widget.zoomPanBehavior != null) {
         _currentZoomLevel = zoomLevel.clamp(
-            widget.zoomPanBehavior!.minZoomLevel,
-            widget.zoomPanBehavior!.maxZoomLevel);
+          widget.zoomPanBehavior!.minZoomLevel,
+          widget.zoomPanBehavior!.maxZoomLevel,
+        );
       } else {
-        _currentZoomLevel =
-            zoomLevel.clamp(kDefaultMinZoomLevel, kDefaultMaxZoomLevel);
+        _currentZoomLevel = zoomLevel.clamp(
+          kDefaultMinZoomLevel,
+          kDefaultMaxZoomLevel,
+        );
       }
       _nextZoomLevel = _currentZoomLevel.floor();
       _controller!
@@ -702,10 +747,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void initState() {
     _currentFocalLatLng =
         widget.zoomPanBehavior?.focalLatLng ?? widget.initialFocalLatLng;
-    _currentZoomLevel = (widget.zoomPanBehavior != null &&
-            widget.zoomPanBehavior!.zoomLevel != 1)
-        ? widget.zoomPanBehavior!.zoomLevel
-        : widget.initialZoomLevel.toDouble();
+    _currentZoomLevel =
+        (widget.zoomPanBehavior != null &&
+                widget.zoomPanBehavior!.zoomLevel != 1)
+            ? widget.zoomPanBehavior!.zoomLevel
+            : widget.initialZoomLevel.toDouble();
     widget.zoomPanBehavior?.zoomLevel = _currentZoomLevel;
     _nextZoomLevel = _currentZoomLevel.floor();
     if (widget.controller != null) {
@@ -752,24 +798,30 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
     final MapsThemeData effectiveMapsThemeData = MapsThemeData(context);
-    _isDesktop = kIsWeb ||
+    _isDesktop =
+        kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
         themeData.platform == TargetPlatform.linux;
 
     _mapsThemeData = SfMapsTheme.of(context)!;
     _mapsThemeData = _mapsThemeData.copyWith(
-      tooltipColor: widget.tooltipSettings.color ??
+      tooltipColor:
+          widget.tooltipSettings.color ??
           _mapsThemeData.tooltipColor ??
           effectiveMapsThemeData.tooltipColor,
-      tooltipStrokeColor: widget.tooltipSettings.strokeColor ??
+      tooltipStrokeColor:
+          widget.tooltipSettings.strokeColor ??
           _mapsThemeData.tooltipStrokeColor ??
           effectiveMapsThemeData.tooltipStrokeColor,
-      tooltipStrokeWidth: widget.tooltipSettings.strokeWidth ??
+      tooltipStrokeWidth:
+          widget.tooltipSettings.strokeWidth ??
           _mapsThemeData.tooltipStrokeWidth,
-      tooltipBorderRadius: _mapsThemeData.tooltipBorderRadius
-          .resolve(Directionality.of(context)),
-      markerIconColor: _mapsThemeData.markerIconColor ??
+      tooltipBorderRadius: _mapsThemeData.tooltipBorderRadius.resolve(
+        Directionality.of(context),
+      ),
+      markerIconColor:
+          _mapsThemeData.markerIconColor ??
           effectiveMapsThemeData.markerIconColor,
     );
 

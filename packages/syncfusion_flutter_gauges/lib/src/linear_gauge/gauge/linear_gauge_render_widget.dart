@@ -31,23 +31,26 @@ const double kDefaultLinearGaugeWidth = 300.0;
 /// Linear gauge render widget class.
 class LinearGaugeRenderWidget extends MultiChildRenderObjectWidget {
   /// Creates instance for [LinearGaugeRenderWidget] class.
-  const LinearGaugeRenderWidget(
-      {Key? key,
-      required this.pointerAnimations,
-      required List<Widget> children})
-      : super(key: key, children: children);
+  const LinearGaugeRenderWidget({
+    Key? key,
+    required this.pointerAnimations,
+    required List<Widget> children,
+  }) : super(key: key, children: children);
 
   /// Linear gauge pointer animations.
   final List<Animation<double>> pointerAnimations;
 
   @override
   RenderObject createRenderObject(BuildContext context) => RenderLinearGauge(
-      pointerAnimations: pointerAnimations,
-      gestureSettings: MediaQuery.of(context).gestureSettings);
+    pointerAnimations: pointerAnimations,
+    gestureSettings: MediaQuery.of(context).gestureSettings,
+  );
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderLinearGauge renderObject) {
+    BuildContext context,
+    RenderLinearGauge renderObject,
+  ) {
     renderObject.pointerAnimations = pointerAnimations;
     super.updateRenderObject(context, renderObject);
   }
@@ -111,28 +114,30 @@ class RenderLinearGauge extends RenderBox
   RenderLinearGauge({
     required List<Animation<double>> pointerAnimations,
     required DeviceGestureSettings gestureSettings,
-  })  : _gestureArenaTeam = GestureArenaTeam(),
-        _pointerAnimations = pointerAnimations {
+  }) : _gestureArenaTeam = GestureArenaTeam(),
+       _pointerAnimations = pointerAnimations {
     _ranges = <RenderLinearRange>[];
     _barPointers = <RenderLinearBarPointer>[];
     _shapePointers = <RenderLinearShapePointer>[];
     _widgetPointers = <RenderLinearWidgetPointer>[];
     _markerPointers = <RenderLinearPointerBase>[];
-    _verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
-      ..team = _gestureArenaTeam
-      ..onStart = _handleDragStart
-      ..onUpdate = _handleDragUpdate
-      ..onEnd = _handleDragEnd
-      ..gestureSettings = gestureSettings
-      ..dragStartBehavior = DragStartBehavior.start;
+    _verticalDragGestureRecognizer =
+        VerticalDragGestureRecognizer()
+          ..team = _gestureArenaTeam
+          ..onStart = _handleDragStart
+          ..onUpdate = _handleDragUpdate
+          ..onEnd = _handleDragEnd
+          ..gestureSettings = gestureSettings
+          ..dragStartBehavior = DragStartBehavior.start;
 
-    _horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
-      ..team = _gestureArenaTeam
-      ..onStart = _handleDragStart
-      ..onUpdate = _handleDragUpdate
-      ..onEnd = _handleDragEnd
-      ..gestureSettings = gestureSettings
-      ..dragStartBehavior = DragStartBehavior.start;
+    _horizontalDragGestureRecognizer =
+        HorizontalDragGestureRecognizer()
+          ..team = _gestureArenaTeam
+          ..onStart = _handleDragStart
+          ..onUpdate = _handleDragUpdate
+          ..onEnd = _handleDragEnd
+          ..gestureSettings = gestureSettings
+          ..dragStartBehavior = DragStartBehavior.start;
   }
 
   final GestureArenaTeam _gestureArenaTeam;
@@ -276,10 +281,14 @@ class RenderLinearGauge extends RenderBox
     final double labelSize = axis!.getEffectiveLabelSize();
     final double tickSize = axis!.getTickSize();
     final double axisLineSize = axis!.getAxisLineThickness();
-    final LinearElementPosition position =
-        getEffectiveElementPosition(axis!.tickPosition, axis!.isMirrored);
-    final LinearLabelPosition labelPosition =
-        getEffectiveLabelPosition(axis!.labelPosition, axis!.isMirrored);
+    final LinearElementPosition position = getEffectiveElementPosition(
+      axis!.tickPosition,
+      axis!.isMirrored,
+    );
+    final LinearLabelPosition labelPosition = getEffectiveLabelPosition(
+      axis!.labelPosition,
+      axis!.isMirrored,
+    );
     final bool isInsideLabel = labelPosition == LinearLabelPosition.inside;
 
     late double insideElementSize;
@@ -287,9 +296,10 @@ class RenderLinearGauge extends RenderBox
     switch (position) {
       case LinearElementPosition.inside:
         if (isInsideLabel) {
-          insideElementSize = (_axisWidgetThickness - axisLineSize) > thickness
-              ? 0
-              : thickness - (_axisWidgetThickness - axisLineSize);
+          insideElementSize =
+              (_axisWidgetThickness - axisLineSize) > thickness
+                  ? 0
+                  : thickness - (_axisWidgetThickness - axisLineSize);
         } else {
           insideElementSize = thickness - tickSize;
         }
@@ -303,26 +313,32 @@ class RenderLinearGauge extends RenderBox
         break;
       case LinearElementPosition.cross:
         if (isInsideLabel) {
-          insideElementSize = (_axisWidgetThickness - axisLineSize) > thickness
-              ? 0
-              : thickness - (_axisWidgetThickness - axisLineSize);
+          insideElementSize =
+              (_axisWidgetThickness - axisLineSize) > thickness
+                  ? 0
+                  : thickness - (_axisWidgetThickness - axisLineSize);
         } else {
-          insideElementSize = (axis!.showLabels ? thickness : 0) -
+          insideElementSize =
+              (axis!.showLabels ? thickness : 0) -
               (axisLineSize < tickSize ? (tickSize - axisLineSize) / 2 : 0);
         }
         break;
     }
 
-    _insideWidgetElementSize =
-        math.max(_insideWidgetElementSize, insideElementSize);
+    _insideWidgetElementSize = math.max(
+      _insideWidgetElementSize,
+      insideElementSize,
+    );
   }
 
   void _updateInsideElementSize(double thickness) {
     if (!axis!.showTicks && !axis!.showLabels) {
       _insideWidgetElementSize = math.max(thickness, _insideWidgetElementSize);
     } else if (thickness > _axisWidgetThickness) {
-      _insideWidgetElementSize =
-          math.max(thickness - _axisWidgetThickness, _insideWidgetElementSize);
+      _insideWidgetElementSize = math.max(
+        thickness - _axisWidgetThickness,
+        _insideWidgetElementSize,
+      );
     }
   }
 
@@ -331,10 +347,14 @@ class RenderLinearGauge extends RenderBox
     final double labelSize = axis!.getEffectiveLabelSize();
     final double tickSize = axis!.getTickSize();
     final double axisSize = axis!.getAxisLineThickness();
-    final LinearElementPosition position =
-        getEffectiveElementPosition(axis!.tickPosition, axis!.isMirrored);
-    final LinearLabelPosition labelPlacement =
-        getEffectiveLabelPosition(axis!.labelPosition, axis!.isMirrored);
+    final LinearElementPosition position = getEffectiveElementPosition(
+      axis!.tickPosition,
+      axis!.isMirrored,
+    );
+    final LinearLabelPosition labelPlacement = getEffectiveLabelPosition(
+      axis!.labelPosition,
+      axis!.isMirrored,
+    );
     final bool isInsideLabel = labelPlacement == LinearLabelPosition.inside;
 
     switch (position) {
@@ -344,15 +364,20 @@ class RenderLinearGauge extends RenderBox
         } else if (axisSize < thickness) {
           final double sizeDifference =
               (thickness - axisSize) / 2 - (isInsideLabel ? 0 : labelSize);
-          _outsideWidgetElementSize =
-              math.max(sizeDifference, _outsideWidgetElementSize);
+          _outsideWidgetElementSize = math.max(
+            sizeDifference,
+            _outsideWidgetElementSize,
+          );
 
           if (_axisWidgetThickness < thickness) {
             double axisSizeDifference = (thickness - axisSize) / 2;
-            axisSizeDifference = axisSizeDifference -
+            axisSizeDifference =
+                axisSizeDifference -
                 (tickSize + (isInsideLabel ? labelSize : 0));
-            _insideWidgetElementSize =
-                math.max(axisSizeDifference, _insideWidgetElementSize);
+            _insideWidgetElementSize = math.max(
+              axisSizeDifference,
+              _insideWidgetElementSize,
+            );
           }
         }
         break;
@@ -360,49 +385,63 @@ class RenderLinearGauge extends RenderBox
         if (axisSize == 0) {
           _updateInsideElementSize(thickness);
         } else if (axisSize < thickness) {
-          final double sizeDifference = (thickness - axisSize) / 2 -
+          final double sizeDifference =
+              (thickness - axisSize) / 2 -
               (tickSize + (isInsideLabel ? 0 : labelSize));
-          _outsideWidgetElementSize =
-              math.max(sizeDifference, _outsideWidgetElementSize);
+          _outsideWidgetElementSize = math.max(
+            sizeDifference,
+            _outsideWidgetElementSize,
+          );
 
           double axisSizeDifference = (thickness - axisSize) / 2;
           axisSizeDifference =
               axisSizeDifference - (isInsideLabel ? labelSize : 0);
-          _insideWidgetElementSize =
-              math.max(axisSizeDifference, _insideWidgetElementSize);
+          _insideWidgetElementSize = math.max(
+            axisSizeDifference,
+            _insideWidgetElementSize,
+          );
         }
         break;
       case LinearElementPosition.cross:
         if (axisSize == 0) {
           _updateInsideElementSize(thickness);
         } else if (tickSize > axisSize && axisSize < thickness) {
-          final double sizeDifference = ((thickness - axisSize) / 2) -
+          final double sizeDifference =
+              ((thickness - axisSize) / 2) -
               ((tickSize - axisSize) / 2) -
               (isInsideLabel ? 0 : labelSize);
-          _outsideWidgetElementSize =
-              math.max(sizeDifference, _outsideWidgetElementSize);
+          _outsideWidgetElementSize = math.max(
+            sizeDifference,
+            _outsideWidgetElementSize,
+          );
 
           if (_axisWidgetThickness < thickness) {
             double axisSizeDifference =
                 ((thickness - axisSize) / 2) - ((tickSize - axisSize) / 2);
             axisSizeDifference =
                 axisSizeDifference - (isInsideLabel ? labelSize : 0);
-            _insideWidgetElementSize =
-                math.max(axisSizeDifference, _insideWidgetElementSize);
+            _insideWidgetElementSize = math.max(
+              axisSizeDifference,
+              _insideWidgetElementSize,
+            );
           }
         } else if (axisSize < thickness) {
           final double sizeDifference =
               ((thickness - axisSize) / 2) - (isInsideLabel ? 0 : labelSize);
 
-          _outsideWidgetElementSize =
-              math.max(sizeDifference, _outsideWidgetElementSize);
+          _outsideWidgetElementSize = math.max(
+            sizeDifference,
+            _outsideWidgetElementSize,
+          );
 
           if (_axisWidgetThickness < thickness) {
             double axisSizeDifference = (thickness - axisSize) / 2;
             axisSizeDifference =
                 axisSizeDifference - (isInsideLabel ? labelSize : 0);
-            _insideWidgetElementSize =
-                math.max(axisSizeDifference, _insideWidgetElementSize);
+            _insideWidgetElementSize = math.max(
+              axisSizeDifference,
+              _insideWidgetElementSize,
+            );
           }
         }
         break;
@@ -410,21 +449,26 @@ class RenderLinearGauge extends RenderBox
   }
 
   /// Layout the pointer child.
-  void _layoutPointerChild(
-      {required RenderObject renderObject,
-      required LinearElementPosition position,
-      required double thickness,
-      required double offset}) {
-    final LinearElementPosition pointerPosition =
-        getEffectiveElementPosition(position, axis!.isMirrored);
+  void _layoutPointerChild({
+    required RenderObject renderObject,
+    required LinearElementPosition position,
+    required double thickness,
+    required double offset,
+  }) {
+    final LinearElementPosition pointerPosition = getEffectiveElementPosition(
+      position,
+      axis!.isMirrored,
+    );
 
     switch (pointerPosition) {
       case LinearElementPosition.inside:
         _measureInsideElementSize(thickness + offset);
         break;
       case LinearElementPosition.outside:
-        _outsideWidgetElementSize =
-            math.max(_outsideWidgetElementSize, thickness + offset - _axisTop);
+        _outsideWidgetElementSize = math.max(
+          _outsideWidgetElementSize,
+          thickness + offset - _axisTop,
+        );
         break;
       case LinearElementPosition.cross:
         _measureCrossElementSize(thickness);
@@ -433,8 +477,10 @@ class RenderLinearGauge extends RenderBox
   }
 
   /// Position the child elements.
-  void _positionChildElement(RenderObject linearGaugeChild,
-      {double thickness = 0}) {
+  void _positionChildElement(
+    RenderObject linearGaugeChild, {
+    double thickness = 0,
+  }) {
     final MultiChildLayoutParentData? childParentData =
         linearGaugeChild.parentData as MultiChildLayoutParentData?;
     final double xPoint =
@@ -442,23 +488,30 @@ class RenderLinearGauge extends RenderBox
     final double yPoint = _pointY;
 
     if (_isHorizontalOrientation) {
-      childParentData!.offset =
-          Offset(xPoint - (_isAxisInversed ? thickness : 0), yPoint);
+      childParentData!.offset = Offset(
+        xPoint - (_isAxisInversed ? thickness : 0),
+        yPoint,
+      );
     } else {
-      childParentData!.offset =
-          Offset(yPoint, xPoint - (!_isAxisInversed ? thickness : 0));
+      childParentData!.offset = Offset(
+        yPoint,
+        xPoint - (!_isAxisInversed ? thickness : 0),
+      );
     }
   }
 
   /// Calculates the marker pointer offset.
-  double? _calculateMarkerOffset(
-      {required LinearElementPosition elementPosition,
-      required double offset,
-      required Size size}) {
+  double? _calculateMarkerOffset({
+    required LinearElementPosition elementPosition,
+    required double offset,
+    required Size size,
+  }) {
     final double markerSize =
         _isHorizontalOrientation ? size.height : size.width;
-    final LinearElementPosition pointerPosition =
-        getEffectiveElementPosition(elementPosition, axis!.isMirrored);
+    final LinearElementPosition pointerPosition = getEffectiveElementPosition(
+      elementPosition,
+      axis!.isMirrored,
+    );
     switch (pointerPosition) {
       case LinearElementPosition.inside:
         return _outsideWidgetElementSize +
@@ -494,8 +547,10 @@ class RenderLinearGauge extends RenderBox
     }
   }
 
-  void _updatePointerPositionOnDrag(RenderLinearPointerBase pointer,
-      {bool isDragCall = false}) {
+  void _updatePointerPositionOnDrag(
+    RenderLinearPointerBase pointer, {
+    bool isDragCall = false,
+  }) {
     double animationValue = 1;
 
     if (!isDragCall) {
@@ -507,15 +562,18 @@ class RenderLinearGauge extends RenderBox
       }
     }
 
-    final double startPosition =
-        axis!.valueToPixel(pointer.oldValue ?? axis!.minimum);
+    final double startPosition = axis!.valueToPixel(
+      pointer.oldValue ?? axis!.minimum,
+    );
     final double endPosition = axis!.valueToPixel(pointer.value).abs();
 
     _pointX = startPosition + ((endPosition - startPosition) * animationValue);
-    _pointY = _calculateMarkerOffset(
-        elementPosition: pointer.position,
-        offset: pointer.offset,
-        size: Size(pointer.size.width, pointer.size.height))!;
+    _pointY =
+        _calculateMarkerOffset(
+          elementPosition: pointer.position,
+          offset: pointer.offset,
+          size: Size(pointer.size.width, pointer.size.height),
+        )!;
 
     /// _pointX calculation is depends on animation, so the constrained marker
     /// goes beyond the reference marker even though it's constrained. To avoid
@@ -565,17 +623,20 @@ class RenderLinearGauge extends RenderBox
     _pointerEndPadding = 0;
 
     _markerPointers.clear();
-    _markerPointers = <List<RenderLinearPointerBase>>[
-      _shapePointers,
-      _widgetPointers
-    ].expand((List<RenderLinearPointerBase> x) => x).toList();
+    _markerPointers =
+        <List<RenderLinearPointerBase>>[
+          _shapePointers,
+          _widgetPointers,
+        ].expand((List<RenderLinearPointerBase> x) => x).toList();
 
-    final double width = constraints.hasBoundedWidth
-        ? constraints.maxWidth
-        : kDefaultLinearGaugeWidth;
-    final double height = constraints.hasBoundedHeight
-        ? constraints.maxHeight
-        : kDefaultLinearGaugeHeight;
+    final double width =
+        constraints.hasBoundedWidth
+            ? constraints.maxWidth
+            : kDefaultLinearGaugeWidth;
+    final double height =
+        constraints.hasBoundedHeight
+            ? constraints.maxHeight
+            : kDefaultLinearGaugeHeight;
     _parentConstraints = BoxConstraints(maxWidth: width, maxHeight: height);
   }
 
@@ -585,9 +646,10 @@ class RenderLinearGauge extends RenderBox
       for (final dynamic pointer in _markerPointers) {
         pointer.layout(_parentConstraints, parentUsesSize: true);
 
-        final double thickness = _isHorizontalOrientation
-            ? pointer.size.width as double
-            : pointer.size.height as double;
+        final double thickness =
+            _isHorizontalOrientation
+                ? pointer.size.width as double
+                : pointer.size.height as double;
 
         if (pointer.markerAlignment == LinearMarkerAlignment.start) {
           _pointerEndPadding = math.max(_pointerEndPadding, thickness);
@@ -614,12 +676,14 @@ class RenderLinearGauge extends RenderBox
     final double padding = axis!.getAxisLayoutPadding();
     if (_isHorizontalOrientation) {
       return BoxConstraints(
-          maxWidth: _parentConstraints.maxWidth - padding,
-          maxHeight: _parentConstraints.maxHeight);
+        maxWidth: _parentConstraints.maxWidth - padding,
+        maxHeight: _parentConstraints.maxHeight,
+      );
     } else {
       return BoxConstraints(
-          maxWidth: _parentConstraints.maxWidth,
-          maxHeight: _parentConstraints.maxHeight - padding);
+        maxWidth: _parentConstraints.maxWidth,
+        maxHeight: _parentConstraints.maxHeight - padding,
+      );
     }
   }
 
@@ -646,16 +710,20 @@ class RenderLinearGauge extends RenderBox
         range.layout(_childConstraints, parentUsesSize: true);
         final double rangeThickness =
             _isHorizontalOrientation ? range.size.height : range.size.width;
-        final LinearElementPosition position =
-            getEffectiveElementPosition(range.position, range.isMirrored);
+        final LinearElementPosition position = getEffectiveElementPosition(
+          range.position,
+          range.isMirrored,
+        );
 
         switch (position) {
           case LinearElementPosition.inside:
             _measureInsideElementSize(rangeThickness);
             break;
           case LinearElementPosition.outside:
-            _outsideWidgetElementSize =
-                math.max(_outsideWidgetElementSize, rangeThickness - _axisTop);
+            _outsideWidgetElementSize = math.max(
+              _outsideWidgetElementSize,
+              rangeThickness - _axisTop,
+            );
             break;
           case LinearElementPosition.cross:
             _measureCrossElementSize(rangeThickness);
@@ -672,10 +740,11 @@ class RenderLinearGauge extends RenderBox
         barPointer.layout(_childConstraints, parentUsesSize: true);
 
         _layoutPointerChild(
-            renderObject: barPointer,
-            position: barPointer.position,
-            thickness: barPointer.thickness,
-            offset: barPointer.offset);
+          renderObject: barPointer,
+          position: barPointer.position,
+          thickness: barPointer.thickness,
+          offset: barPointer.offset,
+        );
       }
     }
   }
@@ -683,15 +752,17 @@ class RenderLinearGauge extends RenderBox
   void _measureMarkerPointersSize() {
     if (_markerPointers.isNotEmpty) {
       for (final dynamic markerPointer in _markerPointers) {
-        final double thickness = _isHorizontalOrientation
-            ? markerPointer.size.height as double
-            : markerPointer.size.width as double;
+        final double thickness =
+            _isHorizontalOrientation
+                ? markerPointer.size.height as double
+                : markerPointer.size.width as double;
 
         _layoutPointerChild(
-            renderObject: markerPointer,
-            position: markerPointer.position,
-            thickness: thickness,
-            offset: markerPointer.offset);
+          renderObject: markerPointer,
+          position: markerPointer.position,
+          thickness: thickness,
+          offset: markerPointer.offset,
+        );
       }
     }
   }
@@ -701,22 +772,25 @@ class RenderLinearGauge extends RenderBox
     double actualHeight, actualWidth;
 
     if (_isHorizontalOrientation) {
-      actualHeight = constraints.hasBoundedHeight
-          ? constraints.maxHeight
-          : _axisWidgetThickness +
-              _outsideWidgetElementSize +
-              _insideWidgetElementSize;
+      actualHeight =
+          constraints.hasBoundedHeight
+              ? constraints.maxHeight
+              : _axisWidgetThickness +
+                  _outsideWidgetElementSize +
+                  _insideWidgetElementSize;
       actualWidth = _parentConstraints.maxWidth;
     } else {
       actualHeight = _parentConstraints.maxHeight;
-      actualWidth = constraints.hasBoundedWidth
-          ? constraints.maxWidth
-          : _axisWidgetThickness +
-              _outsideWidgetElementSize +
-              _insideWidgetElementSize;
+      actualWidth =
+          constraints.hasBoundedWidth
+              ? constraints.maxWidth
+              : _axisWidgetThickness +
+                  _outsideWidgetElementSize +
+                  _insideWidgetElementSize;
     }
 
-    _actualSizeDelta = (_isHorizontalOrientation ? actualHeight : actualWidth) -
+    _actualSizeDelta =
+        (_isHorizontalOrientation ? actualHeight : actualWidth) -
         (_axisWidgetThickness +
             _outsideWidgetElementSize +
             _insideWidgetElementSize);
@@ -752,13 +826,16 @@ class RenderLinearGauge extends RenderBox
 
         _pointX = axis!.valueToPixel(range.startValue).abs();
 
-        final LinearElementPosition position =
-            getEffectiveElementPosition(range.position, range.isMirrored);
+        final LinearElementPosition position = getEffectiveElementPosition(
+          range.position,
+          range.isMirrored,
+        );
         final double axisSize = axis!.showAxisTrack ? axis!.thickness : 0.0;
 
         switch (position) {
           case LinearElementPosition.inside:
-            _pointY = _outsideWidgetElementSize +
+            _pointY =
+                _outsideWidgetElementSize +
                 _axisTop +
                 axisSize +
                 (_actualSizeDelta! / 2);
@@ -771,7 +848,8 @@ class RenderLinearGauge extends RenderBox
             _pointY = positionY + (_actualSizeDelta! / 2);
             break;
           case LinearElementPosition.cross:
-            _pointY = _outsideWidgetElementSize +
+            _pointY =
+                _outsideWidgetElementSize +
                 (_actualSizeDelta! / 2) +
                 _getCrossElementPosition(thickness);
             break;
@@ -788,23 +866,28 @@ class RenderLinearGauge extends RenderBox
       for (final RenderLinearBarPointer barPointer in _barPointers) {
         _pointX = axis!.valueToPixel(axis!.minimum).abs();
 
-        final double barWidth = _isHorizontalOrientation
-            ? barPointer.size.width
-            : barPointer.size.height;
+        final double barWidth =
+            _isHorizontalOrientation
+                ? barPointer.size.width
+                : barPointer.size.height;
 
-        final LinearElementPosition position =
-            getEffectiveElementPosition(barPointer.position, axis!.isMirrored);
+        final LinearElementPosition position = getEffectiveElementPosition(
+          barPointer.position,
+          axis!.isMirrored,
+        );
 
         switch (position) {
           case LinearElementPosition.inside:
-            _pointY = _outsideWidgetElementSize +
+            _pointY =
+                _outsideWidgetElementSize +
                 _axisTop +
                 axis!.getAxisLineThickness() +
                 barPointer.offset +
                 (_actualSizeDelta! / 2);
             break;
           case LinearElementPosition.outside:
-            _pointY = (_actualSizeDelta! / 2) +
+            _pointY =
+                (_actualSizeDelta! / 2) +
                 (barPointer.offset * -1) +
                 (_outsideWidgetElementSize + _axisTop > barPointer.thickness
                     ? _outsideWidgetElementSize +
@@ -813,7 +896,8 @@ class RenderLinearGauge extends RenderBox
                     : 0);
             break;
           case LinearElementPosition.cross:
-            _pointY = _outsideWidgetElementSize +
+            _pointY =
+                _outsideWidgetElementSize +
                 (_actualSizeDelta! / 2) +
                 _getCrossElementPosition(barPointer.thickness);
             break;
@@ -915,7 +999,9 @@ class RenderLinearGauge extends RenderBox
   }
 
   void _applyConstraintBehavior(
-      RenderLinearPointerBase markerRenderObject, double currentValue) {
+    RenderLinearPointerBase markerRenderObject,
+    double currentValue,
+  ) {
     if (currentValue > _markerRenderObject.dragRangeMin! &&
         currentValue < _markerRenderObject.dragRangeMax!) {
       _markerRenderObject.constrainedBy = ConstrainedBy.none;
@@ -934,7 +1020,9 @@ class RenderLinearGauge extends RenderBox
   // This method for pull drag behavior for markers.
   // ignore: unused_element
   void _applyPullBehavior(
-      RenderLinearPointerBase markerRenderObject, double currentValue) {
+    RenderLinearPointerBase markerRenderObject,
+    double currentValue,
+  ) {
     for (final RenderLinearPointerBase markerPointer in _markerPointers) {
       if (markerPointer != markerRenderObject) {
         if (currentValue < _dragStartValue!) {
@@ -972,12 +1060,14 @@ class RenderLinearGauge extends RenderBox
   }
 
   void _findDraggableRange(RenderLinearPointerBase pointer) {
-    pointer.dragRangeMin = pointer.constrainedBy == ConstrainedBy.min
-        ? pointer.value
-        : axis!.minimum;
-    pointer.dragRangeMax = pointer.constrainedBy == ConstrainedBy.max
-        ? pointer.value
-        : axis!.maximum;
+    pointer.dragRangeMin =
+        pointer.constrainedBy == ConstrainedBy.min
+            ? pointer.value
+            : axis!.minimum;
+    pointer.dragRangeMax =
+        pointer.constrainedBy == ConstrainedBy.max
+            ? pointer.value
+            : axis!.maximum;
     for (int i = 0; i < _markerPointers.length; i++) {
       final double currentValue = _markerPointers[i].value;
       if (pointer.constrainedBy != ConstrainedBy.min &&
@@ -1039,42 +1129,58 @@ class RenderLinearGauge extends RenderBox
   @override
   void paint(PaintingContext context, Offset offset) {
     context.pushClipRect(
-        needsCompositing, offset, Rect.fromLTWH(0, 0, size.width, size.height),
-        (PaintingContext context, Offset offset) {
-      defaultPaint(context, offset);
-      // There's no point in drawing the children if we're empty.
-      if (size.isEmpty) {
-        return;
-      }
-
-      assert(() {
-        // Only set this if it's null to save work. It gets reset to null if the
-        // _direction changes.
-        final List<DiagnosticsNode> debugOverflowHints = <DiagnosticsNode>[
-          ErrorDescription(
-              'The edge of the $runtimeType that is overflowing has been marked '
-              'in the rendering with a yellow and black striped pattern. This is '
-              'usually caused by the contents being too big for the $runtimeType.'),
-        ];
-
-        // Simulate a child rect that overflows by the right amount. This child
-        // rect is never used for drawing, just for determining the overflow
-        // location and amount.
-        Rect overflowChildRect;
-
-        if (_isHorizontalOrientation) {
-          overflowChildRect =
-              Rect.fromLTWH(0.0, 0.0, 0.0, size.height + _overflow!);
-        } else {
-          overflowChildRect =
-              Rect.fromLTWH(0.0, 0.0, size.width + _overflow!, 0.0);
+      needsCompositing,
+      offset,
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      (PaintingContext context, Offset offset) {
+        defaultPaint(context, offset);
+        // There's no point in drawing the children if we're empty.
+        if (size.isEmpty) {
+          return;
         }
 
-        paintOverflowIndicator(
-            context, offset, Offset.zero & size, overflowChildRect,
-            overflowHints: debugOverflowHints);
-        return true;
-      }());
-    });
+        assert(() {
+          // Only set this if it's null to save work. It gets reset to null if the
+          // _direction changes.
+          final List<DiagnosticsNode> debugOverflowHints = <DiagnosticsNode>[
+            ErrorDescription(
+              'The edge of the $runtimeType that is overflowing has been marked '
+              'in the rendering with a yellow and black striped pattern. This is '
+              'usually caused by the contents being too big for the $runtimeType.',
+            ),
+          ];
+
+          // Simulate a child rect that overflows by the right amount. This child
+          // rect is never used for drawing, just for determining the overflow
+          // location and amount.
+          Rect overflowChildRect;
+
+          if (_isHorizontalOrientation) {
+            overflowChildRect = Rect.fromLTWH(
+              0.0,
+              0.0,
+              0.0,
+              size.height + _overflow!,
+            );
+          } else {
+            overflowChildRect = Rect.fromLTWH(
+              0.0,
+              0.0,
+              size.width + _overflow!,
+              0.0,
+            );
+          }
+
+          paintOverflowIndicator(
+            context,
+            offset,
+            Offset.zero & size,
+            overflowChildRect,
+            overflowHints: debugOverflowHints,
+          );
+          return true;
+        }());
+      },
+    );
   }
 }

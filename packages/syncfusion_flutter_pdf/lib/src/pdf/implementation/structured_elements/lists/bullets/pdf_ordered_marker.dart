@@ -43,11 +43,12 @@ class PdfOrderedMarker extends PdfMarker {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfOrderedMarker(
-      {this.style = PdfNumberStyle.none,
-      PdfFont? font,
-      String suffix = '',
-      String delimiter = ''}) {
+  PdfOrderedMarker({
+    this.style = PdfNumberStyle.none,
+    PdfFont? font,
+    String suffix = '',
+    String delimiter = '',
+  }) {
     _helper = PdfOrderedMarkerHelper(this);
     _delimiter = delimiter;
     _suffix = suffix;
@@ -195,6 +196,8 @@ class PdfOrderedMarkerHelper extends PdfMarkerHelper {
   /// Gets the marker number.
   String getNumber() {
     return PdfAutomaticFieldHelper.convert(
-        _startNumber + currentIndex, base.style);
+      _startNumber + currentIndex,
+      base.style,
+    );
   }
 }

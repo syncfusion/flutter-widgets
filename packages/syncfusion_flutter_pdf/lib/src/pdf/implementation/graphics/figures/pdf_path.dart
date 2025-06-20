@@ -15,12 +15,13 @@ class PdfPath extends PdfShapeElement {
   // constructor
   /// Initializes a new instance of the [PdfPath] class
   /// with pen, brush, fillMode, points and pathTypes
-  PdfPath(
-      {PdfPen? pen,
-      PdfBrush? brush,
-      PdfFillMode fillMode = PdfFillMode.winding,
-      List<Offset> points = const <Offset>[],
-      List<int>? pathTypes}) {
+  PdfPath({
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfFillMode fillMode = PdfFillMode.winding,
+    List<Offset> points = const <Offset>[],
+    List<int>? pathTypes,
+  }) {
     _helper = PdfPathHelper(this);
     if (pen != null) {
       super.pen = pen;
@@ -79,7 +80,8 @@ class PdfPath extends PdfShapeElement {
     final int count = pathPoints.length;
     if (count != pathTypes.length) {
       throw ArgumentError.value(
-          'The argument arrays should be of equal length.');
+        'The argument arrays should be of equal length.',
+      );
     }
     _helper.points.addAll(pathPoints);
     _helper.pathTypes.addAll(_assignPathtype(pathTypes));
@@ -87,8 +89,12 @@ class PdfPath extends PdfShapeElement {
 
   /// Adds a line
   void addLine(Offset point1, Offset point2) {
-    _addPoints(<double>[point1.dx, point1.dy, point2.dx, point2.dy],
-        PathPointType.line);
+    _addPoints(<double>[
+      point1.dx,
+      point1.dy,
+      point2.dx,
+      point2.dy,
+    ], PathPointType.line);
   }
 
   /// Adds a rectangle
@@ -102,7 +108,7 @@ class PdfPath extends PdfShapeElement {
       bounds.left + bounds.width,
       bounds.top + bounds.height,
       bounds.left,
-      bounds.top + bounds.height
+      bounds.top + bounds.height,
     ], PathPointType.line);
     closeFigure();
   }
@@ -112,8 +118,9 @@ class PdfPath extends PdfShapeElement {
     startFigure();
     addArc(bounds, startAngle, sweepAngle);
     _addPoint(
-        Offset(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2),
-        PathPointType.line);
+      Offset(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2),
+      PathPointType.line,
+    );
     closeFigure();
   }
 
@@ -125,8 +132,12 @@ class PdfPath extends PdfShapeElement {
   }
 
   /// Adds an bezier curve
-  void addBezier(Offset startPoint, Offset firstControlPoint,
-      Offset secondControlPoint, Offset endPoint) {
+  void addBezier(
+    Offset startPoint,
+    Offset firstControlPoint,
+    Offset secondControlPoint,
+    Offset endPoint,
+  ) {
     final List<double> points = <double>[];
     points.add(startPoint.dx);
     points.add(startPoint.dy);
@@ -142,12 +153,13 @@ class PdfPath extends PdfShapeElement {
   /// Adds an arc
   void addArc(Rect bounds, double startAngle, double sweepAngle) {
     final List<List<double>> points = PdfGraphicsHelper.getBezierArcPoints(
-        bounds.left,
-        bounds.top,
-        bounds.left + bounds.width,
-        bounds.top + bounds.height,
-        startAngle,
-        sweepAngle);
+      bounds.left,
+      bounds.top,
+      bounds.left + bounds.width,
+      bounds.top + bounds.height,
+      startAngle,
+      sweepAngle,
+    );
     final List<double> list = <double>[];
     for (int i = 0; i < points.length; ++i) {
       final List<double> pt = points[i];

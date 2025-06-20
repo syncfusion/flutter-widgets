@@ -33,8 +33,12 @@ class HourToken extends FormatTokenBase {
 
   /// Applies format to the value.
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String applyFormat(
+    double value,
+    bool bShowHiddenSymbols,
+    CultureInfo culture,
+    FormatSection section,
+  ) {
     final DateTime date = Range.fromOADate(value);
     int iHour = date.hour;
     if (isAmPm) {

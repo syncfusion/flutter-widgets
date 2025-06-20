@@ -22,14 +22,14 @@ class MajorTickStyle {
   /// Creates a major tick style with default or required properties.
   ///
   /// The arguments [length], [thickness], must be non-negative.
-  const MajorTickStyle(
-      {this.length = 7,
-      this.thickness = 1.5,
-      this.lengthUnit = GaugeSizeUnit.logicalPixel,
-      this.color,
-      this.dashArray})
-      : assert(length >= 0, 'Tick length must be a non-negative value.'),
-        assert(thickness >= 0, 'Tick thickness must be a non-negative value.');
+  const MajorTickStyle({
+    this.length = 7,
+    this.thickness = 1.5,
+    this.lengthUnit = GaugeSizeUnit.logicalPixel,
+    this.color,
+    this.dashArray,
+  }) : assert(length >= 0, 'Tick length must be a non-negative value.'),
+       assert(thickness >= 0, 'Tick thickness must be a non-negative value.');
 
   /// Specifies the length of the tick.
   ///
@@ -147,7 +147,7 @@ class MajorTickStyle {
       thickness,
       lengthUnit,
       color,
-      dashArray
+      dashArray,
     ];
     return Object.hashAll(values);
   }
@@ -172,21 +172,21 @@ class MinorTickStyle extends MajorTickStyle {
   /// Creates a minor tick style with default or required properties.
   ///
   /// The arguments [length], [thickness], must be non-negative.
-  const MinorTickStyle(
-      {double length = 5,
-      GaugeSizeUnit lengthUnit = GaugeSizeUnit.logicalPixel,
-      Color? color,
-      double thickness = 1.5,
-      List<double>? dashArray})
-      : assert(length >= 0, 'Tick length must be a non-negative value.'),
-        assert(thickness >= 0, 'Tick thickness must be a non-negative value.'),
-        super(
-          length: length,
-          lengthUnit: lengthUnit,
-          thickness: thickness,
-          dashArray: dashArray,
-          color: color,
-        );
+  const MinorTickStyle({
+    double length = 5,
+    GaugeSizeUnit lengthUnit = GaugeSizeUnit.logicalPixel,
+    Color? color,
+    double thickness = 1.5,
+    List<double>? dashArray,
+  }) : assert(length >= 0, 'Tick length must be a non-negative value.'),
+       assert(thickness >= 0, 'Tick thickness must be a non-negative value.'),
+       super(
+         length: length,
+         lengthUnit: lengthUnit,
+         thickness: thickness,
+         dashArray: dashArray,
+         color: color,
+       );
 }
 
 /// Create the style of axis line.
@@ -207,19 +207,22 @@ class AxisLineStyle {
   /// Creates a minor tick style with default or required properties.
   ///
   /// The arguments [thickness], must be non-negative.
-  const AxisLineStyle(
-      {this.thickness = 10,
-      this.thicknessUnit = GaugeSizeUnit.logicalPixel,
-      this.color,
-      this.gradient,
-      this.cornerStyle = CornerStyle.bothFlat,
-      this.dashArray})
-      : assert(thickness >= 0,
-            'Axis line thickness must be a non-negative value.'),
-        assert(
-            (gradient != null && gradient is SweepGradient) || gradient == null,
-            'The gradient must be null or else '
-            'the gradient must be equal to sweep gradient.');
+  const AxisLineStyle({
+    this.thickness = 10,
+    this.thicknessUnit = GaugeSizeUnit.logicalPixel,
+    this.color,
+    this.gradient,
+    this.cornerStyle = CornerStyle.bothFlat,
+    this.dashArray,
+  }) : assert(
+         thickness >= 0,
+         'Axis line thickness must be a non-negative value.',
+       ),
+       assert(
+         (gradient != null && gradient is SweepGradient) || gradient == null,
+         'The gradient must be null or else '
+         'the gradient must be equal to sweep gradient.',
+       );
 
   /// Calculates the axis line thickness either in logical pixel
   /// or radius factor.
@@ -373,7 +376,7 @@ class AxisLineStyle {
       color,
       gradient,
       cornerStyle,
-      dashArray
+      dashArray,
     ];
     return Object.hashAll(values);
   }

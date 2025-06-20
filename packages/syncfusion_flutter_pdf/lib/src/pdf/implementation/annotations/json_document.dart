@@ -32,8 +32,12 @@ class JsonDocument {
 
   //Implementation
   /// Internal method.
-  void exportAnnotationData(Map<String, String> table, bool exportAppearance,
-      int pageIndex, PdfDictionary dictionary) {
+  void exportAnnotationData(
+    Map<String, String> table,
+    bool exportAppearance,
+    int pageIndex,
+    PdfDictionary dictionary,
+  ) {
     bool hasAppearance = exportAppearance;
     _skipBorderStyle = false;
     final String? annotationType = _getAnnotationType(dictionary);
@@ -44,7 +48,8 @@ class JsonDocument {
         case PdfDictionaryProperties.line:
           if (dictionary.containsKey(PdfDictionaryProperties.l)) {
             final IPdfPrimitive? linePoints = PdfCrossTable.dereference(
-                dictionary[PdfDictionaryProperties.l]);
+              dictionary[PdfDictionaryProperties.l],
+            );
             if (linePoints != null &&
                 linePoints is PdfArray &&
                 linePoints.count == 4 &&
@@ -76,8 +81,9 @@ class JsonDocument {
       }
       if (dictionary.containsKey(PdfDictionaryProperties.be) &&
           dictionary.containsKey(PdfDictionaryProperties.bs)) {
-        final IPdfPrimitive? borderEffect =
-            PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.be]);
+        final IPdfPrimitive? borderEffect = PdfCrossTable.dereference(
+          dictionary[PdfDictionaryProperties.be],
+        );
         if (borderEffect != null &&
             borderEffect is PdfDictionary &&
             borderEffect.containsKey(PdfDictionaryProperties.s)) {
@@ -112,12 +118,17 @@ class JsonDocument {
     return json;
   }
 
-  void _writeDictionary(int pageIndex, PdfDictionary dictionary,
-      bool hasAppearance, Map<String, String> table) {
+  void _writeDictionary(
+    int pageIndex,
+    PdfDictionary dictionary,
+    bool hasAppearance,
+    Map<String, String> table,
+  ) {
     bool isBSdictionary = false;
     if (dictionary.containsKey(PdfDictionaryProperties.type)) {
-      final IPdfPrimitive? name =
-          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.type]);
+      final IPdfPrimitive? name = PdfCrossTable.dereference(
+        dictionary[PdfDictionaryProperties.type],
+      );
       if (name != null &&
           name is PdfName &&
           name.name != null &&
@@ -167,16 +178,18 @@ class JsonDocument {
       _exportMeasureDictionary(dictionary, table);
     }
     if (hasAppearance && dictionary.containsKey(PdfDictionaryProperties.ap)) {
-      List<int>? bytes =
-          _getAppearanceString(dictionary[PdfDictionaryProperties.ap]!);
+      List<int>? bytes = _getAppearanceString(
+        dictionary[PdfDictionaryProperties.ap]!,
+      );
       if (bytes.isNotEmpty) {
         table['appearance'] = base64.encode(bytes);
       }
       bytes = null;
     }
     if (dictionary.containsKey('Sound')) {
-      final IPdfPrimitive? sound =
-          PdfCrossTable.dereference(dictionary['Sound']);
+      final IPdfPrimitive? sound = PdfCrossTable.dereference(
+        dictionary['Sound'],
+      );
       if (sound != null && sound is PdfStream) {
         if (sound.containsKey('B')) {
           final String? bits = _getValue(sound['B']);
@@ -208,15 +221,17 @@ class JsonDocument {
             table[XfdfProperties.mode.toLowerCase()] = 'raw';
             table['encodings'] = 'hex';
             if (sound.containsKey(PdfDictionaryProperties.length)) {
-              final String? length =
-                  _getValue(sound[PdfDictionaryProperties.length]);
+              final String? length = _getValue(
+                sound[PdfDictionaryProperties.length],
+              );
               if (!isNullOrEmpty(length)) {
                 table[PdfDictionaryProperties.length.toLowerCase()] = length!;
               }
             }
             if (sound.containsKey(PdfDictionaryProperties.filter)) {
-              final String? filter =
-                  _getValue(sound[PdfDictionaryProperties.filter]);
+              final String? filter = _getValue(
+                sound[PdfDictionaryProperties.filter],
+              );
               if (!isNullOrEmpty(filter)) {
                 table[PdfDictionaryProperties.filter.toLowerCase()] = filter!;
               }
@@ -226,66 +241,83 @@ class JsonDocument {
         }
       }
     } else if (dictionary.containsKey(PdfDictionaryProperties.fs)) {
-      final IPdfPrimitive? fsDictionary =
-          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.fs]);
+      final IPdfPrimitive? fsDictionary = PdfCrossTable.dereference(
+        dictionary[PdfDictionaryProperties.fs],
+      );
       if (fsDictionary != null && fsDictionary is PdfDictionary) {
         if (fsDictionary.containsKey(PdfDictionaryProperties.f)) {
-          final String? file =
-              _getValue(fsDictionary[PdfDictionaryProperties.f]);
+          final String? file = _getValue(
+            fsDictionary[PdfDictionaryProperties.f],
+          );
           if (!isNullOrEmpty(file)) {
             table['file'] = file!;
           }
         }
         if (fsDictionary.containsKey(PdfDictionaryProperties.ef)) {
           final IPdfPrimitive? efDictionary = PdfCrossTable.dereference(
-              fsDictionary[PdfDictionaryProperties.ef]);
+            fsDictionary[PdfDictionaryProperties.ef],
+          );
           if (efDictionary != null &&
               efDictionary is PdfDictionary &&
               efDictionary.containsKey(PdfDictionaryProperties.f)) {
             final IPdfPrimitive? fStream = PdfCrossTable.dereference(
-                efDictionary[PdfDictionaryProperties.f]);
+              efDictionary[PdfDictionaryProperties.f],
+            );
             if (fStream != null && fStream is PdfStream) {
               if (fStream.containsKey(PdfDictionaryProperties.params)) {
                 final IPdfPrimitive? paramsDictionary =
                     PdfCrossTable.dereference(
-                        fStream[PdfDictionaryProperties.params]);
+                      fStream[PdfDictionaryProperties.params],
+                    );
                 if (paramsDictionary != null &&
                     paramsDictionary is PdfDictionary) {
-                  if (paramsDictionary
-                      .containsKey(PdfDictionaryProperties.creationDate)) {
+                  if (paramsDictionary.containsKey(
+                    PdfDictionaryProperties.creationDate,
+                  )) {
                     final IPdfPrimitive? creationDate =
-                        PdfCrossTable.dereference(paramsDictionary[
-                            PdfDictionaryProperties.creationDate]);
+                        PdfCrossTable.dereference(
+                          paramsDictionary[PdfDictionaryProperties
+                              .creationDate],
+                        );
                     if (creationDate != null && creationDate is PdfString) {
-                      final DateTime dateTime =
-                          dictionary.getDateTime(creationDate);
-                      table['creation'] =
-                          DateFormat('M/d/yyyy h:mm:ss a').format(dateTime);
+                      final DateTime dateTime = dictionary.getDateTime(
+                        creationDate,
+                      );
+                      table['creation'] = DateFormat(
+                        'M/d/yyyy h:mm:ss a',
+                      ).format(dateTime);
                     }
                   }
-                  if (paramsDictionary
-                      .containsKey(PdfDictionaryProperties.modificationDate)) {
+                  if (paramsDictionary.containsKey(
+                    PdfDictionaryProperties.modificationDate,
+                  )) {
                     final IPdfPrimitive? modifyDate = PdfCrossTable.dereference(
-                        paramsDictionary[
-                            PdfDictionaryProperties.modificationDate]);
+                      paramsDictionary[PdfDictionaryProperties
+                          .modificationDate],
+                    );
                     if (modifyDate != null && modifyDate is PdfString) {
-                      final DateTime dateTime =
-                          dictionary.getDateTime(modifyDate);
-                      table['modification'] =
-                          DateFormat('M/d/yyyy h:mm:ss a').format(dateTime);
+                      final DateTime dateTime = dictionary.getDateTime(
+                        modifyDate,
+                      );
+                      table['modification'] = DateFormat(
+                        'M/d/yyyy h:mm:ss a',
+                      ).format(dateTime);
                     }
                   }
-                  if (paramsDictionary
-                      .containsKey(PdfDictionaryProperties.size)) {
+                  if (paramsDictionary.containsKey(
+                    PdfDictionaryProperties.size,
+                  )) {
                     final String? size = _getValue(
-                        paramsDictionary[PdfDictionaryProperties.size]);
+                      paramsDictionary[PdfDictionaryProperties.size],
+                    );
                     if (!isNullOrEmpty(size)) {
                       table[PdfDictionaryProperties.size.toLowerCase()] = size!;
                     }
                   }
                   if (paramsDictionary.containsKey('CheckSum')) {
-                    final String? checksumValue =
-                        _getValue(paramsDictionary['CheckSum']);
+                    final String? checksumValue = _getValue(
+                      paramsDictionary['CheckSum'],
+                    );
                     if (!isNullOrEmpty(checksumValue)) {
                       final List<int> checksum = utf8.encode(checksumValue!);
                       final String hexString = PdfString.bytesToHex(checksum);
@@ -303,16 +335,18 @@ class JsonDocument {
                   table[PdfDictionaryProperties.encoding.toLowerCase()] =
                       XfdfProperties.hex.toLowerCase();
                   if (fStream.containsKey(PdfDictionaryProperties.length)) {
-                    final String? length =
-                        _getValue(fStream[PdfDictionaryProperties.length]);
+                    final String? length = _getValue(
+                      fStream[PdfDictionaryProperties.length],
+                    );
                     if (!isNullOrEmpty(length)) {
                       table[PdfDictionaryProperties.length.toLowerCase()] =
                           length!;
                     }
                   }
                   if (fStream.containsKey(PdfDictionaryProperties.filter)) {
-                    final String? filter =
-                        _getValue(fStream[PdfDictionaryProperties.filter]);
+                    final String? filter = _getValue(
+                      fStream[PdfDictionaryProperties.filter],
+                    );
                     if (!isNullOrEmpty(filter)) {
                       table[PdfDictionaryProperties.filter.toLowerCase()] =
                           filter!;
@@ -341,7 +375,9 @@ class JsonDocument {
   }
 
   void _writeAppearanceDictionary(
-      Map<String, String> textWriter, PdfDictionary dictionary) {
+    Map<String, String> textWriter,
+    PdfDictionary dictionary,
+  ) {
     if (dictionary.count > 0) {
       dictionary.items!.forEach((PdfName? name, IPdfPrimitive? value) {
         _writeObject(textWriter, name!.name, value, null);
@@ -349,8 +385,12 @@ class JsonDocument {
     }
   }
 
-  void _writeObject(Map<String, String>? textWriter, String? key,
-      IPdfPrimitive? primitive, List<Map<String, String>>? arrayWriter) {
+  void _writeObject(
+    Map<String, String>? textWriter,
+    String? key,
+    IPdfPrimitive? primitive,
+    List<Map<String, String>>? arrayWriter,
+  ) {
     if (primitive != null) {
       final String type = primitive.runtimeType.toString();
       switch (type) {
@@ -381,23 +421,27 @@ class JsonDocument {
               final Map<String, String> streamTable = <String, String>{};
               _writeAppearanceDictionary(streamTable, streamElement);
               final Map<String, String> dataTable = <String, String>{};
-              final String? type =
-                  _getValue(streamElement[PdfDictionaryProperties.subtype]);
+              final String? type = _getValue(
+                streamElement[PdfDictionaryProperties.subtype],
+              );
               if ((streamElement.containsKey(PdfDictionaryProperties.subtype) &&
                       !isNullOrEmpty(type) &&
                       PdfDictionaryProperties.image == type!) ||
                   (!streamElement.containsKey(PdfDictionaryProperties.type) &&
-                      !streamElement
-                          .containsKey(PdfDictionaryProperties.subtype))) {
+                      !streamElement.containsKey(
+                        PdfDictionaryProperties.subtype,
+                      ))) {
                 dataTable['mode'] = 'raw';
                 dataTable['encoding'] = 'hex';
-                final String data =
-                    PdfString.bytesToHex(streamElement.dataStream!);
+                final String data = PdfString.bytesToHex(
+                  streamElement.dataStream!,
+                );
                 if (!isNullOrEmpty(data)) {
                   dataTable['bytes'] = data;
                 }
-              } else if (streamElement
-                      .containsKey(PdfDictionaryProperties.subtype) &&
+              } else if (streamElement.containsKey(
+                    PdfDictionaryProperties.subtype,
+                  ) &&
                   !isNullOrEmpty(type) &&
                   (PdfDictionaryProperties.form == type ||
                       'CIDFontType0C' == type ||
@@ -405,8 +449,9 @@ class JsonDocument {
                 dataTable['mode'] = 'raw';
                 dataTable['encoding'] = 'hex';
                 streamElement.decompress();
-                final String data =
-                    PdfString.bytesToHex(streamElement.dataStream!);
+                final String data = PdfString.bytesToHex(
+                  streamElement.dataStream!,
+                );
                 if (!isNullOrEmpty(data)) {
                   dataTable['bytes'] = data;
                 }
@@ -414,8 +459,9 @@ class JsonDocument {
                 dataTable['mode'] = 'filtered';
                 dataTable['encoding'] = 'ascii';
                 streamElement.decompress();
-                final String ascii =
-                    PdfString.bytesToHex(streamElement.dataStream!);
+                final String ascii = PdfString.bytesToHex(
+                  streamElement.dataStream!,
+                );
                 if (!isNullOrEmpty(ascii)) {
                   dataTable['bytes'] = ascii;
                 }
@@ -474,8 +520,9 @@ class JsonDocument {
                 arrayWriter!.add(integer);
               }
             } else {
-              final String value =
-                  primitive.value!.toDouble().toStringAsFixed(6);
+              final String value = primitive.value!.toDouble().toStringAsFixed(
+                6,
+              );
               final Map<String, String> integer = <String, String>{};
               integer['fixed'] = value;
               if (key != null) {
@@ -581,8 +628,13 @@ class JsonDocument {
     return value;
   }
 
-  void _writeAttribute(String key, IPdfPrimitive primitive, int p,
-      PdfDictionary dictionary, Map<String, String> table) {
+  void _writeAttribute(
+    String key,
+    IPdfPrimitive primitive,
+    int p,
+    PdfDictionary dictionary,
+    Map<String, String> table,
+  ) {
     switch (key) {
       case PdfDictionaryProperties.c:
         final String color = _getColor(primitive);
@@ -591,8 +643,9 @@ class JsonDocument {
         }
         break;
       case PdfDictionaryProperties.da:
-        final IPdfPrimitive? defaultAppearance =
-            PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.da]);
+        final IPdfPrimitive? defaultAppearance = PdfCrossTable.dereference(
+          dictionary[PdfDictionaryProperties.da],
+        );
         if (defaultAppearance != null &&
             defaultAppearance is PdfString &&
             !isNullOrEmpty(defaultAppearance.value)) {
@@ -606,8 +659,9 @@ class JsonDocument {
         }
         break;
       case PdfDictionaryProperties.m:
-        final IPdfPrimitive? modifiedDate =
-            PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.m]);
+        final IPdfPrimitive? modifiedDate = PdfCrossTable.dereference(
+          dictionary[PdfDictionaryProperties.m],
+        );
         if (modifiedDate != null &&
             modifiedDate is PdfString &&
             !isNullOrEmpty(modifiedDate.value)) {
@@ -653,13 +707,15 @@ class JsonDocument {
         break;
       case PdfDictionaryProperties.creationDate:
         final IPdfPrimitive? createDate = PdfCrossTable.dereference(
-            dictionary[PdfDictionaryProperties.creationDate]);
+          dictionary[PdfDictionaryProperties.creationDate],
+        );
         if (createDate != null &&
             createDate is PdfString &&
             !isNullOrEmpty(createDate.value)) {
           final DateTime creationDate = dictionary.getDateTime(createDate);
-          table[key.toLowerCase()] =
-              DateFormat('M/d/yyyy h:mm:ss a').format(creationDate);
+          table[key.toLowerCase()] = DateFormat(
+            'M/d/yyyy h:mm:ss a',
+          ).format(creationDate);
         }
         break;
       case PdfDictionaryProperties.rotate:
@@ -790,18 +846,21 @@ class JsonDocument {
         if (primitive is PdfNumber) {
           final List<PdfAnnotationFlags> annotationFlags =
               PdfAnnotationHelper.obtainAnnotationFlags(
-                  primitive.value!.toInt());
-          final String flag = annotationFlags
-              .map((PdfAnnotationFlags flag) => getEnumName(flag))
-              .toString()
-              .replaceAll(RegExp('[ ()]'), '')
-              .toLowerCase();
+                primitive.value!.toInt(),
+              );
+          final String flag =
+              annotationFlags
+                  .map((PdfAnnotationFlags flag) => getEnumName(flag))
+                  .toString()
+                  .replaceAll(RegExp('[ ()]'), '')
+                  .toLowerCase();
           table[PdfDictionaryProperties.flags.toLowerCase()] = flag;
         }
         break;
       case PdfDictionaryProperties.contents:
         final IPdfPrimitive? contents = PdfCrossTable.dereference(
-            dictionary[PdfDictionaryProperties.contents]);
+          dictionary[PdfDictionaryProperties.contents],
+        );
         if (contents != null &&
             contents is PdfString &&
             !isNullOrEmpty(contents.value)) {
@@ -810,8 +869,9 @@ class JsonDocument {
         break;
       case 'InkList':
         final Map<String, String> points = <String, String>{};
-        final IPdfPrimitive? inkList =
-            PdfCrossTable.dereference(dictionary['InkList']);
+        final IPdfPrimitive? inkList = PdfCrossTable.dereference(
+          dictionary['InkList'],
+        );
         if (inkList != null && inkList is PdfArray && inkList.count > 0) {
           final List<PdfArray> element = <PdfArray>[];
           for (int j = 0; j < inkList.count; j++) {
@@ -825,7 +885,8 @@ class JsonDocument {
         break;
       case PdfDictionaryProperties.vertices:
         final IPdfPrimitive? vertices = PdfCrossTable.dereference(
-            dictionary[PdfDictionaryProperties.vertices]);
+          dictionary[PdfDictionaryProperties.vertices],
+        );
         if (vertices != null && vertices is PdfArray && vertices.count > 0) {
           if (vertices.count.isEven) {
             String value = '';
@@ -854,8 +915,9 @@ class JsonDocument {
         break;
       case 'DS':
         if (dictionary.containsKey('DS')) {
-          final IPdfPrimitive? defaultStyle =
-              PdfCrossTable.dereference(dictionary['DS']);
+          final IPdfPrimitive? defaultStyle = PdfCrossTable.dereference(
+            dictionary['DS'],
+          );
           final Map<String, String> styleTable = <String, String>{};
           if (defaultStyle != null &&
               defaultStyle is PdfString &&
@@ -874,8 +936,9 @@ class JsonDocument {
         break;
       case 'RC':
         if (dictionary.containsKey('RC')) {
-          final IPdfPrimitive? contentStyle =
-              PdfCrossTable.dereference(dictionary['RC']);
+          final IPdfPrimitive? contentStyle = PdfCrossTable.dereference(
+            dictionary['RC'],
+          );
           if (contentStyle != null &&
               contentStyle is PdfString &&
               !isNullOrEmpty(contentStyle.value)) {
@@ -935,24 +998,30 @@ class JsonDocument {
   String _getColor(IPdfPrimitive primitive) {
     String color = '';
     if (primitive is PdfArray && primitive.count >= 3) {
-      final String r = PdfString.bytesToHex(<int>[
-        ((primitive.elements[0]! as PdfNumber).value! * 255).round()
-      ]).toUpperCase();
-      final String g = PdfString.bytesToHex(<int>[
-        ((primitive.elements[1]! as PdfNumber).value! * 255).round()
-      ]).toUpperCase();
-      final String b = PdfString.bytesToHex(<int>[
-        ((primitive.elements[2]! as PdfNumber).value! * 255).round()
-      ]).toUpperCase();
+      final String r =
+          PdfString.bytesToHex(<int>[
+            ((primitive.elements[0]! as PdfNumber).value! * 255).round(),
+          ]).toUpperCase();
+      final String g =
+          PdfString.bytesToHex(<int>[
+            ((primitive.elements[1]! as PdfNumber).value! * 255).round(),
+          ]).toUpperCase();
+      final String b =
+          PdfString.bytesToHex(<int>[
+            ((primitive.elements[2]! as PdfNumber).value! * 255).round(),
+          ]).toUpperCase();
       color = '#$r$g$b';
     }
     return color;
   }
 
   void _exportMeasureDictionary(
-      PdfDictionary dictionary, Map<String, String> table) {
-    final IPdfPrimitive? mdictionary =
-        PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.measure]);
+    PdfDictionary dictionary,
+    Map<String, String> table,
+  ) {
+    final IPdfPrimitive? mdictionary = PdfCrossTable.dereference(
+      dictionary[PdfDictionaryProperties.measure],
+    );
     if (mdictionary != null && mdictionary is PdfDictionary) {
       if (mdictionary.containsKey(PdfDictionaryProperties.type)) {
         table['type1'] = 'Measure';
@@ -964,8 +1033,9 @@ class JsonDocument {
         }
       }
       if (mdictionary.containsKey(PdfDictionaryProperties.subtype)) {
-        final String? value =
-            _getValue(mdictionary[PdfDictionaryProperties.subtype]);
+        final String? value = _getValue(
+          mdictionary[PdfDictionaryProperties.subtype],
+        );
         if (!isNullOrEmpty(value)) {
           table[PdfDictionaryProperties.subtype] = value!;
         }
@@ -981,8 +1051,9 @@ class JsonDocument {
         if (aArray != null &&
             aArray is PdfArray &&
             aArray.elements.isNotEmpty) {
-          final IPdfPrimitive? adictionary =
-              PdfCrossTable.dereference(aArray.elements[0]);
+          final IPdfPrimitive? adictionary = PdfCrossTable.dereference(
+            aArray.elements[0],
+          );
           if (adictionary != null && adictionary is PdfDictionary) {
             _exportMeasureFormatDetails('area', adictionary, table);
           }
@@ -993,8 +1064,9 @@ class JsonDocument {
         if (dArray != null &&
             dArray is PdfArray &&
             dArray.elements.isNotEmpty) {
-          final IPdfPrimitive? ddictionary =
-              PdfCrossTable.dereference(dArray.elements[0]);
+          final IPdfPrimitive? ddictionary = PdfCrossTable.dereference(
+            dArray.elements[0],
+          );
           if (ddictionary != null && ddictionary is PdfDictionary) {
             _exportMeasureFormatDetails('distance', ddictionary, table);
           }
@@ -1005,8 +1077,9 @@ class JsonDocument {
         if (xArray != null &&
             xArray is PdfArray &&
             xArray.elements.isNotEmpty) {
-          final IPdfPrimitive? xdictionary =
-              PdfCrossTable.dereference(xArray.elements[0]);
+          final IPdfPrimitive? xdictionary = PdfCrossTable.dereference(
+            xArray.elements[0],
+          );
           if (xdictionary != null && xdictionary is PdfDictionary) {
             _exportMeasureFormatDetails('xformat', xdictionary, table);
           }
@@ -1017,8 +1090,9 @@ class JsonDocument {
         if (tArray != null &&
             tArray is PdfArray &&
             tArray.elements.isNotEmpty) {
-          final IPdfPrimitive? tdictionary =
-              PdfCrossTable.dereference(tArray.elements[0]);
+          final IPdfPrimitive? tdictionary = PdfCrossTable.dereference(
+            tArray.elements[0],
+          );
           if (tdictionary != null && tdictionary is PdfDictionary) {
             _exportMeasureFormatDetails('tformat', tdictionary, table);
           }
@@ -1029,8 +1103,9 @@ class JsonDocument {
         if (vArray != null &&
             vArray is PdfArray &&
             vArray.elements.isNotEmpty) {
-          final IPdfPrimitive? vdictionary =
-              PdfCrossTable.dereference(vArray.elements[0]);
+          final IPdfPrimitive? vdictionary = PdfCrossTable.dereference(
+            vArray.elements[0],
+          );
           if (vdictionary != null && vdictionary is PdfDictionary) {
             _exportMeasureFormatDetails('vformat', vdictionary, table);
           }
@@ -1040,39 +1115,47 @@ class JsonDocument {
   }
 
   void _exportMeasureFormatDetails(
-      String key, PdfDictionary measurementDetails, Map<String, String> table) {
+    String key,
+    PdfDictionary measurementDetails,
+    Map<String, String> table,
+  ) {
     final Map<String, String> subTable = <String, String>{};
     if (measurementDetails.containsKey(PdfDictionaryProperties.c)) {
-      final String? value =
-          _getValue(measurementDetails[PdfDictionaryProperties.c]);
+      final String? value = _getValue(
+        measurementDetails[PdfDictionaryProperties.c],
+      );
       if (!isNullOrEmpty(value)) {
         subTable['c'] = value!;
       }
     }
     if (measurementDetails.containsKey(PdfDictionaryProperties.f)) {
-      final String? value =
-          _getValue(measurementDetails[PdfDictionaryProperties.f]);
+      final String? value = _getValue(
+        measurementDetails[PdfDictionaryProperties.f],
+      );
       if (!isNullOrEmpty(value)) {
         subTable['f'] = value!;
       }
     }
     if (measurementDetails.containsKey(PdfDictionaryProperties.d)) {
-      final String? value =
-          _getValue(measurementDetails[PdfDictionaryProperties.d]);
+      final String? value = _getValue(
+        measurementDetails[PdfDictionaryProperties.d],
+      );
       if (!isNullOrEmpty(value)) {
         subTable['d'] = value!;
       }
     }
     if (measurementDetails.containsKey(PdfDictionaryProperties.rd)) {
-      final String? value =
-          _getValue(measurementDetails[PdfDictionaryProperties.rd]);
+      final String? value = _getValue(
+        measurementDetails[PdfDictionaryProperties.rd],
+      );
       if (!isNullOrEmpty(value)) {
         subTable['rd'] = value!;
       }
     }
     if (measurementDetails.containsKey(PdfDictionaryProperties.u)) {
-      final String? value =
-          _getValue(measurementDetails[PdfDictionaryProperties.u]);
+      final String? value = _getValue(
+        measurementDetails[PdfDictionaryProperties.u],
+      );
       if (!isNullOrEmpty(value)) {
         subTable['u'] = value!;
       }
@@ -1096,8 +1179,9 @@ class JsonDocument {
       }
     }
     if (measurementDetails.containsKey(PdfDictionaryProperties.type)) {
-      final String? value =
-          _getValue(measurementDetails[PdfDictionaryProperties.type]);
+      final String? value = _getValue(
+        measurementDetails[PdfDictionaryProperties.type],
+      );
       if (!isNullOrEmpty(value)) {
         subTable[PdfDictionaryProperties.type] = value!;
       }
@@ -1122,7 +1206,8 @@ class JsonDocument {
   String? _getAnnotationType(PdfDictionary dictionary) {
     if (dictionary.containsKey(PdfDictionaryProperties.subtype)) {
       final IPdfPrimitive? subtype = PdfCrossTable.dereference(
-          dictionary[PdfDictionaryProperties.subtype]);
+        dictionary[PdfDictionaryProperties.subtype],
+      );
       if (subtype != null && subtype is PdfName && subtype.name != null) {
         return subtype.name!;
       }

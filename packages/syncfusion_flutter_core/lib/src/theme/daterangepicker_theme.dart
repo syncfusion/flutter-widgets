@@ -20,9 +20,11 @@ import '../../theme.dart';
 class SfDateRangePickerTheme extends InheritedTheme {
   /// Constructor for teh calendar theme class, which applies a theme to
   /// descendant Syncfusion date range picker widgets.
-  const SfDateRangePickerTheme(
-      {Key? key, required this.data, required this.child})
-      : super(key: key, child: child);
+  const SfDateRangePickerTheme({
+    Key? key,
+    required this.data,
+    required this.child,
+  }) : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant chart widgets.
   ///
@@ -111,33 +113,34 @@ class SfDateRangePickerThemeData with Diagnosticable {
   /// This will rarely be used directly. It is used by [lerp] to
   /// create intermediate themes based on two themes created with the
   /// [SfDateRangePickerThemeData] constructor.
-  const SfDateRangePickerThemeData(
-      {this.backgroundColor,
-      this.viewHeaderTextStyle,
-      this.headerTextStyle,
-      this.trailingDatesTextStyle,
-      this.leadingCellTextStyle,
-      this.activeDatesTextStyle,
-      this.cellTextStyle,
-      this.rangeSelectionTextStyle,
-      this.rangeSelectionColor,
-      this.leadingDatesTextStyle,
-      this.disabledDatesTextStyle,
-      this.disabledCellTextStyle,
-      this.selectionColor,
-      this.selectionTextStyle,
-      this.startRangeSelectionColor,
-      this.endRangeSelectionColor,
-      this.headerBackgroundColor,
-      this.viewHeaderBackgroundColor,
-      this.weekNumberBackgroundColor,
-      this.blackoutDatesTextStyle,
-      this.todayHighlightColor,
-      this.todayTextStyle,
-      this.todayCellTextStyle,
-      this.weekendDatesTextStyle,
-      this.specialDatesTextStyle,
-      this.weekNumberTextStyle});
+  const SfDateRangePickerThemeData({
+    this.backgroundColor,
+    this.viewHeaderTextStyle,
+    this.headerTextStyle,
+    this.trailingDatesTextStyle,
+    this.leadingCellTextStyle,
+    this.activeDatesTextStyle,
+    this.cellTextStyle,
+    this.rangeSelectionTextStyle,
+    this.rangeSelectionColor,
+    this.leadingDatesTextStyle,
+    this.disabledDatesTextStyle,
+    this.disabledCellTextStyle,
+    this.selectionColor,
+    this.selectionTextStyle,
+    this.startRangeSelectionColor,
+    this.endRangeSelectionColor,
+    this.headerBackgroundColor,
+    this.viewHeaderBackgroundColor,
+    this.weekNumberBackgroundColor,
+    this.blackoutDatesTextStyle,
+    this.todayHighlightColor,
+    this.todayTextStyle,
+    this.todayCellTextStyle,
+    this.weekendDatesTextStyle,
+    this.specialDatesTextStyle,
+    this.weekNumberTextStyle,
+  });
 
   /// Create a [SfDateRangePickerThemeData] that's used to configure a
   /// [SfDateRangePickerTheme].
@@ -172,32 +175,33 @@ class SfDateRangePickerThemeData with Diagnosticable {
   }) {
     brightness = brightness ?? Brightness.light;
     return SfDateRangePickerThemeData(
-        backgroundColor: backgroundColor,
-        viewHeaderTextStyle: viewHeaderTextStyle,
-        headerTextStyle: headerTextStyle,
-        trailingDatesTextStyle: trailingDatesTextStyle,
-        leadingCellTextStyle: leadingCellTextStyle,
-        activeDatesTextStyle: activeDatesTextStyle,
-        cellTextStyle: cellTextStyle,
-        rangeSelectionTextStyle: rangeSelectionTextStyle,
-        rangeSelectionColor: rangeSelectionColor,
-        weekNumberBackgroundColor: weekNumberBackgroundColor,
-        leadingDatesTextStyle: leadingDatesTextStyle,
-        disabledDatesTextStyle: disabledDatesTextStyle,
-        disabledCellTextStyle: disabledCellTextStyle,
-        selectionColor: selectionColor,
-        selectionTextStyle: selectionTextStyle,
-        startRangeSelectionColor: startRangeSelectionColor,
-        endRangeSelectionColor: endRangeSelectionColor,
-        headerBackgroundColor: headerBackgroundColor,
-        viewHeaderBackgroundColor: viewHeaderBackgroundColor,
-        blackoutDatesTextStyle: blackoutDatesTextStyle,
-        todayHighlightColor: todayHighlightColor,
-        todayTextStyle: todayTextStyle,
-        todayCellTextStyle: todayCellTextStyle,
-        weekendDatesTextStyle: weekendDatesTextStyle,
-        specialDatesTextStyle: specialDatesTextStyle,
-        weekNumberTextStyle: weekNumberTextStyle);
+      backgroundColor: backgroundColor,
+      viewHeaderTextStyle: viewHeaderTextStyle,
+      headerTextStyle: headerTextStyle,
+      trailingDatesTextStyle: trailingDatesTextStyle,
+      leadingCellTextStyle: leadingCellTextStyle,
+      activeDatesTextStyle: activeDatesTextStyle,
+      cellTextStyle: cellTextStyle,
+      rangeSelectionTextStyle: rangeSelectionTextStyle,
+      rangeSelectionColor: rangeSelectionColor,
+      weekNumberBackgroundColor: weekNumberBackgroundColor,
+      leadingDatesTextStyle: leadingDatesTextStyle,
+      disabledDatesTextStyle: disabledDatesTextStyle,
+      disabledCellTextStyle: disabledCellTextStyle,
+      selectionColor: selectionColor,
+      selectionTextStyle: selectionTextStyle,
+      startRangeSelectionColor: startRangeSelectionColor,
+      endRangeSelectionColor: endRangeSelectionColor,
+      headerBackgroundColor: headerBackgroundColor,
+      viewHeaderBackgroundColor: viewHeaderBackgroundColor,
+      blackoutDatesTextStyle: blackoutDatesTextStyle,
+      todayHighlightColor: todayHighlightColor,
+      todayTextStyle: todayTextStyle,
+      todayCellTextStyle: todayCellTextStyle,
+      weekendDatesTextStyle: weekendDatesTextStyle,
+      specialDatesTextStyle: specialDatesTextStyle,
+      weekNumberTextStyle: weekNumberTextStyle,
+    );
   }
 
   /// Specifies the background color of date picker widget.
@@ -837,27 +841,51 @@ class SfDateRangePickerThemeData with Diagnosticable {
 
   /// Linearly interpolate between two themes.
   static SfDateRangePickerThemeData? lerp(
-      SfDateRangePickerThemeData? a, SfDateRangePickerThemeData? b, double t) {
+    SfDateRangePickerThemeData? a,
+    SfDateRangePickerThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return SfDateRangePickerThemeData(
       backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
-      rangeSelectionColor:
-          Color.lerp(a.rangeSelectionColor, b.rangeSelectionColor, t),
+      rangeSelectionColor: Color.lerp(
+        a.rangeSelectionColor,
+        b.rangeSelectionColor,
+        t,
+      ),
       selectionColor: Color.lerp(a.selectionColor, b.selectionColor, t),
-      startRangeSelectionColor:
-          Color.lerp(a.startRangeSelectionColor, b.startRangeSelectionColor, t),
-      endRangeSelectionColor:
-          Color.lerp(a.endRangeSelectionColor, b.endRangeSelectionColor, t),
-      headerBackgroundColor:
-          Color.lerp(a.headerBackgroundColor, b.headerBackgroundColor, t),
+      startRangeSelectionColor: Color.lerp(
+        a.startRangeSelectionColor,
+        b.startRangeSelectionColor,
+        t,
+      ),
+      endRangeSelectionColor: Color.lerp(
+        a.endRangeSelectionColor,
+        b.endRangeSelectionColor,
+        t,
+      ),
+      headerBackgroundColor: Color.lerp(
+        a.headerBackgroundColor,
+        b.headerBackgroundColor,
+        t,
+      ),
       viewHeaderBackgroundColor: Color.lerp(
-          a.viewHeaderBackgroundColor, b.viewHeaderBackgroundColor, t),
-      todayHighlightColor:
-          Color.lerp(a.todayHighlightColor, b.todayHighlightColor, t),
+        a.viewHeaderBackgroundColor,
+        b.viewHeaderBackgroundColor,
+        t,
+      ),
+      todayHighlightColor: Color.lerp(
+        a.todayHighlightColor,
+        b.todayHighlightColor,
+        t,
+      ),
       weekNumberBackgroundColor: Color.lerp(
-          a.weekNumberBackgroundColor, b.weekNumberBackgroundColor, t),
+        a.weekNumberBackgroundColor,
+        b.weekNumberBackgroundColor,
+        t,
+      ),
     );
   }
 
@@ -927,7 +955,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
       todayCellTextStyle,
       weekendDatesTextStyle,
       specialDatesTextStyle,
-      weekNumberTextStyle
+      weekNumberTextStyle,
     ];
     return Object.hashAll(values);
   }
@@ -936,27 +964,68 @@ class SfDateRangePickerThemeData with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     const SfDateRangePickerThemeData defaultData = SfDateRangePickerThemeData();
-    properties.add(ColorProperty('backgroundColor', backgroundColor,
-        defaultValue: defaultData.backgroundColor));
-    properties.add(ColorProperty('rangeSelectionColor', rangeSelectionColor,
-        defaultValue: defaultData.rangeSelectionColor));
-    properties.add(ColorProperty(
-        'weekNumberBackgroundColor', weekNumberBackgroundColor,
-        defaultValue: defaultData.weekNumberBackgroundColor));
-    properties.add(ColorProperty('selectionColor', selectionColor,
-        defaultValue: defaultData.selectionColor));
-    properties.add(ColorProperty(
-        'startRangeSelectionColor', startRangeSelectionColor,
-        defaultValue: defaultData.startRangeSelectionColor));
-    properties.add(ColorProperty(
-        'endRangeSelectionColor', endRangeSelectionColor,
-        defaultValue: defaultData.endRangeSelectionColor));
-    properties.add(ColorProperty('headerBackgroundColor', headerBackgroundColor,
-        defaultValue: defaultData.headerBackgroundColor));
-    properties.add(ColorProperty(
-        'viewHeaderBackgroundColor', viewHeaderBackgroundColor,
-        defaultValue: defaultData.viewHeaderBackgroundColor));
-    properties.add(ColorProperty('todayHighlightColor', todayHighlightColor,
-        defaultValue: defaultData.todayHighlightColor));
+    properties.add(
+      ColorProperty(
+        'backgroundColor',
+        backgroundColor,
+        defaultValue: defaultData.backgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'rangeSelectionColor',
+        rangeSelectionColor,
+        defaultValue: defaultData.rangeSelectionColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'weekNumberBackgroundColor',
+        weekNumberBackgroundColor,
+        defaultValue: defaultData.weekNumberBackgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'selectionColor',
+        selectionColor,
+        defaultValue: defaultData.selectionColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'startRangeSelectionColor',
+        startRangeSelectionColor,
+        defaultValue: defaultData.startRangeSelectionColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'endRangeSelectionColor',
+        endRangeSelectionColor,
+        defaultValue: defaultData.endRangeSelectionColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'headerBackgroundColor',
+        headerBackgroundColor,
+        defaultValue: defaultData.headerBackgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'viewHeaderBackgroundColor',
+        viewHeaderBackgroundColor,
+        defaultValue: defaultData.viewHeaderBackgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'todayHighlightColor',
+        todayHighlightColor,
+        defaultValue: defaultData.todayHighlightColor,
+      ),
+    );
   }
 }

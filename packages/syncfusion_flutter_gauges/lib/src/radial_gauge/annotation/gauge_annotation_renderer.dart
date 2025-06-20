@@ -10,23 +10,23 @@ import '../../radial_gauge/utils/helper.dart';
 /// Represents the renderer of radial gauge annotation.
 class RenderGaugeAnnotation extends RenderOpacity {
   /// Creates a instance for [RenderGaugeAnnotation].
-  RenderGaugeAnnotation(
-      {double? axisValue,
-      required GaugeAlignment horizontalAlignment,
-      double? angle,
-      required GaugeAlignment verticalAlignment,
-      required double positionFactor,
-      Animation<double>? annotationAnimation,
-      required ValueNotifier<int> repaintNotifier,
-      RenderBox? child})
-      : _axisValue = axisValue,
-        _horizontalAlignment = horizontalAlignment,
-        _angle = angle,
-        _verticalAlignment = verticalAlignment,
-        _positionFactor = positionFactor,
-        _repaintNotifier = repaintNotifier,
-        _annotationAnimation = annotationAnimation,
-        super(child: child);
+  RenderGaugeAnnotation({
+    double? axisValue,
+    required GaugeAlignment horizontalAlignment,
+    double? angle,
+    required GaugeAlignment verticalAlignment,
+    required double positionFactor,
+    Animation<double>? annotationAnimation,
+    required ValueNotifier<int> repaintNotifier,
+    RenderBox? child,
+  }) : _axisValue = axisValue,
+       _horizontalAlignment = horizontalAlignment,
+       _angle = angle,
+       _verticalAlignment = verticalAlignment,
+       _positionFactor = positionFactor,
+       _repaintNotifier = repaintNotifier,
+       _annotationAnimation = annotationAnimation,
+       super(child: child);
 
   /// Specifies the offset of positioning the annotation.
   late Offset _annotationPosition;
@@ -136,7 +136,8 @@ class RenderGaugeAnnotation extends RenderOpacity {
     if (angle != null) {
       actualValue = angle!;
     } else if (axisValue != null) {
-      actualValue = (axisRenderer!.valueToFactor(axisValue!) * _sweepAngle) +
+      actualValue =
+          (axisRenderer!.valueToFactor(axisValue!) * _sweepAngle) +
           axisRenderer!.startAngle;
     }
 
@@ -167,10 +168,12 @@ class RenderGaugeAnnotation extends RenderOpacity {
     final double radian = getDegreeToRadian(angle);
     final double axisHalfWidth = positionFactor == 1 ? _actualAxisWidth / 2 : 0;
     if (!axisRenderer!.canScaleToFit) {
-      final double x = (_axisSize.width / 2) +
+      final double x =
+          (_axisSize.width / 2) +
           (offset - axisHalfWidth) * math.cos(radian) -
           _centerXPoint;
-      final double y = (_axisSize.height / 2) +
+      final double y =
+          (_axisSize.height / 2) +
           (offset - axisHalfWidth) * math.sin(radian) -
           _centerYPoint;
       _annotationPosition = Offset(x, y);
@@ -196,7 +199,10 @@ class RenderGaugeAnnotation extends RenderOpacity {
     _axisCenter = axisRenderer!.getAxisCenter();
     _radius = _axisRenderer!.getRadius();
     _actualAxisWidth = _axisRenderer!.getActualValue(
-        _axisRenderer!.thickness, _axisRenderer!.thicknessUnit, false);
+      _axisRenderer!.thickness,
+      _axisRenderer!.thicknessUnit,
+      false,
+    );
   }
 
   void _addListeners() {
@@ -246,18 +252,20 @@ class RenderGaugeAnnotation extends RenderOpacity {
       if (child!.parentData is BoxParentData) {
         final BoxParentData? childParentData =
             child!.parentData as BoxParentData?;
-        final double dx = _annotationPosition.dx -
+        final double dx =
+            _annotationPosition.dx -
             (horizontalAlignment == GaugeAlignment.near
                 ? 0
                 : horizontalAlignment == GaugeAlignment.center
-                    ? child!.size.width / 2
-                    : child!.size.width);
-        final double dy = _annotationPosition.dy -
+                ? child!.size.width / 2
+                : child!.size.width);
+        final double dy =
+            _annotationPosition.dy -
             (verticalAlignment == GaugeAlignment.near
                 ? 0
                 : verticalAlignment == GaugeAlignment.center
-                    ? child!.size.height / 2
-                    : child!.size.height);
+                ? child!.size.height / 2
+                : child!.size.height);
         childParentData!.offset = Offset(dx, dy);
       }
     } else {

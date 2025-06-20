@@ -10,8 +10,12 @@ class Hyperlink {
   }
 
   /// Creates an instance of Hyperlink with parameters.
-  Hyperlink.add(this.address,
-      [this.screenTip, this.textToDisplay, HyperlinkType? type]) {
+  Hyperlink.add(
+    this.address, [
+    this.screenTip,
+    this.textToDisplay,
+    HyperlinkType? type,
+  ]) {
     if (type != null) {
       this.type = type;
     } else {

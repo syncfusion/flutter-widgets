@@ -84,9 +84,10 @@ class DateTimeCategoryAxis extends ChartAxis {
     super.axisLabelFormatter,
     this.onRendererCreated,
   }) : assert(
-            (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
-                autoScrollingDelta == null,
-            'Both properties have the same behavior to display the visible data points, use any one of the properties');
+         (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
+             autoScrollingDelta == null,
+         'Both properties have the same behavior to display the visible data points, use any one of the properties',
+       );
 
   /// Formats the date-time category axis labels.
   ///
@@ -376,7 +377,9 @@ class DateTimeCategoryAxis extends ChartAxis {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderDateTimeCategoryAxis renderObject) {
+    BuildContext context,
+    RenderDateTimeCategoryAxis renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..labelPlacement = labelPlacement
@@ -539,11 +542,13 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
     dynamic end = rangeController!.end;
     if (rangeController!.start is! DateTime) {
       start = DateTime.fromMillisecondsSinceEpoch(
-          labels[(rangeController!.start as num).toInt()]);
+        labels[(rangeController!.start as num).toInt()],
+      );
     }
     if (rangeController!.end is! DateTime) {
       end = DateTime.fromMillisecondsSinceEpoch(
-          labels[(rangeController!.end as num).toInt()]);
+        labels[(rangeController!.end as num).toInt()],
+      );
     }
     _updateVisibleMinMax(min: start, max: end);
   }
@@ -561,7 +566,9 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
   DoubleRange calculateActualRange() {
     if (minimum != null && maximum != null) {
       return DoubleRange(
-          effectiveValue(minimum)!, effectiveValue(maximum, needMin: false)!);
+        effectiveValue(minimum)!,
+        effectiveValue(maximum, needMin: false)!,
+      );
     }
 
     final DoubleRange range = super.calculateActualRange();
@@ -581,12 +588,18 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
 
   @override
   DoubleRange updateAutoScrollingDelta(
-      int scrollingDelta, DoubleRange actualRange, DoubleRange visibleRange) {
+    int scrollingDelta,
+    DoubleRange actualRange,
+    DoubleRange visibleRange,
+  ) {
     if (initialVisibleMaximum != null || initialVisibleMinimum != null) {
       return visibleRange;
     }
-    return super
-        .updateAutoScrollingDelta(scrollingDelta, actualRange, visibleRange);
+    return super.updateAutoScrollingDelta(
+      scrollingDelta,
+      actualRange,
+      visibleRange,
+    );
   }
 
   @override
@@ -618,18 +631,22 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
   num _calculateIntervalAndType(num minimum, num maximum, Size availableSize) {
     const int perDay = 24 * 60 * 60 * 1000;
     const num hours = 24, minutes = 60, seconds = 60, milliseconds = 1000;
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      maximum.toInt(),
+    );
     final num totalDays =
         ((endDate.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) /
                 perDay)
             .abs();
 
     // For years.
-    num niceInterval =
-        super.calculateNiceInterval(totalDays / 365, availableSize);
+    num niceInterval = super.calculateNiceInterval(
+      totalDays / 365,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.years;
       return niceInterval.floor();
@@ -650,16 +667,20 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
     }
 
     // For hours.
-    niceInterval =
-        super.calculateNiceInterval(totalDays * hours, availableSize);
+    niceInterval = super.calculateNiceInterval(
+      totalDays * hours,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.hours;
       return niceInterval.floor();
     }
 
     // For minutes.
-    niceInterval =
-        super.calculateNiceInterval(totalDays * hours * minutes, availableSize);
+    niceInterval = super.calculateNiceInterval(
+      totalDays * hours * minutes,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.minutes;
       return niceInterval.floor();
@@ -667,7 +688,9 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
 
     // For seconds.
     niceInterval = super.calculateNiceInterval(
-        totalDays * hours * minutes * seconds, availableSize);
+      totalDays * hours * minutes * seconds,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.seconds;
       return niceInterval.floor();
@@ -675,7 +698,9 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
 
     // For milliseconds.
     niceInterval = super.calculateNiceInterval(
-        totalDays * hours * minutes * seconds * milliseconds, availableSize);
+      totalDays * hours * minutes * seconds * milliseconds,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.milliseconds;
       return niceInterval.floor();
@@ -686,7 +711,10 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
 
   @override
   DoubleRange applyRangePadding(
-      DoubleRange range, num interval, Size availableSize) {
+    DoubleRange range,
+    num interval,
+    Size availableSize,
+  ) {
     if (labelPlacement == LabelPlacement.betweenTicks) {
       range.minimum -= 0.5;
       range.maximum += 0.5;
@@ -754,16 +782,18 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
     final bool isRtl = textDirection == TextDirection.rtl;
     num niceInterval = visibleInterval;
     final List<String> split = niceInterval.toString().split('.');
-    niceInterval = split.length >= 2
-        ? split[1].length == 1 && split[1] == '0'
-            ? niceInterval.floor()
-            : niceInterval.ceil()
-        : niceInterval;
+    niceInterval =
+        split.length >= 2
+            ? split[1].length == 1 && split[1] == '0'
+                ? niceInterval.floor()
+                : niceInterval.ceil()
+            : niceInterval;
     final num visibleMinimum = visibleRange!.minimum;
     final num visibleMaximum = visibleRange!.maximum;
     num current = visibleMinimum.ceil();
     num previous = current;
-    final DateFormat niceDateTimeFormat = dateFormat ??
+    final DateFormat niceDateTimeFormat =
+        dateFormat ??
         dateTimeCategoryAxisLabelFormat(this, current, previous.toInt());
     while (current <= visibleMaximum) {
       if (current < visibleMinimum ||
@@ -779,27 +809,38 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
         current += niceInterval;
         continue;
       } else if (labels.isNotEmpty) {
-        text = niceDateTimeFormat
-            .format(DateTime.fromMillisecondsSinceEpoch(labels[currentValue]));
+        text = niceDateTimeFormat.format(
+          DateTime.fromMillisecondsSinceEpoch(labels[currentValue]),
+        );
       } else {
         current += niceInterval;
         continue;
       }
 
       String callbackText = text;
-      TextStyle callbackTextStyle =
-          chartThemeData!.axisLabelTextStyle!.merge(labelStyle);
+      TextStyle callbackTextStyle = chartThemeData!.axisLabelTextStyle!.merge(
+        labelStyle,
+      );
       if (axisLabelFormatter != null) {
-        final AxisLabelRenderDetails details = AxisLabelRenderDetails(current,
-            callbackText, callbackTextStyle, this, visibleIntervalType, text);
+        final AxisLabelRenderDetails details = AxisLabelRenderDetails(
+          current,
+          callbackText,
+          callbackTextStyle,
+          this,
+          visibleIntervalType,
+          text,
+        );
         final ChartAxisLabel label = axisLabelFormatter!(details);
         callbackText = label.text;
         callbackTextStyle = callbackTextStyle.merge(label.textStyle);
       }
 
       String textAfterTrimming = callbackText;
-      Size textSize =
-          measureText(callbackText, callbackTextStyle, labelRotation);
+      Size textSize = measureText(
+        callbackText,
+        callbackTextStyle,
+        labelRotation,
+      );
       if (extent.isFinite && textSize.width > extent) {
         textAfterTrimming = trimmedText(
           callbackText,
@@ -810,8 +851,11 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
         );
       }
 
-      textSize =
-          measureText(textAfterTrimming, callbackTextStyle, labelRotation);
+      textSize = measureText(
+        textAfterTrimming,
+        callbackTextStyle,
+        labelRotation,
+      );
       final bool isTextTrimmed = callbackText != textAfterTrimming;
       final AxisLabel label = AxisLabel(
         callbackTextStyle,
@@ -884,12 +928,14 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
         if (plotBand.isVisible) {
           final dynamic actualStart = plotBand.start;
           final dynamic actualEnd = plotBand.end;
-          final num min = actualStart != null
-              ? _handleValueType(actualStart)
-              : visibleRange!.minimum;
-          num max = actualEnd != null
-              ? _handleValueType(actualEnd)
-              : visibleRange!.maximum;
+          final num min =
+              actualStart != null
+                  ? _handleValueType(actualStart)
+                  : visibleRange!.minimum;
+          num max =
+              actualEnd != null
+                  ? _handleValueType(actualEnd)
+                  : visibleRange!.maximum;
 
           num extent;
           if (plotBand.isRepeatable) {
@@ -910,8 +956,13 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
           num current = min;
           if (plotBand.isRepeatable) {
             while (current < max) {
-              current =
-                  formPlotBandFrame(plotBand, current, extent, max, bounds);
+              current = formPlotBandFrame(
+                plotBand,
+                current,
+                extent,
+                max,
+                bounds,
+              );
             }
           } else {
             formPlotBandFrame(plotBand, current, extent, max, bounds);
@@ -958,20 +1009,26 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
 
     for (int index = 0; index < length; index++) {
       final DateTimeCategoricalMultiLevelLabel label = multiLevelLabels![index];
-      _multilevelLabels.add(AxisMultilevelLabel(
+      _multilevelLabels.add(
+        AxisMultilevelLabel(
           label.text,
           label.level,
           effectiveValue(label.start)!,
-          effectiveValue(label.end, needMin: false)!));
+          effectiveValue(label.end, needMin: false)!,
+        ),
+      );
     }
 
-    _multilevelLabels.sort((AxisMultilevelLabel a, AxisMultilevelLabel b) =>
-        a.level.compareTo(b.level));
+    _multilevelLabels.sort(
+      (AxisMultilevelLabel a, AxisMultilevelLabel b) =>
+          a.level.compareTo(b.level),
+    );
 
-    final void Function(AxisMultilevelLabel label) add = invertElementsOrder
-        ? (AxisMultilevelLabel label) =>
-            visibleMultilevelLabels.insert(0, label)
-        : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
+    final void Function(AxisMultilevelLabel label) add =
+        invertElementsOrder
+            ? (AxisMultilevelLabel label) =>
+                visibleMultilevelLabels.insert(0, label)
+            : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
 
     final int labelsLength = _multilevelLabels.length;
     final TextStyle textStyle = chartThemeData!.axisMultiLevelLabelTextStyle!
@@ -984,7 +1041,12 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
         if (multiLevelLabelFormatter != null) {
           final MultiLevelLabelRenderDetails details =
               MultiLevelLabelRenderDetails(
-                  current.level, desiredText, desiredTextStyle, i, name);
+                current.level,
+                desiredText,
+                desiredTextStyle,
+                i,
+                name,
+              );
           final ChartAxisLabel label = multiLevelLabelFormatter!(details);
           desiredText = label.text;
           desiredTextStyle = textStyle.merge(label.textStyle);

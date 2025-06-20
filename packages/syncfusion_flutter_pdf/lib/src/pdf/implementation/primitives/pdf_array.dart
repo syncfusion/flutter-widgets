@@ -7,6 +7,7 @@ import '../io/pdf_constants.dart';
 import '../io/pdf_cross_table.dart';
 import '../io/pdf_parser.dart';
 import '../primitives/pdf_dictionary.dart';
+import '../primitives/pdf_null.dart';
 import '../primitives/pdf_number.dart';
 
 /// internal class
@@ -96,7 +97,7 @@ class PdfArray implements IPdfPrimitive, IPdfChangable {
       rectangle.left,
       rectangle.top,
       rectangle.right,
-      rectangle.bottom
+      rectangle.bottom,
     ];
     return PdfArray(list);
   }
@@ -196,9 +197,11 @@ class PdfArray implements IPdfPrimitive, IPdfChangable {
     if (writer != null) {
       writer.write(startMark);
       for (int i = 0; i < count; i++) {
-        this[i]!.save(writer);
-        if (i + 1 != count) {
-          writer.write(PdfOperators.whiteSpace);
+        if (this[i] != null && this[i] is! PdfNull) {
+          this[i]!.save(writer);
+          if (i + 1 != count) {
+            writer.write(PdfOperators.whiteSpace);
+          }
         }
       }
       writer.write(endMark);

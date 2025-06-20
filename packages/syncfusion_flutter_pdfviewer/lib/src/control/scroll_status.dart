@@ -36,9 +36,10 @@ class _ScrollStatusState extends State<ScrollStatus> {
   @override
   void didChangeDependencies() {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
-    _effectiveThemeData = Theme.of(context).useMaterial3
-        ? SfPdfViewerThemeDataM3(context)
-        : SfPdfViewerThemeDataM2(context);
+    _effectiveThemeData =
+        Theme.of(context).useMaterial3
+            ? SfPdfViewerThemeDataM3(context)
+            : SfPdfViewerThemeDataM2(context);
     _localizations = SfLocalizations.of(context);
     super.didChangeDependencies();
   }
@@ -76,9 +77,10 @@ class _ScrollStatusState extends State<ScrollStatus> {
                     _pdfViewerThemeData!.scrollStatusStyle?.backgroundColor ??
                     _effectiveThemeData!.scrollStatusStyle?.backgroundColor ??
                     const Color(0xFF757575),
-                borderRadius: Theme.of(context).useMaterial3
-                    ? const BorderRadius.all(Radius.circular(4.0))
-                    : const BorderRadius.all(Radius.circular(16.0)),
+                borderRadius:
+                    Theme.of(context).useMaterial3
+                        ? const BorderRadius.all(Radius.circular(4.0))
+                        : const BorderRadius.all(Radius.circular(16.0)),
               ),
               child: Text(
                 '${widget.pdfViewerController.pageNumber} ${_localizations!.pdfScrollStatusOfLabel} ${widget.pdfViewerController.pageCount}',

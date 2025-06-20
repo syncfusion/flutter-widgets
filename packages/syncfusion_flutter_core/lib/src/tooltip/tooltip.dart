@@ -8,28 +8,28 @@ part of tooltip_internal;
 class SfTooltip extends StatefulWidget {
   /// Creating an argument constructor of SfTooltip class.
   // ignore: prefer_const_constructors_in_immutables
-  SfTooltip(
-      {this.textStyle = const TextStyle(),
-      this.animationDuration = 500,
-      this.animationCurve = const Interval(0.0, 1.0),
-      this.enable = true,
-      this.opacity = 1,
-      this.borderColor = Colors.black,
-      this.borderWidth = 0,
-      this.duration = 3000,
-      this.shouldAlwaysShow = false,
-      this.elevation = 0,
-      this.canShowMarker = true,
-      this.textAlignment = TooltipAlignment.near,
-      this.decimalPlaces = 2,
-      this.color = Colors.black,
-      this.labelColor = Colors.white,
-      this.header,
-      this.format,
-      this.shadowColor,
-      Key? key,
-      this.onTooltipRender})
-      : super(key: key);
+  SfTooltip({
+    this.textStyle = const TextStyle(),
+    this.animationDuration = 500,
+    this.animationCurve = const Interval(0.0, 1.0),
+    this.enable = true,
+    this.opacity = 1,
+    this.borderColor = Colors.black,
+    this.borderWidth = 0,
+    this.duration = 3000,
+    this.shouldAlwaysShow = false,
+    this.elevation = 0,
+    this.canShowMarker = true,
+    this.textAlignment = TooltipAlignment.near,
+    this.decimalPlaces = 2,
+    this.color = Colors.black,
+    this.labelColor = Colors.white,
+    this.header,
+    this.format,
+    this.shadowColor,
+    Key? key,
+    this.onTooltipRender,
+  }) : super(key: key);
 
   ///Toggles the visibility of the tooltip.
   ///
@@ -178,13 +178,14 @@ class SfTooltipState extends State<SfTooltip>
   /// *template - the widget that will be rendered instead of default tooltip
   /// *tooltipData - the data which allows this widget to decide whether it is
   /// activated for the same point
-  void show(
-      {int? duration,
-      Offset? position,
-      Object? tooltipData,
-      String? tooltipContent,
-      String? tooltipHeader,
-      Widget? template}) {
+  void show({
+    int? duration,
+    Offset? position,
+    Object? tooltipData,
+    String? tooltipContent,
+    String? tooltipHeader,
+    Widget? template,
+  }) {
     duration ??= widget.animationDuration;
     _hidden = false;
     animationController!.duration = Duration(milliseconds: duration);
@@ -246,8 +247,9 @@ class SfTooltipState extends State<SfTooltip>
     _show = false;
     needMarker = widget.canShowMarker;
     animationController = AnimationController(
-        duration: Duration(milliseconds: widget.animationDuration), vsync: this)
-      ..addStatusListener(_animationStatusListener);
+      duration: Duration(milliseconds: widget.animationDuration),
+      vsync: this,
+    )..addStatusListener(_animationStatusListener);
     super.initState();
   }
 
@@ -259,11 +261,15 @@ class SfTooltipState extends State<SfTooltip>
 
   @override
   Widget build(BuildContext context) {
-    final Animation<double> tooltipAnimation =
-        Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: animationController!,
-      curve: widget.animationCurve,
-    ));
+    final Animation<double> tooltipAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: animationController!,
+        curve: widget.animationCurve,
+      ),
+    );
     if (_show && !_didUpdate) {
       if (animationController?.status != AnimationStatus.forward) {
         animationController!.forward(from: 0.0);
@@ -283,10 +289,11 @@ class SfTooltipState extends State<SfTooltip>
         return child!;
       },
       child: TooltipRenderObject(
-          template: _template,
-          tooltipAnimation: tooltipAnimation,
-          tooltipState: this,
-          animationController: animationController!),
+        template: _template,
+        tooltipAnimation: tooltipAnimation,
+        tooltipState: this,
+        animationController: animationController!,
+      ),
     );
   }
 
@@ -315,16 +322,16 @@ class SfTooltipState extends State<SfTooltip>
 class TooltipRenderObject extends SingleChildRenderObjectWidget {
   /// Creating an argument constructor of TooltipRenderObject class.
   // ignore: prefer_const_constructors_in_immutables
-  TooltipRenderObject(
-      {super.key,
-      Widget? template,
-      required SfTooltipState tooltipState,
-      required Animation<double> tooltipAnimation,
-      required AnimationController animationController})
-      : _tooltipState = tooltipState,
-        _tooltipAnimation = tooltipAnimation,
-        _animationController = animationController,
-        super(child: template);
+  TooltipRenderObject({
+    super.key,
+    Widget? template,
+    required SfTooltipState tooltipState,
+    required Animation<double> tooltipAnimation,
+    required AnimationController animationController,
+  }) : _tooltipState = tooltipState,
+       _tooltipAnimation = tooltipAnimation,
+       _animationController = animationController,
+       super(child: template);
 
   final SfTooltipState _tooltipState;
   final Animation<double> _tooltipAnimation;
@@ -333,7 +340,10 @@ class TooltipRenderObject extends SingleChildRenderObjectWidget {
   @override
   TooltipRenderBox createRenderObject(BuildContext context) {
     _tooltipState.renderBox = TooltipRenderBox(
-        _tooltipState, _tooltipAnimation, _animationController);
+      _tooltipState,
+      _tooltipAnimation,
+      _animationController,
+    );
     return _tooltipState.renderBox!;
   }
 
@@ -351,9 +361,11 @@ class TooltipRenderObject extends SingleChildRenderObjectWidget {
 class TooltipRenderBox extends RenderShiftedBox {
   /// Creating an argument constructor of TooltipRenderBox class.
   TooltipRenderBox(
-      this._tooltipState, this._tooltipAnimation, this._animationController,
-      [RenderBox? child])
-      : super(child);
+    this._tooltipState,
+    this._tooltipAnimation,
+    this._animationController, [
+    RenderBox? child,
+  ]) : super(child);
   SfTooltip get _tooltip => _tooltipState.widget;
   SfTooltipState _tooltipState;
 
@@ -489,12 +501,15 @@ class TooltipRenderBox extends RenderShiftedBox {
     if (child == null || _tooltipRect == null) {
       return false;
     } else {
-      return child!.hitTest(result,
-          position: position -
-              (_isOutOfBoundInTop
-                  ? _tooltipRect!.topLeft +
-                      Offset(0, _templateArrowHeight + _tooltipRect!.height)
-                  : _tooltipRect!.topLeft));
+      return child!.hitTest(
+        result,
+        position:
+            position -
+            (_isOutOfBoundInTop
+                ? _tooltipRect!.topLeft +
+                    Offset(0, _templateArrowHeight + _tooltipRect!.height)
+                : _tooltipRect!.topLeft),
+      );
     }
   }
 
@@ -507,18 +522,21 @@ class TooltipRenderBox extends RenderShiftedBox {
         size = Size.copy(child!.size);
       }
     } else {
-      size = Size(constraints.maxWidth.isFinite ? constraints.maxWidth : 0,
-          constraints.maxHeight.isFinite ? constraints.maxHeight : 0);
+      size = Size(
+        constraints.maxWidth.isFinite ? constraints.maxWidth : 0,
+        constraints.maxHeight.isFinite ? constraints.maxHeight : 0,
+      );
       child?.layout(constraints);
     }
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final Offset parentOffset = parentData is BoxParentData
-        //ignore: avoid_as
-        ? (parentData! as BoxParentData).offset
-        : Offset.zero;
+    final Offset parentOffset =
+        parentData is BoxParentData
+            //ignore: avoid_as
+            ? (parentData! as BoxParentData).offset
+            : Offset.zero;
     final Offset relativeOffset = offset - parentOffset;
     calculateLocation(_position != null ? (_position!) : parentOffset);
     context.canvas.translate(relativeOffset.dx, relativeOffset.dy);
@@ -527,8 +545,11 @@ class TooltipRenderBox extends RenderShiftedBox {
                   _tooltipState._showDuration == 0) &&
               _animationController.status != AnimationStatus.dismissed) &&
           _tooltipState.widget.onTooltipRender != null) {
-        final TooltipRenderArgs tooltipRenderArgs = TooltipRenderArgs(_header,
-            _stringValue, _x != null && _y != null ? Offset(_x!, _y!) : null);
+        final TooltipRenderArgs tooltipRenderArgs = TooltipRenderArgs(
+          _header,
+          _stringValue,
+          _x != null && _y != null ? Offset(_x!, _y!) : null,
+        );
         _tooltipState.widget.onTooltipRender!(tooltipRenderArgs);
         _x = tooltipRenderArgs.location!.dx;
         _y = tooltipRenderArgs.location!.dy;
@@ -550,18 +571,24 @@ class TooltipRenderBox extends RenderShiftedBox {
   void _renderTemplateTooltipView(PaintingContext context, Offset offset) {
     _templateSize = Size.copy(child!.size);
     _tooltipRect = Rect.fromLTWH(
-        _x! - _templateSize.width / 2,
-        _y! - _templateSize.height - _templateArrowHeight,
-        _templateSize.width,
-        _templateSize.height);
+      _x! - _templateSize.width / 2,
+      _y! - _templateSize.height - _templateArrowHeight,
+      _templateSize.width,
+      _templateSize.height,
+    );
 
     double top = _y!;
     double paddingTop = 0;
     final Rect bounds = _boundaryRect.translate(-offset.dx, -offset.dy);
-    final Offset tooltipLocation =
-        _getTemplateLocation(_tooltipRect!, bounds, offset);
-    Offset arrowLocation = Offset(_x! - _templateSize.width / 2,
-        _isOutOfBoundInTop ? _y! : _y! - _templateArrowHeight);
+    final Offset tooltipLocation = _getTemplateLocation(
+      _tooltipRect!,
+      bounds,
+      offset,
+    );
+    Offset arrowLocation = Offset(
+      _x! - _templateSize.width / 2,
+      _isOutOfBoundInTop ? _y! : _y! - _templateArrowHeight,
+    );
     if (_y! < bounds.top + offset.dy) {
       paddingTop = bounds.top + offset.dy + _templateArrowHeight;
       top = tooltipLocation.dy;
@@ -571,53 +598,70 @@ class TooltipRenderBox extends RenderShiftedBox {
     if (_y! >= bounds.top + offset.dy) {
       paddingTop = top;
     }
-    final Offset renderOffset = (_isOutOfBoundInTop
+    final Offset renderOffset =
+        (_isOutOfBoundInTop
             ? Offset(tooltipLocation.dx, tooltipLocation.dy + paddingTop)
             : tooltipLocation) +
         offset;
-    context.pushTransform(true, Offset(_x!, arrowLocation.dy) + offset,
-        Matrix4.diagonal3Values(_animationFactor, _animationFactor, 1),
-        (PaintingContext tooltipTemplateContext, Offset tooltipTemplateOffset) {
-      _renderArrowAndTemplatePath(
-          tooltipTemplateContext.canvas, arrowLocation + offset, renderOffset);
-      tooltipTemplateContext.paintChild(child!, renderOffset);
-    });
+    context.pushTransform(
+      true,
+      Offset(_x!, arrowLocation.dy) + offset,
+      Matrix4.diagonal3Values(_animationFactor, _animationFactor, 1),
+      (PaintingContext tooltipTemplateContext, Offset tooltipTemplateOffset) {
+        _renderArrowAndTemplatePath(
+          tooltipTemplateContext.canvas,
+          arrowLocation + offset,
+          renderOffset,
+        );
+        tooltipTemplateContext.paintChild(child!, renderOffset);
+      },
+    );
   }
 
   /// This method renders the path for tooltip template mode
   void _renderArrowAndTemplatePath(
-      Canvas canvas, Offset location, Offset templateLocation) {
-    final Paint strokePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..color =
-          _tooltip.borderWidth == 0 ? Colors.transparent : _tooltip.borderColor
-      ..strokeWidth = _tooltip.borderWidth;
-    final Paint fillPaint = Paint()
-      ..color = (_tooltip.color).withValues(alpha: _tooltip.opacity)
-      ..style = PaintingStyle.fill;
+    Canvas canvas,
+    Offset location,
+    Offset templateLocation,
+  ) {
+    final Paint strokePaint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..color =
+              _tooltip.borderWidth == 0
+                  ? Colors.transparent
+                  : _tooltip.borderColor
+          ..strokeWidth = _tooltip.borderWidth;
+    final Paint fillPaint =
+        Paint()
+          ..color = (_tooltip.color).withValues(alpha: _tooltip.opacity)
+          ..style = PaintingStyle.fill;
     const double currentHeight = 5.0;
     const double arrowWidth = 8;
     const double padding = 0.1;
     final Size currentSize = Size(_templateSize.width, currentHeight);
     final num templateHeight = _templateSize.height;
     final num arrowHeight = currentSize.height + padding;
-    final num centerTemplateY = _isOutOfBoundInTop
-        ? location.dy + currentSize.height + templateHeight / 2 + padding
-        : location.dy - templateHeight / 2 - padding;
-    double locationY = _isOutOfBoundInTop
-        ? centerTemplateY - (templateHeight / 2) - arrowHeight
-        : centerTemplateY + templateHeight / 2;
+    final num centerTemplateY =
+        _isOutOfBoundInTop
+            ? location.dy + currentSize.height + templateHeight / 2 + padding
+            : location.dy - templateHeight / 2 - padding;
+    double locationY =
+        _isOutOfBoundInTop
+            ? centerTemplateY - (templateHeight / 2) - arrowHeight
+            : centerTemplateY + templateHeight / 2;
     final num centerX = location.dx + currentSize.width / 2;
     final Path path = Path();
     final RRect rect = RRect.fromLTRBAndCorners(
-        templateLocation.dx,
-        templateLocation.dy,
-        templateLocation.dx + _templateSize.width,
-        templateLocation.dy + _templateSize.height,
-        topLeft: Radius.circular(_borderRadius),
-        topRight: Radius.circular(_borderRadius),
-        bottomRight: Radius.circular(_borderRadius),
-        bottomLeft: Radius.circular(_borderRadius));
+      templateLocation.dx,
+      templateLocation.dy,
+      templateLocation.dx + _templateSize.width,
+      templateLocation.dy + _templateSize.height,
+      topLeft: Radius.circular(_borderRadius),
+      topRight: Radius.circular(_borderRadius),
+      bottomRight: Radius.circular(_borderRadius),
+      bottomLeft: Radius.circular(_borderRadius),
+    );
     bool isVTypeArrow = true;
     final String side =
         (centerX < rect.left + rect.width / 2) ? 'left' : 'right';
@@ -625,11 +669,17 @@ class TooltipRenderBox extends RenderShiftedBox {
       locationY += arrowHeight - padding;
     }
     path.moveTo(rect.left + rect.tlRadiusX, rect.top);
-    path.arcToPoint(Offset(rect.left, rect.top + rect.tlRadiusY),
-        radius: rect.tlRadius, clockwise: false);
+    path.arcToPoint(
+      Offset(rect.left, rect.top + rect.tlRadiusY),
+      radius: rect.tlRadius,
+      clockwise: false,
+    );
     path.lineTo(rect.left, rect.bottom - rect.blRadiusY);
-    path.arcToPoint(Offset(rect.left + rect.blRadiusX, rect.bottom),
-        radius: rect.blRadius, clockwise: false);
+    path.arcToPoint(
+      Offset(rect.left + rect.blRadiusX, rect.bottom),
+      radius: rect.blRadius,
+      clockwise: false,
+    );
     if ((centerX > rect.left + rect.blRadiusX + arrowWidth / 2) &&
         (centerX < rect.right - rect.brRadiusX - arrowWidth / 2)) {
       path.lineTo(centerX - arrowWidth / 2, rect.bottom);
@@ -643,19 +693,26 @@ class TooltipRenderBox extends RenderShiftedBox {
       //bottom arrow
       path.lineTo(centerX.toDouble(), locationY);
       path.lineTo(
-          isVTypeArrow
-              ? (centerX + arrowWidth / 2)
-              : side == 'left'
-                  ? (rect.left + rect.blRadiusX + arrowWidth * 2)
-                  : (rect.right - rect.brRadiusX),
-          rect.bottom);
+        isVTypeArrow
+            ? (centerX + arrowWidth / 2)
+            : side == 'left'
+            ? (rect.left + rect.blRadiusX + arrowWidth * 2)
+            : (rect.right - rect.brRadiusX),
+        rect.bottom,
+      );
     }
     path.lineTo(rect.right - rect.brRadiusX, rect.bottom);
-    path.arcToPoint(Offset(rect.right, rect.bottom - rect.brRadiusY),
-        radius: rect.brRadius, clockwise: false);
+    path.arcToPoint(
+      Offset(rect.right, rect.bottom - rect.brRadiusY),
+      radius: rect.brRadius,
+      clockwise: false,
+    );
     path.lineTo(rect.right, rect.top + rect.trRadiusY);
-    path.arcToPoint(Offset(rect.right - rect.brRadiusX, rect.top),
-        radius: rect.trRadius, clockwise: false);
+    path.arcToPoint(
+      Offset(rect.right - rect.brRadiusX, rect.top),
+      radius: rect.trRadius,
+      clockwise: false,
+    );
     if (isVTypeArrow) {
       path.lineTo(centerX + arrowWidth / 2, rect.top);
     } else {
@@ -667,12 +724,13 @@ class TooltipRenderBox extends RenderShiftedBox {
       //top arrow
       path.lineTo(centerX.toDouble(), locationY);
       path.lineTo(
-          isVTypeArrow
-              ? (centerX - arrowWidth / 2)
-              : side == 'left'
-                  ? (rect.left + rect.blRadiusX)
-                  : (rect.right - rect.brRadiusX - arrowWidth * 2),
-          rect.top);
+        isVTypeArrow
+            ? (centerX - arrowWidth / 2)
+            : side == 'left'
+            ? (rect.left + rect.blRadiusX)
+            : (rect.right - rect.brRadiusX - arrowWidth * 2),
+        rect.top,
+      );
     }
     path.lineTo(rect.left + rect.tlRadiusX, rect.top);
 
@@ -696,14 +754,16 @@ class TooltipRenderBox extends RenderShiftedBox {
     _totalWidth = _boundaryRect.left + _boundaryRect.width;
     //ignore: prefer_final_locals
     TextStyle style = _tooltip.textStyle;
-    final TextStyle textStyle =
-        style.copyWith(color: style.color ?? _tooltip.labelColor);
+    final TextStyle textStyle = style.copyWith(
+      color: style.color ?? _tooltip.labelColor,
+    );
     width = measureText(_stringValue!, textStyle).width;
     height = measureText(_stringValue!, textStyle).height;
     if (_header!.isNotEmpty) {
       final TextStyle headerTextStyle = style.copyWith(
-          color: style.color ?? _tooltip.labelColor,
-          fontWeight: FontWeight.bold);
+        color: style.color ?? _tooltip.labelColor,
+        fontWeight: FontWeight.bold,
+      );
       headerTextWidth = measureText(_header!, headerTextStyle).width;
       headerTextHeight = measureText(_header!, headerTextStyle).height + 10;
       width = width > headerTextWidth ? width : headerTextWidth;
@@ -720,33 +780,42 @@ class TooltipRenderBox extends RenderShiftedBox {
         _y != null &&
         (_inversePadding != null || _normalPadding != null) &&
         (_stringValue != '' || _header != '')) {
-      final Rect backRect =
-          _calculateBackgroundRect(canvas, height, width, headerTextHeight);
+      final Rect backRect = _calculateBackgroundRect(
+        canvas,
+        height,
+        width,
+        headerTextHeight,
+      );
       final double startArrow = _pointerLength / 2;
       final double endArrow = _pointerLength / 2;
       final double xPosition = _nosePointX;
       final double yPosition = _nosePointY;
       _drawTooltipBackground(
-          canvas,
-          _isTop,
-          backRect,
-          xPosition,
-          yPosition,
-          xPosition - startArrow,
-          _isTop ? (yPosition - startArrow) : (yPosition + startArrow),
-          xPosition + endArrow,
-          _isTop ? (yPosition - endArrow) : (yPosition + endArrow),
-          _borderRadius,
-          _arrowPath,
-          _isLeft,
-          _isRight,
-          _tooltipAnimation);
+        canvas,
+        _isTop,
+        backRect,
+        xPosition,
+        yPosition,
+        xPosition - startArrow,
+        _isTop ? (yPosition - startArrow) : (yPosition + startArrow),
+        xPosition + endArrow,
+        _isTop ? (yPosition - endArrow) : (yPosition + endArrow),
+        _borderRadius,
+        _arrowPath,
+        _isLeft,
+        _isRight,
+        _tooltipAnimation,
+      );
     }
   }
 
   /// calculate tooltip rect and arrow head for default tooltip mode
   Rect _calculateBackgroundRect(
-      Canvas canvas, double height, double width, double headerTextHeight) {
+    Canvas canvas,
+    double height,
+    double width,
+    double headerTextHeight,
+  ) {
     double widthPadding = 15;
     if (_tooltip.canShowMarker && _tooltipState.needMarker) {
       _markerSize = 5;
@@ -754,19 +823,29 @@ class TooltipRenderBox extends RenderShiftedBox {
     }
 
     final Rect rect = Rect.fromLTWH(
-        _x!,
-        _y!,
-        width + (2 * _markerSize) + widthPadding,
-        height + headerTextHeight + 10);
-    final Rect newRect = Rect.fromLTWH(_boundaryRect.left + 20,
-        _boundaryRect.top, _boundaryRect.width - 40, _boundaryRect.height);
+      _x!,
+      _y!,
+      width + (2 * _markerSize) + widthPadding,
+      height + headerTextHeight + 10,
+    );
+    final Rect newRect = Rect.fromLTWH(
+      _boundaryRect.left + 20,
+      _boundaryRect.top,
+      _boundaryRect.width - 40,
+      _boundaryRect.height,
+    );
     final Rect leftRect = Rect.fromLTWH(
-        _boundaryRect.left - 5,
-        _boundaryRect.top - 20,
-        newRect.left - (_boundaryRect.left - 5),
-        _boundaryRect.height + 40);
-    final Rect rightRect = Rect.fromLTWH(newRect.right, _boundaryRect.top - 20,
-        (_boundaryRect.right + 5) + newRect.right, _boundaryRect.height + 40);
+      _boundaryRect.left - 5,
+      _boundaryRect.top - 20,
+      newRect.left - (_boundaryRect.left - 5),
+      _boundaryRect.height + 40,
+    );
+    final Rect rightRect = Rect.fromLTWH(
+      newRect.right,
+      _boundaryRect.top - 20,
+      (_boundaryRect.right + 5) + newRect.right,
+      _boundaryRect.height + 40,
+    );
 
     if (leftRect.contains(Offset(_x!, _y!))) {
       _isLeft = true;
@@ -783,25 +862,29 @@ class TooltipRenderBox extends RenderShiftedBox {
       _nosePointY = rect.top - (_normalPadding ?? 0);
       _nosePointX = rect.left;
       final double tooltipRightEnd = _x! + (rect.width / 2);
-      _xPos = _xPos! < _boundaryRect.left
-          ? _boundaryRect.left
-          : tooltipRightEnd > _totalWidth
+      _xPos =
+          _xPos! < _boundaryRect.left
+              ? _boundaryRect.left
+              : tooltipRightEnd > _totalWidth
               ? _totalWidth - rect.width
               : _xPos;
       _yPos = _yPos! - (_pointerLength / 2);
     } else {
       _isTop = false;
       _xPos = _x! - (rect.width / 2);
-      _yPos = ((_y! >= _boundaryRect.top ? _y! : _boundaryRect.top) +
+      _yPos =
+          ((_y! >= _boundaryRect.top ? _y! : _boundaryRect.top) +
               _pointerLength / 2) +
           (_inversePadding ?? 0);
       _nosePointX = rect.left;
-      _nosePointY = (_y! >= _boundaryRect.top ? _y! : _boundaryRect.top) +
+      _nosePointY =
+          (_y! >= _boundaryRect.top ? _y! : _boundaryRect.top) +
           (_inversePadding ?? 0);
       final double tooltipRightEnd = _x! + (rect.width / 2);
-      _xPos = _xPos! < _boundaryRect.left
-          ? _boundaryRect.left
-          : tooltipRightEnd > _totalWidth
+      _xPos =
+          _xPos! < _boundaryRect.left
+              ? _boundaryRect.left
+              : tooltipRightEnd > _totalWidth
               ? _totalWidth - rect.width
               : _xPos;
     }
@@ -816,20 +899,21 @@ class TooltipRenderBox extends RenderShiftedBox {
   /// This method renders the tooltip background on which the content is to be
   /// displayed
   void _drawTooltipBackground(
-      Canvas canvas,
-      bool isTop,
-      Rect rectF,
-      double xPosition,
-      double yPosition,
-      double startX,
-      double startY,
-      double endX,
-      double endY,
-      double borderRadius,
-      Path backgroundPath,
-      bool isLeft,
-      bool isRight,
-      Animation<double>? tooltipAnimation) {
+    Canvas canvas,
+    bool isTop,
+    Rect rectF,
+    double xPosition,
+    double yPosition,
+    double startX,
+    double startY,
+    double endX,
+    double endY,
+    double borderRadius,
+    Path backgroundPath,
+    bool isLeft,
+    bool isRight,
+    Animation<double>? tooltipAnimation,
+  ) {
     final double animationFactor =
         tooltipAnimation == null ? 1 : tooltipAnimation.value;
     backgroundPath.reset();
@@ -842,10 +926,11 @@ class TooltipRenderBox extends RenderShiftedBox {
     }
 
     final Rect rect = Rect.fromLTWH(
-        rectF.width / 2 + (rectF.left - rectF.width / 2 * animationFactor),
-        rectF.height / 2 + (rectF.top - rectF.height / 2 * animationFactor),
-        rectF.width * animationFactor,
-        rectF.height * animationFactor);
+      rectF.width / 2 + (rectF.left - rectF.width / 2 * animationFactor),
+      rectF.height / 2 + (rectF.top - rectF.height / 2 * animationFactor),
+      rectF.width * animationFactor,
+      rectF.height * animationFactor,
+    );
 
     _tooltipRect = rect;
 
@@ -856,11 +941,24 @@ class TooltipRenderBox extends RenderShiftedBox {
       topLeft: Radius.circular(borderRadius),
       topRight: Radius.circular(borderRadius),
     );
-    _drawTooltipPath(canvas, tooltipRect, rect, backgroundPath, isTop, isLeft,
-        isRight, startX, endX, animationFactor, xPosition, yPosition);
+    _drawTooltipPath(
+      canvas,
+      tooltipRect,
+      rect,
+      backgroundPath,
+      isTop,
+      isLeft,
+      isRight,
+      startX,
+      endX,
+      animationFactor,
+      xPosition,
+      yPosition,
+    );
 
     final TextStyle textStyle = _tooltip.textStyle.copyWith(
-      color: _tooltip.textStyle.color?.withValues(alpha: _tooltip.opacity) ??
+      color:
+          _tooltip.textStyle.color?.withValues(alpha: _tooltip.opacity) ??
           _tooltip.labelColor,
       fontSize: (_tooltip.textStyle.fontSize ?? 12.0) * animationFactor,
     );
@@ -871,8 +969,11 @@ class TooltipRenderBox extends RenderShiftedBox {
         _tooltipState.needMarker &&
         _markerTypes.isNotEmpty) {
       if (_markerTypes.length == 1) {
-        final Offset markerPoint =
-            _getMarkerPosition(result, markerSize, tooltipRect);
+        final Offset markerPoint = _getMarkerPosition(
+          result,
+          markerSize,
+          tooltipRect,
+        );
         _drawMarkers(markerPoint, canvas, animationFactor, 0);
       } else {
         double height = 0;
@@ -883,10 +984,11 @@ class TooltipRenderBox extends RenderShiftedBox {
           str += textValues[i];
           final Size result1 = measureText(str, textStyle);
           final Offset markerPoint = Offset(
-              _tooltipState._isRtl
-                  ? tooltipRect.right - tooltipRect.width / 2 + result.width / 2
-                  : tooltipRect.left + tooltipRect.width / 2 - result.width / 2,
-              (_markerPointY + height) - markerSize);
+            _tooltipState._isRtl
+                ? tooltipRect.right - tooltipRect.width / 2 + result.width / 2
+                : tooltipRect.left + tooltipRect.width / 2 - result.width / 2,
+            (_markerPointY + height) - markerSize,
+          );
           textSize = result1;
           height += textSize.height;
           if (_markerTypes[i] != null) {
@@ -901,94 +1003,124 @@ class TooltipRenderBox extends RenderShiftedBox {
 
   /// To get the marker offset.
   Offset _getMarkerPosition(
-          Size textSize, double markerSize, RRect tooltipRect) =>
-      Offset(
-          _tooltipState._isRtl
-              ? tooltipRect.right - tooltipRect.width / 2 + textSize.width / 2
-              : tooltipRect.left + tooltipRect.width / 2 - textSize.width / 2,
-          ((tooltipRect.top + tooltipRect.height) - textSize.height / 2) -
-              markerSize);
+    Size textSize,
+    double markerSize,
+    RRect tooltipRect,
+  ) => Offset(
+    _tooltipState._isRtl
+        ? tooltipRect.right - tooltipRect.width / 2 + textSize.width / 2
+        : tooltipRect.left + tooltipRect.width / 2 - textSize.width / 2,
+    ((tooltipRect.top + tooltipRect.height) - textSize.height / 2) - markerSize,
+  );
 
   /// This method renders the tooltip marker shapes at the specific line indices
   ///  of the marker paint list
   void _drawMarkers(
-      Offset markerPoint, Canvas canvas, double animationFactor, int i) {
+    Offset markerPoint,
+    Canvas canvas,
+    double animationFactor,
+    int i,
+  ) {
     if (_markerImages[i] == null) {
       final Path markerPath = _getMarkerShapesPath(
         _markerTypes[i]!,
         markerPoint,
         _markerImages[i],
-        Size((2 * _markerSize) * animationFactor,
-            (2 * _markerSize) * animationFactor),
+        Size(
+          (2 * _markerSize) * animationFactor,
+          (2 * _markerSize) * animationFactor,
+        ),
       );
       if (_markerGradients![i] != null) {
-        _markerPaints[i] = Paint()
-          ..shader = _markerGradients![i]!.createShader(
-            _getMarkerShapesPath(
-                    _markerTypes[i]!,
-                    Offset(markerPoint.dx, markerPoint.dy),
-                    _markerImages[i],
-                    Size((2 * _markerSize) * animationFactor,
-                        (2 * _markerSize) * animationFactor))
-                .getBounds(),
-          )
-          ..style = PaintingStyle.fill;
+        _markerPaints[i] =
+            Paint()
+              ..shader = _markerGradients![i]!.createShader(
+                _getMarkerShapesPath(
+                  _markerTypes[i]!,
+                  Offset(markerPoint.dx, markerPoint.dy),
+                  _markerImages[i],
+                  Size(
+                    (2 * _markerSize) * animationFactor,
+                    (2 * _markerSize) * animationFactor,
+                  ),
+                ).getBounds(),
+              )
+              ..style = PaintingStyle.fill;
       }
       canvas.drawPath(markerPath, _markerPaints[i]!);
       // ignore: omit_local_variable_types
       final Paint markerBorderPaint = Paint();
-      markerBorderPaint.color =
-          Colors.white.withValues(alpha: _tooltip.opacity);
+      markerBorderPaint.color = Colors.white.withValues(
+        alpha: _tooltip.opacity,
+      );
       markerBorderPaint.strokeWidth = 1;
       markerBorderPaint.style = PaintingStyle.stroke;
       canvas.drawPath(markerPath, markerBorderPaint);
     } else {
       _markerSize *= 2 * animationFactor;
       // ignore: omit_local_variable_types
-      final Rect positionRect = Rect.fromLTWH(markerPoint.dx - _markerSize / 2,
-          markerPoint.dy - _markerSize / 2, _markerSize, _markerSize);
+      final Rect positionRect = Rect.fromLTWH(
+        markerPoint.dx - _markerSize / 2,
+        markerPoint.dy - _markerSize / 2,
+        _markerSize,
+        _markerSize,
+      );
       paintImage(
-          canvas: canvas,
-          image: _markerImages[i],
-          rect: positionRect,
-          fit: BoxFit.fill);
+        canvas: canvas,
+        image: _markerImages[i],
+        rect: positionRect,
+        fit: BoxFit.fill,
+      );
     }
   }
 
   /// This method renders the tooltip rect and arrow for default tooltip mode
   void _drawTooltipPath(
-      Canvas canvas,
-      RRect tooltipRect,
-      Rect rect,
-      Path backgroundPath,
-      bool isTop,
-      bool isLeft,
-      bool isRight,
-      double startX,
-      double endX,
-      double animationFactor,
-      double xPosition,
-      double yPosition) {
+    Canvas canvas,
+    RRect tooltipRect,
+    Rect rect,
+    Path backgroundPath,
+    bool isTop,
+    bool isLeft,
+    bool isRight,
+    double startX,
+    double endX,
+    double animationFactor,
+    double xPosition,
+    double yPosition,
+  ) {
     double factor = 0;
-    assert(_tooltip.elevation >= 0,
-        'The elevation of the tooltip for all series must not be less than 0.');
+    assert(
+      _tooltip.elevation >= 0,
+      'The elevation of the tooltip for all series must not be less than 0.',
+    );
     if (isRight) {
       factor = isTop ? rect.bottom : rect.top;
       backgroundPath.moveTo(rect.right - 20, factor);
       backgroundPath.lineTo(xPosition, yPosition);
-      backgroundPath.lineTo(rect.right,
-          isTop ? (factor - _borderRadius) : (factor + _borderRadius));
-      backgroundPath.arcToPoint(Offset(rect.right - _borderRadius, factor),
-          radius: Radius.circular(_borderRadius), clockwise: isTop);
+      backgroundPath.lineTo(
+        rect.right,
+        isTop ? (factor - _borderRadius) : (factor + _borderRadius),
+      );
+      backgroundPath.arcToPoint(
+        Offset(rect.right - _borderRadius, factor),
+        radius: Radius.circular(_borderRadius),
+        clockwise: isTop,
+      );
       backgroundPath.lineTo(rect.right - 20, factor);
     } else if (isLeft) {
       factor = isTop ? rect.bottom : rect.top;
       backgroundPath.moveTo(rect.left + 20, factor);
       backgroundPath.lineTo(xPosition, yPosition);
-      backgroundPath.lineTo(rect.left,
-          isTop ? (factor - _borderRadius) : (factor + _borderRadius));
-      backgroundPath.arcToPoint(Offset(rect.left + _borderRadius, factor),
-          radius: Radius.circular(_borderRadius), clockwise: !isTop);
+      backgroundPath.lineTo(
+        rect.left,
+        isTop ? (factor - _borderRadius) : (factor + _borderRadius),
+      );
+      backgroundPath.arcToPoint(
+        Offset(rect.left + _borderRadius, factor),
+        radius: Radius.circular(_borderRadius),
+        clockwise: !isTop,
+      );
       backgroundPath.lineTo(rect.left + 20, factor);
     } else {
       factor = isTop ? tooltipRect.bottom : tooltipRect.top;
@@ -997,18 +1129,21 @@ class TooltipRenderBox extends RenderShiftedBox {
       backgroundPath.lineTo(endX + ((endX - startX) / 4), factor);
       backgroundPath.lineTo(startX + ((endX - startX) / 4), factor);
     }
-    final Paint fillPaint = Paint()
-      ..color = (_tooltip.color).withValues(alpha: _tooltip.opacity)
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.fill;
+    final Paint fillPaint =
+        Paint()
+          ..color = (_tooltip.color).withValues(alpha: _tooltip.opacity)
+          ..strokeCap = StrokeCap.round
+          ..style = PaintingStyle.fill;
 
-    final Paint strokePaint = Paint()
-      ..color = _tooltip.borderColor == Colors.transparent
-          ? Colors.transparent
-          : _tooltip.borderColor.withValues(alpha: _tooltip.opacity)
-      ..strokeCap = StrokeCap.butt
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = _tooltip.borderWidth;
+    final Paint strokePaint =
+        Paint()
+          ..color =
+              _tooltip.borderColor == Colors.transparent
+                  ? Colors.transparent
+                  : _tooltip.borderColor.withValues(alpha: _tooltip.opacity)
+          ..strokeCap = StrokeCap.butt
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = _tooltip.borderWidth;
     _tooltip.borderWidth == 0
         ? strokePaint.color = Colors.transparent
         : strokePaint.color = strokePaint.color;
@@ -1017,11 +1152,19 @@ class TooltipRenderBox extends RenderShiftedBox {
     tooltipPath.addRRect(tooltipRect);
     if (_tooltip.elevation > 0) {
       if (tooltipRect.width * animationFactor > tooltipRect.width * 0.85) {
-        canvas.drawShadow(_arrowPath, _tooltip.shadowColor ?? fillPaint.color,
-            _tooltip.elevation, true);
+        canvas.drawShadow(
+          _arrowPath,
+          _tooltip.shadowColor ?? fillPaint.color,
+          _tooltip.elevation,
+          true,
+        );
       }
-      canvas.drawShadow(tooltipPath, _tooltip.shadowColor ?? fillPaint.color,
-          _tooltip.elevation, true);
+      canvas.drawShadow(
+        tooltipPath,
+        _tooltip.shadowColor ?? fillPaint.color,
+        _tooltip.elevation,
+        true,
+      );
     }
 
     if (tooltipRect.width * animationFactor > tooltipRect.width * 0.85) {
@@ -1034,37 +1177,46 @@ class TooltipRenderBox extends RenderShiftedBox {
 
   /// This method renders the tooltip header text, content text and the divider
   /// line for default tooltip mode
-  void _drawTooltipText(Canvas canvas, RRect tooltipRect, TextStyle textStyle,
-      Size result, double animationFactor) {
+  void _drawTooltipText(
+    Canvas canvas,
+    RRect tooltipRect,
+    TextStyle textStyle,
+    Size result,
+    double animationFactor,
+  ) {
     const double padding = 10;
     final int maxLinesOfTooltipContent = getMaxLinesContent(_stringValue);
     if (_header!.isNotEmpty) {
       final TextStyle headerTextStyle = _tooltip.textStyle.copyWith(
-        color: textStyle.color?.withValues(alpha: _tooltip.opacity) ??
+        color:
+            textStyle.color?.withValues(alpha: _tooltip.opacity) ??
             _tooltip.labelColor,
         fontSize: (textStyle.fontSize ?? 12) * animationFactor,
         fontWeight: FontWeight.bold,
       );
       final Size headerResult = measureText(_header!, headerTextStyle);
-      _markerPointY = tooltipRect.top +
+      _markerPointY =
+          tooltipRect.top +
           ((_header!.isNotEmpty)
               ? headerResult.height + (padding * 2) + 6
               : (padding * 1.7));
       final int maxLinesOfHeader = getMaxLinesContent(_header);
       _drawText(
-          _tooltip,
-          canvas,
-          _header!,
-          Offset(
-              (tooltipRect.left + tooltipRect.width / 2) -
-                  headerResult.width / 2,
-              tooltipRect.top + padding / 2),
-          headerTextStyle,
-          maxLines: maxLinesOfHeader);
+        _tooltip,
+        canvas,
+        _header!,
+        Offset(
+          (tooltipRect.left + tooltipRect.width / 2) - headerResult.width / 2,
+          tooltipRect.top + padding / 2,
+        ),
+        headerTextStyle,
+        maxLines: maxLinesOfHeader,
+      );
 
       final Paint dividerPaint = Paint();
-      dividerPaint.color =
-          _tooltip.labelColor.withValues(alpha: _tooltip.opacity);
+      dividerPaint.color = _tooltip.labelColor.withValues(
+        alpha: _tooltip.opacity,
+      );
       dividerPaint.strokeWidth = 0.5 * animationFactor;
       dividerPaint.style = PaintingStyle.stroke;
       num lineOffset = 0;
@@ -1077,25 +1229,45 @@ class TooltipRenderBox extends RenderShiftedBox {
       }
       if (animationFactor > 0.5) {
         canvas.drawLine(
-            Offset(tooltipRect.left + padding - lineOffset,
-                tooltipRect.top + headerResult.height + padding),
-            Offset(tooltipRect.right - padding - lineOffset,
-                tooltipRect.top + headerResult.height + padding),
-            dividerPaint);
+          Offset(
+            tooltipRect.left + padding - lineOffset,
+            tooltipRect.top + headerResult.height + padding,
+          ),
+          Offset(
+            tooltipRect.right - padding - lineOffset,
+            tooltipRect.top + headerResult.height + padding,
+          ),
+          dividerPaint,
+        );
       }
     }
     _renderTooltipText(
-        canvas, tooltipRect, result, textStyle, maxLinesOfTooltipContent);
+      canvas,
+      tooltipRect,
+      result,
+      textStyle,
+      maxLinesOfTooltipContent,
+    );
   }
 
-  void _renderTooltipText(Canvas canvas, RRect tooltipRect, Size textSize,
-      TextStyle textStyle, int maxLines) {
+  void _renderTooltipText(
+    Canvas canvas,
+    RRect tooltipRect,
+    Size textSize,
+    TextStyle textStyle,
+    int maxLines,
+  ) {
     if (_tooltipState._isRtl && _stringValue!.contains('\n')) {
-      _drawMultiLineRtlText(_tooltip, canvas, _stringValue!,
-          _getTextPosition(textSize, tooltipRect, maxLines), textStyle,
-          markerSize: markerSize,
-          tooltipRect: tooltipRect,
-          totalTextSize: textSize);
+      _drawMultiLineRtlText(
+        _tooltip,
+        canvas,
+        _stringValue!,
+        _getTextPosition(textSize, tooltipRect, maxLines),
+        textStyle,
+        markerSize: markerSize,
+        tooltipRect: tooltipRect,
+        totalTextSize: textSize,
+      );
     } else {
       _drawText(
         _tooltip,
@@ -1115,7 +1287,8 @@ class TooltipRenderBox extends RenderShiftedBox {
         textOffsetX =
             tooltipRect.left + tooltipRect.width / 2 - textSize.width / 2;
       } else {
-        textOffsetX = tooltipRect.right -
+        textOffsetX =
+            tooltipRect.right -
             tooltipRect.width / 2 -
             textSize.width / 2 -
             2 * markerSize;
@@ -1123,34 +1296,46 @@ class TooltipRenderBox extends RenderShiftedBox {
     } else {
       textOffsetX =
           (tooltipRect.left + 2 * markerSize + tooltipRect.width / 2) -
-              textSize.width / 2;
+          textSize.width / 2;
     }
     return Offset(
-        textOffsetX,
-        _header!.isNotEmpty
-            ? (tooltipRect.top + tooltipRect.height) - textSize.height - 5
-            : (tooltipRect.top + tooltipRect.height / 2) - textSize.height / 2);
+      textOffsetX,
+      _header!.isNotEmpty
+          ? (tooltipRect.top + tooltipRect.height) - textSize.height - 5
+          : (tooltipRect.top + tooltipRect.height / 2) - textSize.height / 2,
+    );
   }
 
-  void _drawMultiLineRtlText(SfTooltip tooltip, Canvas canvas, String text,
-      Offset point, TextStyle style,
-      {double? markerSize, RRect? tooltipRect, Size? totalTextSize}) {
+  void _drawMultiLineRtlText(
+    SfTooltip tooltip,
+    Canvas canvas,
+    String text,
+    Offset point,
+    TextStyle style, {
+    double? markerSize,
+    RRect? tooltipRect,
+    Size? totalTextSize,
+  }) {
     final List<String> textCollections = text.split('\n');
-    final double rectEndPointBeforeMarker = _getMarkerPosition(
-                totalTextSize ?? Size.zero,
-                markerSize ?? 0.0,
-                tooltipRect ?? RRect.zero)
-            .dx -
+    final double rectEndPointBeforeMarker =
+        _getMarkerPosition(
+          totalTextSize ?? Size.zero,
+          markerSize ?? 0.0,
+          tooltipRect ?? RRect.zero,
+        ).dx -
         (2 * (markerSize ?? 0.0));
     for (int count = 0; count < textCollections.length; count++) {
       final Size currentTextSize = measureText(textCollections[count], style);
       _drawText(
-          tooltip,
-          canvas,
-          textCollections[count],
-          Offset(rectEndPointBeforeMarker - currentTextSize.width,
-              point.dy + (currentTextSize.height * count)),
-          style);
+        tooltip,
+        canvas,
+        textCollections[count],
+        Offset(
+          rectEndPointBeforeMarker - currentTextSize.width,
+          point.dy + (currentTextSize.height * count),
+        ),
+        style,
+      );
     }
   }
 
@@ -1182,18 +1367,21 @@ class TooltipRenderBox extends RenderShiftedBox {
     if (kIsWeb) {
       if (_animationFactor < 0.5) {
         style = style.copyWith(
-            color: style.color!.withValues(alpha: _animationFactor));
+          color: style.color!.withValues(alpha: _animationFactor),
+        );
       } else if (_animationFactor <= 1) {
         style = style.copyWith(
-            color: style.color!.withValues(alpha: tooltip.opacity));
+          color: style.color!.withValues(alpha: tooltip.opacity),
+        );
       }
     }
     final TextSpan span = TextSpan(text: text, style: style);
     final TextPainter tp = TextPainter(
-        text: span,
-        textDirection: TextDirection.ltr,
-        textAlign: tooltipTextAlign,
-        maxLines: maxLines ?? 1);
+      text: span,
+      textDirection: TextDirection.ltr,
+      textAlign: tooltipTextAlign,
+      maxLines: maxLines ?? 1,
+    );
     tp.layout();
     canvas.save();
     canvas.translate(pointX, point.dy);
@@ -1218,7 +1406,8 @@ class TooltipRenderBox extends RenderShiftedBox {
     }
     if (tooltipRect.left + tooltipRect.width >
         bounds.left + offset.dx + bounds.width) {
-      left = (bounds.left + bounds.width + offset.dx) -
+      left =
+          (bounds.left + bounds.width + offset.dx) -
           tooltipRect.width -
           padding;
     }
@@ -1233,7 +1422,11 @@ class TooltipRenderBox extends RenderShiftedBox {
 /// This method returns the path of marker shapes at the position at which the
 /// marker needs to be rendered
 Path _getMarkerShapesPath(
-    DataMarkerType markerType, Offset position, dynamic image, Size size) {
+  DataMarkerType markerType,
+  Offset position,
+  dynamic image,
+  Size size,
+) {
   final Path path = Path();
   switch (markerType) {
     case DataMarkerType.circle:
@@ -1257,19 +1450,34 @@ Path _getMarkerShapesPath(
     case DataMarkerType.verticalLine:
       {
         drawVerticalLine(
-            path, position.dx, position.dy, size.width, size.height);
+          path,
+          position.dx,
+          position.dy,
+          size.width,
+          size.height,
+        );
       }
       break;
     case DataMarkerType.invertedTriangle:
       {
         drawInvertedTriangle(
-            path, position.dx, position.dy, size.width, size.height);
+          path,
+          position.dx,
+          position.dy,
+          size.width,
+          size.height,
+        );
       }
       break;
     case DataMarkerType.horizontalLine:
       {
         drawHorizontalLine(
-            path, position.dx, position.dy, size.width, size.height);
+          path,
+          position.dx,
+          position.dy,
+          size.width,
+          size.height,
+        );
       }
       break;
     case DataMarkerType.diamond:

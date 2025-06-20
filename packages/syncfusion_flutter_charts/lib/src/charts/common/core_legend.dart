@@ -9,6 +9,7 @@ import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart' as shape_helper;
 import 'package:syncfusion_flutter_core/core.dart';
 
+import '../series/chart_series.dart';
 import '../utils/helper.dart';
 import 'element_widget.dart';
 
@@ -19,15 +20,15 @@ typedef LegendItemBuilder = Widget Function(BuildContext context, int index);
 typedef LegendItemTapCallback = void Function(LegendItem, bool);
 
 /// Callback which returns toggled indices and teh current toggled index.
-typedef ToggledIndicesChangedCallback = void Function(
-    List<int> indices, int currentIndex);
+typedef ToggledIndicesChangedCallback =
+    void Function(List<int> indices, int currentIndex);
 
 /// Called with the details of single legend item.
 typedef ItemRenderCallback = void Function(ItemRendererDetails);
 
 /// Signature to return a [Widget] for the given value.
-typedef LegendPointerBuilder = Widget Function(
-    BuildContext context, dynamic value);
+typedef LegendPointerBuilder =
+    Widget Function(BuildContext context, dynamic value);
 
 /// Positions the legend in the different directions.
 enum LegendPosition {
@@ -69,7 +70,7 @@ enum LegendLabelsPlacement {
 
   /// [LegendLabelsPlacement.betweenItems] places labels
   /// in-between two bars.
-  betweenItems
+  betweenItems,
 }
 
 /// Placement of edge labels in the bar legend.
@@ -79,7 +80,7 @@ enum LegendEdgeLabelsPlacement {
 
   /// Place the edge labels in the center of the starting position of the
   /// legend bars.
-  center
+  center,
 }
 
 /// Behavior of the labels when it overflowed from the shape.
@@ -92,7 +93,7 @@ enum LegendLabelOverflow {
 
   /// It trims the labels based on the available space in their respective
   /// legend item.
-  ellipsis
+  ellipsis,
 }
 
 /// Applies gradient or solid color for the bar segments.
@@ -101,7 +102,7 @@ enum LegendPaintingStyle {
   solid,
 
   /// Applies gradient color for bar segments.
-  gradient
+  gradient,
 }
 
 /// Specifies the alignment of legend.
@@ -173,13 +174,14 @@ class ItemRendererDetails {
 }
 
 /// Represents the class of items in legends.
-class LegendItem {
+abstract class LegendItem {
   /// Creates a [LegendItem].
   LegendItem({
     required this.text,
     required this.iconType,
     required this.iconColor,
     required this.iconBorderWidth,
+    required this.seriesIndex,
     this.iconBorderColor,
     this.shader,
     this.imageProvider,
@@ -190,6 +192,8 @@ class LegendItem {
     this.degree,
     this.endAngle,
     this.startAngle,
+    this.series,
+    this.pointIndex = -1,
   });
 
   /// Specifies the text of the legend.
@@ -236,6 +240,15 @@ class LegendItem {
 
   /// Specifies the legend item is tapped.
   VoidCallback? onToggled;
+
+  /// Specifies the series associated with the legend item.
+  final ChartSeriesRenderer? series;
+
+  /// Specifies the index of the series associated with the legend item.
+  final int seriesIndex;
+
+  /// Specifies the index of the data point in the series.
+  final int pointIndex;
 }
 
 /// The base layout for the legend dependents.
@@ -421,7 +434,9 @@ class LegendLayoutState extends State<LegendLayout> {
   List<LegendItem>? _items;
 
   LegendPosition _effectiveLegendPosition(
-      LegendPosition position, TextDirection direction) {
+    LegendPosition position,
+    TextDirection direction,
+  ) {
     if (position == LegendPosition.top || position == LegendPosition.bottom) {
       return position;
     }
@@ -466,14 +481,15 @@ class LegendLayoutState extends State<LegendLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget? legend = widget.showLegend
-        ? CustomLayoutBuilder(
-            key: _legendKey,
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return _buildLegend();
-            },
-          )
-        : null;
+    final Widget? legend =
+        widget.showLegend
+            ? CustomLayoutBuilder(
+              key: _legendKey,
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return _buildLegend();
+              },
+            )
+            : null;
 
     return _LegendLayoutHandler(
       onTouchDown: widget.onTouchDown,
@@ -487,7 +503,9 @@ class LegendLayoutState extends State<LegendLayout> {
       legendHeightFactor: widget.legendHeightFactor,
       legendFloatingOffset: widget.legendFloatingOffset,
       legendPosition: _effectiveLegendPosition(
-          widget.legendPosition, Directionality.of(context)),
+        widget.legendPosition,
+        Directionality.of(context),
+      ),
       legendAlignment: widget.legendAlignment,
       padding: widget.padding,
       backgroundColor: widget.backgroundColor,
@@ -498,10 +516,7 @@ class LegendLayoutState extends State<LegendLayout> {
       legendTitle: widget.legendTitle,
       legend: legend,
       // TODO(VijayakumarM): Testing needed.
-      plotArea: KeyedSubtree(
-        key: _plotAreaKey,
-        child: widget.child,
-      ),
+      plotArea: KeyedSubtree(key: _plotAreaKey, child: widget.child),
     );
   }
 
@@ -601,7 +616,8 @@ class _LegendLayoutHandler
         backgroundColor: backgroundColor,
         borderColor: borderColor,
         borderWidth: borderWidth,
-        isResponsive: isResponsive)
+        isResponsive: isResponsive,
+      )
       ..onTouchDown = onTouchDown
       ..onTouchMove = onTouchMove
       ..onTouchUp = onTouchUp;
@@ -609,7 +625,9 @@ class _LegendLayoutHandler
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderLegendLayoutHandler renderObject) {
+    BuildContext context,
+    _RenderLegendLayoutHandler renderObject,
+  ) {
     renderObject
       ..backgroundImage = backgroundImage
       ..legendBackgroundColor = legendBackgroundColor
@@ -667,22 +685,22 @@ class _RenderLegendLayoutHandler extends RenderBox
     required Color? borderColor,
     required double borderWidth,
     required bool isResponsive,
-  })  : _backgroundImage = backgroundImage,
-        _legendBackgroundColor = legendBackgroundColor,
-        _legendBorderColor = legendBorderColor,
-        _legendBorderWidth = legendBorderWidth,
-        _legendWidthFactor = legendWidthFactor,
-        _legendHeightFactor = legendHeightFactor,
-        _legendFloatingOffset = legendFloatingOffset,
-        _isLegendFloating = legendFloatingOffset != null,
-        _legendPosition = legendPosition,
-        _legendAlignment = legendAlignment,
-        _legendTitleAlignment = legendTitleAlignment,
-        _padding = padding,
-        _backgroundColor = backgroundColor,
-        _borderColor = borderColor,
-        _borderWidth = borderWidth,
-        _isResponsive = isResponsive {
+  }) : _backgroundImage = backgroundImage,
+       _legendBackgroundColor = legendBackgroundColor,
+       _legendBorderColor = legendBorderColor,
+       _legendBorderWidth = legendBorderWidth,
+       _legendWidthFactor = legendWidthFactor,
+       _legendHeightFactor = legendHeightFactor,
+       _legendFloatingOffset = legendFloatingOffset,
+       _isLegendFloating = legendFloatingOffset != null,
+       _legendPosition = legendPosition,
+       _legendAlignment = legendAlignment,
+       _legendTitleAlignment = legendTitleAlignment,
+       _padding = padding,
+       _backgroundColor = backgroundColor,
+       _borderColor = borderColor,
+       _borderWidth = borderWidth,
+       _isResponsive = isResponsive {
     _fetchImage();
   }
 
@@ -863,7 +881,8 @@ class _RenderLegendLayoutHandler extends RenderBox
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    final Iterable<_LegendSlot> slots = _LegendSlot.values.reversed;
+    final Iterable<_LegendSlot> slots =
+        _isLegendFloating ? _LegendSlot.values : _LegendSlot.values.reversed;
     for (final _LegendSlot slot in slots) {
       final RenderBox? child = childForSlot(slot);
       if (child != null) {
@@ -944,9 +963,10 @@ class _RenderLegendLayoutHandler extends RenderBox
       );
     }
 
-    final double gap = _isLegendFloating || legendSize.isEmpty
-        ? 0
-        : _spaceBetweenLegendAndPlotArea;
+    final double gap =
+        _isLegendFloating || legendSize.isEmpty
+            ? 0
+            : _spaceBetweenLegendAndPlotArea;
     late BoxConstraints plotAreaConstraints;
     if (_isLegendFloating) {
       plotAreaConstraints = BoxConstraints(
@@ -989,16 +1009,25 @@ class _RenderLegendLayoutHandler extends RenderBox
 
     plotArea!.layout(plotAreaConstraints, parentUsesSize: true);
     _alignChildren(
-        legendSize, legendTitleSize, availableWidth, availableHeight);
+      legendSize,
+      legendTitleSize,
+      availableWidth,
+      availableHeight,
+    );
 
     size = Size(desiredWidth, desiredHeight);
   }
 
-  void _alignChildren(Size legendSize, Size legendTitleSize,
-      double availableWidth, double availableHeight) {
-    final double gap = _isLegendFloating || legendSize.isEmpty
-        ? 0
-        : _spaceBetweenLegendAndPlotArea;
+  void _alignChildren(
+    Size legendSize,
+    Size legendTitleSize,
+    double availableWidth,
+    double availableHeight,
+  ) {
+    final double gap =
+        _isLegendFloating || legendSize.isEmpty
+            ? 0
+            : _spaceBetweenLegendAndPlotArea;
     final BoxParentData plotAreaParentData =
         plotArea!.parentData! as BoxParentData;
     if (_legendNeedsPaint) {
@@ -1011,18 +1040,12 @@ class _RenderLegendLayoutHandler extends RenderBox
       switch (legendPosition) {
         case LegendPosition.left:
         case LegendPosition.right:
-          legendAreaSize = Size(
-            legendSize.width,
-            availableHeight,
-          );
+          legendAreaSize = Size(legendSize.width, availableHeight);
           break;
 
         case LegendPosition.top:
         case LegendPosition.bottom:
-          legendAreaSize = Size(
-            availableWidth,
-            legendSize.height,
-          );
+          legendAreaSize = Size(availableWidth, legendSize.height);
           break;
       }
 
@@ -1030,8 +1053,9 @@ class _RenderLegendLayoutHandler extends RenderBox
         plotAreaParentData.offset = padding.topLeft;
 
         final Alignment alignmentForLegend = _effectiveLegendAlignment();
-        legendParentData.offset = alignmentForLegend
-            .alongOffset(legendAreaSize - legendSize as Offset);
+        legendParentData.offset = alignmentForLegend.alongOffset(
+          legendAreaSize - legendSize as Offset,
+        );
         switch (legendPosition) {
           case LegendPosition.left:
             legendParentData.offset += padding.topLeft;
@@ -1043,35 +1067,41 @@ class _RenderLegendLayoutHandler extends RenderBox
 
           case LegendPosition.right:
             legendParentData.offset = Offset(
-                plotArea!.size.width - legendSize.width - padding.left - gap,
-                legendParentData.offset.dy + padding.top);
+              plotArea!.size.width - legendSize.width - padding.left - gap,
+              legendParentData.offset.dy + padding.top,
+            );
             break;
 
           case LegendPosition.bottom:
             legendParentData.offset = Offset(
-                legendParentData.offset.dx + padding.left,
-                plotArea!.size.height - legendSize.height - padding.top);
+              legendParentData.offset.dx + padding.left,
+              plotArea!.size.height - legendSize.height - padding.top,
+            );
             break;
         }
 
         legendTitleParentData?.offset = legendParentData.offset;
         legendParentData.offset = legendParentData.offset.translate(
-            legendFloatingOffset!.dx,
-            legendFloatingOffset!.dy + legendTitleSize.height);
+          legendFloatingOffset!.dx,
+          legendFloatingOffset!.dy + legendTitleSize.height,
+        );
 
         //Edge detection for legend.
         Offset legendOffset = legendParentData.offset;
-        Offset legendTitleOffset = legendTitleParentData != null
-            ? legendTitleParentData.offset
-            : Offset.zero;
+        Offset legendTitleOffset =
+            legendTitleParentData != null
+                ? legendTitleParentData.offset
+                : Offset.zero;
         final Offset parentOffset = plotAreaParentData.offset;
         if (legendOffset.dx < parentOffset.dx) {
           legendOffset = Offset(parentOffset.dx, legendOffset.dy);
           legendTitleOffset = Offset(legendOffset.dx, legendTitleOffset.dy);
         } else if ((legendOffset.dx + (legendSize.width + padding.left + gap)) >
             plotArea!.size.width) {
-          legendOffset =
-              Offset(plotArea!.size.width - legendSize.width, legendOffset.dy);
+          legendOffset = Offset(
+            plotArea!.size.width - legendSize.width,
+            legendOffset.dy,
+          );
           legendTitleOffset = Offset(legendOffset.dx, legendTitleOffset.dy);
         }
 
@@ -1080,59 +1110,79 @@ class _RenderLegendLayoutHandler extends RenderBox
           legendTitleOffset = Offset(legendTitleOffset.dx, legendOffset.dy);
         } else if ((legendOffset.dy + (legendSize.height + padding.top + gap)) >
             plotArea!.size.height) {
-          legendOffset = Offset(legendOffset.dx,
-              plotArea!.size.height - legendSize.height + padding.top);
+          legendOffset = Offset(
+            legendOffset.dx,
+            plotArea!.size.height - legendSize.height + padding.top,
+          );
           legendTitleOffset = Offset(legendTitleOffset.dx, legendOffset.dy);
         }
         legendParentData.offset = legendOffset;
-        legendTitleParentData?.offset = legendTitleOffset +
+        legendTitleParentData?.offset =
+            legendTitleOffset +
             _legendTitleAlignmentOffset(
-                    legendTitleAlignment, legendTitleSize, legendSize)
-                .translate(
-                    legendPosition == LegendPosition.right
-                        ? 0
-                        : legendFloatingOffset!.dx,
-                    legendPosition == LegendPosition.bottom
-                        ? 0
-                        : legendFloatingOffset!.dy);
+              legendTitleAlignment,
+              legendTitleSize,
+              legendSize,
+            ).translate(
+              legendPosition == LegendPosition.right
+                  ? 0
+                  : legendFloatingOffset!.dx,
+              legendPosition == LegendPosition.bottom
+                  ? 0
+                  : legendFloatingOffset!.dy,
+            );
       } else {
         final Alignment alignmentForLegend = _effectiveLegendAlignment();
-        legendParentData.offset = alignmentForLegend
-            .alongOffset(legendAreaSize - legendSize as Offset);
+        legendParentData.offset = alignmentForLegend.alongOffset(
+          legendAreaSize - legendSize as Offset,
+        );
         final Size legendPortionFromAvailableSize =
             _isLegendFloating ? Size.zero : legendSize;
         switch (legendPosition) {
           case LegendPosition.left:
             legendParentData.offset += padding.topLeft;
             plotAreaParentData.offset = Offset(
-                padding.left + legendPortionFromAvailableSize.width + gap,
-                padding.top);
+              padding.left + legendPortionFromAvailableSize.width + gap,
+              padding.top,
+            );
             break;
 
           case LegendPosition.top:
             legendParentData.offset += padding.topLeft;
-            plotAreaParentData.offset = Offset(padding.left,
-                padding.top + legendPortionFromAvailableSize.height + gap);
+            plotAreaParentData.offset = Offset(
+              padding.left,
+              padding.top + legendPortionFromAvailableSize.height + gap,
+            );
             break;
 
           case LegendPosition.right:
-            legendParentData.offset +=
-                Offset(padding.left + plotArea!.size.width + gap, padding.top);
+            legendParentData.offset += Offset(
+              padding.left + plotArea!.size.width + gap,
+              padding.top,
+            );
             plotAreaParentData.offset = Offset(padding.left, padding.top);
             break;
 
           case LegendPosition.bottom:
-            legendParentData.offset +=
-                Offset(padding.left, padding.top + plotArea!.size.height + gap);
+            legendParentData.offset += Offset(
+              padding.left,
+              padding.top + plotArea!.size.height + gap,
+            );
             plotAreaParentData.offset = Offset(padding.left, padding.top);
             break;
         }
 
-        legendTitleParentData?.offset = legendParentData.offset +
+        legendTitleParentData?.offset =
+            legendParentData.offset +
             _legendTitleAlignmentOffset(
-                legendTitleAlignment, legendTitleSize, legendSize);
-        legendParentData.offset =
-            legendParentData.offset.translate(0.0, legendTitleSize.height);
+              legendTitleAlignment,
+              legendTitleSize,
+              legendSize,
+            );
+        legendParentData.offset = legendParentData.offset.translate(
+          0.0,
+          legendTitleSize.height,
+        );
       }
     } else {
       plotAreaParentData.offset = padding.topLeft;
@@ -1140,7 +1190,10 @@ class _RenderLegendLayoutHandler extends RenderBox
   }
 
   Offset _legendTitleAlignmentOffset(
-      LegendAlignment alignment, Size titleSize, Size areaSize) {
+    LegendAlignment alignment,
+    Size titleSize,
+    Size areaSize,
+  ) {
     switch (alignment) {
       case LegendAlignment.near:
         return Offset.zero;
@@ -1231,9 +1284,11 @@ class _RenderLegendLayoutHandler extends RenderBox
 
   void _drawLegendBackgroundAndBorder(PaintingContext context, Offset offset) {
     if (legend != null) {
-      final bool canDrawLegendBackground = legendBackgroundColor != null &&
+      final bool canDrawLegendBackground =
+          legendBackgroundColor != null &&
           legendBackgroundColor != Colors.transparent;
-      final bool canDrawLegendBorder = legendBorderColor != null &&
+      final bool canDrawLegendBorder =
+          legendBorderColor != null &&
           legendBorderColor != Colors.transparent &&
           legendBorderWidth > 0;
       if (canDrawLegendBackground || canDrawLegendBorder) {
@@ -1246,17 +1301,22 @@ class _RenderLegendLayoutHandler extends RenderBox
           legendTitleOffset =
               (legendTitle!.parentData! as BoxParentData).offset;
           legendSize = Size(
-              legendSize.width, legendTitle!.size.height + legendSize.height);
+            legendSize.width,
+            legendTitle!.size.height + legendSize.height,
+          );
         }
 
         final Rect bounds = Rect.fromLTWH(
-            legendBounds.left + offset.dx,
-            legendTitleOffset.dy + offset.dy,
-            legendSize.width,
-            legendSize.height);
+          legendBounds.left + offset.dx,
+          legendTitleOffset.dy + offset.dy,
+          legendSize.width,
+          legendSize.height,
+        );
         if (canDrawLegendBackground) {
-          context.canvas
-              .drawRect(bounds, Paint()..color = legendBackgroundColor!);
+          context.canvas.drawRect(
+            bounds,
+            Paint()..color = legendBackgroundColor!,
+          );
         }
 
         if (canDrawLegendBorder) {
@@ -1377,27 +1437,29 @@ class _VectorLegendState extends State<_VectorLegend> {
       final int length = widget.items!.length;
       for (int i = 0; i < length; i++) {
         final LegendItem item = widget.items![i];
-        legendItems.add(_IconText(
-          details: item,
-          index: i,
-          itemBuilder: widget.itemBuilder,
-          padding: EdgeInsets.all(widget.itemPadding / 2),
-          textStyle: widget.textStyle,
-          iconSize: widget.iconSize,
-          iconBorderColor: widget.iconBorderColor,
-          iconBorderWidth: widget.iconBorderWidth,
-          spacing: widget.spacing,
-          iconOpacity: widget.itemIconOpacity,
-          toggleEnabled: widget.enableToggling,
-          isToggled: item.isToggled,
-          toggledColor: _effectiveToggledColor(context),
-          toggledTextOpacity: widget.toggledTextOpacity,
-          onTap: item.onTap,
-          overlayMarkerType: item.overlayMarkerType,
-          degree: item.degree,
-          startAngle: item.startAngle,
-          endAngle: item.endAngle,
-        ));
+        legendItems.add(
+          _IconText(
+            details: item,
+            index: i,
+            itemBuilder: widget.itemBuilder,
+            padding: EdgeInsets.all(widget.itemPadding / 2),
+            textStyle: widget.textStyle,
+            iconSize: widget.iconSize,
+            iconBorderColor: widget.iconBorderColor,
+            iconBorderWidth: widget.iconBorderWidth,
+            spacing: widget.spacing,
+            iconOpacity: widget.itemIconOpacity,
+            toggleEnabled: widget.enableToggling,
+            isToggled: item.isToggled,
+            toggledColor: _effectiveToggledColor(context),
+            toggledTextOpacity: widget.toggledTextOpacity,
+            onTap: item.onTap,
+            overlayMarkerType: item.overlayMarkerType,
+            degree: item.degree,
+            startAngle: item.startAngle,
+            endAngle: item.endAngle,
+          ),
+        );
       }
     }
 
@@ -1409,9 +1471,10 @@ class _VectorLegendState extends State<_VectorLegend> {
     if (widget.enableToggling) {
       toggledColor = widget.toggledIconColor ?? widget.toggledItemColor;
       if (toggledColor == null || toggledColor == Colors.transparent) {
-        toggledColor = Theme.of(context).brightness == Brightness.light
-            ? const Color.fromRGBO(230, 230, 230, 1)
-            : const Color.fromRGBO(66, 66, 66, 1);
+        toggledColor =
+            Theme.of(context).brightness == Brightness.light
+                ? const Color.fromRGBO(230, 230, 230, 1)
+                : const Color.fromRGBO(66, 66, 66, 1);
       }
     }
 
@@ -1421,8 +1484,10 @@ class _VectorLegendState extends State<_VectorLegend> {
   Widget _wrapWithWrap(List<Widget> items) {
     final double horizontalPadding = widget.itemPadding / 2;
     return Padding(
-      padding:
-          EdgeInsets.only(left: horizontalPadding, right: horizontalPadding),
+      padding: EdgeInsets.only(
+        left: horizontalPadding,
+        right: horizontalPadding,
+      ),
       child: Wrap(
         direction: widget.direction,
         spacing: widget.itemSpacing,
@@ -1655,7 +1720,9 @@ class _IconTextState extends State<_IconText>
   bool _isToggled = false;
 
   Widget _buildCustomPaint(
-      ItemRendererDetails details, AsyncSnapshot<ui.Image?> snapshot) {
+    ItemRendererDetails details,
+    AsyncSnapshot<ui.Image?> snapshot,
+  ) {
     Widget current = CustomPaint(
       size: widget.iconSize,
       painter: _LegendIconShape(
@@ -1685,8 +1752,9 @@ class _IconTextState extends State<_IconText>
     return ShaderMask(
       blendMode: BlendMode.srcATop,
       shaderCallback: (Rect bounds) {
-        return LinearGradient(colors: <Color>[color, color])
-            .createShader(bounds);
+        return LinearGradient(
+          colors: <Color>[color, color],
+        ).createShader(bounds);
       },
       child: current,
     );
@@ -1700,8 +1768,9 @@ class _IconTextState extends State<_IconText>
 
     _completer = Completer<ImageInfo>();
     _imageStream?.removeListener(imageStreamListener(_completer!));
-    _imageStream =
-        widget.details.imageProvider!.resolve(ImageConfiguration.empty);
+    _imageStream = widget.details.imageProvider!.resolve(
+      ImageConfiguration.empty,
+    );
     _imageStream!.addListener(imageStreamListener(_completer!));
     _imageInfo?.dispose();
     _imageInfo = await _completer!.future;
@@ -1736,10 +1805,14 @@ class _IconTextState extends State<_IconText>
   @override
   void initState() {
     _toggleAnimationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 250));
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
     _toggleAnimationController.addListener(rebuild);
     _toggleAnimation = CurvedAnimation(
-        parent: _toggleAnimationController, curve: Curves.easeInOut);
+      parent: _toggleAnimationController,
+      curve: Curves.easeInOut,
+    );
 
     final Color begin =
         widget.details.shader == null && widget.details.imageProvider == null
@@ -1750,8 +1823,10 @@ class _IconTextState extends State<_IconText>
             ? widget.details.iconBorderColor ?? widget.iconBorderColor
             : Colors.transparent;
     _iconColorTween = ColorTween(begin: begin, end: widget.toggledColor);
-    _iconBorderColorTween =
-        ColorTween(begin: borderColorBegin, end: widget.toggledColor);
+    _iconBorderColorTween = ColorTween(
+      begin: borderColorBegin,
+      end: widget.toggledColor,
+    );
     _shaderMaskColorTween = ColorTween(end: widget.toggledColor);
     _opacityTween = Tween<double>(begin: 1.0, end: widget.toggledTextOpacity);
 
@@ -1829,10 +1904,11 @@ class _IconTextState extends State<_IconText>
             current = _buildShaderMask(color, current);
           }
         } else {
-          final Color? effectiveIconColor =
-              _iconColorTween.evaluate(_toggleAnimation);
-          final Color? effectiveBorderIconColor =
-              _iconBorderColorTween.evaluate(_toggleAnimation);
+          final Color? effectiveIconColor = _iconColorTween.evaluate(
+            _toggleAnimation,
+          );
+          final Color? effectiveBorderIconColor = _iconBorderColorTween
+              .evaluate(_toggleAnimation);
           final ItemRendererDetails details = ItemRendererDetails(
             item: widget.details,
             index: widget.index,
@@ -1852,8 +1928,9 @@ class _IconTextState extends State<_IconText>
           if (effectiveBorderIconColor != null &&
               effectiveBorderIconColor != details.iconBorderColor) {
             _iconBorderColorTween.begin = details.iconBorderColor;
-            details.iconBorderColor =
-                _iconBorderColorTween.evaluate(_toggleAnimation);
+            details.iconBorderColor = _iconBorderColorTween.evaluate(
+              _toggleAnimation,
+            );
           }
           current = SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),
@@ -1866,21 +1943,20 @@ class _IconTextState extends State<_IconText>
                 Text(
                   details.text,
                   style: widget.textStyle.copyWith(
-                    color: widget.textStyle.foreground == null
-                        ? widget.textStyle.color!.withValues(
-                            alpha: _opacityTween.evaluate(_toggleAnimation))
-                        : widget.textStyle.foreground!.color,
+                    color:
+                        widget.textStyle.foreground == null
+                            ? widget.textStyle.color!.withValues(
+                              alpha: _opacityTween.evaluate(_toggleAnimation),
+                            )
+                            : widget.textStyle.foreground!.color,
                   ),
-                )
+                ),
               ],
             ),
           );
         }
 
-        current = Padding(
-          padding: widget.padding,
-          child: current,
-        );
+        current = Padding(padding: widget.padding, child: current);
 
         if (widget.toggleEnabled) {
           current = MouseRegion(

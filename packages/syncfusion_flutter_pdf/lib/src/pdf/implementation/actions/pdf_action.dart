@@ -19,8 +19,9 @@ abstract class PdfAction implements IPdfWrapper {
   set next(PdfAction? value) {
     if (value != null && _helper.action != value) {
       _helper.action = value;
-      _helper.dictionary.setArray(PdfDictionaryProperties.next,
-          <IPdfPrimitive>[PdfReferenceHolder(_helper.action)]);
+      _helper.dictionary.setArray(PdfDictionaryProperties.next, <IPdfPrimitive>[
+        PdfReferenceHolder(_helper.action),
+      ]);
     }
   }
 }
@@ -43,8 +44,10 @@ class PdfActionHelper {
 
   /// internal method
   void initialize() {
-    dictionary.setProperty(PdfName(PdfDictionaryProperties.type),
-        PdfName(PdfDictionaryProperties.action));
+    dictionary.setProperty(
+      PdfName(PdfDictionaryProperties.type),
+      PdfName(PdfDictionaryProperties.action),
+    );
     element = dictionary;
   }
 

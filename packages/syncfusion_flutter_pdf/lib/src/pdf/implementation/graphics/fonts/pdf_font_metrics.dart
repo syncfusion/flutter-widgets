@@ -113,7 +113,9 @@ class StandardWidthTable extends WidthTable {
   int? _returnValue(int index) {
     if (index < 0 || index >= _widths!.length) {
       throw ArgumentError.value(
-          index, 'The character is not supported by the font.');
+        index,
+        'The character is not supported by the font.',
+      );
     }
     return _widths![index];
   }

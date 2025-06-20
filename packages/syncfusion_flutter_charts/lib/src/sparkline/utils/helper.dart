@@ -27,13 +27,15 @@ Size getTextSize(String textValue, TextStyle textStyle) {
     textAlign: TextAlign.center,
     textDirection: TextDirection.ltr,
     text: TextSpan(
-        text: textValue,
-        style: TextStyle(
-            color: textStyle.color,
-            fontSize: textStyle.fontSize,
-            fontFamily: textStyle.fontFamily,
-            fontStyle: textStyle.fontStyle,
-            fontWeight: textStyle.fontWeight)),
+      text: textValue,
+      style: TextStyle(
+        color: textStyle.color,
+        fontSize: textStyle.fontSize,
+        fontFamily: textStyle.fontFamily,
+        fontStyle: textStyle.fontStyle,
+        fontWeight: textStyle.fontWeight,
+      ),
+    ),
   );
   textPainter.layout();
   size = Size(textPainter.width, textPainter.height);
@@ -45,10 +47,11 @@ void drawText(Canvas canvas, String dataLabel, Offset point, TextStyle style) {
   final num maxLines = getMaxLinesContent(dataLabel);
   final TextSpan span = TextSpan(text: dataLabel, style: style);
   final TextPainter tp = TextPainter(
-      text: span,
-      textDirection: TextDirection.ltr,
-      textAlign: TextAlign.center,
-      maxLines: maxLines.toInt());
+    text: span,
+    textDirection: TextDirection.ltr,
+    textAlign: TextAlign.center,
+    maxLines: maxLines.toInt(),
+  );
   tp.layout();
   canvas.save();
   canvas.translate(point.dx, point.dy);
@@ -59,8 +62,12 @@ void drawText(Canvas canvas, String dataLabel, Offset point, TextStyle style) {
 
 /// Draw the dashed line.
 void drawDashedPath(
-    Canvas canvas, Paint paint, Offset moveToPoint, Offset lineToPoint,
-    [List<double>? dashArray]) {
+  Canvas canvas,
+  Paint paint,
+  Offset moveToPoint,
+  Offset lineToPoint, [
+  List<double>? dashArray,
+]) {
   bool even = false;
   final Path path = Path();
   path.moveTo(moveToPoint.dx, moveToPoint.dy);
@@ -74,11 +81,9 @@ void drawDashedPath(
     }
     if (even == false) {
       canvas.drawPath(
-          _dashPath(
-            path,
-            dashArray: DashArrayIntervalList<double>(dashArray),
-          )!,
-          paint);
+        _dashPath(path, dashArray: DashArrayIntervalList<double>(dashArray))!,
+        paint,
+      );
     }
   } else {
     canvas.drawPath(path, paint);
@@ -104,7 +109,9 @@ Path? _dashPath(
       length = dashArray!.next;
       if (draw) {
         path.addPath(
-            measurePath.extractPath(distance, distance + length), Offset.zero);
+          measurePath.extractPath(distance, distance + length),
+          Offset.zero,
+        );
       }
       distance += length;
       draw = !draw;
@@ -116,16 +123,18 @@ Path? _dashPath(
 /// Returns the Rectangle marker type.
 Path drawRectangle(Path path, double x, double y, double size) {
   path.addRect(
-      Rect.fromLTRB(x - size / 2, y - size / 2, x + size / 2, y + size / 2));
+    Rect.fromLTRB(x - size / 2, y - size / 2, x + size / 2, y + size / 2),
+  );
   return path;
 }
 
 /// Returns the circle marker type.
 Path drawCircle(Path path, double x, double y, double size) {
   path.addArc(
-      Rect.fromLTRB(x - size / 2, y - size / 2, x + size / 2, y + size / 2),
-      0.0,
-      2 * math.pi);
+    Rect.fromLTRB(x - size / 2, y - size / 2, x + size / 2, y + size / 2),
+    0.0,
+    2 * math.pi,
+  );
   return path;
 }
 
@@ -163,8 +172,9 @@ Path drawTriangle(Path path, double x, double y, double size) {
 
 /// Method to find the sorted spark chart points.
 List<SparkChartPoint> sortSparkChartPoints(List<SparkChartPoint> dataPoints) {
-  final List<SparkChartPoint> sortedPoints =
-      List<SparkChartPoint>.from(dataPoints);
+  final List<SparkChartPoint> sortedPoints = List<SparkChartPoint>.from(
+    dataPoints,
+  );
   sortedPoints.sort((SparkChartPoint firstPoint, SparkChartPoint secondPoint) {
     firstPoint.x.compareTo(secondPoint.x);
     if (firstPoint.x < secondPoint.x == true) {
@@ -197,22 +207,25 @@ List<Offset> sortScreenCoordinatePoints(List<Offset> coordinatePoints) {
 
 /// Converts the provided data point to visible point for rendering.
 Offset transformToCoordinatePoint(
-    double minX,
-    double maxX,
-    double minY,
-    double maxY,
-    double diffX,
-    double diffY,
-    Size size,
-    double x,
-    double y,
-    int dataLength) {
-  final double visibleYPoint = (minY != maxY && dataLength != 1)
-      ? (size.height * (1 - ((y - minY) / diffY))).roundToDouble()
-      : 0;
-  final double visibleXPoint = (minX != maxX)
-      ? (size.width * ((x - minX) / diffX)).roundToDouble()
-      : size.width / 2;
+  double minX,
+  double maxX,
+  double minY,
+  double maxY,
+  double diffX,
+  double diffY,
+  Size size,
+  double x,
+  double y,
+  int dataLength,
+) {
+  final double visibleYPoint =
+      (minY != maxY && dataLength != 1)
+          ? (size.height * (1 - ((y - minY) / diffY))).roundToDouble()
+          : 0;
+  final double visibleXPoint =
+      (minX != maxX)
+          ? (size.width * ((x - minX) / diffX)).roundToDouble()
+          : size.width / 2;
   return Offset(visibleXPoint, visibleYPoint);
 }
 
@@ -292,8 +305,12 @@ class SparkChartPoint {
 /// Represents the spark chart data details.
 class SparkChartDataDetails {
   /// Creates the spark chart container box.
-  SparkChartDataDetails(
-      {this.data, this.dataCount, this.xValueMapper, this.yValueMapper});
+  SparkChartDataDetails({
+    this.data,
+    this.dataCount,
+    this.xValueMapper,
+    this.yValueMapper,
+  });
 
   /// Specifies the list of spark chart data.
   final List<num>? data;
@@ -330,10 +347,7 @@ class _SparKChartContainerBox extends RenderShiftedBox {
     size = getLayoutSize(constraints, context);
 
     child!.layout(
-      BoxConstraints(
-        maxHeight: size.height,
-        maxWidth: size.width,
-      ),
+      BoxConstraints(maxHeight: size.height, maxWidth: size.width),
     ); // True- Parent widget recomputes again respect to
     // every build of child widget,
     // False- Parent widget not rebuild respect to child widget build
@@ -348,7 +362,10 @@ class _SparKChartContainerBox extends RenderShiftedBox {
 
 /// To draw the respective shapes for marker.
 Path getMarkerShapes(
-    SparkChartMarkerShape markerShape, Offset position, double size) {
+  SparkChartMarkerShape markerShape,
+  Offset position,
+  double size,
+) {
   final Path path = Path();
   switch (markerShape) {
     case SparkChartMarkerShape.circle:
@@ -385,54 +402,59 @@ Path getMarkerShapes(
 
 /// To render the marker for line and area series.
 void renderMarker(
-    Canvas canvas,
-    Offset offset,
-    SparkChartMarker marker,
-    List<Offset> coordinatePoints,
-    List<SparkChartPoint> dataPoints,
-    Color color,
-    String type,
-    num highPoint,
-    num lowPoint,
-    double axisCrossesAt,
-    SfSparkChartThemeData themeData,
-    Color? lowPointColor,
-    Color? highPointColor,
-    Color? negativePointColor,
-    Color? firstPointColor,
-    Color? lastPointColor) {
+  Canvas canvas,
+  Offset offset,
+  SparkChartMarker marker,
+  List<Offset> coordinatePoints,
+  List<SparkChartPoint> dataPoints,
+  Color color,
+  String type,
+  num highPoint,
+  num lowPoint,
+  double axisCrossesAt,
+  SfSparkChartThemeData themeData,
+  Color? lowPointColor,
+  Color? highPointColor,
+  Color? negativePointColor,
+  Color? firstPointColor,
+  Color? lastPointColor,
+) {
   final Paint fillPaint = Paint()..style = PaintingStyle.fill;
-  final Paint strokePaint = Paint()
-    ..color = marker.borderColor ?? color
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = marker.borderWidth;
+  final Paint strokePaint =
+      Paint()
+        ..color = marker.borderColor ?? color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = marker.borderWidth;
   final SparkChartMarkerShape markerShape = marker.shape;
   final double markerSize = marker.size;
   final SparkChartMarkerDisplayMode markerDisplayMode = marker.displayMode;
   final Color themeBasedColor = themeData.markerFillColor!;
   Path markerPath;
   final Offset lastMarkerOffset = Offset(
-      offset.dx +
-          coordinatePoints[type == 'Line'
-                  ? coordinatePoints.length - 1
-                  : coordinatePoints.length - 2]
-              .dx,
-      offset.dy +
-          coordinatePoints[type == 'Line'
-                  ? coordinatePoints.length - 1
-                  : coordinatePoints.length - 2]
-              .dy);
+    offset.dx +
+        coordinatePoints[type == 'Line'
+                ? coordinatePoints.length - 1
+                : coordinatePoints.length - 2]
+            .dx,
+    offset.dy +
+        coordinatePoints[type == 'Line'
+                ? coordinatePoints.length - 1
+                : coordinatePoints.length - 2]
+            .dy,
+  );
 
   final Offset firstMarkerOffset = Offset(
-      offset.dx + coordinatePoints[type == 'Line' ? 0 : 1].dx,
-      offset.dy + coordinatePoints[type == 'Line' ? 0 : 1].dy);
+    offset.dx + coordinatePoints[type == 'Line' ? 0 : 1].dx,
+    offset.dy + coordinatePoints[type == 'Line' ? 0 : 1].dy,
+  );
 
   switch (markerDisplayMode) {
     case SparkChartMarkerDisplayMode.all:
       {
-        final int length = type == 'Line'
-            ? coordinatePoints.length
-            : coordinatePoints.length - 1;
+        final int length =
+            type == 'Line'
+                ? coordinatePoints.length
+                : coordinatePoints.length - 1;
         int i = type == 'Line' ? 0 : 1;
         for (i = i; i < length; i++) {
           fillPaint.color = marker.color ?? themeBasedColor;
@@ -461,10 +483,13 @@ void renderMarker(
           }
 
           markerPath = getMarkerShapes(
-              markerShape,
-              Offset(offset.dx + coordinatePoints[i].dx,
-                  offset.dy + coordinatePoints[i].dy),
-              markerSize);
+            markerShape,
+            Offset(
+              offset.dx + coordinatePoints[i].dx,
+              offset.dy + coordinatePoints[i].dy,
+            ),
+            markerSize,
+          );
           canvas.drawPath(markerPath, fillPaint);
           canvas.drawPath(markerPath, strokePaint);
         }
@@ -480,8 +505,11 @@ void renderMarker(
             dataPoints[type == 'Line' ? 0 : 1].y < 0) {
           fillPaint.color = negativePointColor;
         }
-        markerPath =
-            getMarkerShapes(markerShape, firstMarkerOffset, markerSize);
+        markerPath = getMarkerShapes(
+          markerShape,
+          firstMarkerOffset,
+          markerSize,
+        );
         canvas.drawPath(markerPath, fillPaint);
         canvas.drawPath(markerPath, strokePaint);
       }
@@ -514,9 +542,10 @@ void renderMarker(
             ? fillPaint.color = lowPointColor
             : fillPaint.color = fillPaint.color;
 
-        final int length = type == 'Line'
-            ? coordinatePoints.length
-            : coordinatePoints.length - 1;
+        final int length =
+            type == 'Line'
+                ? coordinatePoints.length
+                : coordinatePoints.length - 1;
         final int index = type == 'Line' ? 0 : 1;
 
         for (int j = index; j < length; j++) {
@@ -527,10 +556,13 @@ void renderMarker(
           }
           if (highPoint == coordinatePoints[j].dy) {
             markerPath = getMarkerShapes(
-                markerShape,
-                Offset(offset.dx + coordinatePoints[j].dx,
-                    offset.dy + coordinatePoints[j].dy),
-                markerSize);
+              markerShape,
+              Offset(
+                offset.dx + coordinatePoints[j].dx,
+                offset.dy + coordinatePoints[j].dy,
+              ),
+              markerSize,
+            );
             canvas.drawPath(markerPath, fillPaint);
             canvas.drawPath(markerPath, strokePaint);
           }
@@ -545,9 +577,10 @@ void renderMarker(
             ? fillPaint.color = highPointColor
             : fillPaint.color = fillPaint.color;
 
-        final int length = type == 'Line'
-            ? coordinatePoints.length
-            : coordinatePoints.length - 1;
+        final int length =
+            type == 'Line'
+                ? coordinatePoints.length
+                : coordinatePoints.length - 1;
         final int index = type == 'Line' ? 0 : 1;
         for (int j = index; j < length; j++) {
           if (negativePointColor != null &&
@@ -557,10 +590,13 @@ void renderMarker(
           }
           if (lowPoint == coordinatePoints[j].dy) {
             markerPath = getMarkerShapes(
-                markerShape,
-                Offset(offset.dx + coordinatePoints[j].dx,
-                    offset.dy + coordinatePoints[j].dy),
-                markerSize);
+              markerShape,
+              Offset(
+                offset.dx + coordinatePoints[j].dx,
+                offset.dy + coordinatePoints[j].dy,
+              ),
+              markerSize,
+            );
             canvas.drawPath(markerPath, fillPaint);
             canvas.drawPath(markerPath, strokePaint);
           }
@@ -574,14 +610,15 @@ void renderMarker(
 }
 
 Color _getDataLabelSaturationColor(
-    Offset dataLabelOffset,
-    Offset coordinateOffset,
-    SfSparkChartThemeData theme,
-    Offset offset,
-    Color seriesColor,
-    String type,
-    [Rect? segment,
-    num? yValue]) {
+  Offset dataLabelOffset,
+  Offset coordinateOffset,
+  SfSparkChartThemeData theme,
+  Offset offset,
+  Color seriesColor,
+  String type, [
+  Rect? segment,
+  num? yValue,
+]) {
   Color color;
 
   if (type == 'Area') {
@@ -596,8 +633,8 @@ Color _getDataLabelSaturationColor(
             ? color = seriesColor
             : color = theme.dataLabelBackgroundColor!
         : dataLabelOffset.dy < (segment!.top + offset.dy)
-            ? color = seriesColor
-            : color = theme.dataLabelBackgroundColor!;
+        ? color = seriesColor
+        : color = theme.dataLabelBackgroundColor!;
   }
 
   color = getSaturationColor(color);
@@ -606,83 +643,102 @@ Color _getDataLabelSaturationColor(
 }
 
 TextStyle _getTextStyle(
-    TextStyle labelStyle,
-    Offset dataLabelOffset,
-    Offset coordinateOffset,
-    Offset offset,
-    SfSparkChartThemeData theme,
-    Color seriesColor,
-    String type,
-    [Rect? segment,
-    num? yValue]) {
+  TextStyle labelStyle,
+  Offset dataLabelOffset,
+  Offset coordinateOffset,
+  Offset offset,
+  SfSparkChartThemeData theme,
+  Color seriesColor,
+  String type, [
+  Rect? segment,
+  num? yValue,
+]) {
   final TextStyle font = labelStyle;
-  final Color fontColor = font.color != Colors.transparent
-      ? font.color!
-      : _getDataLabelSaturationColor(dataLabelOffset, coordinateOffset, theme,
-          offset, seriesColor, type, segment, yValue);
+  final Color fontColor =
+      font.color != Colors.transparent
+          ? font.color!
+          : _getDataLabelSaturationColor(
+            dataLabelOffset,
+            coordinateOffset,
+            theme,
+            offset,
+            seriesColor,
+            type,
+            segment,
+            yValue,
+          );
 
   final TextStyle textStyle = TextStyle(
-      color: fontColor,
-      fontFamily: font.fontFamily,
-      fontSize: font.fontSize,
-      fontStyle: font.fontStyle,
-      fontWeight: font.fontWeight,
-      inherit: font.inherit,
-      backgroundColor: font.backgroundColor,
-      letterSpacing: font.letterSpacing,
-      wordSpacing: font.wordSpacing,
-      textBaseline: font.textBaseline,
-      height: font.height,
-      locale: font.locale,
-      foreground: font.foreground,
-      background: font.background,
-      shadows: font.shadows,
-      fontFeatures: font.fontFeatures,
-      decoration: font.decoration,
-      decorationColor: font.decorationColor,
-      decorationStyle: font.decorationStyle,
-      decorationThickness: font.decorationThickness,
-      debugLabel: font.debugLabel,
-      fontFamilyFallback: font.fontFamilyFallback);
+    color: fontColor,
+    fontFamily: font.fontFamily,
+    fontSize: font.fontSize,
+    fontStyle: font.fontStyle,
+    fontWeight: font.fontWeight,
+    inherit: font.inherit,
+    backgroundColor: font.backgroundColor,
+    letterSpacing: font.letterSpacing,
+    wordSpacing: font.wordSpacing,
+    textBaseline: font.textBaseline,
+    height: font.height,
+    locale: font.locale,
+    foreground: font.foreground,
+    background: font.background,
+    shadows: font.shadows,
+    fontFeatures: font.fontFeatures,
+    decoration: font.decoration,
+    decorationColor: font.decorationColor,
+    decorationStyle: font.decorationStyle,
+    decorationThickness: font.decorationThickness,
+    debugLabel: font.debugLabel,
+    fontFamilyFallback: font.fontFamilyFallback,
+  );
 
   return textStyle;
 }
 
 /// To render the data label.
 void renderDataLabel(
-    Canvas canvas,
-    List<String> dataLabels,
-    List<SparkChartPoint> dataPoints,
-    List<Offset> coordinatePoints,
-    TextStyle labelStyle,
-    SparkChartLabelDisplayMode labelDisplayMode,
-    String type,
-    SfSparkChartThemeData theme,
-    Offset offset,
-    Color seriesColor,
-    num highPoint,
-    num lowPoint,
-    [List<Rect>? segments]) {
+  Canvas canvas,
+  List<String> dataLabels,
+  List<SparkChartPoint> dataPoints,
+  List<Offset> coordinatePoints,
+  TextStyle labelStyle,
+  SparkChartLabelDisplayMode labelDisplayMode,
+  String type,
+  SfSparkChartThemeData theme,
+  Offset offset,
+  Color seriesColor,
+  num highPoint,
+  num lowPoint, [
+  List<Rect>? segments,
+]) {
   TextStyle textStyle;
 
   switch (labelDisplayMode) {
     case SparkChartLabelDisplayMode.all:
       {
-        for (int i = type == 'Area' ? 1 : 0;
-            type == 'Area' ? i < dataPoints.length - 1 : i < dataPoints.length;
-            i++) {
+        for (
+          int i = type == 'Area' ? 1 : 0;
+          type == 'Area' ? i < dataPoints.length - 1 : i < dataPoints.length;
+          i++
+        ) {
           textStyle = _getTextStyle(
-              labelStyle,
-              dataPoints[i].dataLabelOffset!,
-              coordinatePoints[i],
-              offset,
-              theme,
-              type == 'Bar' ? dataPoints[i].color! : seriesColor,
-              type,
-              type == 'Bar' ? segments![i] : null,
-              dataPoints[i].y);
+            labelStyle,
+            dataPoints[i].dataLabelOffset!,
+            coordinatePoints[i],
+            offset,
+            theme,
+            type == 'Bar' ? dataPoints[i].color! : seriesColor,
+            type,
+            type == 'Bar' ? segments![i] : null,
+            dataPoints[i].y,
+          );
           drawText(
-              canvas, dataLabels[i], dataPoints[i].dataLabelOffset!, textStyle);
+            canvas,
+            dataLabels[i],
+            dataPoints[i].dataLabelOffset!,
+            textStyle,
+          );
         }
       }
 
@@ -691,72 +747,87 @@ void renderDataLabel(
     case SparkChartLabelDisplayMode.first:
       {
         textStyle = _getTextStyle(
-            labelStyle,
-            dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset!,
-            coordinatePoints[type == 'Area' ? 1 : 0],
-            offset,
-            theme,
-            type == 'Bar' ? dataPoints[0].color! : seriesColor,
-            type,
-            type == 'Bar' ? segments![0] : null,
-            dataPoints[0].y);
-        drawText(canvas, dataLabels[type == 'Area' ? 1 : 0],
-            dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset!, textStyle);
+          labelStyle,
+          dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset!,
+          coordinatePoints[type == 'Area' ? 1 : 0],
+          offset,
+          theme,
+          type == 'Bar' ? dataPoints[0].color! : seriesColor,
+          type,
+          type == 'Bar' ? segments![0] : null,
+          dataPoints[0].y,
+        );
+        drawText(
+          canvas,
+          dataLabels[type == 'Area' ? 1 : 0],
+          dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset!,
+          textStyle,
+        );
       }
       break;
 
     case SparkChartLabelDisplayMode.last:
       {
         textStyle = _getTextStyle(
-            labelStyle,
-            dataPoints[type == 'Area'
-                    ? dataPoints.length - 2
-                    : dataPoints.length - 1]
-                .dataLabelOffset!,
-            coordinatePoints[
-                type == 'Area' ? dataPoints.length - 2 : dataPoints.length - 1],
-            offset,
-            theme,
-            type == 'Bar'
-                ? dataPoints[dataPoints.length - 1].color!
-                : seriesColor,
-            type,
-            type == 'Bar' ? segments![dataPoints.length - 1] : null,
-            dataPoints[dataPoints.length - 1].y);
+          labelStyle,
+          dataPoints[type == 'Area'
+                  ? dataPoints.length - 2
+                  : dataPoints.length - 1]
+              .dataLabelOffset!,
+          coordinatePoints[type == 'Area'
+              ? dataPoints.length - 2
+              : dataPoints.length - 1],
+          offset,
+          theme,
+          type == 'Bar'
+              ? dataPoints[dataPoints.length - 1].color!
+              : seriesColor,
+          type,
+          type == 'Bar' ? segments![dataPoints.length - 1] : null,
+          dataPoints[dataPoints.length - 1].y,
+        );
 
         drawText(
-            canvas,
-            dataLabels[
-                type == 'Area' ? dataPoints.length - 2 : dataPoints.length - 1],
-            dataPoints[type == 'Area'
-                    ? dataPoints.length - 2
-                    : dataPoints.length - 1]
-                .dataLabelOffset!,
-            textStyle);
+          canvas,
+          dataLabels[type == 'Area'
+              ? dataPoints.length - 2
+              : dataPoints.length - 1],
+          dataPoints[type == 'Area'
+                  ? dataPoints.length - 2
+                  : dataPoints.length - 1]
+              .dataLabelOffset!,
+          textStyle,
+        );
       }
 
       break;
 
     case SparkChartLabelDisplayMode.low:
       {
-        final int length = type == 'Area'
-            ? coordinatePoints.length - 1
-            : coordinatePoints.length;
+        final int length =
+            type == 'Area'
+                ? coordinatePoints.length - 1
+                : coordinatePoints.length;
         final int index = type == 'Area' ? 1 : 0;
         for (int j = index; j < length; j++) {
           if (highPoint == coordinatePoints[j].dy) {
             textStyle = _getTextStyle(
-                labelStyle,
-                dataPoints[j].dataLabelOffset!,
-                coordinatePoints[j],
-                offset,
-                theme,
-                type == 'Bar' ? dataPoints[j].color! : seriesColor,
-                type,
-                type == 'Bar' ? segments![j] : null,
-                dataPoints[j].y);
-            drawText(canvas, dataLabels[j], dataPoints[j].dataLabelOffset!,
-                textStyle);
+              labelStyle,
+              dataPoints[j].dataLabelOffset!,
+              coordinatePoints[j],
+              offset,
+              theme,
+              type == 'Bar' ? dataPoints[j].color! : seriesColor,
+              type,
+              type == 'Bar' ? segments![j] : null,
+              dataPoints[j].y,
+            );
+            drawText(
+              canvas,
+              dataLabels[j],
+              dataPoints[j].dataLabelOffset!,
+              textStyle,
+            );
           }
         }
       }
@@ -765,25 +836,31 @@ void renderDataLabel(
 
     case SparkChartLabelDisplayMode.high:
       {
-        final int length = type == 'Area'
-            ? coordinatePoints.length - 1
-            : coordinatePoints.length;
+        final int length =
+            type == 'Area'
+                ? coordinatePoints.length - 1
+                : coordinatePoints.length;
         final int index = type == 'Area' ? 1 : 0;
 
         for (int j = index; j < length; j++) {
           if (lowPoint == coordinatePoints[j].dy) {
             textStyle = _getTextStyle(
-                labelStyle,
-                dataPoints[j].dataLabelOffset!,
-                coordinatePoints[j],
-                offset,
-                theme,
-                type == 'Bar' ? dataPoints[j].color! : seriesColor,
-                type,
-                type == 'Bar' ? segments![j] : null,
-                dataPoints[j].y);
-            drawText(canvas, dataLabels[j], dataPoints[j].dataLabelOffset!,
-                textStyle);
+              labelStyle,
+              dataPoints[j].dataLabelOffset!,
+              coordinatePoints[j],
+              offset,
+              theme,
+              type == 'Bar' ? dataPoints[j].color! : seriesColor,
+              type,
+              type == 'Bar' ? segments![j] : null,
+              dataPoints[j].y,
+            );
+            drawText(
+              canvas,
+              dataLabels[j],
+              dataPoints[j].dataLabelOffset!,
+              textStyle,
+            );
           }
         }
       }

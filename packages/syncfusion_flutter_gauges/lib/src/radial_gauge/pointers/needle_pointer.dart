@@ -33,35 +33,41 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
   ///
   /// The arguments [value], must not be null and [animationDuration],
   /// [needleLength], [needleStartWidth], [needleEndWidth] must be non-negative.
-  const NeedlePointer(
-      {Key? key,
-      this.value = 0,
-      this.enableDragging = false,
-      this.onValueChanged,
-      this.onValueChangeStart,
-      this.onValueChangeEnd,
-      this.onValueChanging,
-      KnobStyle? knobStyle,
-      this.tailStyle,
-      this.gradient,
-      this.needleLength = 0.6,
-      this.lengthUnit = GaugeSizeUnit.factor,
-      this.needleStartWidth = 1,
-      this.needleEndWidth = 10,
-      this.onCreatePointerRenderer,
-      this.enableAnimation = false,
-      this.animationDuration = 1000,
-      this.animationType = AnimationType.ease,
-      this.needleColor})
-      : knobStyle = knobStyle ?? const KnobStyle(),
-        assert(animationDuration > 0,
-            'Animation duration must be a non-negative value'),
-        assert(needleLength >= 0, 'Needle length must be greater than zero.'),
-        assert(needleStartWidth >= 0,
-            'Needle start width must be greater than zero.'),
-        assert(
-            needleEndWidth >= 0, 'Needle end width must be greater than zero.'),
-        super(key: key);
+  const NeedlePointer({
+    Key? key,
+    this.value = 0,
+    this.enableDragging = false,
+    this.onValueChanged,
+    this.onValueChangeStart,
+    this.onValueChangeEnd,
+    this.onValueChanging,
+    KnobStyle? knobStyle,
+    this.tailStyle,
+    this.gradient,
+    this.needleLength = 0.6,
+    this.lengthUnit = GaugeSizeUnit.factor,
+    this.needleStartWidth = 1,
+    this.needleEndWidth = 10,
+    this.onCreatePointerRenderer,
+    this.enableAnimation = false,
+    this.animationDuration = 1000,
+    this.animationType = AnimationType.ease,
+    this.needleColor,
+  }) : knobStyle = knobStyle ?? const KnobStyle(),
+       assert(
+         animationDuration > 0,
+         'Animation duration must be a non-negative value',
+       ),
+       assert(needleLength >= 0, 'Needle length must be greater than zero.'),
+       assert(
+         needleStartWidth >= 0,
+         'Needle start width must be greater than zero.',
+       ),
+       assert(
+         needleEndWidth >= 0,
+         'Needle end width must be greater than zero.',
+       ),
+       super(key: key);
 
   /// The style to use for the needle knob.
   ///
@@ -270,7 +276,7 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
   /// }
   ///```
   final NeedlePointerRendererFactory<NeedlePointerRenderer>?
-      onCreatePointerRenderer;
+  onCreatePointerRenderer;
 
   /// Specifies the duration of the pointer animation.
   ///
@@ -508,8 +514,9 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
     final ThemeData themeData = Theme.of(context);
     final SfColorScheme colorScheme = SfTheme.colorScheme(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     NeedlePointerRenderer? needlePointerRenderer;
     if (onCreatePointerRenderer != null) {
@@ -518,42 +525,46 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
     }
 
     return RenderNeedlePointer(
-        value: value.clamp(ancestor.minimum, ancestor.maximum),
-        enableDragging: enableDragging,
-        onValueChanged: onValueChanged,
-        onValueChangeStart: onValueChangeStart,
-        onValueChangeEnd: onValueChangeEnd,
-        onValueChanging: onValueChanging,
-        knobStyle: knobStyle,
-        tailStyle: tailStyle,
-        gradient: gradient,
-        needleLength: needleLength,
-        lengthUnit: lengthUnit,
-        needleStartWidth: needleStartWidth,
-        needleEndWidth: needleEndWidth,
-        needlePointerRenderer: needlePointerRenderer,
-        needleColor: needleColor,
-        pointerAnimationController: radialAxisScope.animationController,
-        pointerInterval: radialAxisScope.pointerInterval,
-        isRadialGaugeAnimationEnabled:
-            radialAxisScope.isRadialGaugeAnimationEnabled,
-        enableAnimation: enableAnimation,
-        animationType: animationType,
-        repaintNotifier: radialAxisScope.repaintNotifier,
-        gaugeThemeData: gaugeTheme,
-        themeData: themeData,
-        colorScheme: colorScheme);
+      value: value.clamp(ancestor.minimum, ancestor.maximum),
+      enableDragging: enableDragging,
+      onValueChanged: onValueChanged,
+      onValueChangeStart: onValueChangeStart,
+      onValueChangeEnd: onValueChangeEnd,
+      onValueChanging: onValueChanging,
+      knobStyle: knobStyle,
+      tailStyle: tailStyle,
+      gradient: gradient,
+      needleLength: needleLength,
+      lengthUnit: lengthUnit,
+      needleStartWidth: needleStartWidth,
+      needleEndWidth: needleEndWidth,
+      needlePointerRenderer: needlePointerRenderer,
+      needleColor: needleColor,
+      pointerAnimationController: radialAxisScope.animationController,
+      pointerInterval: radialAxisScope.pointerInterval,
+      isRadialGaugeAnimationEnabled:
+          radialAxisScope.isRadialGaugeAnimationEnabled,
+      enableAnimation: enableAnimation,
+      animationType: animationType,
+      repaintNotifier: radialAxisScope.repaintNotifier,
+      gaugeThemeData: gaugeTheme,
+      themeData: themeData,
+      colorScheme: colorScheme,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderNeedlePointer renderObject) {
+    BuildContext context,
+    RenderNeedlePointer renderObject,
+  ) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final SfColorScheme colorScheme = SfTheme.colorScheme(context);
     final ThemeData themeData = Theme.of(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
     NeedlePointerRenderer? needlePointerRenderer;
     if (onCreatePointerRenderer != null) {
       needlePointerRenderer = onCreatePointerRenderer!();

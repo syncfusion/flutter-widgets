@@ -1,17 +1,27 @@
+import 'dart:typed_data';
+import 'cipher_block_chaining_mode.dart';
 import 'ipadding.dart';
 
 /// internal class
-class AesEngine implements ICipher {
+class AesEngine extends IBlockCipher {
   //Constructor
   /// internal constructor
   AesEngine() {
     _initializeConstants();
   }
 
-  //Fields
+  static const _blockSize = 16;
+  static const int _m1 = 0x80808080;
+  static const int _m2 = 0x7f7f7f7f;
+  static const int _m3 = 0x0000001b;
+  static const int _m4 = 0xC0C0C0C0;
+  static const int _m5 = 0x3f3f3f3f;
+
   @override
-  int? blockSize;
-  List<List<int>>? _key;
+  int get blockSize => _blockSize;
+
+  /// internal field
+  late List<List<int>>? _key;
 
   /// internal field
   late int rounds;
@@ -81,336 +91,516 @@ class AesEngine implements ICipher {
   @override
   bool get isBlock => false;
 
+  List<int> _s = List.empty();
+
   //Initialize
   @override
-  void initialize(bool? isEncryption, ICipherParameter? parameter) {
+  void initialize(bool? isEncryption, covariant KeyParameter? parameter) {
     if (parameter != null) {
-      _key = _generateKey(parameter.keys!, isEncryption!);
+      _key = _generateKey(parameter, isEncryption!);
       _isEncryption = isEncryption;
+    }
+    if (_isEncryption!) {
+      _s = List.from(sBox);
+    } else {
+      _s = List.from(sinv);
     }
   }
 
-  List<List<int>> _generateKey(List<int> keys, bool isEncryption) {
-    final int keyLength = keys.length ~/ 4;
-    if ((keyLength != 4 && keyLength != 6 && keyLength != 8) ||
-        keyLength * 4 != keys.length) {
-      throw ArgumentError.value(
-          keyLength, 'keyLength', 'Key length not 128/192/256 bits.');
+  int _removeBlock(dynamic inp, int offset, Endian endian) {
+    if (inp is! ByteData) {
+      inp = ByteData.view(inp.buffer, inp.offsetInBytes, inp.length);
     }
-    rounds = keyLength + 6;
-    final List<List<int>> newKey = List<List<int>>.generate(
-        rounds + 1, (int i) => List<int>.generate(4, (int j) => 0));
-    int t = 0;
-    for (int i = 0; i < keys.length; t++) {
-      newKey[t >> 2][t & 3] = _convertToUnsignedInt32(keys, i);
-      i += 4;
+    return inp.getUint32(offset, endian);
+  }
+
+  List<List<int>> _generateKey(KeyParameter params, bool isEncryption) {
+    final key = params.keys;
+    final keyLen = key.length;
+    if (keyLen < 16 || keyLen > 32 || (keyLen & 7) != 0) {
+      throw ArgumentError('Invalid key length : $keyLen');
     }
-    final int k = (rounds + 1) << 2;
-    for (int i = keyLength; i < k; i++) {
-      int temp = newKey[(i - 1) >> 2][(i - 1) & 3];
-      if (i % keyLength == 0) {
-        temp = _subWord(_shift(temp, 8)) ^ rcon[(i ~/ keyLength) - 1];
-      } else if (keyLength > 6 && (i % keyLength) == 4) {
-        temp = _subWord(temp);
-      }
-      newKey[i >> 2][i & 3] =
-          newKey[(i - keyLength) >> 2][(i - keyLength) & 3] ^ temp;
+    final kc = _shiftRight32(keyLen, 2);
+    rounds = kc + 6;
+    final w = List.generate(rounds + 1, (int i) => List<int>.filled(4, 0));
+    switch (kc) {
+      case 4:
+        var col0 = _removeBlock(key, 0, Endian.little);
+        w[0][0] = col0;
+        var col1 = _removeBlock(key, 4, Endian.little);
+        w[0][1] = col1;
+        var col2 = _removeBlock(key, 8, Endian.little);
+        w[0][2] = col2;
+        var col3 = _removeBlock(key, 12, Endian.little);
+        w[0][3] = col3;
+        for (var i = 1; i <= 10; ++i) {
+          final colx = _subWord(_shift(col3, 8)) ^ rcon[i - 1];
+          col0 ^= colx;
+          w[i][0] = col0;
+          col1 ^= col0;
+          w[i][1] = col1;
+          col2 ^= col1;
+          w[i][2] = col2;
+          col3 ^= col2;
+          w[i][3] = col3;
+        }
+        break;
+      case 6:
+        var col0 = _removeBlock(key, 0, Endian.little);
+        w[0][0] = col0;
+        var col1 = _removeBlock(key, 4, Endian.little);
+        w[0][1] = col1;
+        var col2 = _removeBlock(key, 8, Endian.little);
+        w[0][2] = col2;
+        var col3 = _removeBlock(key, 12, Endian.little);
+        w[0][3] = col3;
+        var col4 = _removeBlock(key, 16, Endian.little);
+        var col5 = _removeBlock(key, 20, Endian.little);
+        int i = 1, rcon = 1, colx;
+        for (;;) {
+          w[i][0] = col4;
+          w[i][1] = col5;
+          colx = _subWord(_shift(col5, 8)) ^ rcon;
+          rcon <<= 1;
+          col0 ^= colx;
+          w[i][2] = col0;
+          col1 ^= col0;
+          w[i][3] = col1;
+          col2 ^= col1;
+          w[i + 1][0] = col2;
+          col3 ^= col2;
+          w[i + 1][1] = col3;
+          col4 ^= col3;
+          w[i + 1][2] = col4;
+          col5 ^= col4;
+          w[i + 1][3] = col5;
+          colx = _subWord(_shift(col5, 8)) ^ rcon;
+          rcon <<= 1;
+          col0 ^= colx;
+          w[i + 2][0] = col0;
+          col1 ^= col0;
+          w[i + 2][1] = col1;
+          col2 ^= col1;
+          w[i + 2][2] = col2;
+          col3 ^= col2;
+          w[i + 2][3] = col3;
+          if ((i += 3) >= 13) {
+            break;
+          }
+          col4 ^= col3;
+          col5 ^= col4;
+        }
+        break;
+      case 8:
+        {
+          var col0 = _removeBlock(key, 0, Endian.little);
+          w[0][0] = col0;
+          var col1 = _removeBlock(key, 4, Endian.little);
+          w[0][1] = col1;
+          var col2 = _removeBlock(key, 8, Endian.little);
+          w[0][2] = col2;
+          var col3 = _removeBlock(key, 12, Endian.little);
+          w[0][3] = col3;
+          var col4 = _removeBlock(key, 16, Endian.little);
+          w[1][0] = col4;
+          var col5 = _removeBlock(key, 20, Endian.little);
+          w[1][1] = col5;
+          var col6 = _removeBlock(key, 24, Endian.little);
+          w[1][2] = col6;
+          var col7 = _removeBlock(key, 28, Endian.little);
+          w[1][3] = col7;
+          int i = 2, rcon = 1, colx;
+          for (;;) {
+            colx = _subWord(_shift(col7, 8)) ^ rcon;
+            rcon <<= 1;
+            col0 ^= colx;
+            w[i][0] = col0;
+            col1 ^= col0;
+            w[i][1] = col1;
+            col2 ^= col1;
+            w[i][2] = col2;
+            col3 ^= col2;
+            w[i][3] = col3;
+            ++i;
+            if (i >= 15) {
+              break;
+            }
+            colx = _subWord(col3);
+            col4 ^= colx;
+            w[i][0] = col4;
+            col5 ^= col4;
+            w[i][1] = col5;
+            col6 ^= col5;
+            w[i][2] = col6;
+            col7 ^= col6;
+            w[i][3] = col7;
+            ++i;
+          }
+          break;
+        }
+      default:
+        {
+          throw StateError('Invalid key length: ${key.lengthInBytes}');
+        }
     }
     if (!isEncryption) {
-      for (int j = 1; j < rounds; j++) {
-        final List<int> w = newKey[j];
-        for (int i = 0; i < 4; i++) {
-          w[i] = _inverseMultiply(w[i]).toUnsigned(32);
+      for (var j = 1; j < rounds; j++) {
+        for (var i = 0; i < 4; i++) {
+          w[j][i] = _inverseMultiply(w[j][i]);
         }
       }
     }
-    return newKey;
+    return w;
   }
 
   @override
-  Map<String, dynamic> processBlock(
-      [List<int>? input,
-      int? inputOffset,
-      List<int>? output,
-      int? outputOffset]) {
-    ArgumentError.checkNotNull(_key);
-    _unPackBlock(input!, inputOffset!);
-    if (_isEncryption!) {
-      encryptBlock();
-    } else {
-      decryptBlock();
+  int processingBlock([
+    Uint8List? inputBytes,
+    int? inputOffset,
+    //need to be unit8list
+    Uint8List? outputBytes,
+    //List<int>? output,
+    int? outputOffset,
+  ]) {
+    if ((inputOffset! + (32 / 2)) > inputBytes!.lengthInBytes) {
+      throw ArgumentError(
+        'Invalid length in input buffer : ${inputBytes.lengthInBytes}',
+      );
     }
-    output = _packBlock(output!, outputOffset!);
-    return <String, dynamic>{'length': blockSize, 'output': output};
+
+    if ((outputOffset! + (32 / 2)) > outputBytes!.lengthInBytes) {
+      throw ArgumentError(
+        'Invalid length in output buffer : ${outputBytes.lengthInBytes}',
+      );
+    }
+    if (_isEncryption!) {
+      encryptBlock(inputBytes, inputOffset, outputBytes, outputOffset, _key!);
+    } else {
+      decryptBlock(inputBytes, inputOffset, outputBytes, outputOffset, _key!);
+    }
+
+    return _blockSize;
   }
 
   @override
   void reset() {}
 
   /// internal method
-  void encryptBlock() {
-    final List<List<int>> keys = _key!;
-    int r = 0;
-    List<int> kw = keys[r];
-    c0 ^= kw[0];
-    c1 ^= kw[1];
-    c2 ^= kw[2];
-    c3 ^= kw[3];
-    int r4;
-    int r5;
-    int r6;
-    int r7;
-    while (r < (rounds - 2)) {
-      kw = keys[++r];
-      r4 = r0[c0 & 255] ^
-          r1[(c1 >> 8) & 255] ^
-          r2[(c2 >> 16) & 255] ^
-          r3[c3 >> 24] ^
-          kw[0];
-      r5 = r0[c1 & 255] ^
-          r1[(c2 >> 8) & 255] ^
-          r2[(c3 >> 16) & 255] ^
-          r3[c0 >> 24] ^
-          kw[1];
-      r6 = r0[c2 & 255] ^
-          r1[(c3 >> 8) & 255] ^
-          r2[(c0 >> 16) & 255] ^
-          r3[c1 >> 24] ^
-          kw[2];
-      r7 = r0[c3 & 255] ^
-          r1[(c0 >> 8) & 255] ^
-          r2[(c1 >> 16) & 255] ^
-          r3[c2 >> 24] ^
-          kw[3];
-      kw = keys[++r];
-      c0 = r0[r4 & 255] ^
-          r1[(r5 >> 8) & 255] ^
-          r2[(r6 >> 16) & 255] ^
-          r3[r7 >> 24] ^
-          kw[0];
-      c1 = r0[r5 & 255] ^
-          r1[(r6 >> 8) & 255] ^
-          r2[(r7 >> 16) & 255] ^
-          r3[r4 >> 24] ^
-          kw[1];
-      c2 = r0[r6 & 255] ^
-          r1[(r7 >> 8) & 255] ^
-          r2[(r4 >> 16) & 255] ^
-          r3[r5 >> 24] ^
-          kw[2];
-      c3 = r0[r7 & 255] ^
-          r1[(r4 >> 8) & 255] ^
-          r2[(r5 >> 16) & 255] ^
-          r3[r6 >> 24] ^
-          kw[3];
+  void encryptBlock(
+    input,
+    int inOff,
+    Uint8List out,
+    int outOff,
+    List<List<int>> kw,
+  ) {
+    var c0 = _removeBlock(input, inOff + 0, Endian.little);
+    var c1 = _removeBlock(input, inOff + 4, Endian.little);
+    var c2 = _removeBlock(input, inOff + 8, Endian.little);
+    var c3 = _removeBlock(input, inOff + 12, Endian.little);
+
+    var t0 = c0 ^ kw[0][0];
+    var t1 = c1 ^ kw[0][1];
+    var t2 = c2 ^ kw[0][2];
+
+    int r = 1, r01, r1, r2, r3 = c3 ^ kw[0][3];
+
+    while (r < rounds - 1) {
+      r01 =
+          r0[t0 & 255] ^
+          _shift(r0[(t1 >> 8) & 255], 24) ^
+          _shift(r0[(t2 >> 16) & 255], 16) ^
+          _shift(r0[(r3 >> 24) & 255], 8) ^
+          kw[r][0];
+      r1 =
+          r0[t1 & 255] ^
+          _shift(r0[(t2 >> 8) & 255], 24) ^
+          _shift(r0[(r3 >> 16) & 255], 16) ^
+          _shift(r0[(t0 >> 24) & 255], 8) ^
+          kw[r][1];
+      r2 =
+          r0[t2 & 255] ^
+          _shift(r0[(r3 >> 8) & 255], 24) ^
+          _shift(r0[(t0 >> 16) & 255], 16) ^
+          _shift(r0[(t1 >> 24) & 255], 8) ^
+          kw[r][2];
+      r3 =
+          r0[r3 & 255] ^
+          _shift(r0[(t0 >> 8) & 255], 24) ^
+          _shift(r0[(t1 >> 16) & 255], 16) ^
+          _shift(r0[(t2 >> 24) & 255], 8) ^
+          kw[r++][3];
+      t0 =
+          r0[r01 & 255] ^
+          _shift(r0[(r1 >> 8) & 255], 24) ^
+          _shift(r0[(r2 >> 16) & 255], 16) ^
+          _shift(r0[(r3 >> 24) & 255], 8) ^
+          kw[r][0];
+      t1 =
+          r0[r1 & 255] ^
+          _shift(r0[(r2 >> 8) & 255], 24) ^
+          _shift(r0[(r3 >> 16) & 255], 16) ^
+          _shift(r0[(r01 >> 24) & 255], 8) ^
+          kw[r][1];
+      t2 =
+          r0[r2 & 255] ^
+          _shift(r0[(r3 >> 8) & 255], 24) ^
+          _shift(r0[(r01 >> 16) & 255], 16) ^
+          _shift(r0[(r1 >> 24) & 255], 8) ^
+          kw[r][2];
+      r3 =
+          r0[r3 & 255] ^
+          _shift(r0[(r01 >> 8) & 255], 24) ^
+          _shift(r0[(r1 >> 16) & 255], 16) ^
+          _shift(r0[(r2 >> 24) & 255], 8) ^
+          kw[r++][3];
     }
-    kw = keys[++r];
-    r4 = r0[c0 & 255] ^
-        r1[(c1 >> 8) & 255] ^
-        r2[(c2 >> 16) & 255] ^
-        r3[c3 >> 24] ^
-        kw[0];
-    r5 = r0[c1 & 255] ^
-        r1[(c2 >> 8) & 255] ^
-        r2[(c3 >> 16) & 255] ^
-        r3[c0 >> 24] ^
-        kw[1];
-    r6 = r0[c2 & 255] ^
-        r1[(c3 >> 8) & 255] ^
-        r2[(c0 >> 16) & 255] ^
-        r3[c1 >> 24] ^
-        kw[2];
-    r7 = r0[c3 & 255] ^
-        r1[(c0 >> 8) & 255] ^
-        r2[(c1 >> 16) & 255] ^
-        r3[c2 >> 24] ^
-        kw[3];
-    kw = keys[++r];
-    c0 = sBox[r4 & 255] ^
-        (sBox[(r5 >> 8) & 255].toUnsigned(32) << 8) ^
-        (sBox[(r6 >> 16) & 255].toUnsigned(32) << 16) ^
-        (sBox[r7 >> 24].toUnsigned(32) << 24) ^
-        kw[0];
-    c1 = sBox[r5 & 255] ^
-        (sBox[(r6 >> 8) & 255].toUnsigned(32) << 8) ^
-        (sBox[(r7 >> 16) & 255].toUnsigned(32) << 16) ^
-        (sBox[r4 >> 24].toUnsigned(32) << 24) ^
-        kw[1];
-    c2 = sBox[r6 & 255] ^
-        (sBox[(r7 >> 8) & 255].toUnsigned(32) << 8) ^
-        (sBox[(r4 >> 16) & 255].toUnsigned(32) << 16) ^
-        (sBox[r5 >> 24].toUnsigned(32) << 24) ^
-        kw[2];
-    c3 = sBox[r7 & 255] ^
-        (sBox[(r4 >> 8) & 255].toUnsigned(32) << 8) ^
-        (sBox[(r5 >> 16) & 255].toUnsigned(32) << 16) ^
-        (sBox[r6 >> 24].toUnsigned(32) << 24) ^
-        kw[3];
+
+    r01 =
+        r0[t0 & 255] ^
+        _shift(r0[(t1 >> 8) & 255], 24) ^
+        _shift(r0[(t2 >> 16) & 255], 16) ^
+        _shift(r0[(r3 >> 24) & 255], 8) ^
+        kw[r][0];
+    r1 =
+        r0[t1 & 255] ^
+        _shift(r0[(t2 >> 8) & 255], 24) ^
+        _shift(r0[(r3 >> 16) & 255], 16) ^
+        _shift(r0[(t0 >> 24) & 255], 8) ^
+        kw[r][1];
+    r2 =
+        r0[t2 & 255] ^
+        _shift(r0[(r3 >> 8) & 255], 24) ^
+        _shift(r0[(t0 >> 16) & 255], 16) ^
+        _shift(r0[(t1 >> 24) & 255], 8) ^
+        kw[r][2];
+    r3 =
+        r0[r3 & 255] ^
+        _shift(r0[(t0 >> 8) & 255], 24) ^
+        _shift(r0[(t1 >> 16) & 255], 16) ^
+        _shift(r0[(t2 >> 24) & 255], 8) ^
+        kw[r++][3];
+
+    c0 =
+        (sBox[r01 & 255] & 255) ^
+        ((sBox[(r1 >> 8) & 255] & 255) << 8) ^
+        ((_s[(r2 >> 16) & 255] & 255) << 16) ^
+        (_s[(r3 >> 24) & 255] << 24) ^
+        kw[r][0];
+    c1 =
+        (_s[r1 & 255] & 255) ^
+        ((sBox[(r2 >> 8) & 255] & 255) << 8) ^
+        ((sBox[(r3 >> 16) & 255] & 255) << 16) ^
+        (_s[(r01 >> 24) & 255] << 24) ^
+        kw[r][1];
+    c2 =
+        (_s[r2 & 255] & 255) ^
+        ((sBox[(r3 >> 8) & 255] & 255) << 8) ^
+        ((sBox[(r01 >> 16) & 255] & 255) << 16) ^
+        (sBox[(r1 >> 24) & 255] << 24) ^
+        kw[r][2];
+    c3 =
+        (_s[r3 & 255] & 255) ^
+        ((_s[(r01 >> 8) & 255] & 255) << 8) ^
+        ((_s[(r1 >> 16) & 255] & 255) << 16) ^
+        (sBox[(r2 >> 24) & 255] << 24) ^
+        kw[r][3];
+
+    _addBlock(c0, out, outOff + 0, Endian.little);
+    _addBlock(c1, out, outOff + 4, Endian.little);
+    _addBlock(c2, out, outOff + 8, Endian.little);
+    _addBlock(c3, out, outOff + 12, Endian.little);
   }
 
   /// internal method
-  void decryptBlock() {
-    final List<List<int>> keys = _key!;
-    int r = rounds;
-    List<int> kw = keys[r];
-    c0 ^= kw[0];
-    c1 ^= kw[1];
-    c2 ^= kw[2];
-    c3 ^= kw[3];
-    int r4;
-    int r5;
-    int r6;
-    int r7;
-    while (r > 2) {
-      kw = keys[--r];
-      r4 = rinv0[c0 & 255] ^
-          rinv1[(c3 >> 8) & 255] ^
-          rinv2[(c2 >> 16) & 255] ^
-          rinv3[c1 >> 24] ^
-          kw[0];
-      r5 = rinv0[c1 & 255] ^
-          rinv1[(c0 >> 8) & 255] ^
-          rinv2[(c3 >> 16) & 255] ^
-          rinv3[c2 >> 24] ^
-          kw[1];
-      r6 = rinv0[c2 & 255] ^
-          rinv1[(c1 >> 8) & 255] ^
-          rinv2[(c0 >> 16) & 255] ^
-          rinv3[c3 >> 24] ^
-          kw[2];
-      r7 = rinv0[c3 & 255] ^
-          rinv1[(c2 >> 8) & 255] ^
-          rinv2[(c1 >> 16) & 255] ^
-          rinv3[c0 >> 24] ^
-          kw[3];
-      kw = keys[--r];
-      c0 = rinv0[r4 & 255] ^
-          rinv1[(r7 >> 8) & 255] ^
-          rinv2[(r6 >> 16) & 255] ^
-          rinv3[r5 >> 24] ^
-          kw[0];
-      c1 = rinv0[r5 & 255] ^
-          rinv1[(r4 >> 8) & 255] ^
-          rinv2[(r7 >> 16) & 255] ^
-          rinv3[r6 >> 24] ^
-          kw[1];
-      c2 = rinv0[r6 & 255] ^
-          rinv1[(r5 >> 8) & 255] ^
-          rinv2[(r4 >> 16) & 255] ^
-          rinv3[r7 >> 24] ^
-          kw[2];
-      c3 = rinv0[r7 & 255] ^
-          rinv1[(r6 >> 8) & 255] ^
-          rinv2[(r5 >> 16) & 255] ^
-          rinv3[r4 >> 24] ^
-          kw[3];
+  void decryptBlock(
+    input,
+    int inOff,
+    Uint8List out,
+    int outOff,
+    List<List<int>> kw,
+  ) {
+    var c0 = _removeBlock(input, inOff + 0, Endian.little);
+    var c1 = _removeBlock(input, inOff + 4, Endian.little);
+    var c2 = _removeBlock(input, inOff + 8, Endian.little);
+    var c3 = _removeBlock(input, inOff + 12, Endian.little);
+
+    var t0 = c0 ^ kw[rounds][0];
+    var t1 = c1 ^ kw[rounds][1];
+    var t2 = c2 ^ kw[rounds][2];
+
+    int r = rounds - 1, r01, r1, r2, r3 = c3 ^ kw[rounds][3];
+
+    while (r > 1) {
+      r01 =
+          rinv0[t0 & 255] ^
+          _shift(rinv0[(r3 >> 8) & 255], 24) ^
+          _shift(rinv0[(t2 >> 16) & 255], 16) ^
+          _shift(rinv0[(t1 >> 24) & 255], 8) ^
+          kw[r][0];
+      r1 =
+          rinv0[t1 & 255] ^
+          _shift(rinv0[(t0 >> 8) & 255], 24) ^
+          _shift(rinv0[(r3 >> 16) & 255], 16) ^
+          _shift(rinv0[(t2 >> 24) & 255], 8) ^
+          kw[r][1];
+      r2 =
+          rinv0[t2 & 255] ^
+          _shift(rinv0[(t1 >> 8) & 255], 24) ^
+          _shift(rinv0[(t0 >> 16) & 255], 16) ^
+          _shift(rinv0[(r3 >> 24) & 255], 8) ^
+          kw[r][2];
+      r3 =
+          rinv0[r3 & 255] ^
+          _shift(rinv0[(t2 >> 8) & 255], 24) ^
+          _shift(rinv0[(t1 >> 16) & 255], 16) ^
+          _shift(rinv0[(t0 >> 24) & 255], 8) ^
+          kw[r--][3];
+      t0 =
+          rinv0[r01 & 255] ^
+          _shift(rinv0[(r3 >> 8) & 255], 24) ^
+          _shift(rinv0[(r2 >> 16) & 255], 16) ^
+          _shift(rinv0[(r1 >> 24) & 255], 8) ^
+          kw[r][0];
+      t1 =
+          rinv0[r1 & 255] ^
+          _shift(rinv0[(r01 >> 8) & 255], 24) ^
+          _shift(rinv0[(r3 >> 16) & 255], 16) ^
+          _shift(rinv0[(r2 >> 24) & 255], 8) ^
+          kw[r][1];
+      t2 =
+          rinv0[r2 & 255] ^
+          _shift(rinv0[(r1 >> 8) & 255], 24) ^
+          _shift(rinv0[(r01 >> 16) & 255], 16) ^
+          _shift(rinv0[(r3 >> 24) & 255], 8) ^
+          kw[r][2];
+      r3 =
+          rinv0[r3 & 255] ^
+          _shift(rinv0[(r2 >> 8) & 255], 24) ^
+          _shift(rinv0[(r1 >> 16) & 255], 16) ^
+          _shift(rinv0[(r01 >> 24) & 255], 8) ^
+          kw[r--][3];
     }
 
-    kw = keys[--r];
-    r4 = rinv0[c0 & 255] ^
-        rinv1[(c3 >> 8) & 255] ^
-        rinv2[(c2 >> 16) & 255] ^
-        rinv3[c1 >> 24] ^
-        kw[0];
-    r5 = rinv0[c1 & 255] ^
-        rinv1[(c0 >> 8) & 255] ^
-        rinv2[(c3 >> 16) & 255] ^
-        rinv3[c2 >> 24] ^
-        kw[1];
-    r6 = rinv0[c2 & 255] ^
-        rinv1[(c1 >> 8) & 255] ^
-        rinv2[(c0 >> 16) & 255] ^
-        rinv3[c3 >> 24] ^
-        kw[2];
-    r7 = rinv0[c3 & 255] ^
-        rinv1[(c2 >> 8) & 255] ^
-        rinv2[(c1 >> 16) & 255] ^
-        rinv3[c0 >> 24] ^
-        kw[3];
+    r01 =
+        rinv0[t0 & 255] ^
+        _shift(rinv0[(r3 >> 8) & 255], 24) ^
+        _shift(rinv0[(t2 >> 16) & 255], 16) ^
+        _shift(rinv0[(t1 >> 24) & 255], 8) ^
+        kw[r][0];
+    r1 =
+        rinv0[t1 & 255] ^
+        _shift(rinv0[(t0 >> 8) & 255], 24) ^
+        _shift(rinv0[(r3 >> 16) & 255], 16) ^
+        _shift(rinv0[(t2 >> 24) & 255], 8) ^
+        kw[r][1];
+    r2 =
+        rinv0[t2 & 255] ^
+        _shift(rinv0[(t1 >> 8) & 255], 24) ^
+        _shift(rinv0[(t0 >> 16) & 255], 16) ^
+        _shift(rinv0[(r3 >> 24) & 255], 8) ^
+        kw[r][2];
+    r3 =
+        rinv0[r3 & 255] ^
+        _shift(rinv0[(t2 >> 8) & 255], 24) ^
+        _shift(rinv0[(t1 >> 16) & 255], 16) ^
+        _shift(rinv0[(t0 >> 24) & 255], 8) ^
+        kw[r][3];
 
-    kw = keys[--r];
-    c0 = sinv[r4 & 255].toUnsigned(32) ^
-        (sinv[(r7 >> 8) & 255].toUnsigned(32) << 8) ^
-        (sinv[(r6 >> 16) & 255].toUnsigned(32) << 16) ^
-        (sinv[r5 >> 24].toUnsigned(32) << 24) ^
-        kw[0];
-    c1 = sinv[r5 & 255].toUnsigned(32) ^
-        (sinv[(r4 >> 8) & 255].toUnsigned(32) << 8) ^
-        (sinv[(r7 >> 16) & 255].toUnsigned(32) << 16) ^
-        (sinv[r6 >> 24].toUnsigned(32) << 24) ^
-        kw[1];
-    c2 = sinv[r6 & 255].toUnsigned(32) ^
-        (sinv[(r5 >> 8) & 255].toUnsigned(32) << 8) ^
-        (sinv[(r4 >> 16) & 255].toUnsigned(32) << 16) ^
-        (sinv[r7 >> 24].toUnsigned(32) << 24) ^
-        kw[2];
-    c3 = sinv[r7 & 255].toUnsigned(32) ^
-        (sinv[(r6 >> 8) & 255].toUnsigned(32) << 8) ^
-        (sinv[(r5 >> 16) & 255].toUnsigned(32) << 16) ^
-        (sinv[r4 >> 24].toUnsigned(32) << 24) ^
-        kw[3];
+    c0 =
+        (sinv[r01 & 255] & 255) ^
+        ((_s[(r3 >> 8) & 255] & 255) << 8) ^
+        ((_s[(r2 >> 16) & 255] & 255) << 16) ^
+        (sinv[(r1 >> 24) & 255] << 24) ^
+        kw[0][0];
+    c1 =
+        (_s[r1 & 255] & 255) ^
+        ((_s[(r01 >> 8) & 255] & 255) << 8) ^
+        ((sinv[(r3 >> 16) & 255] & 255) << 16) ^
+        (_s[(r2 >> 24) & 255] << 24) ^
+        kw[0][1];
+    c2 =
+        (_s[r2 & 255] & 255) ^
+        ((sinv[(r1 >> 8) & 255] & 255) << 8) ^
+        ((sinv[(r01 >> 16) & 255] & 255) << 16) ^
+        (_s[(r3 >> 24) & 255] << 24) ^
+        kw[0][2];
+    c3 =
+        (sinv[r3 & 255] & 255) ^
+        ((_s[(r2 >> 8) & 255] & 255) << 8) ^
+        ((_s[(r1 >> 16) & 255] & 255) << 16) ^
+        (_s[(r01 >> 24) & 255] << 24) ^
+        kw[0][3];
+
+    _addBlock(c0, out, outOff + 0, Endian.little);
+    _addBlock(c1, out, outOff + 4, Endian.little);
+    _addBlock(c2, out, outOff + 8, Endian.little);
+    _addBlock(c3, out, outOff + 12, Endian.little);
   }
 
-  int _convertToUnsignedInt32(List<int> bytes, int offset) {
-    return bytes[offset].toUnsigned(32) |
-        (bytes[offset + 1].toUnsigned(32) << 8) |
-        (bytes[offset + 2].toUnsigned(32) << 16) |
-        (bytes[offset + 3].toUnsigned(32) << 24);
+  void _addBlock(int x, dynamic out, int offset, Endian endian) {
+    assert((x >= 0) && (x <= _mask_32));
+    if (out is! ByteData) {
+      out = ByteData.view(
+        out.buffer as ByteBuffer,
+        out.offsetInBytes,
+        out.length,
+      );
+    }
+    out.setUint32(offset, x, endian);
   }
 
-  List<int> _convertFromUnsignedInt32(int n, List<int> bytes, int offset) {
-    bytes[offset] = n.toUnsigned(8);
-    bytes[offset + 1] = (n >> 8).toUnsigned(8);
-    bytes[offset + 2] = (n >> 16).toUnsigned(8);
-    bytes[offset + 3] = (n >> 24).toUnsigned(8);
-    return bytes;
+  int _shift(int r, int shift) => _rotateRight32(r, shift);
+
+  int _rotateRight32(int x, int n) {
+    assert(n >= 0);
+    assert((x >= 0) && (x <= _mask_32));
+    n &= _mask_5;
+    return (x >> n) | _shiftLeft32(x, 32 - n);
   }
 
-  int _shift(int r, int shift) {
-    return (r >> shift).toSigned(32) | (r << (32 - shift)).toSigned(32);
+  int _shiftRight32(int x, int n) {
+    assert((x >= 0) && (x <= _mask_32));
+    n &= _mask_5;
+    return x >> n;
+  }
+
+  int _shiftLeft32(int x, int n) {
+    assert((x >= 0) && (x <= _mask_32));
+    n &= _mask_5;
+    x &= _mask_bits[n];
+    return (x << n) & _mask_32;
   }
 
   int _subWord(int x) {
-    return sBox[x & 255].toUnsigned(32) |
-        (sBox[(x >> 8) & 255].toUnsigned(32) << 8) |
-        (sBox[(x >> 16) & 255].toUnsigned(32) << 16) |
-        (sBox[(x >> 24) & 255].toUnsigned(32) << 24);
+    return sBox[x & 255] & 255 |
+        ((sBox[(x >> 8) & 255] & 255) << 8) |
+        ((sBox[(x >> 16) & 255] & 255) << 16) |
+        sBox[(x >> 24) & 255] << 24;
   }
 
   int _inverseMultiply(int x) {
-    final int x1 = _mulX(x);
-    final int x2 = _mulX(x1);
-    final int x3 = _mulX(x2);
-    final int x4 = x ^ x3;
-    return x1 ^
-        x2 ^
-        x3 ^
-        _shift(x1 ^ x4, 8) ^
-        _shift(x2 ^ x4, 16) ^
-        _shift(x4, 24);
+    int t0, t1;
+    t0 = x;
+    t1 = t0 ^ _shift(t0, 8);
+    t0 ^= _xMultiply(t1);
+    t1 ^= _x2Multiply(t0);
+    t0 ^= t1 ^ _shift(t1, 16);
+    return t0;
   }
 
-  int _mulX(int x) {
-    return ((x & mix2) << 1) ^ (((x & mix1) >> 7) * mix3);
+  int _xMultiply(int x) {
+    final lsr = _shiftRight32(x & _m1, 7);
+    return ((x & _m2) << 1) ^ lsr * _m3;
   }
 
-  void _unPackBlock(List<int> bytes, int offset) {
-    c0 = _convertToUnsignedInt32(bytes, offset);
-    c1 = _convertToUnsignedInt32(bytes, offset + 4);
-    c2 = _convertToUnsignedInt32(bytes, offset + 8);
-    c3 = _convertToUnsignedInt32(bytes, offset + 12);
-  }
-
-  List<int> _packBlock(List<int> bytes, int offset) {
-    bytes = _convertFromUnsignedInt32(c0, bytes, offset);
-    bytes = _convertFromUnsignedInt32(c1, bytes, offset + 4);
-    bytes = _convertFromUnsignedInt32(c2, bytes, offset + 8);
-    bytes = _convertFromUnsignedInt32(c3, bytes, offset + 12);
-    return bytes;
+  int _x2Multiply(int x) {
+    final t0 = _shiftLeft32(x & _m5, 2);
+    var t1 = x & _m4;
+    t1 ^= _shiftRight32(t1, 1);
+    return t0 ^ _shiftRight32(t1, 2) ^ _shiftRight32(t1, 5);
   }
 
   void _initializeConstants() {
-    blockSize = 16;
     rounds = 0;
     _isEncryption = false;
     mix1 = 0x80808080;
@@ -450,7 +640,7 @@ class AesEngine implements ICipher {
       0xfa,
       0xef,
       0xc5,
-      0x91
+      0x91,
     ];
     sBox = <int>[
       99,
@@ -708,7 +898,7 @@ class AesEngine implements ICipher {
       176,
       84,
       187,
-      22
+      22,
     ];
     r0 = <int>[
       0xa56363c6,
@@ -966,7 +1156,7 @@ class AesEngine implements ICipher {
       0xcbb0b07b,
       0xfc5454a8,
       0xd6bbbb6d,
-      0x3a16162c
+      0x3a16162c,
     ];
     r1 = <int>[
       0x6363c6a5,
@@ -1224,7 +1414,7 @@ class AesEngine implements ICipher {
       0xb0b07bcb,
       0x5454a8fc,
       0xbbbb6dd6,
-      0x16162c3a
+      0x16162c3a,
     ];
     r2 = <int>[
       0x63c6a563,
@@ -1482,7 +1672,7 @@ class AesEngine implements ICipher {
       0xb07bcbb0,
       0x54a8fc54,
       0xbb6dd6bb,
-      0x162c3a16
+      0x162c3a16,
     ];
     r3 = <int>[
       0xc6a56363,
@@ -1740,7 +1930,7 @@ class AesEngine implements ICipher {
       0x7bcbb0b0,
       0xa8fc5454,
       0x6dd6bbbb,
-      0x2c3a1616
+      0x2c3a1616,
     ];
     sinv = <int>[
       82,
@@ -1998,7 +2188,7 @@ class AesEngine implements ICipher {
       85,
       33,
       12,
-      125
+      125,
     ];
     rinv0 = <int>[
       0x50a7f451,
@@ -2256,7 +2446,7 @@ class AesEngine implements ICipher {
       0x6184cb7b,
       0x70b632d5,
       0x745c6c48,
-      0x4257b8d0
+      0x4257b8d0,
     ];
     rinv1 = <int>[
       0xa7f45150,
@@ -2514,7 +2704,7 @@ class AesEngine implements ICipher {
       0x84cb7b61,
       0xb632d570,
       0x5c6c4874,
-      0x57b8d042
+      0x57b8d042,
     ];
     rinv2 = <int>[
       0xf45150a7,
@@ -2772,7 +2962,7 @@ class AesEngine implements ICipher {
       0xcb7b6184,
       0x32d570b6,
       0x6c48745c,
-      0xb8d04257
+      0xb8d04257,
     ];
     rinv3 = <int>[
       0x5150a7f4,
@@ -3030,7 +3220,45 @@ class AesEngine implements ICipher {
       0x7b6184cb,
       0xd570b632,
       0x48745c6c,
-      0xd04257b8
+      0xd04257b8,
     ];
   }
 }
+
+const _mask_32 = 0xFFFFFFFF;
+const _mask_5 = 0x1F;
+const _mask_bits = [
+  0xFFFFFFFF,
+  0x7FFFFFFF,
+  0x3FFFFFFF,
+  0x1FFFFFFF,
+  0x0FFFFFFF,
+  0x07FFFFFF,
+  0x03FFFFFF,
+  0x01FFFFFF,
+  0x00FFFFFF,
+  0x007FFFFF,
+  0x003FFFFF,
+  0x001FFFFF,
+  0x000FFFFF,
+  0x0007FFFF,
+  0x0003FFFF,
+  0x0001FFFF,
+  0x0000FFFF,
+  0x00007FFF,
+  0x00003FFF,
+  0x00001FFF,
+  0x00000FFF,
+  0x000007FF,
+  0x000003FF,
+  0x000001FF,
+  0x000000FF,
+  0x0000007F,
+  0x0000003F,
+  0x0000001F,
+  0x0000000F,
+  0x00000007,
+  0x00000003,
+  0x00000001,
+  0x00000000,
+];

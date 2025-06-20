@@ -14,10 +14,7 @@ class RangeSelectorApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Range Selector Demo',
-      home: MyHomePage(),
-    );
+    return const MaterialApp(title: 'Range Selector Demo', home: MyHomePage());
   }
 }
 
@@ -46,60 +43,62 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final DateTime _dateMin = DateTime(2003);
   final DateTime _dateMax = DateTime(2010);
-  final SfRangeValues _dateValues =
-      SfRangeValues(DateTime(2005), DateTime(2008));
+  final SfRangeValues _dateValues = SfRangeValues(
+    DateTime(2005),
+    DateTime(2008),
+  );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Syncfusion Flutter Range Selector'),
-      ),
+      appBar: AppBar(title: const Text('Syncfusion Flutter Range Selector')),
       body: Container(
-          margin: EdgeInsets.zero,
-          padding: EdgeInsets.zero,
-          child: Stack(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Center(
-                  // ignore: missing_required_param
-                  child: SfRangeSelector(
-                    min: _dateMin,
-                    max: _dateMax,
-                    initialValues: _dateValues,
-                    labelPlacement: LabelPlacement.betweenTicks,
-                    interval: 1,
-                    dateIntervalType: DateIntervalType.years,
-                    dateFormat: DateFormat.y(),
-                    showTicks: true,
-                    showLabels: true,
-                    child: SizedBox(
-                      height: 200,
-                      child: SfCartesianChart(
-                        margin: EdgeInsets.zero,
-                        primaryXAxis: DateTimeAxis(
-                          minimum: _dateMin,
-                          maximum: _dateMax,
-                          isVisible: false,
-                        ),
-                        primaryYAxis: const NumericAxis(
-                          isVisible: false,
-                          maximum: 4,
-                        ),
-                        series: <SplineAreaSeries<Data, DateTime>>[
-                          SplineAreaSeries<Data, DateTime>(
-                              dataSource: _chartData,
-                              xValueMapper: (Data sales, int index) => sales.x,
-                              yValueMapper: (Data sales, int index) => sales.y)
-                        ],
+        margin: EdgeInsets.zero,
+        padding: EdgeInsets.zero,
+        child: Stack(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Center(
+                // ignore: missing_required_param
+                child: SfRangeSelector(
+                  min: _dateMin,
+                  max: _dateMax,
+                  initialValues: _dateValues,
+                  labelPlacement: LabelPlacement.betweenTicks,
+                  interval: 1,
+                  dateIntervalType: DateIntervalType.years,
+                  dateFormat: DateFormat.y(),
+                  showTicks: true,
+                  showLabels: true,
+                  child: SizedBox(
+                    height: 200,
+                    child: SfCartesianChart(
+                      margin: EdgeInsets.zero,
+                      primaryXAxis: DateTimeAxis(
+                        minimum: _dateMin,
+                        maximum: _dateMax,
+                        isVisible: false,
                       ),
+                      primaryYAxis: const NumericAxis(
+                        isVisible: false,
+                        maximum: 4,
+                      ),
+                      series: <SplineAreaSeries<Data, DateTime>>[
+                        SplineAreaSeries<Data, DateTime>(
+                          dataSource: _chartData,
+                          xValueMapper: (Data sales, int index) => sales.x,
+                          yValueMapper: (Data sales, int index) => sales.y,
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

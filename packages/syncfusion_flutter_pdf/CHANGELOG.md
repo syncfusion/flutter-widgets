@@ -1,5 +1,76 @@
 ## Unreleased
 
+**Bugs**
+
+* The compatible version of our Flutter PDF library has been updated to Flutter SDK 3.32.0.
+
+## [29.2.11] - 17/06/2025
+
+**Bugs**
+
+* Resolved an exception that occurred when hiding document-level layers in a specific PDF document.
+
+## [29.2.9] - 05/06/2025 
+
+**Bugs**
+
+* Resolved a mismatch error in the text word length and text glyph length from a specific PDF document.
+
+## [29.2.7] - 27/05/2025 
+
+**Bugs**
+
+* Resolved a range error exception while extracting text lines from a specific PDF document.
+
+## [29.2.4] - 13/05/2025 
+
+**Bugs**
+
+* Resolved an Out-Of-Memory crash that occurred during the decryption of PDF document.
+* Resolved a performance issue when decrypting password-protected PDF documents.
+
+## [29.1.41] - 06/05/2025
+
+**Bugs**
+
+* Resolved an issue where an exception occurred when flattening a signature field in a PDF document.
+
+## [29.1.40] - 29/04/2025
+
+**Bugs**
+
+* Resolved a content preservation issue that occurred when drawing multiple PDF grids on the same page of a PDF document.
+* Resolved an issue where PDF form is returned as null when acro form has no fields.
+
+## [29.1.39] - 22/04/2025
+
+**General**
+
+* The minimum Dart version has been updated to 3.7.
+
+## [29.1.38] - 04/15/2025
+
+**Bugs**
+
+* Resolved an issue where the null check operator was incorrectly used on a nullable value.
+* Resolved an issue where the PDF was shifting towards the top right corner when drawing existing page templates on PDFs.
+* Exception occurs when getting the bounds of the text box form field item in a document has been resolved.
+
+## [29.1.37] - 04/08/2025
+
+**Bugs**
+
+* Resolved the invalid cross reference table issue occurs while loading the specific PDF document.
+* Resolved the Layer name not preserved properly while removing layers in the PDF document
+
+## [29.1.35] - 04/01/2025
+
+**Bugs**
+
+* Resolved the exception that occurred while decrypting PDF files on the Flutter web platform.
+
+## [29.1.33] - 03/25/2025
+
 **General**
 
 *  The compatible version of our Flutter PDF library has been updated to Flutter SDK 3.29.0.
@@ -390,7 +461,7 @@
 
 **Breaking changes**
 
-* The `save` method has been changed to an asynchronous type in the `PdfDocument` and the `saveSync` method has been added for synchronous.
+* The `save` method has been changed to an asynchronous type in the `PdfDocument` and the `saveSync` method has been added for synchronous.
 
 **Features**
 

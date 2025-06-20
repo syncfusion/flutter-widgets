@@ -7,8 +7,8 @@ import 'utility_helper.dart';
 
 /// Returns the DefaultLineSizeChangedArgs used by the
 /// [onDefaultLineSizeChanged] event.
-typedef DefaultLineSizeChangedCallback = void Function(
-    DefaultLineSizeChangedArgs defaultLineSizeChangedArgs);
+typedef DefaultLineSizeChangedCallback =
+    void Function(DefaultLineSizeChangedArgs defaultLineSizeChangedArgs);
 
 /// Returns the LineCountChangedArgs used by the
 /// [onLineCountChanged][onHeaderLineCountChanged][onFooderLineCountChanged]
@@ -16,19 +16,19 @@ typedef DefaultLineSizeChangedCallback = void Function(
 typedef LineCountChangedCallback = void Function();
 
 /// Returns the HiddenRangeChangedArgs used by the [onLineHiddenChanged] event.
-typedef LineHiddenChangedCallback = void Function(
-    HiddenRangeChangedArgs hiddenRangeChangedArgs);
+typedef LineHiddenChangedCallback =
+    void Function(HiddenRangeChangedArgs hiddenRangeChangedArgs);
 
 /// Returns the LinesInsertedArgs used by the [onLinesInserted] event.
-typedef LinesInsertedCallback = void Function(
-    LinesInsertedArgs linesInsertedArgs);
+typedef LinesInsertedCallback =
+    void Function(LinesInsertedArgs linesInsertedArgs);
 
 /// Returns the LinesRemovedArgs used by the [onLinesRemoved] event.
 typedef LinesRemovedCallback = void Function(LinesRemovedArgs linesRemovedArgs);
 
 /// Returns the RangeChangedArgs used by the [onLineSizeChanged] event.
-typedef LineSizeChangedCallback = void Function(
-    RangeChangedArgs rangeChangedArgs);
+typedef LineSizeChangedCallback =
+    void Function(RangeChangedArgs rangeChangedArgs);
 
 /// A collection that manages lines with varying height and hidden state.
 ///
@@ -135,21 +135,21 @@ mixin NestedDistancesHostBase {
 /// size of line.
 abstract class EditableLineSizeHostBase extends LineSizeHostBase {
   ///
-  EditableLineSizeHostBase(
-      {double defaultLineSize = 0.0,
-      int footerLineCount = 0,
-      int headerLineCount = 0,
-      int lineCount = 0,
-      bool supportsInsertRemove = false,
-      bool supportsNestedLines = false,
-      double totalExtent = 0.0})
-      : _defaultLineSize = defaultLineSize,
-        _footerLineCount = footerLineCount,
-        _headerLineCount = headerLineCount,
-        _lineCount = lineCount,
-        _supportsInsertRemove = supportsInsertRemove,
-        _supportsNestedLines = supportsNestedLines,
-        _totalExtent = totalExtent;
+  EditableLineSizeHostBase({
+    double defaultLineSize = 0.0,
+    int footerLineCount = 0,
+    int headerLineCount = 0,
+    int lineCount = 0,
+    bool supportsInsertRemove = false,
+    bool supportsNestedLines = false,
+    double totalExtent = 0.0,
+  }) : _defaultLineSize = defaultLineSize,
+       _footerLineCount = footerLineCount,
+       _headerLineCount = headerLineCount,
+       _lineCount = lineCount,
+       _supportsInsertRemove = supportsInsertRemove,
+       _supportsNestedLines = supportsNestedLines,
+       _totalExtent = totalExtent;
 
   /// Gets the default size of lines.
   ///
@@ -277,7 +277,10 @@ abstract class EditableLineSizeHostBase extends LineSizeHostBase {
   /// `RemoveLines` call when lines should be moved. When it is null,
   /// empty lines with default size are inserted.
   void insertLines(
-      int insertAtLine, int count, EditableLineSizeHostBase? moveLines);
+    int insertAtLine,
+    int count,
+    EditableLineSizeHostBase? moveLines,
+  );
 
   /// Removes a number of lines at the given index.
   ///
@@ -286,7 +289,10 @@ abstract class EditableLineSizeHostBase extends LineSizeHostBase {
   /// * moveLines - _required_ - A container to save state for a subsequent
   /// `InsertLines` call when lines should be moved.
   void removeLines(
-      int removeAtLine, int count, EditableLineSizeHostBase? moveLines);
+    int removeAtLine,
+    int count,
+    EditableLineSizeHostBase? moveLines,
+  );
 
   /// Sets the hidden state for the given range of lines.
   ///
@@ -330,24 +336,25 @@ abstract class EditableLineSizeHostBase extends LineSizeHostBase {
 /// and `DeferRefresh` method.
 abstract class PaddedEditableLineSizeHostBase extends EditableLineSizeHostBase {
   ///
-  PaddedEditableLineSizeHostBase(
-      {double paddingDistance = 0.0,
-      double defaultLineSize = 0.0,
-      int footerLineCount = 0,
-      int headerLineCount = 0,
-      int lineCount = 0,
-      bool supportsInsertRemove = false,
-      bool supportsNestedLines = false,
-      double totalExtent = 0.0})
-      : _paddingDistance = paddingDistance,
-        super(
-            defaultLineSize: defaultLineSize,
-            footerLineCount: footerLineCount,
-            headerLineCount: headerLineCount,
-            lineCount: lineCount,
-            supportsInsertRemove: supportsInsertRemove,
-            supportsNestedLines: supportsNestedLines,
-            totalExtent: totalExtent);
+  PaddedEditableLineSizeHostBase({
+    double paddingDistance = 0.0,
+    double defaultLineSize = 0.0,
+    int footerLineCount = 0,
+    int headerLineCount = 0,
+    int lineCount = 0,
+    bool supportsInsertRemove = false,
+    bool supportsNestedLines = false,
+    double totalExtent = 0.0,
+  }) : _paddingDistance = paddingDistance,
+       super(
+         defaultLineSize: defaultLineSize,
+         footerLineCount: footerLineCount,
+         headerLineCount: headerLineCount,
+         lineCount: lineCount,
+         supportsInsertRemove: supportsInsertRemove,
+         supportsNestedLines: supportsNestedLines,
+         totalExtent: totalExtent,
+       );
 
   /// Gets the padding distance for the line.
   ///
@@ -376,19 +383,21 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     with DistancesHostBase, NestedDistancesHostBase {
   ///Initializes a new instance of the [LineSizeCollection] class.
   LineSizeCollection()
-      : super(
-            headerLineCount: 0,
-            footerLineCount: 0,
-            lineCount: 0,
-            defaultLineSize: 1.0,
-            paddingDistance: 0.0);
+    : super(
+        headerLineCount: 0,
+        footerLineCount: 0,
+        lineCount: 0,
+        defaultLineSize: 1.0,
+        paddingDistance: 0.0,
+      );
 
   final SortedRangeValueList<double> _lineSizes =
       SortedRangeValueList<double>.from(-1);
   DistanceCounterCollectionBase? _distances;
   int _isSuspendUpdates = 0;
-  SortedRangeValueList<bool> _lineHidden =
-      SortedRangeValueList<bool>.from(false);
+  SortedRangeValueList<bool> _lineHidden = SortedRangeValueList<bool>.from(
+    false,
+  );
   Map<int, LineSizeCollection> _lineNested = <int, LineSizeCollection>{};
 
   set distances(DistanceCounterCollectionBase? newValue) {
@@ -407,8 +416,9 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
   @override
   DistanceCounterCollectionBase? get distances {
     if (_distances == null) {
-      _distances =
-          DistanceRangeCounterCollection.fromPaddingDistance(paddingDistance);
+      _distances = DistanceRangeCounterCollection.fromPaddingDistance(
+        paddingDistance,
+      );
       initializeDistances();
     }
 
@@ -489,8 +499,9 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
         return;
       }
 
-      _distances =
-          DistanceRangeCounterCollection.fromPaddingDistance(paddingDistance);
+      _distances = DistanceRangeCounterCollection.fromPaddingDistance(
+        paddingDistance,
+      );
       initializeDistances();
     }
   }
@@ -620,8 +631,10 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
   /// Returns the boolean value indicating the hidden state for a line.
   @override
   List<dynamic> getHidden(int index, int repeatValueCount) {
-    final List<dynamic> rangeValue =
-        _lineHidden.getRange(index, repeatValueCount);
+    final List<dynamic> rangeValue = _lineHidden.getRange(
+      index,
+      repeatValueCount,
+    );
     return <dynamic>[rangeValue[0], rangeValue[1]];
   }
 
@@ -632,16 +645,20 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     if (_lineNested.containsKey(index)) {
       return <dynamic>[_lineNested[index]?.totalExtent, repeatValueCount];
     }
-    final List<dynamic> hiddenValue =
-        _lineHidden.getRange(index, repeatValueCount);
+    final List<dynamic> hiddenValue = _lineHidden.getRange(
+      index,
+      repeatValueCount,
+    );
     final bool hide = hiddenValue[0] as bool;
     repeatValueCount = hiddenValue[1] as int;
     if (hide) {
       return <dynamic>[0.0, repeatValueCount];
     }
 
-    final List<dynamic> rangeValue =
-        _lineSizes.getRange(index, repeatValueCount);
+    final List<dynamic> rangeValue = _lineSizes.getRange(
+      index,
+      repeatValueCount,
+    );
     final double size = rangeValue[0] as double;
     repeatValueCount = rangeValue[1] as int;
     if (size >= 0) {
@@ -672,8 +689,11 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
       for (final RangeValuePair<double> entry in _lineSizes.rangeValues) {
         final double entryValue = entry.value as double;
         if (entryValue != -2) {
-          _distances!.setRange(entry.start, entry.end,
-              entryValue < 0.0 ? defaultLineSize : entryValue);
+          _distances!.setRange(
+            entry.start,
+            entry.end,
+            entryValue < 0.0 ? defaultLineSize : entryValue,
+          );
         }
       }
 
@@ -704,7 +724,10 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
   /// size are inserted.
   @override
   void insertLines(
-      int insertAtLine, int count, EditableLineSizeHostBase? moveLines) {
+    int insertAtLine,
+    int count,
+    EditableLineSizeHostBase? moveLines,
+  ) {
     final LineSizeCollection? moveLine =
         moveLines != null ? moveLines as LineSizeCollection : null;
     _lineSizes.insertWithThreeArgs(insertAtLine, count, moveLine?._lineSizes);
@@ -738,8 +761,10 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     }
 
     if (onLinesInserted != null) {
-      final LinesInsertedArgs linesInsertedArgs =
-          LinesInsertedArgs.fromArgs(insertAtLine, count);
+      final LinesInsertedArgs linesInsertedArgs = LinesInsertedArgs.fromArgs(
+        insertAtLine,
+        count,
+      );
       onLinesInserted!(linesInsertedArgs);
     }
   }
@@ -752,7 +777,8 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     final PixelScrollAxis pixelScrollAxis = scrollAxis as PixelScrollAxis;
     if (_lineNested.isNotEmpty) {
       throw Exception(
-          'When you have nested line collections you need to use PixelScrolling!');
+        'When you have nested line collections you need to use PixelScrolling!',
+      );
     }
     scrollAxis
       ..defaultLineSize = defaultLineSize
@@ -761,8 +787,11 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     for (final RangeValuePair<double> entry in _lineSizes) {
       if (entry.value != -2) {
         final double entryValue = entry.value as double;
-        scrollAxis.setLineSize(entry.start, entry.end,
-            entryValue < 0 ? defaultLineSize : entry.value);
+        scrollAxis.setLineSize(
+          entry.start,
+          entry.end,
+          entryValue < 0 ? defaultLineSize : entry.value,
+        );
       }
     }
 
@@ -794,13 +823,22 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
   /// call when lines should be moved.
   @override
   void removeLines(
-      int removeAtLine, int count, EditableLineSizeHostBase? moveLines) {
+    int removeAtLine,
+    int count,
+    EditableLineSizeHostBase? moveLines,
+  ) {
     final LineSizeCollection? removeLines =
         moveLines != null ? moveLines as LineSizeCollection : null;
     _lineSizes.removeWithThreeArgs(
-        removeAtLine, count, removeLines?._lineSizes);
+      removeAtLine,
+      count,
+      removeLines?._lineSizes,
+    );
     _lineHidden.removeWithThreeArgs(
-        removeAtLine, count, removeLines?._lineHidden);
+      removeAtLine,
+      count,
+      removeLines?._lineHidden,
+    );
 
     final Map<int, LineSizeCollection> lineNested = _lineNested;
     _lineNested = <int, LineSizeCollection>{};
@@ -811,8 +849,10 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
           if (key >= removeAtLine + count) {
             _lineNested.putIfAbsent(key - count, () => value);
           } else if (removeLines != null) {
-            removeLines._lineNested
-                .putIfAbsent(key - removeAtLine, () => value);
+            removeLines._lineNested.putIfAbsent(
+              key - removeAtLine,
+              () => value,
+            );
           }
         } else {
           _lineNested.putIfAbsent(key, () => value);
@@ -831,8 +871,10 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     }
 
     if (onLinesRemoved != null) {
-      final LinesRemovedArgs linesRemovedArgs =
-          LinesRemovedArgs.fromArgs(removeAtLine, count);
+      final LinesRemovedArgs linesRemovedArgs = LinesRemovedArgs.fromArgs(
+        removeAtLine,
+        count,
+      );
       onLinesRemoved!(linesRemovedArgs);
     }
   }
@@ -898,8 +940,12 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     }
     // DistancesLineHiddenChanged checks both hidden state and sizes together...
     if (_distances != null) {
-      DistancesUtil.instance
-          .distancesLineHiddenChanged(distances!, this, from, to);
+      DistancesUtil.instance.distancesLineHiddenChanged(
+        distances!,
+        this,
+        from,
+        to,
+      );
     }
     HiddenRangeChangedArgs hiddenRangeChangedArgs;
     if (onLineHiddenChanged != null) {
@@ -994,8 +1040,12 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     }
 
     if (_distances != null) {
-      DistancesUtil.instance
-          .distancesLineSizeChanged(distances!, this, index, index);
+      DistancesUtil.instance.distancesLineSizeChanged(
+        distances!,
+        this,
+        index,
+        index,
+      );
     }
 
     if (onLineSizeChanged != null) {
@@ -1023,13 +1073,21 @@ class LineSizeCollection extends PaddedEditableLineSizeHostBase
     }
 
     if (_distances != null) {
-      DistancesUtil.instance
-          .distancesLineHiddenChanged(_distances!, this, from, to);
+      DistancesUtil.instance.distancesLineHiddenChanged(
+        _distances!,
+        this,
+        from,
+        to,
+      );
     }
     RangeChangedArgs rangeChangedArgs;
     if (onLineSizeChanged != null) {
-      rangeChangedArgs =
-          RangeChangedArgs.fromRangeChangedArgs(from, to, saveValue, size);
+      rangeChangedArgs = RangeChangedArgs.fromRangeChangedArgs(
+        from,
+        to,
+        saveValue,
+        size,
+      );
       onLineSizeChanged!(rangeChangedArgs);
     }
   }
@@ -1074,8 +1132,12 @@ class DistancesUtil {
   /// * linesHost - _required_ - The line host.
   /// * from - _required_ - The start index of the line.
   /// * to - _required_ - The end index of the line.
-  void distancesLineHiddenChanged(DistanceCounterCollectionBase distances,
-      LineSizeHostBase linesHost, int from, int to) {
+  void distancesLineHiddenChanged(
+    DistanceCounterCollectionBase distances,
+    LineSizeHostBase linesHost,
+    int from,
+    int to,
+  ) {
     final Object ndh = linesHost;
     for (int n = from; n <= to; n++) {
       int repeatSizeCount = -1;
@@ -1112,8 +1174,12 @@ class DistancesUtil {
   /// * linesHost - _required_ - The line host.
   /// * from - _required_ - The start index of the line.
   /// * to - _required_ - The end index of the line.
-  void distancesLineSizeChanged(DistanceCounterCollectionBase distances,
-      LineSizeHostBase linesHost, int from, int to) {
+  void distancesLineSizeChanged(
+    DistanceCounterCollectionBase distances,
+    LineSizeHostBase linesHost,
+    int from,
+    int to,
+  ) {
     final Object ndh = linesHost;
 
     for (int n = from; n <= to; n++) {
@@ -1160,8 +1226,12 @@ class DistancesUtil {
   /// * linesHost - _required_ - The line host.
   /// * insertAt - _required_ - The index to insert.
   /// * count - _required_ - The count of the lines inserted.
-  void onInserted(DistanceCounterCollectionBase distances,
-      LineSizeHostBase linesHost, int insertAt, int count) {
+  void onInserted(
+    DistanceCounterCollectionBase distances,
+    LineSizeHostBase linesHost,
+    int insertAt,
+    int count,
+  ) {
     distances.insert(insertAt, count);
     final int to = insertAt + count - 1;
     int repeatSizeCount = -1;

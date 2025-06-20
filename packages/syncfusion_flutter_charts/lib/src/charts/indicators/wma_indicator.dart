@@ -179,22 +179,27 @@ class WmaIndicator<T, D> extends TechnicalIndicator<T, D> {
     this.valueField = 'close',
     super.onRenderDetailsUpdate,
   }) : super(
-          xValueMapper: xValueMapper != null && dataSource != null
-              ? (int index) => xValueMapper(dataSource[index], index)
-              : null,
-          highValueMapper: highValueMapper != null && dataSource != null
-              ? (int index) => highValueMapper(dataSource[index], index)
-              : null,
-          lowValueMapper: lowValueMapper != null && dataSource != null
-              ? (int index) => lowValueMapper(dataSource[index], index)
-              : null,
-          openValueMapper: openValueMapper != null && dataSource != null
-              ? (int index) => openValueMapper(dataSource[index], index)
-              : null,
-          closeValueMapper: closeValueMapper != null && dataSource != null
-              ? (int index) => closeValueMapper(dataSource[index], index)
-              : null,
-        );
+         xValueMapper:
+             xValueMapper != null && dataSource != null
+                 ? (int index) => xValueMapper(dataSource[index], index)
+                 : null,
+         highValueMapper:
+             highValueMapper != null && dataSource != null
+                 ? (int index) => highValueMapper(dataSource[index], index)
+                 : null,
+         lowValueMapper:
+             lowValueMapper != null && dataSource != null
+                 ? (int index) => lowValueMapper(dataSource[index], index)
+                 : null,
+         openValueMapper:
+             openValueMapper != null && dataSource != null
+                 ? (int index) => openValueMapper(dataSource[index], index)
+                 : null,
+         closeValueMapper:
+             closeValueMapper != null && dataSource != null
+                 ? (int index) => closeValueMapper(dataSource[index], index)
+                 : null,
+       );
 
   /// Value field value for WMA indicator.
   ///
@@ -296,7 +301,7 @@ class WmaIndicator<T, D> extends TechnicalIndicator<T, D> {
       signalLineColor,
       signalLineWidth,
       valueField,
-      period
+      period,
     ];
     return Object.hashAll(values);
   }
@@ -338,7 +343,9 @@ class WmaIndicatorWidget extends IndicatorWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, WmaIndicatorRenderer renderObject) {
+    BuildContext context,
+    WmaIndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final WmaIndicator wma = indicator as WmaIndicator;
     renderObject
@@ -396,7 +403,7 @@ class WmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           highValueMapper,
           lowValueMapper,
           openValueMapper,
-          closeValueMapper
+          closeValueMapper,
         ],
         <List<num>>[_highValues, _lowValues, _openValues, _closeValues],
       );
@@ -530,7 +537,7 @@ class WmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           header: tooltipHeaderText(chartPoint),
           text: trackballText(chartPoint, text),
           color: signalLineColor,
-        )
+        ),
       ];
     }
     return null;
@@ -593,8 +600,9 @@ class WmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         signalLineColor,
         dashArray,
       );
-      final TechnicalIndicatorRenderDetails details =
-          onRenderDetailsUpdate!(params);
+      final TechnicalIndicatorRenderDetails details = onRenderDetailsUpdate!(
+        params,
+      );
       strokePaint
         ..color = details.signalLineColor
         ..strokeWidth = details.signalLineWidth;
@@ -610,8 +618,12 @@ class WmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
 
     if (signalLinePoints.isNotEmpty) {

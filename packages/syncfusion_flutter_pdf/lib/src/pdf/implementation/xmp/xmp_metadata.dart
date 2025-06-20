@@ -72,7 +72,8 @@ class XmpMetadata implements IPdfWrapper {
         count++;
         if (count > 1) {
           throw ArgumentError(
-              'More than one element satisfies the specified condition');
+            'More than one element satisfies the specified condition',
+          );
         }
       }
     }
@@ -114,10 +115,12 @@ class XmpMetadata implements IPdfWrapper {
   void _initializeStream() {
     _stream!.beginSave = beginSave;
     _stream!.endSave = endSave;
-    _stream![PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.metadata);
-    _stream![PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.xml);
+    _stream![PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.metadata,
+    );
+    _stream![PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.xml,
+    );
     _stream!.compress = false;
   }
 
@@ -159,67 +162,118 @@ class XmpMetadata implements IPdfWrapper {
     final XmlElement rdf = _createElement('rdf', 'RDF', _rdfUri);
     _addNamespace('rdf', _rdfUri);
     if (!_isNullOrEmpty(info.producer) || !_isNullOrEmpty(info.keywords)) {
-      final String? pdfNamespace =
-          _addNamespace('pdf', 'http://ns.adobe.com/pdf/1.3/');
-      final XmlElement rdfDescription =
-          _createElement('rdf', 'Description', _rdfUri);
+      final String? pdfNamespace = _addNamespace(
+        'pdf',
+        'http://ns.adobe.com/pdf/1.3/',
+      );
+      final XmlElement rdfDescription = _createElement(
+        'rdf',
+        'Description',
+        _rdfUri,
+      );
       rdfDescription.setAttribute('rdf:about', ' ');
       if (!_isNullOrEmpty(info.producer)) {
-        rdfDescription.children.add(XmlElement(
-            XmlName('Producer', 'pdf'), <XmlAttribute>[
-          XmlAttribute(XmlName('pdf', 'xmlns'), pdfNamespace!)
-        ], <XmlNode>[
-          XmlText(info.producer)
-        ]));
+        rdfDescription.children.add(
+          XmlElement(
+            XmlName('Producer', 'pdf'),
+            <XmlAttribute>[
+              XmlAttribute(XmlName('pdf', 'xmlns'), pdfNamespace!),
+            ],
+            <XmlNode>[XmlText(info.producer)],
+          ),
+        );
       }
       if (!_isNullOrEmpty(info.keywords)) {
-        rdfDescription.children.add(XmlElement(
-            XmlName('Keywords', 'pdf'), <XmlAttribute>[
-          XmlAttribute(XmlName('pdf', 'xmlns'), pdfNamespace!)
-        ], <XmlNode>[
-          XmlText(info.keywords)
-        ]));
+        rdfDescription.children.add(
+          XmlElement(
+            XmlName('Keywords', 'pdf'),
+            <XmlAttribute>[
+              XmlAttribute(XmlName('pdf', 'xmlns'), pdfNamespace!),
+            ],
+            <XmlNode>[XmlText(info.keywords)],
+          ),
+        );
       }
       rdf.children.add(rdfDescription);
     }
     if (!_isNullOrEmpty(info.creator)) {
-      final XmlElement xmpDescription =
-          _createElement('rdf', 'Description', _rdfUri);
+      final XmlElement xmpDescription = _createElement(
+        'rdf',
+        'Description',
+        _rdfUri,
+      );
       xmpDescription.setAttribute('rdf:about', ' ');
       final String? xmpNamespace = _addNamespace('xmp', _xap);
       xmpDescription.setAttribute('xmlns:xmp', xmpNamespace);
       if (!_isNullOrEmpty(info.creator)) {
-        xmpDescription.children.add(XmlElement(XmlName('CreatorTool', 'xmp'),
-            <XmlAttribute>[], <XmlNode>[XmlText(info.creator)]));
+        xmpDescription.children.add(
+          XmlElement(XmlName('CreatorTool', 'xmp'), <XmlAttribute>[], <XmlNode>[
+            XmlText(info.creator),
+          ]),
+        );
       }
       final String createDate = _getDateTime(
-          PdfDocumentInformationHelper.getHelper(info).creationDate);
-      xmpDescription.children.add(XmlElement(XmlName('CreateDate', 'xmp'),
-          <XmlAttribute>[], <XmlNode>[XmlText(createDate)]));
+        PdfDocumentInformationHelper.getHelper(info).creationDate,
+      );
+      xmpDescription.children.add(
+        XmlElement(XmlName('CreateDate', 'xmp'), <XmlAttribute>[], <XmlNode>[
+          XmlText(createDate),
+        ]),
+      );
       if (!PdfDocumentInformationHelper.getHelper(info).isRemoveModifyDate) {
         final String modificationDate = _getDateTime(
-            PdfDocumentInformationHelper.getHelper(info).modificationDate);
-        xmpDescription.children.add(XmlElement(XmlName('ModifyDate', 'xmp'),
-            <XmlAttribute>[], <XmlNode>[XmlText(modificationDate)]));
+          PdfDocumentInformationHelper.getHelper(info).modificationDate,
+        );
+        xmpDescription.children.add(
+          XmlElement(XmlName('ModifyDate', 'xmp'), <XmlAttribute>[], <XmlNode>[
+            XmlText(modificationDate),
+          ]),
+        );
       }
       rdf.children.add(xmpDescription);
     }
     //Dublin Core Schema
     final String? dublinNamespace = _addNamespace('dc', _dublinSchema);
-    final XmlElement dublinDescription =
-        _createElement('rdf', 'Description', _rdfUri);
+    final XmlElement dublinDescription = _createElement(
+      'rdf',
+      'Description',
+      _rdfUri,
+    );
     dublinDescription.setAttribute('rdf:about', ' ');
     dublinDescription.setAttribute('xmlns:dc', dublinNamespace);
-    dublinDescription.children.add(XmlElement(XmlName('format', 'dc'),
-        <XmlAttribute>[], <XmlNode>[XmlText('application/pdf')]));
+    dublinDescription.children.add(
+      XmlElement(XmlName('format', 'dc'), <XmlAttribute>[], <XmlNode>[
+        XmlText('application/pdf'),
+      ]),
+    );
     _createDublinCoreContainer(
-        dublinDescription, 'title', info.title, true, 'Alt');
+      dublinDescription,
+      'title',
+      info.title,
+      true,
+      'Alt',
+    );
     _createDublinCoreContainer(
-        dublinDescription, 'description', info.subject, true, 'Alt');
+      dublinDescription,
+      'description',
+      info.subject,
+      true,
+      'Alt',
+    );
     _createDublinCoreContainer(
-        dublinDescription, 'subject', info.keywords, false, 'Bag');
+      dublinDescription,
+      'subject',
+      info.keywords,
+      false,
+      'Bag',
+    );
     _createDublinCoreContainer(
-        dublinDescription, 'creator', info.author, false, 'Seq');
+      dublinDescription,
+      'creator',
+      info.author,
+      false,
+      'Seq',
+    );
     rdf.children.add(dublinDescription);
     if (PdfDocumentInformationHelper.getHelper(_documentInfo!).conformance ==
             PdfConformanceLevel.a1b ||
@@ -227,15 +281,18 @@ class XmpMetadata implements IPdfWrapper {
             PdfConformanceLevel.a2b ||
         PdfDocumentInformationHelper.getHelper(_documentInfo!).conformance ==
             PdfConformanceLevel.a3b) {
-      final String? pdfaid =
-          _addNamespace('pdfaid', 'http://www.aiim.org/pdfa/ns/id/');
+      final String? pdfaid = _addNamespace(
+        'pdfaid',
+        'http://www.aiim.org/pdfa/ns/id/',
+      );
       final XmlElement pdfA = _createElement('rdf', 'Description', _rdfUri);
       pdfA.setAttribute('rdf:about', ' ');
       if (PdfDocumentInformationHelper.getHelper(_documentInfo!).conformance ==
           PdfConformanceLevel.a1b) {
         pdfA.setAttribute('pdfaid:part', '1');
-      } else if (PdfDocumentInformationHelper.getHelper(_documentInfo!)
-              .conformance ==
+      } else if (PdfDocumentInformationHelper.getHelper(
+            _documentInfo!,
+          ).conformance ==
           PdfConformanceLevel.a2b) {
         pdfA.setAttribute('pdfaid:part', '2');
       } else {
@@ -255,19 +312,24 @@ class XmpMetadata implements IPdfWrapper {
   }
 
   XmlElement _createElement(
-      String prefix, String localName, String namespaceURI) {
+    String prefix,
+    String localName,
+    String namespaceURI,
+  ) {
     XmlElement element;
     if (!_namespaceCollection.containsKey(prefix) &&
         prefix != 'xml' &&
         prefix != 'xmlns') {
       element = XmlElement(
-          XmlName(localName, prefix),
-          <XmlAttribute>[XmlAttribute(XmlName(prefix, 'xmlns'), namespaceURI)],
-          <XmlNode>[],
-          false);
+        XmlName(localName, prefix),
+        <XmlAttribute>[XmlAttribute(XmlName(prefix, 'xmlns'), namespaceURI)],
+        <XmlNode>[],
+        false,
+      );
     } else {
-      element =
-          XmlElement(XmlName(localName, prefix == 'xap' ? 'xmp' : prefix));
+      element = XmlElement(
+        XmlName(localName, prefix == 'xap' ? 'xmp' : prefix),
+      );
     }
     _addNamespace(prefix, namespaceURI);
     return element;
@@ -302,11 +364,19 @@ class XmpMetadata implements IPdfWrapper {
   }
 
   //Creates a Dublin core containers.
-  void _createDublinCoreContainer(XmlElement dublinDesc, String containerName,
-      String? value, bool defaultLang, String element) {
+  void _createDublinCoreContainer(
+    XmlElement dublinDesc,
+    String containerName,
+    String? value,
+    bool defaultLang,
+    String element,
+  ) {
     if (!_isNullOrEmpty(value)) {
-      final XmlElement title =
-          _createElement('dc', containerName, _dublinSchema);
+      final XmlElement title = _createElement(
+        'dc',
+        containerName,
+        _dublinSchema,
+      );
       _addNamespace('rdf', _rdfUri);
       final XmlElement alt = _createElement('rdf', element, _rdfUri);
       XmlElement li = _createElement('rdf', 'li', _rdfUri);

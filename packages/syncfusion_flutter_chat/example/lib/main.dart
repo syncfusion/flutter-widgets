@@ -3,10 +3,7 @@ import 'package:syncfusion_flutter_chat/chat.dart';
 import 'package:syncfusion_flutter_chat/assist_view.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: MainApp(),
-  ));
+  runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: MainApp()));
 }
 
 class MainApp extends StatelessWidget {
@@ -15,9 +12,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Syncfusion Conversational UI Sample'),
-      ),
+      appBar: AppBar(title: const Text('Syncfusion Conversational UI Sample')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -91,30 +86,28 @@ class ChatSampleState extends State<ChatSample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Syncfusion Flutter Chat'),
-      ),
+      appBar: AppBar(title: const Text('Syncfusion Flutter Chat')),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: SfChat(
           messages: _messages,
           outgoingUser: '8ob3-b720-g9s6-25s8',
           composer: const ChatComposer(
-            decoration: InputDecoration(
-              hintText: 'Type a message',
-            ),
+            decoration: InputDecoration(hintText: 'Type a message'),
           ),
           actionButton: ChatActionButton(
             onPressed: (String newMessage) {
               setState(() {
-                _messages.add(ChatMessage(
-                  text: newMessage,
-                  time: DateTime.now(),
-                  author: const ChatAuthor(
-                    id: '8ob3-b720-g9s6-25s8',
-                    name: 'Outgoing user name',
+                _messages.add(
+                  ChatMessage(
+                    text: newMessage,
+                    time: DateTime.now(),
+                    author: const ChatAuthor(
+                      id: '8ob3-b720-g9s6-25s8',
+                      name: 'Outgoing user name',
+                    ),
                   ),
-                ));
+                );
               });
             },
           ),
@@ -163,17 +156,13 @@ class AssistViewSampleState extends State<AssistViewSample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Syncfusion Flutter AI AssistView'),
-      ),
+      appBar: AppBar(title: const Text('Syncfusion Flutter AI AssistView')),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: SfAIAssistView(
           messages: _messages,
           composer: const AssistComposer(
-            decoration: InputDecoration(
-              hintText: 'Type a message',
-            ),
+            decoration: InputDecoration(hintText: 'Type a message'),
           ),
           actionButton: AssistActionButton(
             onPressed: (String data) {

@@ -138,8 +138,10 @@ class _ChatConversationAreaState extends ConversationAreaState<ChatMessage> {
       suggestionItemTextStyle: widget.suggestionItemTextStyle,
       padding: settings.padding ?? EdgeInsets.zero,
       contentPadding: settings.padding ?? EdgeInsets.zero,
-      avatarPadding:
-          effectiveAvatarPadding(isFromCurrentUser, settings.avatarPadding),
+      avatarPadding: effectiveAvatarPadding(
+        isFromCurrentUser,
+        settings.avatarPadding,
+      ),
       headerPadding: settings.headerPadding,
       footerPadding: settings.footerPadding,
       avatarSize: settings.avatarSize,
@@ -150,8 +152,10 @@ class _ChatConversationAreaState extends ConversationAreaState<ChatMessage> {
       onSuggestionItemSelected: widget.onSuggestionItemSelected,
       themeData: widget.themeData,
       textDirection: textDirection,
-      alignmentDirection:
-          alignmentBasedTextDirection(isFromCurrentUser, textDirection),
+      alignmentDirection: alignmentBasedTextDirection(
+        isFromCurrentUser,
+        textDirection,
+      ),
     );
 
     if (index == 0 &&
@@ -171,10 +175,7 @@ class _ChatConversationAreaState extends ConversationAreaState<ChatMessage> {
       );
     }
 
-    return KeyedSubtree(
-      key: IndexedValueKey(index),
-      child: result,
-    );
+    return KeyedSubtree(key: IndexedValueKey(index), child: result);
   }
 }
 
@@ -204,11 +205,15 @@ class _ChatMessageBubble extends MessageBubble<ChatMessage> {
     super.secondaryHeaderTextStyle,
     super.suggestionItemTextStyle,
     super.padding = const EdgeInsets.all(2.0),
-    super.contentPadding =
-        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    super.contentPadding = const EdgeInsets.symmetric(
+      horizontal: 16.0,
+      vertical: 8.0,
+    ),
     required super.avatarPadding,
-    super.headerPadding =
-        const EdgeInsetsDirectional.only(top: 14.0, bottom: 4.0),
+    super.headerPadding = const EdgeInsetsDirectional.only(
+      top: 14.0,
+      bottom: 4.0,
+    ),
     super.footerPadding = const EdgeInsetsDirectional.only(top: 4.0),
     super.avatarSize = const Size.square(32.0),
     super.suggestionBackgroundColor,
@@ -237,9 +242,10 @@ class _ChatMessageBubbleState extends MessageBubbleState<ChatMessage> {
     final ChatMessage current = widget.message;
     final ChatMessage? previous =
         widget.index - 1 >= 0 ? widget.messages[widget.index - 1] : null;
-    final ChatMessage? next = widget.index + 1 < messageCount
-        ? widget.messages[widget.index + 1]
-        : null;
+    final ChatMessage? next =
+        widget.index + 1 < messageCount
+            ? widget.messages[widget.index + 1]
+            : null;
 
     final EdgeInsets padding = super.effectiveMessagePadding();
     double top = padding.top;
@@ -478,10 +484,7 @@ class _ChatSuggestionItemState extends SuggestionItemState<ChatMessage> {
   _ChatSuggestionItem get widget => super.widget as _ChatSuggestionItem;
 
   @override
-  void invokeSelectedCallback(
-    int suggestionIndex, {
-    required bool selected,
-  }) {
+  void invokeSelectedCallback(int suggestionIndex, {required bool selected}) {
     final ChatMessageSuggestion suggestion =
         widget.message.suggestions![suggestionIndex];
     widget.onSuggestionItemSelected?.call(

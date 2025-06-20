@@ -7,14 +7,15 @@ import 'enum.dart';
 /// internal class
 class PaintParams {
   /// internal constructor
-  PaintParams(
-      {this.backBrush,
-      this.foreBrush,
-      this.borderPen,
-      this.bounds,
-      this.style,
-      this.borderWidth,
-      this.shadowBrush});
+  PaintParams({
+    this.backBrush,
+    this.foreBrush,
+    this.borderPen,
+    this.bounds,
+    this.style,
+    this.borderWidth,
+    this.shadowBrush,
+  });
 
   /// internal field
   PdfBrush? backBrush;

@@ -174,22 +174,27 @@ class RocIndicator<T, D> extends TechnicalIndicator<T, D> {
     this.centerLineWidth = 2,
     super.onRenderDetailsUpdate,
   }) : super(
-          xValueMapper: xValueMapper != null && dataSource != null
-              ? (int index) => xValueMapper(dataSource[index], index)
-              : null,
-          highValueMapper: highValueMapper != null && dataSource != null
-              ? (int index) => highValueMapper(dataSource[index], index)
-              : null,
-          lowValueMapper: lowValueMapper != null && dataSource != null
-              ? (int index) => lowValueMapper(dataSource[index], index)
-              : null,
-          openValueMapper: openValueMapper != null && dataSource != null
-              ? (int index) => openValueMapper(dataSource[index], index)
-              : null,
-          closeValueMapper: closeValueMapper != null && dataSource != null
-              ? (int index) => closeValueMapper(dataSource[index], index)
-              : null,
-        );
+         xValueMapper:
+             xValueMapper != null && dataSource != null
+                 ? (int index) => xValueMapper(dataSource[index], index)
+                 : null,
+         highValueMapper:
+             highValueMapper != null && dataSource != null
+                 ? (int index) => highValueMapper(dataSource[index], index)
+                 : null,
+         lowValueMapper:
+             lowValueMapper != null && dataSource != null
+                 ? (int index) => lowValueMapper(dataSource[index], index)
+                 : null,
+         openValueMapper:
+             openValueMapper != null && dataSource != null
+                 ? (int index) => openValueMapper(dataSource[index], index)
+                 : null,
+         closeValueMapper:
+             closeValueMapper != null && dataSource != null
+                 ? (int index) => closeValueMapper(dataSource[index], index)
+                 : null,
+       );
 
   /// Center line color of the ROC indicator.
   ///
@@ -313,7 +318,7 @@ class RocIndicator<T, D> extends TechnicalIndicator<T, D> {
       signalLineWidth,
       period,
       centerLineColor,
-      centerLineWidth
+      centerLineWidth,
     ];
     return Object.hashAll(values);
   }
@@ -358,7 +363,9 @@ class RocIndicatorWidget extends IndicatorWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, RocIndicatorRenderer renderObject) {
+    BuildContext context,
+    RocIndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final RocIndicator roc = indicator as RocIndicator;
     renderObject
@@ -428,7 +435,7 @@ class RocIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           highValueMapper,
           lowValueMapper,
           openValueMapper,
-          closeValueMapper
+          closeValueMapper,
         ],
         <List<num>>[_highValues, _lowValues, _openValues, _closeValues],
       );
@@ -552,35 +559,41 @@ class RocIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (rocPointIndex != -1) {
       final CartesianChartPoint<D> rocPoint = _chartPoint(rocPointIndex, 'roc');
       final String text = defaultLegendItemText();
-      trackballInfo.add(ChartTrackballInfo<T, D>(
-        position: signalLinePoints[rocPointIndex],
-        point: rocPoint,
-        series: this,
-        pointIndex: rocPointIndex,
-        segmentIndex: rocPointIndex,
-        seriesIndex: index,
-        name: text,
-        header: tooltipHeaderText(rocPoint),
-        text: trackballText(rocPoint, text),
-        color: signalLineColor,
-      ));
+      trackballInfo.add(
+        ChartTrackballInfo<T, D>(
+          position: signalLinePoints[rocPointIndex],
+          point: rocPoint,
+          series: this,
+          pointIndex: rocPointIndex,
+          segmentIndex: rocPointIndex,
+          seriesIndex: index,
+          name: text,
+          header: tooltipHeaderText(rocPoint),
+          text: trackballText(rocPoint, text),
+          color: signalLineColor,
+        ),
+      );
     }
     final int centerPointIndex = _findNearestPoint(_centerLinePoints, position);
     if (centerPointIndex != -1) {
-      final CartesianChartPoint<D> centerPoint =
-          _chartPoint(centerPointIndex, 'center');
-      trackballInfo.add(ChartTrackballInfo<T, D>(
-        position: _centerLinePoints[centerPointIndex],
-        point: centerPoint,
-        series: this,
-        pointIndex: centerPointIndex,
-        segmentIndex: centerPointIndex,
-        seriesIndex: index,
-        name: trackballCenterText,
-        header: tooltipHeaderText(centerPoint),
-        text: trackballText(centerPoint, trackballCenterText),
-        color: _centerLineColor,
-      ));
+      final CartesianChartPoint<D> centerPoint = _chartPoint(
+        centerPointIndex,
+        'center',
+      );
+      trackballInfo.add(
+        ChartTrackballInfo<T, D>(
+          position: _centerLinePoints[centerPointIndex],
+          point: centerPoint,
+          series: this,
+          pointIndex: centerPointIndex,
+          segmentIndex: centerPointIndex,
+          seriesIndex: index,
+          name: trackballCenterText,
+          header: tooltipHeaderText(centerPoint),
+          text: trackballText(centerPoint, trackballCenterText),
+          color: _centerLineColor,
+        ),
+      );
     }
 
     return trackballInfo;
@@ -627,14 +640,16 @@ class RocIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
   CartesianChartPoint<D> _chartPoint(int pointIndex, String type) {
     return CartesianChartPoint<D>(
-      x: type == 'roc'
-          ? xRawValues[pointIndex + period - 1]
-          : xRawValues[pointIndex],
+      x:
+          type == 'roc'
+              ? xRawValues[pointIndex + period - 1]
+              : xRawValues[pointIndex],
       xValue:
           type == 'roc' ? xValues[pointIndex + period] : xValues[pointIndex],
-      y: type == 'roc'
-          ? _signalLineActualValues[pointIndex].dy
-          : _centerLineActualValues[pointIndex].dy,
+      y:
+          type == 'roc'
+              ? _signalLineActualValues[pointIndex].dy
+              : _centerLineActualValues[pointIndex].dy,
     );
   }
 
@@ -649,8 +664,9 @@ class RocIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         signalLineColor,
         dashArray,
       );
-      final TechnicalIndicatorRenderDetails details =
-          onRenderDetailsUpdate!(params);
+      final TechnicalIndicatorRenderDetails details = onRenderDetailsUpdate!(
+        params,
+      );
       strokePaint
         ..color = details.signalLineColor
         ..strokeWidth = details.signalLineWidth;
@@ -666,8 +682,12 @@ class RocIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
 
     int length = signalLinePoints.length - 1;
@@ -685,20 +705,25 @@ class RocIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     }
 
     if (_centerLinePoints.isNotEmpty) {
-      final Paint paint = Paint()
-        ..isAntiAlias = true
-        ..color = centerLineColor
-        ..strokeWidth = centerLineWidth
-        ..style = PaintingStyle.stroke;
+      final Paint paint =
+          Paint()
+            ..isAntiAlias = true
+            ..color = centerLineColor
+            ..strokeWidth = centerLineWidth
+            ..style = PaintingStyle.stroke;
 
       if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
         _centerLinePath.reset();
         length = _centerLinePoints.length;
         _centerLinePath.moveTo(
-            _centerLinePoints.first.dx, _centerLinePoints.first.dy);
+          _centerLinePoints.first.dx,
+          _centerLinePoints.first.dy,
+        );
         for (int i = 1; i < length; i++) {
           _centerLinePath.lineTo(
-              _centerLinePoints[i].dx, _centerLinePoints[i].dy);
+            _centerLinePoints[i].dx,
+            _centerLinePoints[i].dy,
+          );
         }
         drawDashes(context.canvas, _dashArray, paint, path: _centerLinePath);
       }

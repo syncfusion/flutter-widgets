@@ -4,5 +4,5 @@ enum ImageType {
   jpeg,
 
   /// PNG image format
-  png
+  png,
 }

@@ -11,7 +11,6 @@ class AboveBelowAverageImpl implements AboveBelowAverage {
   int _stdDevValue = 1;
 
   @override
-
   /// Specifies whether the conditional formatting rule looks for cell values above or below the range average or standard deviation.
   ExcelCFAverageType get averageType {
     return _averageType;
@@ -26,7 +25,6 @@ class AboveBelowAverageImpl implements AboveBelowAverage {
   }
 
   @override
-
   /// Specifies standard deviation number for AboveAverage conditional formatting rule.
   int get stdDevValue {
     return _stdDevValue;

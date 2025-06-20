@@ -47,7 +47,7 @@ enum MapLabelOverflow {
 
   /// It trims the labels based on the available space in their respective
   /// shape.
-  ellipsis
+  ellipsis,
 }
 
 /// Shows legend for the shapes or the bubbles.
@@ -71,7 +71,7 @@ enum MapToolbarPosition {
   bottomLeft,
 
   /// Positions the toolbar on right bottom.
-  bottomRight
+  bottomRight,
 }
 
 /// Option to place the labels either between the bars or on the bar in bar
@@ -81,7 +81,7 @@ enum MapLegendLabelsPlacement {
   onItem,
 
   /// [MapLegendLabelsPlacement.betweenItems] places labels in-between two bars.
-  betweenItems
+  betweenItems,
 }
 
 /// Placement of edge labels in the bar legend.
@@ -91,7 +91,7 @@ enum MapLegendEdgeLabelsPlacement {
 
   /// Place the edge labels in the center of the starting position of the
   /// legend bars.
-  center
+  center,
 }
 
 /// Applies gradient or solid color for the bar segments.
@@ -100,5 +100,5 @@ enum MapLegendPaintingStyle {
   solid,
 
   /// Applies gradient color for bar segments.
-  gradient
+  gradient,
 }

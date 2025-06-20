@@ -120,7 +120,9 @@ class HiloSeries<T, D> extends RangeSeriesBase<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, HiloSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    HiloSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..spacing = spacing
@@ -186,7 +188,9 @@ class HiloSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldPoints.clear();
@@ -240,14 +244,18 @@ class HiloSegment<T, D> extends ChartSegment {
       if (series.showIndicationForSameValues) {
         if (series.isTransposed) {
           points.add(
-              Offset(transformX(xValue, high) - 2, transformY(xValue, high)));
+            Offset(transformX(xValue, high) - 2, transformY(xValue, high)),
+          );
           points.add(
-              Offset(transformX(xValue, low) + 2, transformY(xValue, low)));
+            Offset(transformX(xValue, low) + 2, transformY(xValue, low)),
+          );
         } else {
           points.add(
-              Offset(transformX(xValue, high), transformY(xValue, high) - 2));
+            Offset(transformX(xValue, high), transformY(xValue, high) - 2),
+          );
           points.add(
-              Offset(transformX(xValue, low), transformY(xValue, low) + 2));
+            Offset(transformX(xValue, low), transformY(xValue, low) + 2),
+          );
         }
       }
     } else {
@@ -256,8 +264,10 @@ class HiloSegment<T, D> extends ChartSegment {
     }
 
     if (_oldPoints.isEmpty) {
-      final Offset center =
-          Offset(transformX(xValue, centerY), transformY(xValue, centerY));
+      final Offset center = Offset(
+        transformX(xValue, centerY),
+        transformY(xValue, centerY),
+      );
       _oldPoints.addAll(<Offset>[center, center]);
     }
 
@@ -274,23 +284,35 @@ class HiloSegment<T, D> extends ChartSegment {
 
     late Rect segmentBounds;
     if (series.isTransposed) {
-      final Offset start = series.yAxis != null && series.yAxis!.isInversed
-          ? points[0]
-          : points[1];
-      final Offset end = series.yAxis != null && series.yAxis!.isInversed
-          ? points[1]
-          : points[0];
+      final Offset start =
+          series.yAxis != null && series.yAxis!.isInversed
+              ? points[0]
+              : points[1];
+      final Offset end =
+          series.yAxis != null && series.yAxis!.isInversed
+              ? points[1]
+              : points[0];
       segmentBounds = Rect.fromLTRB(
-          start.dx, start.dy - hiloPadding, end.dx, end.dy + hiloPadding);
+        start.dx,
+        start.dy - hiloPadding,
+        end.dx,
+        end.dy + hiloPadding,
+      );
     } else {
-      final Offset start = series.yAxis != null && series.yAxis!.isInversed
-          ? points[1]
-          : points[0];
-      final Offset end = series.yAxis != null && series.yAxis!.isInversed
-          ? points[0]
-          : points[1];
+      final Offset start =
+          series.yAxis != null && series.yAxis!.isInversed
+              ? points[1]
+              : points[0];
+      final Offset end =
+          series.yAxis != null && series.yAxis!.isInversed
+              ? points[0]
+              : points[1];
       segmentBounds = Rect.fromLTRB(
-          start.dx - hiloPadding, start.dy, end.dx + hiloPadding, end.dy);
+        start.dx - hiloPadding,
+        start.dy,
+        end.dx + hiloPadding,
+        end.dy,
+      );
     }
 
     if (segmentBounds.contains(position)) {
@@ -322,14 +344,17 @@ class HiloSegment<T, D> extends ChartSegment {
         series.markerSettings.isVisible ? marker.height / 2 : 0;
     final Offset preferredPos = points[0];
     return ChartTooltipInfo<T, D>(
-      primaryPosition:
-          series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-      secondaryPosition:
-          series.localToGlobal(preferredPos.translate(0, markerHeight)),
+      primaryPosition: series.localToGlobal(
+        preferredPos.translate(0, -markerHeight),
+      ),
+      secondaryPosition: series.localToGlobal(
+        preferredPos.translate(0, markerHeight),
+      ),
       text: series.tooltipText(chartPoint),
-      header: series.parent!.tooltipBehavior!.shared
-          ? series.tooltipHeaderText(chartPoint)
-          : series.name,
+      header:
+          series.parent!.tooltipBehavior!.shared
+              ? series.tooltipHeaderText(chartPoint)
+              : series.name,
       data: series.dataSource![pointIndex],
       point: chartPoint,
       series: series.widget,

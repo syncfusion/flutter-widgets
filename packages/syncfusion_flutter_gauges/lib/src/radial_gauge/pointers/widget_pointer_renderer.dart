@@ -11,28 +11,28 @@ import '../../radial_gauge/utils/radial_callback_args.dart';
 /// Represents the renderer of radial gauge widget pointer.
 class RenderWidgetPointer extends RenderShiftedBox {
   /// Creates a object for [RenderWidgetPointer].
-  RenderWidgetPointer(
-      {required double value,
-      required this.enableDragging,
-      this.onValueChanged,
-      this.onValueChangeStart,
-      this.onValueChangeEnd,
-      this.onValueChanging,
-      required GaugeSizeUnit offsetUnit,
-      required double offset,
-      AnimationController? pointerAnimationController,
-      this.pointerInterval,
-      required this.animationType,
-      required this.enableAnimation,
-      required this.isRadialGaugeAnimationEnabled,
-      required ValueNotifier<int> repaintNotifier,
-      RenderBox? child})
-      : _value = value,
-        _offsetUnit = offsetUnit,
-        _offset = offset,
-        _pointerAnimationController = pointerAnimationController,
-        _repaintNotifier = repaintNotifier,
-        super(child);
+  RenderWidgetPointer({
+    required double value,
+    required this.enableDragging,
+    this.onValueChanged,
+    this.onValueChangeStart,
+    this.onValueChangeEnd,
+    this.onValueChanging,
+    required GaugeSizeUnit offsetUnit,
+    required double offset,
+    AnimationController? pointerAnimationController,
+    this.pointerInterval,
+    required this.animationType,
+    required this.enableAnimation,
+    required this.isRadialGaugeAnimationEnabled,
+    required ValueNotifier<int> repaintNotifier,
+    RenderBox? child,
+  }) : _value = value,
+       _offsetUnit = offsetUnit,
+       _offset = offset,
+       _pointerAnimationController = pointerAnimationController,
+       _repaintNotifier = repaintNotifier,
+       super(child);
 
   late double _radian;
   late double _totalOffset;
@@ -233,32 +233,45 @@ class RenderWidgetPointer extends RenderShiftedBox {
 
   /// Method returns the angle of  current pointer value.
   double getPointerAngle() {
-    return (axisRenderer!.valueToFactor(value) * _sweepAngle) +
-        axisRenderer!.startAngle;
+    final double currentFactor =
+        (axisRenderer!.renderer != null &&
+                axisRenderer!.renderer?.valueToFactor(value) != null)
+            ? axisRenderer!.renderer?.valueToFactor(value) ??
+                axisRenderer!.valueToFactor(value)
+            : axisRenderer!.valueToFactor(value);
+    return (currentFactor * _sweepAngle) + axisRenderer!.startAngle;
   }
 
   /// Calculates the marker offset position.
   Offset _getPointerOffset(double pointerRadian) {
-    _actualWidgetOffset =
-        axisRenderer!.getActualValue(offset, offsetUnit, true);
-    _totalOffset = _actualWidgetOffset < 0
-        ? axisRenderer!.getAxisOffset() + _actualWidgetOffset
-        : (_actualWidgetOffset + axisRenderer!.getAxisOffset());
+    _actualWidgetOffset = axisRenderer!.getActualValue(
+      offset,
+      offsetUnit,
+      true,
+    );
+    _totalOffset =
+        _actualWidgetOffset < 0
+            ? axisRenderer!.getAxisOffset() + _actualWidgetOffset
+            : (_actualWidgetOffset + axisRenderer!.getAxisOffset());
     if (!axisRenderer!.canScaleToFit) {
-      final double x = (size.width / 2) +
+      final double x =
+          (size.width / 2) +
           (_radius - _totalOffset - (_actualAxisWidth / 2)) *
               math.cos(pointerRadian) -
           _centerXPoint;
-      final double y = (size.height / 2) +
+      final double y =
+          (size.height / 2) +
           (_radius - _totalOffset - (_actualAxisWidth / 2)) *
               math.sin(pointerRadian) -
           _centerYPoint;
       _pointerOffset = Offset(x, y);
     } else {
-      final double x = _axisCenter.dx +
+      final double x =
+          _axisCenter.dx +
           (_radius - _totalOffset - (_actualAxisWidth / 2)) *
               math.cos(pointerRadian);
-      final double y = _axisCenter.dy +
+      final double y =
+          _axisCenter.dy +
           (_radius - _totalOffset - (_actualAxisWidth / 2)) *
               math.sin(pointerRadian);
       _pointerOffset = Offset(x, y);
@@ -274,7 +287,10 @@ class RenderWidgetPointer extends RenderShiftedBox {
     _axisCenter = axisRenderer!.getAxisCenter();
     _radius = _axisRenderer!.getRadius();
     _actualAxisWidth = _axisRenderer!.getActualValue(
-        _axisRenderer!.thickness, _axisRenderer!.thicknessUnit, false);
+      _axisRenderer!.thickness,
+      _axisRenderer!.thicknessUnit,
+      false,
+    );
   }
 
   void _animationStatusListener(AnimationStatus status) {
@@ -343,9 +359,10 @@ class RenderWidgetPointer extends RenderShiftedBox {
 
     if (isRadialGaugeAnimationEnabled) {
       if (_pointerAnimation != null && _isInitialLoading) {
-        _needsShowPointer = axisRenderer!.isInversed
-            ? _pointerAnimation!.value < 1
-            : _pointerAnimation!.value > 0;
+        _needsShowPointer =
+            axisRenderer!.isInversed
+                ? _pointerAnimation!.value < 1
+                : _pointerAnimation!.value > 0;
       } else {
         _needsShowPointer = true;
       }
@@ -364,8 +381,12 @@ class RenderWidgetPointer extends RenderShiftedBox {
         size = Size.zero;
       }
 
-      _childRect = Rect.fromLTWH(_pointerOffset.dx, _pointerOffset.dy,
-          child!.size.width, child!.size.height);
+      _childRect = Rect.fromLTWH(
+        _pointerOffset.dx,
+        _pointerOffset.dy,
+        child!.size.width,
+        child!.size.height,
+      );
     }
   }
 

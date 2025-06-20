@@ -16,7 +16,6 @@ class DayToken extends FormatTokenBase {
   String _strFormatLower = '';
 
   @override
-
   /// Tries to parse format string.
   int tryParse(String stringFormat, int iIndex) {
     final int iResult = tryParseRegex(_dayRegex, stringFormat, iIndex);
@@ -30,8 +29,12 @@ class DayToken extends FormatTokenBase {
 
   /// Applies format to the value.
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String applyFormat(
+    double value,
+    bool bShowHiddenSymbols,
+    CultureInfo culture,
+    FormatSection section,
+  ) {
     double tempValue = value;
 
     if (_strFormatLower.length > 2 &&
@@ -45,7 +48,6 @@ class DayToken extends FormatTokenBase {
   }
 
   @override
-
   /// Applies format to the value.
   // ignore: unused_element
   String applyFormatString(String value, bool bShowHiddenSymbols) {
@@ -53,7 +55,6 @@ class DayToken extends FormatTokenBase {
   }
 
   @override
-
   /// Gets type of the token. Read-only.
   TokenType get tokenType {
     return TokenType.day;

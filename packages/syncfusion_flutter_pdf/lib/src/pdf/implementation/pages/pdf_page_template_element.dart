@@ -415,31 +415,36 @@ class PdfPageTemplateElement {
       bool canBeSet = false;
       switch (dock) {
         case PdfDockStyle.left:
-          canBeSet = alignment == PdfAlignmentStyle.topLeft ||
+          canBeSet =
+              alignment == PdfAlignmentStyle.topLeft ||
               alignment == PdfAlignmentStyle.middleLeft ||
               alignment == PdfAlignmentStyle.bottomLeft ||
               alignment == PdfAlignmentStyle.none;
           break;
         case PdfDockStyle.top:
-          canBeSet = alignment == PdfAlignmentStyle.topLeft ||
+          canBeSet =
+              alignment == PdfAlignmentStyle.topLeft ||
               alignment == PdfAlignmentStyle.topCenter ||
               alignment == PdfAlignmentStyle.topRight ||
               alignment == PdfAlignmentStyle.none;
           break;
         case PdfDockStyle.right:
-          canBeSet = alignment == PdfAlignmentStyle.topRight ||
+          canBeSet =
+              alignment == PdfAlignmentStyle.topRight ||
               alignment == PdfAlignmentStyle.middleRight ||
               alignment == PdfAlignmentStyle.bottomRight ||
               alignment == PdfAlignmentStyle.none;
           break;
         case PdfDockStyle.bottom:
-          canBeSet = alignment == PdfAlignmentStyle.bottomLeft ||
+          canBeSet =
+              alignment == PdfAlignmentStyle.bottomLeft ||
               alignment == PdfAlignmentStyle.bottomCenter ||
               alignment == PdfAlignmentStyle.bottomRight ||
               alignment == PdfAlignmentStyle.none;
           break;
         case PdfDockStyle.fill:
-          canBeSet = alignment == PdfAlignmentStyle.middleCenter ||
+          canBeSet =
+              alignment == PdfAlignmentStyle.middleCenter ||
               alignment == PdfAlignmentStyle.none;
           break;
         case PdfDockStyle.none:
@@ -537,8 +542,9 @@ class PdfPageTemplateElementHelper {
   Rect _getSimpleAlignmentBounds(PdfPage page, PdfDocument document) {
     final Rect result = base.bounds;
     final PdfSection section = PdfPageHelper.getHelper(page).section!;
-    final PdfRectangle actualBounds = PdfSectionHelper.getHelper(section)
-        .getActualBounds(page, false, document);
+    final PdfRectangle actualBounds = PdfSectionHelper.getHelper(
+      section,
+    ).getActualBounds(page, false, document);
     double x = base.location.dx;
     double y = base.location.dy;
 
@@ -626,8 +632,9 @@ class PdfPageTemplateElementHelper {
   Rect _getSimpleDockBounds(PdfPage page, PdfDocument document) {
     Rect result = base.bounds;
     final PdfSection section = PdfPageHelper.getHelper(page).section!;
-    final PdfRectangle actualBounds = PdfSectionHelper.getHelper(section)
-        .getActualBounds(page, false, document);
+    final PdfRectangle actualBounds = PdfSectionHelper.getHelper(
+      section,
+    ).getActualBounds(page, false, document);
     double x = base.location.dx;
     double y = base.location.dy;
     double? width = base.width;
@@ -682,10 +689,12 @@ class PdfPageTemplateElementHelper {
 
   Rect _getTemplateDockBounds(PdfPage page, PdfDocument document) {
     final PdfSection section = PdfPageHelper.getHelper(page).section!;
-    final PdfRectangle actualBounds = PdfSectionHelper.getHelper(section)
-        .getActualBounds(page, false, document);
+    final PdfRectangle actualBounds = PdfSectionHelper.getHelper(
+      section,
+    ).getActualBounds(page, false, document);
     final PdfSize actualSize = PdfSize.fromSize(
-        PdfPageSettingsHelper.getHelper(section.pageSettings).getActualSize());
+      PdfPageSettingsHelper.getHelper(section.pageSettings).getActualSize(),
+    );
     double x = base.location.dx;
     double y = base.location.dy;
     double? width = base.width;
@@ -711,9 +720,11 @@ class PdfPageTemplateElementHelper {
         break;
 
       case PdfDockStyle.right:
-        x = actualBounds.width +
-            PdfSectionHelper.getHelper(section)
-                .getRightIndentWidth(document, page, false) -
+        x =
+            actualBounds.width +
+            PdfSectionHelper.getHelper(
+              section,
+            ).getRightIndentWidth(document, page, false) -
             base.width;
         y = 0.0;
         width = base.width;
@@ -722,9 +733,11 @@ class PdfPageTemplateElementHelper {
 
       case PdfDockStyle.bottom:
         x = -actualBounds.x;
-        y = actualBounds.height +
-            PdfSectionHelper.getHelper(section)
-                .getBottomIndentHeight(document, page, false) -
+        y =
+            actualBounds.height +
+            PdfSectionHelper.getHelper(
+              section,
+            ).getBottomIndentHeight(document, page, false) -
             base.height;
         width = actualSize.width;
         height = base.height;

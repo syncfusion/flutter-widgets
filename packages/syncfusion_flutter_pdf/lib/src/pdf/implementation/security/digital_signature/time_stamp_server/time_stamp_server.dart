@@ -92,14 +92,17 @@ class TimestampServer {
       input.add(base64.decode('VABlAHMAdAAgAGQAYQB0AGEA')); //Test unicode data
       input.close();
       final List<int> hash = output.events.single.bytes as List<int>;
-      final List<int> asnEncodedTimestampRequest =
-          TimeStampRequestCreator().getAsnEncodedTimestampRequest(hash);
-      final List<int>? timeStampResponse = await fetchData(uri, 'POST',
-          contentType: 'application/timestamp-query',
-          userName: userName,
-          password: password,
-          data: asnEncodedTimestampRequest,
-          timeOutDuration: timeOut);
+      final List<int> asnEncodedTimestampRequest = TimeStampRequestCreator()
+          .getAsnEncodedTimestampRequest(hash);
+      final List<int>? timeStampResponse = await fetchData(
+        uri,
+        'POST',
+        contentType: 'application/timestamp-query',
+        userName: userName,
+        password: password,
+        data: asnEncodedTimestampRequest,
+        timeOutDuration: timeOut,
+      );
       if (timeStampResponse != null && timeStampResponse.length > 2) {
         if (timeStampResponse[0] == 0x30 && timeStampResponse[1] == 0x82) {
           isValid = true;

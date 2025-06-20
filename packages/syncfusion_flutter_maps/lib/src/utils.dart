@@ -29,10 +29,11 @@ Color getSaturatedColor(Color color, [Color mix = Colors.black]) {
   return color == Colors.transparent
       ? color
       : Color.fromRGBO(
-          ((1 - factor) * (color.r * 255) + factor * (mix.r * 255)).toInt(),
-          ((1 - factor) * (color.g * 255) + factor * (mix.g * 255)).toInt(),
-          ((1 - factor) * (color.b * 255) + factor * (mix.b * 255)).toInt(),
-          1);
+        ((1 - factor) * (color.r * 255) + factor * (mix.r * 255)).toInt(),
+        ((1 - factor) * (color.g * 255) + factor * (mix.g * 255)).toInt(),
+        ((1 - factor) * (color.b * 255) + factor * (mix.b * 255)).toInt(),
+        1,
+      );
 }
 
 Size getBoxSize(BoxConstraints constraints) {
@@ -42,8 +43,13 @@ Size getBoxSize(BoxConstraints constraints) {
   return Size(width, height);
 }
 
-Offset pixelFromLatLng(num latitude, num longitude, Size size,
-    [Offset offset = Offset.zero, double scale = 1.0]) {
+Offset pixelFromLatLng(
+  num latitude,
+  num longitude,
+  Size size, [
+  Offset offset = Offset.zero,
+  double scale = 1.0,
+]) {
   final double x = (longitude + 180.0) / 360.0;
   final double sinLatitude = sin(latitude * pi / 180.0);
   final double y =
@@ -55,12 +61,20 @@ Offset pixelFromLatLng(num latitude, num longitude, Size size,
 }
 
 MapLatLng getPixelToLatLng(
-    Offset offset, Size size, Offset translation, double scale) {
+  Offset offset,
+  Size size,
+  Offset translation,
+  double scale,
+) {
   return pixelToLatLng(offset, size, translation, scale);
 }
 
-MapLatLng pixelToLatLng(Offset offset, Size size,
-    [Offset translation = Offset.zero, double scale = 1.0]) {
+MapLatLng pixelToLatLng(
+  Offset offset,
+  Size size, [
+  Offset translation = Offset.zero,
+  double scale = 1.0,
+]) {
   final double mapSize = size.longestSide * scale;
   final double x =
       ((offset.dx - translation.dx).clamp(0, mapSize - 1) / mapSize) - 0.5;
@@ -79,14 +93,24 @@ MapLatLng getFocalLatLng(MapLatLngBounds bounds) {
   return MapLatLng(latitude, longitude);
 }
 
-double getZoomLevel(MapLatLngBounds bounds, LayerType layerType, Size size,
-    [double actualShapeSizeFactor = 1.0]) {
+double getZoomLevel(
+  MapLatLngBounds bounds,
+  LayerType layerType,
+  Size size, [
+  double actualShapeSizeFactor = 1.0,
+]) {
   switch (layerType) {
     case LayerType.shape:
       final Offset northEast = pixelFromLatLng(
-          bounds.northeast.latitude, bounds.northeast.longitude, size);
+        bounds.northeast.latitude,
+        bounds.northeast.longitude,
+        size,
+      );
       final Offset southWest = pixelFromLatLng(
-          bounds.southwest.latitude, bounds.southwest.longitude, size);
+        bounds.southwest.latitude,
+        bounds.southwest.longitude,
+        size,
+      );
       final Rect boundsRect = Rect.fromPoints(northEast, southWest);
       final double latZoom = size.height / boundsRect.height;
       final double lngZoom = size.width / boundsRect.width;
@@ -94,12 +118,19 @@ double getZoomLevel(MapLatLngBounds bounds, LayerType layerType, Size size,
     case LayerType.tile:
       // Calculating the scale value for the given bounds using the
       // default tile layer size with default minimum zoom level.
-      final Size tileLayerSize =
-          Size.square(getTotalTileWidth(kDefaultMinZoomLevel));
+      final Size tileLayerSize = Size.square(
+        getTotalTileWidth(kDefaultMinZoomLevel),
+      );
       final Offset northEast = pixelFromLatLng(
-          bounds.northeast.latitude, bounds.northeast.longitude, tileLayerSize);
+        bounds.northeast.latitude,
+        bounds.northeast.longitude,
+        tileLayerSize,
+      );
       final Offset southWest = pixelFromLatLng(
-          bounds.southwest.latitude, bounds.southwest.longitude, tileLayerSize);
+        bounds.southwest.latitude,
+        bounds.southwest.longitude,
+        tileLayerSize,
+      );
       final Rect boundsRect = Rect.fromPoints(northEast, southWest);
       // Converting scale into zoom level.
       final double latZoomLevel = log(boundsRect.height / size.height) / log(2);
@@ -108,9 +139,15 @@ double getZoomLevel(MapLatLngBounds bounds, LayerType layerType, Size size,
   }
 }
 
-String getTrimText(String text, TextStyle style, double maxWidth,
-    TextPainter painter, double width,
-    [double? nextTextHalfWidth, bool isInsideLastLabel = false]) {
+String getTrimText(
+  String text,
+  TextStyle style,
+  double maxWidth,
+  TextPainter painter,
+  double width, [
+  double? nextTextHalfWidth,
+  bool isInsideLastLabel = false,
+]) {
   final int actualTextLength = text.length;
   String trimmedText = text;
   int trimLength = 3; // 3 dots
@@ -122,7 +159,10 @@ String getTrimText(String text, TextStyle style, double maxWidth,
       break;
     } else {
       trimmedText = text.replaceRange(
-          actualTextLength - trimLength, actualTextLength, '...');
+        actualTextLength - trimLength,
+        actualTextLength,
+        '...',
+      );
       painter.text = TextSpan(style: style, text: trimmedText);
       painter.layout();
       trimLength++;
@@ -131,9 +171,10 @@ String getTrimText(String text, TextStyle style, double maxWidth,
     if (isInsideLastLabel && nextTextHalfWidth != null) {
       width = painter.width + nextTextHalfWidth;
     } else {
-      width = nextTextHalfWidth != null
-          ? painter.width / 2 + nextTextHalfWidth
-          : painter.width;
+      width =
+          nextTextHalfWidth != null
+              ? painter.width / 2 + nextTextHalfWidth
+              : painter.width;
     }
   }
 
@@ -168,7 +209,9 @@ double getLayerSizeFactor(MapController controller) {
 }
 
 MapProvider getSourceProvider(
-    Object geoJsonSource, GeoJSONSourceType geoJSONSourceType) {
+  Object geoJsonSource,
+  GeoJSONSourceType geoJSONSourceType,
+) {
   switch (geoJSONSourceType) {
     case GeoJSONSourceType.asset:
       return AssetMapProvider(geoJsonSource.toString());
@@ -182,7 +225,11 @@ MapProvider getSourceProvider(
 
 // Calculates the shape's path center and width for data label rendering.
 void findPathCenterAndWidth(
-    double signedArea, double centerX, double centerY, MapModel mapModel) {
+  double signedArea,
+  double centerX,
+  double centerY,
+  MapModel mapModel,
+) {
   // Used mathematical formula to find the center of polygon points.
   signedArea /= 2;
   centerX = centerX / (6 * signedArea);
@@ -233,7 +280,7 @@ void findPathCenterAndWidth(
 class MapLatLngTween extends Tween<MapLatLng> {
   /// Creates an [MapLatLng] tween.
   MapLatLngTween({MapLatLng? begin, MapLatLng? end})
-      : super(begin: begin, end: end);
+    : super(begin: begin, end: end);
 
   @override
   MapLatLng lerp(double t) => MapLatLng.lerp(begin, end, t)!;

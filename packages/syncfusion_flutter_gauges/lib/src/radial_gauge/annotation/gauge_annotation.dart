@@ -29,17 +29,19 @@ class GaugeAnnotation extends SingleChildRenderObjectWidget {
   ///
   /// The arguments [positionFactor] must not be null and [positionFactor] must
   /// be non-negative.
-  const GaugeAnnotation(
-      {Key? key,
-      this.axisValue,
-      this.horizontalAlignment = GaugeAlignment.center,
-      this.angle,
-      this.verticalAlignment = GaugeAlignment.center,
-      this.positionFactor = 0,
-      required this.widget})
-      : assert(
-            positionFactor >= 0, 'Position factor must be greater than zero.'),
-        super(key: key, child: widget);
+  const GaugeAnnotation({
+    Key? key,
+    this.axisValue,
+    this.horizontalAlignment = GaugeAlignment.center,
+    this.angle,
+    this.verticalAlignment = GaugeAlignment.center,
+    this.positionFactor = 0,
+    required this.widget,
+  }) : assert(
+         positionFactor >= 0,
+         'Position factor must be greater than zero.',
+       ),
+       super(key: key, child: widget);
 
   /// Specifies the axis value for positioning annotation.
   ///
@@ -188,7 +190,9 @@ class GaugeAnnotation extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderGaugeAnnotation renderObject) {
+    BuildContext context,
+    RenderGaugeAnnotation renderObject,
+  ) {
     final RadialAxisScope radialAxis = RadialAxisScope.of(context);
     renderObject
       ..axisValue = axisValue

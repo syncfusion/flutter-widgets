@@ -51,17 +51,17 @@ class PdfOrderedList extends PdfList {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfOrderedList(
-      {PdfOrderedMarker? marker,
-      PdfListItemCollection? items,
-      String? text,
-      PdfFont? font,
-      PdfNumberStyle style = PdfNumberStyle.numeric,
-      PdfStringFormat? format,
-      this.markerHierarchy = false,
-      double indent = 10,
-      double textIndent = 5})
-      : super() {
+  PdfOrderedList({
+    PdfOrderedMarker? marker,
+    PdfListItemCollection? items,
+    String? text,
+    PdfFont? font,
+    PdfNumberStyle style = PdfNumberStyle.numeric,
+    PdfStringFormat? format,
+    this.markerHierarchy = false,
+    double indent = 10,
+    double textIndent = 5,
+  }) : super() {
     final PdfListHelper helper = PdfListHelper(this);
     this.marker = marker ?? _createMarker(style);
     stringFormat = format;

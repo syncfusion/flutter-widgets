@@ -111,9 +111,10 @@ class AssetPDFSource extends PDFSource {
   @override
   Future<Uint8List> getBytes(BuildContext context) async {
     if (_documentBytes == null) {
-      final ByteData bytes = await ((_bundle != null)
-          ? _bundle!.load(_pdfPath)
-          : DefaultAssetBundle.of(context).load(_pdfPath));
+      final ByteData bytes =
+          await ((_bundle != null)
+              ? _bundle!.load(_pdfPath)
+              : DefaultAssetBundle.of(context).load(_pdfPath));
       _documentBytes = bytes.buffer.asUint8List();
     }
     return Future<Uint8List>.value(_documentBytes);

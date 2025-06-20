@@ -86,7 +86,7 @@ class ArabicShapeRenderer {
     <String>['\u06CC', '\uFBFC', '\uFBFD', '\uFBFE', '\uFBFF'],
     <String>['\u06D0', '\uFBE4', '\uFBE5', '\uFBE6', '\uFBE7'],
     <String>['\u06D2', '\uFBAE', '\uFBAF'],
-    <String>['\u06D3', '\uFBB0', '\uFBB1']
+    <String>['\u06D3', '\uFBB0', '\uFBB1'],
   ];
 
   /// internal field

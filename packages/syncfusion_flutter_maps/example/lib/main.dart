@@ -11,10 +11,7 @@ class MapsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Maps Demo',
-      home: MyHomePage(),
-    );
+    return const MaterialApp(title: 'Maps Demo', home: MyHomePage());
   }
 }
 
@@ -36,18 +33,30 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     _data = const <Model>[
-      Model('New South Wales', Color.fromRGBO(255, 215, 0, 1.0),
-          '       New\nSouth Wales'),
+      Model(
+        'New South Wales',
+        Color.fromRGBO(255, 215, 0, 1.0),
+        '       New\nSouth Wales',
+      ),
       Model('Queensland', Color.fromRGBO(72, 209, 204, 1.0), 'Queensland'),
-      Model('Northern Territory', Color.fromRGBO(255, 78, 66, 1.0),
-          'Northern\nTerritory'),
+      Model(
+        'Northern Territory',
+        Color.fromRGBO(255, 78, 66, 1.0),
+        'Northern\nTerritory',
+      ),
       Model('Victoria', Color.fromRGBO(171, 56, 224, 0.75), 'Victoria'),
-      Model('South Australia', Color.fromRGBO(126, 247, 74, 0.75),
-          'South Australia'),
-      Model('Western Australia', Color.fromRGBO(79, 60, 201, 0.7),
-          'Western Australia'),
+      Model(
+        'South Australia',
+        Color.fromRGBO(126, 247, 74, 0.75),
+        'South Australia',
+      ),
+      Model(
+        'Western Australia',
+        Color.fromRGBO(79, 60, 201, 0.7),
+        'Western Australia',
+      ),
       Model('Tasmania', Color.fromRGBO(99, 164, 230, 1), 'Tasmania'),
-      Model('Australian Capital Territory', Colors.teal, 'ACT')
+      Model('Australian Capital Territory', Colors.teal, 'ACT'),
     ];
 
     _mapSource = MapShapeSource.asset(
@@ -74,9 +83,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 showDataLabels: true,
                 legend: const MapLegend(MapElement.shape),
                 tooltipSettings: MapTooltipSettings(
-                    color: Colors.grey[700],
-                    strokeColor: Colors.white,
-                    strokeWidth: 2),
+                  color: Colors.grey[700],
+                  strokeColor: Colors.white,
+                  strokeWidth: 2,
+                ),
                 strokeColor: Colors.white,
                 strokeWidth: 0.5,
                 shapeTooltipBuilder: (BuildContext context, int index) {
@@ -90,10 +100,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 dataLabelSettings: MapDataLabelSettings(
                   textStyle: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize:
-                          Theme.of(context).textTheme.bodySmall!.fontSize),
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
+                  ),
                 ),
               ),
             ],

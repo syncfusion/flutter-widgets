@@ -29,7 +29,7 @@ import '../../theme.dart';
 class SfChartTheme extends InheritedTheme {
   /// Creating an argument constructor of SfChartTheme class.
   const SfChartTheme({Key? key, required this.data, required this.child})
-      : super(key: key, child: child);
+    : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant chart widgets.
   ///
@@ -1232,7 +1232,8 @@ class SfChartThemeData with Diagnosticable {
       selectionRectColor: selectionRectColor ?? this.selectionRectColor,
       selectionRectBorderColor:
           selectionRectBorderColor ?? this.selectionRectBorderColor,
-      selectionTooltipConnectorLineColor: selectionTooltipConnectorLineColor ??
+      selectionTooltipConnectorLineColor:
+          selectionTooltipConnectorLineColor ??
           this.selectionTooltipConnectorLineColor,
       titleBackgroundColor: titleBackgroundColor ?? this.titleBackgroundColor,
       tooltipColor: tooltipColor ?? this.tooltipColor,
@@ -1254,14 +1255,18 @@ class SfChartThemeData with Diagnosticable {
       tooltipTextStyle: tooltipTextStyle ?? this.tooltipTextStyle,
       trackballTextStyle: trackballTextStyle ?? this.trackballTextStyle,
       crosshairTextStyle: crosshairTextStyle ?? this.crosshairTextStyle,
-      selectionZoomingTooltipTextStyle: selectionZoomingTooltipTextStyle ??
+      selectionZoomingTooltipTextStyle:
+          selectionZoomingTooltipTextStyle ??
           this.selectionZoomingTooltipTextStyle,
     );
   }
 
   /// Linearly interpolate between two themes.
   static SfChartThemeData? lerp(
-      SfChartThemeData? a, SfChartThemeData? b, double t) {
+    SfChartThemeData? a,
+    SfChartThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
@@ -1271,69 +1276,146 @@ class SfChartThemeData with Diagnosticable {
       axisTitleColor: Color.lerp(a.axisTitleColor, b.axisTitleColor, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
       titleTextColor: Color.lerp(a.titleTextColor, b.titleTextColor, t),
-      crosshairBackgroundColor:
-          Color.lerp(a.crosshairBackgroundColor, b.crosshairBackgroundColor, t),
-      crosshairLabelColor:
-          Color.lerp(a.crosshairLabelColor, b.crosshairLabelColor, t),
-      crosshairLineColor:
-          Color.lerp(a.crosshairLineColor, b.crosshairLineColor, t),
-      legendBackgroundColor:
-          Color.lerp(a.legendBackgroundColor, b.legendBackgroundColor, t),
+      crosshairBackgroundColor: Color.lerp(
+        a.crosshairBackgroundColor,
+        b.crosshairBackgroundColor,
+        t,
+      ),
+      crosshairLabelColor: Color.lerp(
+        a.crosshairLabelColor,
+        b.crosshairLabelColor,
+        t,
+      ),
+      crosshairLineColor: Color.lerp(
+        a.crosshairLineColor,
+        b.crosshairLineColor,
+        t,
+      ),
+      legendBackgroundColor: Color.lerp(
+        a.legendBackgroundColor,
+        b.legendBackgroundColor,
+        t,
+      ),
       legendTextColor: Color.lerp(a.legendTextColor, b.legendTextColor, t),
       legendTitleColor: Color.lerp(a.legendTitleColor, b.legendTitleColor, t),
-      majorGridLineColor:
-          Color.lerp(a.majorGridLineColor, b.majorGridLineColor, t),
-      majorTickLineColor:
-          Color.lerp(a.majorTickLineColor, b.majorTickLineColor, t),
-      minorGridLineColor:
-          Color.lerp(a.minorGridLineColor, b.minorGridLineColor, t),
-      minorTickLineColor:
-          Color.lerp(a.minorTickLineColor, b.minorTickLineColor, t),
-      plotAreaBackgroundColor:
-          Color.lerp(a.plotAreaBackgroundColor, b.plotAreaBackgroundColor, t),
-      plotAreaBorderColor:
-          Color.lerp(a.plotAreaBorderColor, b.plotAreaBorderColor, t),
-      selectionRectColor:
-          Color.lerp(a.selectionRectColor, b.selectionRectColor, t),
-      selectionRectBorderColor:
-          Color.lerp(a.selectionRectBorderColor, b.selectionRectBorderColor, t),
+      majorGridLineColor: Color.lerp(
+        a.majorGridLineColor,
+        b.majorGridLineColor,
+        t,
+      ),
+      majorTickLineColor: Color.lerp(
+        a.majorTickLineColor,
+        b.majorTickLineColor,
+        t,
+      ),
+      minorGridLineColor: Color.lerp(
+        a.minorGridLineColor,
+        b.minorGridLineColor,
+        t,
+      ),
+      minorTickLineColor: Color.lerp(
+        a.minorTickLineColor,
+        b.minorTickLineColor,
+        t,
+      ),
+      plotAreaBackgroundColor: Color.lerp(
+        a.plotAreaBackgroundColor,
+        b.plotAreaBackgroundColor,
+        t,
+      ),
+      plotAreaBorderColor: Color.lerp(
+        a.plotAreaBorderColor,
+        b.plotAreaBorderColor,
+        t,
+      ),
+      selectionRectColor: Color.lerp(
+        a.selectionRectColor,
+        b.selectionRectColor,
+        t,
+      ),
+      selectionRectBorderColor: Color.lerp(
+        a.selectionRectBorderColor,
+        b.selectionRectBorderColor,
+        t,
+      ),
       selectionTooltipConnectorLineColor: Color.lerp(
-          a.selectionTooltipConnectorLineColor,
-          b.selectionTooltipConnectorLineColor,
-          t),
-      titleBackgroundColor:
-          Color.lerp(a.titleBackgroundColor, b.titleBackgroundColor, t),
+        a.selectionTooltipConnectorLineColor,
+        b.selectionTooltipConnectorLineColor,
+        t,
+      ),
+      titleBackgroundColor: Color.lerp(
+        a.titleBackgroundColor,
+        b.titleBackgroundColor,
+        t,
+      ),
       tooltipColor: Color.lerp(a.tooltipColor, b.tooltipColor, t),
-      tooltipSeparatorColor:
-          Color.lerp(a.tooltipSeparatorColor, b.tooltipSeparatorColor, t),
-      tooltipLabelColor:
-          Color.lerp(a.tooltipLabelColor, b.tooltipLabelColor, t),
+      tooltipSeparatorColor: Color.lerp(
+        a.tooltipSeparatorColor,
+        b.tooltipSeparatorColor,
+        t,
+      ),
+      tooltipLabelColor: Color.lerp(
+        a.tooltipLabelColor,
+        b.tooltipLabelColor,
+        t,
+      ),
       waterfallConnectorLineColor: Color.lerp(
-          a.waterfallConnectorLineColor, b.waterfallConnectorLineColor, t),
+        a.waterfallConnectorLineColor,
+        b.waterfallConnectorLineColor,
+        t,
+      ),
       titleTextStyle: TextStyle.lerp(a.titleTextStyle, b.titleTextStyle, t),
-      axisTitleTextStyle:
-          TextStyle.lerp(a.axisTitleTextStyle, b.axisTitleTextStyle, t),
-      axisLabelTextStyle:
-          TextStyle.lerp(a.axisLabelTextStyle, b.axisLabelTextStyle, t),
+      axisTitleTextStyle: TextStyle.lerp(
+        a.axisTitleTextStyle,
+        b.axisTitleTextStyle,
+        t,
+      ),
+      axisLabelTextStyle: TextStyle.lerp(
+        a.axisLabelTextStyle,
+        b.axisLabelTextStyle,
+        t,
+      ),
       axisMultiLevelLabelTextStyle: TextStyle.lerp(
-          a.axisMultiLevelLabelTextStyle, b.axisMultiLevelLabelTextStyle, t),
-      plotBandLabelTextStyle:
-          TextStyle.lerp(a.plotBandLabelTextStyle, b.plotBandLabelTextStyle, t),
-      legendTitleTextStyle:
-          TextStyle.lerp(a.legendTitleTextStyle, b.legendTitleTextStyle, t),
+        a.axisMultiLevelLabelTextStyle,
+        b.axisMultiLevelLabelTextStyle,
+        t,
+      ),
+      plotBandLabelTextStyle: TextStyle.lerp(
+        a.plotBandLabelTextStyle,
+        b.plotBandLabelTextStyle,
+        t,
+      ),
+      legendTitleTextStyle: TextStyle.lerp(
+        a.legendTitleTextStyle,
+        b.legendTitleTextStyle,
+        t,
+      ),
       legendTextStyle: TextStyle.lerp(a.legendTextStyle, b.legendTextStyle, t),
-      dataLabelTextStyle:
-          TextStyle.lerp(a.dataLabelTextStyle, b.dataLabelTextStyle, t),
-      tooltipTextStyle:
-          TextStyle.lerp(a.tooltipTextStyle, b.tooltipTextStyle, t),
-      trackballTextStyle:
-          TextStyle.lerp(a.trackballTextStyle, b.trackballTextStyle, t),
-      crosshairTextStyle:
-          TextStyle.lerp(a.crosshairTextStyle, b.crosshairTextStyle, t),
+      dataLabelTextStyle: TextStyle.lerp(
+        a.dataLabelTextStyle,
+        b.dataLabelTextStyle,
+        t,
+      ),
+      tooltipTextStyle: TextStyle.lerp(
+        a.tooltipTextStyle,
+        b.tooltipTextStyle,
+        t,
+      ),
+      trackballTextStyle: TextStyle.lerp(
+        a.trackballTextStyle,
+        b.trackballTextStyle,
+        t,
+      ),
+      crosshairTextStyle: TextStyle.lerp(
+        a.crosshairTextStyle,
+        b.crosshairTextStyle,
+        t,
+      ),
       selectionZoomingTooltipTextStyle: TextStyle.lerp(
-          a.selectionZoomingTooltipTextStyle,
-          b.selectionZoomingTooltipTextStyle,
-          t),
+        a.selectionZoomingTooltipTextStyle,
+        b.selectionZoomingTooltipTextStyle,
+        t,
+      ),
     );
   }
 
@@ -1427,7 +1509,7 @@ class SfChartThemeData with Diagnosticable {
       tooltipTextStyle,
       trackballTextStyle,
       crosshairTextStyle,
-      selectionZoomingTooltipTextStyle
+      selectionZoomingTooltipTextStyle,
     ];
     return Object.hashAll(values);
   }
@@ -1436,96 +1518,264 @@ class SfChartThemeData with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     const SfChartThemeData defaultData = SfChartThemeData();
-    properties.add(ColorProperty('axisLabelColor', axisLabelColor,
-        defaultValue: defaultData.axisLabelColor));
-    properties.add(ColorProperty('axisLineColor', axisLineColor,
-        defaultValue: defaultData.axisLineColor));
-    properties.add(ColorProperty('axisTitleColor', axisTitleColor,
-        defaultValue: defaultData.axisTitleColor));
-    properties.add(ColorProperty('backgroundColor', backgroundColor,
-        defaultValue: defaultData.backgroundColor));
-    properties.add(ColorProperty('titleTextColor', titleTextColor,
-        defaultValue: defaultData.titleTextColor));
-    properties.add(ColorProperty(
-        'crosshairBackgroundColor', crosshairBackgroundColor,
-        defaultValue: defaultData.crosshairBackgroundColor));
-    properties.add(ColorProperty('crosshairLabelColor', crosshairLabelColor,
-        defaultValue: defaultData.crosshairLabelColor));
-    properties.add(ColorProperty('crosshairLineColor', crosshairLineColor,
-        defaultValue: defaultData.crosshairLineColor));
-    properties.add(ColorProperty('legendBackgroundColor', legendBackgroundColor,
-        defaultValue: defaultData.legendBackgroundColor));
-    properties.add(ColorProperty('legendTextColor', legendTextColor,
-        defaultValue: defaultData.legendTextColor));
-    properties.add(ColorProperty('legendTitleColor', legendTitleColor,
-        defaultValue: defaultData.legendTitleColor));
-    properties.add(ColorProperty('majorGridLineColor', majorGridLineColor,
-        defaultValue: defaultData.majorGridLineColor));
-    properties.add(ColorProperty('majorTickLineColor', majorTickLineColor,
-        defaultValue: defaultData.majorTickLineColor));
-    properties.add(ColorProperty('minorGridLineColor', minorGridLineColor,
-        defaultValue: defaultData.minorGridLineColor));
-    properties.add(ColorProperty('minorTickLineColor', minorTickLineColor,
-        defaultValue: defaultData.minorTickLineColor));
-    properties.add(ColorProperty(
-        'plotAreaBackgroundColor', plotAreaBackgroundColor,
-        defaultValue: defaultData.plotAreaBackgroundColor));
-    properties.add(ColorProperty('plotAreaBorderColor', plotAreaBorderColor,
-        defaultValue: defaultData.plotAreaBorderColor));
-    properties.add(ColorProperty('selectionRectColor', selectionRectColor,
-        defaultValue: defaultData.selectionRectColor));
-    properties.add(ColorProperty(
-        'selectionRectBorderColor', selectionRectBorderColor,
-        defaultValue: defaultData.selectionRectBorderColor));
-    properties.add(ColorProperty('selectionTooltipConnectorLineColor',
+    properties.add(
+      ColorProperty(
+        'axisLabelColor',
+        axisLabelColor,
+        defaultValue: defaultData.axisLabelColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'axisLineColor',
+        axisLineColor,
+        defaultValue: defaultData.axisLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'axisTitleColor',
+        axisTitleColor,
+        defaultValue: defaultData.axisTitleColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'backgroundColor',
+        backgroundColor,
+        defaultValue: defaultData.backgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'titleTextColor',
+        titleTextColor,
+        defaultValue: defaultData.titleTextColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'crosshairBackgroundColor',
+        crosshairBackgroundColor,
+        defaultValue: defaultData.crosshairBackgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'crosshairLabelColor',
+        crosshairLabelColor,
+        defaultValue: defaultData.crosshairLabelColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'crosshairLineColor',
+        crosshairLineColor,
+        defaultValue: defaultData.crosshairLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'legendBackgroundColor',
+        legendBackgroundColor,
+        defaultValue: defaultData.legendBackgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'legendTextColor',
+        legendTextColor,
+        defaultValue: defaultData.legendTextColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'legendTitleColor',
+        legendTitleColor,
+        defaultValue: defaultData.legendTitleColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'majorGridLineColor',
+        majorGridLineColor,
+        defaultValue: defaultData.majorGridLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'majorTickLineColor',
+        majorTickLineColor,
+        defaultValue: defaultData.majorTickLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'minorGridLineColor',
+        minorGridLineColor,
+        defaultValue: defaultData.minorGridLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'minorTickLineColor',
+        minorTickLineColor,
+        defaultValue: defaultData.minorTickLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'plotAreaBackgroundColor',
+        plotAreaBackgroundColor,
+        defaultValue: defaultData.plotAreaBackgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'plotAreaBorderColor',
+        plotAreaBorderColor,
+        defaultValue: defaultData.plotAreaBorderColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'selectionRectColor',
+        selectionRectColor,
+        defaultValue: defaultData.selectionRectColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'selectionRectBorderColor',
+        selectionRectBorderColor,
+        defaultValue: defaultData.selectionRectBorderColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'selectionTooltipConnectorLineColor',
         selectionTooltipConnectorLineColor,
-        defaultValue: defaultData.selectionTooltipConnectorLineColor));
-    properties.add(ColorProperty('titleBackgroundColor', titleBackgroundColor,
-        defaultValue: defaultData.titleBackgroundColor));
-    properties.add(ColorProperty('tooltipColor', tooltipColor,
-        defaultValue: defaultData.tooltipColor));
-    properties.add(ColorProperty('tooltipSeparatorColor', tooltipSeparatorColor,
-        defaultValue: defaultData.tooltipSeparatorColor));
-    properties.add(ColorProperty('tooltipLabelColor', tooltipLabelColor,
-        defaultValue: defaultData.tooltipLabelColor));
-    properties.add(ColorProperty(
-        'waterfallConnectorLineColor', waterfallConnectorLineColor,
-        defaultValue: defaultData.waterfallConnectorLineColor));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'titleTextStyle', titleTextStyle,
-        defaultValue: defaultData.titleTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'axisTitleTextStyle', axisTitleTextStyle,
-        defaultValue: defaultData.axisTitleTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'axisLabelTextStyle', axisLabelTextStyle,
-        defaultValue: defaultData.axisLabelTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'axisMultiLevelLabelTextStyle', axisMultiLevelLabelTextStyle,
-        defaultValue: defaultData.axisMultiLevelLabelTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'plotBandLabelTextStyle', plotBandLabelTextStyle,
-        defaultValue: defaultData.plotBandLabelTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'legendTitleTextStyle', legendTitleTextStyle,
-        defaultValue: defaultData.legendTitleTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'legendTextStyle', legendTextStyle,
-        defaultValue: defaultData.legendTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'dataLabelTextStyle', dataLabelTextStyle,
-        defaultValue: defaultData.dataLabelTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'tooltipTextStyle', tooltipTextStyle,
-        defaultValue: defaultData.tooltipTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'trackballTextStyle', trackballTextStyle,
-        defaultValue: defaultData.trackballTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'crosshairTextStyle', crosshairTextStyle,
-        defaultValue: defaultData.crosshairTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'selectionZoomingTooltipTextStyle', selectionZoomingTooltipTextStyle,
-        defaultValue: defaultData.selectionZoomingTooltipTextStyle));
+        defaultValue: defaultData.selectionTooltipConnectorLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'titleBackgroundColor',
+        titleBackgroundColor,
+        defaultValue: defaultData.titleBackgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tooltipColor',
+        tooltipColor,
+        defaultValue: defaultData.tooltipColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tooltipSeparatorColor',
+        tooltipSeparatorColor,
+        defaultValue: defaultData.tooltipSeparatorColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tooltipLabelColor',
+        tooltipLabelColor,
+        defaultValue: defaultData.tooltipLabelColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'waterfallConnectorLineColor',
+        waterfallConnectorLineColor,
+        defaultValue: defaultData.waterfallConnectorLineColor,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'titleTextStyle',
+        titleTextStyle,
+        defaultValue: defaultData.titleTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'axisTitleTextStyle',
+        axisTitleTextStyle,
+        defaultValue: defaultData.axisTitleTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'axisLabelTextStyle',
+        axisLabelTextStyle,
+        defaultValue: defaultData.axisLabelTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'axisMultiLevelLabelTextStyle',
+        axisMultiLevelLabelTextStyle,
+        defaultValue: defaultData.axisMultiLevelLabelTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'plotBandLabelTextStyle',
+        plotBandLabelTextStyle,
+        defaultValue: defaultData.plotBandLabelTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'legendTitleTextStyle',
+        legendTitleTextStyle,
+        defaultValue: defaultData.legendTitleTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'legendTextStyle',
+        legendTextStyle,
+        defaultValue: defaultData.legendTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'dataLabelTextStyle',
+        dataLabelTextStyle,
+        defaultValue: defaultData.dataLabelTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'tooltipTextStyle',
+        tooltipTextStyle,
+        defaultValue: defaultData.tooltipTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'trackballTextStyle',
+        trackballTextStyle,
+        defaultValue: defaultData.trackballTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'crosshairTextStyle',
+        crosshairTextStyle,
+        defaultValue: defaultData.crosshairTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'selectionZoomingTooltipTextStyle',
+        selectionZoomingTooltipTextStyle,
+        defaultValue: defaultData.selectionZoomingTooltipTextStyle,
+      ),
+    );
   }
 }

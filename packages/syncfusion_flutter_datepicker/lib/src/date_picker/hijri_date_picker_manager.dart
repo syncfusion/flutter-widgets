@@ -79,19 +79,19 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
   ///
   /// The properties allows to customize the month view of
   /// [SfHijriDateRangePicker].
-  const HijriDatePickerMonthViewSettings(
-      {this.firstDayOfWeek = 7,
-      this.dayFormat = 'EE',
-      this.viewHeaderHeight = 30,
-      this.viewHeaderStyle = const DateRangePickerViewHeaderStyle(),
-      this.enableSwipeSelection = true,
-      this.blackoutDates,
-      this.specialDates,
-      this.showWeekNumber = false,
-      this.weekNumberStyle = const DateRangePickerWeekNumberStyle(),
-      this.weekendDays = const <int>[6, 7]})
-      : assert(firstDayOfWeek >= 1 && firstDayOfWeek <= 7),
-        assert(viewHeaderHeight >= -1);
+  const HijriDatePickerMonthViewSettings({
+    this.firstDayOfWeek = 7,
+    this.dayFormat = 'EE',
+    this.viewHeaderHeight = 30,
+    this.viewHeaderStyle = const DateRangePickerViewHeaderStyle(),
+    this.enableSwipeSelection = true,
+    this.blackoutDates,
+    this.specialDates,
+    this.showWeekNumber = false,
+    this.weekNumberStyle = const DateRangePickerWeekNumberStyle(),
+    this.weekendDays = const <int>[6, 7],
+  }) : assert(firstDayOfWeek >= 1 && firstDayOfWeek <= 7),
+       assert(viewHeaderHeight >= -1);
 
   /// Formats a text in the [SfHijriDateRangePicker] month view view header.
   ///
@@ -490,15 +490,22 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(IterableDiagnostics<HijriDateTime>(blackoutDates)
-        .toDiagnosticsNode(name: 'blackoutDates'));
-    properties.add(IterableDiagnostics<HijriDateTime>(specialDates)
-        .toDiagnosticsNode(name: 'specialDates'));
+    properties.add(
+      IterableDiagnostics<HijriDateTime>(
+        blackoutDates,
+      ).toDiagnosticsNode(name: 'blackoutDates'),
+    );
+    properties.add(
+      IterableDiagnostics<HijriDateTime>(
+        specialDates,
+      ).toDiagnosticsNode(name: 'specialDates'),
+    );
     properties.add(IntProperty('firstDayOfWeek', firstDayOfWeek));
     properties.add(DoubleProperty('viewHeaderHeight', viewHeaderHeight));
     properties.add(StringProperty('dayFormat', dayFormat));
-    properties.add(DiagnosticsProperty<bool>(
-        'enableSwipeSelection', enableSwipeSelection));
+    properties.add(
+      DiagnosticsProperty<bool>('enableSwipeSelection', enableSwipeSelection),
+    );
     properties.add(viewHeaderStyle.toDiagnosticsNode(name: 'viewHeaderStyle'));
     properties.add(IterableProperty<int>('weekendDays', weekendDays));
     properties.add(DiagnosticsProperty<bool>('showWeekNumber', showWeekNumber));
@@ -508,19 +515,20 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
   @override
   int get hashCode {
     return Object.hash(
-        dayFormat,
-        firstDayOfWeek,
-        viewHeaderStyle,
-        enableSwipeSelection,
-        viewHeaderHeight,
-        showWeekNumber,
-        weekNumberStyle,
+      dayFormat,
+      firstDayOfWeek,
+      viewHeaderStyle,
+      enableSwipeSelection,
+      viewHeaderHeight,
+      showWeekNumber,
+      weekNumberStyle,
 
-        /// Below condition is referred from text style class
-        /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
-        specialDates == null ? null : Object.hashAll(specialDates!),
-        blackoutDates == null ? null : Object.hashAll(blackoutDates!),
-        Object.hashAll(weekendDays));
+      /// Below condition is referred from text style class
+      /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
+      specialDates == null ? null : Object.hashAll(specialDates!),
+      blackoutDates == null ? null : Object.hashAll(blackoutDates!),
+      Object.hashAll(weekendDays),
+    );
   }
 }
 
@@ -596,13 +604,14 @@ class HijriDatePickerYearCellStyle with Diagnosticable {
   ///
   /// The properties allows to customize the year cells in year view of
   /// [SfHijriDateRangePicker].
-  const HijriDatePickerYearCellStyle(
-      {this.textStyle,
-      this.todayTextStyle,
-      this.disabledDatesTextStyle,
-      this.cellDecoration,
-      this.todayCellDecoration,
-      this.disabledDatesDecoration});
+  const HijriDatePickerYearCellStyle({
+    this.textStyle,
+    this.todayTextStyle,
+    this.disabledDatesTextStyle,
+    this.cellDecoration,
+    this.todayCellDecoration,
+    this.disabledDatesDecoration,
+  });
 
   /// The text style for the text in the [SfHijriDateRangePicker] year and
   /// decade view cells.
@@ -919,22 +928,42 @@ class HijriDatePickerYearCellStyle with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
-    properties
-        .add(DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'disabledDatesTextStyle', disabledDatesTextStyle));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'disabledDatesDecoration', disabledDatesDecoration));
-    properties
-        .add(DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'todayCellDecoration', todayCellDecoration));
+    properties.add(
+      DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'disabledDatesTextStyle',
+        disabledDatesTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'disabledDatesDecoration',
+        disabledDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'todayCellDecoration',
+        todayCellDecoration,
+      ),
+    );
   }
 
   @override
   int get hashCode {
-    return Object.hash(textStyle, todayTextStyle, disabledDatesTextStyle,
-        disabledDatesDecoration, cellDecoration, todayCellDecoration);
+    return Object.hash(
+      textStyle,
+      todayTextStyle,
+      disabledDatesTextStyle,
+      disabledDatesDecoration,
+      cellDecoration,
+      todayCellDecoration,
+    );
   }
 }
 
@@ -1012,19 +1041,20 @@ class HijriDatePickerMonthCellStyle with Diagnosticable {
   ///
   /// The properties allows to customize the month cells in month view of
   /// [SfHijriDateRangePicker].
-  const HijriDatePickerMonthCellStyle(
-      {this.textStyle,
-      this.todayTextStyle,
-      this.disabledDatesTextStyle,
-      this.blackoutDateTextStyle,
-      this.weekendTextStyle,
-      this.specialDatesTextStyle,
-      this.specialDatesDecoration,
-      this.blackoutDatesDecoration,
-      this.cellDecoration,
-      this.todayCellDecoration,
-      this.disabledDatesDecoration,
-      this.weekendDatesDecoration});
+  const HijriDatePickerMonthCellStyle({
+    this.textStyle,
+    this.todayTextStyle,
+    this.disabledDatesTextStyle,
+    this.blackoutDateTextStyle,
+    this.weekendTextStyle,
+    this.specialDatesTextStyle,
+    this.specialDatesDecoration,
+    this.blackoutDatesDecoration,
+    this.cellDecoration,
+    this.todayCellDecoration,
+    this.disabledDatesDecoration,
+    this.weekendDatesDecoration,
+  });
 
   /// The text style for the text in the [SfHijriDateRangePicker] month cells.
   ///
@@ -1762,28 +1792,63 @@ class HijriDatePickerMonthCellStyle with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
-    properties
-        .add(DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'blackoutDateTextStyle', blackoutDateTextStyle));
     properties.add(
-        DiagnosticsProperty<TextStyle>('weekendTextStyle', weekendTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'specialDatesTextStyle', specialDatesTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'disabledDatesTextStyle', disabledDatesTextStyle));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'disabledDatesDecoration', disabledDatesDecoration));
-    properties
-        .add(DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'todayCellDecoration', todayCellDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'blackoutDatesDecoration', blackoutDatesDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'weekendDatesDecoration', weekendDatesDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'specialDatesDecoration', specialDatesDecoration));
+      DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'blackoutDateTextStyle',
+        blackoutDateTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>('weekendTextStyle', weekendTextStyle),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'specialDatesTextStyle',
+        specialDatesTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'disabledDatesTextStyle',
+        disabledDatesTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'disabledDatesDecoration',
+        disabledDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'todayCellDecoration',
+        todayCellDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'blackoutDatesDecoration',
+        blackoutDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'weekendDatesDecoration',
+        weekendDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'specialDatesDecoration',
+        specialDatesDecoration,
+      ),
+    );
   }
 
   @override
@@ -2521,16 +2586,25 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties
-        .add(DiagnosticsProperty<HijriDateTime>('displayDate', displayDate));
-    properties
-        .add(DiagnosticsProperty<HijriDateTime>('selectedDate', selectedDate));
-    properties.add(IterableDiagnostics<HijriDateTime>(selectedDates)
-        .toDiagnosticsNode(name: 'selectedDates'));
     properties.add(
-        DiagnosticsProperty<HijriDateRange>('selectedRange', selectedRange));
-    properties.add(IterableDiagnostics<HijriDateRange>(selectedRanges)
-        .toDiagnosticsNode(name: 'selectedRanges'));
+      DiagnosticsProperty<HijriDateTime>('displayDate', displayDate),
+    );
+    properties.add(
+      DiagnosticsProperty<HijriDateTime>('selectedDate', selectedDate),
+    );
+    properties.add(
+      IterableDiagnostics<HijriDateTime>(
+        selectedDates,
+      ).toDiagnosticsNode(name: 'selectedDates'),
+    );
+    properties.add(
+      DiagnosticsProperty<HijriDateRange>('selectedRange', selectedRange),
+    );
+    properties.add(
+      IterableDiagnostics<HijriDateRange>(
+        selectedRanges,
+      ).toDiagnosticsNode(name: 'selectedRanges'),
+    );
     properties.add(EnumProperty<HijriDatePickerView>('view', view));
   }
 }
@@ -2620,15 +2694,18 @@ class HijriDateRange with Diagnosticable {
 /// * [SfHijriDateRangePicker.cellBuilder], which matches this signature.
 /// * [SfHijriDateRangePicker], which uses this signature in one of it's
 /// callback.
-typedef HijriDateRangePickerCellBuilder = Widget Function(
-    BuildContext context, HijriDateRangePickerCellDetails cellDetails);
+typedef HijriDateRangePickerCellBuilder =
+    Widget Function(
+      BuildContext context,
+      HijriDateRangePickerCellDetails cellDetails,
+    );
 
 /// Signature for predicating dates for enabled date selections.
 ///
 /// [SelectableDayPredicate] parameter used to specify allowable days in the
 /// SfHijriDateRangePicker.
-typedef HijriDatePickerSelectableDayPredicate = bool Function(
-    HijriDateTime date);
+typedef HijriDatePickerSelectableDayPredicate =
+    bool Function(HijriDateTime date);
 
 /// Contains the details that needed on calendar cell builder.
 ///
@@ -2638,8 +2715,11 @@ typedef HijriDatePickerSelectableDayPredicate = bool Function(
 /// callback.
 class HijriDateRangePickerCellDetails {
   /// Constructor to store the details that needed on calendar cell builder.
-  HijriDateRangePickerCellDetails(
-      {required this.date, required this.bounds, required this.visibleDates});
+  HijriDateRangePickerCellDetails({
+    required this.date,
+    required this.bounds,
+    required this.visibleDates,
+  });
 
   /// Date value associated with the picker cell in month, year, decade and
   /// century views.

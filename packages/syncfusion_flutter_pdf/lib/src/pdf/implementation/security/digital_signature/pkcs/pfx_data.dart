@@ -61,8 +61,9 @@ class Algorithms extends Asn1Encode {
 
   @override
   Asn1 getAsn1() {
-    final Asn1EncodeCollection collection =
-        Asn1EncodeCollection(<Asn1Encode?>[id]);
+    final Asn1EncodeCollection collection = Asn1EncodeCollection(<Asn1Encode?>[
+      id,
+    ]);
     if (_parametersDefined) {
       collection.encodableObjects.add(parameters ?? DerNull.value);
     }
@@ -201,12 +202,14 @@ class PkcsObjectId {
   static DerObjectID pbeWithShaAnd40BitRC4 = DerObjectID('$pkcs12PbeIds.2');
 
   /// internal field
-  static DerObjectID pbeWithShaAnd3KeyTripleDesCbc =
-      DerObjectID('$pkcs12PbeIds.3');
+  static DerObjectID pbeWithShaAnd3KeyTripleDesCbc = DerObjectID(
+    '$pkcs12PbeIds.3',
+  );
 
   /// internal field
-  static DerObjectID pbeWithShaAnd2KeyTripleDesCbc =
-      DerObjectID('$pkcs12PbeIds.4');
+  static DerObjectID pbeWithShaAnd2KeyTripleDesCbc = DerObjectID(
+    '$pkcs12PbeIds.4',
+  );
 
   /// internal field
   static DerObjectID pbeWithShaAnd128BitRC2Cbc = DerObjectID('$pkcs12PbeIds.5');
@@ -215,8 +218,9 @@ class PkcsObjectId {
   static DerObjectID pbewithShaAnd40BitRC2Cbc = DerObjectID('$pkcs12PbeIds.6');
 
   /// internal field
-  static DerObjectID idAlgCms3DesWrap =
-      DerObjectID('1.2.840.113549.1.9.16.3.6');
+  static DerObjectID idAlgCms3DesWrap = DerObjectID(
+    '1.2.840.113549.1.9.16.3.6',
+  );
 
   /// internal field
   static DerObjectID idAlgCmsRC2Wrap = DerObjectID('1.2.840.113549.1.9.16.3.7');

@@ -1,37 +1,112 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 // ignore_for_file: public_member_api_docs
 
+/// A label used in [SfSlider] to customize its value labels.
+class SliderLabel {
+  /// Creates a [SliderLabel] with the specified [text] and [textStyle].
+  const SliderLabel({required this.text, required this.textStyle});
+
+  /// Contains the text of the slider label.
+  final String text;
+
+  /// The TextStyle to customize the label text.
+  final TextStyle textStyle;
+}
+
+/// A label used in [SfRangeSlider] to customize its value labels.
+class RangeSliderLabel extends SliderLabel {
+  /// Creates a [RangeSliderLabel] with the given [text] and [textStyle].
+  const RangeSliderLabel({required super.text, required super.textStyle});
+}
+
+/// A label used in [SfRangeSelector] to customize its value labels.
+class RangeSelectorLabel extends RangeSliderLabel {
+  /// Creates a [RangeSelectorLabel] with the given [text] and [textStyle].
+  const RangeSelectorLabel({required super.text, required super.textStyle});
+}
+
 /// Signature for formatting or changing the whole numeric or date label text.
-typedef LabelFormatterCallback = String Function(
+typedef LabelFormatterCallback =
+    String Function(
+      /// The actual value, which will be either a [DateTime] or [double]
+      /// based on given [values].
+      dynamic actualValue,
 
-    /// actualValue will be either [DateTime] or [double]
-    /// based on given [values].
-    dynamic actualValue,
+      /// If the actual value is [double], it is formatted by [numberFormat] and
+      /// if the actual value is [DateTime], it is formatted by [dateFormat].
+      String formattedText,
+    );
 
-    /// If the actual value is [double], it is formatted by [numberFormat] and
-    /// if the actual value is [DateTime], it is formatted by [dateFormat].
-    String formattedText);
+/// Signature for customizing the appearance of the label by returning a
+/// [SliderLabel] widget with the provided text and text style.
+typedef SliderLabelCreatedCallback =
+    SliderLabel Function(
+      /// The actual value, which will be either a [DateTime] or [double]
+      /// based on given [values].
+      dynamic actualValue,
+
+      /// If the actual value is [double], it is formatted by [numberFormat] and
+      /// if the actual value is [DateTime], it is formatted by [dateFormat].
+      String formattedText,
+
+      /// Customizes the text style of the slider label.
+      TextStyle textStyle,
+    );
+
+/// Signature for customizing the appearance of the label by returning a
+/// [RangeSliderLabel] widget with the provided text and text style.
+typedef RangeSliderLabelCreatedCallback =
+    RangeSliderLabel Function(
+      /// The actual value, which will be either a [DateTime] or [double]
+      /// based on given [values].
+      dynamic actualValue,
+
+      /// If the actual value is [double], it is formatted by [numberFormat] and
+      /// if the actual value is [DateTime], it is formatted by [dateFormat].
+      String formattedText,
+
+      /// Customizes the text style of the range slider label.
+      TextStyle textStyle,
+    );
+
+/// Signature for customizing the appearance of the label by returning a
+/// [RangeSelectorLabel] widget with the provided text and text style.
+typedef RangeSelectorLabelCreatedCallback =
+    RangeSelectorLabel Function(
+      /// The actual value, which will be either a [DateTime] or [double]
+      /// based on given [values].
+      dynamic actualValue,
+
+      /// If the actual value is [double], it is formatted by [numberFormat] and
+      /// if the actual value is [DateTime], it is formatted by [dateFormat].
+      String formattedText,
+
+      /// Customizes the text style of the range selector label.
+      TextStyle textStyle,
+    );
 
 /// Signature for formatting or changing the whole tooltip label text.
-typedef TooltipTextFormatterCallback = String Function(
+typedef TooltipTextFormatterCallback =
+    String Function(
+      /// actualValue will be either [DateTime] or [double]
+      /// based on given [values].
+      dynamic actualValue,
 
-    /// actualValue will be either [DateTime] or [double]
-    /// based on given [values].
-    dynamic actualValue,
-
-    /// If the actual value is [double], it is formatted by [numberFormat] and
-    /// if the actual value is [DateTime], it is formatted by [dateFormat].
-    String formattedText);
+      /// If the actual value is [double], it is formatted by [numberFormat] and
+      /// if the actual value is [DateTime], it is formatted by [dateFormat].
+      String formattedText,
+    );
 
 /// The value will be either [double] or [DateTime] based on the `values`.
 typedef SfSliderSemanticFormatterCallback = String Function(dynamic value);
 
-typedef RangeSliderSemanticFormatterCallback = String Function(
-    dynamic value, SfThumb thumb);
+typedef RangeSliderSemanticFormatterCallback =
+    String Function(dynamic value, SfThumb thumb);
 
-typedef RangeSelectorSemanticFormatterCallback = String Function(
-    dynamic value, SfThumb thumb);
+typedef RangeSelectorSemanticFormatterCallback =
+    String Function(dynamic value, SfThumb thumb);
 
 /// Option to place the labels either between the major ticks
 /// or on the major ticks.
@@ -40,7 +115,7 @@ enum LabelPlacement {
   onTicks,
 
   /// betweenTicks places the labels between the major ticks.
-  betweenTicks
+  betweenTicks,
 }
 
 /// Placement of edge labels in the axis.
@@ -50,7 +125,7 @@ enum EdgeLabelPlacement {
 
   /// - EdgeLabelPlacement.inside, shift the edge labels inside the plot area
   /// bounds.
-  inside
+  inside,
 }
 
 /// The type of date interval. It can be years to seconds.
@@ -106,7 +181,7 @@ enum DateIntervalType {
   /// `dateIntervalType` is [seconds] then range slider will render labels for
   /// `Jan 01, 2000 09:00:00`, `Jan 01, 2000 09:00:20`, `Jan 01, 2000 09:00:40`,
   /// and `Jan 01, 2000 09:01:00` respectively.
-  seconds
+  seconds,
 }
 
 /// Represents the [SfRangeSlider] or [SfRangeSelector] thumbs.
@@ -121,7 +196,7 @@ enum SfThumb {
   both,
 
   /// represents none of the thumb.
-  none
+  none,
 }
 
 /// Represents the dragging behavior of the [SfRangeSelector] thumbs.
@@ -140,7 +215,7 @@ enum SliderDragMode {
   /// When [SliderDragMode] is set to [SliderDragMode.both], individual thumb
   /// can be moved by dragging it, and also both the thumbs can be moved
   /// at the same time by dragging in the area between start and end thumbs.
-  both
+  both,
 }
 
 enum SliderTooltipPosition { left, right }
@@ -166,14 +241,18 @@ class SfRangeValues extends DiagnosticableTree {
       // ignore: avoid_as
       final double value = start as double;
       return SfRangeValues(
-          DateTime.fromMillisecondsSinceEpoch(value.toInt()), end ?? this.end);
+        DateTime.fromMillisecondsSinceEpoch(value.toInt()),
+        end ?? this.end,
+      );
     } else if (end != null &&
         end.runtimeType == num &&
         this.start.runtimeType == DateTime) {
       // ignore: avoid_as
       final double value = end as double;
-      return SfRangeValues(start ?? this.start,
-          DateTime.fromMillisecondsSinceEpoch(value.toInt()));
+      return SfRangeValues(
+        start ?? this.start,
+        DateTime.fromMillisecondsSinceEpoch(value.toInt()),
+      );
     }
 
     return SfRangeValues(start ?? this.start, end ?? this.end);
@@ -196,13 +275,14 @@ class SliderStepDuration extends DiagnosticableTree {
   /// The discrete position is calculated by adding the arguments
   /// given in the [SliderStepDuration] object.
   /// By default, all arguments values are zero.
-  const SliderStepDuration(
-      {this.years = 0,
-      this.months = 0,
-      this.days = 0,
-      this.hours = 0,
-      this.minutes = 0,
-      this.seconds = 0});
+  const SliderStepDuration({
+    this.years = 0,
+    this.months = 0,
+    this.days = 0,
+    this.hours = 0,
+    this.minutes = 0,
+    this.seconds = 0,
+  });
 
   /// Moves the thumbs based on years.
   ///

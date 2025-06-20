@@ -10,34 +10,34 @@ import '../../linear_gauge/utils/linear_gauge_helper.dart';
 /// Represents the render object of bar pointer.
 class RenderLinearBarPointer extends RenderOpacity {
   /// Creates a instance for [RenderLinearBarPointer].
-  RenderLinearBarPointer(
-      {required double value,
-      required LinearEdgeStyle edgeStyle,
-      ShaderCallback? shaderCallback,
-      required Color color,
-      required Color borderColor,
-      required double borderWidth,
-      required double thickness,
-      required double offset,
-      required LinearElementPosition position,
-      required LinearGaugeOrientation orientation,
-      Animation<double>? pointerAnimation,
-      VoidCallback? onAnimationCompleted,
-      this.animationController,
-      required bool isAxisInversed})
-      : _value = value,
-        _edgeStyle = edgeStyle,
-        _shaderCallback = shaderCallback,
-        _color = color,
-        _borderColor = borderColor,
-        _borderWidth = borderWidth,
-        _thickness = thickness,
-        _offset = offset,
-        _position = position,
-        _orientation = orientation,
-        _pointerAnimation = pointerAnimation,
-        _onAnimationCompleted = onAnimationCompleted,
-        _isAxisInversed = isAxisInversed {
+  RenderLinearBarPointer({
+    required double value,
+    required LinearEdgeStyle edgeStyle,
+    ShaderCallback? shaderCallback,
+    required Color color,
+    required Color borderColor,
+    required double borderWidth,
+    required double thickness,
+    required double offset,
+    required LinearElementPosition position,
+    required LinearGaugeOrientation orientation,
+    Animation<double>? pointerAnimation,
+    VoidCallback? onAnimationCompleted,
+    this.animationController,
+    required bool isAxisInversed,
+  }) : _value = value,
+       _edgeStyle = edgeStyle,
+       _shaderCallback = shaderCallback,
+       _color = color,
+       _borderColor = borderColor,
+       _borderWidth = borderWidth,
+       _thickness = thickness,
+       _offset = offset,
+       _position = position,
+       _orientation = orientation,
+       _pointerAnimation = pointerAnimation,
+       _onAnimationCompleted = onAnimationCompleted,
+       _isAxisInversed = isAxisInversed {
     _barPaint = Paint();
     _isHorizontal = orientation == LinearGaugeOrientation.horizontal;
     _path = Path();
@@ -70,7 +70,11 @@ class RenderLinearBarPointer extends RenderOpacity {
     if (animationController != null && animationController!.isAnimating) {
       animationController!.stop();
       _oldBarRect = Rect.fromLTWH(
-          _barPointerOffset.dx, _barPointerOffset.dy, size.width, size.height);
+        _barPointerOffset.dx,
+        _barPointerOffset.dy,
+        size.width,
+        size.height,
+      );
     }
 
     _value = value;
@@ -318,8 +322,10 @@ class RenderLinearBarPointer extends RenderOpacity {
       child!.layout(BoxConstraints.tight(controlSize));
     }
 
-    size = Size(min(controlSize.width, constraints.maxWidth),
-        min(controlSize.height, constraints.maxHeight));
+    size = Size(
+      min(controlSize.width, constraints.maxWidth),
+      min(controlSize.height, constraints.maxHeight),
+    );
   }
 
   ///Measures the bar rect.
@@ -336,15 +342,15 @@ class RenderLinearBarPointer extends RenderOpacity {
 
     if (_isHorizontal) {
       _barRect = Rect.fromLTWH(
-          offset.dx +
-              (isAxisInversed
-                  ? (size.width - _oldBarRect.width) -
-                      ((size.width - _oldBarRect.width) * animationValue)
-                  : 0),
-          offset.dy,
-          _oldBarRect.width +
-              ((size.width - _oldBarRect.width) * animationValue),
-          size.height);
+        offset.dx +
+            (isAxisInversed
+                ? (size.width - _oldBarRect.width) -
+                    ((size.width - _oldBarRect.width) * animationValue)
+                : 0),
+        offset.dy,
+        _oldBarRect.width + ((size.width - _oldBarRect.width) * animationValue),
+        size.height,
+      );
     } else {
       _barRect = Rect.fromLTWH(
         offset.dx,
@@ -361,10 +367,11 @@ class RenderLinearBarPointer extends RenderOpacity {
 
     if (borderWidth > 0) {
       _barRect = Rect.fromLTWH(
-          _barRect.left + borderWidth / 2,
-          _barRect.top + borderWidth / 2,
-          _barRect.width - borderWidth,
-          _barRect.height - borderWidth);
+        _barRect.left + borderWidth / 2,
+        _barRect.top + borderWidth / 2,
+        _barRect.width - borderWidth,
+        _barRect.height - borderWidth,
+      );
     }
   }
 
@@ -376,21 +383,28 @@ class RenderLinearBarPointer extends RenderOpacity {
         break;
       case LinearEdgeStyle.bothCurve:
         _path.addRRect(
-            RRect.fromRectAndRadius(_barRect, Radius.circular(thickness / 2)));
+          RRect.fromRectAndRadius(_barRect, Radius.circular(thickness / 2)),
+        );
         break;
       case LinearEdgeStyle.startCurve:
-        _path.addRRect(getStartCurve(
+        _path.addRRect(
+          getStartCurve(
             isHorizontal: _isHorizontal,
             isAxisInversed: isAxisInversed,
             rect: _barRect,
-            radius: thickness / 2));
+            radius: thickness / 2,
+          ),
+        );
         break;
       case LinearEdgeStyle.endCurve:
-        _path.addRRect(getEndCurve(
+        _path.addRRect(
+          getEndCurve(
             isHorizontal: _isHorizontal,
             isAxisInversed: isAxisInversed,
             rect: _barRect,
-            radius: thickness / 2));
+            radius: thickness / 2,
+          ),
+        );
         break;
     }
 

@@ -18,7 +18,11 @@ class PdfListFieldItem implements IPdfWrapper {
 
   /// Initializes a new instance of the [PdfListFieldItem] class.
   PdfListFieldItem._load(
-      String? text, String? value, PdfListField field, PdfCrossTable? cTable) {
+    String? text,
+    String? value,
+    PdfListField field,
+    PdfCrossTable? cTable,
+  ) {
     _helper = PdfListFieldItemHelper(this);
     _field = field;
     _crossTable = cTable;
@@ -73,15 +77,17 @@ class PdfListFieldItem implements IPdfWrapper {
     final PdfDictionary fieldDic =
         PdfFieldHelper.getHelper(_field!).dictionary!;
     if (fieldDic.containsKey(PdfDictionaryProperties.opt)) {
-      final PdfArray array = _crossTable!
-          .getObject(fieldDic[PdfDictionaryProperties.opt])! as PdfArray;
-      final PdfArray item = isText
-          ? (PdfArray()
-            ..add(PdfString(_value!))
-            ..add(PdfString(value)))
-          : (PdfArray()
-            ..add(PdfString(value))
-            ..add(PdfString(_text!)));
+      final PdfArray array =
+          _crossTable!.getObject(fieldDic[PdfDictionaryProperties.opt])!
+              as PdfArray;
+      final PdfArray item =
+          isText
+              ? (PdfArray()
+                ..add(PdfString(_value!))
+                ..add(PdfString(value)))
+              : (PdfArray()
+                ..add(PdfString(value))
+                ..add(PdfString(_text!)));
       for (int i = 0; i < array.count; ++i) {
         final IPdfPrimitive primitive = _crossTable!.getObject(array[i])!;
         final PdfArray arr = primitive as PdfArray;
@@ -123,7 +129,11 @@ class PdfListFieldItemHelper {
 
   /// internal method
   static PdfListFieldItem load(
-      String? text, String? value, PdfListField field, PdfCrossTable? cTable) {
+    String? text,
+    String? value,
+    PdfListField field,
+    PdfCrossTable? cTable,
+  ) {
     return PdfListFieldItem._load(text, value, field, cTable);
   }
 }

@@ -29,7 +29,7 @@ import '../../theme.dart';
 class SfGaugeTheme extends InheritedTheme {
   /// Initialize the gauge theme
   const SfGaugeTheme({Key? key, required this.data, required this.child})
-      : super(key: key, child: child);
+    : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant gauges widgets.
   ///
@@ -118,27 +118,28 @@ class SfGaugeTheme extends InheritedTheme {
 @immutable
 class SfGaugeThemeData with Diagnosticable {
   /// Initialize the gauge theme data
-  const SfGaugeThemeData(
-      {this.backgroundColor = Colors.transparent,
-      this.titleColor,
-      this.axisLabelColor,
-      this.axisLineColor,
-      this.majorTickColor,
-      this.minorTickColor,
-      this.markerColor,
-      this.markerBorderColor = Colors.transparent,
-      this.needleColor,
-      this.knobColor,
-      this.knobBorderColor = Colors.transparent,
-      this.tailColor,
-      this.tailBorderColor = Colors.transparent,
-      this.rangePointerColor,
-      this.rangeColor,
-      this.titleBorderColor = Colors.transparent,
-      this.titleBackgroundColor = Colors.transparent,
-      this.titleTextStyle,
-      this.axisLabelTextStyle,
-      this.markerTextStyle});
+  const SfGaugeThemeData({
+    this.backgroundColor = Colors.transparent,
+    this.titleColor,
+    this.axisLabelColor,
+    this.axisLineColor,
+    this.majorTickColor,
+    this.minorTickColor,
+    this.markerColor,
+    this.markerBorderColor = Colors.transparent,
+    this.needleColor,
+    this.knobColor,
+    this.knobBorderColor = Colors.transparent,
+    this.tailColor,
+    this.tailBorderColor = Colors.transparent,
+    this.rangePointerColor,
+    this.rangeColor,
+    this.titleBorderColor = Colors.transparent,
+    this.titleBackgroundColor = Colors.transparent,
+    this.titleTextStyle,
+    this.axisLabelTextStyle,
+    this.markerTextStyle,
+  });
 
   /// Create a [SfGaugeThemeData] given a set of exact values.
   ///
@@ -171,26 +172,27 @@ class SfGaugeThemeData with Diagnosticable {
   }) {
     brightness = brightness ?? Brightness.light;
     return SfGaugeThemeData(
-        backgroundColor: backgroundColor,
-        titleColor: titleColor,
-        axisLabelColor: axisLabelColor,
-        axisLineColor: axisLineColor,
-        majorTickColor: majorTickColor,
-        minorTickColor: minorTickColor,
-        markerColor: markerColor,
-        markerBorderColor: markerBorderColor,
-        needleColor: needleColor,
-        knobColor: knobColor,
-        knobBorderColor: knobBorderColor,
-        tailColor: tailColor,
-        tailBorderColor: tailBorderColor,
-        rangePointerColor: rangePointerColor,
-        rangeColor: rangeColor,
-        titleBorderColor: titleBorderColor,
-        titleBackgroundColor: titleBackgroundColor,
-        titleTextStyle: titleTextStyle,
-        axisLabelTextStyle: axisLabelTextStyle,
-        markerTextStyle: markerTextStyle);
+      backgroundColor: backgroundColor,
+      titleColor: titleColor,
+      axisLabelColor: axisLabelColor,
+      axisLineColor: axisLineColor,
+      majorTickColor: majorTickColor,
+      minorTickColor: minorTickColor,
+      markerColor: markerColor,
+      markerBorderColor: markerBorderColor,
+      needleColor: needleColor,
+      knobColor: knobColor,
+      knobBorderColor: knobBorderColor,
+      tailColor: tailColor,
+      tailBorderColor: tailBorderColor,
+      rangePointerColor: rangePointerColor,
+      rangeColor: rangeColor,
+      titleBorderColor: titleBorderColor,
+      titleBackgroundColor: titleBackgroundColor,
+      titleTextStyle: titleTextStyle,
+      axisLabelTextStyle: axisLabelTextStyle,
+      markerTextStyle: markerTextStyle,
+    );
   }
 
   /// Create a [SfGaugeThemeData] given a set of exact values.
@@ -761,55 +763,60 @@ class SfGaugeThemeData with Diagnosticable {
 
   /// Creates a copy of this gauge theme data object with the matching fields
   /// replaced with the non-null parameter values.
-  SfGaugeThemeData copyWith(
-      {Brightness? brightness,
-      Color? backgroundColor,
-      Color? titleColor,
-      Color? axisLabelColor,
-      Color? axisLineColor,
-      Color? majorTickColor,
-      Color? minorTickColor,
-      Color? markerColor,
-      Color? markerBorderColor,
-      Color? needleColor,
-      Color? knobColor,
-      Color? knobBorderColor,
-      Color? tailColor,
-      Color? tailBorderColor,
-      Color? rangePointerColor,
-      Color? rangeColor,
-      Color? titleBorderColor,
-      Color? titleBackgroundColor,
-      TextStyle? titleTextStyle,
-      TextStyle? axisLabelTextStyle,
-      TextStyle? markerTextStyle}) {
+  SfGaugeThemeData copyWith({
+    Brightness? brightness,
+    Color? backgroundColor,
+    Color? titleColor,
+    Color? axisLabelColor,
+    Color? axisLineColor,
+    Color? majorTickColor,
+    Color? minorTickColor,
+    Color? markerColor,
+    Color? markerBorderColor,
+    Color? needleColor,
+    Color? knobColor,
+    Color? knobBorderColor,
+    Color? tailColor,
+    Color? tailBorderColor,
+    Color? rangePointerColor,
+    Color? rangeColor,
+    Color? titleBorderColor,
+    Color? titleBackgroundColor,
+    TextStyle? titleTextStyle,
+    TextStyle? axisLabelTextStyle,
+    TextStyle? markerTextStyle,
+  }) {
     return SfGaugeThemeData.raw(
-        brightness: brightness,
-        backgroundColor: backgroundColor ?? this.backgroundColor,
-        titleColor: titleColor ?? this.titleColor,
-        axisLabelColor: axisLabelColor ?? this.axisLabelColor,
-        axisLineColor: axisLineColor ?? this.axisLineColor,
-        majorTickColor: majorTickColor ?? this.majorTickColor,
-        minorTickColor: minorTickColor ?? this.minorTickColor,
-        markerColor: markerColor ?? this.markerColor,
-        markerBorderColor: markerBorderColor ?? this.markerBorderColor,
-        needleColor: needleColor ?? this.needleColor,
-        knobColor: knobColor ?? this.knobColor,
-        knobBorderColor: knobBorderColor ?? this.knobBorderColor,
-        tailColor: tailColor ?? this.tailColor,
-        tailBorderColor: tailBorderColor ?? this.tailBorderColor,
-        rangePointerColor: rangePointerColor ?? this.rangePointerColor,
-        rangeColor: rangeColor ?? this.rangeColor,
-        titleBorderColor: titleBorderColor ?? this.titleBorderColor,
-        titleBackgroundColor: titleBackgroundColor ?? this.titleBackgroundColor,
-        titleTextStyle: titleTextStyle ?? this.titleTextStyle,
-        axisLabelTextStyle: axisLabelTextStyle ?? this.axisLabelTextStyle,
-        markerTextStyle: markerTextStyle ?? this.markerTextStyle);
+      brightness: brightness,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      titleColor: titleColor ?? this.titleColor,
+      axisLabelColor: axisLabelColor ?? this.axisLabelColor,
+      axisLineColor: axisLineColor ?? this.axisLineColor,
+      majorTickColor: majorTickColor ?? this.majorTickColor,
+      minorTickColor: minorTickColor ?? this.minorTickColor,
+      markerColor: markerColor ?? this.markerColor,
+      markerBorderColor: markerBorderColor ?? this.markerBorderColor,
+      needleColor: needleColor ?? this.needleColor,
+      knobColor: knobColor ?? this.knobColor,
+      knobBorderColor: knobBorderColor ?? this.knobBorderColor,
+      tailColor: tailColor ?? this.tailColor,
+      tailBorderColor: tailBorderColor ?? this.tailBorderColor,
+      rangePointerColor: rangePointerColor ?? this.rangePointerColor,
+      rangeColor: rangeColor ?? this.rangeColor,
+      titleBorderColor: titleBorderColor ?? this.titleBorderColor,
+      titleBackgroundColor: titleBackgroundColor ?? this.titleBackgroundColor,
+      titleTextStyle: titleTextStyle ?? this.titleTextStyle,
+      axisLabelTextStyle: axisLabelTextStyle ?? this.axisLabelTextStyle,
+      markerTextStyle: markerTextStyle ?? this.markerTextStyle,
+    );
   }
 
   /// Returns the gauge theme data
   static SfGaugeThemeData? lerp(
-      SfGaugeThemeData? a, SfGaugeThemeData? b, double t) {
+    SfGaugeThemeData? a,
+    SfGaugeThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
@@ -828,15 +835,21 @@ class SfGaugeThemeData with Diagnosticable {
       knobBorderColor: Color.lerp(a.knobBorderColor, b.knobBorderColor, t)!,
       tailColor: Color.lerp(a.tailColor, b.tailColor, t),
       tailBorderColor: Color.lerp(a.tailBorderColor, b.tailBorderColor, t)!,
-      rangePointerColor:
-          Color.lerp(a.rangePointerColor, b.rangePointerColor, t),
+      rangePointerColor: Color.lerp(
+        a.rangePointerColor,
+        b.rangePointerColor,
+        t,
+      ),
       rangeColor: Color.lerp(a.rangeColor, b.rangeColor, t),
       titleBorderColor: Color.lerp(a.titleBorderColor, b.titleBorderColor, t)!,
       titleBackgroundColor:
           Color.lerp(a.titleBackgroundColor, b.titleBackgroundColor, t)!,
       titleTextStyle: TextStyle.lerp(a.titleTextStyle, b.titleTextStyle, t),
-      axisLabelTextStyle:
-          TextStyle.lerp(a.axisLabelTextStyle, b.axisLabelTextStyle, t),
+      axisLabelTextStyle: TextStyle.lerp(
+        a.axisLabelTextStyle,
+        b.axisLabelTextStyle,
+        t,
+      ),
       markerTextStyle: TextStyle.lerp(a.markerTextStyle, b.markerTextStyle, t),
     );
   }
@@ -894,7 +907,7 @@ class SfGaugeThemeData with Diagnosticable {
       titleBackgroundColor,
       titleTextStyle,
       axisLabelTextStyle,
-      markerTextStyle
+      markerTextStyle,
     ];
     return Object.hashAll(values);
   }
@@ -903,48 +916,145 @@ class SfGaugeThemeData with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     const SfGaugeThemeData defaultData = SfGaugeThemeData();
-    properties.add(ColorProperty('backgroundColor', backgroundColor,
-        defaultValue: defaultData.backgroundColor));
-    properties.add(ColorProperty('titleColor', titleColor,
-        defaultValue: defaultData.titleColor));
-    properties.add(ColorProperty('axisLabelColor', axisLabelColor,
-        defaultValue: defaultData.axisLabelColor));
-    properties.add(ColorProperty('axisLineColor', axisLineColor,
-        defaultValue: defaultData.axisLineColor));
-    properties.add(ColorProperty('majorTickColor', majorTickColor,
-        defaultValue: defaultData.majorTickColor));
-    properties.add(ColorProperty('minorTickColor', minorTickColor,
-        defaultValue: defaultData.minorTickColor));
-    properties.add(ColorProperty('markerColor', markerColor,
-        defaultValue: defaultData.markerColor));
-    properties.add(ColorProperty('markerBorderColor', markerBorderColor,
-        defaultValue: defaultData.markerBorderColor));
-    properties.add(ColorProperty('needleColor', needleColor,
-        defaultValue: defaultData.needleColor));
-    properties.add(ColorProperty('knobColor', knobColor,
-        defaultValue: defaultData.knobColor));
-    properties.add(ColorProperty('knobBorderColor', knobBorderColor,
-        defaultValue: defaultData.knobBorderColor));
-    properties.add(ColorProperty('tailColor', tailColor,
-        defaultValue: defaultData.tailColor));
-    properties.add(ColorProperty('tailBorderColor', tailBorderColor,
-        defaultValue: defaultData.tailBorderColor));
-    properties.add(ColorProperty('rangePointerColor', rangePointerColor,
-        defaultValue: defaultData.rangePointerColor));
-    properties.add(ColorProperty('rangeColor', rangeColor,
-        defaultValue: defaultData.rangeColor));
-    properties.add(ColorProperty('titleBorderColor', titleBorderColor,
-        defaultValue: defaultData.titleBorderColor));
-    properties.add(ColorProperty('titleBackgroundColor', titleBackgroundColor,
-        defaultValue: defaultData.titleBackgroundColor));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'titleTextStyle', titleTextStyle,
-        defaultValue: defaultData.titleTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'axisLabelTextStyle', axisLabelTextStyle,
-        defaultValue: defaultData.axisLabelTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'markerTextStyle', markerTextStyle,
-        defaultValue: defaultData.markerTextStyle));
+    properties.add(
+      ColorProperty(
+        'backgroundColor',
+        backgroundColor,
+        defaultValue: defaultData.backgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'titleColor',
+        titleColor,
+        defaultValue: defaultData.titleColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'axisLabelColor',
+        axisLabelColor,
+        defaultValue: defaultData.axisLabelColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'axisLineColor',
+        axisLineColor,
+        defaultValue: defaultData.axisLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'majorTickColor',
+        majorTickColor,
+        defaultValue: defaultData.majorTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'minorTickColor',
+        minorTickColor,
+        defaultValue: defaultData.minorTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'markerColor',
+        markerColor,
+        defaultValue: defaultData.markerColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'markerBorderColor',
+        markerBorderColor,
+        defaultValue: defaultData.markerBorderColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'needleColor',
+        needleColor,
+        defaultValue: defaultData.needleColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'knobColor',
+        knobColor,
+        defaultValue: defaultData.knobColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'knobBorderColor',
+        knobBorderColor,
+        defaultValue: defaultData.knobBorderColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tailColor',
+        tailColor,
+        defaultValue: defaultData.tailColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tailBorderColor',
+        tailBorderColor,
+        defaultValue: defaultData.tailBorderColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'rangePointerColor',
+        rangePointerColor,
+        defaultValue: defaultData.rangePointerColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'rangeColor',
+        rangeColor,
+        defaultValue: defaultData.rangeColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'titleBorderColor',
+        titleBorderColor,
+        defaultValue: defaultData.titleBorderColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'titleBackgroundColor',
+        titleBackgroundColor,
+        defaultValue: defaultData.titleBackgroundColor,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'titleTextStyle',
+        titleTextStyle,
+        defaultValue: defaultData.titleTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'axisLabelTextStyle',
+        axisLabelTextStyle,
+        defaultValue: defaultData.axisLabelTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'markerTextStyle',
+        markerTextStyle,
+        defaultValue: defaultData.markerTextStyle,
+      ),
+    );
   }
 }

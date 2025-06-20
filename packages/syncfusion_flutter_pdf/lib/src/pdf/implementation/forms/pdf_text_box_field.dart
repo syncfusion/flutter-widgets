@@ -34,41 +34,59 @@ import 'pdf_form.dart';
 class PdfTextBoxField extends PdfField {
   //Constructor
   /// Initializes a new instance of the [PdfTextBoxField] class with the provided page and name.
-  PdfTextBoxField(PdfPage page, String name, Rect bounds,
-      {PdfFont? font,
-      String? text,
-      String? defaultValue,
-      int maxLength = 0,
-      bool spellCheck = false,
-      bool insertSpaces = false,
-      bool multiline = false,
-      bool isPassword = false,
-      bool scrollable = false,
-      PdfTextAlignment alignment = PdfTextAlignment.left,
-      PdfColor? borderColor,
-      PdfColor? foreColor,
-      PdfColor? backColor,
-      int? borderWidth,
-      PdfHighlightMode highlightMode = PdfHighlightMode.invert,
-      PdfBorderStyle borderStyle = PdfBorderStyle.solid,
-      String? tooltip}) {
+  PdfTextBoxField(
+    PdfPage page,
+    String name,
+    Rect bounds, {
+    PdfFont? font,
+    String? text,
+    String? defaultValue,
+    int maxLength = 0,
+    bool spellCheck = false,
+    bool insertSpaces = false,
+    bool multiline = false,
+    bool isPassword = false,
+    bool scrollable = false,
+    PdfTextAlignment alignment = PdfTextAlignment.left,
+    PdfColor? borderColor,
+    PdfColor? foreColor,
+    PdfColor? backColor,
+    int? borderWidth,
+    PdfHighlightMode highlightMode = PdfHighlightMode.invert,
+    PdfBorderStyle borderStyle = PdfBorderStyle.solid,
+    String? tooltip,
+  }) {
     _helper = PdfTextBoxFieldHelper(this);
-    _helper.internal(page, name, bounds,
-        font: font,
-        alignment: alignment,
-        borderColor: borderColor,
-        foreColor: foreColor,
-        backColor: backColor,
-        borderWidth: borderWidth,
-        highlightMode: highlightMode,
-        borderStyle: borderStyle,
-        tooltip: tooltip);
+    _helper.internal(
+      page,
+      name,
+      bounds,
+      font: font,
+      alignment: alignment,
+      borderColor: borderColor,
+      foreColor: foreColor,
+      backColor: backColor,
+      borderWidth: borderWidth,
+      highlightMode: highlightMode,
+      borderStyle: borderStyle,
+      tooltip: tooltip,
+    );
     this.font = font ?? PdfStandardFont(PdfFontFamily.helvetica, 8);
-    _init(text, defaultValue, maxLength, spellCheck, insertSpaces, multiline,
-        isPassword, scrollable);
+    _init(
+      text,
+      defaultValue,
+      maxLength,
+      spellCheck,
+      insertSpaces,
+      multiline,
+      isPassword,
+      scrollable,
+    );
     _helper.flags.add(FieldFlags.doNotSpellCheck);
     _helper.dictionary!.setProperty(
-        PdfDictionaryProperties.ft, PdfName(PdfDictionaryProperties.tx));
+      PdfDictionaryProperties.ft,
+      PdfName(PdfDictionaryProperties.tx),
+    );
   }
 
   /// Initializes a new instance of the [PdfTextBoxField] class.
@@ -81,8 +99,9 @@ class PdfTextBoxField extends PdfField {
       for (int i = 0; i < kids.count; ++i) {
         final PdfDictionary? itemDictionary =
             crossTable.getObject(kids[i]) as PdfDictionary?;
-        PdfFieldItemCollectionHelper.getHelper(_items!)
-            .add(PdfTextBoxItemHelper.getItem(this, i, itemDictionary));
+        PdfFieldItemCollectionHelper.getHelper(
+          _items!,
+        ).add(PdfTextBoxItemHelper.getItem(this, i, itemDictionary));
       }
       _helper.array = kids;
     }
@@ -108,8 +127,9 @@ class PdfTextBoxField extends PdfField {
       final IPdfPrimitive? referenceHolder =
           _helper.dictionary![PdfDictionaryProperties.v];
       if (referenceHolder != null && referenceHolder is PdfReferenceHolder) {
-        final IPdfPrimitive? textObject =
-            PdfCrossTable.dereference(referenceHolder);
+        final IPdfPrimitive? textObject = PdfCrossTable.dereference(
+          referenceHolder,
+        );
         if (textObject is PdfStream) {
           final PdfStream stream = referenceHolder.object! as PdfStream;
           stream.decompress();
@@ -117,14 +137,22 @@ class PdfTextBoxField extends PdfField {
           final String data = utf8.decode(bytes);
           str = PdfString(data);
         } else if (textObject is PdfString) {
-          str = PdfFieldHelper.getValue(_helper.dictionary!, _helper.crossTable,
-              PdfDictionaryProperties.v, true);
+          str = PdfFieldHelper.getValue(
+            _helper.dictionary!,
+            _helper.crossTable,
+            PdfDictionaryProperties.v,
+            true,
+          );
         } else {
           str = PdfString('');
         }
       } else {
-        str = PdfFieldHelper.getValue(_helper.dictionary!, _helper.crossTable,
-            PdfDictionaryProperties.v, true);
+        str = PdfFieldHelper.getValue(
+          _helper.dictionary!,
+          _helper.crossTable,
+          PdfDictionaryProperties.v,
+          true,
+        );
       }
       _text = str != null && str is PdfString ? str.value : '';
       return _text!;
@@ -145,18 +173,23 @@ class PdfTextBoxField extends PdfField {
             if (dicRef != null && dicRef is PdfReferenceHolder) {
               final IPdfPrimitive? dict = dicRef.object;
               if (dict != null && dict is PdfDictionary) {
-                final IPdfPrimitive? str =
-                    PdfCrossTable.dereference(dict['JS']);
+                final IPdfPrimitive? str = PdfCrossTable.dereference(
+                  dict['JS'],
+                );
                 if (str != null && str is PdfString) {
                   _helper.dictionary!.setProperty(
-                      PdfDictionaryProperties.v, PdfString(str.value!));
+                    PdfDictionaryProperties.v,
+                    PdfString(str.value!),
+                  );
                 }
               }
             }
           }
         }
-        _helper.dictionary!
-            .setProperty(PdfDictionaryProperties.v, PdfString(value));
+        _helper.dictionary!.setProperty(
+          PdfDictionaryProperties.v,
+          PdfString(value),
+        );
         _helper.changed = true;
         PdfFormHelper.getHelper(super.form!).setAppearanceDictionary = true;
         if (PdfFormHelper.getHelper(super.form!).isUR3) {
@@ -183,8 +216,12 @@ class PdfTextBoxField extends PdfField {
   /// Gets or sets the default value.
   String get defaultValue {
     if (_helper.isLoadedField) {
-      final IPdfPrimitive? str = PdfFieldHelper.getValue(_helper.dictionary!,
-          _helper.crossTable, PdfDictionaryProperties.dv, true);
+      final IPdfPrimitive? str = PdfFieldHelper.getValue(
+        _helper.dictionary!,
+        _helper.crossTable,
+        PdfDictionaryProperties.dv,
+        true,
+      );
       if (str != null && str is PdfString) {
         _defaultValue = str.value;
       }
@@ -207,8 +244,12 @@ class PdfTextBoxField extends PdfField {
   /// The default value is 0.
   int get maxLength {
     if (_helper.isLoadedField) {
-      final IPdfPrimitive? number = PdfFieldHelper.getValue(_helper.dictionary!,
-          _helper.crossTable, PdfDictionaryProperties.maxLen, true);
+      final IPdfPrimitive? number = PdfFieldHelper.getValue(
+        _helper.dictionary!,
+        _helper.crossTable,
+        PdfDictionaryProperties.maxLen,
+        true,
+      );
       if (number != null && number is PdfNumber) {
         _maxLength = number.value!.toInt();
       }
@@ -231,8 +272,9 @@ class PdfTextBoxField extends PdfField {
   /// The default value is false.
   bool get spellCheck {
     if (_helper.isLoadedField) {
-      _spellCheck = !(_helper.isFlagPresent(FieldFlags.doNotSpellCheck) ||
-          _helper.flags.contains(FieldFlags.doNotSpellCheck));
+      _spellCheck =
+          !(_helper.isFlagPresent(FieldFlags.doNotSpellCheck) ||
+              _helper.flags.contains(FieldFlags.doNotSpellCheck));
     }
     return _spellCheck;
   }
@@ -256,12 +298,14 @@ class PdfTextBoxField extends PdfField {
   /// The default value is false.
   bool get insertSpaces {
     final List<FieldFlags> flags = _helper.flags;
-    _insertSpaces = flags.contains(FieldFlags.comb) &&
+    _insertSpaces =
+        flags.contains(FieldFlags.comb) &&
         !flags.contains(FieldFlags.multiline) &&
         !flags.contains(FieldFlags.password) &&
         !flags.contains(FieldFlags.fileSelect);
     if (_helper.isLoadedField) {
-      _insertSpaces = _insertSpaces ||
+      _insertSpaces =
+          _insertSpaces ||
           (_helper.isFlagPresent(FieldFlags.comb) &&
               !_helper.isFlagPresent(FieldFlags.multiline) &&
               !_helper.isFlagPresent(FieldFlags.password) &&
@@ -276,8 +320,8 @@ class PdfTextBoxField extends PdfField {
       _insertSpaces
           ? _helper.flags.add(FieldFlags.comb)
           : _helper.isLoadedField
-              ? _helper.removeFlag(FieldFlags.comb)
-              : _helper.flags.remove(FieldFlags.comb);
+          ? _helper.removeFlag(FieldFlags.comb)
+          : _helper.flags.remove(FieldFlags.comb);
     }
   }
 
@@ -286,7 +330,8 @@ class PdfTextBoxField extends PdfField {
   /// The default value is false.
   bool get multiline {
     if (_helper.isLoadedField) {
-      _multiline = _helper.isFlagPresent(FieldFlags.multiline) ||
+      _multiline =
+          _helper.isFlagPresent(FieldFlags.multiline) ||
           _helper.flags.contains(FieldFlags.multiline);
     }
     return _multiline;
@@ -312,7 +357,8 @@ class PdfTextBoxField extends PdfField {
   /// The default value is false.
   bool get isPassword {
     if (_helper.isLoadedField) {
-      _password = _helper.isFlagPresent(FieldFlags.password) ||
+      _password =
+          _helper.isFlagPresent(FieldFlags.password) ||
           _helper.flags.contains(FieldFlags.password);
     }
     return _password;
@@ -324,8 +370,8 @@ class PdfTextBoxField extends PdfField {
       _password
           ? _helper.flags.add(FieldFlags.password)
           : _helper.isLoadedField
-              ? _helper.removeFlag(FieldFlags.password)
-              : _helper.flags.remove(FieldFlags.password);
+          ? _helper.removeFlag(FieldFlags.password)
+          : _helper.flags.remove(FieldFlags.password);
     }
   }
 
@@ -334,8 +380,9 @@ class PdfTextBoxField extends PdfField {
   /// The default value is true.
   bool get scrollable {
     if (_helper.isLoadedField) {
-      _scrollable = !(_helper.isFlagPresent(FieldFlags.doNotScroll) ||
-          _helper.flags.contains(FieldFlags.doNotScroll));
+      _scrollable =
+          !(_helper.isFlagPresent(FieldFlags.doNotScroll) ||
+              _helper.flags.contains(FieldFlags.doNotScroll));
     }
     return _scrollable;
   }
@@ -416,8 +463,16 @@ class PdfTextBoxField extends PdfField {
     _helper.beginSave();
   }
 
-  void _init(String? text, String? defaultValue, int maxLength, bool spellCheck,
-      bool insertSpaces, bool multiline, bool password, bool scrollable) {
+  void _init(
+    String? text,
+    String? defaultValue,
+    int maxLength,
+    bool spellCheck,
+    bool insertSpaces,
+    bool multiline,
+    bool password,
+    bool scrollable,
+  ) {
     if (text != null) {
       this.text = text;
     }
@@ -432,8 +487,11 @@ class PdfTextBoxField extends PdfField {
     this.scrollable = scrollable;
   }
 
-  void _drawTextBox(PdfGraphics? graphics,
-      {PaintParams? params, PdfFieldItem? item}) {
+  void _drawTextBox(
+    PdfGraphics? graphics, {
+    PaintParams? params,
+    PdfFieldItem? item,
+  }) {
     if (params != null) {
       String newText = text;
       if (isPassword && text.isNotEmpty) {
@@ -449,73 +507,116 @@ class PdfTextBoxField extends PdfField {
         if (maxLength > 0) {
           width = params.bounds!.width / maxLength;
           graphics.drawRectangle(
-              bounds: params.bounds!, pen: _helper.borderPen);
+            bounds: params.bounds!,
+            pen: _helper.borderPen,
+          );
           for (int i = 0; i < maxLength; i++) {
             if (_helper.format!.alignment != PdfTextAlignment.right) {
               if (_helper.format!.alignment == PdfTextAlignment.center &&
                   ch.length < maxLength) {
                 final int startLocation =
                     (maxLength / 2 - (ch.length / 2).ceil()).toInt();
-                newText = i >= startLocation && i < startLocation + ch.length
-                    ? ch[i - startLocation]
-                    : '';
+                newText =
+                    i >= startLocation && i < startLocation + ch.length
+                        ? ch[i - startLocation]
+                        : '';
               } else {
                 newText = ch.length > i ? ch[i] : '';
               }
             } else {
-              newText = maxLength - ch.length <= i
-                  ? ch[i - (maxLength - ch.length)]
-                  : '';
+              newText =
+                  maxLength - ch.length <= i
+                      ? ch[i - (maxLength - ch.length)]
+                      : '';
             }
-            params.bounds = Rect.fromLTWH(params.bounds!.left,
-                params.bounds!.top, width, params.bounds!.height);
+            params.bounds = Rect.fromLTWH(
+              params.bounds!.left,
+              params.bounds!.top,
+              width,
+              params.bounds!.height,
+            );
             final PdfStringFormat format = PdfStringFormat(
-                alignment: PdfTextAlignment.center,
-                lineAlignment: _helper.format!.lineAlignment);
-            FieldPainter().drawTextBox(graphics, params, newText, font, format,
-                insertSpaces, multiline);
-            params.bounds = Rect.fromLTWH(params.bounds!.left + width,
-                params.bounds!.top, width, params.bounds!.height);
+              alignment: PdfTextAlignment.center,
+              lineAlignment: _helper.format!.lineAlignment,
+            );
+            FieldPainter().drawTextBox(
+              graphics,
+              params,
+              newText,
+              font,
+              format,
+              insertSpaces,
+              multiline,
+            );
+            params.bounds = Rect.fromLTWH(
+              params.bounds!.left + width,
+              params.bounds!.top,
+              width,
+              params.bounds!.height,
+            );
             if (params.borderWidth != 0) {
               graphics.drawLine(
-                  params.borderPen!,
-                  Offset(params.bounds!.left, params.bounds!.top),
-                  Offset(params.bounds!.left,
-                      params.bounds!.top + params.bounds!.height));
+                params.borderPen!,
+                Offset(params.bounds!.left, params.bounds!.top),
+                Offset(
+                  params.bounds!.left,
+                  params.bounds!.top + params.bounds!.height,
+                ),
+              );
             }
           }
         } else {
-          FieldPainter().drawTextBox(graphics, params, newText, font,
-              _helper.format!, insertSpaces, multiline);
+          FieldPainter().drawTextBox(
+            graphics,
+            params,
+            newText,
+            font,
+            _helper.format!,
+            insertSpaces,
+            multiline,
+          );
         }
       } else {
-        FieldPainter().drawTextBox(graphics, params, newText, font,
-            _helper.format!, insertSpaces, multiline);
+        FieldPainter().drawTextBox(
+          graphics,
+          params,
+          newText,
+          font,
+          _helper.format!,
+          insertSpaces,
+          multiline,
+        );
       }
       graphics.restore();
     } else {
-      final GraphicsProperties gp = item != null
-          ? GraphicsProperties.fromFieldItem(item)
-          : GraphicsProperties(this);
+      final GraphicsProperties gp =
+          item != null
+              ? GraphicsProperties.fromFieldItem(item)
+              : GraphicsProperties(this);
       if (gp.borderWidth == 0 && gp.borderPen != null) {
         gp.borderWidth = 1;
         gp.borderPen!.width = 1;
       }
       if (PdfGraphicsHelper.getHelper(graphics!).layer == null) {
-        gp.bounds = Rect.fromLTWH(gp.bounds!.left, gp.bounds!.top,
-            graphics.size.width, graphics.size.height);
+        gp.bounds = Rect.fromLTWH(
+          gp.bounds!.left,
+          gp.bounds!.top,
+          graphics.size.width,
+          graphics.size.height,
+        );
       }
       if (!_helper.flattenField) {
         gp.bounds = Rect.fromLTWH(0, 0, gp.bounds!.width, gp.bounds!.height);
       }
       final PaintParams prms = PaintParams(
-          bounds: gp.bounds,
-          backBrush: gp.backBrush,
-          foreBrush: gp.foreBrush,
-          borderPen: gp.borderPen,
-          style: gp.style,
-          borderWidth: gp.borderWidth,
-          shadowBrush: gp.shadowBrush);
+        bounds: gp.bounds,
+        backBrush: gp.backBrush,
+        foreBrush: gp.foreBrush,
+        borderPen: gp.borderPen,
+        style: gp.style,
+        borderWidth: gp.borderWidth,
+        shadowBrush: gp.shadowBrush,
+      );
       _drawTextBox(graphics, params: prms);
     }
   }
@@ -536,25 +637,40 @@ class PdfTextBoxField extends PdfField {
             if (angle != null && angle is PdfNumber) {
               if (angle.value == 90) {
                 template = PdfTemplate(bounds.size.height, bounds.size.width);
-                PdfTemplateHelper.getHelper(template)
-                        .content[PdfDictionaryProperties.matrix] =
-                    PdfArray(<num>[0, 1, -1, 0, bounds.size.width, 0]);
+                PdfTemplateHelper.getHelper(
+                  template,
+                ).content[PdfDictionaryProperties.matrix] = PdfArray(<num>[
+                  0,
+                  1,
+                  -1,
+                  0,
+                  bounds.size.width,
+                  0,
+                ]);
               } else if (angle.value == 180) {
                 template = PdfTemplate(bounds.size.width, bounds.size.height);
-                PdfTemplateHelper.getHelper(template)
-                    .content[PdfDictionaryProperties.matrix] = PdfArray(<num>[
+                PdfTemplateHelper.getHelper(
+                  template,
+                ).content[PdfDictionaryProperties.matrix] = PdfArray(<num>[
                   -1,
                   0,
                   0,
                   -1,
                   bounds.size.width,
-                  bounds.size.height
+                  bounds.size.height,
                 ]);
               } else if (angle.value == 270) {
                 template = PdfTemplate(bounds.size.height, bounds.size.width);
-                PdfTemplateHelper.getHelper(template)
-                        .content[PdfDictionaryProperties.matrix] =
-                    PdfArray(<num>[0, -1, 1, 0, 0, bounds.size.height]);
+                PdfTemplateHelper.getHelper(
+                  template,
+                ).content[PdfDictionaryProperties.matrix] = PdfArray(<num>[
+                  0,
+                  -1,
+                  1,
+                  0,
+                  0,
+                  bounds.size.height,
+                ]);
               }
               if (template != null) {
                 PdfTemplateHelper.getHelper(template).writeTransformation =
@@ -566,27 +682,31 @@ class PdfTextBoxField extends PdfField {
         if (template == null) {
           template = PdfTemplate(bounds.size.width, bounds.size.height);
           PdfTemplateHelper.getHelper(template).writeTransformation = false;
-          PdfTemplateHelper.getHelper(template)
-                  .content[PdfDictionaryProperties.matrix] =
-              PdfArray(<int>[1, 0, 0, 1, 0, 0]);
+          PdfTemplateHelper.getHelper(template).content[PdfDictionaryProperties
+              .matrix] = PdfArray(<int>[1, 0, 0, 1, 0, 0]);
         }
         if (item != null) {
           _helper.beginMarkupSequence(
-              PdfGraphicsHelper.getHelper(template.graphics!)
-                  .streamWriter!
-                  .stream!);
-          PdfGraphicsHelper.getHelper(template.graphics!)
-              .initializeCoordinates();
+            PdfGraphicsHelper.getHelper(
+              template.graphics!,
+            ).streamWriter!.stream!,
+          );
+          PdfGraphicsHelper.getHelper(
+            template.graphics!,
+          ).initializeCoordinates();
           _drawTextBox(template.graphics, item: item);
           _helper.endMarkupSequence(
-              PdfGraphicsHelper.getHelper(template.graphics!)
-                  .streamWriter!
-                  .stream!);
+            PdfGraphicsHelper.getHelper(
+              template.graphics!,
+            ).streamWriter!.stream!,
+          );
         } else {
           _helper.drawAppearance(template);
         }
         appearance.setProperty(
-            PdfDictionaryProperties.n, PdfReferenceHolder(template));
+          PdfDictionaryProperties.n,
+          PdfReferenceHolder(template),
+        );
         widget.setProperty(PdfDictionaryProperties.ap, appearance);
       } else {
         PdfFormHelper.getHelper(super.form!).needAppearances = true;
@@ -616,7 +736,9 @@ class PdfTextBoxFieldHelper extends PdfFieldHelper {
 
   /// internal method
   static PdfTextBoxField loadTextBox(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
     return PdfTextBoxField._load(dictionary, crossTable);
   }
 
@@ -638,18 +760,24 @@ class PdfTextBoxFieldHelper extends PdfFieldHelper {
   void drawAppearance(PdfTemplate template) {
     super.drawAppearance(template);
     final PaintParams params = PaintParams(
-        bounds: Rect.fromLTWH(
-            0, 0, textBoxField.bounds.width, textBoxField.bounds.height),
-        backBrush: backBrush,
-        foreBrush: foreBrush,
-        borderPen: borderPen,
-        style: textBoxField.borderStyle,
-        borderWidth: textBoxField.borderWidth,
-        shadowBrush: shadowBrush);
+      bounds: Rect.fromLTWH(
+        0,
+        0,
+        textBoxField.bounds.width,
+        textBoxField.bounds.height,
+      ),
+      backBrush: backBrush,
+      foreBrush: foreBrush,
+      borderPen: borderPen,
+      style: textBoxField.borderStyle,
+      borderWidth: textBoxField.borderWidth,
+      shadowBrush: shadowBrush,
+    );
     PdfTemplateHelper.getHelper(template).writeTransformation = false;
     final PdfGraphics graphics = template.graphics!;
     beginMarkupSequence(
-        PdfGraphicsHelper.getHelper(graphics).streamWriter!.stream!);
+      PdfGraphicsHelper.getHelper(graphics).streamWriter!.stream!,
+    );
     PdfGraphicsHelper.getHelper(graphics).initializeCoordinates();
     if (params.borderWidth == 0 && params.borderPen != null) {
       params.borderWidth = 1;
@@ -657,7 +785,8 @@ class PdfTextBoxFieldHelper extends PdfFieldHelper {
     }
     textBoxField._drawTextBox(graphics, params: params);
     endMarkupSequence(
-        PdfGraphicsHelper.getHelper(graphics).streamWriter!.stream!);
+      PdfGraphicsHelper.getHelper(graphics).streamWriter!.stream!,
+    );
   }
 
   /// internal method
@@ -671,8 +800,9 @@ class PdfTextBoxFieldHelper extends PdfFieldHelper {
         textBoxField._applyAppearance(widget, textBoxField.items![i]);
       }
     } else {
-      textBoxField
-          ._applyAppearance(getWidgetAnnotation(dictionary!, crossTable));
+      textBoxField._applyAppearance(
+        getWidgetAnnotation(dictionary!, crossTable),
+      );
     }
   }
 
@@ -683,7 +813,8 @@ class PdfTextBoxFieldHelper extends PdfFieldHelper {
     if (!textBoxField.multiline) {
       final PdfStandardFont font = PdfStandardFont(family, 12);
       final Size fontSize = font.measureString(textBoxField.text);
-      s = (8 *
+      s =
+          (8 *
               (textBoxField.bounds.size.width - 4 * textBoxField.borderWidth)) /
           fontSize.width;
       s = (s > 8) ? 8 : s;
@@ -700,17 +831,19 @@ class PdfTextBoxFieldHelper extends PdfFieldHelper {
     if (!isLoadedField &&
         PdfAnnotationHelper.getHelper(widget!).appearance != null) {
       textBoxField.page!.graphics.drawPdfTemplate(
-          PdfAnnotationHelper.getHelper(widget!).appearance!.normal,
-          Offset(textBoxField.bounds.width, textBoxField.bounds.height));
+        PdfAnnotationHelper.getHelper(widget!).appearance!.normal,
+        Offset(textBoxField.bounds.width, textBoxField.bounds.height),
+      );
       if (fieldItems != null && fieldItems!.length > 1) {
         for (int i = 1; i < fieldItems!.length; i++) {
           final PdfTextBoxField field = fieldItems![i] as PdfTextBoxField;
           field.text = textBoxField.text;
           field.page!.graphics.drawPdfTemplate(
-              PdfAnnotationHelper.getHelper(field._helper.widget!)
-                  .appearance!
-                  .normal,
-              Offset(field.bounds.width, field.bounds.height));
+            PdfAnnotationHelper.getHelper(
+              field._helper.widget!,
+            ).appearance!.normal,
+            Offset(field.bounds.width, field.bounds.height),
+          );
         }
       }
     } else {

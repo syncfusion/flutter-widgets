@@ -421,7 +421,7 @@ class Code128Renderer extends SymbologyRenderer {
       <int>[2, 1, 1, 4, 1, 2],
       <int>[2, 1, 1, 2, 1, 4],
       <int>[2, 1, 1, 2, 3, 2],
-      <int>[2, 3, 3, 1, 1, 1, 2]
+      <int>[2, 3, 3, 1, 1, 1, 2],
     ];
   }
 
@@ -439,7 +439,8 @@ class Code128Renderer extends SymbologyRenderer {
         return true;
       } else {
         throw ArgumentError(
-            'The provided input cannot be encoded : ${value[i]}');
+          'The provided input cannot be encoded : ${value[i]}',
+        );
       }
     }
     return false;
@@ -454,8 +455,11 @@ class Code128Renderer extends SymbologyRenderer {
     int codeTypeValue = 0;
     int currentPosition = 0;
     while (currentPosition < value.length) {
-      final int currentCodeType =
-          _getValidatedCode(currentPosition, codeTypeValue, value);
+      final int currentCodeType = _getValidatedCode(
+        currentPosition,
+        codeTypeValue,
+        value,
+      );
       int currentIndex;
       if (currentCodeType == codeTypeValue) {
         final int currentValue = value[currentPosition].codeUnitAt(0);
@@ -484,7 +488,8 @@ class Code128Renderer extends SymbologyRenderer {
                 value[currentPosition].codeUnitAt(0) - ' '.codeUnitAt(0);
           } else {
             currentIndex = int.parse(
-                value.substring(currentPosition, currentPosition + 2));
+              value.substring(currentPosition, currentPosition + 2),
+            );
             currentPosition++;
           }
         }
@@ -526,8 +531,12 @@ class Code128Renderer extends SymbologyRenderer {
   /// Method to validate the corresponding code set based on the input
   int _getValidatedCode(int start, int previousCodeSet, String value) {
     CodeType codeType = _getCodeType(start, value);
-    final int? currentCodeType =
-        _getValidatedCodeTypes(start, previousCodeSet, value, codeType);
+    final int? currentCodeType = _getValidatedCodeTypes(
+      start,
+      previousCodeSet,
+      value,
+      codeType,
+    );
     if (currentCodeType != null) {
       return currentCodeType;
     }
@@ -569,7 +578,11 @@ class Code128Renderer extends SymbologyRenderer {
 
   /// Method to get the validated types
   int? _getValidatedCodeTypes(
-      int start, int previousCodeSet, String value, CodeType codeType) {
+    int start,
+    int previousCodeSet,
+    String value,
+    CodeType codeType,
+  ) {
     if (codeType == CodeType.singleDigit) {
       if (previousCodeSet == _codeA) {
         return _codeA;
@@ -629,22 +642,28 @@ class Code128Renderer extends SymbologyRenderer {
 
   @override
   void renderBarcode(
-      Canvas canvas,
-      Size size,
-      Offset offset,
-      String value,
-      Color foregroundColor,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      bool showValue) {
+    Canvas canvas,
+    Size size,
+    Offset offset,
+    String value,
+    Color foregroundColor,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    bool showValue,
+  ) {
     final Paint paint = getBarPaint(foregroundColor);
     final List<List<int>> encodedValue = _getEncodedValue(value);
     final int totalBarLength = _getTotalBarLength(encodedValue);
-    double left = symbology?.module == null
-        ? offset.dx
-        : getLeftPosition(
-            totalBarLength, symbology?.module, size.width, offset.dx);
+    double left =
+        symbology?.module == null
+            ? offset.dx
+            : getLeftPosition(
+              totalBarLength,
+              symbology?.module,
+              size.width,
+              offset.dx,
+            );
     double ratio = 0;
     if (symbology?.module != null) {
       ratio = symbology!.module!.toDouble();
@@ -665,7 +684,11 @@ class Code128Renderer extends SymbologyRenderer {
         for (int k = 0; k < currentValue; k++) {
           if (canDraw) {
             final Rect individualBarRect = Rect.fromLTRB(
-                left, offset.dy, left + ratio, offset.dy + size.height);
+              left,
+              offset.dy,
+              left + ratio,
+              offset.dy + size.height,
+            );
             canvas.drawRect(individualBarRect, paint);
           }
           left += ratio;

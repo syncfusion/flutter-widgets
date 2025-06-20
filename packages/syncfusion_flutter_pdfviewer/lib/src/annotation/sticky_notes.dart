@@ -228,9 +228,10 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
     _zoomLevel = zoomLevel;
     _selectorStorkeWidth = selectorStorkeWidth;
 
-    _doubleTapGestureRecognizer = DoubleTapGestureRecognizer()
-      ..onDoubleTap = _onDoubleTap
-      ..gestureSettings = const DeviceGestureSettings(touchSlop: 0.0);
+    _doubleTapGestureRecognizer =
+        DoubleTapGestureRecognizer()
+          ..onDoubleTap = _onDoubleTap
+          ..gestureSettings = const DeviceGestureSettings(touchSlop: 0.0);
     super.tapGestureRecognizer.gestureSettings = const DeviceGestureSettings(
       touchSlop: 0.0,
     );
@@ -317,10 +318,11 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
     fillPaint.color = color.withValues(alpha: opacity);
     fillPaint.style = PaintingStyle.fill;
 
-    final Paint strokePaint = Paint()
-      ..color = Colors.black.withValues(alpha: opacity)
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
+    final Paint strokePaint =
+        Paint()
+          ..color = Colors.black.withValues(alpha: opacity)
+          ..strokeWidth = 1.5
+          ..style = PaintingStyle.stroke;
 
     final Rect paintRect = _getPaintRect(
       stickyNoteAnnotation.isSelected
@@ -335,168 +337,182 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
 
     switch (stickyNoteAnnotation.icon) {
       case PdfStickyNoteIcon.comment:
-        _fillPath = Path()
-          ..moveTo(0, 3)
-          ..cubicTo(0, 0.89543, 0.89543, 0, 3, 0)
-          ..lineTo(23, 0)
-          ..cubicTo(24.1046, 0, 25, 0.89543, 25, 3)
-          ..lineTo(25, 24)
-          ..lineTo(20.7868, 19.7499)
-          ..cubicTo(20.4113, 19.371, 19.8999, 19.1579, 19.3665, 19.1579)
-          ..lineTo(3, 19.1579)
-          ..cubicTo(0.89543, 19.1579, 0, 18.2625, 0, 17.1579)
-          ..lineTo(0, 3)
-          ..close();
-        _strokePath = Path()
-          ..moveTo(5, 7)
-          ..lineTo(21, 7)
-          ..moveTo(5, 12)
-          ..lineTo(21, 12)
-          ..moveTo(25, 24)
-          ..lineTo(25, 3)
-          ..cubicTo(25, 0.89543, 24.1046, 0, 23, 0)
-          ..lineTo(3, 0)
-          ..cubicTo(0.89543, 0, 0, 0.89543, 0, 3)
-          ..lineTo(0, 17.1579)
-          ..cubicTo(0, 18.2625, 0.89543, 19.1579, 3, 19.1579)
-          ..lineTo(19.3665, 19.1579)
-          ..cubicTo(19.8999, 19.1579, 20.4113, 19.371, 20.7868, 19.7499)
-          ..lineTo(25, 24)
-          ..close();
+        _fillPath =
+            Path()
+              ..moveTo(0, 3)
+              ..cubicTo(0, 0.89543, 0.89543, 0, 3, 0)
+              ..lineTo(23, 0)
+              ..cubicTo(24.1046, 0, 25, 0.89543, 25, 3)
+              ..lineTo(25, 24)
+              ..lineTo(20.7868, 19.7499)
+              ..cubicTo(20.4113, 19.371, 19.8999, 19.1579, 19.3665, 19.1579)
+              ..lineTo(3, 19.1579)
+              ..cubicTo(0.89543, 19.1579, 0, 18.2625, 0, 17.1579)
+              ..lineTo(0, 3)
+              ..close();
+        _strokePath =
+            Path()
+              ..moveTo(5, 7)
+              ..lineTo(21, 7)
+              ..moveTo(5, 12)
+              ..lineTo(21, 12)
+              ..moveTo(25, 24)
+              ..lineTo(25, 3)
+              ..cubicTo(25, 0.89543, 24.1046, 0, 23, 0)
+              ..lineTo(3, 0)
+              ..cubicTo(0.89543, 0, 0, 0.89543, 0, 3)
+              ..lineTo(0, 17.1579)
+              ..cubicTo(0, 18.2625, 0.89543, 19.1579, 3, 19.1579)
+              ..lineTo(19.3665, 19.1579)
+              ..cubicTo(19.8999, 19.1579, 20.4113, 19.371, 20.7868, 19.7499)
+              ..lineTo(25, 24)
+              ..close();
         break;
       case PdfStickyNoteIcon.note:
-        _fillPath = Path()
-          ..moveTo(0, 23)
-          ..lineTo(0, 0)
-          ..lineTo(23, 0)
-          ..lineTo(23, 13)
-          ..lineTo(13, 23)
-          ..lineTo(0, 23)
-          ..close();
-        _strokePath = Path()
-          ..moveTo(13, 23)
-          ..lineTo(0, 23)
-          ..lineTo(0, 0)
-          ..lineTo(23, 0)
-          ..lineTo(23, 13)
-          ..moveTo(13, 23)
-          ..lineTo(23, 13)
-          ..moveTo(13, 23)
-          ..lineTo(13, 13)
-          ..lineTo(23, 13);
+        _fillPath =
+            Path()
+              ..moveTo(0, 23)
+              ..lineTo(0, 0)
+              ..lineTo(23, 0)
+              ..lineTo(23, 13)
+              ..lineTo(13, 23)
+              ..lineTo(0, 23)
+              ..close();
+        _strokePath =
+            Path()
+              ..moveTo(13, 23)
+              ..lineTo(0, 23)
+              ..lineTo(0, 0)
+              ..lineTo(23, 0)
+              ..lineTo(23, 13)
+              ..moveTo(13, 23)
+              ..lineTo(23, 13)
+              ..moveTo(13, 23)
+              ..lineTo(13, 13)
+              ..lineTo(23, 13);
         break;
       case PdfStickyNoteIcon.help:
-        _fillPath = Path()
-          ..moveTo(23, 12)
-          ..cubicTo(23, 18.0751, 18.0751, 23, 12, 23)
-          ..cubicTo(5.92487, 23, 0, 18.0751, 0, 12)
-          ..cubicTo(0, 5.92487, 5.92487, 0, 12, 0)
-          ..cubicTo(18.0751, 0, 23, 5.92487, 23, 12)
-          ..close();
-        _strokePath = Path()
-          ..moveTo(8.5, 10)
-          ..cubicTo(8.5, 8.93913, 8.86875, 7.92172, 9.52513, 7.17157)
-          ..cubicTo(10.1815, 6.42143, 11.0717, 6, 12, 6)
-          ..cubicTo(12.9283, 6, 13.8185, 6.42143, 14.4749, 7.17157)
-          ..cubicTo(15.1313, 7.92172, 15.5, 8.5, 15.5, 9.5)
-          ..cubicTo(15.5, 12.5, 12, 11.7106, 12, 14)
-          ..lineTo(12, 15)
-          ..moveTo(12, 19)
-          ..lineTo(12, 17)
-          ..moveTo(23, 12)
-          ..cubicTo(23, 18.0751, 18.0751, 23, 12, 23)
-          ..cubicTo(5.92487, 23, 0, 18.0751, 0, 12)
-          ..cubicTo(0, 5.92487, 5.92487, 0, 12, 0)
-          ..cubicTo(18.0751, 0, 23, 5.92487, 23, 12)
-          ..close();
+        _fillPath =
+            Path()
+              ..moveTo(23, 12)
+              ..cubicTo(23, 18.0751, 18.0751, 23, 12, 23)
+              ..cubicTo(5.92487, 23, 0, 18.0751, 0, 12)
+              ..cubicTo(0, 5.92487, 5.92487, 0, 12, 0)
+              ..cubicTo(18.0751, 0, 23, 5.92487, 23, 12)
+              ..close();
+        _strokePath =
+            Path()
+              ..moveTo(8.5, 10)
+              ..cubicTo(8.5, 8.93913, 8.86875, 7.92172, 9.52513, 7.17157)
+              ..cubicTo(10.1815, 6.42143, 11.0717, 6, 12, 6)
+              ..cubicTo(12.9283, 6, 13.8185, 6.42143, 14.4749, 7.17157)
+              ..cubicTo(15.1313, 7.92172, 15.5, 8.5, 15.5, 9.5)
+              ..cubicTo(15.5, 12.5, 12, 11.7106, 12, 14)
+              ..lineTo(12, 15)
+              ..moveTo(12, 19)
+              ..lineTo(12, 17)
+              ..moveTo(23, 12)
+              ..cubicTo(23, 18.0751, 18.0751, 23, 12, 23)
+              ..cubicTo(5.92487, 23, 0, 18.0751, 0, 12)
+              ..cubicTo(0, 5.92487, 5.92487, 0, 12, 0)
+              ..cubicTo(18.0751, 0, 23, 5.92487, 23, 12)
+              ..close();
         break;
       case PdfStickyNoteIcon.insert:
-        _fillPath = Path()
-          ..moveTo(0, 40)
-          ..lineTo(20, 0)
-          ..lineTo(40, 40)
-          ..close();
-        _strokePath = Path()
-          ..moveTo(0, 40)
-          ..lineTo(20, 0)
-          ..lineTo(40, 40)
-          ..close();
+        _fillPath =
+            Path()
+              ..moveTo(0, 40)
+              ..lineTo(20, 0)
+              ..lineTo(40, 40)
+              ..close();
+        _strokePath =
+            Path()
+              ..moveTo(0, 40)
+              ..lineTo(20, 0)
+              ..lineTo(40, 40)
+              ..close();
         break;
       case PdfStickyNoteIcon.key:
-        _fillPath = _strokePath = Path()
-          ..moveTo(7, 0)
-          ..cubicTo(3.68629, 0, 0, 3.68629, 0, 7)
-          ..cubicTo(0, 9.22085, 2.2066, 11.1599, 4, 12.1973)
-          ..lineTo(4, 21)
-          ..lineTo(7, 22.5)
-          ..lineTo(9, 21)
-          ..lineTo(8.5, 19.5)
-          ..lineTo(9.5, 18.5)
-          ..lineTo(8.5, 16.5)
-          ..lineTo(10, 15)
-          ..lineTo(10, 12.1973)
-          ..cubicTo(11.7934, 11.1599, 13, 9.22085, 13, 7)
-          ..cubicTo(13, 3.68629, 10.3137, 0, 7, 0)
-          ..close();
+        _fillPath =
+            _strokePath =
+                Path()
+                  ..moveTo(7, 0)
+                  ..cubicTo(3.68629, 0, 0, 3.68629, 0, 7)
+                  ..cubicTo(0, 9.22085, 2.2066, 11.1599, 4, 12.1973)
+                  ..lineTo(4, 21)
+                  ..lineTo(7, 22.5)
+                  ..lineTo(9, 21)
+                  ..lineTo(8.5, 19.5)
+                  ..lineTo(9.5, 18.5)
+                  ..lineTo(8.5, 16.5)
+                  ..lineTo(10, 15)
+                  ..lineTo(10, 12.1973)
+                  ..cubicTo(11.7934, 11.1599, 13, 9.22085, 13, 7)
+                  ..cubicTo(13, 3.68629, 10.3137, 0, 7, 0)
+                  ..close();
         break;
       case PdfStickyNoteIcon.newParagraph:
-        _fillPath = Path()
-          ..moveTo(22, 14)
-          ..lineTo(0, 14)
-          ..lineTo(12, 0)
-          ..lineTo(22, 14)
-          ..close();
-        _strokePath = Path()
-          ..moveTo(15, 24)
-          ..lineTo(15, 21)
-          ..moveTo(15, 21)
-          ..lineTo(15, 18)
-          ..lineTo(17.5, 18)
-          ..cubicTo(18.3284, 18, 19, 18.6716, 19, 19.5)
-          ..cubicTo(19, 20.3284, 18.3284, 21, 17.5, 21)
-          ..lineTo(15, 21)
-          ..moveTo(5, 24)
-          ..lineTo(5, 18)
-          ..moveTo(5, 18)
-          ..lineTo(5, 17)
-          ..moveTo(5, 18)
-          ..lineTo(10, 23)
-          ..moveTo(10, 23)
-          ..lineTo(10, 17)
-          ..moveTo(10, 23)
-          ..lineTo(10, 24)
-          ..moveTo(0, 14)
-          ..lineTo(22, 14)
-          ..lineTo(12, 0)
-          ..lineTo(0, 14)
-          ..close();
+        _fillPath =
+            Path()
+              ..moveTo(22, 14)
+              ..lineTo(0, 14)
+              ..lineTo(12, 0)
+              ..lineTo(22, 14)
+              ..close();
+        _strokePath =
+            Path()
+              ..moveTo(15, 24)
+              ..lineTo(15, 21)
+              ..moveTo(15, 21)
+              ..lineTo(15, 18)
+              ..lineTo(17.5, 18)
+              ..cubicTo(18.3284, 18, 19, 18.6716, 19, 19.5)
+              ..cubicTo(19, 20.3284, 18.3284, 21, 17.5, 21)
+              ..lineTo(15, 21)
+              ..moveTo(5, 24)
+              ..lineTo(5, 18)
+              ..moveTo(5, 18)
+              ..lineTo(5, 17)
+              ..moveTo(5, 18)
+              ..lineTo(10, 23)
+              ..moveTo(10, 23)
+              ..lineTo(10, 17)
+              ..moveTo(10, 23)
+              ..lineTo(10, 24)
+              ..moveTo(0, 14)
+              ..lineTo(22, 14)
+              ..lineTo(12, 0)
+              ..lineTo(0, 14)
+              ..close();
         break;
       case PdfStickyNoteIcon.paragraph:
-        _fillPath = Path()
-          ..moveTo(11, 14)
-          ..lineTo(7.5, 14)
-          ..cubicTo(3.91015, 14, 0, 11.0899, 0, 7.5)
-          ..cubicTo(0, 3.91015, 3.91015, 0, 7.5, 0)
-          ..lineTo(11, 0)
-          ..lineTo(11, 14)
-          ..close();
-        _strokePath = Path()
-          ..moveTo(11, 14)
-          ..lineTo(7.5, 14)
-          ..cubicTo(3.91015, 14, 0, 11.0899, 0, 7.5)
-          ..cubicTo(0, 3.91015, 3.91015, 0, 7.5, 0)
-          ..lineTo(11, 0)
-          ..moveTo(11, 14)
-          ..lineTo(11, 24)
-          ..moveTo(11, 14)
-          ..lineTo(11, 0)
-          ..moveTo(24, 0)
-          ..lineTo(17, 0)
-          ..moveTo(17, 0)
-          ..lineTo(17, 24)
-          ..moveTo(17, 0)
-          ..lineTo(11, 0)
-          ..close();
+        _fillPath =
+            Path()
+              ..moveTo(11, 14)
+              ..lineTo(7.5, 14)
+              ..cubicTo(3.91015, 14, 0, 11.0899, 0, 7.5)
+              ..cubicTo(0, 3.91015, 3.91015, 0, 7.5, 0)
+              ..lineTo(11, 0)
+              ..lineTo(11, 14)
+              ..close();
+        _strokePath =
+            Path()
+              ..moveTo(11, 14)
+              ..lineTo(7.5, 14)
+              ..cubicTo(3.91015, 14, 0, 11.0899, 0, 7.5)
+              ..cubicTo(0, 3.91015, 3.91015, 0, 7.5, 0)
+              ..lineTo(11, 0)
+              ..moveTo(11, 14)
+              ..lineTo(11, 24)
+              ..moveTo(11, 14)
+              ..lineTo(11, 0)
+              ..moveTo(24, 0)
+              ..lineTo(17, 0)
+              ..moveTo(17, 0)
+              ..lineTo(17, 24)
+              ..moveTo(17, 0)
+              ..lineTo(11, 0)
+              ..close();
         break;
     }
 

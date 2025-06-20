@@ -97,8 +97,10 @@ BigInt bigIntFromRamdom(int value, Random? random) {
     result = BigInt.from(0);
   } else {
     final int nBytes = (value + 8 - 1) ~/ 8;
-    final List<int> b =
-        List<int>.generate(nBytes, (int i) => random!.nextInt(256));
+    final List<int> b = List<int>.generate(
+      nBytes,
+      (int i) => random!.nextInt(256),
+    );
     final int xBits = 8 * nBytes - value;
     b[0] &= (255 >> xBits).toUnsigned(8);
     result = bigIntFromBytes(b);

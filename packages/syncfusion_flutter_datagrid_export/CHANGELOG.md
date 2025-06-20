@@ -1,3 +1,9 @@
+## [29.1.39] - 04/22/2025
+
+**General**
+
+* The minimum Dart version has been updated to 3.7.
+
 ## [19.3.43-beta] - 09/30/2021
 
 Intial release.

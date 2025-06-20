@@ -35,8 +35,11 @@ class ViewHeaderStyle with Diagnosticable {
   /// Creates a view header style for calendar.
   ///
   /// The properties allows to customize the view header view of [SfCalendar].
-  const ViewHeaderStyle(
-      {this.backgroundColor, this.dateTextStyle, this.dayTextStyle});
+  const ViewHeaderStyle({
+    this.backgroundColor,
+    this.dateTextStyle,
+    this.dayTextStyle,
+  });
 
   /// The color which fills the background of [SfCalendar] view header view.
   ///
@@ -152,19 +155,17 @@ class ViewHeaderStyle with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties
-        .add(DiagnosticsProperty<TextStyle>('dayTextStyle', dayTextStyle));
-    properties
-        .add(DiagnosticsProperty<TextStyle>('dateTextStyle', dateTextStyle));
+    properties.add(
+      DiagnosticsProperty<TextStyle>('dayTextStyle', dayTextStyle),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>('dateTextStyle', dateTextStyle),
+    );
     properties.add(ColorProperty('backgroundColor', backgroundColor));
   }
 
   @override
   int get hashCode {
-    return Object.hash(
-      backgroundColor,
-      dayTextStyle,
-      dateTextStyle,
-    );
+    return Object.hash(backgroundColor, dayTextStyle, dateTextStyle);
   }
 }

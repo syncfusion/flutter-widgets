@@ -9,7 +9,9 @@ import 'color_scale.dart';
 class ColorScaleWrapper implements ColorScale {
   /// Initializes new instance of the wrapper.
   ColorScaleWrapper(
-      ColorScaleImpl colorScale, ConditionalFormatWrapper format) {
+    ColorScaleImpl colorScale,
+    ConditionalFormatWrapper format,
+  ) {
     _wrapped = colorScale;
     _format = format;
     _updateCollection(_wrapped.criteria);
@@ -25,7 +27,6 @@ class ColorScaleWrapper implements ColorScale {
   List<ColorConditionValue> _arrConditions = <ColorConditionValue>[];
 
   @override
-
   /// Returns a collection of individual _ColorConditionValue objects.
   // ignore: unnecessary_getters_setters
   List<ColorConditionValue> get criteria {
@@ -39,7 +40,6 @@ class ColorScaleWrapper implements ColorScale {
   }
 
   @override
-
   /// Sets number of _ColorConditionValue objects in the collection. Supported values are 2 and 3.
   void setConditionCount(int count) {
     beginUpdate();
@@ -77,7 +77,9 @@ class ColorScaleWrapper implements ColorScale {
   void _add(int count, List<ConditionValue> arrSource) {
     for (int i = 0; i < count; i++) {
       final ColorConditionValueWrapper wrapper = ColorConditionValueWrapper(
-          arrSource[i] as ColorConditionValueImpl, this);
+        arrSource[i] as ColorConditionValueImpl,
+        this,
+      );
       _arrConditions.add(wrapper);
     }
   }
@@ -97,6 +99,8 @@ class ColorScaleWrapper implements ColorScale {
   /// Removes wrappers from criteria collection.
   void _remove(int count) {
     _arrConditions.removeRange(
-        _arrConditions.length - count, _arrConditions.length);
+      _arrConditions.length - count,
+      _arrConditions.length,
+    );
   }
 }

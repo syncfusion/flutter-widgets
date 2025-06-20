@@ -61,9 +61,10 @@ class PdfListBoxFormFieldHelper extends PdfFormFieldHelper {
       growable: false,
     );
 
-    listBoxFormField = PdfListBoxFormField._()
-      .._items = items
-      .._selectedItems = selectedItems;
+    listBoxFormField =
+        PdfListBoxFormField._()
+          .._items = items
+          .._selectedItems = selectedItems;
     super.load(listBoxFormField);
 
     return listBoxFormField;
@@ -96,9 +97,10 @@ class PdfListBoxFormFieldHelper extends PdfFormFieldHelper {
         }
       }
 
-      final List<String> oldValue = listBoxFormField._selectedItems != null
-          ? List<String>.from(listBoxFormField._selectedItems!)
-          : List<String>.empty();
+      final List<String> oldValue =
+          listBoxFormField._selectedItems != null
+              ? List<String>.from(listBoxFormField._selectedItems!)
+              : List<String>.empty();
 
       setListBoxValue(newValue);
       if (onValueChanged != null) {
@@ -128,23 +130,28 @@ class PdfListBoxFormFieldHelper extends PdfFormFieldHelper {
         heightPercentage: heightPercentage,
         selectedItems: listBoxFormField._selectedItems!,
         items: listBoxFormField._items,
+        readOnly: listBoxFormField.readOnly,
         font: pdfListBoxField.font?.name,
-        fillColor: pdfListBoxField.backColor.isEmpty
-            ? const Color.fromARGB(255, 221, 228, 255)
-            : Color.fromRGBO(
-                pdfListBoxField.backColor.r,
-                pdfListBoxField.backColor.g,
-                pdfListBoxField.backColor.b,
-                1,
-              ),
-        borderColor: pdfListBoxField.borderColor.isEmpty
-            ? Colors.transparent
-            : Color.fromRGBO(
-                pdfListBoxField.borderColor.r,
-                pdfListBoxField.borderColor.g,
-                pdfListBoxField.borderColor.b,
-                1,
-              ),
+        fillColor:
+            pdfListBoxField.backColor.isEmpty
+                ? pdfListBoxField.readOnly
+                    ? Colors.transparent
+                    : const Color.fromARGB(255, 221, 228, 255)
+                : Color.fromRGBO(
+                  pdfListBoxField.backColor.r,
+                  pdfListBoxField.backColor.g,
+                  pdfListBoxField.backColor.b,
+                  1,
+                ),
+        borderColor:
+            pdfListBoxField.borderColor.isEmpty
+                ? Colors.transparent
+                : Color.fromRGBO(
+                  pdfListBoxField.borderColor.r,
+                  pdfListBoxField.borderColor.g,
+                  pdfListBoxField.borderColor.b,
+                  1,
+                ),
         borderWidth: pdfListBoxField.borderWidth / heightPercentage,
         textAlign: pdfListBoxField.textAlignment.textAlign,
         fontSize: (pdfListBoxField.font?.size ?? 14.0) / heightPercentage,
@@ -243,9 +250,10 @@ class _PdfListBoxState extends State<PdfListBox> {
               return Container(
                 padding: const EdgeInsets.only(left: 5),
                 decoration: BoxDecoration(
-                  color: selected
-                      ? const Color.fromARGB(255, 46, 134, 193)
-                      : Colors.transparent,
+                  color:
+                      selected
+                          ? const Color.fromARGB(255, 46, 134, 193)
+                          : Colors.transparent,
                 ),
                 child: Text(
                   widget.items[index],
@@ -279,12 +287,14 @@ void _showListBoxDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        contentPadding: isMaterial3
-            ? const EdgeInsets.only(left: 24.0, right: 16.0, top: 16.0)
-            : EdgeInsets.zero,
-        actionsPadding: isMaterial3
-            ? const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0)
-            : null,
+        contentPadding:
+            isMaterial3
+                ? const EdgeInsets.only(left: 24.0, right: 16.0, top: 16.0)
+                : EdgeInsets.zero,
+        actionsPadding:
+            isMaterial3
+                ? const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0)
+                : null,
         content: StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return SizedBox(
@@ -295,54 +305,51 @@ void _showListBoxDialog(
                 itemBuilder: (BuildContext context, int index) {
                   return listBoxHelper.isMultiSelect
                       ? CheckboxListTile(
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(
-                            listBoxHelper.listBoxFormField._items[index],
-                          ),
-                          value: newItems.contains(
-                            listBoxHelper.listBoxFormField._items[index],
-                          ),
-                          shape: isMaterial3
-                              ? RoundedRectangleBorder(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text(
+                          listBoxHelper.listBoxFormField._items[index],
+                        ),
+                        value: newItems.contains(
+                          listBoxHelper.listBoxFormField._items[index],
+                        ),
+                        shape:
+                            isMaterial3
+                                ? RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4.0),
                                 )
-                              : null,
-                          contentPadding: isMaterial3 ? EdgeInsets.zero : null,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              if (value != null) {
-                                if (value) {
-                                  newItems.add(
-                                    listBoxHelper
-                                        .listBoxFormField
-                                        ._items[index],
-                                  );
-                                } else {
-                                  newItems.remove(
-                                    listBoxHelper
-                                        .listBoxFormField
-                                        ._items[index],
-                                  );
-                                }
+                                : null,
+                        contentPadding: isMaterial3 ? EdgeInsets.zero : null,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value != null) {
+                              if (value) {
+                                newItems.add(
+                                  listBoxHelper.listBoxFormField._items[index],
+                                );
+                              } else {
+                                newItems.remove(
+                                  listBoxHelper.listBoxFormField._items[index],
+                                );
                               }
-                            });
-                          },
-                        )
+                            }
+                          });
+                        },
+                      )
                       : RadioListTile<String>(
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(
-                            listBoxHelper.listBoxFormField._items[index],
-                          ),
-                          value: listBoxHelper.listBoxFormField._items[index],
-                          groupValue: newItems.isEmpty ? null : newItems.first,
-                          onChanged: (String? value) {
-                            setState(() {
-                              if (value != null) {
-                                newItems = <String>[value];
-                              }
-                            });
-                          },
-                        );
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text(
+                          listBoxHelper.listBoxFormField._items[index],
+                        ),
+                        value: listBoxHelper.listBoxFormField._items[index],
+                        groupValue: newItems.isEmpty ? null : newItems.first,
+                        onChanged: (String? value) {
+                          setState(() {
+                            if (value != null) {
+                              newItems = <String>[value];
+                            }
+                          });
+                        },
+                      );
                 },
                 itemCount: listBoxHelper.listBoxFormField._items.length,
               ),
@@ -354,18 +361,19 @@ void _showListBoxDialog(
             onPressed: () {
               Navigator.pop(context);
             },
-            style: isMaterial3
-                ? TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 10,
-                    ),
-                    fixedSize: const Size(double.infinity, 40),
-                  )
-                : null,
+            style:
+                isMaterial3
+                    ? TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 10,
+                      ),
+                      fixedSize: const Size(double.infinity, 40),
+                    )
+                    : null,
             child: const Text(
               'CANCEL',
               style: TextStyle(
@@ -379,18 +387,19 @@ void _showListBoxDialog(
               Navigator.pop(context);
               listBoxHelper.invokeValueChanged(newItems);
             },
-            style: isMaterial3
-                ? TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 10,
-                    ),
-                    fixedSize: const Size(74, 40),
-                  )
-                : null,
+            style:
+                isMaterial3
+                    ? TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 10,
+                      ),
+                      fixedSize: const Size(74, 40),
+                    )
+                    : null,
             child: const Text(
               'OK',
               style: TextStyle(

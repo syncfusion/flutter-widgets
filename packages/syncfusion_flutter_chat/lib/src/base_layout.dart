@@ -30,12 +30,14 @@ class _RenderLayoutHandler extends RenderBox
   @override
   void performLayout() {
     const Size minConstraints = Size(300.0, 300.0);
-    final double boxWidth = constraints.maxWidth.isFinite
-        ? constraints.maxWidth
-        : minConstraints.width;
-    final double boxHeight = constraints.maxHeight.isFinite
-        ? constraints.maxHeight
-        : minConstraints.height;
+    final double boxWidth =
+        constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : minConstraints.width;
+    final double boxHeight =
+        constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : minConstraints.height;
 
     double availableHeight = boxHeight;
     RenderBox? child = lastChild;

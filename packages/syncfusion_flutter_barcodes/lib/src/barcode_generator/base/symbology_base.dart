@@ -11,10 +11,11 @@ abstract class Symbology {
   /// The arguments [module] must be non-negative and greater than 0.
   ///
   Symbology({this.module})
-      : assert(
-            (module != null && module > 0) || module == null,
-            'Module must'
-            ' not be a non-negative value or else it must be equal to null.');
+    : assert(
+        (module != null && module > 0) || module == null,
+        'Module must'
+        ' not be a non-negative value or else it must be equal to null.',
+      );
 
   /// Specifies the size of the smallest line or dot of the barcode.
   ///

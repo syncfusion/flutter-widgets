@@ -158,7 +158,7 @@ class Workbook {
     96 / 2.54, // Centimeter
     1, // Pixel
     96 / 72.0, // Point
-    96 / 72.0 / 12700 // EMU
+    96 / 72.0 / 12700, // EMU
   ];
 
   /// Collections store the font metrics details.
@@ -1713,7 +1713,7 @@ class Workbook {
     556,
     500,
     556,
-    500
+    500,
   ];
 
   /// Arial bold widths table.
@@ -1941,7 +1941,7 @@ class Workbook {
     611,
     556,
     611,
-    556
+    556,
   ];
 
   /// Fixed width of Courier New Font Family.
@@ -2172,7 +2172,7 @@ class Workbook {
     500,
     500,
     500,
-    500
+    500,
   ];
 
   /// Times New Roman bold widths table.
@@ -2400,7 +2400,7 @@ class Workbook {
     556,
     500,
     556,
-    500
+    500,
   ];
 
   /// Times New Roman italic widths table.
@@ -2628,7 +2628,7 @@ class Workbook {
     500,
     444,
     500,
-    444
+    444,
   ];
 
   /// Times New Roman bold italic widths table.
@@ -2856,7 +2856,7 @@ class Workbook {
     556,
     444,
     500,
-    444
+    444,
   ];
 
   /// Tahoma widths table.
@@ -3178,7 +3178,7 @@ class Workbook {
     559,
     444,
     559,
-    444
+    444,
   ];
 
   /// Tahoma Bold widths table.
@@ -3500,7 +3500,7 @@ class Workbook {
     622,
     525,
     622,
-    525
+    525,
   ];
 
   /// Calibri Width Table.
@@ -3822,7 +3822,7 @@ class Workbook {
     468,
     395,
     468,
-    395
+    395,
   ];
 
   /// Calibri Bold Width Table.
@@ -4144,7 +4144,7 @@ class Workbook {
     478,
     397,
     478,
-    397
+    397,
   ];
 
   /// Calibri Italic Width Table.
@@ -4466,7 +4466,7 @@ class Workbook {
     468,
     395,
     468,
-    395
+    395,
   ];
 
   /// Calibri Bold Italic Width Table.
@@ -4788,7 +4788,7 @@ class Workbook {
     478,
     397,
     478,
-    397
+    397,
   ];
 
   /// Verdana Widths Table.
@@ -5110,7 +5110,7 @@ class Workbook {
     685,
     525,
     685,
-    525
+    525,
   ];
 
   /// Verdana Italic widths table
@@ -5432,7 +5432,7 @@ class Workbook {
     685,
     525,
     685,
-    525
+    525,
   ];
 
   /// Verdana Bold Width Table.
@@ -5754,7 +5754,7 @@ class Workbook {
     691,
     596,
     691,
-    596
+    596,
   ];
 
   /// Verdana Bold Italics Widths table
@@ -6076,7 +6076,7 @@ class Workbook {
     691,
     596,
     691,
-    596
+    596,
   ];
 
   /// Gets or sets the standard font size.
@@ -6165,7 +6165,10 @@ class Workbook {
 
   /// Initialize the workbook.
   void _initializeWorkbook(
-      String? givenCulture, String? givenCurrency, int? count) {
+    String? givenCulture,
+    String? givenCurrency,
+    int? count,
+  ) {
     if (givenCulture != null) {
       culture = givenCulture;
     } else {
@@ -6219,9 +6222,9 @@ class Workbook {
     isSaving = true;
     final SerializeWorkbook serializer = SerializeWorkbook(this);
     serializer.saveInternal();
-    final List<int>? bytes = ZipEncoder().encode(archive);
+    final List<int> bytes = ZipEncoder().encode(archive);
     isSaving = false;
-    return bytes!;
+    return bytes;
   }
 
   /// Saves workbook.
@@ -6311,7 +6314,8 @@ class Workbook {
       } else {
         fontColor = toCompareStyle.fontColor;
       }
-      result = font.color == fontColor &&
+      result =
+          font.color == fontColor &&
           font.bold == toCompareStyle.bold &&
           font.italic == toCompareStyle.italic &&
           font.underline == toCompareStyle.underline &&
@@ -6384,7 +6388,8 @@ class Workbook {
   double fileWidthToPixels(double fileWidth) {
     final double dDigitWidth = maxDigitWidth;
     return _truncate(
-        ((256 * fileWidth + _truncate(128 / dDigitWidth)) / 256) * dDigitWidth);
+      ((256 * fileWidth + _truncate(128 / dDigitWidth)) / 256) * dDigitWidth,
+    );
   }
 
   /// Converts column width in pixels into column width in characters.
@@ -6416,55 +6421,145 @@ class Workbook {
   void _initFontMetricsCollection() {
     _fontMetricsCollection = <String, FontMetrics>{};
     //Arial
-    _fontMetricsCollection!['arial_italic_bold'] =
-        FontMetrics(962, -228, 0, 962 + 228.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['arial_italic_bold'] = FontMetrics(
+      962,
+      -228,
+      0,
+      962 + 228.toDouble(),
+      1.52,
+      1.52,
+    );
 
-    _fontMetricsCollection!['arial_bold'] =
-        FontMetrics(962, -228, 0, 962 + 228.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['arial_bold'] = FontMetrics(
+      962,
+      -228,
+      0,
+      962 + 228.toDouble(),
+      1.52,
+      1.52,
+    );
 
-    _fontMetricsCollection!['arial_italic'] =
-        FontMetrics(931, -225, 0, 931 + 225.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['arial_italic'] = FontMetrics(
+      931,
+      -225,
+      0,
+      931 + 225.toDouble(),
+      1.52,
+      1.52,
+    );
 
-    _fontMetricsCollection!['arial'] =
-        FontMetrics(931, -225, 0, 931 + 225.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['arial'] = FontMetrics(
+      931,
+      -225,
+      0,
+      931 + 225.toDouble(),
+      1.52,
+      1.52,
+    );
 
     //Times Roman
-    _fontMetricsCollection!['times_italic_bold'] =
-        FontMetrics(921, -218, 0, 921 + 218.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['times_italic_bold'] = FontMetrics(
+      921,
+      -218,
+      0,
+      921 + 218.toDouble(),
+      1.52,
+      1.52,
+    );
 
-    _fontMetricsCollection!['times_bold'] =
-        FontMetrics(935, -218, 0, 935 + 218.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['times_bold'] = FontMetrics(
+      935,
+      -218,
+      0,
+      935 + 218.toDouble(),
+      1.52,
+      1.52,
+    );
 
-    _fontMetricsCollection!['times_italic'] =
-        FontMetrics(883, -217, 0, 883 + 217.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['times_italic'] = FontMetrics(
+      883,
+      -217,
+      0,
+      883 + 217.toDouble(),
+      1.52,
+      1.52,
+    );
 
-    _fontMetricsCollection!['times'] =
-        FontMetrics(898, -218, 0, 898 + 218.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['times'] = FontMetrics(
+      898,
+      -218,
+      0,
+      898 + 218.toDouble(),
+      1.52,
+      1.52,
+    );
 
     //Courier
-    _fontMetricsCollection!['courier_italic_bold'] =
-        FontMetrics(801, -250, 0, 801 + 250.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['courier_italic_bold'] = FontMetrics(
+      801,
+      -250,
+      0,
+      801 + 250.toDouble(),
+      1.52,
+      1.52,
+    );
 
-    _fontMetricsCollection!['courier_bold'] =
-        FontMetrics(801, -250, 0, 801 + 250.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['courier_bold'] = FontMetrics(
+      801,
+      -250,
+      0,
+      801 + 250.toDouble(),
+      1.52,
+      1.52,
+    );
 
-    _fontMetricsCollection!['courier_italic'] =
-        FontMetrics(805, -250, 0, 805 + 250.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['courier_italic'] = FontMetrics(
+      805,
+      -250,
+      0,
+      805 + 250.toDouble(),
+      1.52,
+      1.52,
+    );
 
-    _fontMetricsCollection!['courier'] =
-        FontMetrics(805, -250, 0, 805 + 250.toDouble(), 1.52, 1.52);
+    _fontMetricsCollection!['courier'] = FontMetrics(
+      805,
+      -250,
+      0,
+      805 + 250.toDouble(),
+      1.52,
+      1.52,
+    );
 
     //Tahoma
     _fontMetricsCollection!['tahoma'] = FontMetrics(
-        1000.48828, -206.542969, 0, 1207.03125, 1.53869271, 1.53869271);
+      1000.48828,
+      -206.542969,
+      0,
+      1207.03125,
+      1.53869271,
+      1.53869271,
+    );
 
     //Calibri
-    _fontMetricsCollection!['calibri'] =
-        FontMetrics(750.0, -250.0, 221, 1221.0, 1.53869271, 1.53869271);
+    _fontMetricsCollection!['calibri'] = FontMetrics(
+      750.0,
+      -250.0,
+      221,
+      1221.0,
+      1.53869271,
+      1.53869271,
+    );
 
     //Verdana
     _fontMetricsCollection!['verdana'] = FontMetrics(
-        1005.37109, -209.960938, 0, 1215.332, 1.53869271, 1.53869271);
+      1005.37109,
+      -209.960938,
+      0,
+      1215.332,
+      1.53869271,
+      1.53869271,
+    );
   }
 
   /// returns the size of the text with font family 'Verdana'.
@@ -6662,7 +6757,8 @@ class Workbook {
     double fontHeight;
     if (keyValuePairs != null && keyValuePairs[font.size] != null) {
       fontHeight = keyValuePairs[font.size]!;
-      originalHeight = convertUnits(fontHeight, 6, 5) *
+      originalHeight =
+          convertUnits(fontHeight, 6, 5) *
           ((strValue.length - strValue.replaceAll('\n', '').length) + 1);
     }
     return SizeF(result.fontWidth, originalHeight);
@@ -6677,15 +6773,27 @@ class Workbook {
 
   /// Measure the Text with a given font.
   Rectangle<num> getMeasuredRectangle(
-      String text, Font font, Rectangle<num> bounds) {
+    String text,
+    Font font,
+    Rectangle<num> bounds,
+  ) {
     final SizeF size = getTextSizeFromFont(text, font);
     final double height = (size.fontHeight * 1.03).ceilToDouble();
-    final int length = bounds.width == 1800.0
-        ? 1
-        : _getLengthOfLines(
-            size.fontWidth, bounds.width.toDouble(), text, font);
-    final Rectangle<num> result =
-        Rectangle<num>(0, 0, size.fontWidth.ceil(), height * length);
+    final int length =
+        bounds.width == 1800.0
+            ? 1
+            : _getLengthOfLines(
+              size.fontWidth,
+              bounds.width.toDouble(),
+              text,
+              font,
+            );
+    final Rectangle<num> result = Rectangle<num>(
+      0,
+      0,
+      size.fontWidth.ceil(),
+      height * length,
+    );
     return result;
   }
 
@@ -6718,7 +6826,11 @@ class Workbook {
 
   /// Calculate the number of lines for the text to fit in the width.
   int _getLengthOfLines(
-      double sizeOfText, double widthBound, String text, Font font) {
+    double sizeOfText,
+    double widthBound,
+    String text,
+    Font font,
+  ) {
     int length = 0;
     double width = 0;
     double currentWidth = 0;
@@ -6790,14 +6902,18 @@ class Workbook {
   /// saveAsExcel(bytes, 'ExcelWorkbookProtection2.xlsx');
   /// workbook.dispose();
   /// ```
-  void protect(bool isProtectWindow, bool isProtectContent,
-      [String? sPassword]) {
+  void protect(
+    bool isProtectWindow,
+    bool isProtectContent, [
+    String? sPassword,
+  ]) {
     if (!isProtectWindow && !isProtectContent) {
       throw Exception('One of params must be TRUE.');
     }
     if (isCellProtect || isWindowProtect) {
       throw Exception(
-          'Workbook is already protected. Use Unprotect before calling method.');
+        'Workbook is already protected. Use Unprotect before calling method.',
+      );
     }
     isCellProtect = isProtectContent;
     isWindowProtect = isProtectWindow;

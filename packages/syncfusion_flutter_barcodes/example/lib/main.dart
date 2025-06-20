@@ -11,18 +11,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          appBar: AppBar(
-            title: const Text('Barcode Generator Demo'),
-          ),
-          body: Center(
-              child: Container(
+        appBar: AppBar(title: const Text('Barcode Generator Demo')),
+        body: Center(
+          child: Container(
             height: 200,
             child: SfBarcodeGenerator(
               value: 'www.syncfusion.com',
               symbology: QRCode(),
               showValue: true,
             ),
-          ))),
+          ),
+        ),
+      ),
     );
   }
 }

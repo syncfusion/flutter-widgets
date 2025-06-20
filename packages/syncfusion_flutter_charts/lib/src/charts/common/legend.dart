@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../series/chart_series.dart';
 import '../utils/enum.dart';
 import '../utils/typedef.dart';
 import 'core_legend.dart' as core;
@@ -590,7 +589,7 @@ class Legend {
       iconBorderColor,
       iconBorderWidth,
       itemPadding,
-      image
+      image,
     ];
     return Object.hashAll(values);
   }
@@ -701,28 +700,82 @@ class LegendTitle {
   }
 }
 
-class ChartLegendItem extends core.LegendItem {
-  ChartLegendItem({
+/// Represents a cartesian legend item in legends.
+class CartesianLegendItem extends core.LegendItem {
+  CartesianLegendItem({
     required super.text,
     required super.iconType,
     required super.iconColor,
     required super.iconBorderWidth,
+    required super.seriesIndex,
     super.iconBorderColor,
     super.shader,
     super.imageProvider,
     super.overlayMarkerType,
+    super.isToggled = false,
+    super.onTap,
+    super.onRender,
+    super.series,
+    super.pointIndex = -1,
+  });
+}
+
+/// Represents a circular legend item in legends.
+class CircularLegendItem extends core.LegendItem {
+  CircularLegendItem({
+    required super.text,
+    required super.iconType,
+    required super.iconColor,
+    required super.iconBorderWidth,
+    required super.seriesIndex,
+    super.iconBorderColor,
+    super.shader,
+    super.imageProvider,
     super.degree,
     super.endAngle,
     super.startAngle,
     super.isToggled = false,
     super.onTap,
     super.onRender,
-    this.series,
-    required this.seriesIndex,
-    this.pointIndex = -1,
+    super.series,
+    super.pointIndex = -1,
   });
+}
 
-  final ChartSeriesRenderer? series;
-  final int seriesIndex;
-  final int pointIndex;
+/// Represents a funnel legend item in legends.
+class FunnelLegendItem extends core.LegendItem {
+  FunnelLegendItem({
+    required super.text,
+    required super.iconType,
+    required super.iconColor,
+    required super.iconBorderWidth,
+    required super.seriesIndex,
+    super.iconBorderColor,
+    super.shader,
+    super.imageProvider,
+    super.isToggled = false,
+    super.onTap,
+    super.onRender,
+    super.series,
+    super.pointIndex = -1,
+  });
+}
+
+/// Represents a pyramid legend item in legends.
+class PyramidLegendItem extends core.LegendItem {
+  PyramidLegendItem({
+    required super.text,
+    required super.iconType,
+    required super.iconColor,
+    required super.iconBorderWidth,
+    required super.seriesIndex,
+    super.iconBorderColor,
+    super.shader,
+    super.imageProvider,
+    super.isToggled = false,
+    super.onTap,
+    super.onRender,
+    super.series,
+    super.pointIndex = -1,
+  });
 }

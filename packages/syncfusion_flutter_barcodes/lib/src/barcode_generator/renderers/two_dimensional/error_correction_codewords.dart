@@ -6,7 +6,9 @@ class ErrorCorrectionCodeWords {
   /// Creates the error correction code word
   ErrorCorrectionCodeWords({this.codeVersion, this.correctionLevel}) {
     _codeValue = QRCodeValue(
-        qrCodeVersion: codeVersion!, errorCorrectionLevel: correctionLevel!);
+      qrCodeVersion: codeVersion!,
+      errorCorrectionLevel: correctionLevel!,
+    );
     eccw = _codeValue.noOfErrorCorrectionCodeWord;
   }
 
@@ -272,7 +274,7 @@ class ErrorCorrectionCodeWords {
     216,
     173,
     71,
-    142
+    142,
   ];
 
   /// Specifies the error corrcetion code word
@@ -325,7 +327,7 @@ class ErrorCorrectionCodeWords {
           218,
           206,
           140,
-          78
+          78,
         ];
         break;
       case 15:
@@ -345,7 +347,7 @@ class ErrorCorrectionCodeWords {
           124,
           5,
           99,
-          105
+          105,
         ];
         break;
       case 16:
@@ -366,7 +368,7 @@ class ErrorCorrectionCodeWords {
           182,
           194,
           225,
-          120
+          120,
         ];
         break;
       case 17:
@@ -388,7 +390,7 @@ class ErrorCorrectionCodeWords {
           39,
           243,
           163,
-          136
+          136,
         ];
         break;
       case 18:
@@ -411,7 +413,7 @@ class ErrorCorrectionCodeWords {
           5,
           98,
           96,
-          153
+          153,
         ];
         break;
       case 20:
@@ -436,7 +438,7 @@ class ErrorCorrectionCodeWords {
           212,
           212,
           188,
-          190
+          190,
         ];
         break;
       case 22:
@@ -463,7 +465,7 @@ class ErrorCorrectionCodeWords {
           160,
           105,
           165,
-          231
+          231,
         ];
         break;
       case 24:
@@ -492,7 +494,7 @@ class ErrorCorrectionCodeWords {
           87,
           96,
           227,
-          21
+          21,
         ];
         break;
       case 26:
@@ -523,7 +525,7 @@ class ErrorCorrectionCodeWords {
           153,
           145,
           218,
-          70
+          70,
         ];
         break;
       case 28:
@@ -556,7 +558,7 @@ class ErrorCorrectionCodeWords {
           242,
           37,
           9,
-          123
+          123,
         ];
         break;
       case 30:
@@ -591,7 +593,7 @@ class ErrorCorrectionCodeWords {
           238,
           40,
           192,
-          180
+          180,
         ];
         break;
       case 32:
@@ -628,7 +630,7 @@ class ErrorCorrectionCodeWords {
           254,
           185,
           220,
-          241
+          241,
         ];
         break;
       case 34:
@@ -667,7 +669,7 @@ class ErrorCorrectionCodeWords {
           98,
           62,
           129,
-          51
+          51,
         ];
         break;
       case 36:
@@ -708,7 +710,7 @@ class ErrorCorrectionCodeWords {
           113,
           233,
           30,
-          120
+          120,
         ];
         break;
       case 40:
@@ -753,7 +755,7 @@ class ErrorCorrectionCodeWords {
           232,
           53,
           35,
-          15
+          15,
         ];
         break;
       case 42:
@@ -800,7 +802,7 @@ class ErrorCorrectionCodeWords {
           194,
           117,
           50,
-          96
+          96,
         ];
         break;
       case 44:
@@ -849,7 +851,7 @@ class ErrorCorrectionCodeWords {
           113,
           102,
           73,
-          181
+          181,
         ];
         break;
       case 46:
@@ -900,7 +902,7 @@ class ErrorCorrectionCodeWords {
           223,
           19,
           82,
-          15
+          15,
         ];
         break;
       case 48:
@@ -953,7 +955,7 @@ class ErrorCorrectionCodeWords {
           163,
           39,
           34,
-          108
+          108,
         ];
         break;
       case 50:
@@ -1008,7 +1010,7 @@ class ErrorCorrectionCodeWords {
           215,
           232,
           133,
-          205
+          205,
         ];
         break;
       case 52:
@@ -1065,7 +1067,7 @@ class ErrorCorrectionCodeWords {
           239,
           254,
           116,
-          51
+          51,
         ];
         break;
       case 54:
@@ -1124,7 +1126,7 @@ class ErrorCorrectionCodeWords {
           198,
           76,
           31,
-          156
+          156,
         ];
         break;
       case 56:
@@ -1185,7 +1187,7 @@ class ErrorCorrectionCodeWords {
           207,
           20,
           61,
-          10
+          10,
         ];
         break;
       case 58:
@@ -1248,7 +1250,7 @@ class ErrorCorrectionCodeWords {
           233,
           125,
           148,
-          123
+          123,
         ];
         break;
       case 60:
@@ -1313,7 +1315,7 @@ class ErrorCorrectionCodeWords {
           89,
           7,
           33,
-          240
+          240,
         ];
         break;
       case 62:
@@ -1380,7 +1382,7 @@ class ErrorCorrectionCodeWords {
           36,
           186,
           110,
-          106
+          106,
         ];
         break;
       case 64:
@@ -1449,7 +1451,7 @@ class ErrorCorrectionCodeWords {
           217,
           156,
           213,
-          231
+          231,
         ];
         break;
       case 66:
@@ -1520,7 +1522,7 @@ class ErrorCorrectionCodeWords {
           132,
           93,
           45,
-          105
+          105,
         ];
         break;
       case 68:
@@ -1593,7 +1595,7 @@ class ErrorCorrectionCodeWords {
           5,
           8,
           163,
-          238
+          238,
         ];
         break;
     }
@@ -1641,14 +1643,17 @@ class ErrorCorrectionCodeWords {
 
     Map<int, int> generatorPolynom = <int, int>{};
     for (int i = 0; i < _gx.length; i++) {
-      generatorPolynom[_gx.length - 1 - i] =
-          _getElementFromAlpha(_gx[i], _alpha);
+      generatorPolynom[_gx.length - 1 - i] = _getElementFromAlpha(
+        _gx[i],
+        _alpha,
+      );
     }
 
     Map<int, int> tempMessagePolynom = <int, int>{};
     for (int i = 0; i < messagePolynom.length; i++) {
-      final MapEntry<int, int> currentEntry =
-          messagePolynom.entries.elementAt(i);
+      final MapEntry<int, int> currentEntry = messagePolynom.entries.elementAt(
+        i,
+      );
       tempMessagePolynom[currentEntry.key + eccw] = currentEntry.value;
     }
 
@@ -1657,8 +1662,8 @@ class ErrorCorrectionCodeWords {
 
     tempMessagePolynom = <int, int>{};
     for (int i = 0; i < generatorPolynom.length; i++) {
-      final MapEntry<int, int> currentEntry =
-          generatorPolynom.entries.elementAt(i);
+      final MapEntry<int, int> currentEntry = generatorPolynom.entries
+          .elementAt(i);
       tempMessagePolynom[currentEntry.key + leadTermFactor] =
           currentEntry.value;
     }
@@ -1670,12 +1675,18 @@ class ErrorCorrectionCodeWords {
       if (leadTermSource[largestExponent] == 0) {
         leadTermSource.remove(largestExponent);
         if (i == 0) {
-          leadTermSource =
-              _updateLeadTermSource(i, leadTermSource, generatorPolynom);
+          leadTermSource = _updateLeadTermSource(
+            i,
+            leadTermSource,
+            generatorPolynom,
+          );
         }
       } else {
-        leadTermSource =
-            _updateLeadTermSource(i, leadTermSource, generatorPolynom);
+        leadTermSource = _updateLeadTermSource(
+          i,
+          leadTermSource,
+          generatorPolynom,
+        );
       }
     }
 
@@ -1691,10 +1702,16 @@ class ErrorCorrectionCodeWords {
 
   /// Updates the lead term source value
   Map<int, int> _updateLeadTermSource(
-      int index, Map<int, int> leadTermSource, Map<int, int> generatorPolynom) {
+    int index,
+    Map<int, int> leadTermSource,
+    Map<int, int> generatorPolynom,
+  ) {
     final Map<int, int> alphaNotation = _getAlphaNotation(leadTermSource);
-    Map<int, int> resPoly = _getGeneratorPolynomByLeadTerm(generatorPolynom,
-        alphaNotation[_getLargestExponent(alphaNotation)]!, index);
+    Map<int, int> resPoly = _getGeneratorPolynomByLeadTerm(
+      generatorPolynom,
+      alphaNotation[_getLargestExponent(alphaNotation)]!,
+      index,
+    );
     resPoly = _getDecimalNotation(resPoly);
     resPoly = _getXORPolynoms(leadTermSource, resPoly);
     return resPoly;
@@ -1702,7 +1719,9 @@ class ErrorCorrectionCodeWords {
 
   /// Calculates the polynomial value
   Map<int, int> _getXORPolynoms(
-      Map<int, int> messagePolynom, Map<int, int> resPolynom) {
+    Map<int, int> messagePolynom,
+    Map<int, int> resPolynom,
+  ) {
     final Map<int, int> resultPolynom = <int, int>{};
     Map<int, int> longPoly = <int, int>{};
     Map<int, int> shortPoly = <int, int>{};
@@ -1720,10 +1739,11 @@ class ErrorCorrectionCodeWords {
 
     for (int i = 0; i < longPoly.length; i++) {
       resultPolynom.putIfAbsent(
-          messagePolyExponent - i,
-          () =>
-              longPoly.entries.elementAt(i).value ^
-              (shortPoly.length > i ? shortPoly[shortPolyExponent - i]! : 0));
+        messagePolyExponent - i,
+        () =>
+            longPoly.entries.elementAt(i).value ^
+            (shortPoly.length > i ? shortPoly[shortPolyExponent - i]! : 0),
+      );
     }
 
     final int resultPolyExponent = _getLargestExponent(resultPolynom);
@@ -1733,12 +1753,17 @@ class ErrorCorrectionCodeWords {
 
   /// Calculates the polynomial value
   Map<int, int> _getGeneratorPolynomByLeadTerm(
-      Map<int, int> genPolynom, int leadTermCoefficient, int lowerExponentBy) {
+    Map<int, int> genPolynom,
+    int leadTermCoefficient,
+    int lowerExponentBy,
+  ) {
     final Map<int, int> tempPolynom = <int, int>{};
     for (int i = 0; i < genPolynom.length; i++) {
       final MapEntry<int, int> currentEntry = genPolynom.entries.elementAt(i);
-      tempPolynom.putIfAbsent(currentEntry.key - lowerExponentBy,
-          () => (currentEntry.value + leadTermCoefficient) % 255);
+      tempPolynom.putIfAbsent(
+        currentEntry.key - lowerExponentBy,
+        () => (currentEntry.value + leadTermCoefficient) % 255,
+      );
     }
 
     return tempPolynom;
@@ -1749,8 +1774,10 @@ class ErrorCorrectionCodeWords {
     final Map<int, int> tempPolynom = <int, int>{};
     for (int i = 0; i < poly.length; i++) {
       final MapEntry<int, int> currentEntry = poly.entries.elementAt(i);
-      tempPolynom[currentEntry.key] =
-          _getIntValFromAlphaExp(currentEntry.value, _alpha);
+      tempPolynom[currentEntry.key] = _getIntValFromAlphaExp(
+        currentEntry.value,
+        _alpha,
+      );
     }
 
     return tempPolynom;
@@ -1762,8 +1789,10 @@ class ErrorCorrectionCodeWords {
     for (int i = 0; i < polynom.length; i++) {
       final MapEntry<int, int> currentEntry = polynom.entries.elementAt(i);
       if (currentEntry.value != 0) {
-        tempPolynom.putIfAbsent(currentEntry.key,
-            () => _getElementFromAlpha(currentEntry.value, _alpha));
+        tempPolynom.putIfAbsent(
+          currentEntry.key,
+          () => _getElementFromAlpha(currentEntry.value, _alpha),
+        );
       }
     }
 

@@ -97,9 +97,12 @@ class PdfString implements IPdfPrimitive {
   /// internal method
   List<int> pdfEncode(PdfDocument? document) {
     final List<int> result = <int>[];
-    result.add(isHex!
-        ? PdfString.hexStringMark.codeUnitAt(0)
-        : PdfString.stringMark.codeUnitAt(0));
+    final PdfSecurity? security = (document == null) ? null : document.security;
+    result.add(
+      isHex!
+          ? PdfString.hexStringMark.codeUnitAt(0)
+          : PdfString.stringMark.codeUnitAt(0),
+    );
     if ((data == null || data!.isEmpty) && !isNullOrEmpty(value)) {
       data = <int>[];
       for (int i = 0; i < value!.length; i++) {
@@ -124,7 +127,10 @@ class PdfString implements IPdfPrimitive {
         for (int i = 0; i < value!.length; i++) {
           tempData.add(value!.codeUnitAt(i).toUnsigned(8));
         }
-        tempData = escapeSymbols(tempData);
+        if (security == null ||
+            !PdfSecurityHelper.getHelper(security).encryptor.encrypt) {
+          tempData = escapeSymbols(tempData);
+        }
       }
       bool hex = false;
       tempData = _encryptIfNeeded(tempData, document);
@@ -143,9 +149,11 @@ class PdfString implements IPdfPrimitive {
       }
       result.addAll(tempData);
     }
-    result.add(isHex!
-        ? PdfString.hexStringMark.codeUnitAt(1)
-        : PdfString.stringMark.codeUnitAt(1));
+    result.add(
+      isHex!
+          ? PdfString.hexStringMark.codeUnitAt(1)
+          : PdfString.stringMark.codeUnitAt(1),
+    );
     return result;
   }
 
@@ -339,13 +347,9 @@ class PdfString implements IPdfPrimitive {
 
   @override
   void dispose() {
-    if (data != null) {
-      data!.clear();
-      data = null;
-    }
-    if (_status != null) {
-      _status = null;
-    }
+    data = data?.map((_) => 0).toList();
+    data = null;
+    _status = null;
   }
 
   @override
@@ -367,15 +371,16 @@ class PdfString implements IPdfPrimitive {
     final PdfSecurity? security = (document == null) ? null : document.security;
     if (security == null ||
         (!PdfSecurityHelper.getHelper(security).encryptor.encrypt ||
-            PdfSecurityHelper.getHelper(security)
-                .encryptor
-                .encryptAttachmentOnly!)) {
+            PdfSecurityHelper.getHelper(
+              security,
+            ).encryptor.encryptAttachmentOnly!)) {
       return data;
     } else {
       data = PdfSecurityHelper.getHelper(security).encryptor.encryptData(
-          PdfDocumentHelper.getHelper(document!).currentSavingObject!.objNum,
-          data,
-          true);
+        PdfDocumentHelper.getHelper(document!).currentSavingObject!.objNum,
+        data,
+        true,
+      );
     }
     return escapeSymbols(data);
   }
@@ -391,8 +396,11 @@ class PdfString implements IPdfPrimitive {
         !encryptor.encryptAttachmentOnly!) {
       decrypted = true;
       value = byteToString(data!);
-      final List<int> bytes =
-          encryptor.encryptData(currentObjectNumber, data!, false);
+      final List<int> bytes = encryptor.encryptData(
+        currentObjectNumber,
+        data!,
+        false,
+      );
       value = byteToString(bytes);
       const String bigEndianPreambleString = 'þÿ';
       if (value!.length > 1 &&
@@ -414,5 +422,5 @@ enum ForceEncoding {
   ascii,
 
   /// internal enumerator
-  unicode
+  unicode,
 }

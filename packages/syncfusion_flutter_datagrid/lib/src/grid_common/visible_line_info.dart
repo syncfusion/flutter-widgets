@@ -17,8 +17,15 @@ class VisibleLineInfo implements Comparable<VisibleLineInfo> {
   /// * scrollOffset - _required_ - The scroll offset.
   /// * isHeader - _required_ - if set to true line is a header.
   /// * isFooter - _required_ - if set to true line is a footer.
-  VisibleLineInfo(int visibleIndex, this.lineIndex, double size,
-      double clippedOrigin, double scrollOffset, bool isHeader, bool isFooter) {
+  VisibleLineInfo(
+    int visibleIndex,
+    this.lineIndex,
+    double size,
+    double clippedOrigin,
+    double scrollOffset,
+    bool isHeader,
+    bool isFooter,
+  ) {
     _visibleIndex = visibleIndex;
     _size = size;
     _clippedOrigin = clippedOrigin;
@@ -200,8 +207,9 @@ class VisibleLineInfo implements Comparable<VisibleLineInfo> {
 /// A strong-typed collection of `VisibleLineInfo` items.
 class VisibleLinesCollection extends ListBase<VisibleLineInfo> {
   ///
-  List<VisibleLineInfo?> visibleLines =
-      List<VisibleLineInfo?>.empty(growable: true);
+  List<VisibleLineInfo?> visibleLines = List<VisibleLineInfo?>.empty(
+    growable: true,
+  );
 
   ///
   VisibleLineInfoLineIndexComparer lineIndexComparer =
@@ -286,7 +294,9 @@ class VisibleLinesCollection extends ListBase<VisibleLineInfo> {
     final List<VisibleLineInfo> visibleLineInfo =
         visibleLines as List<VisibleLineInfo>;
     int index = binarySearch<VisibleLineInfo>(
-        visibleLineInfo, VisibleLineInfo.fromLineIndex(lineIndex));
+      visibleLineInfo,
+      VisibleLineInfo.fromLineIndex(lineIndex),
+    );
     index = (index < 0) ? (~index) - 1 : index;
     if (index >= 0) {
       return this[index];
@@ -303,7 +313,9 @@ class VisibleLinesCollection extends ListBase<VisibleLineInfo> {
   VisibleLineInfo? getVisibleLineAtPoint(double point) {
     final List<VisibleLineInfo> visibleLineInfo = visibleLines.cast();
     int index = binarySearch<VisibleLineInfo>(
-        visibleLineInfo, VisibleLineInfo.fromClippedOrigin(point));
+      visibleLineInfo,
+      VisibleLineInfo.fromClippedOrigin(point),
+    );
     index = (index < 0) ? (~index) - 1 : index;
     if (index >= 0) {
       return this[index];

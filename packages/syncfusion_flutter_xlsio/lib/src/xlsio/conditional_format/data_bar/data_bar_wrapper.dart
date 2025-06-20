@@ -39,7 +39,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Returns a ConditionValue object which specifies how the longest bar is evaluated
   /// for a data bar conditional format.
   ConditionValue get maxPoint {
@@ -56,7 +55,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets/sets the color of the bars in a data bar conditional format.
   String get barColor {
     {
@@ -72,7 +70,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Returns or sets a value that specifies the length of the longest
   /// data bar as a percentage of cell width.
   int get percentMax {
@@ -89,7 +86,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Returns or sets a value that specifies the length of the shortest
   /// data bar as a percentage of cell width.
   int get percentMin {
@@ -106,7 +102,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Returns or sets a Boolean value that specifies if the value in the cell
   /// is displayed if the data bar conditional format is applied to the range.
   bool get showValue {
@@ -123,7 +118,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the axis color of the data bar.
   /// This element MUST exist if and only if axisPosition does not equal "none".
   String get barAxisColor {
@@ -140,7 +134,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the border color of the data bar.
   /// This element MUST exist if and only if border equals "true".
   String get borderColor {
@@ -157,7 +150,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets whether the data bar has a border.
   bool get hasBorder {
     {
@@ -171,7 +163,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets whether the data bar has a gradient fill.
   bool get hasGradientFill {
     {
@@ -185,7 +176,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the direction of the data bar.
   DataBarDirection get dataBarDirection {
     {
@@ -201,7 +191,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the negative border color of the data bar.
   /// This element MUST exist if and only if negativeBarborderColorSameAsPositive equals "false" and border equals "true".
   String get negativeBorderColor {
@@ -218,7 +207,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gest or sests the negative fill color of the data bar.
   /// This element MUST exist if and only if negativebarColorSameAsPositive equals "false".
   String get negativeFillColor {
@@ -233,7 +221,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the axis position for the data bar.
   DataBarAxisPosition get dataBarAxisPosition {
     {
@@ -260,7 +247,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets/sets the color of the bars in a data bar conditional format.
   Color get barColorRgb {
     return _wrapped.barColorRgb;
@@ -274,7 +260,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the negative border color of the data bar.
   /// This element MUST exist if and only if negativeBarborderColorSameAsPositive equals "false" and border equals "true".
   Color get negativeBorderColorRgb {
@@ -289,7 +274,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gest or sests the negative fill color of the data bar.
   /// This element MUST exist if and only if negativebarColorSameAsPositive equals "false".
   Color get negativeFillColorRgb {
@@ -304,7 +288,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the axis color of the data bar in Rgb.
   /// This element MUST exist if and only if axisPosition does not equal "none".
   Color get barAxisColorRgb {
@@ -321,7 +304,6 @@ class DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the border color of the data bar in Rgb.
   /// This element MUST exist if and only if border equals "true".
   Color get borderColorRgb {

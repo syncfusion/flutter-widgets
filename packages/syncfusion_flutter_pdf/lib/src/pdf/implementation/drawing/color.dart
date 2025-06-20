@@ -1087,5 +1087,5 @@ enum KnownColor {
   yellow,
 
   /// internal enumerator
-  yellowGreen
+  yellowGreen,
 }

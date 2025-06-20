@@ -38,7 +38,7 @@ enum PointerKind {
   touch,
 
   /// Indicates the pointer kind as hover.
-  hover
+  hover,
 }
 
 /// Provides the information about the current and previous zoom level.
@@ -165,13 +165,13 @@ class MapModel {
 /// Base class for shape and tile layer for internal usage.
 class MapLayerInheritedWidget extends InheritedWidget {
   /// Creates [MapLayerInheritedWidget].
-  const MapLayerInheritedWidget(
-      {super.key,
-      required Widget child,
-      required this.controller,
-      this.zoomController,
-      this.sublayers})
-      : super(child: child);
+  const MapLayerInheritedWidget({
+    super.key,
+    required Widget child,
+    required this.controller,
+    this.zoomController,
+    this.sublayers,
+  }) : super(child: child);
 
   /// Creates [MapController].
   final MapController controller;
@@ -209,10 +209,8 @@ class SublayerContainer extends Stack {
 /// Adds [MapSublayer] into a stack widget.
 class RenderSublayerContainer extends RenderStack {
   /// Creates a [RenderSublayerContainer].
-  RenderSublayerContainer({
-    required this.container,
-    required this.context,
-  }) : super(textDirection: Directionality.of(context));
+  RenderSublayerContainer({required this.container, required this.context})
+    : super(textDirection: Directionality.of(context));
 
   /// The build context.
   final BuildContext context;
@@ -238,9 +236,14 @@ class ShapeLayerChildRenderBoxBase extends RenderProxyBox {
     // Handle hover interaction here.
   }
 
-  void paintTooltip(int? elementIndex, Rect? elementRect,
-      MapLayerElement? element, PointerKind kind,
-      [int? sublayerIndex, Offset? position]) {}
+  void paintTooltip(
+    int? elementIndex,
+    Rect? elementRect,
+    MapLayerElement? element,
+    PointerKind kind, [
+    int? sublayerIndex,
+    Offset? position,
+  ]) {}
 
   void onExit() {
     // Handle exit interaction here.
@@ -278,18 +281,24 @@ class MapIconShape {
     iconSize = getPreferredSize(iconSize, themeData);
     final double halfIconWidth = iconSize.width / 2;
     final double halfIconHeight = iconSize.height / 2;
-    final bool hasStroke = strokeWidth > 0 &&
+    final bool hasStroke =
+        strokeWidth > 0 &&
         strokeColor != null &&
         strokeColor != Colors.transparent;
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..color = color;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..color = color;
     Path path;
 
     switch (iconType) {
       case MapIconType.circle:
         final Rect rect = Rect.fromLTWH(
-            offset.dx, offset.dy, iconSize.width, iconSize.height);
+          offset.dx,
+          offset.dy,
+          iconSize.width,
+          iconSize.height,
+        );
         context.canvas.drawOval(rect, paint);
         if (hasStroke) {
           paint
@@ -301,7 +310,11 @@ class MapIconShape {
         break;
       case MapIconType.rectangle:
         final Rect rect = Rect.fromLTWH(
-            offset.dx, offset.dy, iconSize.width, iconSize.height);
+          offset.dx,
+          offset.dy,
+          iconSize.width,
+          iconSize.height,
+        );
         context.canvas.drawRect(rect, paint);
         if (hasStroke) {
           paint
@@ -312,11 +325,12 @@ class MapIconShape {
         }
         break;
       case MapIconType.triangle:
-        path = Path()
-          ..moveTo(offset.dx + halfIconWidth, offset.dy)
-          ..lineTo(offset.dx + iconSize.width, offset.dy + iconSize.height)
-          ..lineTo(offset.dx, offset.dy + iconSize.height)
-          ..close();
+        path =
+            Path()
+              ..moveTo(offset.dx + halfIconWidth, offset.dy)
+              ..lineTo(offset.dx + iconSize.width, offset.dy + iconSize.height)
+              ..lineTo(offset.dx, offset.dy + iconSize.height)
+              ..close();
         context.canvas.drawPath(path, paint);
         if (hasStroke) {
           paint
@@ -327,12 +341,13 @@ class MapIconShape {
         }
         break;
       case MapIconType.diamond:
-        path = Path()
-          ..moveTo(offset.dx + halfIconWidth, offset.dy)
-          ..lineTo(offset.dx + iconSize.width, offset.dy + halfIconHeight)
-          ..lineTo(offset.dx + halfIconWidth, offset.dy + iconSize.height)
-          ..lineTo(offset.dx, offset.dy + halfIconHeight)
-          ..close();
+        path =
+            Path()
+              ..moveTo(offset.dx + halfIconWidth, offset.dy)
+              ..lineTo(offset.dx + iconSize.width, offset.dy + halfIconHeight)
+              ..lineTo(offset.dx + halfIconWidth, offset.dy + iconSize.height)
+              ..lineTo(offset.dx, offset.dy + halfIconHeight)
+              ..close();
         context.canvas.drawPath(path, paint);
         if (hasStroke) {
           paint

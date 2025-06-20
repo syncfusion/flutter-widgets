@@ -28,7 +28,7 @@ import '../../theme.dart';
 class SfSparkChartTheme extends InheritedTheme {
   /// Initialize the class of SfSparkChartTheme
   const SfSparkChartTheme({Key? key, required this.data, required this.child})
-      : super(key: key, child: child);
+    : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant
   /// spark chart widgets.
@@ -392,23 +392,27 @@ class SfSparkChartThemeData with Diagnosticable {
     TextStyle? trackballTextStyle,
   }) {
     return SfSparkChartThemeData.raw(
-        brightness: brightness,
-        backgroundColor: backgroundColor ?? this.backgroundColor,
-        color: color ?? this.color,
-        axisLineColor: axisLineColor ?? this.axisLineColor,
-        markerFillColor: markerFillColor ?? this.markerFillColor,
-        dataLabelBackgroundColor:
-            dataLabelBackgroundColor ?? this.dataLabelBackgroundColor,
-        tooltipColor: tooltipColor ?? this.tooltipColor,
-        trackballLineColor: trackballLineColor ?? this.trackballLineColor,
-        tooltipLabelColor: tooltipLabelColor ?? this.tooltipLabelColor,
-        dataLabelTextStyle: dataLabelTextStyle ?? this.dataLabelTextStyle,
-        trackballTextStyle: trackballTextStyle ?? this.trackballTextStyle);
+      brightness: brightness,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      color: color ?? this.color,
+      axisLineColor: axisLineColor ?? this.axisLineColor,
+      markerFillColor: markerFillColor ?? this.markerFillColor,
+      dataLabelBackgroundColor:
+          dataLabelBackgroundColor ?? this.dataLabelBackgroundColor,
+      tooltipColor: tooltipColor ?? this.tooltipColor,
+      trackballLineColor: trackballLineColor ?? this.trackballLineColor,
+      tooltipLabelColor: tooltipLabelColor ?? this.tooltipLabelColor,
+      dataLabelTextStyle: dataLabelTextStyle ?? this.dataLabelTextStyle,
+      trackballTextStyle: trackballTextStyle ?? this.trackballTextStyle,
+    );
   }
 
   /// Returns the spark chart theme data
   static SfSparkChartThemeData? lerp(
-      SfSparkChartThemeData? a, SfSparkChartThemeData? b, double t) {
+    SfSparkChartThemeData? a,
+    SfSparkChartThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
@@ -417,17 +421,32 @@ class SfSparkChartThemeData with Diagnosticable {
       color: Color.lerp(a.color, b.color, t),
       axisLineColor: Color.lerp(a.axisLineColor, b.axisLineColor, t),
       markerFillColor: Color.lerp(a.markerFillColor, b.markerFillColor, t),
-      dataLabelBackgroundColor:
-          Color.lerp(a.dataLabelBackgroundColor, b.dataLabelBackgroundColor, t),
+      dataLabelBackgroundColor: Color.lerp(
+        a.dataLabelBackgroundColor,
+        b.dataLabelBackgroundColor,
+        t,
+      ),
       tooltipColor: Color.lerp(a.tooltipColor, b.tooltipColor, t),
-      trackballLineColor:
-          Color.lerp(a.trackballLineColor, b.trackballLineColor, t),
-      tooltipLabelColor:
-          Color.lerp(a.tooltipLabelColor, b.tooltipLabelColor, t),
-      dataLabelTextStyle:
-          TextStyle.lerp(a.dataLabelTextStyle, b.dataLabelTextStyle, t),
-      trackballTextStyle:
-          TextStyle.lerp(a.trackballTextStyle, b.trackballTextStyle, t),
+      trackballLineColor: Color.lerp(
+        a.trackballLineColor,
+        b.trackballLineColor,
+        t,
+      ),
+      tooltipLabelColor: Color.lerp(
+        a.tooltipLabelColor,
+        b.tooltipLabelColor,
+        t,
+      ),
+      dataLabelTextStyle: TextStyle.lerp(
+        a.dataLabelTextStyle,
+        b.dataLabelTextStyle,
+        t,
+      ),
+      trackballTextStyle: TextStyle.lerp(
+        a.trackballTextStyle,
+        b.trackballTextStyle,
+        t,
+      ),
     );
   }
 
@@ -474,30 +493,71 @@ class SfSparkChartThemeData with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     const SfSparkChartThemeData defaultData = SfSparkChartThemeData();
-    properties.add(ColorProperty('backgroundColor', backgroundColor,
-        defaultValue: defaultData.backgroundColor));
-    properties
-        .add(ColorProperty('color', color, defaultValue: defaultData.color));
-    properties.add(ColorProperty('axisLineColor', axisLineColor,
-        defaultValue: defaultData.axisLineColor));
-    properties.add(ColorProperty('markerFillColor', markerFillColor,
-        defaultValue: defaultData.markerFillColor));
-    properties.add(ColorProperty(
-        'dataLabelBackgroundColor', dataLabelBackgroundColor,
-        defaultValue: defaultData.dataLabelBackgroundColor));
-    properties.add(ColorProperty('tooltipColor', tooltipColor,
-        defaultValue: defaultData.tooltipColor));
-    properties.add(ColorProperty('trackballLineColor', trackballLineColor,
-        defaultValue: defaultData.trackballLineColor));
-    properties.add(ColorProperty('tooltipLabelColor', tooltipLabelColor,
-        defaultValue: defaultData.tooltipLabelColor));
     properties.add(
-      DiagnosticsProperty<TextStyle>('dataLabelTextStyle', dataLabelTextStyle,
-          defaultValue: defaultData.dataLabelTextStyle),
+      ColorProperty(
+        'backgroundColor',
+        backgroundColor,
+        defaultValue: defaultData.backgroundColor,
+      ),
     );
     properties.add(
-      DiagnosticsProperty<TextStyle>('trackballTextStyle', trackballTextStyle,
-          defaultValue: defaultData.trackballTextStyle),
+      ColorProperty('color', color, defaultValue: defaultData.color),
+    );
+    properties.add(
+      ColorProperty(
+        'axisLineColor',
+        axisLineColor,
+        defaultValue: defaultData.axisLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'markerFillColor',
+        markerFillColor,
+        defaultValue: defaultData.markerFillColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'dataLabelBackgroundColor',
+        dataLabelBackgroundColor,
+        defaultValue: defaultData.dataLabelBackgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tooltipColor',
+        tooltipColor,
+        defaultValue: defaultData.tooltipColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'trackballLineColor',
+        trackballLineColor,
+        defaultValue: defaultData.trackballLineColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tooltipLabelColor',
+        tooltipLabelColor,
+        defaultValue: defaultData.tooltipLabelColor,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'dataLabelTextStyle',
+        dataLabelTextStyle,
+        defaultValue: defaultData.dataLabelTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'trackballTextStyle',
+        trackballTextStyle,
+        defaultValue: defaultData.trackballTextStyle,
+      ),
     );
   }
 }

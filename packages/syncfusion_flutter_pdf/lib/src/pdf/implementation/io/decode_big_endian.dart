@@ -6,12 +6,19 @@ String decodeBigEndian(List<int>? bytes, [int offset = 0, int? length]) {
   return String.fromCharCodes(result);
 }
 
-List<int> _convertCodeUnitsToCodePoints(List<int> codeUnits,
-    [int offset = 0, int? length]) {
-  final UtfCodeUnitDecoder decoder =
-      UtfCodeUnitDecoder(ByteRange(codeUnits, offset, length));
-  final List<int> codePoints =
-      List<int>.filled(decoder.byteRange.remaining, 0, growable: true);
+List<int> _convertCodeUnitsToCodePoints(
+  List<int> codeUnits, [
+  int offset = 0,
+  int? length,
+]) {
+  final UtfCodeUnitDecoder decoder = UtfCodeUnitDecoder(
+    ByteRange(codeUnits, offset, length),
+  );
+  final List<int> codePoints = List<int>.filled(
+    decoder.byteRange.remaining,
+    0,
+    growable: true,
+  );
   int i = 0;
   while (decoder.moveNext) {
     codePoints[i++] = decoder._current!;
@@ -177,8 +184,11 @@ class UtfCodeUnitDecoder {
 /// internal method
 List<int> encodeBigEndian(String content) {
   final List<int> codeUnits = _codePointsToCodeUnits(content.codeUnits);
-  final List<int> encodedBytes =
-      List<int>.filled(2 * codeUnits.length, 0, growable: true);
+  final List<int> encodedBytes = List<int>.filled(
+    2 * codeUnits.length,
+    0,
+    growable: true,
+  );
   int i = 0;
   for (final int value in codeUnits) {
     encodedBytes[i++] = (value & 0xff00) >> 8;

@@ -49,27 +49,27 @@ class RenderMarkerPointer extends RenderBox {
     required SfGaugeThemeData gaugeThemeData,
     required ThemeData themeData,
     required SfColorScheme colorScheme,
-  })  : _value = value,
-        _markerType = markerType,
-        _color = color,
-        _markerWidth = markerWidth,
-        _markerHeight = markerHeight,
-        _borderWidth = borderWidth,
-        _markerOffset = markerOffset,
-        _text = text,
-        _borderColor = borderColor,
-        _offsetUnit = offsetUnit,
-        _imageUrl = imageUrl,
-        _textStyle = textStyle,
-        _overlayColor = overlayColor,
-        _overlayRadius = overlayRadius,
-        _elevation = elevation,
-        _markerPointerRenderer = markerPointerRenderer,
-        _pointerAnimationController = pointerAnimationController,
-        _repaintNotifier = repaintNotifier,
-        _gaugeThemeData = gaugeThemeData,
-        _themeData = themeData,
-        _colorScheme = colorScheme;
+  }) : _value = value,
+       _markerType = markerType,
+       _color = color,
+       _markerWidth = markerWidth,
+       _markerHeight = markerHeight,
+       _borderWidth = borderWidth,
+       _markerOffset = markerOffset,
+       _text = text,
+       _borderColor = borderColor,
+       _offsetUnit = offsetUnit,
+       _imageUrl = imageUrl,
+       _textStyle = textStyle,
+       _overlayColor = overlayColor,
+       _overlayRadius = overlayRadius,
+       _elevation = elevation,
+       _markerPointerRenderer = markerPointerRenderer,
+       _pointerAnimationController = pointerAnimationController,
+       _repaintNotifier = repaintNotifier,
+       _gaugeThemeData = gaugeThemeData,
+       _themeData = themeData,
+       _colorScheme = colorScheme;
 
   final double _margin = 15;
   dart_ui.Image? _image;
@@ -505,7 +505,10 @@ class RenderMarkerPointer extends RenderBox {
     _axisCenter = axisRenderer!.getAxisCenter();
     _radius = _axisRenderer!.getRadius();
     _actualAxisWidth = _axisRenderer!.getActualValue(
-        _axisRenderer!.thickness, _axisRenderer!.thicknessUnit, false);
+      _axisRenderer!.thickness,
+      _axisRenderer!.thicknessUnit,
+      false,
+    );
   }
 
   void _animationStatusListener(AnimationStatus status) {
@@ -560,10 +563,11 @@ class RenderMarkerPointer extends RenderBox {
     }
 
     pointerRect = Rect.fromLTRB(
-        offset.dx - markerWidth / 2 - _margin,
-        offset.dy - markerHeight / 2 - _margin,
-        offset.dx + markerWidth / 2 + _margin,
-        offset.dy + markerHeight / 2 + _margin);
+      offset.dx - markerWidth / 2 - _margin,
+      offset.dy - markerHeight / 2 - _margin,
+      offset.dx + markerWidth / 2 + _margin,
+      offset.dy + markerHeight / 2 + _margin,
+    );
   }
 
   @override
@@ -585,36 +589,45 @@ class RenderMarkerPointer extends RenderBox {
 
   /// Method returns the angle of  current pointer value
   double _getPointerAngle() {
-    final double currentFactor = (axisRenderer!.renderer != null &&
-            axisRenderer!.renderer?.valueToFactor(value) != null)
-        ? axisRenderer!.renderer?.valueToFactor(value) ??
-            axisRenderer!.valueToFactor(value)
-        : axisRenderer!.valueToFactor(value);
+    final double currentFactor =
+        (axisRenderer!.renderer != null &&
+                axisRenderer!.renderer?.valueToFactor(value) != null)
+            ? axisRenderer!.renderer?.valueToFactor(value) ??
+                axisRenderer!.valueToFactor(value)
+            : axisRenderer!.valueToFactor(value);
     return (currentFactor * _sweepAngle) + axisRenderer!.startAngle;
   }
 
   /// Calculates the marker offset position
   Offset _getMarkerOffset(double markerRadian) {
-    _actualMarkerOffset =
-        axisRenderer!.getActualValue(markerOffset, offsetUnit, true);
-    _totalOffset = _actualMarkerOffset < 0
-        ? axisRenderer!.getAxisOffset() + _actualMarkerOffset
-        : (_actualMarkerOffset + axisRenderer!.getAxisOffset());
+    _actualMarkerOffset = axisRenderer!.getActualValue(
+      markerOffset,
+      offsetUnit,
+      true,
+    );
+    _totalOffset =
+        _actualMarkerOffset < 0
+            ? axisRenderer!.getAxisOffset() + _actualMarkerOffset
+            : (_actualMarkerOffset + axisRenderer!.getAxisOffset());
     if (!axisRenderer!.canScaleToFit) {
-      final double x = (size.width / 2) +
+      final double x =
+          (size.width / 2) +
           (_radius - _totalOffset - (_actualAxisWidth / 2)) *
               math.cos(markerRadian) -
           _centerXPoint;
-      final double y = (size.height / 2) +
+      final double y =
+          (size.height / 2) +
           (_radius - _totalOffset - (_actualAxisWidth / 2)) *
               math.sin(markerRadian) -
           _centerYPoint;
       _offset = Offset(x, y);
     } else {
-      final double x = _axisCenter.dx +
+      final double x =
+          _axisCenter.dx +
           (_radius - _totalOffset - (_actualAxisWidth / 2)) *
               math.cos(markerRadian);
-      final double y = _axisCenter.dy +
+      final double y =
+          _axisCenter.dy +
           (_radius - _totalOffset - (_actualAxisWidth / 2)) *
               math.sin(markerRadian);
       _offset = Offset(x, y);
@@ -627,16 +640,18 @@ class RenderMarkerPointer extends RenderBox {
   // ignore: avoid_void_async
   void _loadImage() async {
     await _renderImage().then((void value) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((Duration duration) => markNeedsPaint());
+      WidgetsBinding.instance.addPostFrameCallback(
+        (Duration duration) => markNeedsPaint(),
+      );
     });
   }
 
   /// Renders the image from the image url
   Future<void> _renderImage() async {
     final ByteData imageData = await rootBundle.load(imageUrl!);
-    final dart_ui.Codec imageCodec =
-        await dart_ui.instantiateImageCodec(imageData.buffer.asUint8List());
+    final dart_ui.Codec imageCodec = await dart_ui.instantiateImageCodec(
+      imageData.buffer.asUint8List(),
+    );
     final dart_ui.FrameInfo frameInfo = await imageCodec.getNextFrame();
     _image = frameInfo.image;
   }
@@ -646,80 +661,108 @@ class RenderMarkerPointer extends RenderBox {
   /// By overriding this method, you can draw the customized marker
   /// pointer using required values.
   ///
-  void drawPointer(Canvas canvas, PointerPaintingDetails pointerPaintingDetails,
-      SfGaugeThemeData gaugeThemeData) {
-    final Paint paint = Paint()
-      ..color = color ??
-          gaugeThemeData.markerColor ??
-          colorScheme.secondaryContainer[205]!
-      ..style = PaintingStyle.fill;
+  void drawPointer(
+    Canvas canvas,
+    PointerPaintingDetails pointerPaintingDetails,
+    SfGaugeThemeData gaugeThemeData,
+  ) {
+    final Paint paint =
+        Paint()
+          ..color =
+              color ??
+              gaugeThemeData.markerColor ??
+              colorScheme.secondaryContainer[205]!
+          ..style = PaintingStyle.fill;
     const Color shadowColor = Colors.black;
 
     Paint? overlayPaint;
     if ((isHovered != null && isHovered!) &&
         overlayColor != colorScheme.transparent) {
-      overlayPaint = Paint()
-        ..color = overlayColor ??
-            color?.withValues(alpha: 0.12) ??
-            gaugeThemeData.markerColor?.withValues(alpha: 0.12) ??
-            _themeData.colorScheme.secondaryContainer.withValues(alpha: 0.12)
-        ..style = PaintingStyle.fill;
+      overlayPaint =
+          Paint()
+            ..color =
+                overlayColor ??
+                color?.withValues(alpha: 0.12) ??
+                gaugeThemeData.markerColor?.withValues(alpha: 0.12) ??
+                _themeData.colorScheme.secondaryContainer.withValues(
+                  alpha: 0.12,
+                )
+            ..style = PaintingStyle.fill;
     }
 
     Paint? borderPaint;
     if (borderWidth > 0) {
-      borderPaint = Paint()
-        ..color = borderColor ?? gaugeThemeData.markerBorderColor
-        ..strokeWidth = borderWidth
-        ..style = PaintingStyle.stroke;
+      borderPaint =
+          Paint()
+            ..color = borderColor ?? gaugeThemeData.markerBorderColor
+            ..strokeWidth = borderWidth
+            ..style = PaintingStyle.stroke;
     }
 
     canvas.save();
     switch (markerType) {
       case MarkerType.circle:
-        _drawCircle(canvas, paint, pointerPaintingDetails.startOffset,
-            borderPaint, overlayPaint, shadowColor);
+        _drawCircle(
+          canvas,
+          paint,
+          pointerPaintingDetails.startOffset,
+          borderPaint,
+          overlayPaint,
+          shadowColor,
+        );
         break;
       case MarkerType.rectangle:
         _drawRectangle(
-            canvas,
-            paint,
-            pointerPaintingDetails.startOffset,
-            pointerPaintingDetails.pointerAngle,
-            borderPaint,
-            overlayPaint,
-            shadowColor);
+          canvas,
+          paint,
+          pointerPaintingDetails.startOffset,
+          pointerPaintingDetails.pointerAngle,
+          borderPaint,
+          overlayPaint,
+          shadowColor,
+        );
         break;
       case MarkerType.image:
-        _drawMarkerImage(canvas, paint, pointerPaintingDetails.startOffset,
-            pointerPaintingDetails.pointerAngle);
+        _drawMarkerImage(
+          canvas,
+          paint,
+          pointerPaintingDetails.startOffset,
+          pointerPaintingDetails.pointerAngle,
+        );
         canvas.restore();
         break;
       case MarkerType.triangle:
       case MarkerType.invertedTriangle:
         _drawTriangle(
-            canvas,
-            paint,
-            pointerPaintingDetails.startOffset,
-            pointerPaintingDetails.pointerAngle,
-            borderPaint,
-            overlayPaint,
-            shadowColor);
+          canvas,
+          paint,
+          pointerPaintingDetails.startOffset,
+          pointerPaintingDetails.pointerAngle,
+          borderPaint,
+          overlayPaint,
+          shadowColor,
+        );
         break;
       case MarkerType.diamond:
         _drawDiamond(
+          canvas,
+          paint,
+          pointerPaintingDetails.startOffset,
+          pointerPaintingDetails.pointerAngle,
+          borderPaint,
+          overlayPaint,
+          shadowColor,
+        );
+        break;
+      case MarkerType.text:
+        if (text != null) {
+          _drawText(
             canvas,
             paint,
             pointerPaintingDetails.startOffset,
             pointerPaintingDetails.pointerAngle,
-            borderPaint,
-            overlayPaint,
-            shadowColor);
-        break;
-      case MarkerType.text:
-        if (text != null) {
-          _drawText(canvas, paint, pointerPaintingDetails.startOffset,
-              pointerPaintingDetails.pointerAngle, gaugeThemeData);
+            gaugeThemeData,
+          );
           canvas.restore();
         }
         break;
@@ -727,22 +770,29 @@ class RenderMarkerPointer extends RenderBox {
 
     if (markerType != MarkerType.text && markerType != MarkerType.image) {
       core.paint(
-          canvas: canvas,
-          rect: _markerRect,
-          paint: paint,
-          elevation: elevation,
-          elevationColor: shadowColor,
-          shapeType: _shapeMarkerType,
-          borderPaint: borderPaint);
+        canvas: canvas,
+        rect: _markerRect,
+        paint: paint,
+        elevation: elevation,
+        elevationColor: shadowColor,
+        shapeType: _shapeMarkerType,
+        borderPaint: borderPaint,
+      );
       canvas.restore();
     }
   }
 
   /// To render the MarkerShape.Text
-  void _drawText(Canvas canvas, Paint paint, Offset startPosition,
-      double pointerAngle, SfGaugeThemeData gaugeThemeData) {
+  void _drawText(
+    Canvas canvas,
+    Paint paint,
+    Offset startPosition,
+    double pointerAngle,
+    SfGaugeThemeData gaugeThemeData,
+  ) {
     final TextStyle markerTextStyle = _themeData.textTheme.bodySmall!.copyWith(
-      color: textStyle.color ??
+      color:
+          textStyle.color ??
           _gaugeThemeData.markerTextStyle?.color ??
           _gaugeThemeData.axisLabelColor ??
           colorScheme.onSurface[184],
@@ -756,42 +806,54 @@ class RenderMarkerPointer extends RenderBox {
     );
     final TextSpan span = TextSpan(text: text, style: markerTextStyle);
     final TextPainter textPainter = TextPainter(
-        text: span,
-        textDirection: TextDirection.ltr,
-        textAlign: TextAlign.center);
+      text: span,
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+    );
     textPainter.layout();
     canvas.save();
     canvas.translate(startPosition.dx, startPosition.dy);
     canvas.rotate(getDegreeToRadian(pointerAngle - 90));
     canvas.scale(-1);
     textPainter.paint(
-        canvas, Offset(-_textSize!.width / 2, -_textSize!.height / 2));
+      canvas,
+      Offset(-_textSize!.width / 2, -_textSize!.height / 2),
+    );
     canvas.restore();
   }
 
   /// Renders the MarkerShape.circle
-  void _drawCircle(Canvas canvas, Paint paint, Offset startPosition,
-      Paint? borderPaint, Paint? overlayPaint, Color shadowColor) {
+  void _drawCircle(
+    Canvas canvas,
+    Paint paint,
+    Offset startPosition,
+    Paint? borderPaint,
+    Paint? overlayPaint,
+    Color shadowColor,
+  ) {
     final double pointerOverlayRadius = overlayRadius ?? 15;
     _markerRect = Rect.fromLTRB(
-        startPosition.dx - markerWidth / 2,
-        startPosition.dy - markerHeight / 2,
-        startPosition.dx + markerWidth / 2,
-        startPosition.dy + markerHeight / 2);
+      startPosition.dx - markerWidth / 2,
+      startPosition.dy - markerHeight / 2,
+      startPosition.dx + markerWidth / 2,
+      startPosition.dy + markerHeight / 2,
+    );
 
     Rect overlayRect;
     if (overlayRadius != null) {
       overlayRect = Rect.fromLTRB(
-          startPosition.dx - pointerOverlayRadius,
-          startPosition.dy - pointerOverlayRadius,
-          startPosition.dx + pointerOverlayRadius,
-          startPosition.dy + pointerOverlayRadius);
+        startPosition.dx - pointerOverlayRadius,
+        startPosition.dy - pointerOverlayRadius,
+        startPosition.dx + pointerOverlayRadius,
+        startPosition.dy + pointerOverlayRadius,
+      );
     } else {
       overlayRect = Rect.fromLTRB(
-          _markerRect.left - pointerOverlayRadius,
-          _markerRect.top - pointerOverlayRadius,
-          _markerRect.right + pointerOverlayRadius,
-          _markerRect.bottom + pointerOverlayRadius);
+        _markerRect.left - pointerOverlayRadius,
+        _markerRect.top - pointerOverlayRadius,
+        _markerRect.right + pointerOverlayRadius,
+        _markerRect.bottom + pointerOverlayRadius,
+      );
     }
 
     if (overlayPaint != null) {
@@ -803,24 +865,30 @@ class RenderMarkerPointer extends RenderBox {
 
   /// Renders the MarkerShape.rectangle
   void _drawRectangle(
-      Canvas canvas,
-      Paint paint,
-      Offset startPosition,
-      double pointerAngle,
-      Paint? borderPaint,
-      Paint? overlayPaint,
-      Color shadowColor) {
+    Canvas canvas,
+    Paint paint,
+    Offset startPosition,
+    double pointerAngle,
+    Paint? borderPaint,
+    Paint? overlayPaint,
+    Color shadowColor,
+  ) {
     final double pointerOverlayRadius = overlayRadius ?? 15;
     Rect overlayRect;
     if (overlayRadius != null) {
-      overlayRect = Rect.fromLTRB(-pointerOverlayRadius, -pointerOverlayRadius,
-          pointerOverlayRadius, pointerOverlayRadius);
+      overlayRect = Rect.fromLTRB(
+        -pointerOverlayRadius,
+        -pointerOverlayRadius,
+        pointerOverlayRadius,
+        pointerOverlayRadius,
+      );
     } else {
       overlayRect = Rect.fromLTRB(
-          _markerRect.left - pointerOverlayRadius,
-          _markerRect.top - pointerOverlayRadius,
-          _markerRect.right + pointerOverlayRadius,
-          _markerRect.bottom + pointerOverlayRadius);
+        _markerRect.left - pointerOverlayRadius,
+        _markerRect.top - pointerOverlayRadius,
+        _markerRect.right + pointerOverlayRadius,
+        _markerRect.bottom + pointerOverlayRadius,
+      );
     }
 
     canvas.translate(startPosition.dx, startPosition.dy);
@@ -834,11 +902,19 @@ class RenderMarkerPointer extends RenderBox {
 
   /// Renders the MarkerShape.image
   void _drawMarkerImage(
-      Canvas canvas, Paint paint, Offset startPosition, double pointerAngle) {
+    Canvas canvas,
+    Paint paint,
+    Offset startPosition,
+    double pointerAngle,
+  ) {
     canvas.translate(startPosition.dx, startPosition.dy);
     canvas.rotate(getDegreeToRadian(pointerAngle + 90));
     final Rect rect = Rect.fromLTRB(
-        -markerWidth / 2, -markerHeight / 2, markerWidth / 2, markerHeight / 2);
+      -markerWidth / 2,
+      -markerHeight / 2,
+      markerWidth / 2,
+      markerHeight / 2,
+    );
     if (_image != null) {
       canvas.drawImageNine(_image!, rect, rect, paint);
     }
@@ -846,13 +922,14 @@ class RenderMarkerPointer extends RenderBox {
 
   /// Renders the MarkerShape.diamond
   void _drawDiamond(
-      Canvas canvas,
-      Paint paint,
-      Offset startPosition,
-      double pointerAngle,
-      Paint? borderPaint,
-      Paint? overlayPaint,
-      Color shadowColor) {
+    Canvas canvas,
+    Paint paint,
+    Offset startPosition,
+    double pointerAngle,
+    Paint? borderPaint,
+    Paint? overlayPaint,
+    Color shadowColor,
+  ) {
     canvas.translate(startPosition.dx, startPosition.dy);
     canvas.rotate(getDegreeToRadian(pointerAngle - 90));
 
@@ -882,17 +959,19 @@ class RenderMarkerPointer extends RenderBox {
 
   /// Renders the triangle and the inverted triangle
   void _drawTriangle(
-      Canvas canvas,
-      Paint paint,
-      Offset startPosition,
-      double pointerAngle,
-      Paint? borderPaint,
-      Paint? overlayPaint,
-      Color shadowColor) {
+    Canvas canvas,
+    Paint paint,
+    Offset startPosition,
+    double pointerAngle,
+    Paint? borderPaint,
+    Paint? overlayPaint,
+    Color shadowColor,
+  ) {
     canvas.translate(startPosition.dx, startPosition.dy);
-    final double triangleAngle = markerType == MarkerType.triangle
-        ? pointerAngle + 90
-        : pointerAngle - 90;
+    final double triangleAngle =
+        markerType == MarkerType.triangle
+            ? pointerAngle + 90
+            : pointerAngle - 90;
     canvas.rotate(getDegreeToRadian(triangleAngle));
 
     if (overlayPaint != null) {
@@ -904,13 +983,19 @@ class RenderMarkerPointer extends RenderBox {
         overlayPath.lineTo(0, -pointerOverlayRadius);
         overlayPath.lineTo(-pointerOverlayRadius, pointerOverlayRadius);
       } else {
-        overlayPath.moveTo(-((markerWidth + pointerOverlayRadius) / 2),
-            (markerHeight + pointerOverlayRadius) / 2);
-        overlayPath.lineTo((markerWidth + pointerOverlayRadius) / 2,
-            (markerHeight + pointerOverlayRadius) / 2);
+        overlayPath.moveTo(
+          -((markerWidth + pointerOverlayRadius) / 2),
+          (markerHeight + pointerOverlayRadius) / 2,
+        );
+        overlayPath.lineTo(
+          (markerWidth + pointerOverlayRadius) / 2,
+          (markerHeight + pointerOverlayRadius) / 2,
+        );
         overlayPath.lineTo(0, -((markerHeight + pointerOverlayRadius) / 2));
-        overlayPath.lineTo(-((markerWidth + pointerOverlayRadius) / 2),
-            (markerHeight + pointerOverlayRadius) / 2);
+        overlayPath.lineTo(
+          -((markerWidth + pointerOverlayRadius) / 2),
+          (markerHeight + pointerOverlayRadius) / 2,
+        );
       }
 
       overlayPath.close();
@@ -939,9 +1024,10 @@ class RenderMarkerPointer extends RenderBox {
 
     if (isRadialGaugeAnimationEnabled) {
       if (_pointerAnimation != null && _isInitialLoading) {
-        needsShowPointer = axisRenderer!.isInversed
-            ? _pointerAnimation!.value < 1
-            : _pointerAnimation!.value > 0;
+        needsShowPointer =
+            axisRenderer!.isInversed
+                ? _pointerAnimation!.value < 1
+                : _pointerAnimation!.value > 0;
       } else {
         needsShowPointer = true;
       }
@@ -952,17 +1038,25 @@ class RenderMarkerPointer extends RenderBox {
     if (needsShowPointer) {
       final PointerPaintingDetails pointerPaintingDetails =
           PointerPaintingDetails(
-              startOffset: markerOffset,
-              endOffset: markerOffset,
-              pointerAngle: markerAngle,
-              axisRadius: _radius,
-              axisCenter: _axisCenter);
+            startOffset: markerOffset,
+            endOffset: markerOffset,
+            pointerAngle: markerAngle,
+            axisRadius: _radius,
+            axisCenter: _axisCenter,
+          );
 
-      _markerRect = Rect.fromLTRB(-markerWidth / 2, -markerHeight / 2,
-          markerWidth / 2, markerHeight / 2);
+      _markerRect = Rect.fromLTRB(
+        -markerWidth / 2,
+        -markerHeight / 2,
+        markerWidth / 2,
+        markerHeight / 2,
+      );
       if (markerPointerRenderer != null) {
-        markerPointerRenderer!
-            .drawPointer(canvas, pointerPaintingDetails, _gaugeThemeData);
+        markerPointerRenderer!.drawPointer(
+          canvas,
+          pointerPaintingDetails,
+          _gaugeThemeData,
+        );
       } else {
         drawPointer(canvas, pointerPaintingDetails, _gaugeThemeData);
       }

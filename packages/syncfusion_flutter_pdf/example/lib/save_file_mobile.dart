@@ -19,8 +19,9 @@ Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
   } else {
     path = await PathProviderPlatform.instance.getApplicationSupportPath();
   }
-  final File file =
-      File(Platform.isWindows ? '$path\\$fileName' : '$path/$fileName');
+  final File file = File(
+    Platform.isWindows ? '$path\\$fileName' : '$path/$fileName',
+  );
   await file.writeAsBytes(bytes, flush: true);
   if (Platform.isAndroid || Platform.isIOS) {
     //Launch the file (used open_file package)
@@ -30,7 +31,8 @@ Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
   } else if (Platform.isMacOS) {
     await Process.run('open', <String>['$path/$fileName'], runInShell: true);
   } else if (Platform.isLinux) {
-    await Process.run('xdg-open', <String>['$path/$fileName'],
-        runInShell: true);
+    await Process.run('xdg-open', <String>[
+      '$path/$fileName',
+    ], runInShell: true);
   }
 }

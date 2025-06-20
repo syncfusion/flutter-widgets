@@ -38,6 +38,7 @@ class ZoomPanBehavior extends ChartBehavior {
     this.enablePanning = false,
     this.enableSelectionZooming = false,
     this.enableMouseWheelZooming = false,
+    this.enableDirectionalZooming = false,
     this.zoomMode = ZoomMode.xy,
     this.maximumZoomLevel = 0.01,
     this.selectionRectBorderWidth = 1,
@@ -168,6 +169,41 @@ class ZoomPanBehavior extends ChartBehavior {
   /// }
   /// ```
   final bool enableMouseWheelZooming;
+
+  /// Enables or disables directional zooming
+  ///
+  /// Enables directional zooming behavior in the chart. When it set to true,
+  /// users can zoom in a specific direction (horizontal, vertical, or diagonal) based on
+  /// the angle of their pinch or drag gesture. This provides precise control over zooming,
+  /// especially in scenarios with dense or complex data.
+  ///
+  /// Directional zooming is effective only when both [enableDirectionalZooming] and
+  /// [enablePinching] are set to true.
+  ///
+  /// Directional zooming is designed specifically for finger interactions (touch gestures).
+  /// It is not effective for mouse or trackpad-based interactions.
+  ///
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// late ZoomPanBehavior zoomPanBehavior;
+  ///
+  /// void initState() {
+  ///   zoomPanBehavior = ZoomPanBehavior(
+  ///     enableDirectionalZooming: true,
+  ///     zoomMode: ZoomMode.xy
+  ///     enablePinching: true,
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return SfCartesianChart(
+  ///     zoomPanBehavior: zoomPanBehavior,
+  ///   );
+  /// }
+  /// ```
+  final bool enableDirectionalZooming;
 
   /// By default, both the x and y-axes in the chart can be zoomed.
   ///
@@ -312,6 +348,37 @@ class ZoomPanBehavior extends ChartBehavior {
   // Holds the path of the zooming rect.
   Path? _rectPath;
 
+  // Determines zoom direction (horizontal, vertical or both) based on scale changes and angle.
+  ZoomMode _computeDirectionalZoomMode(ScaleUpdateDetails details) {
+    final double scale = details.scale;
+    final double horizontalScale = details.horizontalScale;
+    final double verticalScale = details.verticalScale;
+    final double dx = (scale - horizontalScale).abs();
+    final double dy = (scale - verticalScale).abs();
+    final double angle = ((180 / pi) * atan2(dx, dy)).abs();
+
+    final bool isXDirection =
+        (angle >= 340 && angle <= 360) ||
+        (angle >= 0 && angle <= 20) ||
+        (angle >= 160 && angle <= 200);
+    final bool isYDirection =
+        (angle >= 70 && angle <= 110) || (angle >= 250 && angle <= 290);
+    final bool isBothDirection =
+        (angle > 20 && angle < 70) ||
+        (angle > 110 && angle < 160) ||
+        (angle > 200 && angle < 250) ||
+        (angle > 290 && angle < 340);
+
+    if (isBothDirection) {
+      return ZoomMode.xy;
+    } else if (isXDirection) {
+      return ZoomMode.x;
+    } else if (isYDirection) {
+      return ZoomMode.y;
+    }
+    return ZoomMode.xy;
+  }
+
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
@@ -328,6 +395,7 @@ class ZoomPanBehavior extends ChartBehavior {
         other.enablePanning == enablePanning &&
         other.enableSelectionZooming == enableSelectionZooming &&
         other.enableMouseWheelZooming == enableMouseWheelZooming &&
+        other.enableDirectionalZooming == enableDirectionalZooming &&
         other.zoomMode == zoomMode &&
         other.maximumZoomLevel == maximumZoomLevel &&
         other.selectionRectBorderWidth == selectionRectBorderWidth &&
@@ -344,11 +412,12 @@ class ZoomPanBehavior extends ChartBehavior {
       enablePanning,
       enableSelectionZooming,
       enableMouseWheelZooming,
+      enableDirectionalZooming,
       zoomMode,
       maximumZoomLevel,
       selectionRectBorderWidth,
       selectionRectBorderColor,
-      selectionRectColor
+      selectionRectColor,
     ];
     return Object.hashAll(values);
   }
@@ -397,6 +466,14 @@ class ZoomPanBehavior extends ChartBehavior {
     if (axes == null) {
       return;
     }
+
+    // Directional zooming works only if both [enableDirectionalZooming] and
+    // [enablePinching] are true.
+    parent.directionalZoomMode =
+        enableDirectionalZooming && zoomMode == ZoomMode.xy
+            ? _computeDirectionalZoomMode(details)
+            : zoomMode;
+
     if (details.pointerCount == 2) {
       parent.hideInteractiveTooltip();
       _pinchZoom(axes, parent, details, details.localFocalPoint);
@@ -501,26 +578,34 @@ class ZoomPanBehavior extends ChartBehavior {
 
   // Method to perform pan zooming.
   void _pan(
-      RenderCartesianAxes axes, RenderBehaviorArea parent, Offset position) {
+    RenderCartesianAxes axes,
+    RenderBehaviorArea parent,
+    Offset position,
+  ) {
+    final ZoomMode effectiveZoomMode = parent.effectiveZoomMode;
     double currentZoomPosition;
     double calcZoomPosition;
     if (_previousMovedPosition != null) {
       final Offset translatePosition = _previousMovedPosition! - position;
       axes.visitChildren((RenderObject child) {
         if (child is RenderChartAxis && child.controller.zoomFactor != 1) {
-          if (_canZoom(child)) {
+          if (_canZoom(child, effectiveZoomMode)) {
             child.zoomingInProgress = true;
             _previousScale ??= _toScaleValue(child.controller.zoomFactor);
             currentZoomPosition = child.controller.zoomPosition;
             calcZoomPosition = _toPanValue(
-                child.paintBounds,
-                translatePosition,
-                child.controller.zoomPosition,
-                _previousScale!,
-                child.isVertical,
-                child.isInversed);
-            currentZoomPosition =
-                _minMax(calcZoomPosition, 0, 1 - child.controller.zoomFactor);
+              child.paintBounds,
+              translatePosition,
+              child.controller.zoomPosition,
+              _previousScale!,
+              child.isVertical,
+              child.isInversed,
+            );
+            currentZoomPosition = _minMax(
+              calcZoomPosition,
+              0,
+              1 - child.controller.zoomFactor,
+            );
             if (currentZoomPosition != child.controller.zoomPosition) {
               child.controller.zoomPosition = currentZoomPosition;
             }
@@ -535,18 +620,27 @@ class ZoomPanBehavior extends ChartBehavior {
   }
 
   // Method to perform pinch zooming
-  void _pinchZoom(RenderCartesianAxes axes, RenderBehaviorArea parent,
-      ScaleUpdateDetails details, Offset location) {
+  void _pinchZoom(
+    RenderCartesianAxes axes,
+    RenderBehaviorArea parent,
+    ScaleUpdateDetails details,
+    Offset location,
+  ) {
+    final ZoomMode effectiveZoomMode = parent.effectiveZoomMode;
     axes.visitChildren((RenderObject child) {
       if (child is RenderChartAxis) {
-        if (_canZoom(child)) {
+        if (_canZoom(child, effectiveZoomMode)) {
           child.zoomingInProgress = true;
           final double maxZoomLevel = _toScaleValue(maximumZoomLevel);
-          final double origin =
-              _calculateOrigin(child, child.paintBounds, location);
-          final double currentScale = zoomMode == ZoomMode.xy
-              ? details.scale
-              : child.isVertical
+          final double origin = _calculateOrigin(
+            child,
+            child.paintBounds,
+            location,
+          );
+          final double currentScale =
+              effectiveZoomMode == ZoomMode.xy
+                  ? details.scale
+                  : child.isVertical
                   ? details.verticalScale
                   : details.horizontalScale;
           _previousScale ??= _toScaleValue(child.controller.zoomFactor);
@@ -582,9 +676,16 @@ class ZoomPanBehavior extends ChartBehavior {
     return max(1 / _minMax(zoomFactor, 0, 1), 1);
   }
 
-  double _toPanValue(Rect bounds, Offset position, double zoomPosition,
-      double scale, bool isVertical, bool isInversed) {
-    double value = (isVertical
+  double _toPanValue(
+    Rect bounds,
+    Offset position,
+    double zoomPosition,
+    double scale,
+    bool isVertical,
+    bool isInversed,
+  ) {
+    double value =
+        (isVertical
             ? position.dy / bounds.height
             : position.dx / bounds.width) /
         scale;
@@ -597,11 +698,11 @@ class ZoomPanBehavior extends ChartBehavior {
   }
 
   // Method to find the chart needs zooming or not.
-  bool _canZoom(RenderChartAxis axis) {
-    final bool canDirectionalZoom = zoomMode == ZoomMode.xy;
+  bool _canZoom(RenderChartAxis axis, ZoomMode effectiveZoomMode) {
+    final bool canDirectionalZoom = effectiveZoomMode == ZoomMode.xy;
 
-    if ((axis.isVertical && zoomMode == ZoomMode.y) ||
-        (!axis.isVertical && zoomMode == ZoomMode.x) ||
+    if ((axis.isVertical && effectiveZoomMode == ZoomMode.y) ||
+        (!axis.isVertical && effectiveZoomMode == ZoomMode.x) ||
         canDirectionalZoom) {
       return true;
     }
@@ -611,7 +712,10 @@ class ZoomPanBehavior extends ChartBehavior {
 
   // Method to find the origin value based on touch position.
   double _calculateOrigin(
-      RenderChartAxis axis, Rect bounds, Offset? manipulation) {
+    RenderChartAxis axis,
+    Rect bounds,
+    Offset? manipulation,
+  ) {
     if (manipulation == null) {
       return 0.5;
     }
@@ -627,21 +731,27 @@ class ZoomPanBehavior extends ChartBehavior {
     }
 
     if (axis.isVertical) {
-      origin = axis.isInversed
-          ? ((manipulation.dy - plotOffsetEnd) / bounds.height)
-          : 1 - ((manipulation.dy - plotOffsetStart) / bounds.height);
+      origin =
+          axis.isInversed
+              ? ((manipulation.dy - plotOffsetEnd) / bounds.height)
+              : 1 - ((manipulation.dy - plotOffsetStart) / bounds.height);
     } else {
-      origin = axis.isInversed
-          ? 1.0 - ((manipulation.dx - plotOffsetStart) / bounds.width)
-          : (manipulation.dx - plotOffsetEnd) / bounds.width;
+      origin =
+          axis.isInversed
+              ? 1.0 - ((manipulation.dx - plotOffsetStart) / bounds.width)
+              : (manipulation.dx - plotOffsetEnd) / bounds.width;
     }
 
     return origin;
   }
 
   // Method to update the zoom values.
-  void _zoom(RenderBehaviorArea parent, RenderChartAxis axis,
-      double originPoint, double cumulativeZoomLevel) {
+  void _zoom(
+    RenderBehaviorArea parent,
+    RenderChartAxis axis,
+    double originPoint,
+    double cumulativeZoomLevel,
+  ) {
     double currentZoomPosition;
     double currentZoomFactor;
     if (cumulativeZoomLevel == 1) {
@@ -649,7 +759,8 @@ class ZoomPanBehavior extends ChartBehavior {
       currentZoomPosition = 0;
     } else {
       currentZoomFactor = _minMax(1 / cumulativeZoomLevel, 0, 1);
-      currentZoomPosition = axis.controller.zoomPosition +
+      currentZoomPosition =
+          axis.controller.zoomPosition +
           ((axis.controller.zoomFactor - currentZoomFactor) * originPoint);
     }
 
@@ -657,8 +768,11 @@ class ZoomPanBehavior extends ChartBehavior {
       axis.controller.zoomFactor = currentZoomFactor;
     }
     if (axis.controller.zoomPosition != currentZoomPosition) {
-      axis.controller.zoomPosition =
-          _minMax(currentZoomPosition, 0, 1 - axis.controller.zoomFactor);
+      axis.controller.zoomPosition = _minMax(
+        currentZoomPosition,
+        0,
+        1 - axis.controller.zoomFactor,
+      );
     }
   }
 
@@ -731,9 +845,10 @@ class ZoomPanBehavior extends ChartBehavior {
     }
 
     final Rect clipRect = parent.paintBounds;
+    final ZoomMode effectiveZoomMode = parent.effectiveZoomMode;
     cartesianAxes.visitChildren((RenderObject child) {
       if (child is RenderChartAxis) {
-        if (_canZoom(child)) {
+        if (_canZoom(child, effectiveZoomMode)) {
           final double originPoint = _calculateOrigin(child, clipRect, origin);
           child.zoomingInProgress = true;
           if (parent.onZoomStart != null) {
@@ -781,9 +896,10 @@ class ZoomPanBehavior extends ChartBehavior {
     if (cartesianAxes == null) {
       return;
     }
+    final ZoomMode effectiveZoomMode = parent.effectiveZoomMode;
     cartesianAxes.visitChildren((RenderObject child) {
       if (child is RenderChartAxis) {
-        if (_canZoom(child)) {
+        if (_canZoom(child, effectiveZoomMode)) {
           child.controller.zoomFactor = max(zoomFactor, maximumZoomLevel);
           if (parent.onZooming != null) {
             _bindZoomEvent(child, parent.onZooming!);
@@ -806,16 +922,20 @@ class ZoomPanBehavior extends ChartBehavior {
   /// Here, you need to pass axis, zoom factor, zoom position of the zoom level
   /// that needs to be modified.
   void zoomToSingleAxis(
-      ChartAxis axis, double zoomPosition, double zoomFactor) {
+    ChartAxis axis,
+    double zoomPosition,
+    double zoomFactor,
+  ) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent == null) {
       return;
     }
 
     parent.hideInteractiveTooltip();
-    final RenderChartAxis? axisDetails = axis.name != null
-        ? parent.axisFromName(axis.name)
-        : parent.axisFromObject(axis);
+    final RenderChartAxis? axisDetails =
+        axis.name != null
+            ? parent.axisFromName(axis.name)
+            : parent.axisFromObject(axis);
 
     if (axisDetails != null) {
       axisDetails.controller.zoomFactor = max(zoomFactor, maximumZoomLevel);
@@ -848,12 +968,18 @@ class ZoomPanBehavior extends ChartBehavior {
             child.controller.zoomPosition + (child.isInversed ? 0.1 : -0.1);
         if ((child.isVertical && direction == 'bottom') ||
             (!child.isVertical && direction == 'left')) {
-          child.controller.zoomPosition =
-              _minMax(decreaseZoomPosition, 0, 1 - currentZoomFactor);
+          child.controller.zoomPosition = _minMax(
+            decreaseZoomPosition,
+            0,
+            1 - currentZoomFactor,
+          );
         } else if ((child.isVertical && direction == 'top') ||
             (!child.isVertical && direction == 'right')) {
-          child.controller.zoomPosition =
-              _minMax(increaseZoomPosition, 0, 1 - currentZoomFactor);
+          child.controller.zoomPosition = _minMax(
+            increaseZoomPosition,
+            0,
+            1 - currentZoomFactor,
+          );
         }
         if (parent.onZooming != null) {
           _bindZoomEvent(child, parent.onZooming!);
@@ -888,12 +1014,15 @@ class ZoomPanBehavior extends ChartBehavior {
   }
 
   ZoomPanArgs _bindZoomEvent(
-      RenderChartAxis axis, ChartZoomingCallback zoomEventType) {
+    RenderChartAxis axis,
+    ChartZoomingCallback zoomEventType,
+  ) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     final ZoomPanArgs zoomPanArgs = ZoomPanArgs(
-        axis,
-        axis.controller.previousZoomPosition,
-        axis.controller.previousZoomFactor);
+      axis,
+      axis.controller.previousZoomPosition,
+      axis.controller.previousZoomFactor,
+    );
     zoomPanArgs.currentZoomFactor = axis.controller.zoomFactor;
     zoomPanArgs.currentZoomPosition = axis.controller.zoomPosition;
     if (parent == null) {
@@ -902,15 +1031,18 @@ class ZoomPanBehavior extends ChartBehavior {
     zoomEventType == parent.onZoomStart
         ? parent.onZoomStart!(zoomPanArgs)
         : zoomEventType == parent.onZoomEnd
-            ? parent.onZoomEnd!(zoomPanArgs)
-            : zoomEventType == parent.onZooming
-                ? parent.onZooming!(zoomPanArgs)
-                : parent.onZoomReset!(zoomPanArgs);
+        ? parent.onZoomEnd!(zoomPanArgs)
+        : zoomEventType == parent.onZooming
+        ? parent.onZooming!(zoomPanArgs)
+        : parent.onZoomReset!(zoomPanArgs);
     return zoomPanArgs;
   }
 
   void _doSelectionZooming(
-      LongPressMoveUpdateDetails details, double currentX, double currentY) {
+    LongPressMoveUpdateDetails details,
+    double currentX,
+    double currentY,
+  ) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent == null) {
       return;
@@ -923,19 +1055,26 @@ class ZoomPanBehavior extends ChartBehavior {
       );
       Offset currentMousePosition =
           startPosition + details.localOffsetFromOrigin;
-      final double currentX =
-          _minMax(currentMousePosition.dx, clipRect.left, clipRect.right);
-      final double currentY =
-          _minMax(currentMousePosition.dy, clipRect.top, clipRect.bottom);
+      final double currentX = _minMax(
+        currentMousePosition.dx,
+        clipRect.left,
+        clipRect.right,
+      );
+      final double currentY = _minMax(
+        currentMousePosition.dy,
+        clipRect.top,
+        clipRect.bottom,
+      );
       currentMousePosition = Offset(currentX, currentY);
       _rectPath = Path();
-      if (zoomMode == ZoomMode.x) {
+      final ZoomMode effectiveZoomMode = parent.effectiveZoomMode;
+      if (effectiveZoomMode == ZoomMode.x) {
         _rectPath!.moveTo(startPosition.dx, clipRect.top);
         _rectPath!.lineTo(startPosition.dx, clipRect.bottom);
         _rectPath!.lineTo(currentMousePosition.dx, clipRect.bottom);
         _rectPath!.lineTo(currentMousePosition.dx, clipRect.top);
         _rectPath!.close();
-      } else if (zoomMode == ZoomMode.y) {
+      } else if (effectiveZoomMode == ZoomMode.y) {
         _rectPath!.moveTo(clipRect.left, startPosition.dy);
         _rectPath!.lineTo(clipRect.left, currentMousePosition.dy);
         _rectPath!.lineTo(clipRect.right, currentMousePosition.dy);
@@ -970,27 +1109,32 @@ class ZoomPanBehavior extends ChartBehavior {
           _bindZoomEvent(child, parent.onZoomStart!);
         }
         final Rect clipRect = child.paintBounds;
+        final ZoomMode effectiveZoomMode = parent.effectiveZoomMode;
         if (child.isVertical) {
-          if (zoomMode != ZoomMode.x) {
+          if (effectiveZoomMode != ZoomMode.x) {
             final double zoomRectHeightFromTop =
                 zoomRect.height + (zoomRect.top - clipRect.top);
             child.controller.zoomPosition +=
                 (1 - (zoomRectHeightFromTop / clipRect.height).abs()) *
-                    child.controller.zoomFactor;
+                child.controller.zoomFactor;
             child.controller.zoomFactor *= zoomRect.height / clipRect.height;
-            child.controller.zoomFactor =
-                max(child.controller.zoomFactor, maximumZoomLevel);
+            child.controller.zoomFactor = max(
+              child.controller.zoomFactor,
+              maximumZoomLevel,
+            );
           }
         } else {
-          if (zoomMode != ZoomMode.y) {
+          if (effectiveZoomMode != ZoomMode.y) {
             final double zoomRectWidthFromLeft = zoomRect.left - clipRect.left;
             child.controller.zoomPosition +=
                 (zoomRectWidthFromLeft / clipRect.width).abs() *
-                    child.controller.zoomFactor;
+                child.controller.zoomFactor;
             child.controller.zoomFactor *=
                 zoomRect.width / child.paintBounds.width;
-            child.controller.zoomFactor =
-                max(child.controller.zoomFactor, maximumZoomLevel);
+            child.controller.zoomFactor = max(
+              child.controller.zoomFactor,
+              maximumZoomLevel,
+            );
           }
         }
         if (parent.onZoomEnd != null) {
@@ -1003,42 +1147,49 @@ class ZoomPanBehavior extends ChartBehavior {
   }
 
   void _drawTooltipConnector(
-      RenderCartesianAxes axes,
-      RenderBehaviorArea? parent,
-      Offset startPosition,
-      Offset endPosition,
-      Canvas canvas,
-      Rect plotAreaBounds,
-      Offset plotAreaOffset) {
+    RenderCartesianAxes axes,
+    RenderBehaviorArea? parent,
+    Offset startPosition,
+    Offset endPosition,
+    Canvas canvas,
+    Rect plotAreaBounds,
+    Offset plotAreaOffset,
+  ) {
     RRect? startTooltipRect, endTooltipRect;
     String startValue, endValue;
     Size startLabelSize, endLabelSize;
     Rect startLabelRect, endLabelRect;
     TextStyle textStyle =
         parent!.chartThemeData!.selectionZoomingTooltipTextStyle!;
-    final Paint labelFillPaint = Paint()
-      ..color = axes.chartThemeData.crosshairBackgroundColor!
-      ..isAntiAlias = true;
+    final Paint labelFillPaint =
+        Paint()
+          ..color = axes.chartThemeData.crosshairBackgroundColor!
+          ..isAntiAlias = true;
 
-    final Paint labelStrokePaint = Paint()
-      ..color = axes.chartThemeData.crosshairBackgroundColor!
-      ..isAntiAlias = true
-      ..style = PaintingStyle.stroke;
+    final Paint labelStrokePaint =
+        Paint()
+          ..color = axes.chartThemeData.crosshairBackgroundColor!
+          ..isAntiAlias = true
+          ..style = PaintingStyle.stroke;
 
     axes.visitChildren((RenderObject child) {
       if (child is RenderChartAxis) {
         if (child.interactiveTooltip.enable) {
           textStyle = textStyle.merge(child.interactiveTooltip.textStyle);
-          labelFillPaint.color = (child.interactiveTooltip.color ??
-              axes.chartThemeData.crosshairBackgroundColor)!;
-          labelStrokePaint.color = (child.interactiveTooltip.borderColor ??
-              axes.chartThemeData.crosshairBackgroundColor)!;
+          labelFillPaint.color =
+              (child.interactiveTooltip.color ??
+                  axes.chartThemeData.crosshairBackgroundColor)!;
+          labelStrokePaint.color =
+              (child.interactiveTooltip.borderColor ??
+                  axes.chartThemeData.crosshairBackgroundColor)!;
           labelStrokePaint.strokeWidth = child.interactiveTooltip.borderWidth;
-          final Paint connectorLinePaint = Paint()
-            ..color = (child.interactiveTooltip.connectorLineColor ??
-                axes.chartThemeData.selectionTooltipConnectorLineColor)!
-            ..strokeWidth = child.interactiveTooltip.connectorLineWidth
-            ..style = PaintingStyle.stroke;
+          final Paint connectorLinePaint =
+              Paint()
+                ..color =
+                    (child.interactiveTooltip.connectorLineColor ??
+                        axes.chartThemeData.selectionTooltipConnectorLineColor)!
+                ..strokeWidth = child.interactiveTooltip.connectorLineWidth
+                ..style = PaintingStyle.stroke;
 
           final Path startLabelPath = Path();
           final Path endLabelPath = Path();
@@ -1048,49 +1199,67 @@ class ZoomPanBehavior extends ChartBehavior {
           if (startValue.isNotEmpty && endValue.isNotEmpty) {
             startLabelSize = measureText(startValue, textStyle);
             endLabelSize = measureText(endValue, textStyle);
-            startLabelRect =
-                calculateRect(child, startPosition, startLabelSize);
+            startLabelRect = calculateRect(
+              child,
+              startPosition,
+              startLabelSize,
+            );
             endLabelRect = calculateRect(child, endPosition, endLabelSize);
             if (child.isVertical &&
                 startLabelRect.width != endLabelRect.width) {
               final String axisPosition =
                   child.opposedPosition ? 'right' : 'left';
               (startLabelRect.width > endLabelRect.width)
-                  ? endLabelRect =
-                      validateRect(startLabelRect, endLabelRect, axisPosition)
-                  : startLabelRect =
-                      validateRect(endLabelRect, startLabelRect, axisPosition);
+                  ? endLabelRect = validateRect(
+                    startLabelRect,
+                    endLabelRect,
+                    axisPosition,
+                  )
+                  : startLabelRect = validateRect(
+                    endLabelRect,
+                    startLabelRect,
+                    axisPosition,
+                  );
             }
             startTooltipRect = calculateTooltipRect(
-                canvas,
-                labelFillPaint,
-                labelStrokePaint,
-                startLabelPath,
-                startPosition,
-                startLabelRect,
-                startTooltipRect,
-                startValue,
-                startLabelSize,
-                plotAreaBounds,
-                textStyle,
-                child,
-                plotAreaOffset);
+              canvas,
+              labelFillPaint,
+              labelStrokePaint,
+              startLabelPath,
+              startPosition,
+              startLabelRect,
+              startTooltipRect,
+              startValue,
+              startLabelSize,
+              plotAreaBounds,
+              textStyle,
+              child,
+              plotAreaOffset,
+            );
             endTooltipRect = calculateTooltipRect(
-                canvas,
-                labelFillPaint,
-                labelStrokePaint,
-                endLabelPath,
-                endPosition,
-                endLabelRect,
-                endTooltipRect,
-                endValue,
-                endLabelSize,
-                plotAreaBounds,
-                textStyle,
-                child,
-                plotAreaOffset);
-            drawConnector(canvas, connectorLinePaint, startTooltipRect!,
-                endTooltipRect!, startPosition, endPosition, child);
+              canvas,
+              labelFillPaint,
+              labelStrokePaint,
+              endLabelPath,
+              endPosition,
+              endLabelRect,
+              endTooltipRect,
+              endValue,
+              endLabelSize,
+              plotAreaBounds,
+              textStyle,
+              child,
+              plotAreaOffset,
+            );
+            drawConnector(
+              canvas,
+              connectorLinePaint,
+              startTooltipRect!,
+              endTooltipRect!,
+              startPosition,
+              endPosition,
+              child,
+            );
           }
         }
       }
@@ -1098,8 +1267,12 @@ class ZoomPanBehavior extends ChartBehavior {
   }
 
   @override
-  void onPaint(PaintingContext context, Offset offset,
-      SfChartThemeData chartThemeData, ThemeData themeData) {
+  void onPaint(
+    PaintingContext context,
+    Offset offset,
+    SfChartThemeData chartThemeData,
+    ThemeData themeData,
+  ) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent == null) {
       return;
@@ -1115,17 +1288,20 @@ class ZoomPanBehavior extends ChartBehavior {
           fillColor.a == 1) {
         fillColor = fillColor.withValues(alpha: 0.3);
       }
-      final Paint fillPaint = Paint()
-        ..color =
-            (fillColor ?? cartesianAxes.chartThemeData.selectionRectColor)!
-        ..style = PaintingStyle.fill;
+      final Paint fillPaint =
+          Paint()
+            ..color =
+                (fillColor ?? cartesianAxes.chartThemeData.selectionRectColor)!
+            ..style = PaintingStyle.fill;
       context.canvas.drawRect(_zoomingRect, fillPaint);
-      final Paint strokePaint = Paint()
-        ..isAntiAlias = true
-        ..color = (selectionRectBorderColor ??
-            cartesianAxes.chartThemeData.selectionRectBorderColor)!
-        ..strokeWidth = selectionRectBorderWidth
-        ..style = PaintingStyle.stroke;
+      final Paint strokePaint =
+          Paint()
+            ..isAntiAlias = true
+            ..color =
+                (selectionRectBorderColor ??
+                    cartesianAxes.chartThemeData.selectionRectBorderColor)!
+            ..strokeWidth = selectionRectBorderWidth
+            ..style = PaintingStyle.stroke;
 
       if (strokePaint.color != Colors.transparent &&
           strokePaint.strokeWidth > 0) {
@@ -1137,13 +1313,14 @@ class ZoomPanBehavior extends ChartBehavior {
           (parent.parentData! as BoxParentData).offset;
       // Selection zooming tooltip rendering
       _drawTooltipConnector(
-          cartesianAxes,
-          parent,
-          _zoomingRect.topLeft,
-          _zoomingRect.bottomRight,
-          context.canvas,
-          parent.paintBounds,
-          plotAreaOffset);
+        cartesianAxes,
+        parent,
+        _zoomingRect.topLeft,
+        _zoomingRect.bottomRight,
+        context.canvas,
+        parent.paintBounds,
+        plotAreaOffset,
+      );
     }
   }
 }

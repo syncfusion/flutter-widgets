@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    title: 'Syncfusion PDF Viewer Demo',
-    home: HomePage(),
-  ));
+  runApp(
+    const MaterialApp(title: 'Syncfusion PDF Viewer Demo', home: HomePage()),
+  );
 }
 
 /// Represents Homepage for Navigation

@@ -69,8 +69,13 @@ class AutofilterConditionImpl implements AutoFilterCondition {
           firstCondition.conditionOperator == conditionOperator) {
         autoFilter.selectRangesToFilter();
         autoFilter.filterType = ExcelFilterType.customFilter;
-        autoFilter.setCondition(firstCondition.conditionOperator,
-            firstCondition.dataType, value, autoFilter.colIndex, true);
+        autoFilter.setCondition(
+          firstCondition.conditionOperator,
+          firstCondition.dataType,
+          value,
+          autoFilter.colIndex,
+          true,
+        );
       }
     }
     if (autoFilter.isSecondCondition) {
@@ -80,12 +85,19 @@ class AutofilterConditionImpl implements AutoFilterCondition {
           secondCondition.conditionOperator == conditionOperator) {
         autoFilter.selectRangesToFilter();
         autoFilter.filterType = ExcelFilterType.customFilter;
-        autoFilter.setCondition(secondCondition.conditionOperator,
-            secondCondition.dataType, value, autoFilter.colIndex, false);
+        autoFilter.setCondition(
+          secondCondition.conditionOperator,
+          secondCondition.dataType,
+          value,
+          autoFilter.colIndex,
+          false,
+        );
       }
     }
     autoFilter.showFilteredRow(
-        autoFilter.firstConditionboolList, autoFilter.secondConditionboolList);
+      autoFilter.firstConditionboolList,
+      autoFilter.secondConditionboolList,
+    );
   }
 
   ///Get string value
@@ -107,8 +119,13 @@ class AutofilterConditionImpl implements AutoFilterCondition {
           firstCondition.conditionOperator == conditionOperator) {
         autoFilter.selectRangesToFilter();
         autoFilter.filterType = ExcelFilterType.customFilter;
-        autoFilter.setCondition(firstCondition.conditionOperator,
-            firstCondition.dataType, value, autoFilter.colIndex, true);
+        autoFilter.setCondition(
+          firstCondition.conditionOperator,
+          firstCondition.dataType,
+          value,
+          autoFilter.colIndex,
+          true,
+        );
       }
     }
 
@@ -119,12 +136,19 @@ class AutofilterConditionImpl implements AutoFilterCondition {
           secondCondition.conditionOperator == conditionOperator) {
         autoFilter.selectRangesToFilter();
         autoFilter.filterType = ExcelFilterType.customFilter;
-        autoFilter.setCondition(secondCondition.conditionOperator,
-            secondCondition.dataType, value, autoFilter.colIndex, false);
+        autoFilter.setCondition(
+          secondCondition.conditionOperator,
+          secondCondition.dataType,
+          value,
+          autoFilter.colIndex,
+          false,
+        );
       }
     }
 
     autoFilter.showFilteredRow(
-        autoFilter.firstConditionboolList, autoFilter.secondConditionboolList);
+      autoFilter.firstConditionboolList,
+      autoFilter.secondConditionboolList,
+    );
   }
 }

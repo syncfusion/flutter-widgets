@@ -100,7 +100,11 @@ class LineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     num y2 = double.nan;
 
     final int nextIndex = nextIndexConsideringEmptyPointMode(
-        index, emptyPointSettings.mode, yValues, dataCount);
+      index,
+      emptyPointSettings.mode,
+      yValues,
+      dataCount,
+    );
     if (nextIndex != -1) {
       x2 = xValues[nextIndex];
       y2 = yValues[nextIndex];
@@ -138,8 +142,12 @@ class LineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
     paintSegments(context, offset);
     context.canvas.restore();
@@ -171,7 +179,9 @@ class LineSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldPoints.clear();
@@ -233,8 +243,11 @@ class LineSegment<T, D> extends ChartSegment {
   bool contains(Offset position) {
     if (points.isNotEmpty) {
       final ChartMarker marker = series.markerAt(currentSegmentIndex);
-      return tooltipTouchBounds(points[0], marker.width, marker.height)
-          .contains(position);
+      return tooltipTouchBounds(
+        points[0],
+        marker.width,
+        marker.height,
+      ).contains(position);
     }
     return false;
   }
@@ -258,14 +271,17 @@ class LineSegment<T, D> extends ChartSegment {
         series.markerSettings.isVisible ? marker.height / 2 : 0;
     final Offset preferredPos = points[0];
     return ChartTooltipInfo<T, D>(
-      primaryPosition:
-          series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-      secondaryPosition:
-          series.localToGlobal(preferredPos.translate(0, markerHeight)),
+      primaryPosition: series.localToGlobal(
+        preferredPos.translate(0, -markerHeight),
+      ),
+      secondaryPosition: series.localToGlobal(
+        preferredPos.translate(0, markerHeight),
+      ),
       text: series.tooltipText(chartPoint),
-      header: series.parent!.tooltipBehavior!.shared
-          ? series.tooltipHeaderText(chartPoint)
-          : series.name,
+      header:
+          series.parent!.tooltipBehavior!.shared
+              ? series.tooltipHeaderText(chartPoint)
+              : series.name,
       data: series.dataSource![pointIndex],
       point: chartPoint,
       series: series.widget,

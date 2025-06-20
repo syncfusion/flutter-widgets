@@ -53,15 +53,16 @@ bool findingCollision(Rect rect, List<Rect> regions, [Rect? pathRect]) {
 
 /// Method to get a text when the text overlap with another segment/slice.
 String segmentOverflowTrimmedText(
-    CircularSeriesRenderer seriesRenderer,
-    String text,
-    Size size,
-    CircularChartPoint point,
-    Rect labelRect,
-    Offset centerLocation,
-    Offset labelLocation,
-    OverflowMode action,
-    TextStyle dataLabelStyle) {
+  CircularSeriesRenderer seriesRenderer,
+  String text,
+  Size size,
+  CircularChartPoint point,
+  Rect labelRect,
+  Offset centerLocation,
+  Offset labelLocation,
+  OverflowMode action,
+  TextStyle dataLabelStyle,
+) {
   bool isTextWithinRegion;
   const String ellipse = '...';
   const int minCharacterLength = 3;
@@ -70,18 +71,20 @@ String segmentOverflowTrimmedText(
   final double labelPadding = kIsWeb ? 4 : 2;
 
   final bool labelLeftEnd = _isInsideSegment(
-      point.labelRect.centerLeft - Offset(labelPadding, 0),
-      centerLocation,
-      point.outerRadius!,
-      point.startAngle!,
-      point.endAngle!);
+    point.labelRect.centerLeft - Offset(labelPadding, 0),
+    centerLocation,
+    point.outerRadius!,
+    point.startAngle!,
+    point.endAngle!,
+  );
 
   final bool labelRightEnd = _isInsideSegment(
-      point.labelRect.centerRight - Offset(labelPadding, 0),
-      centerLocation,
-      point.outerRadius!,
-      point.startAngle!,
-      point.endAngle!);
+    point.labelRect.centerRight - Offset(labelPadding, 0),
+    centerLocation,
+    point.outerRadius!,
+    point.startAngle!,
+    point.endAngle!,
+  );
 
   if (labelLeftEnd && labelRightEnd) {
     return text;
@@ -104,36 +107,43 @@ String segmentOverflowTrimmedText(
         }
         const num labelPadding = 0;
         final Size trimSize = measureText(text, dataLabelStyle);
-        Offset trimmedLabelLocation = calculateOffset(point.midAngle!,
-            (point.innerRadius! + point.outerRadius!) / 2, point.center!);
+        Offset trimmedLabelLocation = calculateOffset(
+          point.midAngle!,
+          (point.innerRadius! + point.outerRadius!) / 2,
+          point.center!,
+        );
         trimmedLabelLocation = Offset(
-            (trimmedLabelLocation.dx - trimSize.width - 5) +
-                (seriesRenderer.dataLabelSettings.angle == 0
-                    ? 0
-                    : trimSize.width / 2),
-            (trimmedLabelLocation.dy - trimSize.height / 2) +
-                (seriesRenderer.dataLabelSettings.angle == 0
-                    ? 0
-                    : trimSize.height / 2));
+          (trimmedLabelLocation.dx - trimSize.width - 5) +
+              (seriesRenderer.dataLabelSettings.angle == 0
+                  ? 0
+                  : trimSize.width / 2),
+          (trimmedLabelLocation.dy - trimSize.height / 2) +
+              (seriesRenderer.dataLabelSettings.angle == 0
+                  ? 0
+                  : trimSize.height / 2),
+        );
         final Rect trimmedLabelRect = Rect.fromLTWH(
-            trimmedLabelLocation.dx - labelPadding,
-            trimmedLabelLocation.dy - labelPadding,
-            trimSize.width + (2 * labelPadding),
-            trimSize.height + (2 * labelPadding));
+          trimmedLabelLocation.dx - labelPadding,
+          trimmedLabelLocation.dy - labelPadding,
+          trimSize.width + (2 * labelPadding),
+          trimSize.height + (2 * labelPadding),
+        );
 
         final bool trimmedLeftEnd = _isInsideSegment(
-            trimmedLabelRect.centerLeft,
-            centerLocation,
-            point.outerRadius!,
-            point.startAngle!,
-            point.endAngle!);
+          trimmedLabelRect.centerLeft,
+          centerLocation,
+          point.outerRadius!,
+          point.startAngle!,
+          point.endAngle!,
+        );
 
         final bool trimmedRightEnd = _isInsideSegment(
-            trimmedLabelRect.centerRight,
-            centerLocation,
-            point.outerRadius!,
-            point.startAngle!,
-            point.endAngle!);
+          trimmedLabelRect.centerRight,
+          centerLocation,
+          point.outerRadius!,
+          point.startAngle!,
+          point.endAngle!,
+        );
         if (trimmedLeftEnd && trimmedRightEnd) {
           isTextWithinRegion = true;
           point.labelRect = trimmedLabelRect;
@@ -169,7 +179,12 @@ String addEllipse(String text, int maxLength, String ellipse, {bool? isRtl}) {
 /// Method to check if a label is inside the point region based
 /// on the angle for pie and doughnut series.
 bool _isInsideSegment(
-    Offset point, Offset center, num radius, num start, num end) {
+  Offset point,
+  Offset center,
+  num radius,
+  num start,
+  num end,
+) {
   final Offset labelOffset = point - center;
   final double labelRadius = labelOffset.distance;
 
@@ -189,8 +204,11 @@ bool _isInsideSegment(
 }
 
 /// Method for setting color to data label.
-Color findThemeColor(CircularSeriesRenderer seriesRenderer,
-    CircularChartPoint point, DataLabelSettings dataLabelSettings) {
+Color findThemeColor(
+  CircularSeriesRenderer seriesRenderer,
+  CircularChartPoint point,
+  DataLabelSettings dataLabelSettings,
+) {
   // TODO(Lavanya): Recheck here.
   final Color dataLabelBackgroundColor =
       seriesRenderer.parent!.themeData!.colorScheme.surface;
@@ -205,13 +223,14 @@ Color findThemeColor(CircularSeriesRenderer seriesRenderer,
 
 /// To render outside positioned data labels.
 void renderOutsideDataLabel(
-    CircularChartPoint point,
-    Size textSize,
-    int pointIndex,
-    CircularSeriesRenderer seriesRenderer,
-    int seriesIndex,
-    TextStyle textStyle,
-    List<Rect> renderDataLabelRegions) {
+  CircularChartPoint point,
+  Size textSize,
+  int pointIndex,
+  CircularSeriesRenderer seriesRenderer,
+  int seriesIndex,
+  TextStyle textStyle,
+  List<Rect> renderDataLabelRegions,
+) {
   Path connectorPath;
   Rect? rect;
   Offset labelLocation;
@@ -220,34 +239,46 @@ void renderOutsideDataLabel(
   final EdgeInsets margin = settings.margin;
   final ConnectorLineSettings connector = settings.connectorLineSettings;
   connectorPath = Path();
-  final num connectorLength = percentToValue(
-      connector.length ?? defaultConnectorLineLength, point.outerRadius!)!;
+  final num connectorLength =
+      percentToValue(
+        connector.length ?? defaultConnectorLineLength,
+        point.outerRadius!,
+      )!;
   final Offset startPoint = calculateOffset(
-      point.midAngle!, point.outerRadius!.toDouble(), point.center!);
-  final Offset endPoint = calculateOffset(point.midAngle!,
-      (point.outerRadius! + connectorLength).toDouble(), point.center!);
+    point.midAngle!,
+    point.outerRadius!.toDouble(),
+    point.center!,
+  );
+  final Offset endPoint = calculateOffset(
+    point.midAngle!,
+    (point.outerRadius! + connectorLength).toDouble(),
+    point.center!,
+  );
   connectorPath.moveTo(startPoint.dx, startPoint.dy);
   if (connector.type == ConnectorType.line) {
     connectorPath.lineTo(endPoint.dx, endPoint.dy);
   }
 
   rect = getDataLabelRect(
-      point.dataLabelPosition,
-      connector.type,
-      margin,
-      connectorPath,
-      endPoint,
-      textSize,
-      // To avoid the extra padding added to the exact template size.
-      settings.builder != null &&
-              settings.labelIntersectAction == LabelIntersectAction.shift
-          ? seriesRenderer.dataLabelSettings
-          : null);
+    point.dataLabelPosition,
+    connector.type,
+    margin,
+    connectorPath,
+    endPoint,
+    textSize,
+    // To avoid the extra padding added to the exact template size.
+    settings.builder != null &&
+            settings.labelIntersectAction == LabelIntersectAction.shift
+        ? seriesRenderer.dataLabelSettings
+        : null,
+  );
 
   point.connectorPath = connectorPath;
   point.labelRect = rect!;
-  labelLocation = Offset(rect.left + margin.left,
-      rect.top + rect.height / 2 - textSize.height / 2);
+  labelLocation = Offset(
+    rect.left + margin.left,
+    rect.top + rect.height / 2 - textSize.height / 2,
+  );
   point.labelLocation = labelLocation;
 
   final Rect containerRect = seriesRenderer.paintBounds;
@@ -301,9 +332,15 @@ void renderOutsideDataLabel(
 }
 
 /// To return data label rect calculation method based on position.
-Rect? getDataLabelRect(Position position, ConnectorType connectorType,
-    EdgeInsets margin, Path connectorPath, Offset endPoint, Size textSize,
-    [DataLabelSettings? dataLabelSettings]) {
+Rect? getDataLabelRect(
+  Position position,
+  ConnectorType connectorType,
+  EdgeInsets margin,
+  Path connectorPath,
+  Offset endPoint,
+  Size textSize, [
+  DataLabelSettings? dataLabelSettings,
+]) {
   Rect? rect;
   const int lineLength = 10;
   switch (position) {
@@ -311,40 +348,62 @@ Rect? getDataLabelRect(Position position, ConnectorType connectorType,
       connectorType == ConnectorType.line
           ? connectorPath.lineTo(endPoint.dx + lineLength, endPoint.dy)
           : connectorPath.quadraticBezierTo(
-              endPoint.dx, endPoint.dy, endPoint.dx + lineLength, endPoint.dy);
-      rect = dataLabelSettings != null && dataLabelSettings.builder != null
-          ? Rect.fromLTWH(
-              endPoint.dx, endPoint.dy, textSize.width, textSize.height)
-          : Rect.fromLTWH(
-              endPoint.dx + lineLength,
-              endPoint.dy - (textSize.height / 2) - margin.top,
-              textSize.width + margin.left + margin.right,
-              textSize.height + margin.top + margin.bottom);
+            endPoint.dx,
+            endPoint.dy,
+            endPoint.dx + lineLength,
+            endPoint.dy,
+          );
+      rect =
+          dataLabelSettings != null && dataLabelSettings.builder != null
+              ? Rect.fromLTWH(
+                endPoint.dx,
+                endPoint.dy,
+                textSize.width,
+                textSize.height,
+              )
+              : Rect.fromLTWH(
+                endPoint.dx + lineLength,
+                endPoint.dy - (textSize.height / 2) - margin.top,
+                textSize.width + margin.left + margin.right,
+                textSize.height + margin.top + margin.bottom,
+              );
       break;
     case Position.left:
       connectorType == ConnectorType.line
           ? connectorPath.lineTo(endPoint.dx - lineLength, endPoint.dy)
           : connectorPath.quadraticBezierTo(
-              endPoint.dx, endPoint.dy, endPoint.dx - lineLength, endPoint.dy);
-      rect = dataLabelSettings != null && dataLabelSettings.builder != null
-          ? Rect.fromLTWH(
-              endPoint.dx, endPoint.dy, textSize.width, textSize.height)
-          : Rect.fromLTWH(
-              endPoint.dx -
-                  lineLength -
-                  margin.right -
-                  textSize.width -
-                  margin.left,
-              endPoint.dy - ((textSize.height / 2) + margin.top),
-              textSize.width + margin.left + margin.right,
-              textSize.height + margin.top + margin.bottom);
+            endPoint.dx,
+            endPoint.dy,
+            endPoint.dx - lineLength,
+            endPoint.dy,
+          );
+      rect =
+          dataLabelSettings != null && dataLabelSettings.builder != null
+              ? Rect.fromLTWH(
+                endPoint.dx,
+                endPoint.dy,
+                textSize.width,
+                textSize.height,
+              )
+              : Rect.fromLTWH(
+                endPoint.dx -
+                    lineLength -
+                    margin.right -
+                    textSize.width -
+                    margin.left,
+                endPoint.dy - ((textSize.height / 2) + margin.top),
+                textSize.width + margin.left + margin.right,
+                textSize.height + margin.top + margin.bottom,
+              );
       break;
   }
   return rect;
 }
 
-void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
-    LinkedList<CircularChartDataLabelPositioned> labels) {
+void shiftCircularDataLabels(
+  CircularSeriesRenderer seriesRenderer,
+  LinkedList<CircularChartDataLabelPositioned> labels,
+) {
   final List<CircularChartPoint> points = <CircularChartPoint>[];
 
   if (seriesRenderer is RadialBarSeriesRenderer) {
@@ -374,8 +433,10 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
           }
         }
       }
-      leftPoints.sort((CircularChartPoint a, CircularChartPoint b) =>
-          a.newAngle!.compareTo(b.newAngle!));
+      leftPoints.sort(
+        (CircularChartPoint a, CircularChartPoint b) =>
+            a.newAngle!.compareTo(b.newAngle!),
+      );
       if (leftPoints.isNotEmpty) {
         _arrangeLeftSidePoints(seriesRenderer);
       }
@@ -386,8 +447,8 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
     }
 
     for (int pointIndex = 0; pointIndex < labels.length; pointIndex++) {
-      final CircularChartDataLabelPositioned dataLabelPositioned =
-          labels.elementAt(pointIndex);
+      final CircularChartDataLabelPositioned dataLabelPositioned = labels
+          .elementAt(pointIndex);
       final CircularChartPoint point = dataLabelPositioned.point!;
       if (point.isVisible) {
         final EdgeInsets margin = seriesRenderer.dataLabelSettings.margin;
@@ -396,38 +457,48 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
         final Size textSize = dataLabelPositioned.size;
 
         labelLocation = Offset(
-            rect.left +
-                (point.renderPosition == ChartDataLabelPosition.inside
-                    ? labelPadding
-                    : margin.left),
-            rect.top + rect.height / 2 - textSize.height / 2);
+          rect.left +
+              (point.renderPosition == ChartDataLabelPosition.inside
+                  ? labelPadding
+                  : margin.left),
+          rect.top + rect.height / 2 - textSize.height / 2,
+        );
         const String defaultConnectorLineLength = '10%';
         point.trimmedText = point.text;
         Path shiftedConnectorPath = Path();
-        final num connectorLength = percentToValue(
-            seriesRenderer.dataLabelSettings.connectorLineSettings.length ??
-                defaultConnectorLineLength,
-            point.outerRadius!)!;
+        final num connectorLength =
+            percentToValue(
+              seriesRenderer.dataLabelSettings.connectorLineSettings.length ??
+                  defaultConnectorLineLength,
+              point.outerRadius!,
+            )!;
         final Offset startPoint = calculateOffset(
-            (point.startAngle! + point.endAngle!) / 2,
-            point.outerRadius!.toDouble(),
-            point.center!);
-        final Offset endPoint = calculateOffset(point.newAngle!.toDouble(),
-            (point.outerRadius! + connectorLength).toDouble(), point.center!);
+          (point.startAngle! + point.endAngle!) / 2,
+          point.outerRadius!.toDouble(),
+          point.center!,
+        );
+        final Offset endPoint = calculateOffset(
+          point.newAngle!.toDouble(),
+          (point.outerRadius! + connectorLength).toDouble(),
+          point.center!,
+        );
         shiftedConnectorPath.moveTo(startPoint.dx, startPoint.dy);
         if (seriesRenderer.dataLabelSettings.connectorLineSettings.type ==
             ConnectorType.line) {
           shiftedConnectorPath.lineTo(endPoint.dx, endPoint.dy);
         }
         getDataLabelRect(
-            point.dataLabelPosition,
-            seriesRenderer.dataLabelSettings.connectorLineSettings.type,
-            margin,
-            shiftedConnectorPath,
-            endPoint,
-            textSize);
+          point.dataLabelPosition,
+          seriesRenderer.dataLabelSettings.connectorLineSettings.type,
+          margin,
+          shiftedConnectorPath,
+          endPoint,
+          textSize,
+        );
         final Offset midAngle = getPerpendicularDistance(
-            Offset(startPoint.dx, startPoint.dy), point);
+          Offset(startPoint.dx, startPoint.dy),
+          point,
+        );
         if (seriesRenderer.dataLabelSettings.connectorLineSettings.type ==
                 ConnectorType.curve &&
             (point.isLabelUpdated) == 1) {
@@ -435,13 +506,12 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
           shiftedConnectorPath = Path();
           shiftedConnectorPath.moveTo(startPoint.dx, startPoint.dy);
           shiftedConnectorPath.quadraticBezierTo(
-              midAngle.dx,
-              midAngle.dy,
-              endPoint.dx -
-                  (point.dataLabelPosition == Position.left
-                      ? spacing
-                      : -spacing),
-              endPoint.dy);
+            midAngle.dx,
+            midAngle.dy,
+            endPoint.dx -
+                (point.dataLabelPosition == Position.left ? spacing : -spacing),
+            endPoint.dy,
+          );
         }
 
         // TODO(Lavanya): Recheck connector line here.
@@ -453,36 +523,46 @@ void shiftCircularDataLabels(CircularSeriesRenderer seriesRenderer,
         // TODO(Lavanya): Recheck here.
         final Rect containerRect = seriesRenderer.paintBounds;
         if (containerRect.left > rect.left) {
-          labelLocation = Offset(containerRect.left,
-              rect.top + rect.height / 2 - textSize.height / 2);
+          labelLocation = Offset(
+            containerRect.left,
+            rect.top + rect.height / 2 - textSize.height / 2,
+          );
         }
 
         final DataLabelText details =
             labels.elementAt(pointIndex).child as DataLabelText;
         if (point.labelRect.left < containerRect.left &&
             point.renderPosition == ChartDataLabelPosition.outside) {
-          point.trimmedText = getTrimmedText(point.trimmedText!,
-              point.labelRect.right - containerRect.left, details.textStyle,
-              isRtl: false); // TODO(Lavanya): Recheck here.
+          point.trimmedText = getTrimmedText(
+            point.trimmedText!,
+            point.labelRect.right - containerRect.left,
+            details.textStyle,
+            isRtl: false,
+          ); // TODO(Lavanya): Recheck here.
         }
         if (point.labelRect.right > containerRect.right &&
             point.renderPosition == ChartDataLabelPosition.outside) {
-          point.trimmedText = getTrimmedText(point.trimmedText!,
-              containerRect.right - point.labelRect.left, details.textStyle,
-              isRtl: false);
+          point.trimmedText = getTrimmedText(
+            point.trimmedText!,
+            containerRect.right - point.labelRect.left,
+            details.textStyle,
+            isRtl: false,
+          );
         }
 
         if (point.text != point.trimmedText) {
           details.text = point.trimmedText!;
           point.dataLabelSize = measureText(details.text, details.textStyle);
           dataLabelPositioned.size = point.dataLabelSize;
-          rect = getDataLabelRect(
-              point.dataLabelPosition,
-              seriesRenderer.dataLabelSettings.connectorLineSettings.type,
-              margin,
-              shiftedConnectorPath,
-              endPoint,
-              point.dataLabelSize)!;
+          rect =
+              getDataLabelRect(
+                point.dataLabelPosition,
+                seriesRenderer.dataLabelSettings.connectorLineSettings.type,
+                margin,
+                shiftedConnectorPath,
+                endPoint,
+                point.dataLabelSize,
+              )!;
         } else {
           point.trimmedText = null;
         }
@@ -522,7 +602,11 @@ void _arrangeLeftSidePoints(CircularSeriesRenderer seriesRenderer) {
       if (!isIncreaseAngle) {
         for (int k = i; k > 0; k--) {
           _decreaseAngle(
-              leftPoints[k], leftPoints[k - 1], seriesRenderer, false);
+            leftPoints[k],
+            leftPoints[k - 1],
+            seriesRenderer,
+            false,
+          );
           for (int index = 1; index < leftPoints.length; index++) {
             if ((leftPoints[index].isLabelUpdated) != null &&
                 leftPoints[index].newAngle! - 10 < 100) {
@@ -533,7 +617,11 @@ void _arrangeLeftSidePoints(CircularSeriesRenderer seriesRenderer) {
       } else {
         for (int k = i; k < leftPoints.length; k++) {
           _increaseAngle(
-              leftPoints[k - 1], leftPoints[k], seriesRenderer, false);
+            leftPoints[k - 1],
+            leftPoints[k],
+            seriesRenderer,
+            false,
+          );
         }
       }
     } else {
@@ -588,12 +676,20 @@ void _arrangeRightSidePoints(CircularSeriesRenderer seriesRenderer) {
       if (!isIncreaseAngle) {
         for (int k = i + 1; k < rightPoints.length; k++) {
           _increaseAngle(
-              rightPoints[k - 1], rightPoints[k], seriesRenderer, true);
+            rightPoints[k - 1],
+            rightPoints[k],
+            seriesRenderer,
+            true,
+          );
         }
       } else {
         for (int k = i + 1; k > 0; k--) {
           _decreaseAngle(
-              rightPoints[k], rightPoints[k - 1], seriesRenderer, true);
+            rightPoints[k],
+            rightPoints[k - 1],
+            seriesRenderer,
+            true,
+          );
         }
       }
     } else {
@@ -611,10 +707,11 @@ void _arrangeRightSidePoints(CircularSeriesRenderer seriesRenderer) {
 
 /// Decrease the angle of the label if it intersects with labels.
 void _decreaseAngle(
-    CircularChartPoint currentPoint,
-    CircularChartPoint previousPoint,
-    CircularSeriesRenderer seriesRenderer,
-    bool isRightSide) {
+  CircularChartPoint currentPoint,
+  CircularChartPoint previousPoint,
+  CircularSeriesRenderer seriesRenderer,
+  bool isRightSide,
+) {
   int count = 1;
   if (isRightSide) {
     while (isOverlap(currentPoint.labelRect, previousPoint.labelRect) ||
@@ -655,7 +752,10 @@ void _decreaseAngle(
           leftPoints.indexOf(previousPoint) == null &&
           (newAngle - 1 < 90 && newAngle - 1 > 270)) {
         _changeLabelAngle(
-            currentPoint, currentPoint.newAngle! + 1, seriesRenderer);
+          currentPoint,
+          currentPoint.newAngle! + 1,
+          seriesRenderer,
+        );
         _arrangeLeftSidePoints(seriesRenderer);
         break;
       }
@@ -666,10 +766,11 @@ void _decreaseAngle(
 
 /// Increase the angle of the label if it intersects labels.
 void _increaseAngle(
-    CircularChartPoint currentPoint,
-    CircularChartPoint nextPoint,
-    CircularSeriesRenderer seriesRenderer,
-    bool isRightSide) {
+  CircularChartPoint currentPoint,
+  CircularChartPoint nextPoint,
+  CircularSeriesRenderer seriesRenderer,
+  bool isRightSide,
+) {
   int count = 1;
   if (isRightSide) {
     while (isOverlap(currentPoint.labelRect, nextPoint.labelRect) ||
@@ -687,7 +788,10 @@ void _increaseAngle(
           (newAngle + 1 > 90 && newAngle + 1 < 270) &&
           rightPoints.indexOf(nextPoint) == rightPoints.length - 1) {
         _changeLabelAngle(
-            currentPoint, currentPoint.newAngle! - 1, seriesRenderer);
+          currentPoint,
+          currentPoint.newAngle! - 1,
+          seriesRenderer,
+        );
         _arrangeRightSidePoints(seriesRenderer);
         break;
       }
@@ -711,44 +815,57 @@ void _increaseAngle(
 }
 
 /// Change the label angle based on the given new angle.
-void _changeLabelAngle(CircularChartPoint currentPoint, num newAngle,
-    CircularSeriesRenderer seriesRenderer) {
-// TODO(Lavanya): Code cleanup for seriesRenderer field.
+void _changeLabelAngle(
+  CircularChartPoint currentPoint,
+  num newAngle,
+  CircularSeriesRenderer seriesRenderer,
+) {
+  // TODO(Lavanya): Code cleanup for seriesRenderer field.
 
   const String defaultConnectorLineLength = '10%';
   final DataLabelSettings dataLabelSettings = seriesRenderer.dataLabelSettings;
   final RenderChartPlotArea parent = seriesRenderer.parent!;
-  final TextStyle dataLabelStyle = parent.themeData!.textTheme.bodySmall!
-    ..merge(parent.chartThemeData!.dataLabelTextStyle)
-    ..merge(dataLabelSettings.textStyle);
+  final TextStyle dataLabelStyle =
+      parent.themeData!.textTheme.bodySmall!
+        ..merge(parent.chartThemeData!.dataLabelTextStyle)
+        ..merge(dataLabelSettings.textStyle);
   // Builder check for change the angle based on the template size.
-  final Size textSize = dataLabelSettings.builder != null
-      ? currentPoint.dataLabelSize
-      : measureText(currentPoint.text!, dataLabelStyle);
+  final Size textSize =
+      dataLabelSettings.builder != null
+          ? currentPoint.dataLabelSize
+          : measureText(currentPoint.text!, dataLabelStyle);
   final Path angleChangedConnectorPath = Path();
-  final num connectorLength = percentToValue(
-      dataLabelSettings.connectorLineSettings.length ??
-          defaultConnectorLineLength,
-      currentPoint.outerRadius!)!;
-  final Offset startPoint = calculateOffset(newAngle.toDouble(),
-      currentPoint.outerRadius!.toDouble(), currentPoint.center!);
+  final num connectorLength =
+      percentToValue(
+        dataLabelSettings.connectorLineSettings.length ??
+            defaultConnectorLineLength,
+        currentPoint.outerRadius!,
+      )!;
+  final Offset startPoint = calculateOffset(
+    newAngle.toDouble(),
+    currentPoint.outerRadius!.toDouble(),
+    currentPoint.center!,
+  );
   final Offset endPoint = calculateOffset(
-      newAngle.toDouble(),
-      currentPoint.outerRadius!.toDouble() + connectorLength,
-      currentPoint.center!);
+    newAngle.toDouble(),
+    currentPoint.outerRadius!.toDouble() + connectorLength,
+    currentPoint.center!,
+  );
   angleChangedConnectorPath.moveTo(startPoint.dx, startPoint.dy);
   if (dataLabelSettings.connectorLineSettings.type == ConnectorType.line) {
     angleChangedConnectorPath.lineTo(endPoint.dx, endPoint.dy);
   }
 
   // TODO(Lavanya): Recheck label rect position here.
-  currentPoint.labelRect = getDataLabelRect(
-      currentPoint.dataLabelPosition,
-      seriesRenderer.dataLabelSettings.connectorLineSettings.type,
-      dataLabelSettings.margin,
-      angleChangedConnectorPath,
-      endPoint,
-      textSize)!;
+  currentPoint.labelRect =
+      getDataLabelRect(
+        currentPoint.dataLabelPosition,
+        seriesRenderer.dataLabelSettings.connectorLineSettings.type,
+        dataLabelSettings.margin,
+        angleChangedConnectorPath,
+        endPoint,
+        textSize,
+      )!;
 
   // TODO(Lavanya): Recheck connector line here.
   currentPoint.connectorPath = angleChangedConnectorPath;
@@ -765,8 +882,11 @@ bool isOverlap(Rect currentRect, Rect rect) {
 }
 
 /// To find the current point overlapped with previous points.
-bool isOverlapWithPrevious(CircularChartPoint currentPoint,
-    List<CircularChartPoint> points, int currentPointIndex) {
+bool isOverlapWithPrevious(
+  CircularChartPoint currentPoint,
+  List<CircularChartPoint> points,
+  int currentPointIndex,
+) {
   for (int i = 0; i < currentPointIndex; i++) {
     if (i != points.indexOf(currentPoint) &&
         points[i].isVisible &&
@@ -779,7 +899,10 @@ bool isOverlapWithPrevious(CircularChartPoint currentPoint,
 
 /// To find the current point overlapped with next points.
 bool isOverlapWithNext(
-    CircularChartPoint point, List<CircularChartPoint> points, int pointIndex) {
+  CircularChartPoint point,
+  List<CircularChartPoint> points,
+  int pointIndex,
+) {
   for (int i = pointIndex; i < points.length; i++) {
     if (i != points.indexOf(point) &&
         points[i].isVisible &&
@@ -799,27 +922,35 @@ Offset getPerpendicularDistance(Offset startPoint, CircularChartPoint point) {
   final num height = add + 10 * sin(point.midAngle! * pi / 360);
   if (point.midAngle! > 270 && point.midAngle! < 360) {
     increasedLocation = Offset(
-        startPoint.dx + height * (cos((360 - point.midAngle!) * pi / 180)),
-        startPoint.dy - height * (sin((360 - point.midAngle!) * pi / 180)));
+      startPoint.dx + height * (cos((360 - point.midAngle!) * pi / 180)),
+      startPoint.dy - height * (sin((360 - point.midAngle!) * pi / 180)),
+    );
   } else if (point.midAngle! > 0 && point.midAngle! < 90) {
     increasedLocation = Offset(
-        startPoint.dx + height * (cos(point.midAngle! * pi / 180)),
-        startPoint.dy + height * (sin(point.midAngle! * pi / 180)));
+      startPoint.dx + height * (cos(point.midAngle! * pi / 180)),
+      startPoint.dy + height * (sin(point.midAngle! * pi / 180)),
+    );
   } else if (point.midAngle! > 0 && point.midAngle! < 90) {
     increasedLocation = Offset(
-        startPoint.dx - height * (cos((point.midAngle! - 90) * pi / 180)),
-        startPoint.dy + height * (sin((point.midAngle! - 90) * pi / 180)));
+      startPoint.dx - height * (cos((point.midAngle! - 90) * pi / 180)),
+      startPoint.dy + height * (sin((point.midAngle! - 90) * pi / 180)),
+    );
   } else {
     increasedLocation = Offset(
-        startPoint.dx - height * (cos((point.midAngle! - 180) * pi / 180)),
-        startPoint.dy - height * (sin((point.midAngle! - 180) * pi / 180)));
+      startPoint.dx - height * (cos((point.midAngle! - 180) * pi / 180)),
+      startPoint.dy - height * (sin((point.midAngle! - 180) * pi / 180)),
+    );
   }
   return increasedLocation;
 }
 
 /// To trim the text by given width.
-String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
-    {bool? isRtl}) {
+String getTrimmedText(
+  String text,
+  num labelsExtent,
+  TextStyle labelStyle, {
+  bool? isRtl,
+}) {
   String label = text;
 
   num size = measureText(label, labelStyle).width;
@@ -847,8 +978,10 @@ String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
 }
 
 /// To shift the data label template in the circular chart.
-void shiftCircularDataLabelTemplate(CircularSeriesRenderer seriesRenderer,
-    List<CircularDataLabelBoxParentData> widgets) {
+void shiftCircularDataLabelTemplate(
+  CircularSeriesRenderer seriesRenderer,
+  List<CircularDataLabelBoxParentData> widgets,
+) {
   if (seriesRenderer is RadialBarSeriesRenderer) {
     return;
   }
@@ -867,22 +1000,32 @@ void shiftCircularDataLabelTemplate(CircularSeriesRenderer seriesRenderer,
       // For the data label position is inside.
       if (seriesRenderer.dataLabelSettings.labelPosition ==
           ChartDataLabelPosition.inside) {
-        Offset labelLocation = calculateOffset(point.midAngle!,
-            (point.innerRadius! + point.outerRadius!) / 2, point.center!);
+        Offset labelLocation = calculateOffset(
+          point.midAngle!,
+          (point.innerRadius! + point.outerRadius!) / 2,
+          point.center!,
+        );
         // TODO(Lavanya): Recheck here.
         // labelLocation = Offset(labelLocation.dx - (rectSize[i].width / 2),
         //     labelLocation.dy - (rectSize[i].height / 2));
-        labelLocation = Offset(labelLocation.dx - (point.labelRect.width / 2),
-            labelLocation.dy - (point.labelRect.height / 2));
+        labelLocation = Offset(
+          labelLocation.dx - (point.labelRect.width / 2),
+          labelLocation.dy - (point.labelRect.height / 2),
+        );
         final Rect rect = Rect.fromLTWH(
-            labelLocation.dx - labelPadding,
-            labelLocation.dy - labelPadding,
-            point.labelRect.width + (2 * labelPadding),
-            point.labelRect.height + (2 * labelPadding));
+          labelLocation.dx - labelPadding,
+          labelLocation.dy - labelPadding,
+          point.labelRect.width + (2 * labelPadding),
+          point.labelRect.height + (2 * labelPadding),
+        );
         // If collide with label when the position is inside calculate the outside rect value of that perticular label.
         if (findingCollision(rect, renderDataLabelRegions)) {
-          _renderOutsideDataLabelTemplate(point, seriesRenderer,
-              point.labelRect.size, renderDataLabelRegions);
+          _renderOutsideDataLabelTemplate(
+            point,
+            seriesRenderer,
+            point.labelRect.size,
+            renderDataLabelRegions,
+          );
         } else {
           point.renderPosition = ChartDataLabelPosition.inside;
           point.labelRect = rect;
@@ -891,8 +1034,12 @@ void shiftCircularDataLabelTemplate(CircularSeriesRenderer seriesRenderer,
         }
       } else if (seriesRenderer.dataLabelSettings.labelPosition ==
           ChartDataLabelPosition.outside) {
-        _renderOutsideDataLabelTemplate(point, seriesRenderer,
-            point.labelRect.size, renderDataLabelRegions);
+        _renderOutsideDataLabelTemplate(
+          point,
+          seriesRenderer,
+          point.labelRect.size,
+          renderDataLabelRegions,
+        );
       }
     }
   }
@@ -911,8 +1058,10 @@ void shiftCircularDataLabelTemplate(CircularSeriesRenderer seriesRenderer,
       }
     }
   }
-  leftPoints.sort((CircularChartPoint a, CircularChartPoint b) =>
-      a.newAngle!.compareTo(b.newAngle!));
+  leftPoints.sort(
+    (CircularChartPoint a, CircularChartPoint b) =>
+        a.newAngle!.compareTo(b.newAngle!),
+  );
   if (leftPoints.isNotEmpty) {
     _arrangeLeftSidePoints(seriesRenderer);
   }
@@ -933,23 +1082,30 @@ void shiftCircularDataLabelTemplate(CircularSeriesRenderer seriesRenderer,
       Offset labelLocation = point.labelLocation;
       final Size templateSize = point.labelRect.size;
       labelLocation = Offset(
-          rect.left +
-              (point.renderPosition == ChartDataLabelPosition.inside
-                  ? labelPadding
-                  : margin.left),
-          rect.top + margin.top);
+        rect.left +
+            (point.renderPosition == ChartDataLabelPosition.inside
+                ? labelPadding
+                : margin.left),
+        rect.top + margin.top,
+      );
       const String defaultConnectorLineLength = '10%';
       final Path shiftedConnectorPath = Path();
-      final num connectorLength = percentToValue(
-          seriesRenderer.dataLabelSettings.connectorLineSettings.length ??
-              defaultConnectorLineLength,
-          point.outerRadius!)!;
+      final num connectorLength =
+          percentToValue(
+            seriesRenderer.dataLabelSettings.connectorLineSettings.length ??
+                defaultConnectorLineLength,
+            point.outerRadius!,
+          )!;
       final Offset startPoint = calculateOffset(
-          (point.startAngle! + point.endAngle!) / 2,
-          point.outerRadius!.toDouble(),
-          point.center!);
-      final Offset endPoint = calculateOffset(point.newAngle!.toDouble(),
-          (point.outerRadius! + connectorLength).toDouble(), point.center!);
+        (point.startAngle! + point.endAngle!) / 2,
+        point.outerRadius!.toDouble(),
+        point.center!,
+      );
+      final Offset endPoint = calculateOffset(
+        point.newAngle!.toDouble(),
+        (point.outerRadius! + connectorLength).toDouble(),
+        point.center!,
+      );
       shiftedConnectorPath.moveTo(startPoint.dx, startPoint.dy);
       if (seriesRenderer.dataLabelSettings.connectorLineSettings.type ==
           ConnectorType.line) {
@@ -957,12 +1113,13 @@ void shiftCircularDataLabelTemplate(CircularSeriesRenderer seriesRenderer,
       }
 
       getDataLabelRect(
-          point.dataLabelPosition,
-          seriesRenderer.dataLabelSettings.connectorLineSettings.type,
-          margin,
-          shiftedConnectorPath,
-          endPoint,
-          templateSize)!;
+        point.dataLabelPosition,
+        seriesRenderer.dataLabelSettings.connectorLineSettings.type,
+        margin,
+        shiftedConnectorPath,
+        endPoint,
+        templateSize,
+      )!;
 
       point.connectorPath =
           point.renderPosition == ChartDataLabelPosition.outside
@@ -996,29 +1153,46 @@ bool isTemplateWithinBounds(Rect bounds, Rect templateRect) =>
 // Calculate the data label rectangle value when the data label template
 // position is outside and it consider the outer radius.
 void _renderOutsideDataLabelTemplate(
-    CircularChartPoint point,
-    CircularSeriesRenderer seriesRenderer,
-    Size templateSize,
-    List<Rect> renderDataLabelRegion) {
+  CircularChartPoint point,
+  CircularSeriesRenderer seriesRenderer,
+  Size templateSize,
+  List<Rect> renderDataLabelRegion,
+) {
   Path connectorPath;
   const String defaultConnectorLineLength = '10%';
   final EdgeInsets margin = seriesRenderer.dataLabelSettings.margin;
   final ConnectorLineSettings connector =
       seriesRenderer.dataLabelSettings.connectorLineSettings;
   connectorPath = Path();
-  final num connectorLength = percentToValue(
-      connector.length ?? defaultConnectorLineLength, point.outerRadius!)!;
+  final num connectorLength =
+      percentToValue(
+        connector.length ?? defaultConnectorLineLength,
+        point.outerRadius!,
+      )!;
   final Offset startPoint = calculateOffset(
-      point.midAngle!, point.outerRadius!.toDouble(), point.center!);
-  final Offset endPoint = calculateOffset(point.midAngle!,
-      (point.outerRadius! + connectorLength).toDouble(), point.center!);
+    point.midAngle!,
+    point.outerRadius!.toDouble(),
+    point.center!,
+  );
+  final Offset endPoint = calculateOffset(
+    point.midAngle!,
+    (point.outerRadius! + connectorLength).toDouble(),
+    point.center!,
+  );
   connectorPath.moveTo(startPoint.dx, startPoint.dy);
   if (connector.type == ConnectorType.line) {
     connectorPath.lineTo(endPoint.dx, endPoint.dy);
   }
   point.dataLabelSize = templateSize;
-  final Rect rect = getDataLabelRect(point.dataLabelPosition, connector.type,
-      margin, connectorPath, endPoint, templateSize)!;
+  final Rect rect =
+      getDataLabelRect(
+        point.dataLabelPosition,
+        connector.type,
+        margin,
+        connectorPath,
+        endPoint,
+        templateSize,
+      )!;
   point.connectorPath = connectorPath;
   point.labelRect = rect;
   point.renderPosition = ChartDataLabelPosition.outside;

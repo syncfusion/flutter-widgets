@@ -45,11 +45,7 @@ import 'treemap_theme.dart';
 /// ```
 class SfTheme extends StatelessWidget {
   /// Creating an argument constructor of [SfTheme] class.
-  const SfTheme({
-    Key? key,
-    this.data,
-    required this.child,
-  }) : super(key: key);
+  const SfTheme({Key? key, this.data, required this.child}) : super(key: key);
 
   /// Specifies a widget that can hold single child.
   ///
@@ -176,7 +172,7 @@ class SfTheme extends StatelessWidget {
         Color.fromRGBO(71, 59, 137, 1),
         Color.fromRGBO(236, 92, 123, 1),
         Color.fromRGBO(59, 163, 26, 1),
-        Color.fromRGBO(236, 131, 23, 1)
+        Color.fromRGBO(236, 131, 23, 1),
       ];
     } else {
       return const <Color>[
@@ -189,7 +185,7 @@ class SfTheme extends StatelessWidget {
         Color.fromRGBO(178, 243, 46, 1),
         Color.fromRGBO(185, 60, 228, 1),
         Color.fromRGBO(48, 167, 6, 1),
-        Color.fromRGBO(207, 142, 14, 1)
+        Color.fromRGBO(207, 142, 14, 1),
       ];
     }
   }
@@ -205,7 +201,7 @@ class SfTheme extends StatelessWidget {
       Color.fromRGBO(73, 76, 162, 1),
       Color.fromRGBO(255, 205, 96, 1),
       Color.fromRGBO(255, 240, 219, 1),
-      Color.fromRGBO(238, 238, 238, 1)
+      Color.fromRGBO(238, 238, 238, 1),
     ];
   }
 
@@ -217,7 +213,7 @@ class SfTheme extends StatelessWidget {
 
 class _SfInheritedTheme extends InheritedTheme {
   const _SfInheritedTheme({Key? key, this.data, required Widget child})
-      : super(key: key, child: child);
+    : super(key: key, child: child);
   final SfThemeData? data;
   @override
   bool updateShouldNotify(_SfInheritedTheme oldWidget) =>
@@ -279,7 +275,8 @@ class SfThemeData with Diagnosticable {
   }) {
     brightness ??= Brightness.light;
     pdfViewerThemeData = pdfViewerThemeData ?? SfPdfViewerThemeData.raw();
-    sparkChartThemeData = sparkChartThemeData ??
+    sparkChartThemeData =
+        sparkChartThemeData ??
         SfSparkChartThemeData.raw(brightness: brightness);
     chartThemeData =
         chartThemeData ?? SfChartThemeData.raw(brightness: brightness);
@@ -287,7 +284,8 @@ class SfThemeData with Diagnosticable {
         calendarThemeData ?? SfCalendarThemeData.raw(brightness: brightness);
     dataGridThemeData =
         dataGridThemeData ?? SfDataGridThemeData.raw(brightness: brightness);
-    dateRangePickerThemeData = dateRangePickerThemeData ??
+    dateRangePickerThemeData =
+        dateRangePickerThemeData ??
         SfDateRangePickerThemeData.raw(brightness: brightness);
     barcodeThemeData =
         barcodeThemeData ?? SfBarcodeThemeData.raw(brightness: brightness);
@@ -295,9 +293,11 @@ class SfThemeData with Diagnosticable {
         gaugeThemeData ?? SfGaugeThemeData.raw(brightness: brightness);
     sliderThemeData =
         sliderThemeData ?? SfSliderThemeData.raw(brightness: brightness);
-    rangeSelectorThemeData = rangeSelectorThemeData ??
+    rangeSelectorThemeData =
+        rangeSelectorThemeData ??
         SfRangeSelectorThemeData.raw(brightness: brightness);
-    rangeSliderThemeData = rangeSliderThemeData ??
+    rangeSliderThemeData =
+        rangeSliderThemeData ??
         SfRangeSliderThemeData.raw(brightness: brightness);
     mapsThemeData =
         mapsThemeData ?? SfMapsThemeData.raw(brightness: brightness);
@@ -748,36 +748,72 @@ class SfThemeData with Diagnosticable {
     assert(b != null);
     return SfThemeData.raw(
       brightness: t < 0.5 ? a!.brightness : b!.brightness,
-      pdfViewerThemeData: SfPdfViewerThemeData.lerp(
-          a!.pdfViewerThemeData, b!.pdfViewerThemeData, t)!,
+      pdfViewerThemeData:
+          SfPdfViewerThemeData.lerp(
+            a!.pdfViewerThemeData,
+            b!.pdfViewerThemeData,
+            t,
+          )!,
       chartThemeData:
           SfChartThemeData.lerp(a.chartThemeData, b.chartThemeData, t)!,
-      sparkChartThemeData: SfSparkChartThemeData.lerp(
-          a.sparkChartThemeData, b.sparkChartThemeData, t)!,
-      calendarThemeData: SfCalendarThemeData.lerp(
-          a.calendarThemeData, b.calendarThemeData, t)!,
-      dataGridThemeData: SfDataGridThemeData.lerp(
-          a.dataGridThemeData, b.dataGridThemeData, t)!,
-      dataPagerThemeData: SfDataPagerThemeData.lerp(
-          a.dataPagerThemeData, b.dataPagerThemeData, t)!,
-      dateRangePickerThemeData: SfDateRangePickerThemeData.lerp(
-          a.dateRangePickerThemeData, b.dateRangePickerThemeData, t)!,
+      sparkChartThemeData:
+          SfSparkChartThemeData.lerp(
+            a.sparkChartThemeData,
+            b.sparkChartThemeData,
+            t,
+          )!,
+      calendarThemeData:
+          SfCalendarThemeData.lerp(
+            a.calendarThemeData,
+            b.calendarThemeData,
+            t,
+          )!,
+      dataGridThemeData:
+          SfDataGridThemeData.lerp(
+            a.dataGridThemeData,
+            b.dataGridThemeData,
+            t,
+          )!,
+      dataPagerThemeData:
+          SfDataPagerThemeData.lerp(
+            a.dataPagerThemeData,
+            b.dataPagerThemeData,
+            t,
+          )!,
+      dateRangePickerThemeData:
+          SfDateRangePickerThemeData.lerp(
+            a.dateRangePickerThemeData,
+            b.dateRangePickerThemeData,
+            t,
+          )!,
       barcodeThemeData:
           SfBarcodeThemeData.lerp(a.barcodeThemeData, b.barcodeThemeData, t)!,
       gaugeThemeData:
           SfGaugeThemeData.lerp(a.gaugeThemeData, b.gaugeThemeData, t)!,
       sliderThemeData:
           SfSliderThemeData.lerp(a.sliderThemeData, b.sliderThemeData, t)!,
-      rangeSelectorThemeData: SfRangeSelectorThemeData.lerp(
-          a.rangeSelectorThemeData, b.rangeSelectorThemeData, t)!,
-      rangeSliderThemeData: SfRangeSliderThemeData.lerp(
-          a.rangeSliderThemeData, b.rangeSliderThemeData, t)!,
+      rangeSelectorThemeData:
+          SfRangeSelectorThemeData.lerp(
+            a.rangeSelectorThemeData,
+            b.rangeSelectorThemeData,
+            t,
+          )!,
+      rangeSliderThemeData:
+          SfRangeSliderThemeData.lerp(
+            a.rangeSliderThemeData,
+            b.rangeSliderThemeData,
+            t,
+          )!,
       mapsThemeData: SfMapsThemeData.lerp(a.mapsThemeData, b.mapsThemeData, t)!,
       treemapThemeData:
           SfTreemapThemeData.lerp(a.treemapThemeData, b.treemapThemeData, t)!,
       chatThemeData: SfChatThemeData.lerp(a.chatThemeData, b.chatThemeData, t)!,
-      assistThemeData: SfAIAssistViewThemeData.lerp(
-          a.assistThemeData, b.assistThemeData, t)!,
+      assistThemeData:
+          SfAIAssistViewThemeData.lerp(
+            a.assistThemeData,
+            b.assistThemeData,
+            t,
+          )!,
     );
   }
 
@@ -834,55 +870,124 @@ class SfThemeData with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     final SfThemeData defaultData = SfThemeData.fallback();
-    properties.add(EnumProperty<Brightness>('brightness', brightness,
-        defaultValue: defaultData.brightness));
-    properties.add(DiagnosticsProperty<SfPdfViewerThemeData>(
-        'pdfViewerThemeData', pdfViewerThemeData,
-        defaultValue: defaultData.pdfViewerThemeData));
-    properties.add(DiagnosticsProperty<SfChartThemeData>(
-        'chartThemeData', chartThemeData,
-        defaultValue: defaultData.chartThemeData));
-    properties.add(DiagnosticsProperty<SfSparkChartThemeData>(
-        'sparkChartThemeData', sparkChartThemeData,
-        defaultValue: defaultData.sparkChartThemeData));
-    properties.add(DiagnosticsProperty<SfCalendarThemeData>(
-        'calendarThemeData', calendarThemeData,
-        defaultValue: defaultData.calendarThemeData));
-    properties.add(DiagnosticsProperty<SfDataGridThemeData>(
-        'dataGridThemeData', dataGridThemeData,
-        defaultValue: defaultData.dataGridThemeData));
-    properties.add(DiagnosticsProperty<SfDataPagerThemeData>(
-        'dataPagerThemeData', dataPagerThemeData,
-        defaultValue: defaultData.dataPagerThemeData));
-    properties.add(DiagnosticsProperty<SfDateRangePickerThemeData>(
-        'dateRangePickerThemeData', dateRangePickerThemeData,
-        defaultValue: defaultData.dateRangePickerThemeData));
-    properties.add(DiagnosticsProperty<SfBarcodeThemeData>(
-        'barcodeThemeData', barcodeThemeData,
-        defaultValue: defaultData.barcodeThemeData));
-    properties.add(DiagnosticsProperty<SfGaugeThemeData>(
-        'gaugeThemeData', gaugeThemeData,
-        defaultValue: defaultData.gaugeThemeData));
-    properties.add(DiagnosticsProperty<SfRangeSelectorThemeData>(
-        'rangeSelectorThemeData', rangeSelectorThemeData,
-        defaultValue: defaultData.rangeSelectorThemeData));
-    properties.add(DiagnosticsProperty<SfRangeSliderThemeData>(
-        'rangeSliderThemeData', rangeSliderThemeData,
-        defaultValue: defaultData.rangeSliderThemeData));
-    properties.add(DiagnosticsProperty<SfSliderThemeData>(
-        'sliderThemeData', sliderThemeData,
-        defaultValue: defaultData.sliderThemeData));
-    properties.add(DiagnosticsProperty<SfMapsThemeData>(
-        'mapsThemeData', mapsThemeData,
-        defaultValue: defaultData.mapsThemeData));
-    properties.add(DiagnosticsProperty<SfTreemapThemeData>(
-        'treemapThemeData', treemapThemeData,
-        defaultValue: defaultData.treemapThemeData));
-    properties.add(DiagnosticsProperty<SfChatThemeData>(
-        'chatThemeData', chatThemeData,
-        defaultValue: defaultData.chatThemeData));
-    properties.add(DiagnosticsProperty<SfAIAssistViewThemeData>(
-        'assistThemeData', assistThemeData,
-        defaultValue: defaultData.assistThemeData));
+    properties.add(
+      EnumProperty<Brightness>(
+        'brightness',
+        brightness,
+        defaultValue: defaultData.brightness,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfPdfViewerThemeData>(
+        'pdfViewerThemeData',
+        pdfViewerThemeData,
+        defaultValue: defaultData.pdfViewerThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfChartThemeData>(
+        'chartThemeData',
+        chartThemeData,
+        defaultValue: defaultData.chartThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfSparkChartThemeData>(
+        'sparkChartThemeData',
+        sparkChartThemeData,
+        defaultValue: defaultData.sparkChartThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfCalendarThemeData>(
+        'calendarThemeData',
+        calendarThemeData,
+        defaultValue: defaultData.calendarThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfDataGridThemeData>(
+        'dataGridThemeData',
+        dataGridThemeData,
+        defaultValue: defaultData.dataGridThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfDataPagerThemeData>(
+        'dataPagerThemeData',
+        dataPagerThemeData,
+        defaultValue: defaultData.dataPagerThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfDateRangePickerThemeData>(
+        'dateRangePickerThemeData',
+        dateRangePickerThemeData,
+        defaultValue: defaultData.dateRangePickerThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfBarcodeThemeData>(
+        'barcodeThemeData',
+        barcodeThemeData,
+        defaultValue: defaultData.barcodeThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfGaugeThemeData>(
+        'gaugeThemeData',
+        gaugeThemeData,
+        defaultValue: defaultData.gaugeThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfRangeSelectorThemeData>(
+        'rangeSelectorThemeData',
+        rangeSelectorThemeData,
+        defaultValue: defaultData.rangeSelectorThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfRangeSliderThemeData>(
+        'rangeSliderThemeData',
+        rangeSliderThemeData,
+        defaultValue: defaultData.rangeSliderThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfSliderThemeData>(
+        'sliderThemeData',
+        sliderThemeData,
+        defaultValue: defaultData.sliderThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfMapsThemeData>(
+        'mapsThemeData',
+        mapsThemeData,
+        defaultValue: defaultData.mapsThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfTreemapThemeData>(
+        'treemapThemeData',
+        treemapThemeData,
+        defaultValue: defaultData.treemapThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfChatThemeData>(
+        'chatThemeData',
+        chatThemeData,
+        defaultValue: defaultData.chatThemeData,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<SfAIAssistViewThemeData>(
+        'assistThemeData',
+        assistThemeData,
+        defaultValue: defaultData.assistThemeData,
+      ),
+    );
   }
 }

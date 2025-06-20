@@ -8,12 +8,12 @@ Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
         ..style.display = 'none'
         ..download = fileName;
 
-// Insert new elements in the DOM:
+  // Insert new elements in the DOM:
   web.document.body!.appendChild(anchor);
 
-// download
+  // download
   anchor.click();
 
-// cleanup
+  // cleanup
   web.document.body!.removeChild(anchor);
 }

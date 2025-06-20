@@ -108,10 +108,11 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
     if (onCreateRenderer != null) {
       renderer = onCreateRenderer!(this) as AreaSeriesRenderer<T, D>?;
       assert(
-          renderer != null,
-          'This onCreateRenderer callback function should return value as '
-          'extends from ChartSeriesRenderer class and should not be return '
-          'value as null');
+        renderer != null,
+        'This onCreateRenderer callback function should return value as '
+        'extends from ChartSeriesRenderer class and should not be return '
+        'value as null',
+      );
     }
 
     return renderer ?? AreaSeriesRenderer<T, D>();
@@ -129,7 +130,9 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, AreaSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    AreaSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..borderDrawMode = borderDrawMode
@@ -186,17 +189,23 @@ class AreaSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   void customizeSegment(ChartSegment segment) {
     final AreaSegment<T, D> areaSegment = segment as AreaSegment<T, D>;
     updateSegmentColor(areaSegment, borderColor, borderWidth);
-    updateSegmentGradient(areaSegment,
-        gradientBounds: areaSegment._fillPath.getBounds(),
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      areaSegment,
+      gradientBounds: areaSegment._fillPath.getBounds(),
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
     paintSegments(context, offset);
     context.canvas.restore();
@@ -230,7 +239,9 @@ class AreaSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _drawIndexes.clear();
@@ -250,26 +261,50 @@ class AreaSegment<T, D> extends ChartSegment {
       final int newPointsLength = _highPoints.length;
       if (oldPointsLength == newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, bottom)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, bottom)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
         }
       } else if (oldPointsLength < newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, bottom)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, bottom)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
         }
         _oldHighPoints.addAll(_highPoints.sublist(oldPointsLength));
         _oldLowPoints.addAll(_lowPoints.sublist(oldPointsLength));
       } else {
         for (int i = 0; i < newPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, bottom)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, bottom)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
         }
         _oldHighPoints.removeRange(newPointsLength, oldPointsLength);
         _oldLowPoints.removeRange(newPointsLength, oldPointsLength);
@@ -336,19 +371,22 @@ class AreaSegment<T, D> extends ChartSegment {
     final int newPointsLength = newPoints.length;
     if (oldPointsLength == newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
-        lerpPoints
-            .add(oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!);
+        lerpPoints.add(
+          oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!,
+        );
       }
     } else if (oldPointsLength < newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
-        lerpPoints
-            .add(oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!);
+        lerpPoints.add(
+          oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!,
+        );
       }
       lerpPoints.addAll(newPoints.sublist(oldPointsLength));
     } else {
       for (int i = 0; i < newPointsLength; i++) {
-        lerpPoints
-            .add(oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!);
+        lerpPoints.add(
+          oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!,
+        );
       }
     }
 
@@ -356,7 +394,10 @@ class AreaSegment<T, D> extends ChartSegment {
   }
 
   Path _createFillPath(
-      Path source, List<Offset> highPoints, List<Offset> lowPoints) {
+    Path source,
+    List<Offset> highPoints,
+    List<Offset> lowPoints,
+  ) {
     Path? path;
     final int length = highPoints.length;
     final int lastIndex = length - 1;
@@ -365,7 +406,10 @@ class AreaSegment<T, D> extends ChartSegment {
         final Offset lowPoint = lowPoints[i];
         if (lowPoint.isNaN) {
           _createFillPath(
-              source, highPoints.sublist(i + 1), lowPoints.sublist(i + 1));
+            source,
+            highPoints.sublist(i + 1),
+            lowPoints.sublist(i + 1),
+          );
           break;
         } else {
           path = Path();
@@ -424,7 +468,10 @@ class AreaSegment<T, D> extends ChartSegment {
   }
 
   Path _createExcludeBottomStrokePath(
-      Path source, List<Offset> highPoints, List<Offset> lowPoints) {
+    Path source,
+    List<Offset> highPoints,
+    List<Offset> lowPoints,
+  ) {
     Path? path;
     final int length = highPoints.length;
     final int lastIndex = length - 1;
@@ -433,7 +480,10 @@ class AreaSegment<T, D> extends ChartSegment {
         final Offset lowPoint = lowPoints[i];
         if (lowPoint.isNaN) {
           _createExcludeBottomStrokePath(
-              source, highPoints.sublist(i + 1), lowPoints.sublist(i + 1));
+            source,
+            highPoints.sublist(i + 1),
+            lowPoints.sublist(i + 1),
+          );
           break;
         } else {
           path = Path();
@@ -446,7 +496,10 @@ class AreaSegment<T, D> extends ChartSegment {
         final Offset lowPoint = lowPoints[i - 1];
         path!.lineTo(lowPoint.dx, lowPoint.dy);
         _createExcludeBottomStrokePath(
-            source, highPoints.sublist(i), lowPoints.sublist(i));
+          source,
+          highPoints.sublist(i),
+          lowPoints.sublist(i),
+        );
         break;
       } else {
         path!.lineTo(highPoint.dx, highPoint.dy);
@@ -469,8 +522,11 @@ class AreaSegment<T, D> extends ChartSegment {
     final MarkerSettings marker = series.markerSettings;
     final int length = points.length;
     for (int i = 0; i < length; i++) {
-      if (tooltipTouchBounds(points[i], marker.width, marker.height)
-          .contains(position)) {
+      if (tooltipTouchBounds(
+        points[i],
+        marker.width,
+        marker.height,
+      ).contains(position)) {
         return true;
       }
     }
@@ -510,14 +566,17 @@ class AreaSegment<T, D> extends ChartSegment {
           series.markerSettings.isVisible ? marker.height / 2 : 0;
       final Offset preferredPos = Offset(dx, dy);
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -592,8 +651,10 @@ class AreaSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final List<Offset> lerpHighPoints =
-        _lerpPoints(_oldHighPoints, _highPoints);
+    final List<Offset> lerpHighPoints = _lerpPoints(
+      _oldHighPoints,
+      _highPoints,
+    );
     final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
     _createFillPath(_fillPath, lerpHighPoints, lerpLowPoints);
 
@@ -606,7 +667,10 @@ class AreaSegment<T, D> extends ChartSegment {
         break;
       case BorderDrawMode.excludeBottom:
         _createExcludeBottomStrokePath(
-            _strokePath, lerpHighPoints, lerpLowPoints);
+          _strokePath,
+          lerpHighPoints,
+          lerpLowPoints,
+        );
         break;
     }
   }

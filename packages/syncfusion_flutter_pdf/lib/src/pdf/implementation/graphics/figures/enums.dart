@@ -4,7 +4,7 @@ enum PdfLayoutType {
   paginate,
 
   /// Draw the element on the one page only.
-  onePage
+  onePage,
 }
 
 /// Specifies how the element should be contained on the page.
@@ -16,7 +16,7 @@ enum PdfLayoutBreakType {
   fitElement,
 
   /// Fit the columns withtin the page.
-  fitColumnsToPage
+  fitColumnsToPage,
 }
 
 /// Specifies path point type
@@ -31,5 +31,5 @@ enum PathPointType {
   bezier3,
 
   /// closeSubpath type
-  closeSubpath
+  closeSubpath,
 }

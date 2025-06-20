@@ -29,13 +29,14 @@ class SparkChartMarker {
   ///   );
   /// }
   /// ```
-  const SparkChartMarker(
-      {this.displayMode = SparkChartMarkerDisplayMode.none,
-      this.borderColor,
-      this.borderWidth = 2,
-      this.color,
-      this.size = 5,
-      this.shape = SparkChartMarkerShape.circle});
+  const SparkChartMarker({
+    this.displayMode = SparkChartMarkerDisplayMode.none,
+    this.borderColor,
+    this.borderWidth = 2,
+    this.color,
+    this.size = 5,
+    this.shape = SparkChartMarkerShape.circle,
+  });
 
   /// Enables the markers in different modes.
   ///

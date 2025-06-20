@@ -853,69 +853,83 @@ class _SfChatState extends State<SfChat> {
 
   void _updateThemeData(BuildContext context) {
     _themeData = Theme.of(context);
-    _defaultThemeData = _themeData.useMaterial3
-        ? ChatM3ThemeData(context)
-        : ChatM2ThemeData(context);
+    _defaultThemeData =
+        _themeData.useMaterial3
+            ? ChatM3ThemeData(context)
+            : ChatM2ThemeData(context);
     _userDefinedThemeData = SfChatTheme.of(context);
     final TextStyle contentBaseTextStyle = _themeData.textTheme.bodyMedium!
         .copyWith(color: _themeData.colorScheme.onSurface);
     final TextStyle primaryHeaderBaseTextStyle = _themeData
-        .textTheme.labelMedium!
+        .textTheme
+        .labelMedium!
         .copyWith(color: _themeData.colorScheme.primary);
     final TextStyle secondaryHeaderBaseTextStyle = _themeData
-        .textTheme.labelSmall!
+        .textTheme
+        .labelSmall!
         .copyWith(color: _themeData.colorScheme.onSurfaceVariant);
 
     _effectiveChatThemeData = _userDefinedThemeData.copyWith(
-      actionButtonForegroundColor: widget.actionButton?.foregroundColor ??
+      actionButtonForegroundColor:
+          widget.actionButton?.foregroundColor ??
           _userDefinedThemeData.actionButtonForegroundColor ??
           _defaultThemeData.actionButtonForegroundColor,
-      actionButtonBackgroundColor: widget.actionButton?.backgroundColor ??
+      actionButtonBackgroundColor:
+          widget.actionButton?.backgroundColor ??
           _userDefinedThemeData.actionButtonBackgroundColor ??
           _defaultThemeData.actionButtonBackgroundColor,
       actionButtonDisabledForegroundColor:
           _userDefinedThemeData.actionButtonDisabledForegroundColor ??
-              _defaultThemeData.actionButtonDisabledForegroundColor,
+          _defaultThemeData.actionButtonDisabledForegroundColor,
       actionButtonDisabledBackgroundColor:
           _userDefinedThemeData.actionButtonDisabledBackgroundColor ??
-              _defaultThemeData.actionButtonDisabledBackgroundColor,
-      actionButtonFocusColor: widget.actionButton?.focusColor ??
+          _defaultThemeData.actionButtonDisabledBackgroundColor,
+      actionButtonFocusColor:
+          widget.actionButton?.focusColor ??
           _userDefinedThemeData.actionButtonFocusColor ??
           _defaultThemeData.actionButtonFocusColor,
-      actionButtonHoverColor: widget.actionButton?.hoverColor ??
+      actionButtonHoverColor:
+          widget.actionButton?.hoverColor ??
           _userDefinedThemeData.actionButtonHoverColor ??
           _defaultThemeData.actionButtonHoverColor,
-      actionButtonSplashColor: widget.actionButton?.splashColor ??
+      actionButtonSplashColor:
+          widget.actionButton?.splashColor ??
           _userDefinedThemeData.actionButtonSplashColor ??
           _defaultThemeData.actionButtonSplashColor,
-      actionButtonElevation: widget.actionButton?.elevation ??
+      actionButtonElevation:
+          widget.actionButton?.elevation ??
           _userDefinedThemeData.actionButtonElevation,
-      actionButtonFocusElevation: widget.actionButton?.focusElevation ??
+      actionButtonFocusElevation:
+          widget.actionButton?.focusElevation ??
           _userDefinedThemeData.actionButtonFocusElevation,
-      actionButtonHoverElevation: widget.actionButton?.hoverElevation ??
+      actionButtonHoverElevation:
+          widget.actionButton?.hoverElevation ??
           _userDefinedThemeData.actionButtonHoverElevation,
-      actionButtonHighlightElevation: widget.actionButton?.highlightElevation ??
+      actionButtonHighlightElevation:
+          widget.actionButton?.highlightElevation ??
           _userDefinedThemeData.actionButtonHighlightElevation,
-      actionButtonMouseCursor: widget.actionButton?.mouseCursor ??
+      actionButtonMouseCursor:
+          widget.actionButton?.mouseCursor ??
           _userDefinedThemeData.actionButtonMouseCursor ??
           _defaultThemeData.actionButtonMouseCursor,
-      actionButtonShape: widget.actionButton?.shape ??
+      actionButtonShape:
+          widget.actionButton?.shape ??
           _userDefinedThemeData.actionButtonShape ??
           _defaultThemeData.actionButtonShape,
       outgoingAvatarBackgroundColor:
           _userDefinedThemeData.outgoingAvatarBackgroundColor ??
-              _defaultThemeData.outgoingAvatarBackgroundColor,
+          _defaultThemeData.outgoingAvatarBackgroundColor,
       incomingAvatarBackgroundColor:
           _userDefinedThemeData.incomingAvatarBackgroundColor ??
-              _defaultThemeData.incomingAvatarBackgroundColor,
+          _defaultThemeData.incomingAvatarBackgroundColor,
       outgoingMessageBackgroundColor:
           widget.outgoingMessageSettings.backgroundColor ??
-              _userDefinedThemeData.outgoingMessageBackgroundColor ??
-              _defaultThemeData.outgoingMessageBackgroundColor,
+          _userDefinedThemeData.outgoingMessageBackgroundColor ??
+          _defaultThemeData.outgoingMessageBackgroundColor,
       incomingMessageBackgroundColor:
           widget.incomingMessageSettings.backgroundColor ??
-              _userDefinedThemeData.incomingMessageBackgroundColor ??
-              _defaultThemeData.incomingMessageBackgroundColor,
+          _userDefinedThemeData.incomingMessageBackgroundColor ??
+          _defaultThemeData.incomingMessageBackgroundColor,
       editorTextStyle: contentBaseTextStyle
           .merge(_userDefinedThemeData.editorTextStyle)
           .merge(widget.composer?.textStyle),
@@ -937,29 +951,34 @@ class _SfChatState extends State<SfChat> {
       incomingSecondaryHeaderTextStyle: secondaryHeaderBaseTextStyle
           .merge(_userDefinedThemeData.incomingSecondaryHeaderTextStyle)
           .merge(widget.incomingMessageSettings.headerTextStyle),
-      outgoingMessageShape: widget.outgoingMessageSettings.shape ??
+      outgoingMessageShape:
+          widget.outgoingMessageSettings.shape ??
           _userDefinedThemeData.outgoingMessageShape ??
           _defaultThemeData.outgoingMessageShape,
-      incomingMessageShape: widget.incomingMessageSettings.shape ??
+      incomingMessageShape:
+          widget.incomingMessageSettings.shape ??
           _userDefinedThemeData.incomingMessageShape ??
           _defaultThemeData.incomingMessageShape,
       suggestionItemBackgroundColor:
           _userDefinedThemeData.suggestionItemBackgroundColor ??
-              _defaultThemeData.suggestionItemBackgroundColor,
-      suggestionItemShape: _userDefinedThemeData.suggestionItemShape ??
+          _defaultThemeData.suggestionItemBackgroundColor,
+      suggestionItemShape:
+          _userDefinedThemeData.suggestionItemShape ??
           _defaultThemeData.suggestionItemShape,
     );
   }
 
   TextStyle _suggestionTextStyle(Set<WidgetState> states) {
     TextStyle? userTextStyle;
-    final TextStyle baseTextStyle = _themeData.textTheme.bodyMedium!
-        .copyWith(color: _themeData.colorScheme.onSurface);
+    final TextStyle baseTextStyle = _themeData.textTheme.bodyMedium!.copyWith(
+      color: _themeData.colorScheme.onSurface,
+    );
     final TextStyle defaultTextStyle =
         _defaultThemeData.suggestionItemTextStyle!.resolve(states)!;
     if (_userDefinedThemeData.suggestionItemTextStyle != null) {
-      userTextStyle =
-          _userDefinedThemeData.suggestionItemTextStyle?.resolve(states);
+      userTextStyle = _userDefinedThemeData.suggestionItemTextStyle?.resolve(
+        states,
+      );
     }
 
     return baseTextStyle.merge(userTextStyle).merge(defaultTextStyle);

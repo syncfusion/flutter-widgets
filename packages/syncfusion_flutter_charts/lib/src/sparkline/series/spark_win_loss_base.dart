@@ -39,27 +39,27 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///   );
   /// }
   /// ```
-  SfSparkWinLossChart(
-      {Key? key,
-      List<num>? data,
-      this.plotBand,
-      this.borderWidth = 0,
-      this.borderColor,
-      this.tiePointColor,
-      this.color,
-      this.isInversed = false,
-      this.axisCrossesAt = 0,
-      this.axisLineColor,
-      this.axisLineWidth = 2,
-      this.axisLineDashArray,
-      this.highPointColor,
-      this.lowPointColor,
-      this.negativePointColor,
-      this.firstPointColor,
-      this.lastPointColor,
-      this.trackball})
-      : _sparkChartDataDetails = SparkChartDataDetails(data: data),
-        super(key: key);
+  SfSparkWinLossChart({
+    Key? key,
+    List<num>? data,
+    this.plotBand,
+    this.borderWidth = 0,
+    this.borderColor,
+    this.tiePointColor,
+    this.color,
+    this.isInversed = false,
+    this.axisCrossesAt = 0,
+    this.axisLineColor,
+    this.axisLineWidth = 2,
+    this.axisLineDashArray,
+    this.highPointColor,
+    this.lowPointColor,
+    this.negativePointColor,
+    this.firstPointColor,
+    this.lastPointColor,
+    this.trackball,
+  }) : _sparkChartDataDetails = SparkChartDataDetails(data: data),
+       super(key: key);
 
   /// Creates the spark win loss chart for the provided set of data with its
   /// default view.
@@ -113,38 +113,39 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  SfSparkWinLossChart.custom(
-      {Key? key,
+  SfSparkWinLossChart.custom({
+    Key? key,
 
-      /// Data count for the spark charts.
-      int? dataCount,
+    /// Data count for the spark charts.
+    int? dataCount,
 
-      /// Specifies the x-value mapping field.
-      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
+    /// Specifies the x-value mapping field.
+    SparkChartIndexedValueMapper<dynamic>? xValueMapper,
 
-      /// Specifies the y-value maping field.
-      SparkChartIndexedValueMapper<num>? yValueMapper,
-      this.plotBand,
-      this.borderWidth = 2,
-      this.borderColor,
-      this.tiePointColor,
-      this.color,
-      this.isInversed = false,
-      this.axisCrossesAt = 0,
-      this.axisLineColor,
-      this.axisLineWidth = 2,
-      this.axisLineDashArray,
-      this.highPointColor,
-      this.lowPointColor,
-      this.negativePointColor,
-      this.firstPointColor,
-      this.lastPointColor,
-      this.trackball})
-      : _sparkChartDataDetails = SparkChartDataDetails(
-            dataCount: dataCount,
-            xValueMapper: xValueMapper,
-            yValueMapper: yValueMapper),
-        super(key: key);
+    /// Specifies the y-value maping field.
+    SparkChartIndexedValueMapper<num>? yValueMapper,
+    this.plotBand,
+    this.borderWidth = 2,
+    this.borderColor,
+    this.tiePointColor,
+    this.color,
+    this.isInversed = false,
+    this.axisCrossesAt = 0,
+    this.axisLineColor,
+    this.axisLineWidth = 2,
+    this.axisLineDashArray,
+    this.highPointColor,
+    this.lowPointColor,
+    this.negativePointColor,
+    this.firstPointColor,
+    this.lastPointColor,
+    this.trackball,
+  }) : _sparkChartDataDetails = SparkChartDataDetails(
+         dataCount: dataCount,
+         xValueMapper: xValueMapper,
+         yValueMapper: yValueMapper,
+       ),
+       super(key: key);
 
   /// Inverts the axis from right to left.
   ///
@@ -511,33 +512,40 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
   SfSparkChartThemeData _updateThemeData(BuildContext context) {
     SfSparkChartThemeData chartThemeData = SfSparkChartTheme.of(context);
     final ThemeData theme = Theme.of(context);
-    final SfSparkChartThemeData effectiveChartThemeData =
-        SparkChartThemeData(context);
+    final SfSparkChartThemeData effectiveChartThemeData = SparkChartThemeData(
+      context,
+    );
     chartThemeData = chartThemeData.copyWith(
-        color: widget.color ??
-            chartThemeData.color ??
-            effectiveChartThemeData.color,
-        axisLineColor: widget.axisLineColor ??
-            chartThemeData.axisLineColor ??
-            effectiveChartThemeData.axisLineColor,
-        markerFillColor: chartThemeData.markerFillColor ??
-            effectiveChartThemeData.markerFillColor,
-        dataLabelBackgroundColor: chartThemeData.dataLabelBackgroundColor ??
-            effectiveChartThemeData.dataLabelBackgroundColor,
-        tooltipColor:
-            chartThemeData.tooltipColor ?? effectiveChartThemeData.tooltipColor,
-        trackballLineColor: chartThemeData.trackballLineColor ??
-            effectiveChartThemeData.trackballLineColor,
-        tooltipLabelColor: chartThemeData.tooltipLabelColor ??
-            effectiveChartThemeData.tooltipLabelColor,
-        trackballTextStyle: theme.textTheme.bodySmall
-            ?.copyWith(
-              color: widget.trackball?.color ??
-                  chartThemeData.tooltipLabelColor ??
-                  effectiveChartThemeData.tooltipLabelColor,
-            )
-            .merge(chartThemeData.trackballTextStyle)
-            .merge(widget.trackball?.labelStyle));
+      color:
+          widget.color ?? chartThemeData.color ?? effectiveChartThemeData.color,
+      axisLineColor:
+          widget.axisLineColor ??
+          chartThemeData.axisLineColor ??
+          effectiveChartThemeData.axisLineColor,
+      markerFillColor:
+          chartThemeData.markerFillColor ??
+          effectiveChartThemeData.markerFillColor,
+      dataLabelBackgroundColor:
+          chartThemeData.dataLabelBackgroundColor ??
+          effectiveChartThemeData.dataLabelBackgroundColor,
+      tooltipColor:
+          chartThemeData.tooltipColor ?? effectiveChartThemeData.tooltipColor,
+      trackballLineColor:
+          chartThemeData.trackballLineColor ??
+          effectiveChartThemeData.trackballLineColor,
+      tooltipLabelColor:
+          chartThemeData.tooltipLabelColor ??
+          effectiveChartThemeData.tooltipLabelColor,
+      trackballTextStyle: theme.textTheme.bodySmall
+          ?.copyWith(
+            color:
+                widget.trackball?.color ??
+                chartThemeData.tooltipLabelColor ??
+                effectiveChartThemeData.tooltipLabelColor,
+          )
+          .merge(chartThemeData.trackballTextStyle)
+          .merge(widget.trackball?.labelStyle),
+    );
     return chartThemeData;
   }
 
@@ -598,38 +606,43 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
   Widget build(BuildContext context) {
     _chartThemeData = _updateThemeData(context);
     return RepaintBoundary(
-        child: SparkChartContainer(
-            child: Stack(children: <Widget>[
-      SfSparkWinLossChartRenderObjectWidget(
-          data: widget._sparkChartDataDetails.data,
-          dataCount: widget._sparkChartDataDetails.dataCount,
-          xValueMapper: widget._sparkChartDataDetails.xValueMapper,
-          yValueMapper: widget._sparkChartDataDetails.yValueMapper,
-          isInversed: widget.isInversed,
-          axisCrossesAt: widget.axisCrossesAt,
-          axisLineColor: _chartThemeData.axisLineColor,
-          axisLineWidth: widget.axisLineWidth,
-          axisLineDashArray: widget.axisLineDashArray,
-          highPointColor: widget.highPointColor,
-          lowPointColor: widget.lowPointColor,
-          firstPointColor: widget.firstPointColor,
-          lastPointColor: widget.lastPointColor,
-          negativePointColor: widget.negativePointColor,
-          color: _chartThemeData.color,
-          tiePointColor: widget.tiePointColor,
-          borderColor: widget.borderColor,
-          borderWidth: widget.borderWidth,
-          plotBand: widget.plotBand,
-          themeData: _chartThemeData,
-          sparkChartDataDetails: widget._sparkChartDataDetails,
-          dataPoints: _dataPoints,
-          coordinatePoints: _coordinatePoints),
-      SparkChartTrackballRenderer(
-        trackball: widget.trackball,
-        coordinatePoints: _coordinatePoints,
-        dataPoints: _dataPoints,
-        themeData: _chartThemeData,
-      )
-    ])));
+      child: SparkChartContainer(
+        child: Stack(
+          children: <Widget>[
+            SfSparkWinLossChartRenderObjectWidget(
+              data: widget._sparkChartDataDetails.data,
+              dataCount: widget._sparkChartDataDetails.dataCount,
+              xValueMapper: widget._sparkChartDataDetails.xValueMapper,
+              yValueMapper: widget._sparkChartDataDetails.yValueMapper,
+              isInversed: widget.isInversed,
+              axisCrossesAt: widget.axisCrossesAt,
+              axisLineColor: _chartThemeData.axisLineColor,
+              axisLineWidth: widget.axisLineWidth,
+              axisLineDashArray: widget.axisLineDashArray,
+              highPointColor: widget.highPointColor,
+              lowPointColor: widget.lowPointColor,
+              firstPointColor: widget.firstPointColor,
+              lastPointColor: widget.lastPointColor,
+              negativePointColor: widget.negativePointColor,
+              color: _chartThemeData.color,
+              tiePointColor: widget.tiePointColor,
+              borderColor: widget.borderColor,
+              borderWidth: widget.borderWidth,
+              plotBand: widget.plotBand,
+              themeData: _chartThemeData,
+              sparkChartDataDetails: widget._sparkChartDataDetails,
+              dataPoints: _dataPoints,
+              coordinatePoints: _coordinatePoints,
+            ),
+            SparkChartTrackballRenderer(
+              trackball: widget.trackball,
+              coordinatePoints: _coordinatePoints,
+              dataPoints: _dataPoints,
+              themeData: _chartThemeData,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

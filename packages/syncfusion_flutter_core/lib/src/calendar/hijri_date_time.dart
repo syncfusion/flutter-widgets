@@ -1742,7 +1742,7 @@ const List<int> _kDateCollection = <int>[
   79900,
   79930,
   79960,
-  79990
+  79990,
 ];
 
 /// An HijriDateTime data.
@@ -1757,8 +1757,7 @@ const List<int> _kDateCollection = <int>[
 class HijriDateTime {
   /// Creates a instance for HijriDateTime instance with given data.
   HijriDateTime(this.year, this.month, this.day)
-      : _date =
-            convertToGregorianDate(null, year: year, month: month, day: day);
+    : _date = convertToGregorianDate(null, year: year, month: month, day: day);
 
   /// returns the hijri date value based on the current date
   ///
@@ -1992,7 +1991,8 @@ HijriDateTime convertToHijriDate(DateTime date) {
   }
   int yPrefix = (tYear / 100).floor();
   int julianOffset = yPrefix - (yPrefix / 4.0).floor() - 2;
-  final int julianNumber = (365.25 * (tYear + 4716)).floor() +
+  final int julianNumber =
+      (365.25 * (tYear + 4716)).floor() +
       (30.6001 * (tMonth + 1)).floor() +
       day -
       julianOffset -
@@ -2048,8 +2048,12 @@ HijriDateTime convertToHijriDate(DateTime date) {
 }
 
 /// Converts and returns the gregorian date from the given hijri date values.
-DateTime convertToGregorianDate(HijriDateTime? date,
-    {int year = 0, int month = 0, int day = 0}) {
+DateTime convertToGregorianDate(
+  HijriDateTime? date, {
+  int year = 0,
+  int month = 0,
+  int day = 0,
+}) {
   if (date != null) {
     return date._date;
   }

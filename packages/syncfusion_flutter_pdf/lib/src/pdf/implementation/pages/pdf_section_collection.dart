@@ -113,17 +113,20 @@ class PdfSectionCollectionHelper {
   }
 
   void _setPageSettings(
-      PdfDictionary dictionary, PdfPageSettings pageSettings) {
+    PdfDictionary dictionary,
+    PdfPageSettings pageSettings,
+  ) {
     final List<double?> list = <double?>[
       0,
       0,
       pageSettings.size.width,
-      pageSettings.size.height
+      pageSettings.size.height,
     ];
     dictionary[PdfDictionaryProperties.mediaBox] = PdfArray(list);
     if (pageSettings.rotate != PdfPageRotateAngle.rotateAngle0) {
-      dictionary[PdfDictionaryProperties.rotate] =
-          PdfNumber(rotateFactor * pageSettings.rotate.index);
+      dictionary[PdfDictionaryProperties.rotate] = PdfNumber(
+        rotateFactor * pageSettings.rotate.index,
+      );
     }
   }
 

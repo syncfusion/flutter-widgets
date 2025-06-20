@@ -25,7 +25,7 @@ class FormatSection {
       TokenType.string,
       TokenType.reservedPlace,
       TokenType.character,
-      TokenType.color
+      TokenType.color,
     ],
     ExcelFormatType.unknown,
     <TokenType>[TokenType.general, TokenType.culture],
@@ -106,7 +106,7 @@ class FormatSection {
       TokenType.fraction,
       TokenType.culture,
     ],
-    ExcelFormatType.dateTime
+    ExcelFormatType.dateTime,
   ];
 
   /// Break tokens when locating hour token.
@@ -314,8 +314,15 @@ class FormatSection {
       bAddNegative &= dFractionValue > 0;
     }
     String strResult;
-    strResult = _applyFormatNumber(value, bShowReservedSymbols, 0, _iIntegerEnd,
-        false, _bGroupDigits, bAddNegative);
+    strResult = _applyFormatNumber(
+      value,
+      bShowReservedSymbols,
+      0,
+      _iIntegerEnd,
+      false,
+      _bGroupDigits,
+      bAddNegative,
+    );
 
     strResult = Worksheet.convertSecondsMinutesToHours(strResult, value);
 
@@ -338,13 +345,14 @@ class FormatSection {
 
   /// Applies part of the format tokens to the value.
   String _applyFormatNumber(
-      double value,
-      bool bShowReservedSymbols,
-      int iStartToken,
-      int iEndToken,
-      bool bForward,
-      bool bGroupDigits,
-      bool bAddNegativeSign) {
+    double value,
+    bool bShowReservedSymbols,
+    int iStartToken,
+    int iEndToken,
+    bool bForward,
+    bool bGroupDigits,
+    bool bAddNegativeSign,
+  ) {
     final List<String> builder = <String>[];
     final int iDelta = bForward ? 1 : -1;
     final int iStart = bForward ? iStartToken : iEndToken;
@@ -355,8 +363,12 @@ class FormatSection {
     for (int i = iStart; _checkCondition(iEnd, bForward, i); i += iDelta) {
       final FormatTokenBase token = _arrTokens[i];
       final double tempValue = originalValue;
-      String strTokenResult =
-          token.applyFormat(tempValue, bShowReservedSymbols, culture, this);
+      String strTokenResult = token.applyFormat(
+        tempValue,
+        bShowReservedSymbols,
+        culture,
+        this,
+      );
 
       //If the Month token length is 5 , Ms Excel consider as 1.
       if (token is MonthToken &&
@@ -456,11 +468,16 @@ class FormatSection {
       throw error;
     }
 
-    final bool bMinute = (_findTimeToken(iTokenIndex - 1, _defultBreakHour,
-                false, <TokenType>[TokenType.hour, TokenType.hour24]) !=
+    final bool bMinute =
+        (_findTimeToken(iTokenIndex - 1, _defultBreakHour, false, <TokenType>[
+              TokenType.hour,
+              TokenType.hour24,
+            ]) !=
             -1) ||
-        (_findTimeToken(iTokenIndex + 1, _defultBreakSecond, true,
-                <TokenType>[TokenType.second, TokenType.secondTotal]) !=
+        (_findTimeToken(iTokenIndex + 1, _defultBreakSecond, true, <TokenType>[
+              TokenType.second,
+              TokenType.secondTotal,
+            ]) !=
             -1);
 
     if (!bMinute) {
@@ -471,8 +488,12 @@ class FormatSection {
   }
 
   /// Searches for required time token.
-  int _findTimeToken(int iTokenIndex, List<TokenType> arrBreakTypes,
-      bool bForward, List<TokenType> arrTypes) {
+  int _findTimeToken(
+    int iTokenIndex,
+    List<TokenType> arrBreakTypes,
+    bool bForward,
+    List<TokenType> arrTypes,
+  ) {
     final int iCount = _count;
     final int iDelta = bForward ? 1 : -1;
 

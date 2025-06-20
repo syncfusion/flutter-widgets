@@ -97,7 +97,7 @@ class PageSetupImpl implements PageSetup {
       ExcelPaperSize.a5ExtraPpaper: _convertUnits(235, 'MMtoInch'),
       ExcelPaperSize.iSOB5ExtraPaper: _convertUnits(276, 'MMtoInch'),
       ExcelPaperSize.a3TransversePaper: _convertUnits(297, 'MMtoInch'),
-      ExcelPaperSize.a3ExtraTransversePaper: _convertUnits(445, 'MMtoInch')
+      ExcelPaperSize.a3ExtraTransversePaper: _convertUnits(445, 'MMtoInch'),
     };
     paperWidth = <ExcelPaperSize, double>{
       ExcelPaperSize.a2Paper: _convertUnits(420, 'MMtoInch'),
@@ -165,7 +165,7 @@ class PageSetupImpl implements PageSetup {
       ExcelPaperSize.a5ExtraPpaper: _convertUnits(174, 'MMtoInch'),
       ExcelPaperSize.iSOB5ExtraPaper: _convertUnits(210, 'MMtoInch'),
       ExcelPaperSize.a3TransversePaper: _convertUnits(420, 'MMtoInch'),
-      ExcelPaperSize.a3ExtraTransversePaper: _convertUnits(322, 'MMtoInch')
+      ExcelPaperSize.a3ExtraTransversePaper: _convertUnits(322, 'MMtoInch'),
     };
   }
 
@@ -553,7 +553,8 @@ class PageSetupImpl implements PageSetup {
   /// Converts cell range to Range name.
   String _convertToRangeName(String input) {
     final RegExp exp = RegExp(
-        r'(?<Column1>[\$]?[A-Za-z]{1,3})(?<Row1>[\$]?\d+):(?<Column2>[\$]?[A-Za-z]{1,3})(?<Row2>[\$]?\d+)');
+      r'(?<Column1>[\$]?[A-Za-z]{1,3})(?<Row1>[\$]?\d+):(?<Column2>[\$]?[A-Za-z]{1,3})(?<Row2>[\$]?\d+)',
+    );
     final RegExpMatch? output = exp.firstMatch(input);
     final String column1 = output![1].toString();
     final String row1 = output[2].toString();

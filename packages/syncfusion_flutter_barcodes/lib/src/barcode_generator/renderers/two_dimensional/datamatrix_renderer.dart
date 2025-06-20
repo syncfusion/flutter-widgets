@@ -54,277 +54,307 @@ class DataMatrixRenderer extends SymbologyRenderer {
   void _initialize() {
     _symbolAttributes = <_DataMatrixSymbolAttribute>[
       _DataMatrixSymbolAttribute(
-          symbolRow: 10,
-          symbolColumn: 10,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 3,
-          correctionCodeWords: 5,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 3),
+        symbolRow: 10,
+        symbolColumn: 10,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 3,
+        correctionCodeWords: 5,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 3,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 12,
-          symbolColumn: 12,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 5,
-          correctionCodeWords: 7,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 5),
+        symbolRow: 12,
+        symbolColumn: 12,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 5,
+        correctionCodeWords: 7,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 5,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 14,
-          symbolColumn: 14,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 8,
-          correctionCodeWords: 10,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 8),
+        symbolRow: 14,
+        symbolColumn: 14,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 8,
+        correctionCodeWords: 10,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 8,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 16,
-          symbolColumn: 16,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 12,
-          correctionCodeWords: 12,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 12),
+        symbolRow: 16,
+        symbolColumn: 16,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 12,
+        correctionCodeWords: 12,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 12,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 18,
-          symbolColumn: 18,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 18,
-          correctionCodeWords: 14,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 18),
+        symbolRow: 18,
+        symbolColumn: 18,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 18,
+        correctionCodeWords: 14,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 18,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 20,
-          symbolColumn: 20,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 22,
-          correctionCodeWords: 18,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 22),
+        symbolRow: 20,
+        symbolColumn: 20,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 22,
+        correctionCodeWords: 18,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 22,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 22,
-          symbolColumn: 22,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 30,
-          correctionCodeWords: 20,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 30),
+        symbolRow: 22,
+        symbolColumn: 22,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 30,
+        correctionCodeWords: 20,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 30,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 24,
-          symbolColumn: 24,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 36,
-          correctionCodeWords: 24,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 36),
+        symbolRow: 24,
+        symbolColumn: 24,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 36,
+        correctionCodeWords: 24,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 36,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 26,
-          symbolColumn: 26,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 44,
-          correctionCodeWords: 28,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 44),
+        symbolRow: 26,
+        symbolColumn: 26,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 44,
+        correctionCodeWords: 28,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 44,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 32,
-          symbolColumn: 32,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 2,
-          dataCodeWords: 62,
-          correctionCodeWords: 36,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 62),
+        symbolRow: 32,
+        symbolColumn: 32,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 2,
+        dataCodeWords: 62,
+        correctionCodeWords: 36,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 62,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 36,
-          symbolColumn: 36,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 2,
-          dataCodeWords: 86,
-          correctionCodeWords: 42,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 86),
+        symbolRow: 36,
+        symbolColumn: 36,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 2,
+        dataCodeWords: 86,
+        correctionCodeWords: 42,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 86,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 40,
-          symbolColumn: 40,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 2,
-          dataCodeWords: 114,
-          correctionCodeWords: 48,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 114),
+        symbolRow: 40,
+        symbolColumn: 40,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 2,
+        dataCodeWords: 114,
+        correctionCodeWords: 48,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 114,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 44,
-          symbolColumn: 44,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 2,
-          dataCodeWords: 144,
-          correctionCodeWords: 56,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 144),
+        symbolRow: 44,
+        symbolColumn: 44,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 2,
+        dataCodeWords: 144,
+        correctionCodeWords: 56,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 144,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 48,
-          symbolColumn: 48,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 2,
-          dataCodeWords: 174,
-          correctionCodeWords: 68,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 174),
+        symbolRow: 48,
+        symbolColumn: 48,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 2,
+        dataCodeWords: 174,
+        correctionCodeWords: 68,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 174,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 52,
-          symbolColumn: 52,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 2,
-          dataCodeWords: 204,
-          correctionCodeWords: 84,
-          interLeavedBlock: 2,
-          interLeavedDataBlock: 102),
+        symbolRow: 52,
+        symbolColumn: 52,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 2,
+        dataCodeWords: 204,
+        correctionCodeWords: 84,
+        interLeavedBlock: 2,
+        interLeavedDataBlock: 102,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 64,
-          symbolColumn: 64,
-          horizontalDataRegion: 4,
-          verticalDataRegion: 4,
-          dataCodeWords: 280,
-          correctionCodeWords: 112,
-          interLeavedBlock: 2,
-          interLeavedDataBlock: 140),
+        symbolRow: 64,
+        symbolColumn: 64,
+        horizontalDataRegion: 4,
+        verticalDataRegion: 4,
+        dataCodeWords: 280,
+        correctionCodeWords: 112,
+        interLeavedBlock: 2,
+        interLeavedDataBlock: 140,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 72,
-          symbolColumn: 72,
-          horizontalDataRegion: 4,
-          verticalDataRegion: 4,
-          dataCodeWords: 368,
-          correctionCodeWords: 144,
-          interLeavedBlock: 4,
-          interLeavedDataBlock: 92),
+        symbolRow: 72,
+        symbolColumn: 72,
+        horizontalDataRegion: 4,
+        verticalDataRegion: 4,
+        dataCodeWords: 368,
+        correctionCodeWords: 144,
+        interLeavedBlock: 4,
+        interLeavedDataBlock: 92,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 80,
-          symbolColumn: 80,
-          horizontalDataRegion: 4,
-          verticalDataRegion: 4,
-          dataCodeWords: 456,
-          correctionCodeWords: 192,
-          interLeavedBlock: 4,
-          interLeavedDataBlock: 114),
+        symbolRow: 80,
+        symbolColumn: 80,
+        horizontalDataRegion: 4,
+        verticalDataRegion: 4,
+        dataCodeWords: 456,
+        correctionCodeWords: 192,
+        interLeavedBlock: 4,
+        interLeavedDataBlock: 114,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 88,
-          symbolColumn: 88,
-          horizontalDataRegion: 4,
-          verticalDataRegion: 4,
-          dataCodeWords: 576,
-          correctionCodeWords: 224,
-          interLeavedBlock: 4,
-          interLeavedDataBlock: 144),
+        symbolRow: 88,
+        symbolColumn: 88,
+        horizontalDataRegion: 4,
+        verticalDataRegion: 4,
+        dataCodeWords: 576,
+        correctionCodeWords: 224,
+        interLeavedBlock: 4,
+        interLeavedDataBlock: 144,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 96,
-          symbolColumn: 96,
-          horizontalDataRegion: 4,
-          verticalDataRegion: 4,
-          dataCodeWords: 696,
-          correctionCodeWords: 272,
-          interLeavedBlock: 4,
-          interLeavedDataBlock: 174),
+        symbolRow: 96,
+        symbolColumn: 96,
+        horizontalDataRegion: 4,
+        verticalDataRegion: 4,
+        dataCodeWords: 696,
+        correctionCodeWords: 272,
+        interLeavedBlock: 4,
+        interLeavedDataBlock: 174,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 104,
-          symbolColumn: 104,
-          horizontalDataRegion: 4,
-          verticalDataRegion: 4,
-          dataCodeWords: 816,
-          correctionCodeWords: 336,
-          interLeavedBlock: 6,
-          interLeavedDataBlock: 136),
+        symbolRow: 104,
+        symbolColumn: 104,
+        horizontalDataRegion: 4,
+        verticalDataRegion: 4,
+        dataCodeWords: 816,
+        correctionCodeWords: 336,
+        interLeavedBlock: 6,
+        interLeavedDataBlock: 136,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 120,
-          symbolColumn: 120,
-          horizontalDataRegion: 6,
-          verticalDataRegion: 6,
-          dataCodeWords: 1050,
-          correctionCodeWords: 408,
-          interLeavedBlock: 6,
-          interLeavedDataBlock: 175),
+        symbolRow: 120,
+        symbolColumn: 120,
+        horizontalDataRegion: 6,
+        verticalDataRegion: 6,
+        dataCodeWords: 1050,
+        correctionCodeWords: 408,
+        interLeavedBlock: 6,
+        interLeavedDataBlock: 175,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 132,
-          symbolColumn: 132,
-          horizontalDataRegion: 6,
-          verticalDataRegion: 6,
-          dataCodeWords: 1304,
-          correctionCodeWords: 496,
-          interLeavedBlock: 8,
-          interLeavedDataBlock: 163),
+        symbolRow: 132,
+        symbolColumn: 132,
+        horizontalDataRegion: 6,
+        verticalDataRegion: 6,
+        dataCodeWords: 1304,
+        correctionCodeWords: 496,
+        interLeavedBlock: 8,
+        interLeavedDataBlock: 163,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 144,
-          symbolColumn: 144,
-          horizontalDataRegion: 6,
-          verticalDataRegion: 6,
-          dataCodeWords: 1558,
-          correctionCodeWords: 620,
-          interLeavedBlock: 10,
-          interLeavedDataBlock: 156),
+        symbolRow: 144,
+        symbolColumn: 144,
+        horizontalDataRegion: 6,
+        verticalDataRegion: 6,
+        dataCodeWords: 1558,
+        correctionCodeWords: 620,
+        interLeavedBlock: 10,
+        interLeavedDataBlock: 156,
+      ),
 
       // Rectangle matrix
       _DataMatrixSymbolAttribute(
-          symbolRow: 8,
-          symbolColumn: 18,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 5,
-          correctionCodeWords: 7,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 5),
+        symbolRow: 8,
+        symbolColumn: 18,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 5,
+        correctionCodeWords: 7,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 5,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 8,
-          symbolColumn: 32,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 1,
-          dataCodeWords: 10,
-          correctionCodeWords: 11,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 10),
+        symbolRow: 8,
+        symbolColumn: 32,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 1,
+        dataCodeWords: 10,
+        correctionCodeWords: 11,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 10,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 12,
-          symbolColumn: 26,
-          horizontalDataRegion: 1,
-          verticalDataRegion: 1,
-          dataCodeWords: 16,
-          correctionCodeWords: 14,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 16),
+        symbolRow: 12,
+        symbolColumn: 26,
+        horizontalDataRegion: 1,
+        verticalDataRegion: 1,
+        dataCodeWords: 16,
+        correctionCodeWords: 14,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 16,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 12,
-          symbolColumn: 36,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 1,
-          dataCodeWords: 22,
-          correctionCodeWords: 18,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 22),
+        symbolRow: 12,
+        symbolColumn: 36,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 1,
+        dataCodeWords: 22,
+        correctionCodeWords: 18,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 22,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 16,
-          symbolColumn: 36,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 1,
-          dataCodeWords: 32,
-          correctionCodeWords: 24,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 32),
+        symbolRow: 16,
+        symbolColumn: 36,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 1,
+        dataCodeWords: 32,
+        correctionCodeWords: 24,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 32,
+      ),
       _DataMatrixSymbolAttribute(
-          symbolRow: 16,
-          symbolColumn: 48,
-          horizontalDataRegion: 2,
-          verticalDataRegion: 1,
-          dataCodeWords: 49,
-          correctionCodeWords: 28,
-          interLeavedBlock: 1,
-          interLeavedDataBlock: 49)
+        symbolRow: 16,
+        symbolColumn: 48,
+        horizontalDataRegion: 2,
+        verticalDataRegion: 1,
+        dataCodeWords: 49,
+        correctionCodeWords: 28,
+        interLeavedBlock: 1,
+        interLeavedDataBlock: 49,
+      ),
     ];
 
     _createLogList();
@@ -393,9 +423,10 @@ class DataMatrixRenderer extends SymbologyRenderer {
         if (v == 1 ||
             v > 7 && (codeword[(v >> 3) - 1]! & (1 << (v & 7))) != 0) {
           matrix[(1 + y + 2 * (y ~/ (fieldHeight - 2))) * width +
-              1 +
-              x +
-              2 * (x ~/ (fieldWidth - 2))] = 1;
+                  1 +
+                  x +
+                  2 * (x ~/ (fieldWidth - 2))] =
+              1;
         }
       }
     }
@@ -409,7 +440,9 @@ class DataMatrixRenderer extends SymbologyRenderer {
         symbolRow = _symbolAttribute.symbolRow!;
 
     final List<List<int?>> tempArray = List<List<int?>>.generate(
-        symbolColumn, (int j) => List<int?>.filled(symbolRow, null));
+      symbolColumn,
+      (int j) => List<int?>.filled(symbolRow, null),
+    );
 
     for (int m = 0; m < symbolColumn; m++) {
       for (int n = 0; n < symbolRow; n++) {
@@ -418,7 +451,9 @@ class DataMatrixRenderer extends SymbologyRenderer {
     }
 
     final List<List<int?>> tempArray2 = List<List<int?>>.generate(
-        symbolRow, (int j) => List<int?>.filled(symbolColumn, null));
+      symbolRow,
+      (int j) => List<int?>.filled(symbolColumn, null),
+    );
 
     for (int i = 0; i < symbolRow; i++) {
       for (int j = 0; j < symbolColumn; j++) {
@@ -434,8 +469,10 @@ class DataMatrixRenderer extends SymbologyRenderer {
     const int quietZone = 1;
     final int w = _symbolAttribute.symbolRow! + (2 * quietZone);
     final int h = _symbolAttribute.symbolColumn! + (2 * quietZone);
-    _dataMatrixList =
-        List<List<int?>>.generate(w, (int j) => List<int?>.filled(h, null));
+    _dataMatrixList = List<List<int?>>.generate(
+      w,
+      (int j) => List<int?>.filled(h, null),
+    );
     // Top quietzone.
     for (int i = 0; i < h; i++) {
       _dataMatrixList[0][i] = 0;
@@ -458,8 +495,15 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method to encode the error correcting code word
-  void _errorCorrectingCode200PlacementBit(List<int?> array, int numOfRows,
-      int numOfColumns, int row, int column, int place, String character) {
+  void _errorCorrectingCode200PlacementBit(
+    List<int?> array,
+    int numOfRows,
+    int numOfColumns,
+    int row,
+    int column,
+    int place,
+    String character,
+  ) {
     if (row < 0) {
       row += numOfRows;
       column += 4 - ((numOfRows + 4) % 8);
@@ -475,112 +519,417 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200PlacementCornerA(
-      List<int?> array, int numOfRows, int numOfColumns, int place) {
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 1, 0, place, String.fromCharCode(7));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 1, 1, place, String.fromCharCode(6));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 1, 2, place, String.fromCharCode(5));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 2, place, String.fromCharCode(4));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 1, place, String.fromCharCode(3));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 1,
-        numOfColumns - 1, place, String.fromCharCode(2));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 2,
-        numOfColumns - 1, place, String.fromCharCode(1));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 3,
-        numOfColumns - 1, place, String.fromCharCode(0));
+    List<int?> array,
+    int numOfRows,
+    int numOfColumns,
+    int place,
+  ) {
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 1,
+      0,
+      place,
+      String.fromCharCode(7),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 1,
+      1,
+      place,
+      String.fromCharCode(6),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 1,
+      2,
+      place,
+      String.fromCharCode(5),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 2,
+      place,
+      String.fromCharCode(4),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(3),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      1,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(2),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      2,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(1),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      3,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(0),
+    );
   }
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200PlacementCornerB(
-      List<int?> array, int numOfRows, int numOfColumns, int place) {
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 3, 0, place, String.fromCharCode(7));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 2, 0, place, String.fromCharCode(6));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 1, 0, place, String.fromCharCode(5));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 4, place, String.fromCharCode(4));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 3, place, String.fromCharCode(3));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 2, place, String.fromCharCode(2));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 1, place, String.fromCharCode(1));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 1,
-        numOfColumns - 1, place, String.fromCharCode(0));
+    List<int?> array,
+    int numOfRows,
+    int numOfColumns,
+    int place,
+  ) {
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 3,
+      0,
+      place,
+      String.fromCharCode(7),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 2,
+      0,
+      place,
+      String.fromCharCode(6),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 1,
+      0,
+      place,
+      String.fromCharCode(5),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 4,
+      place,
+      String.fromCharCode(4),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 3,
+      place,
+      String.fromCharCode(3),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 2,
+      place,
+      String.fromCharCode(2),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(1),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      1,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(0),
+    );
   }
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200PlacementCornerC(
-      List<int?> array, int numOfRows, int numOfColumns, int place) {
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 3, 0, place, String.fromCharCode(7));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 2, 0, place, String.fromCharCode(6));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 1, 0, place, String.fromCharCode(5));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 2, place, String.fromCharCode(4));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 1, place, String.fromCharCode(3));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 1,
-        numOfColumns - 1, place, String.fromCharCode(2));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 2,
-        numOfColumns - 1, place, String.fromCharCode(1));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 3,
-        numOfColumns - 1, place, String.fromCharCode(0));
+    List<int?> array,
+    int numOfRows,
+    int numOfColumns,
+    int place,
+  ) {
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 3,
+      0,
+      place,
+      String.fromCharCode(7),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 2,
+      0,
+      place,
+      String.fromCharCode(6),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 1,
+      0,
+      place,
+      String.fromCharCode(5),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 2,
+      place,
+      String.fromCharCode(4),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(3),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      1,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(2),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      2,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(1),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      3,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(0),
+    );
   }
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200PlacementCornerD(
-      List<int?> array, int numOfRows, int numOfColumns, int place) {
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 1, 0, place, String.fromCharCode(7));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
-        numOfRows - 1, numOfColumns - 1, place, String.fromCharCode(6));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 3, place, String.fromCharCode(5));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 2, place, String.fromCharCode(4));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 0,
-        numOfColumns - 1, place, String.fromCharCode(3));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 1,
-        numOfColumns - 3, place, String.fromCharCode(2));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 1,
-        numOfColumns - 2, place, String.fromCharCode(1));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, 1,
-        numOfColumns - 1, place, String.fromCharCode(0));
+    List<int?> array,
+    int numOfRows,
+    int numOfColumns,
+    int place,
+  ) {
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 1,
+      0,
+      place,
+      String.fromCharCode(7),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      numOfRows - 1,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(6),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 3,
+      place,
+      String.fromCharCode(5),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 2,
+      place,
+      String.fromCharCode(4),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      0,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(3),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      1,
+      numOfColumns - 3,
+      place,
+      String.fromCharCode(2),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      1,
+      numOfColumns - 2,
+      place,
+      String.fromCharCode(1),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      1,
+      numOfColumns - 1,
+      place,
+      String.fromCharCode(0),
+    );
   }
 
   /// Method to encode the error correcting code word
-  void _errorCorrectingCode200PlacementBlock(List<int?> array, int numOfRows,
-      int numOfColumns, int row, int column, int place) {
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, row - 2,
-        column - 2, place, String.fromCharCode(7));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, row - 2,
-        column - 1, place, String.fromCharCode(6));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, row - 1,
-        column - 2, place, String.fromCharCode(5));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, row - 1,
-        column - 1, place, String.fromCharCode(4));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, row - 1,
-        column, place, String.fromCharCode(3));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, row,
-        column - 2, place, String.fromCharCode(2));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, row,
-        column - 1, place, String.fromCharCode(1));
-    _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, row,
-        column, place, String.fromCharCode(0));
+  void _errorCorrectingCode200PlacementBlock(
+    List<int?> array,
+    int numOfRows,
+    int numOfColumns,
+    int row,
+    int column,
+    int place,
+  ) {
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      row - 2,
+      column - 2,
+      place,
+      String.fromCharCode(7),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      row - 2,
+      column - 1,
+      place,
+      String.fromCharCode(6),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      row - 1,
+      column - 2,
+      place,
+      String.fromCharCode(5),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      row - 1,
+      column - 1,
+      place,
+      String.fromCharCode(4),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      row - 1,
+      column,
+      place,
+      String.fromCharCode(3),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      row,
+      column - 2,
+      place,
+      String.fromCharCode(2),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      row,
+      column - 1,
+      place,
+      String.fromCharCode(1),
+    );
+    _errorCorrectingCode200PlacementBit(
+      array,
+      numOfRows,
+      numOfColumns,
+      row,
+      column,
+      place,
+      String.fromCharCode(0),
+    );
   }
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200Placement(
-      List<int?> array, int numOfRows, int numOfColumns) {
+    List<int?> array,
+    int numOfRows,
+    int numOfColumns,
+  ) {
     int row, column, place;
     for (row = 0; row < numOfRows; row++) {
       for (column = 0; column < numOfColumns; column++) {
@@ -594,24 +943,40 @@ class DataMatrixRenderer extends SymbologyRenderer {
     do {
       if (row == numOfRows && !(column != 0)) {
         _errorCorrectingCode200PlacementCornerA(
-            array, numOfRows, numOfColumns, place++);
+          array,
+          numOfRows,
+          numOfColumns,
+          place++,
+        );
       }
 
       if ((row == numOfRows - 2) &&
           !(column != 0) &&
           ((numOfColumns % 4) != 0)) {
         _errorCorrectingCode200PlacementCornerB(
-            array, numOfRows, numOfColumns, place++);
+          array,
+          numOfRows,
+          numOfColumns,
+          place++,
+        );
       }
 
       if (row == numOfRows - 2 && !(column != 0) && (numOfColumns % 8) == 4) {
         _errorCorrectingCode200PlacementCornerC(
-            array, numOfRows, numOfColumns, place++);
+          array,
+          numOfRows,
+          numOfColumns,
+          place++,
+        );
       }
 
       if (row == numOfRows + 4 && column == 2 && !((numOfColumns % 8) != 0)) {
         _errorCorrectingCode200PlacementCornerD(
-            array, numOfRows, numOfColumns, place++);
+          array,
+          numOfRows,
+          numOfColumns,
+          place++,
+        );
       }
       // enocoding placement (up/right)
       do {
@@ -619,7 +984,13 @@ class DataMatrixRenderer extends SymbologyRenderer {
             column >= 0 &&
             !(array[row * numOfColumns + column] != 0)) {
           _errorCorrectingCode200PlacementBlock(
-              array, numOfRows, numOfColumns, row, column, place++);
+            array,
+            numOfRows,
+            numOfColumns,
+            row,
+            column,
+            place++,
+          );
         }
 
         row -= 2;
@@ -633,7 +1004,13 @@ class DataMatrixRenderer extends SymbologyRenderer {
             column < numOfColumns &&
             !(array[row * numOfColumns + column] != 0)) {
           _errorCorrectingCode200PlacementBlock(
-              array, numOfRows, numOfColumns, row, column, place++);
+            array,
+            numOfRows,
+            numOfColumns,
+            row,
+            column,
+            place++,
+          );
         }
 
         row += 2;
@@ -710,8 +1087,10 @@ class DataMatrixRenderer extends SymbologyRenderer {
       num++;
     }
 
-    final List<int?> result =
-        List<int?>.filled((1 + num) + dataCodeword.length, null);
+    final List<int?> result = List<int?>.filled(
+      (1 + num) + dataCodeword.length,
+      null,
+    );
     result[0] = 231;
     if (dataCodeword.length <= 249) {
       result[1] = dataCodeword.length;
@@ -755,13 +1134,16 @@ class DataMatrixRenderer extends SymbologyRenderer {
       }
     }
 
-    final List<int?> result =
-        List<int?>.filled(destinationArray.length ~/ 2, null);
+    final List<int?> result = List<int?>.filled(
+      destinationArray.length ~/ 2,
+      null,
+    );
     for (int i = 0; i < result.length; i++) {
       if (!isEven && i == result.length - 1) {
         result[i] = destinationArray[2 * i]! + 1;
       } else {
-        result[i] = (((destinationArray[2 * i]! - 48) * 10) +
+        result[i] =
+            (((destinationArray[2 * i]! - 48) * 10) +
                 (destinationArray[(2 * i) + 1]! - 48)) +
             130;
       }
@@ -815,7 +1197,9 @@ class DataMatrixRenderer extends SymbologyRenderer {
     final int numCorrectionCodeword = _symbolAttribute.correctionCodeWords!;
     // Create error correction array.
     final List<int?> correctionCodeWordArray = List<int?>.filled(
-        numCorrectionCodeword + _symbolAttribute.dataCodeWords!, null);
+      numCorrectionCodeword + _symbolAttribute.dataCodeWords!,
+      null,
+    );
     for (int i = 0; i < correctionCodeWordArray.length; i++) {
       correctionCodeWordArray[i] = 0;
     }
@@ -836,10 +1220,14 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
       for (int i = block; i < symbolDataWords; i += step) {
         final int val = _getErrorCorrectingCodeSum(
-            blockByte[blockErrorWords - 1]!, _encodedCodeword![i]!);
+          blockByte[blockErrorWords - 1]!,
+          _encodedCodeword![i]!,
+        );
         for (int j = blockErrorWords - 1; j > 0; j--) {
-          blockByte[j] = _getErrorCorrectingCodeSum(blockByte[j - 1]!,
-              _getErrorCorrectingCodeProduct(_polynomial[j]!, val));
+          blockByte[j] = _getErrorCorrectingCodeSum(
+            blockByte[j - 1]!,
+            _getErrorCorrectingCodeProduct(_polynomial[j]!, val),
+          );
         }
 
         blockByte[0] = _getErrorCorrectingCodeProduct(_polynomial[0]!, val);
@@ -865,12 +1253,16 @@ class DataMatrixRenderer extends SymbologyRenderer {
     }
 
     return _getCorrectionCodeWordArray(
-        correctionCodeWordArray, numCorrectionCodeword);
+      correctionCodeWordArray,
+      numCorrectionCodeword,
+    );
   }
 
   /// Method to get the correction code word
   List<int?> _getCorrectionCodeWordArray(
-      List<int?> correctionCodeWordArray, int numCorrectionCodeword) {
+    List<int?> correctionCodeWordArray,
+    int numCorrectionCodeword,
+  ) {
     if (correctionCodeWordArray.length > numCorrectionCodeword) {
       final List<int?> tmp = correctionCodeWordArray;
       correctionCodeWordArray = List<int?>.filled(numCorrectionCodeword, null);
@@ -901,8 +1293,11 @@ class DataMatrixRenderer extends SymbologyRenderer {
         }
       }
     } else {
-      _symbolAttribute = _symbolAttributes[
-          getDataMatrixSize(_dataMatrixSymbology.dataMatrixSize) - 1];
+      _symbolAttribute =
+          _symbolAttributes[getDataMatrixSize(
+                _dataMatrixSymbology.dataMatrixSize,
+              ) -
+              1];
     }
 
     List<int> temp;
@@ -918,7 +1313,8 @@ class DataMatrixRenderer extends SymbologyRenderer {
       final String symbolRow = _symbolAttribute.symbolRow.toString();
       final String symbolColumn = _symbolAttribute.symbolColumn.toString();
       throw ArgumentError(
-          'Data too long for $symbolRow x $symbolColumn barcode.');
+        'Data too long for $symbolRow x $symbolColumn barcode.',
+      );
     }
   }
 
@@ -936,8 +1332,10 @@ class DataMatrixRenderer extends SymbologyRenderer {
       for (int j = i - 1; j >= 0; j--) {
         _polynomial[j] = _getErrorCorrectingCodeDoublify(_polynomial[j]!, i);
         if (j > 0) {
-          _polynomial[j] =
-              _getErrorCorrectingCodeSum(_polynomial[j]!, _polynomial[j - 1]!);
+          _polynomial[j] = _getErrorCorrectingCodeSum(
+            _polynomial[j]!,
+            _polynomial[j - 1]!,
+          );
         }
       }
     }
@@ -946,10 +1344,13 @@ class DataMatrixRenderer extends SymbologyRenderer {
   /// Method to get the code word
   List<int?> _getCodeword(List<int> dataCodeword) {
     _encodedCodeword = _getDataCodeword(dataCodeword);
-    final List<int?> correctCodeword =
-        _getComputedErrorCorrection(_encodedCodeword!);
+    final List<int?> correctCodeword = _getComputedErrorCorrection(
+      _encodedCodeword!,
+    );
     final List<int?> finalCodeword = List<int?>.filled(
-        _encodedCodeword!.length + correctCodeword.length, null);
+      _encodedCodeword!.length + correctCodeword.length,
+      null,
+    );
     for (int i = 0; i < _encodedCodeword!.length; i++) {
       finalCodeword[i] = _encodedCodeword![i];
     }
@@ -994,7 +1395,8 @@ class DataMatrixRenderer extends SymbologyRenderer {
       if (actualEncoding == DataMatrixEncoding.asciiNumeric &&
           _dataMatrixSymbology.encoding != actualEncoding) {
         throw ArgumentError(
-            'Data contains invalid characters and cannot be encoded as ASCIINumeric.');
+          'Data contains invalid characters and cannot be encoded as ASCIINumeric.',
+        );
       }
 
       _encoding = actualEncoding;
@@ -1030,15 +1432,16 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
   @override
   void renderBarcode(
-      Canvas canvas,
-      Size size,
-      Offset offset,
-      String value,
-      Color foregroundColor,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      bool showValue) {
+    Canvas canvas,
+    Size size,
+    Offset offset,
+    String value,
+    Color foregroundColor,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    bool showValue,
+  ) {
     _inputValue = value;
 
     _buildDataMatrix();
@@ -1053,7 +1456,8 @@ class DataMatrixRenderer extends SymbologyRenderer {
         getDataMatrixSize(_dataMatrixSymbology.dataMatrixSize) < 25;
     int dimension = minSize ~/ _dataMatrixList.length;
     final int rectDimension = minSize ~/ _dataMatrixList[0].length;
-    final int xDimension = _dataMatrixSymbology.module ??
+    final int xDimension =
+        _dataMatrixSymbology.module ??
         (isSquareMatrix ? dimension : rectDimension);
     dimension = _dataMatrixSymbology.module ?? dimension;
     for (int i = 0; i < w; i++) {
@@ -1073,7 +1477,11 @@ class DataMatrixRenderer extends SymbologyRenderer {
       for (int j = 0; j < h; j++) {
         if (_dataMatrixList[i][j] == 1) {
           final Rect matrixRect = Rect.fromLTRB(
-              x, yPosition, x + xDimension, yPosition + dimension);
+            x,
+            yPosition,
+            x + xDimension,
+            yPosition + dimension,
+          );
           canvas.drawRect(matrixRect, paint);
         }
 
@@ -1086,23 +1494,39 @@ class DataMatrixRenderer extends SymbologyRenderer {
     if (showValue) {
       final Offset textOffset = Offset(offset.dx, yPosition.toDouble());
       drawText(
-          canvas, textOffset, size, value, textStyle, textSpacing, textAlign);
+        canvas,
+        textOffset,
+        size,
+        value,
+        textStyle,
+        textSpacing,
+        textAlign,
+      );
     }
   }
 
   /// Method to render the input value of the barcode
   @override
-  void drawText(Canvas canvas, Offset offset, Size size, String value,
-      TextStyle textStyle, double textSpacing, TextAlign textAlign,
-      [Offset? actualOffset, Size? actualSize]) {
+  void drawText(
+    Canvas canvas,
+    Offset offset,
+    Size size,
+    String value,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign, [
+    Offset? actualOffset,
+    Size? actualSize,
+  ]) {
     final TextSpan span = TextSpan(text: value, style: textStyle);
 
     final TextPainter textPainter = TextPainter(
-        maxLines: 1,
-        ellipsis: '.....',
-        text: span,
-        textDirection: TextDirection.ltr,
-        textAlign: textAlign);
+      maxLines: 1,
+      ellipsis: '.....',
+      text: span,
+      textDirection: TextDirection.ltr,
+      textAlign: textAlign,
+    );
     textPainter.layout(maxWidth: size.width);
     double x;
     double y;
@@ -1141,15 +1565,16 @@ class DataMatrixRenderer extends SymbologyRenderer {
 /// Represents the data matrix symbol attribute
 class _DataMatrixSymbolAttribute {
   /// Creates the data matrix symbol attribute
-  _DataMatrixSymbolAttribute(
-      {this.symbolRow,
-      this.symbolColumn,
-      this.horizontalDataRegion,
-      this.verticalDataRegion,
-      this.dataCodeWords,
-      this.correctionCodeWords,
-      this.interLeavedBlock,
-      this.interLeavedDataBlock});
+  _DataMatrixSymbolAttribute({
+    this.symbolRow,
+    this.symbolColumn,
+    this.horizontalDataRegion,
+    this.verticalDataRegion,
+    this.dataCodeWords,
+    this.correctionCodeWords,
+    this.interLeavedBlock,
+    this.interLeavedDataBlock,
+  });
 
   /// Defines the symbol row
   final int? symbolRow;

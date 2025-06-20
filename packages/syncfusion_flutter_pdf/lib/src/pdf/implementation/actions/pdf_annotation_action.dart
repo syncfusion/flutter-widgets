@@ -7,16 +7,23 @@ import 'pdf_action.dart';
 class PdfAnnotationActions implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [PdfAnnotationActions] class.
-  PdfAnnotationActions(
-      {PdfAction? mouseEnter,
-      PdfAction? mouseLeave,
-      PdfAction? mouseUp,
-      PdfAction? mouseDown,
-      PdfAction? gotFocus,
-      PdfAction? lostFocus}) {
+  PdfAnnotationActions({
+    PdfAction? mouseEnter,
+    PdfAction? mouseLeave,
+    PdfAction? mouseUp,
+    PdfAction? mouseDown,
+    PdfAction? gotFocus,
+    PdfAction? lostFocus,
+  }) {
     _helper = PdfAnnotationActionsHelper();
     _initValues(
-        mouseEnter, mouseLeave, mouseUp, mouseDown, gotFocus, lostFocus);
+      mouseEnter,
+      mouseLeave,
+      mouseUp,
+      mouseDown,
+      gotFocus,
+      lostFocus,
+    );
   }
 
   PdfAnnotationActions._loaded(PdfDictionary? dictionary) {
@@ -93,8 +100,14 @@ class PdfAnnotationActions implements IPdfWrapper {
   }
 
   // Implementation
-  void _initValues(PdfAction? mEnter, PdfAction? mLeave, PdfAction? mUp,
-      PdfAction? mDown, PdfAction? gotF, PdfAction? lostF) {
+  void _initValues(
+    PdfAction? mEnter,
+    PdfAction? mLeave,
+    PdfAction? mUp,
+    PdfAction? mDown,
+    PdfAction? gotF,
+    PdfAction? lostF,
+  ) {
     if (mEnter != null) {
       mouseEnter = mEnter;
     }
@@ -137,7 +150,8 @@ class PdfAnnotationActionsHelper {
 
   /// internal method
   static PdfAnnotationActionsHelper getHelper(
-      PdfAnnotationActions annotationActions) {
+    PdfAnnotationActions annotationActions,
+  ) {
     return annotationActions._helper;
   }
 

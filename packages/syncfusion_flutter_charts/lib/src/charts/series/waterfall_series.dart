@@ -321,7 +321,9 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, WaterfallSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    WaterfallSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..negativePointsColor = negativePointsColor
@@ -482,7 +484,13 @@ class WaterfallSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     List<List<Object?>>? fLists,
   ]) {
     super.populateDataSource(
-        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
+      yPaths,
+      chaoticYLists,
+      yLists,
+      fPaths,
+      chaoticFLists,
+      fLists,
+    );
     _calculateWaterfallValues();
     populateChartPoints();
   }
@@ -552,9 +560,10 @@ class WaterfallSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         intermediateSumPredicate != null
             ? _intermediateSumPredicateMapper
             : _defaultSumPredicate;
-    final bool? Function(T data, int index) totalSum = totalSumPredicate != null
-        ? _totalSumPredicateMapper
-        : _defaultSumPredicate;
+    final bool? Function(T data, int index) totalSum =
+        totalSumPredicate != null
+            ? _totalSumPredicateMapper
+            : _defaultSumPredicate;
 
     for (int i = 0; i < dataCount; i++) {
       final T current = dataSource![i];
@@ -652,22 +661,32 @@ class WaterfallSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       color = negativePointsColor;
     }
 
-    updateSegmentColor(waterfallSegment, borderColor, borderWidth,
-        fillColor: color);
-    updateSegmentGradient(waterfallSegment,
-        gradientBounds: waterfallSegment.segmentRect?.outerRect,
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentColor(
+      waterfallSegment,
+      borderColor,
+      borderWidth,
+      fillColor: color,
+    );
+    updateSegmentGradient(
+      waterfallSegment,
+      gradientBounds: waterfallSegment.segmentRect?.outerRect,
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
 
     segment.connectorLineStrokePaint
-      ..color = (connectorLineSettings.color ??
-          chartThemeData!.waterfallConnectorLineColor)!
+      ..color =
+          (connectorLineSettings.color ??
+              chartThemeData!.waterfallConnectorLineColor)!
       ..strokeWidth = connectorLineSettings.width;
   }
 
   @override
-  Offset dataLabelPosition(ChartElementParentData current,
-      ChartDataLabelAlignment alignment, Size size) {
+  Offset dataLabelPosition(
+    ChartElementParentData current,
+    ChartDataLabelAlignment alignment,
+    Size size,
+  ) {
     final num x = current.x! + (sbsInfo.maximum + sbsInfo.minimum) / 2;
     num y = current.y!;
     final int dataPointIndex = current.dataPointIndex;
@@ -686,43 +705,49 @@ class WaterfallSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       case ChartDataLabelAlignment.auto:
       case ChartDataLabelAlignment.outer:
         if (isTransposed) {
-          translationX = isNegative
-              ? -(dataLabelPadding + size.width + margin.horizontal)
-              : dataLabelPadding;
+          translationX =
+              isNegative
+                  ? -(dataLabelPadding + size.width + margin.horizontal)
+                  : dataLabelPadding;
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = isNegative
-              ? 0
-              : -(dataLabelPadding + size.height + margin.vertical);
+          translationY =
+              isNegative
+                  ? 0
+                  : -(dataLabelPadding + size.height + margin.vertical);
         }
         return translateTransform(x, y, translationX, translationY);
 
       case ChartDataLabelAlignment.bottom:
         if (isTransposed) {
-          translationX = isNegative
-              ? -(dataLabelPadding + size.width + margin.horizontal)
-              : dataLabelPadding;
+          translationX =
+              isNegative
+                  ? -(dataLabelPadding + size.width + margin.horizontal)
+                  : dataLabelPadding;
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = isNegative
-              ? dataLabelPadding
-              : -(dataLabelPadding + size.height + margin.vertical);
+          translationY =
+              isNegative
+                  ? dataLabelPadding
+                  : -(dataLabelPadding + size.height + margin.vertical);
         }
         return translateTransform(x, y, translationX, translationY);
 
       case ChartDataLabelAlignment.top:
         if (isTransposed) {
-          translationX = isNegative
-              ? 0
-              : -(dataLabelPadding + size.width + margin.horizontal);
+          translationX =
+              isNegative
+                  ? 0
+                  : -(dataLabelPadding + size.width + margin.horizontal);
           translationY = -margin.top;
         } else {
           translationX = -margin.left;
-          translationY = isNegative
-              ? -(dataLabelPadding + size.height + margin.vertical)
-              : dataLabelPadding;
+          translationY =
+              isNegative
+                  ? -(dataLabelPadding + size.height + margin.vertical)
+                  : dataLabelPadding;
         }
         return translateTransform(x, y, translationX, translationY);
 
@@ -756,10 +781,11 @@ class WaterfallSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
 /// Gets the path and color from the `series`.
 class WaterfallSegment<T, D> extends ChartSegment {
   late WaterfallSeriesRenderer<T, D> series;
-  final Paint connectorLineStrokePaint = Paint()
-    ..isAntiAlias = true
-    ..style = PaintingStyle.stroke
-    ..strokeCap = StrokeCap.round;
+  final Paint connectorLineStrokePaint =
+      Paint()
+        ..isAntiAlias = true
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
 
   late num x;
   late num top;
@@ -773,7 +799,9 @@ class WaterfallSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldSegmentRect = null;
@@ -782,8 +810,11 @@ class WaterfallSegment<T, D> extends ChartSegment {
     }
 
     if (series.animationDuration > 0) {
-      _oldSegmentRect =
-          RRect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
+      _oldSegmentRect = RRect.lerp(
+        _oldSegmentRect,
+        segmentRect,
+        segmentAnimationFactor,
+      );
     } else {
       _oldSegmentRect = segmentRect;
     }
@@ -826,10 +857,12 @@ class WaterfallSegment<T, D> extends ChartSegment {
           series.segments[currentSegmentIndex - 1] as WaterfallSegment<T, D>;
       final num oldSegmentRight = oldSegment.x + sbsMaximum;
       final num oldSegmentTop = oldSegment.top;
-      points.add(Offset(
-        transformX(oldSegmentRight, oldSegmentTop),
-        transformY(oldSegmentRight, oldSegmentTop),
-      ));
+      points.add(
+        Offset(
+          transformX(oldSegmentRight, oldSegmentTop),
+          transformY(oldSegmentRight, oldSegmentTop),
+        ),
+      );
 
       if (isTotalSum || isIntermediateSum) {
         points.add(Offset(x1, y1));
@@ -864,18 +897,22 @@ class WaterfallSegment<T, D> extends ChartSegment {
       final ChartMarker marker = series.markerAt(pointIndex);
       final double markerHeight =
           series.markerSettings.isVisible ? marker.height / 2 : 0;
-      final Offset preferredPos = tooltipPosition == TooltipPosition.pointer
-          ? position ?? segmentRect!.outerRect.topCenter
-          : segmentRect!.outerRect.topCenter;
+      final Offset preferredPos =
+          tooltipPosition == TooltipPosition.pointer
+              ? position ?? segmentRect!.outerRect.topCenter
+              : segmentRect!.outerRect.topCenter;
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -895,8 +932,10 @@ class WaterfallSegment<T, D> extends ChartSegment {
     if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       return ChartTrackballInfo<T, D>(
-        position:
-            Offset(series.pointToPixelX(x, top), series.pointToPixelY(x, top)),
+        position: Offset(
+          series.pointToPixelX(x, top),
+          series.pointToPixelY(x, top),
+        ),
         point: chartPoint,
         series: series,
         seriesIndex: series.index,
@@ -931,8 +970,11 @@ class WaterfallSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final RRect? paintRRect =
-        RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+    final RRect? paintRRect = RRect.lerp(
+      _oldSegmentRect,
+      segmentRect,
+      animationFactor,
+    );
     if (paintRRect == null) {
       return;
     }

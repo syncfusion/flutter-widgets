@@ -30,19 +30,20 @@ class SparkChartTrackball {
   ///  );
   /// }
   /// ```
-  const SparkChartTrackball(
-      {this.width = 2,
-      this.color,
-      this.dashArray,
-      this.activationMode = SparkChartActivationMode.tap,
-      this.labelStyle,
-      this.tooltipFormatter,
-      this.backgroundColor,
-      this.shouldAlwaysShow = false,
-      this.hideDelay = 0,
-      this.borderColor,
-      this.borderWidth = 0,
-      this.borderRadius = const BorderRadius.all(Radius.circular(5))});
+  const SparkChartTrackball({
+    this.width = 2,
+    this.color,
+    this.dashArray,
+    this.activationMode = SparkChartActivationMode.tap,
+    this.labelStyle,
+    this.tooltipFormatter,
+    this.backgroundColor,
+    this.shouldAlwaysShow = false,
+    this.hideDelay = 0,
+    this.borderColor,
+    this.borderWidth = 0,
+    this.borderRadius = const BorderRadius.all(Radius.circular(5)),
+  });
 
   /// Customizes the width of the trackball line.
   ///
@@ -346,7 +347,7 @@ class SparkChartTrackball {
       shouldAlwaysShow,
       hideDelay,
       borderRadius,
-      tooltipFormatter!
+      tooltipFormatter!,
     ];
     return Object.hashAll(values);
   }

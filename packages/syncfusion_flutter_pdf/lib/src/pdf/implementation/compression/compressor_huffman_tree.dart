@@ -5,8 +5,12 @@ import 'compressed_stream_writer.dart';
 /// Represents the Huffman Tree.
 class CompressorHuffmanTree {
   /// Create a new Huffman tree.
-  CompressorHuffmanTree(CompressedStreamWriter writer, int iElementsCount,
-      int iMinimumCodes, int iMaximumLength) {
+  CompressorHuffmanTree(
+    CompressedStreamWriter writer,
+    int iElementsCount,
+    int iMinimumCodes,
+    int iMaximumLength,
+  ) {
     _writer = writer;
     _codeMinimumCount = iMinimumCodes;
     _maximumLength = iMaximumLength;
@@ -31,7 +35,7 @@ class CompressorHuffmanTree {
     3,
     11,
     7,
-    15
+    15,
   ];
   List<int>? _codes;
   late List<int> _lengthCounts;
@@ -62,8 +66,8 @@ class CompressorHuffmanTree {
         int pos = iTreeLength++;
         int ppos;
 
-        while (
-            pos > 0 && codeFrequences[arrTree[ppos = (pos - 1) ~/ 2]] > freq) {
+        while (pos > 0 &&
+            codeFrequences[arrTree[ppos = (pos - 1) ~/ 2]] > freq) {
           arrTree[pos] = arrTree[ppos];
           pos = ppos;
         }

@@ -8,30 +8,30 @@ import '../../linear_gauge/utils/enum.dart';
 class LinearShapePointer extends LeafRenderObjectWidget
     implements LinearMarkerPointer {
   /// Creates a shape marker pointer for linear axis.
-  const LinearShapePointer(
-      {Key? key,
-      required this.value,
-      this.onChanged,
-      this.onChangeStart,
-      this.onChangeEnd,
-      this.enableAnimation = true,
-      this.animationDuration = 1000,
-      this.animationType = LinearAnimationType.ease,
-      this.onAnimationCompleted,
-      this.width,
-      this.height,
-      double offset = 0.0,
-      this.markerAlignment = LinearMarkerAlignment.center,
-      this.position = LinearElementPosition.outside,
-      this.shapeType = LinearShapePointerType.invertedTriangle,
-      this.dragBehavior = LinearMarkerDragBehavior.free,
-      this.color,
-      this.borderColor,
-      this.borderWidth = 0.0,
-      this.elevation = 0,
-      this.elevationColor = Colors.black})
-      : offset = offset > 0 ? offset : 0,
-        super(key: key);
+  const LinearShapePointer({
+    Key? key,
+    required this.value,
+    this.onChanged,
+    this.onChangeStart,
+    this.onChangeEnd,
+    this.enableAnimation = true,
+    this.animationDuration = 1000,
+    this.animationType = LinearAnimationType.ease,
+    this.onAnimationCompleted,
+    this.width,
+    this.height,
+    double offset = 0.0,
+    this.markerAlignment = LinearMarkerAlignment.center,
+    this.position = LinearElementPosition.outside,
+    this.shapeType = LinearShapePointerType.invertedTriangle,
+    this.dragBehavior = LinearMarkerDragBehavior.free,
+    this.color,
+    this.borderColor,
+    this.borderWidth = 0.0,
+    this.elevation = 0,
+    this.elevationColor = Colors.black,
+  }) : offset = offset > 0 ? offset : 0,
+       super(key: key);
 
   /// Specifies the pointer value of [LinearShapePointer].
   /// This value must be between the min and max value of an axis track.
@@ -443,47 +443,52 @@ class LinearShapePointer extends LeafRenderObjectWidget
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     final bool isMaterial3 = theme.useMaterial3;
-    final Color shapePointerColor = isMaterial3
-        ? theme.colorScheme.onSurfaceVariant
-        : isDarkTheme
+    final Color shapePointerColor =
+        isMaterial3
+            ? theme.colorScheme.onSurfaceVariant
+            : isDarkTheme
             ? theme.colorScheme.onSurface.withValues(alpha: 0.70)
             : theme.colorScheme.onSurface.withValues(alpha: 0.54);
     return RenderLinearShapePointer(
-        value: value,
-        onChanged: onChanged,
-        onChangeStart: onChangeStart,
-        onChangeEnd: onChangeEnd,
-        color: color ?? shapePointerColor,
-        borderColor: borderColor ?? shapePointerColor,
-        borderWidth: borderWidth,
-        width: width ?? (shapeType == LinearShapePointerType.diamond ? 12 : 16),
-        height:
-            height ?? (shapeType == LinearShapePointerType.rectangle ? 8 : 16),
-        offset: offset,
-        position: position,
-        shapeType: shapeType,
-        elevation: elevation,
-        elevationColor: elevationColor,
-        orientation: linearGaugeScope.orientation,
-        isMirrored: linearGaugeScope.isMirrored,
-        isAxisInversed: linearGaugeScope.isAxisInversed,
-        markerAlignment: markerAlignment,
-        animationController: linearGaugeScope.animationController,
-        dragBehavior: dragBehavior,
-        onAnimationCompleted: onAnimationCompleted,
-        pointerAnimation: linearGaugeScope.animation);
+      value: value,
+      onChanged: onChanged,
+      onChangeStart: onChangeStart,
+      onChangeEnd: onChangeEnd,
+      color: color ?? shapePointerColor,
+      borderColor: borderColor ?? shapePointerColor,
+      borderWidth: borderWidth,
+      width: width ?? (shapeType == LinearShapePointerType.diamond ? 12 : 16),
+      height:
+          height ?? (shapeType == LinearShapePointerType.rectangle ? 8 : 16),
+      offset: offset,
+      position: position,
+      shapeType: shapeType,
+      elevation: elevation,
+      elevationColor: elevationColor,
+      orientation: linearGaugeScope.orientation,
+      isMirrored: linearGaugeScope.isMirrored,
+      isAxisInversed: linearGaugeScope.isAxisInversed,
+      markerAlignment: markerAlignment,
+      animationController: linearGaugeScope.animationController,
+      dragBehavior: dragBehavior,
+      onAnimationCompleted: onAnimationCompleted,
+      pointerAnimation: linearGaugeScope.animation,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderLinearShapePointer renderObject) {
+    BuildContext context,
+    RenderLinearShapePointer renderObject,
+  ) {
     final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     final bool isMaterial3 = theme.useMaterial3;
-    final Color shapePointerColor = isMaterial3
-        ? theme.colorScheme.onSurfaceVariant
-        : isDarkTheme
+    final Color shapePointerColor =
+        isMaterial3
+            ? theme.colorScheme.onSurfaceVariant
+            : isDarkTheme
             ? theme.colorScheme.onSurface.withValues(alpha: 0.70)
             : theme.colorScheme.onSurface.withValues(alpha: 0.54);
 

@@ -6,19 +6,21 @@ import '../settings.dart';
 typedef AssistWidgetBuilder = BaseWidgetBuilder<AssistMessage>;
 
 /// Callback that get invoked when the toolbar item got selected.
-typedef AssistSuggestionItemSelectedCallback = void Function(
-  bool selected,
-  int messageIndex,
-  AssistMessageSuggestion suggestion,
-  int suggestionIndex,
-);
+typedef AssistSuggestionItemSelectedCallback =
+    void Function(
+      bool selected,
+      int messageIndex,
+      AssistMessageSuggestion suggestion,
+      int suggestionIndex,
+    );
 
-typedef AssistToolbarItemSelectedCallback = void Function(
-  bool selected,
-  int messageIndex,
-  AssistMessageToolbarItem toolbarItem,
-  int toolbarItemIndex,
-);
+typedef AssistToolbarItemSelectedCallback =
+    void Function(
+      bool selected,
+      int messageIndex,
+      AssistMessageToolbarItem toolbarItem,
+      int toolbarItemIndex,
+    );
 
 /// It determined the behavior of the placeholder which is need to be scroll or
 /// hide when new message added.
@@ -156,15 +158,12 @@ enum AssistSuggestionSelectionType {
 /// }
 /// ```
 class AssistMessage extends Message {
-  const AssistMessage.request({
-    required this.data,
-    this.time,
-    this.author,
-  })  : text = data,
-        isRequested = true,
-        suggestions = null,
-        suggestionSettings = null,
-        toolbarItems = null;
+  const AssistMessage.request({required this.data, this.time, this.author})
+    : text = data,
+      isRequested = true,
+      suggestions = null,
+      suggestionSettings = null,
+      toolbarItems = null;
 
   const AssistMessage.response({
     required this.data,
@@ -173,8 +172,8 @@ class AssistMessage extends Message {
     this.suggestions,
     this.suggestionSettings,
     this.toolbarItems,
-  })  : text = data,
-        isRequested = false;
+  }) : text = data,
+       isRequested = false;
 
   /// Content of the message.
   ///
@@ -392,16 +391,9 @@ class AssistMessage extends Message {
 class AssistMessageAuthor extends MessageAuthor {
   /// Creates a new [AssistMessageAuthor] with the specified [id], [name], and
   /// optional [avatar].
-  const AssistMessageAuthor({
-    this.id,
-    required this.name,
-    this.avatar,
-  });
+  const AssistMessageAuthor({this.id, required this.name, this.avatar});
 
-  const AssistMessageAuthor.empty()
-      : id = '',
-        name = '',
-        avatar = null;
+  const AssistMessageAuthor.empty() : id = '', name = '', avatar = null;
 
   /// Unique identifier of the author, it can be used for customize the message
   /// appearance and behavior.
@@ -528,10 +520,8 @@ class AssistMessageAuthor extends MessageAuthor {
 class AssistMessageSuggestion extends MessageSuggestion {
   /// Creates a new [AssistMessageSuggestion] with the [data], and optional
   /// [selected] field.
-  const AssistMessageSuggestion({
-    required this.data,
-    this.selected = false,
-  }) : builder = null;
+  const AssistMessageSuggestion({required this.data, this.selected = false})
+    : builder = null;
 
   const AssistMessageSuggestion.builder({
     required this.builder,
@@ -666,20 +656,24 @@ class AssistSuggestionSettings extends SuggestionSettings {
     this.itemShape,
     this.textStyle,
     this.margin = const EdgeInsetsDirectional.symmetric(vertical: 5.0),
-    this.itemPadding =
-        const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+    this.itemPadding = const EdgeInsets.symmetric(
+      horizontal: 12.0,
+      vertical: 8.0,
+    ),
     this.orientation = Axis.horizontal,
     AssistSuggestionOverflow itemOverflow = AssistSuggestionOverflow.wrap,
     AssistSuggestionSelectionType selectionType =
         AssistSuggestionSelectionType.single,
     this.runSpacing = 12.0,
     this.spacing = 16.0,
-  })  : itemOverflow = itemOverflow == AssistSuggestionOverflow.wrap
-            ? SuggestionOverflow.wrap
-            : SuggestionOverflow.scroll,
-        selectionType = selectionType == AssistSuggestionSelectionType.single
-            ? SuggestionSelectionType.single
-            : SuggestionSelectionType.multiple;
+  }) : itemOverflow =
+           itemOverflow == AssistSuggestionOverflow.wrap
+               ? SuggestionOverflow.wrap
+               : SuggestionOverflow.scroll,
+       selectionType =
+           selectionType == AssistSuggestionSelectionType.single
+               ? SuggestionSelectionType.single
+               : SuggestionSelectionType.multiple;
 
   /// The [backgroundColor] property sets the background color for the
   /// suggestion area.
@@ -1407,10 +1401,10 @@ class AssistComposer extends Composer {
   const AssistComposer.builder({
     required this.builder,
     this.margin = const EdgeInsets.only(top: 24.0),
-  })  : maxLines = 0,
-        minLines = 0,
-        textStyle = null,
-        decoration = null;
+  }) : maxLines = 0,
+       minLines = 0,
+       textStyle = null,
+       decoration = null;
 
   /// The [maxLines] property defines the maximum number of lines the composer
   /// can occupy.

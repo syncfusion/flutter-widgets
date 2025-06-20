@@ -7,8 +7,8 @@ import 'package:flutter/rendering.dart';
 
 import 'element_widget.dart';
 
-typedef TooltipWidgetBuilder = Widget? Function(
-    BuildContext, TooltipInfo?, Size);
+typedef TooltipWidgetBuilder =
+    Widget? Function(BuildContext, TooltipInfo?, Size);
 
 /// Holds details of a tooltip is shown.
 @immutable
@@ -135,8 +135,11 @@ class CoreTooltipState extends State<CoreTooltip>
   Timer? _desktopShowDelayTimer;
   Timer? _showTimer;
 
-  void show(TooltipInfo info, PointerDeviceKind kind,
-      {bool immediately = false}) {
+  void show(
+    TooltipInfo info,
+    PointerDeviceKind kind, {
+    bool immediately = false,
+  }) {
     if (_isDesktop && kind == PointerDeviceKind.mouse) {
       _desktopShowDelayTimer?.cancel();
       if (immediately) {
@@ -188,17 +191,18 @@ class CoreTooltipState extends State<CoreTooltip>
     }
 
     _showTimer = Timer(
-        // When the [animationDuration] is 3000 and the [showDuration] is 3000,
-        // the tooltip will start hiding after it completes the scale animation,
-        // without staying in the visual for 3 seconds.
-        // So, [widget.animationDuration] has been considered in [_showTimer].
-        Duration(milliseconds: widget.animationDuration + widget.showDuration),
-        () {
-      if (mounted) {
-        hide();
-        _showTimer = null;
-      }
-    });
+      // When the [animationDuration] is 3000 and the [showDuration] is 3000,
+      // the tooltip will start hiding after it completes the scale animation,
+      // without staying in the visual for 3 seconds.
+      // So, [widget.animationDuration] has been considered in [_showTimer].
+      Duration(milliseconds: widget.animationDuration + widget.showDuration),
+      () {
+        if (mounted) {
+          hide();
+          _showTimer = null;
+        }
+      },
+    );
     // }
   }
 
@@ -231,7 +235,8 @@ class CoreTooltipState extends State<CoreTooltip>
   @override
   Widget build(BuildContext context) {
     final ThemeData chartThemeData = Theme.of(context);
-    _isDesktop = kIsWeb ||
+    _isDesktop =
+        kIsWeb ||
         chartThemeData.platform == TargetPlatform.macOS ||
         chartThemeData.platform == TargetPlatform.windows ||
         chartThemeData.platform == TargetPlatform.linux;
@@ -321,7 +326,9 @@ class _CoreTooltipRenderObjectWidget extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _CoreTooltipRenderBox renderObject) {
+    BuildContext context,
+    _CoreTooltipRenderBox renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..primaryPosition = primaryPosition
@@ -348,9 +355,10 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
   final _RectangularShape _tooltipShape = const _RectangularShape();
 
   final Paint _fillPaint = Paint()..isAntiAlias = true;
-  final Paint _strokePaint = Paint()
-    ..isAntiAlias = true
-    ..style = PaintingStyle.stroke;
+  final Paint _strokePaint =
+      Paint()
+        ..isAntiAlias = true
+        ..style = PaintingStyle.stroke;
 
   Offset? _localPrimaryPosition;
   Offset? _localSecondaryPosition;
@@ -385,8 +393,10 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
   set edgeBounds(Rect? value) {
     _edgeBounds = value;
     if (value != null) {
-      _localEdgeBounds = Rect.fromPoints(globalToLocal(edgeBounds!.topLeft),
-          globalToLocal(edgeBounds!.bottomRight));
+      _localEdgeBounds = Rect.fromPoints(
+        globalToLocal(edgeBounds!.topLeft),
+        globalToLocal(edgeBounds!.bottomRight),
+      );
     } else {
       _localEdgeBounds = null;
     }
@@ -567,9 +577,10 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
     final Rect surfaceBounds = _localEdgeBounds ?? paintBounds;
     child?.layout(constraints, parentUsesSize: true);
     _effectivePreferTooltipOnTop ??= _canPreferTooltipOnTop(surfaceBounds);
-    _nosePosition = _effectivePreferTooltipOnTop!
-        ? _localPrimaryPosition?.translate(0.0, -_noseGap)
-        : _localSecondaryPosition?.translate(0.0, _noseGap);
+    _nosePosition =
+        _effectivePreferTooltipOnTop!
+            ? _localPrimaryPosition?.translate(0.0, -_noseGap)
+            : _localSecondaryPosition?.translate(0.0, _noseGap);
     _validateNosePosition();
 
     _path = _tooltipShape.outerPath(
@@ -703,11 +714,14 @@ class _CoreTooltipRenderBox extends RenderProxyBox {
     final BoxParentData childParentData = child!.parentData! as BoxParentData;
     // Used [pushTransform] because scrollable widgets are not scaled with
     // [context.paintChild].
-    context.pushTransform(true, Offset(_nosePosition!.dx, _nosePosition!.dy),
-        Matrix4.diagonal3Values(animationValue, animationValue, 1),
-        (PaintingContext context, Offset translateOffset) {
-      context.paintChild(child!, childParentData.offset + offset);
-    });
+    context.pushTransform(
+      true,
+      Offset(_nosePosition!.dx, _nosePosition!.dy),
+      Matrix4.diagonal3Values(animationValue, animationValue, 1),
+      (PaintingContext context, Offset translateOffset) {
+        context.paintChild(child!, childParentData.offset + offset);
+      },
+    );
 
     context.canvas.restore();
   }
@@ -744,30 +758,36 @@ class _RectangularShape {
     double tooltipTriangleOffsetY = tooltipStartPoint - triangleHeight;
 
     final double endGlobal = surfaceBounds.right - innerPadding;
-    double rightLineWidth = position.dx + halfTooltipWidth > endGlobal
-        ? endGlobal - position.dx
-        : halfTooltipWidth;
+    double rightLineWidth =
+        position.dx + halfTooltipWidth > endGlobal
+            ? endGlobal - position.dx
+            : halfTooltipWidth;
     final double leftLineWidth =
         position.dx - halfTooltipWidth < surfaceBounds.left + innerPadding
             ? position.dx - surfaceBounds.left - innerPadding
             : tooltipWidth - rightLineWidth;
-    rightLineWidth = leftLineWidth < halfTooltipWidth
-        ? halfTooltipWidth - leftLineWidth + rightLineWidth
-        : rightLineWidth;
+    rightLineWidth =
+        leftLineWidth < halfTooltipWidth
+            ? halfTooltipWidth - leftLineWidth + rightLineWidth
+            : rightLineWidth;
 
-    double moveNosePoint = leftLineWidth < tooltipWidth * 0.1
-        ? tooltipWidth * 0.1 - leftLineWidth
-        : 0.0;
-    moveNosePoint = rightLineWidth < tooltipWidth * 0.1
-        ? -(tooltipWidth * 0.1 - rightLineWidth)
-        : moveNosePoint;
+    double moveNosePoint =
+        leftLineWidth < tooltipWidth * 0.1
+            ? tooltipWidth * 0.1 - leftLineWidth
+            : 0.0;
+    moveNosePoint =
+        rightLineWidth < tooltipWidth * 0.1
+            ? -(tooltipWidth * 0.1 - rightLineWidth)
+            : moveNosePoint;
 
-    double shiftText = leftLineWidth > rightLineWidth
-        ? -(halfTooltipWidth - rightLineWidth)
-        : 0.0;
-    shiftText = leftLineWidth < rightLineWidth
-        ? (halfTooltipWidth - leftLineWidth)
-        : shiftText;
+    double shiftText =
+        leftLineWidth > rightLineWidth
+            ? -(halfTooltipWidth - rightLineWidth)
+            : 0.0;
+    shiftText =
+        leftLineWidth < rightLineWidth
+            ? (halfTooltipWidth - leftLineWidth)
+            : shiftText;
 
     rightLineWidth = rightLineWidth + elevation;
     if (!preferTooltipOnTop) {
@@ -782,13 +802,21 @@ class _RectangularShape {
       tooltipHeight *= -1;
       borderRadius = BorderRadius.only(
         topRight: Radius.elliptical(
-            borderRadius.bottomRight.x, -borderRadius.bottomRight.y),
+          borderRadius.bottomRight.x,
+          -borderRadius.bottomRight.y,
+        ),
         bottomRight: Radius.elliptical(
-            borderRadius.topRight.x, -borderRadius.topRight.y),
+          borderRadius.topRight.x,
+          -borderRadius.topRight.y,
+        ),
         topLeft: Radius.elliptical(
-            borderRadius.bottomLeft.x, -borderRadius.bottomLeft.y),
-        bottomLeft:
-            Radius.elliptical(borderRadius.topLeft.x, -borderRadius.topLeft.y),
+          borderRadius.bottomLeft.x,
+          -borderRadius.bottomLeft.y,
+        ),
+        bottomLeft: Radius.elliptical(
+          borderRadius.topLeft.x,
+          -borderRadius.topLeft.y,
+        ),
       );
     }
 
@@ -824,7 +852,9 @@ class _RectangularShape {
     // preferTooltipOnTop is false,
     //        \
     path.lineTo(
-        halfTooltipTriangleWidth + moveNosePoint, tooltipTriangleOffsetY);
+      halfTooltipTriangleWidth + moveNosePoint,
+      tooltipTriangleOffsetY,
+    );
     // preferTooltipOnTop is true,
     //         ___
     //        /
@@ -832,7 +862,9 @@ class _RectangularShape {
     // preferTooltipOnTop is false,
     //        \___
     path.lineTo(
-        rightLineWidth - borderRadius.bottomRight.x, tooltipTriangleOffsetY);
+      rightLineWidth - borderRadius.bottomRight.x,
+      tooltipTriangleOffsetY,
+    );
     // preferTooltipOnTop is true,
     //         ___|
     //        /
@@ -840,10 +872,16 @@ class _RectangularShape {
     // preferTooltipOnTop is false,
     //        \___
     //            |
-    path.quadraticBezierTo(rightLineWidth, tooltipTriangleOffsetY,
-        rightLineWidth, tooltipTriangleOffsetY - borderRadius.bottomRight.y);
-    path.lineTo(rightLineWidth,
-        tooltipTriangleOffsetY - tooltipHeight + borderRadius.topRight.y);
+    path.quadraticBezierTo(
+      rightLineWidth,
+      tooltipTriangleOffsetY,
+      rightLineWidth,
+      tooltipTriangleOffsetY - borderRadius.bottomRight.y,
+    );
+    path.lineTo(
+      rightLineWidth,
+      tooltipTriangleOffsetY - tooltipHeight + borderRadius.topRight.y,
+    );
     // preferTooltipOnTop is true,
     //     _______
     //         ___|
@@ -853,12 +891,15 @@ class _RectangularShape {
     //         \___
     //     ________|
     path.quadraticBezierTo(
-        rightLineWidth,
-        tooltipTriangleOffsetY - tooltipHeight,
-        rightLineWidth - borderRadius.topRight.x,
-        tooltipTriangleOffsetY - tooltipHeight);
-    path.lineTo(-leftLineWidth + borderRadius.topLeft.x,
-        tooltipTriangleOffsetY - tooltipHeight);
+      rightLineWidth,
+      tooltipTriangleOffsetY - tooltipHeight,
+      rightLineWidth - borderRadius.topRight.x,
+      tooltipTriangleOffsetY - tooltipHeight,
+    );
+    path.lineTo(
+      -leftLineWidth + borderRadius.topLeft.x,
+      tooltipTriangleOffsetY - tooltipHeight,
+    );
     // preferTooltipOnTop is true,
     //     _______
     //    |    ___|
@@ -868,12 +909,15 @@ class _RectangularShape {
     //         \___
     //    |________|
     path.quadraticBezierTo(
-        -leftLineWidth,
-        tooltipTriangleOffsetY - tooltipHeight,
-        -leftLineWidth,
-        tooltipTriangleOffsetY - tooltipHeight + borderRadius.topLeft.y);
+      -leftLineWidth,
+      tooltipTriangleOffsetY - tooltipHeight,
+      -leftLineWidth,
+      tooltipTriangleOffsetY - tooltipHeight + borderRadius.topLeft.y,
+    );
     path.lineTo(
-        -leftLineWidth, tooltipTriangleOffsetY - borderRadius.bottomLeft.y);
+      -leftLineWidth,
+      tooltipTriangleOffsetY - borderRadius.bottomLeft.y,
+    );
     // preferTooltipOnTop is true,
     //      ________
     //     |___  ___|
@@ -882,10 +926,16 @@ class _RectangularShape {
     // preferTooltipOnTop is false,
     //      ___ \___
     //     |________|
-    path.quadraticBezierTo(-leftLineWidth, tooltipTriangleOffsetY,
-        -leftLineWidth + borderRadius.bottomLeft.x, tooltipTriangleOffsetY);
+    path.quadraticBezierTo(
+      -leftLineWidth,
+      tooltipTriangleOffsetY,
+      -leftLineWidth + borderRadius.bottomLeft.x,
+      tooltipTriangleOffsetY,
+    );
     path.lineTo(
-        -halfTooltipTriangleWidth + moveNosePoint, tooltipTriangleOffsetY);
+      -halfTooltipTriangleWidth + moveNosePoint,
+      tooltipTriangleOffsetY,
+    );
     // preferTooltipOnTop is true,
     //       ________
     //      |___  ___|

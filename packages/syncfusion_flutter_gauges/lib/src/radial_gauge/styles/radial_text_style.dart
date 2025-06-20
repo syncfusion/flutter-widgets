@@ -7,12 +7,13 @@ import 'package:flutter/material.dart';
 @immutable
 class GaugeTextStyle {
   /// Creates a gauge text style with default or required properties.
-  const GaugeTextStyle(
-      {this.color,
-      this.fontFamily,
-      this.fontStyle,
-      this.fontWeight,
-      this.fontSize});
+  const GaugeTextStyle({
+    this.color,
+    this.fontFamily,
+    this.fontStyle,
+    this.fontWeight,
+    this.fontSize,
+  });
 
   /// To set the color of guage text.
   final Color? color;
@@ -58,7 +59,7 @@ class GaugeTextStyle {
       fontFamily,
       fontStyle,
       fontWeight,
-      fontSize
+      fontSize,
     ];
     return Object.hashAll(values);
   }
