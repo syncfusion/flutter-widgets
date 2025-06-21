@@ -55,6 +55,7 @@ class _MyHomePageState extends State<_MyHomePage> {
                   radius: '70%',
                   gap: '2%',
                   cornerStyle: CornerStyle.bothCurve,
+                  animationDuration: 0,
                   // shadowColor: Colors.amberAccent,
                 ),
               ],

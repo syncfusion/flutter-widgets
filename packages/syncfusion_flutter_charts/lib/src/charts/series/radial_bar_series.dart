@@ -705,10 +705,7 @@ class RadialBarSegment<T, D> extends ChartSegment {
           calculateOffset(endAngle, (innerRadius + outerRadius) / 2, _center);
       _shadowPaint = Paint()
         ..isAntiAlias = true
-        ..style = PaintingStyle.fill
-        ..shader = RadialGradient(
-          colors: [_shadowColor ?? Colors.black, getFillPaint().color],
-        ).createShader(Rect.fromCircle(center: midPoint, radius: 17));
+        ..style = PaintingStyle.fill;
       _overFilledPaint = Paint()..isAntiAlias = true;
       double newEndAngle = endAngle;
       if (series.cornerStyle == CornerStyle.endCurve ||
@@ -725,7 +722,6 @@ class RadialBarSegment<T, D> extends ChartSegment {
               newEndAngle - 11.5,
               newEndAngle + 79.5,
               90,
-              isAnimate: true,
             ),
             Offset.zero,
           );
@@ -828,6 +824,11 @@ class RadialBarSegment<T, D> extends ChartSegment {
     }
 
     if (_shadowPaint != null && _overFilledPaint != null) {
+      final midPoint =
+          calculateOffset(endAngle, (innerRadius + outerRadius) / 2, _center);
+      _shadowPaint!.shader = RadialGradient(
+        colors: [_shadowColor ?? Colors.black, getFillPaint().color],
+      ).createShader(Rect.fromCircle(center: midPoint, radius: 17));
       canvas.drawPath(shadowPath, _shadowPaint!);
       _overFilledPaint!.color = getFillPaint().color;
       canvas.drawPath(overFilledPath, _overFilledPaint!);
