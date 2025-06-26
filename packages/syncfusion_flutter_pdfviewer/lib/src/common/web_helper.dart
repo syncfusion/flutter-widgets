@@ -5,9 +5,10 @@ import 'package:web/web.dart' as web;
 bool hasPrimaryFocus = false;
 
 /// Context Menu Event Listener variable.
-JSFunction _contextMenuListener = (web.MouseEvent e) {
-  e.preventDefault();
-}.toJS;
+JSFunction _contextMenuListener =
+    (web.MouseEvent e) {
+      e.preventDefault();
+    }.toJS;
 
 /// Keyboard Event Listener variable.
 JSFunction _keyDownListener = _preventSpecificDefaultMenu.toJS;

@@ -89,7 +89,9 @@ class BehaviorArea extends MultiChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderBehaviorArea renderObject) {
+    BuildContext context,
+    RenderBehaviorArea renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       .._tooltipKey = tooltipKey
@@ -203,13 +205,15 @@ class RenderBehaviorArea extends RenderBox
         value.parentBox = this;
       }
       _zoomPanBehavior = value;
-      _zoomingEnabled = value != null &&
+      _zoomingEnabled =
+          value != null &&
           (value.enablePinching ||
               value.enablePanning ||
               value.enableMouseWheelZooming ||
               value.enableDoubleTapZooming ||
               value.enableSelectionZooming);
-      performZoomThroughTouch = value != null &&
+      performZoomThroughTouch =
+          value != null &&
           (value.enablePinching || value.enableSelectionZooming);
     }
   }
@@ -238,6 +242,27 @@ class RenderBehaviorArea extends RenderBox
   set themeData(ThemeData? value) {
     _themeData = value;
     markNeedsPaint();
+  }
+
+  ZoomMode get directionalZoomMode => _directionalZoomMode;
+  ZoomMode _directionalZoomMode = ZoomMode.xy;
+  set directionalZoomMode(ZoomMode value) {
+    if (_directionalZoomMode != value) {
+      _directionalZoomMode = value;
+    }
+  }
+
+  ZoomMode get effectiveZoomMode {
+    ZoomMode zoomMode = ZoomMode.xy;
+    if (zoomPanBehavior != null) {
+      zoomMode =
+          zoomPanBehavior!.enableDirectionalZooming &&
+                  zoomPanBehavior!.enablePinching &&
+                  zoomPanBehavior!.zoomMode == ZoomMode.xy
+              ? directionalZoomMode
+              : zoomPanBehavior!.zoomMode;
+    }
+    return zoomMode;
   }
 
   RenderChartAxis? get xAxis => cartesianAxes?.axes[primaryXAxisName];
@@ -479,21 +504,27 @@ class RenderBehaviorArea extends RenderBox
     _loadingIndicator?.handleDragEnd(details);
   }
 
-  void raiseTooltip(TooltipInfo info,
-      [PointerDeviceKind kind = PointerDeviceKind.touch]) {
+  void raiseTooltip(
+    TooltipInfo info, [
+    PointerDeviceKind kind = PointerDeviceKind.touch,
+  ]) {
     if (tooltipBehavior != null &&
         tooltipBehavior!.shared &&
         info is! TrendlineTooltipInfo) {
       final ChartTooltipInfo chartTooltipInfo = info as ChartTooltipInfo;
       tooltipBehavior!.showByIndex(
-          chartTooltipInfo.seriesIndex, chartTooltipInfo.pointIndex);
+        chartTooltipInfo.seriesIndex,
+        chartTooltipInfo.pointIndex,
+      );
     } else {
       showTooltip(info, kind);
     }
   }
 
-  void showTooltip(TooltipInfo info,
-      [PointerDeviceKind kind = PointerDeviceKind.touch]) {
+  void showTooltip(
+    TooltipInfo info, [
+    PointerDeviceKind kind = PointerDeviceKind.touch,
+  ]) {
     if (tooltipBehavior == null || !tooltipBehavior!.enable) {
       return;
     }
@@ -507,35 +538,44 @@ class RenderBehaviorArea extends RenderBox
     if (info is ChartTooltipInfo &&
         onTooltipRender != null &&
         _previousTooltipInfo != info) {
-      final TooltipArgs tooltipRenderArgs = TooltipArgs(
-          info.seriesIndex,
-          info.renderer.chartPoints,
-          info.renderer.viewportIndex(info.pointIndex),
-          info.pointIndex)
-        ..text = info.text
-        ..header = tooltipBehavior!.header ?? info.header
-        ..locationX = info.primaryPosition.dx
-        ..locationY = info.primaryPosition.dy;
+      final TooltipArgs tooltipRenderArgs =
+          TooltipArgs(
+              info.seriesIndex,
+              info.renderer.chartPoints,
+              info.renderer.viewportIndex(info.pointIndex),
+              info.pointIndex,
+            )
+            ..text = info.text
+            ..header = tooltipBehavior!.header ?? info.header
+            ..locationX = info.primaryPosition.dx
+            ..locationY = info.primaryPosition.dy;
       onTooltipRender!(tooltipRenderArgs);
-      assert(tooltipRenderArgs.locationX != null &&
-          tooltipRenderArgs.locationY != null);
+      assert(
+        tooltipRenderArgs.locationX != null &&
+            tooltipRenderArgs.locationY != null,
+      );
       info = info.copyWith(
-        primaryPosition:
-            Offset(tooltipRenderArgs.locationX!, tooltipRenderArgs.locationY!),
+        primaryPosition: Offset(
+          tooltipRenderArgs.locationX!,
+          tooltipRenderArgs.locationY!,
+        ),
         text: tooltipRenderArgs.text,
         name: tooltipRenderArgs.header,
       );
       _previousTooltipInfo = info;
     }
-    state.show(info, kind,
-        immediately:
-            tooltipBehavior!.tooltipPosition == TooltipPosition.pointer);
+    state.show(
+      info,
+      kind,
+      immediately: tooltipBehavior!.tooltipPosition == TooltipPosition.pointer,
+    );
   }
 
   void hideTooltip({bool immediately = false}) {
     _previousTooltipInfo = null;
-    (_tooltipKey?.currentState as CoreTooltipState?)
-        ?.hide(immediately: immediately);
+    (_tooltipKey?.currentState as CoreTooltipState?)?.hide(
+      immediately: immediately,
+    );
   }
 
   void hideInteractiveTooltip() {

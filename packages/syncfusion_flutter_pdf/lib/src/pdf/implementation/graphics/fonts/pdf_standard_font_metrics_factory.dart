@@ -138,7 +138,10 @@ class PdfStandardFontMetricsFactory {
 
   /// Returns metrics of the font.
   static PdfFontMetrics getMetrics(
-      PdfFontFamily? fontFamily, int? fontStyle, double size) {
+    PdfFontFamily? fontFamily,
+    int? fontStyle,
+    double size,
+  ) {
     PdfFontMetrics metrics;
     switch (fontFamily) {
       case PdfFontFamily.helvetica:
@@ -158,8 +161,11 @@ class PdfStandardFontMetricsFactory {
         break;
       // ignore: no_default_cases
       default:
-        metrics =
-            _getHelveticaMetrics(PdfFontFamily.helvetica, fontStyle!, size);
+        metrics = _getHelveticaMetrics(
+          PdfFontFamily.helvetica,
+          fontStyle!,
+          size,
+        );
         break;
     }
     metrics.name = PdfFontHelper.standardFontNames[fontFamily!.index];
@@ -170,7 +176,10 @@ class PdfStandardFontMetricsFactory {
 
   /// Creates Helvetica font metrics.
   static PdfFontMetrics _getHelveticaMetrics(
-      PdfFontFamily? fontFamily, int fontStyle, double size) {
+    PdfFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     final PdfStandardFontMetricsFactory standardFontMetricsFactory =
         PdfStandardFontMetricsFactory();
@@ -180,8 +189,9 @@ class PdfStandardFontMetricsFactory {
       metrics.descent = _helveticaBoldItalicDescent;
       metrics.postScriptName = _helveticaBoldItalicName;
       metrics.size = size;
-      metrics.widthTable =
-          StandardWidthTable(_StandardFontWidth._arialBoldWidth);
+      metrics.widthTable = StandardWidthTable(
+        _StandardFontWidth._arialBoldWidth,
+      );
       metrics.height = metrics.ascent - metrics.descent;
     } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) >
         0) {
@@ -189,8 +199,9 @@ class PdfStandardFontMetricsFactory {
       metrics.descent = standardFontMetricsFactory._helveticaBoldDescent;
       metrics.postScriptName = _helveticaBoldName;
       metrics.size = size;
-      metrics.widthTable =
-          StandardWidthTable(_StandardFontWidth._arialBoldWidth);
+      metrics.widthTable = StandardWidthTable(
+        _StandardFontWidth._arialBoldWidth,
+      );
       metrics.height = metrics.ascent - metrics.descent;
     } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) >
         0) {
@@ -213,7 +224,10 @@ class PdfStandardFontMetricsFactory {
 
   /// Creates Courier font metrics.
   static PdfFontMetrics _getCourierMetrics(
-      PdfFontFamily? fontFamily, int fontStyle, double size) {
+    PdfFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) > 0 &&
         fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) > 0) {
@@ -252,7 +266,10 @@ class PdfStandardFontMetricsFactory {
 
   /// Creates Times font metrics.
   static PdfFontMetrics _getTimesMetrics(
-      PdfFontFamily? fontFamily, int fontStyle, double size) {
+    PdfFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) > 0 &&
         fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) > 0) {
@@ -260,8 +277,9 @@ class PdfStandardFontMetricsFactory {
       metrics.descent = _timesBoldItalicDescent;
       metrics.postScriptName = _timesBoldItalicName;
       metrics.size = size;
-      metrics.widthTable =
-          StandardWidthTable(_StandardFontWidth._timesRomanBoldItalicWidth);
+      metrics.widthTable = StandardWidthTable(
+        _StandardFontWidth._timesRomanBoldItalicWidth,
+      );
       metrics.height = metrics.ascent - metrics.descent;
     } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.bold) >
         0) {
@@ -269,8 +287,9 @@ class PdfStandardFontMetricsFactory {
       metrics.descent = _timesBoldDescent;
       metrics.postScriptName = _timesBoldName;
       metrics.size = size;
-      metrics.widthTable =
-          StandardWidthTable(_StandardFontWidth._timesRomanBoldWidth);
+      metrics.widthTable = StandardWidthTable(
+        _StandardFontWidth._timesRomanBoldWidth,
+      );
       metrics.height = metrics.ascent - metrics.descent;
     } else if (fontStyle & PdfFontHelper.getPdfFontStyle(PdfFontStyle.italic) >
         0) {
@@ -278,16 +297,18 @@ class PdfStandardFontMetricsFactory {
       metrics.descent = _timesItalicDescent;
       metrics.postScriptName = _timesItalicName;
       metrics.size = size;
-      metrics.widthTable =
-          StandardWidthTable(_StandardFontWidth._timesRomanItalicWidth);
+      metrics.widthTable = StandardWidthTable(
+        _StandardFontWidth._timesRomanItalicWidth,
+      );
       metrics.height = metrics.ascent - metrics.descent;
     } else {
       metrics.ascent = _timesAscent;
       metrics.descent = _timesDescent;
       metrics.postScriptName = _timesName;
       metrics.size = size;
-      metrics.widthTable =
-          StandardWidthTable(_StandardFontWidth._timesRomanWidth);
+      metrics.widthTable = StandardWidthTable(
+        _StandardFontWidth._timesRomanWidth,
+      );
       metrics.height = metrics.ascent - metrics.descent;
     }
     return metrics;
@@ -295,7 +316,9 @@ class PdfStandardFontMetricsFactory {
 
   /// Creates Symbol font metrics.
   static PdfFontMetrics _getSymbolMetrics(
-      PdfFontFamily? fontFamily, double size) {
+    PdfFontFamily? fontFamily,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
 
     metrics.ascent = _symbolAscent;
@@ -309,14 +332,17 @@ class PdfStandardFontMetricsFactory {
 
   /// Creates ZapfDingbats font metrics.
   static PdfFontMetrics _getZapfDingbatsMetrics(
-      PdfFontFamily? fontFamily, double size) {
+    PdfFontFamily? fontFamily,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     metrics.ascent = _zapfDingbatsAscent;
     metrics.descent = _zapfDingbatsDescent;
     metrics.postScriptName = _zapfDingbatsName;
     metrics.size = size;
-    metrics.widthTable =
-        StandardWidthTable(_StandardFontWidth._zapfDingbatsWidth);
+    metrics.widthTable = StandardWidthTable(
+      _StandardFontWidth._zapfDingbatsWidth,
+    );
     metrics.height = metrics.ascent - metrics.descent;
     return metrics;
   }
@@ -547,7 +573,7 @@ class _StandardFontWidth {
     556,
     500,
     556,
-    500
+    500,
   ];
   static const List<int> _arialBoldWidth = <int>[
     278,
@@ -773,7 +799,7 @@ class _StandardFontWidth {
     611,
     556,
     611,
-    556
+    556,
   ];
   static const List<int> _fixedWidth = <int>[
     600,
@@ -999,7 +1025,7 @@ class _StandardFontWidth {
     600,
     600,
     600,
-    600
+    600,
   ];
   static const List<int> _timesRomanWidth = <int>[
     250,
@@ -1225,7 +1251,7 @@ class _StandardFontWidth {
     500,
     500,
     500,
-    500
+    500,
   ];
   static const List<int> _timesRomanBoldWidth = <int>[
     250,
@@ -1451,7 +1477,7 @@ class _StandardFontWidth {
     556,
     500,
     556,
-    500
+    500,
   ];
   static const List<int> _timesRomanItalicWidth = <int>[
     250,
@@ -1677,7 +1703,7 @@ class _StandardFontWidth {
     500,
     444,
     500,
-    444
+    444,
   ];
   static const List<int> _timesRomanBoldItalicWidth = <int>[
     250,
@@ -1903,7 +1929,7 @@ class _StandardFontWidth {
     556,
     444,
     500,
-    444
+    444,
   ];
   static const List<int> _symbolWidth = <int>[
     250,
@@ -2095,7 +2121,7 @@ class _StandardFontWidth {
     494,
     494,
     494,
-    -1
+    -1,
   ];
   static const List<int> _zapfDingbatsWidth = <int>[
     278,
@@ -2299,6 +2325,6 @@ class _StandardFontWidth {
     873,
     927,
     970,
-    918
+    918,
   ];
 }

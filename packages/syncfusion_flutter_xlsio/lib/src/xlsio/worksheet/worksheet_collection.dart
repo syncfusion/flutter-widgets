@@ -122,7 +122,8 @@ class WorksheetCollection {
     }
     if (innerList.length - 1 < destinationIndex) {
       throw Exception(
-          'destinationIndex should be in the range of worksheet count');
+        'destinationIndex should be in the range of worksheet count',
+      );
     }
     if (destinationIndex < 0) {
       throw Exception('destinationIndex should be starts from 0');

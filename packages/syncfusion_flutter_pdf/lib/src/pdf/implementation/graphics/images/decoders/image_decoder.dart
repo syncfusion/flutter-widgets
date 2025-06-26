@@ -97,7 +97,11 @@ abstract class ImageDecoder {
 
   /// internal method
   Map<String, dynamic> read(
-      List<int> stream, int? streamOffset, List<int>? buffer, int length) {
+    List<int> stream,
+    int? streamOffset,
+    List<int>? buffer,
+    int length,
+  ) {
     int result = 0;
     if (length <= stream.length && stream.length - streamOffset! >= length) {
       for (int i = 0; i < length; i++) {
@@ -109,7 +113,7 @@ abstract class ImageDecoder {
     return <String, dynamic>{
       'offset': streamOffset,
       'outputBuffer': buffer,
-      'length': result
+      'length': result,
     };
   }
 

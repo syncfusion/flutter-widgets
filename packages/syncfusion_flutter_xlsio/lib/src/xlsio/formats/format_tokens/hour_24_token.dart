@@ -18,8 +18,12 @@ class Hour24Token extends FormatTokenBase {
 
   /// Applies format to the value.
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String applyFormat(
+    double value,
+    bool bShowHiddenSymbols,
+    CultureInfo culture,
+    FormatSection section,
+  ) {
     double temp = value;
     if (temp <= 60) {
       temp = temp - 1;
@@ -27,11 +31,12 @@ class Hour24Token extends FormatTokenBase {
     final DateTime date = Range.fromOADate(value);
     double dHour;
     dHour = temp * FormatConstants.hoursInDay;
-    dHour = (value > 0)
-        ? (dHour % 24).ceilToDouble() == date.hour
-            ? dHour.ceilToDouble()
-            : dHour.floorToDouble()
-        : dHour.ceilToDouble();
+    dHour =
+        (value > 0)
+            ? (dHour % 24).ceilToDouble() == date.hour
+                ? dHour.ceilToDouble()
+                : dHour.floorToDouble()
+            : dHour.ceilToDouble();
     if (dHour < 24) {
       dHour = date.hour.toDouble();
     }

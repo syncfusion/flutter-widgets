@@ -51,8 +51,8 @@ typedef TreemapTileColorValueMapper = dynamic Function(TreemapTile tile);
 /// * [IndexedStringValueMapper] returns a string based on the given index.
 /// * [TreemapTileColorValueMapper] returns a dynamic value based on the group
 /// and parent.
-typedef TreemapTileWidgetBuilder = Widget? Function(
-    BuildContext context, TreemapTile tile);
+typedef TreemapTileWidgetBuilder =
+    Widget? Function(BuildContext context, TreemapTile tile);
 
 /// Signature to return a widget based on the given tile.
 ///
@@ -66,8 +66,8 @@ typedef TreemapTileWidgetBuilder = Widget? Function(
 /// * [TreemapTileColorValueMapper] returns a dynamic value based on the group
 /// and parent.
 /// * [TreemapTileWidgetBuilder] returns a widget based on a given tile.
-typedef TreemapBreadcrumbBuilder = Widget? Function(
-    BuildContext context, TreemapTile tile, bool isCurrent);
+typedef TreemapBreadcrumbBuilder =
+    Widget? Function(BuildContext context, TreemapTile tile, bool isCurrent);
 
 /// Positions the tiles in the different corners.
 enum TreemapLayoutDirection {
@@ -737,23 +737,45 @@ class TreemapLevel extends DiagnosticableTree {
       properties.add(ColorProperty('color', color));
     }
     if (border != null) {
-      properties
-          .add(DiagnosticsProperty<RoundedRectangleBorder>('border', border));
+      properties.add(
+        DiagnosticsProperty<RoundedRectangleBorder>('border', border),
+      );
     }
     if (padding != null) {
-      properties
-          .add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
+      properties.add(
+        DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding),
+      );
     }
-    properties.add(ObjectFlagProperty<IndexedStringValueMapper>.has(
-        'groupMapper', groupMapper));
-    properties.add(ObjectFlagProperty<TreemapTileColorValueMapper>.has(
-        'colorValueMapper', colorValueMapper));
-    properties.add(ObjectFlagProperty<TreemapTileWidgetBuilder>.has(
-        'tooltipBuilder', tooltipBuilder));
-    properties.add(ObjectFlagProperty<TreemapTileWidgetBuilder>.has(
-        'labelBuilder', labelBuilder));
-    properties.add(ObjectFlagProperty<TreemapTileWidgetBuilder>.has(
-        'itemBuilder', itemBuilder));
+    properties.add(
+      ObjectFlagProperty<IndexedStringValueMapper>.has(
+        'groupMapper',
+        groupMapper,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<TreemapTileColorValueMapper>.has(
+        'colorValueMapper',
+        colorValueMapper,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<TreemapTileWidgetBuilder>.has(
+        'tooltipBuilder',
+        tooltipBuilder,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<TreemapTileWidgetBuilder>.has(
+        'labelBuilder',
+        labelBuilder,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<TreemapTileWidgetBuilder>.has(
+        'itemBuilder',
+        itemBuilder,
+      ),
+    );
   }
 
   @override
@@ -777,7 +799,13 @@ class TreemapLevel extends DiagnosticableTree {
 
   @override
   int get hashCode => Object.hash(
-      groupMapper, color, border, colorValueMapper, padding, tooltipBuilder);
+    groupMapper,
+    color,
+    border,
+    colorValueMapper,
+    padding,
+    tooltipBuilder,
+  );
 }
 
 /// Customized the appearance of the tiles in selection state.
@@ -977,8 +1005,9 @@ class TreemapSelectionSettings extends DiagnosticableTree {
       properties.add(ColorProperty('color', color));
     }
     if (border != null) {
-      properties
-          .add(DiagnosticsProperty<RoundedRectangleBorder>('border', border));
+      properties.add(
+        DiagnosticsProperty<RoundedRectangleBorder>('border', border),
+      );
     }
   }
 
@@ -1133,9 +1162,7 @@ class TreemapTooltipSettings extends DiagnosticableTree {
     this.hideDelay = 3.0,
     this.borderColor,
     this.borderWidth = 1.0,
-    this.borderRadius = const BorderRadius.all(
-      Radius.circular(4.0),
-    ),
+    this.borderRadius = const BorderRadius.all(Radius.circular(4.0)),
   });
 
   /// Fills the tooltip by this color.
@@ -1190,8 +1217,9 @@ class TreemapTooltipSettings extends DiagnosticableTree {
       properties.add(ColorProperty('borderColor', borderColor));
     }
     properties.add(DoubleProperty('borderWidth', borderWidth));
-    properties.add(DiagnosticsProperty<BorderRadiusGeometry>(
-        'borderRadius', borderRadius));
+    properties.add(
+      DiagnosticsProperty<BorderRadiusGeometry>('borderRadius', borderRadius),
+    );
   }
 
   @override
@@ -1224,11 +1252,12 @@ class TreemapTooltipSettings extends DiagnosticableTree {
     BorderRadiusGeometry? borderRadius,
   }) {
     return TreemapTooltipSettings(
-        color: color ?? this.color,
-        hideDelay: hideDelay ?? this.hideDelay,
-        borderColor: borderColor ?? this.borderColor,
-        borderWidth: borderWidth ?? this.borderWidth,
-        borderRadius: borderRadius ?? this.borderRadius);
+      color: color ?? this.color,
+      hideDelay: hideDelay ?? this.hideDelay,
+      borderColor: borderColor ?? this.borderColor,
+      borderWidth: borderWidth ?? this.borderWidth,
+      borderRadius: borderRadius ?? this.borderRadius,
+    );
   }
 }
 
@@ -1437,14 +1466,16 @@ class TreemapColorMapper extends DiagnosticableTree {
     this.minSaturation,
     this.maxSaturation,
     this.name,
-  })  : assert(from != null && to != null && from <= to),
-        assert((minSaturation == null && maxSaturation == null) ||
-            (minSaturation != null &&
-                maxSaturation != null &&
-                minSaturation < maxSaturation &&
-                (minSaturation >= 0 && minSaturation <= 1) &&
-                (maxSaturation >= 0 && maxSaturation <= 1))),
-        value = null;
+  }) : assert(from != null && to != null && from <= to),
+       assert(
+         (minSaturation == null && maxSaturation == null) ||
+             (minSaturation != null &&
+                 maxSaturation != null &&
+                 minSaturation < maxSaturation &&
+                 (minSaturation >= 0 && minSaturation <= 1) &&
+                 (maxSaturation >= 0 && maxSaturation <= 1)),
+       ),
+       value = null;
 
   /// Applies the color to the tiles which is equal to the given
   /// [TreemapColorMapper.value]. The [TreemapColorMapper.value] must not be
@@ -1512,11 +1543,11 @@ class TreemapColorMapper extends DiagnosticableTree {
   /// See also:
   /// * [SfTreemap.legend], to enable and customize the legend.
   const TreemapColorMapper.value({required this.value, required this.color})
-      : from = null,
-        to = null,
-        minSaturation = null,
-        maxSaturation = null,
-        name = null;
+    : from = null,
+      to = null,
+      minSaturation = null,
+      maxSaturation = null,
+      name = null;
 
   /// Specifies the color applies to the tile based on the value returned in
   /// the [TreemapLevel.colorValueMapper].
@@ -1839,13 +1870,13 @@ class SfTreemap extends StatelessWidget {
     this.tooltipSettings = const TreemapTooltipSettings(),
     this.enableDrilldown = false,
     this.breadcrumbs,
-  })  : assert(dataCount > 0),
-        assert(levels.length > 0),
-        assert(colorMappers == null || colorMappers.length > 0),
-        assert(!enableDrilldown || (enableDrilldown && breadcrumbs != null)),
-        sortAscending = false,
-        _layoutType = LayoutType.squarified,
-        super(key: key);
+  }) : assert(dataCount > 0),
+       assert(levels.length > 0),
+       assert(colorMappers == null || colorMappers.length > 0),
+       assert(!enableDrilldown || (enableDrilldown && breadcrumbs != null)),
+       sortAscending = false,
+       _layoutType = LayoutType.squarified,
+       super(key: key);
 
   /// Creates a treemap based on the slice algorithm.
   ///
@@ -1960,13 +1991,13 @@ class SfTreemap extends StatelessWidget {
     this.tileHoverBorder,
     this.enableDrilldown = false,
     this.breadcrumbs,
-  })  : assert(dataCount > 0),
-        assert(levels.length > 0),
-        assert(colorMappers == null || colorMappers.length > 0),
-        assert(!enableDrilldown || (enableDrilldown && breadcrumbs != null)),
-        layoutDirection = TreemapLayoutDirection.topLeft,
-        _layoutType = LayoutType.slice,
-        super(key: key);
+  }) : assert(dataCount > 0),
+       assert(levels.length > 0),
+       assert(colorMappers == null || colorMappers.length > 0),
+       assert(!enableDrilldown || (enableDrilldown && breadcrumbs != null)),
+       layoutDirection = TreemapLayoutDirection.topLeft,
+       _layoutType = LayoutType.slice,
+       super(key: key);
 
   /// Creates a treemap based on the dice algorithm.
   ///
@@ -2080,13 +2111,13 @@ class SfTreemap extends StatelessWidget {
     this.tileHoverBorder,
     this.enableDrilldown = false,
     this.breadcrumbs,
-  })  : assert(dataCount > 0),
-        assert(levels.length > 0),
-        assert(colorMappers == null || colorMappers.length > 0),
-        assert(!enableDrilldown || (enableDrilldown && breadcrumbs != null)),
-        _layoutType = LayoutType.dice,
-        layoutDirection = TreemapLayoutDirection.topLeft,
-        super(key: key);
+  }) : assert(dataCount > 0),
+       assert(levels.length > 0),
+       assert(colorMappers == null || colorMappers.length > 0),
+       assert(!enableDrilldown || (enableDrilldown && breadcrumbs != null)),
+       _layoutType = LayoutType.dice,
+       layoutDirection = TreemapLayoutDirection.topLeft,
+       super(key: key);
 
   /// Specifies the length of the data source.
   ///
@@ -3040,13 +3071,13 @@ class SfTreemap extends StatelessWidget {
       colorMappers: colorMappers,
       legend: legend,
       tileHoverColor: tileHoverColor,
-      tileHoverBorder: tileHoverBorder ??
+      tileHoverBorder:
+          tileHoverBorder ??
           RoundedRectangleBorder(
             side: BorderSide(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
       onSelectionChanged: onSelectionChanged,
@@ -3065,28 +3096,45 @@ class SfTreemap extends StatelessWidget {
     if (tileHoverColor != null) {
       properties.add(ColorProperty('tileHoverColor', tileHoverColor));
     }
-    properties.add(DiagnosticsProperty<RoundedRectangleBorder>(
-        'tileHoverBorder', tileHoverBorder));
+    properties.add(
+      DiagnosticsProperty<RoundedRectangleBorder>(
+        'tileHoverBorder',
+        tileHoverBorder,
+      ),
+    );
     if (levels.isNotEmpty) {
       properties.add(_DebugLevelsTree(levels).toDiagnosticsNode());
     }
-    properties.add(ObjectFlagProperty<IndexedDoubleValueMapper>.has(
-        'weightValueMapper', weightValueMapper));
+    properties.add(
+      ObjectFlagProperty<IndexedDoubleValueMapper>.has(
+        'weightValueMapper',
+        weightValueMapper,
+      ),
+    );
     if (colorMappers != null && colorMappers!.isNotEmpty) {
       properties.add(_DebugColorMappersTree(colorMappers!).toDiagnosticsNode());
     }
     if (legend != null) {
       properties.add(legend!.toDiagnosticsNode(name: 'legend'));
     }
-    properties.add(ObjectFlagProperty<ValueChanged<TreemapTile>>.has(
-        'onSelectionChanged', onSelectionChanged));
-    properties
-        .add(selectionSettings.toDiagnosticsNode(name: 'selectionSettings'));
+    properties.add(
+      ObjectFlagProperty<ValueChanged<TreemapTile>>.has(
+        'onSelectionChanged',
+        onSelectionChanged,
+      ),
+    );
+    properties.add(
+      selectionSettings.toDiagnosticsNode(name: 'selectionSettings'),
+    );
     properties.add(tooltipSettings.toDiagnosticsNode(name: 'tooltipSettings'));
-    properties.add(FlagProperty('enableDrilldown',
+    properties.add(
+      FlagProperty(
+        'enableDrilldown',
         value: enableDrilldown,
         ifTrue: 'drilldown is enabled',
-        ifFalse: 'drilldown is disabled'));
+        ifFalse: 'drilldown is disabled',
+      ),
+    );
     if (breadcrumbs != null) {
       properties.add(breadcrumbs!.toDiagnosticsNode(name: 'breadcrumbs'));
     }
@@ -3124,8 +3172,9 @@ class _DebugColorMappersTree extends DiagnosticableTree {
   @override
   List<DiagnosticsNode> debugDescribeChildren() {
     if (colorMappers.isNotEmpty) {
-      return colorMappers
-          .map<DiagnosticsNode>((TreemapColorMapper colorMapper) {
+      return colorMappers.map<DiagnosticsNode>((
+        TreemapColorMapper colorMapper,
+      ) {
         return colorMapper.toDiagnosticsNode();
       }).toList();
     }
@@ -3144,10 +3193,11 @@ class _DebugColorMappersTree extends DiagnosticableTree {
 @immutable
 class TreemapBreadcrumbs extends DiagnosticableTree {
   /// Creates a [TreemapBreadcrumbs].
-  const TreemapBreadcrumbs(
-      {required this.builder,
-      this.divider,
-      this.position = TreemapBreadcrumbPosition.top});
+  const TreemapBreadcrumbs({
+    required this.builder,
+    this.divider,
+    this.position = TreemapBreadcrumbPosition.top,
+  });
 
   /// Returns a widget for the breadcrumb divider.
   ///
@@ -3332,10 +3382,12 @@ class TreemapBreadcrumbs extends DiagnosticableTree {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
 
-    properties
-        .add(EnumProperty<TreemapBreadcrumbPosition>('position', position));
     properties.add(
-        ObjectFlagProperty<TreemapBreadcrumbBuilder>.has('builder', builder));
+      EnumProperty<TreemapBreadcrumbPosition>('position', position),
+    );
+    properties.add(
+      ObjectFlagProperty<TreemapBreadcrumbBuilder>.has('builder', builder),
+    );
     if (divider != null) {
       properties.add(ObjectFlagProperty<Widget>.has('divider', divider));
     }

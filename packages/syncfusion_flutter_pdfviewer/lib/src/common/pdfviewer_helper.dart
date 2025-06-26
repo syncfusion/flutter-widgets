@@ -10,7 +10,8 @@ import 'mobile_helper.dart'
     as helper;
 
 /// Indicates whether the current environment is running in Desktop
-bool kIsDesktop = kIsWeb || Platform.isMacOS || Platform.isWindows;
+bool kIsDesktop =
+    kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
 /// Indicates whether the current environment is running in macOS
 bool kIsMacOS = helper.getPlatformType() == 'macos';

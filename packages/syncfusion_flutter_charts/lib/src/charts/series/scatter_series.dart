@@ -84,7 +84,9 @@ class ScatterSeries<T, D> extends XyDataSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, ScatterSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    ScatterSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject.borderColor = borderColor;
   }
@@ -131,10 +133,12 @@ class ScatterSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   void customizeSegment(ChartSegment segment) {
     final ScatterSegment<T, D> scatterSegment = segment as ScatterSegment<T, D>;
     updateSegmentColor(scatterSegment, borderColor, borderWidth);
-    updateSegmentGradient(scatterSegment,
-        gradientBounds: scatterSegment.segmentRect,
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      scatterSegment,
+      gradientBounds: scatterSegment.segmentRect,
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
@@ -174,7 +178,9 @@ class ScatterSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldSegmentRect = null;
@@ -183,8 +189,11 @@ class ScatterSegment<T, D> extends ChartSegment {
     }
 
     if (series.animationDuration > 0) {
-      _oldSegmentRect =
-          Rect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
+      _oldSegmentRect = Rect.lerp(
+        _oldSegmentRect,
+        segmentRect,
+        segmentAnimationFactor,
+      );
     } else {
       _oldSegmentRect = segmentRect;
     }
@@ -229,9 +238,10 @@ class ScatterSegment<T, D> extends ChartSegment {
         primaryPosition: series.localToGlobal(segmentRect!.topCenter),
         secondaryPosition: series.localToGlobal(segmentRect!.bottomCenter),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -287,8 +297,11 @@ class ScatterSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final Rect? paintRect =
-        Rect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+    final Rect? paintRect = Rect.lerp(
+      _oldSegmentRect,
+      segmentRect,
+      animationFactor,
+    );
     if (paintRect == null || paintRect.isEmpty) {
       return;
     }

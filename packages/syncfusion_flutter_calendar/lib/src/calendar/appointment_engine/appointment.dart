@@ -85,10 +85,11 @@ class Appointment with Diagnosticable {
     this.subject = '',
     this.color = Colors.lightBlue,
     this.recurrenceExceptionDates,
-  })  : notes = notes != null && notes.contains('isOccurrenceAppointment')
-            ? notes.replaceAll('isOccurrenceAppointment', '')
-            : notes,
-        _notes = notes {
+  }) : notes =
+           notes != null && notes.contains('isOccurrenceAppointment')
+               ? notes.replaceAll('isOccurrenceAppointment', '')
+               : notes,
+       _notes = notes {
     recurrenceRule = recurrenceId != null ? null : recurrenceRule;
     _appointmentType = _getAppointmentType();
     id = id ?? hashCode;
@@ -1021,14 +1022,21 @@ class Appointment with Diagnosticable {
     properties.add(ColorProperty('color', color));
     properties.add(DiagnosticsProperty<Object>('recurrenceId', recurrenceId));
     properties.add(DiagnosticsProperty<Object>('id', id));
-    properties
-        .add(EnumProperty<AppointmentType>('appointmentType', appointmentType));
+    properties.add(
+      EnumProperty<AppointmentType>('appointmentType', appointmentType),
+    );
     properties.add(DiagnosticsProperty<DateTime>('startTime', startTime));
     properties.add(DiagnosticsProperty<DateTime>('endTime', endTime));
-    properties.add(IterableDiagnostics<DateTime>(recurrenceExceptionDates)
-        .toDiagnosticsNode(name: 'recurrenceExceptionDates'));
-    properties.add(IterableDiagnostics<Object>(resourceIds)
-        .toDiagnosticsNode(name: 'resourceIds'));
+    properties.add(
+      IterableDiagnostics<DateTime>(
+        recurrenceExceptionDates,
+      ).toDiagnosticsNode(name: 'recurrenceExceptionDates'),
+    );
+    properties.add(
+      IterableDiagnostics<Object>(
+        resourceIds,
+      ).toDiagnosticsNode(name: 'resourceIds'),
+    );
     properties.add(DiagnosticsProperty<bool>('isAllDay', isAllDay));
   }
 }

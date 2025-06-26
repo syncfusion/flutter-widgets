@@ -12,40 +12,40 @@ import '../utils/radial_callback_args.dart';
 /// Represents the renderer of radial gauge range pointer.
 class RenderRangePointer extends RenderBox {
   /// Creates a object for [RenderRangePointer].
-  RenderRangePointer(
-      {required double value,
-      required this.enableDragging,
-      this.onValueChanged,
-      this.onValueChangeStart,
-      this.onValueChangeEnd,
-      this.onValueChanging,
-      required CornerStyle cornerStyle,
-      Gradient? gradient,
-      required double pointerOffset,
-      required GaugeSizeUnit sizeUnit,
-      required double width,
-      List<double>? dashArray,
-      Color? color,
-      AnimationController? pointerAnimationController,
-      this.pointerInterval,
-      required this.animationType,
-      required this.enableAnimation,
-      required this.isRadialGaugeAnimationEnabled,
-      required ValueNotifier<int> repaintNotifier,
-      required ThemeData themeData,
-      required SfGaugeThemeData gaugeThemeData})
-      : _value = value,
-        _cornerStyle = cornerStyle,
-        _gradient = gradient,
-        _pointerOffset = pointerOffset,
-        _sizeUnit = sizeUnit,
-        _width = width,
-        _dashArray = dashArray,
-        _color = color,
-        _pointerAnimationController = pointerAnimationController,
-        _repaintNotifier = repaintNotifier,
-        _themeData = themeData,
-        _gaugeThemeData = gaugeThemeData;
+  RenderRangePointer({
+    required double value,
+    required this.enableDragging,
+    this.onValueChanged,
+    this.onValueChangeStart,
+    this.onValueChangeEnd,
+    this.onValueChanging,
+    required CornerStyle cornerStyle,
+    Gradient? gradient,
+    required double pointerOffset,
+    required GaugeSizeUnit sizeUnit,
+    required double width,
+    List<double>? dashArray,
+    Color? color,
+    AnimationController? pointerAnimationController,
+    this.pointerInterval,
+    required this.animationType,
+    required this.enableAnimation,
+    required this.isRadialGaugeAnimationEnabled,
+    required ValueNotifier<int> repaintNotifier,
+    required ThemeData themeData,
+    required SfGaugeThemeData gaugeThemeData,
+  }) : _value = value,
+       _cornerStyle = cornerStyle,
+       _gradient = gradient,
+       _pointerOffset = pointerOffset,
+       _sizeUnit = sizeUnit,
+       _width = width,
+       _dashArray = dashArray,
+       _color = color,
+       _pointerAnimationController = pointerAnimationController,
+       _repaintNotifier = repaintNotifier,
+       _themeData = themeData,
+       _gaugeThemeData = gaugeThemeData;
 
   late double _rangeArcTop;
   late double _rangeArcBottom;
@@ -404,10 +404,11 @@ class RenderRangePointer extends RenderBox {
   bool hitTestSelf(Offset position) {
     if (enableDragging) {
       final Rect pathRect = Rect.fromLTRB(
-          arcPath.getBounds().left + _axisCenter.dx - 5,
-          arcPath.getBounds().top + _axisCenter.dy - 5,
-          arcPath.getBounds().right + _axisCenter.dx + 5,
-          arcPath.getBounds().bottom + _axisCenter.dy + 5);
+        arcPath.getBounds().left + _axisCenter.dx - 5,
+        arcPath.getBounds().top + _axisCenter.dy - 5,
+        arcPath.getBounds().right + _axisCenter.dx + 5,
+        arcPath.getBounds().bottom + _axisCenter.dy + 5,
+      );
       return pathRect.contains(position);
     } else {
       return false;
@@ -417,25 +418,34 @@ class RenderRangePointer extends RenderBox {
   /// Method to calculate pointer position.
   void _calculatePosition() {
     _updateAxisValues();
-    _actualRangeThickness =
-        axisRenderer!.getActualValue(width, sizeUnit, false);
-    _actualPointerOffset =
-        axisRenderer!.getActualValue(pointerOffset, sizeUnit, true);
-    _totalOffset = _actualPointerOffset < 0
-        ? axisRenderer!.getAxisOffset() + _actualPointerOffset
-        : (_actualPointerOffset + axisRenderer!.getAxisOffset());
-    final double minFactor = (axisRenderer!.renderer != null &&
-            axisRenderer!.renderer!.valueToFactor(axisRenderer!.minimum) !=
-                null)
-        ? axisRenderer!.renderer!.valueToFactor(axisRenderer!.minimum) ??
-            axisRenderer!.valueToFactor(axisRenderer!.minimum)
-        : axisRenderer!.valueToFactor(axisRenderer!.minimum);
+    _actualRangeThickness = axisRenderer!.getActualValue(
+      width,
+      sizeUnit,
+      false,
+    );
+    _actualPointerOffset = axisRenderer!.getActualValue(
+      pointerOffset,
+      sizeUnit,
+      true,
+    );
+    _totalOffset =
+        _actualPointerOffset < 0
+            ? axisRenderer!.getAxisOffset() + _actualPointerOffset
+            : (_actualPointerOffset + axisRenderer!.getAxisOffset());
+    final double minFactor =
+        (axisRenderer!.renderer != null &&
+                axisRenderer!.renderer!.valueToFactor(axisRenderer!.minimum) !=
+                    null)
+            ? axisRenderer!.renderer!.valueToFactor(axisRenderer!.minimum) ??
+                axisRenderer!.valueToFactor(axisRenderer!.minimum)
+            : axisRenderer!.valueToFactor(axisRenderer!.minimum);
     _startArc = (minFactor * _sweepAngle) + axisRenderer!.startAngle;
-    final double maxFactor = (axisRenderer!.renderer != null &&
-            axisRenderer!.renderer!.valueToFactor(value) != null)
-        ? axisRenderer!.renderer!.valueToFactor(value) ??
-            axisRenderer!.valueToFactor(value)
-        : axisRenderer!.valueToFactor(value);
+    final double maxFactor =
+        (axisRenderer!.renderer != null &&
+                axisRenderer!.renderer!.valueToFactor(value) != null)
+            ? axisRenderer!.renderer!.valueToFactor(value) ??
+                axisRenderer!.valueToFactor(value)
+            : axisRenderer!.valueToFactor(value);
     final double rangeEndAngle =
         (maxFactor * _sweepAngle) + axisRenderer!.startAngle;
     _endArc = rangeEndAngle - _startArc;
@@ -451,12 +461,24 @@ class RenderRangePointer extends RenderBox {
   /// To creates the arc rect for range pointer
   void _createRangeRect() {
     _arcRect = Rect.fromLTRB(
-        _rangeArcLeft, _rangeArcTop, _rangeArcRight, _rangeArcBottom);
+      _rangeArcLeft,
+      _rangeArcTop,
+      _rangeArcRight,
+      _rangeArcBottom,
+    );
     pointerRect = Rect.fromLTRB(
-        _rangeArcLeft, _rangeArcTop, _rangeArcRight, _rangeArcBottom);
+      _rangeArcLeft,
+      _rangeArcTop,
+      _rangeArcRight,
+      _rangeArcBottom,
+    );
     arcPath = Path();
-    arcPath.arcTo(_arcRect, getDegreeToRadian(_startArc),
-        getDegreeToRadian(_endArc), true);
+    arcPath.arcTo(
+      _arcRect,
+      getDegreeToRadian(_startArc),
+      getDegreeToRadian(_endArc),
+      true,
+    );
     _calculateCornerStylePosition();
   }
 
@@ -468,30 +490,35 @@ class RenderRangePointer extends RenderBox {
     switch (cornerStyle) {
       case CornerStyle.startCurve:
         {
-          _startCornerRadian = axisRenderer!.isInversed
-              ? getDegreeToRadian(-_cornerAngle)
-              : getDegreeToRadian(_cornerAngle);
-          _sweepCornerRadian = axisRenderer!.isInversed
-              ? getDegreeToRadian(_endArc + _cornerAngle)
-              : getDegreeToRadian(_endArc - _cornerAngle);
+          _startCornerRadian =
+              axisRenderer!.isInversed
+                  ? getDegreeToRadian(-_cornerAngle)
+                  : getDegreeToRadian(_cornerAngle);
+          _sweepCornerRadian =
+              axisRenderer!.isInversed
+                  ? getDegreeToRadian(_endArc + _cornerAngle)
+                  : getDegreeToRadian(_endArc - _cornerAngle);
         }
         break;
       case CornerStyle.endCurve:
         {
           _startCornerRadian = getDegreeToRadian(0);
-          _sweepCornerRadian = axisRenderer!.isInversed
-              ? getDegreeToRadian(_endArc + _cornerAngle)
-              : getDegreeToRadian(_endArc - _cornerAngle);
+          _sweepCornerRadian =
+              axisRenderer!.isInversed
+                  ? getDegreeToRadian(_endArc + _cornerAngle)
+                  : getDegreeToRadian(_endArc - _cornerAngle);
         }
         break;
       case CornerStyle.bothCurve:
         {
-          _startCornerRadian = axisRenderer!.isInversed
-              ? getDegreeToRadian(-_cornerAngle)
-              : getDegreeToRadian(_cornerAngle);
-          _sweepCornerRadian = axisRenderer!.isInversed
-              ? getDegreeToRadian(_endArc + 2 * _cornerAngle)
-              : getDegreeToRadian(_endArc - 2 * _cornerAngle);
+          _startCornerRadian =
+              axisRenderer!.isInversed
+                  ? getDegreeToRadian(-_cornerAngle)
+                  : getDegreeToRadian(_cornerAngle);
+          _sweepCornerRadian =
+              axisRenderer!.isInversed
+                  ? getDegreeToRadian(_endArc + 2 * _cornerAngle)
+                  : getDegreeToRadian(_endArc - 2 * _cornerAngle);
         }
         break;
       case CornerStyle.bothFlat:
@@ -512,42 +539,58 @@ class RenderRangePointer extends RenderBox {
   /// Draws the start corner style.
   void _drawStartCurve(Path path, double innerRadius, double outerRadius) {
     final Offset midPoint = getDegreeToPoint(
-        axisRenderer!.isInversed ? -_cornerAngle : _cornerAngle,
-        (innerRadius + outerRadius) / 2,
-        Offset.zero);
+      axisRenderer!.isInversed ? -_cornerAngle : _cornerAngle,
+      (innerRadius + outerRadius) / 2,
+      Offset.zero,
+    );
     final double midStartAngle = getDegreeToRadian(180);
     double midEndAngle = midStartAngle + getDegreeToRadian(180);
     midEndAngle = axisRenderer!.isInversed ? -midEndAngle : midEndAngle;
     path.addArc(
-        Rect.fromCircle(
-            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
-        midStartAngle,
-        midEndAngle);
+      Rect.fromCircle(
+        center: midPoint,
+        radius: (innerRadius - outerRadius).abs() / 2,
+      ),
+      midStartAngle,
+      midEndAngle,
+    );
   }
 
   ///Draws the end corner curve.
   void _drawEndCurve(
-      Path path, double sweepRadian, double innerRadius, double outerRadius) {
+    Path path,
+    double sweepRadian,
+    double innerRadius,
+    double outerRadius,
+  ) {
     final double cornerAngle =
         cornerStyle == CornerStyle.bothCurve ? _cornerAngle : 0;
-    final double angle = axisRenderer!.isInversed
-        ? getRadianToDegree(sweepRadian) - cornerAngle
-        : getRadianToDegree(sweepRadian) + cornerAngle;
-    final Offset midPoint =
-        getDegreeToPoint(angle, (innerRadius + outerRadius) / 2, Offset.zero);
+    final double angle =
+        axisRenderer!.isInversed
+            ? getRadianToDegree(sweepRadian) - cornerAngle
+            : getRadianToDegree(sweepRadian) + cornerAngle;
+    final Offset midPoint = getDegreeToPoint(
+      angle,
+      (innerRadius + outerRadius) / 2,
+      Offset.zero,
+    );
 
     final double midStartAngle = sweepRadian / 2;
 
-    final double midEndAngle = axisRenderer!.isInversed
-        ? midStartAngle - getDegreeToRadian(180)
-        : midStartAngle + getDegreeToRadian(180);
+    final double midEndAngle =
+        axisRenderer!.isInversed
+            ? midStartAngle - getDegreeToRadian(180)
+            : midStartAngle + getDegreeToRadian(180);
 
     path.arcTo(
-        Rect.fromCircle(
-            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
-        midStartAngle,
-        midEndAngle,
-        false);
+      Rect.fromCircle(
+        center: midPoint,
+        radius: (innerRadius - outerRadius).abs() / 2,
+      ),
+      midStartAngle,
+      midEndAngle,
+      false,
+    );
   }
 
   /// Checks whether the axis line is dashed line.
@@ -574,15 +617,17 @@ class RenderRangePointer extends RenderBox {
 
   /// Returns the paint for the pointer.
   Paint _getPointerPaint(Rect rect, bool isFill) {
-    final Paint paint = Paint()
-      ..color = color ??
-          gaugeThemeData.rangePointerColor ??
-          (_themeData.useMaterial3
-                  ? _themeData.colorScheme.primary
-                  : _themeData.colorScheme.secondaryContainer)
-              .withValues(alpha: 0.8)
-      ..strokeWidth = _actualRangeThickness
-      ..style = isFill ? PaintingStyle.fill : PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..color =
+              color ??
+              gaugeThemeData.rangePointerColor ??
+              (_themeData.useMaterial3
+                      ? _themeData.colorScheme.primary
+                      : _themeData.colorScheme.secondaryContainer)
+                  .withValues(alpha: 0.8)
+          ..strokeWidth = _actualRangeThickness
+          ..style = isFill ? PaintingStyle.fill : PaintingStyle.stroke;
 
     if (gradient != null && gradient!.colors.isNotEmpty) {
       // Holds the color for gradient.
@@ -595,9 +640,13 @@ class RenderRangePointer extends RenderBox {
       }
       // gradient for the range pointer.
       final SweepGradient sweepGradient = SweepGradient(
-          colors: gradientColors,
-          stops: calculateGradientStops(
-              offsets, axisRenderer!.isInversed, sweepAngle));
+        colors: gradientColors,
+        stops: calculateGradientStops(
+          offsets,
+          axisRenderer!.isInversed,
+          sweepAngle,
+        ),
+      );
       paint.shader = sweepGradient.createShader(rect);
     }
 
@@ -612,8 +661,10 @@ class RenderRangePointer extends RenderBox {
       // Calculates the gradient stop values based on the number of
       // provided color.
       final double difference = 1 / gradient!.colors.length;
-      final List<double?> offsets =
-          List<double?>.filled(gradient!.colors.length, null);
+      final List<double?> offsets = List<double?>.filled(
+        gradient!.colors.length,
+        null,
+      );
       for (int i = 0; i < gradient!.colors.length; i++) {
         offsets[i] = i * difference;
       }
@@ -638,13 +689,14 @@ class RenderRangePointer extends RenderBox {
     final double outerRadius = _radius - _totalOffset;
     final double innerRadius = outerRadius - _actualRangeThickness;
     final double cornerRadius = (innerRadius - outerRadius).abs() / 2;
-    final double refCurveRadius = (2 *
-            math.pi *
-            (innerRadius + outerRadius) /
-            2 *
-            getRadianToDegree(_sweepCornerRadian) /
-            360)
-        .abs();
+    final double refCurveRadius =
+        (2 *
+                math.pi *
+                (innerRadius + outerRadius) /
+                2 *
+                getRadianToDegree(_sweepCornerRadian) /
+                360)
+            .abs();
     final Path path = Path();
     final bool isDashedPointerLine = _getIsDashedLine();
 
@@ -654,11 +706,12 @@ class RenderRangePointer extends RenderBox {
       canvas.save();
       canvas.translate(_axisCenter.dx, _axisCenter.dy);
       canvas.rotate(getDegreeToRadian(_startArc));
-      final double curveRadius = cornerStyle != CornerStyle.bothFlat
-          ? cornerStyle == CornerStyle.startCurve
-              ? cornerRadius
-              : cornerRadius * 2
-          : 0;
+      final double curveRadius =
+          cornerStyle != CornerStyle.bothFlat
+              ? cornerStyle == CornerStyle.startCurve
+                  ? cornerRadius
+                  : cornerRadius * 2
+              : 0;
       if (cornerStyle != CornerStyle.bothFlat &&
           !isDashedPointerLine &&
           (refCurveRadius.floorToDouble() > curveRadius)) {
@@ -671,8 +724,11 @@ class RenderRangePointer extends RenderBox {
         }
 
         if (needsToAnimatePointer) {
-          path.addArc(Rect.fromCircle(center: Offset.zero, radius: outerRadius),
-              _startCornerRadian, sweepRadian);
+          path.addArc(
+            Rect.fromCircle(center: Offset.zero, radius: outerRadius),
+            _startCornerRadian,
+            sweepRadian,
+          );
         }
 
         if (cornerStyle == CornerStyle.endCurve ||
@@ -683,14 +739,19 @@ class RenderRangePointer extends RenderBox {
         }
 
         if (needsToAnimatePointer) {
-          path.arcTo(Rect.fromCircle(center: Offset.zero, radius: innerRadius),
-              sweepRadian + _startCornerRadian, -sweepRadian, false);
+          path.arcTo(
+            Rect.fromCircle(center: Offset.zero, radius: innerRadius),
+            sweepRadian + _startCornerRadian,
+            -sweepRadian,
+            false,
+          );
         }
       } else {
         isFill = false;
-        sweepRadian = cornerStyle == CornerStyle.bothFlat
-            ? sweepRadian
-            : getDegreeToRadian(_endArc);
+        sweepRadian =
+            cornerStyle == CornerStyle.bothFlat
+                ? sweepRadian
+                : getDegreeToRadian(_endArc);
 
         path.addArc(_arcRect, 0, sweepRadian);
       }
@@ -701,9 +762,9 @@ class RenderRangePointer extends RenderBox {
       } else {
         if (dashArray != null) {
           canvas.drawPath(
-              dashPath(path,
-                  dashArray: CircularIntervalList<double>(dashArray!)),
-              paint);
+            dashPath(path, dashArray: CircularIntervalList<double>(dashArray!)),
+            paint,
+          );
         }
       }
 

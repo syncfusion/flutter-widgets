@@ -11,7 +11,7 @@ class SfSliderTheme extends InheritedTheme {
   ///
   /// The [data] and [child] arguments must not be null.
   const SfSliderTheme({Key? key, required this.data, required this.child})
-      : super(key: key, child: child);
+    : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant slider widgets.
   final SfSliderThemeData data;
@@ -330,82 +330,160 @@ class SfSliderThemeData with Diagnosticable {
   ///
   /// The arguments must not be null.
   static SfSliderThemeData? lerp(
-      SfSliderThemeData? a, SfSliderThemeData? b, double t) {
+    SfSliderThemeData? a,
+    SfSliderThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return SfSliderThemeData(
-        activeTrackHeight:
-            lerpDouble(a!.activeTrackHeight, b!.activeTrackHeight, t)!,
-        inactiveTrackHeight:
-            lerpDouble(a.inactiveTrackHeight, b.inactiveTrackHeight, t)!,
-        tickSize: Size.lerp(a.tickSize, b.tickSize, t),
-        minorTickSize: Size.lerp(a.minorTickSize, b.minorTickSize, t),
-        tickOffset: Offset.lerp(a.tickOffset, b.tickOffset, t),
-        labelOffset: Offset.lerp(a.labelOffset, b.labelOffset, t),
-        inactiveLabelStyle:
-            TextStyle.lerp(a.inactiveLabelStyle, b.inactiveLabelStyle, t),
-        activeLabelStyle:
-            TextStyle.lerp(a.activeLabelStyle, b.activeLabelStyle, t),
-        tooltipTextStyle:
-            TextStyle.lerp(a.tooltipTextStyle, b.tooltipTextStyle, t),
-        inactiveTrackColor:
-            Color.lerp(a.inactiveTrackColor, b.inactiveTrackColor, t),
-        activeTrackColor: Color.lerp(a.activeTrackColor, b.activeTrackColor, t),
-        thumbColor: Color.lerp(a.thumbColor, b.thumbColor, t),
-        thumbStrokeColor: Color.lerp(a.thumbStrokeColor, b.thumbStrokeColor, t),
-        activeDividerStrokeColor: Color.lerp(
-            a.activeDividerStrokeColor, b.activeDividerStrokeColor, t),
-        inactiveDividerStrokeColor: Color.lerp(
-            a.inactiveDividerStrokeColor, b.inactiveDividerStrokeColor, t),
-        activeTickColor: Color.lerp(a.activeTickColor, b.activeTickColor, t),
-        inactiveTickColor:
-            Color.lerp(a.inactiveTickColor, b.inactiveTickColor, t),
-        disabledActiveTickColor:
-            Color.lerp(a.disabledActiveTickColor, b.disabledActiveTickColor, t),
-        disabledInactiveTickColor: Color.lerp(
-            a.disabledInactiveTickColor, b.disabledInactiveTickColor, t),
-        activeMinorTickColor:
-            Color.lerp(a.activeMinorTickColor, b.activeMinorTickColor, t),
-        inactiveMinorTickColor:
-            Color.lerp(a.inactiveMinorTickColor, b.inactiveMinorTickColor, t),
-        disabledActiveMinorTickColor: Color.lerp(
-            a.disabledActiveMinorTickColor, b.disabledActiveMinorTickColor, t),
-        disabledInactiveMinorTickColor: Color.lerp(
-            a.disabledInactiveMinorTickColor,
-            b.disabledInactiveMinorTickColor,
-            t),
-        overlayColor: Color.lerp(a.overlayColor, b.overlayColor, t),
-        inactiveDividerColor:
-            Color.lerp(a.inactiveDividerColor, b.inactiveDividerColor, t),
-        activeDividerColor:
-            Color.lerp(a.activeDividerColor, b.activeDividerColor, t),
-        disabledActiveTrackColor: Color.lerp(
-            a.disabledActiveTrackColor, b.disabledActiveTrackColor, t),
-        disabledInactiveTrackColor: Color.lerp(
-            a.disabledInactiveTrackColor, b.disabledInactiveTrackColor, t),
-        disabledActiveDividerColor: Color.lerp(
-            a.disabledActiveDividerColor, b.disabledActiveDividerColor, t),
-        disabledInactiveDividerColor: Color.lerp(
-            a.disabledInactiveDividerColor, b.disabledInactiveDividerColor, t),
-        disabledThumbColor:
-            Color.lerp(a.disabledThumbColor, b.disabledThumbColor, t),
-        tooltipBackgroundColor:
-            Color.lerp(a.tooltipBackgroundColor, b.tooltipBackgroundColor, t),
-        trackCornerRadius:
-            lerpDouble(a.trackCornerRadius, b.trackCornerRadius, t),
-        overlayRadius: lerpDouble(a.overlayRadius, b.overlayRadius, t)!,
-        thumbRadius: lerpDouble(a.thumbRadius, b.thumbRadius, t)!,
-        activeDividerRadius:
-            lerpDouble(a.activeDividerRadius, b.activeDividerRadius, t),
-        inactiveDividerRadius:
-            lerpDouble(a.inactiveDividerRadius, b.inactiveDividerRadius, t),
-        thumbStrokeWidth: lerpDouble(a.thumbStrokeWidth, b.thumbStrokeWidth, t),
-        activeDividerStrokeWidth:
-            // ignore: lines_longer_than_80_chars
-            lerpDouble(a.activeDividerStrokeWidth, b.activeDividerStrokeWidth, t),
-        // ignore: lines_longer_than_80_chars
-        inactiveDividerStrokeWidth: lerpDouble(a.inactiveDividerStrokeWidth, b.inactiveDividerStrokeWidth, t));
+      activeTrackHeight:
+          lerpDouble(a!.activeTrackHeight, b!.activeTrackHeight, t)!,
+      inactiveTrackHeight:
+          lerpDouble(a.inactiveTrackHeight, b.inactiveTrackHeight, t)!,
+      tickSize: Size.lerp(a.tickSize, b.tickSize, t),
+      minorTickSize: Size.lerp(a.minorTickSize, b.minorTickSize, t),
+      tickOffset: Offset.lerp(a.tickOffset, b.tickOffset, t),
+      labelOffset: Offset.lerp(a.labelOffset, b.labelOffset, t),
+      inactiveLabelStyle: TextStyle.lerp(
+        a.inactiveLabelStyle,
+        b.inactiveLabelStyle,
+        t,
+      ),
+      activeLabelStyle: TextStyle.lerp(
+        a.activeLabelStyle,
+        b.activeLabelStyle,
+        t,
+      ),
+      tooltipTextStyle: TextStyle.lerp(
+        a.tooltipTextStyle,
+        b.tooltipTextStyle,
+        t,
+      ),
+      inactiveTrackColor: Color.lerp(
+        a.inactiveTrackColor,
+        b.inactiveTrackColor,
+        t,
+      ),
+      activeTrackColor: Color.lerp(a.activeTrackColor, b.activeTrackColor, t),
+      thumbColor: Color.lerp(a.thumbColor, b.thumbColor, t),
+      thumbStrokeColor: Color.lerp(a.thumbStrokeColor, b.thumbStrokeColor, t),
+      activeDividerStrokeColor: Color.lerp(
+        a.activeDividerStrokeColor,
+        b.activeDividerStrokeColor,
+        t,
+      ),
+      inactiveDividerStrokeColor: Color.lerp(
+        a.inactiveDividerStrokeColor,
+        b.inactiveDividerStrokeColor,
+        t,
+      ),
+      activeTickColor: Color.lerp(a.activeTickColor, b.activeTickColor, t),
+      inactiveTickColor: Color.lerp(
+        a.inactiveTickColor,
+        b.inactiveTickColor,
+        t,
+      ),
+      disabledActiveTickColor: Color.lerp(
+        a.disabledActiveTickColor,
+        b.disabledActiveTickColor,
+        t,
+      ),
+      disabledInactiveTickColor: Color.lerp(
+        a.disabledInactiveTickColor,
+        b.disabledInactiveTickColor,
+        t,
+      ),
+      activeMinorTickColor: Color.lerp(
+        a.activeMinorTickColor,
+        b.activeMinorTickColor,
+        t,
+      ),
+      inactiveMinorTickColor: Color.lerp(
+        a.inactiveMinorTickColor,
+        b.inactiveMinorTickColor,
+        t,
+      ),
+      disabledActiveMinorTickColor: Color.lerp(
+        a.disabledActiveMinorTickColor,
+        b.disabledActiveMinorTickColor,
+        t,
+      ),
+      disabledInactiveMinorTickColor: Color.lerp(
+        a.disabledInactiveMinorTickColor,
+        b.disabledInactiveMinorTickColor,
+        t,
+      ),
+      overlayColor: Color.lerp(a.overlayColor, b.overlayColor, t),
+      inactiveDividerColor: Color.lerp(
+        a.inactiveDividerColor,
+        b.inactiveDividerColor,
+        t,
+      ),
+      activeDividerColor: Color.lerp(
+        a.activeDividerColor,
+        b.activeDividerColor,
+        t,
+      ),
+      disabledActiveTrackColor: Color.lerp(
+        a.disabledActiveTrackColor,
+        b.disabledActiveTrackColor,
+        t,
+      ),
+      disabledInactiveTrackColor: Color.lerp(
+        a.disabledInactiveTrackColor,
+        b.disabledInactiveTrackColor,
+        t,
+      ),
+      disabledActiveDividerColor: Color.lerp(
+        a.disabledActiveDividerColor,
+        b.disabledActiveDividerColor,
+        t,
+      ),
+      disabledInactiveDividerColor: Color.lerp(
+        a.disabledInactiveDividerColor,
+        b.disabledInactiveDividerColor,
+        t,
+      ),
+      disabledThumbColor: Color.lerp(
+        a.disabledThumbColor,
+        b.disabledThumbColor,
+        t,
+      ),
+      tooltipBackgroundColor: Color.lerp(
+        a.tooltipBackgroundColor,
+        b.tooltipBackgroundColor,
+        t,
+      ),
+      trackCornerRadius: lerpDouble(
+        a.trackCornerRadius,
+        b.trackCornerRadius,
+        t,
+      ),
+      overlayRadius: lerpDouble(a.overlayRadius, b.overlayRadius, t)!,
+      thumbRadius: lerpDouble(a.thumbRadius, b.thumbRadius, t)!,
+      activeDividerRadius: lerpDouble(
+        a.activeDividerRadius,
+        b.activeDividerRadius,
+        t,
+      ),
+      inactiveDividerRadius: lerpDouble(
+        a.inactiveDividerRadius,
+        b.inactiveDividerRadius,
+        t,
+      ),
+      thumbStrokeWidth: lerpDouble(a.thumbStrokeWidth, b.thumbStrokeWidth, t),
+      activeDividerStrokeWidth:
+      // ignore: lines_longer_than_80_chars
+      lerpDouble(a.activeDividerStrokeWidth, b.activeDividerStrokeWidth, t),
+      // ignore: lines_longer_than_80_chars
+      inactiveDividerStrokeWidth: lerpDouble(
+        a.inactiveDividerStrokeWidth,
+        b.inactiveDividerStrokeWidth,
+        t,
+      ),
+    );
   }
 
   @override
@@ -511,104 +589,286 @@ class SfSliderThemeData with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     const SfSliderThemeData defaultData = SfSliderThemeData();
-    properties.add(DoubleProperty('activeTrackHeight', activeTrackHeight,
-        defaultValue: defaultData.activeTrackHeight));
-    properties.add(DoubleProperty('inactiveTrackHeight', inactiveTrackHeight,
-        defaultValue: defaultData.inactiveTrackHeight));
-    properties.add(DiagnosticsProperty<Size>('tickSize', tickSize,
-        defaultValue: defaultData.tickSize));
-    properties.add(DiagnosticsProperty<Size>('minorTickSize', minorTickSize,
-        defaultValue: defaultData.minorTickSize));
-    properties.add(DiagnosticsProperty<Offset>('tickOffset', tickOffset,
-        defaultValue: defaultData.tickOffset));
-    properties.add(DiagnosticsProperty<Offset>('labelOffset', labelOffset,
-        defaultValue: defaultData.labelOffset));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'inactiveLabelStyle', inactiveLabelStyle,
-        defaultValue: defaultData.inactiveLabelStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'activeLabelStyle', activeLabelStyle,
-        defaultValue: defaultData.activeLabelStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'tooltipTextStyle', tooltipTextStyle,
-        defaultValue: defaultData.tooltipTextStyle));
-    properties.add(ColorProperty('inactiveTrackColor', inactiveTrackColor,
-        defaultValue: defaultData.inactiveTrackColor));
-    properties.add(ColorProperty('activeTrackColor', activeTrackColor,
-        defaultValue: defaultData.activeTrackColor));
-    properties.add(ColorProperty('thumbColor', thumbColor,
-        defaultValue: defaultData.thumbColor));
-    properties.add(ColorProperty('thumbStrokeColor', thumbStrokeColor,
-        defaultValue: defaultData.thumbStrokeColor));
-    properties.add(ColorProperty(
-        'activeDividerStrokeColor', activeDividerStrokeColor,
-        defaultValue: defaultData.activeDividerStrokeColor));
-    properties.add(ColorProperty(
-        'inactiveDividerStrokeColor', inactiveDividerStrokeColor,
-        defaultValue: defaultData.inactiveDividerStrokeColor));
-    properties.add(ColorProperty('activeTickColor', activeTickColor,
-        defaultValue: defaultData.activeTickColor));
-    properties.add(ColorProperty('inactiveTickColor', inactiveTickColor,
-        defaultValue: defaultData.inactiveTickColor));
-    properties.add(ColorProperty(
-        'disabledActiveTickColor', disabledActiveTickColor,
-        defaultValue: defaultData.disabledActiveTickColor));
-    properties.add(ColorProperty(
-        'disabledInactiveTickColor', disabledInactiveTickColor,
-        defaultValue: defaultData.disabledInactiveTickColor));
-    properties.add(ColorProperty('activeMinorTickColor', activeMinorTickColor,
-        defaultValue: defaultData.activeMinorTickColor));
-    properties.add(ColorProperty(
-        'inactiveMinorTickColor', inactiveMinorTickColor,
-        defaultValue: defaultData.inactiveMinorTickColor));
-    properties.add(ColorProperty(
-        'disabledActiveMinorTickColor', disabledActiveMinorTickColor,
-        defaultValue: defaultData.disabledActiveMinorTickColor));
-    properties.add(ColorProperty(
-        'disabledInactiveMinorTickColor', disabledInactiveMinorTickColor,
-        defaultValue: defaultData.disabledInactiveMinorTickColor));
-    properties.add(ColorProperty('overlayColor', overlayColor,
-        defaultValue: defaultData.overlayColor));
-    properties.add(ColorProperty('inactiveDividerColor', inactiveDividerColor,
-        defaultValue: defaultData.inactiveDividerColor));
-    properties.add(ColorProperty('activeDividerColor', activeDividerColor,
-        defaultValue: defaultData.activeDividerColor));
-    properties.add(ColorProperty(
-        'disabledActiveTrackColor', disabledActiveTrackColor,
-        defaultValue: defaultData.disabledActiveTrackColor));
-    properties.add(ColorProperty(
-        'disabledInactiveTrackColor', disabledInactiveTrackColor,
-        defaultValue: defaultData.disabledInactiveTrackColor));
-    properties.add(ColorProperty(
-        'disabledActiveDividerColor', disabledActiveDividerColor,
-        defaultValue: defaultData.disabledActiveDividerColor));
-    properties.add(ColorProperty(
-        'disabledInactiveDividerColor', disabledInactiveDividerColor,
-        defaultValue: defaultData.disabledInactiveDividerColor));
-    properties.add(ColorProperty('disabledThumbColor', disabledThumbColor,
-        defaultValue: defaultData.disabledThumbColor));
-    properties.add(ColorProperty(
-        'tooltipBackgroundColor', tooltipBackgroundColor,
-        defaultValue: defaultData.tooltipBackgroundColor));
-    properties.add(DoubleProperty('trackCornerRadius', trackCornerRadius,
-        defaultValue: defaultData.trackCornerRadius));
-    properties.add(DoubleProperty('overlayRadius', overlayRadius,
-        defaultValue: defaultData.overlayRadius));
-    properties.add(DoubleProperty('thumbRadius', thumbRadius,
-        defaultValue: defaultData.thumbRadius));
-    properties.add(DoubleProperty('activeDividerRadius', activeDividerRadius,
-        defaultValue: defaultData.activeDividerRadius));
-    properties.add(DoubleProperty(
-        'inactiveDividerRadius', inactiveDividerRadius,
-        defaultValue: defaultData.inactiveDividerRadius));
-    properties.add(DoubleProperty('thumbStrokeWidth', thumbStrokeWidth,
-        defaultValue: defaultData.thumbStrokeWidth));
-    properties.add(DoubleProperty(
-        'activeDividerStrokeWidth', activeDividerStrokeWidth,
-        defaultValue: defaultData.activeDividerStrokeWidth));
-    properties.add(DoubleProperty(
-        'inactiveDividerStrokeWidth', inactiveDividerStrokeWidth,
-        defaultValue: defaultData.inactiveDividerStrokeWidth));
+    properties.add(
+      DoubleProperty(
+        'activeTrackHeight',
+        activeTrackHeight,
+        defaultValue: defaultData.activeTrackHeight,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'inactiveTrackHeight',
+        inactiveTrackHeight,
+        defaultValue: defaultData.inactiveTrackHeight,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Size>(
+        'tickSize',
+        tickSize,
+        defaultValue: defaultData.tickSize,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Size>(
+        'minorTickSize',
+        minorTickSize,
+        defaultValue: defaultData.minorTickSize,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Offset>(
+        'tickOffset',
+        tickOffset,
+        defaultValue: defaultData.tickOffset,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Offset>(
+        'labelOffset',
+        labelOffset,
+        defaultValue: defaultData.labelOffset,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'inactiveLabelStyle',
+        inactiveLabelStyle,
+        defaultValue: defaultData.inactiveLabelStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'activeLabelStyle',
+        activeLabelStyle,
+        defaultValue: defaultData.activeLabelStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'tooltipTextStyle',
+        tooltipTextStyle,
+        defaultValue: defaultData.tooltipTextStyle,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'inactiveTrackColor',
+        inactiveTrackColor,
+        defaultValue: defaultData.inactiveTrackColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'activeTrackColor',
+        activeTrackColor,
+        defaultValue: defaultData.activeTrackColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'thumbColor',
+        thumbColor,
+        defaultValue: defaultData.thumbColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'thumbStrokeColor',
+        thumbStrokeColor,
+        defaultValue: defaultData.thumbStrokeColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'activeDividerStrokeColor',
+        activeDividerStrokeColor,
+        defaultValue: defaultData.activeDividerStrokeColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'inactiveDividerStrokeColor',
+        inactiveDividerStrokeColor,
+        defaultValue: defaultData.inactiveDividerStrokeColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'activeTickColor',
+        activeTickColor,
+        defaultValue: defaultData.activeTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'inactiveTickColor',
+        inactiveTickColor,
+        defaultValue: defaultData.inactiveTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'disabledActiveTickColor',
+        disabledActiveTickColor,
+        defaultValue: defaultData.disabledActiveTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'disabledInactiveTickColor',
+        disabledInactiveTickColor,
+        defaultValue: defaultData.disabledInactiveTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'activeMinorTickColor',
+        activeMinorTickColor,
+        defaultValue: defaultData.activeMinorTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'inactiveMinorTickColor',
+        inactiveMinorTickColor,
+        defaultValue: defaultData.inactiveMinorTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'disabledActiveMinorTickColor',
+        disabledActiveMinorTickColor,
+        defaultValue: defaultData.disabledActiveMinorTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'disabledInactiveMinorTickColor',
+        disabledInactiveMinorTickColor,
+        defaultValue: defaultData.disabledInactiveMinorTickColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'overlayColor',
+        overlayColor,
+        defaultValue: defaultData.overlayColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'inactiveDividerColor',
+        inactiveDividerColor,
+        defaultValue: defaultData.inactiveDividerColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'activeDividerColor',
+        activeDividerColor,
+        defaultValue: defaultData.activeDividerColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'disabledActiveTrackColor',
+        disabledActiveTrackColor,
+        defaultValue: defaultData.disabledActiveTrackColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'disabledInactiveTrackColor',
+        disabledInactiveTrackColor,
+        defaultValue: defaultData.disabledInactiveTrackColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'disabledActiveDividerColor',
+        disabledActiveDividerColor,
+        defaultValue: defaultData.disabledActiveDividerColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'disabledInactiveDividerColor',
+        disabledInactiveDividerColor,
+        defaultValue: defaultData.disabledInactiveDividerColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'disabledThumbColor',
+        disabledThumbColor,
+        defaultValue: defaultData.disabledThumbColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tooltipBackgroundColor',
+        tooltipBackgroundColor,
+        defaultValue: defaultData.tooltipBackgroundColor,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'trackCornerRadius',
+        trackCornerRadius,
+        defaultValue: defaultData.trackCornerRadius,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'overlayRadius',
+        overlayRadius,
+        defaultValue: defaultData.overlayRadius,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'thumbRadius',
+        thumbRadius,
+        defaultValue: defaultData.thumbRadius,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'activeDividerRadius',
+        activeDividerRadius,
+        defaultValue: defaultData.activeDividerRadius,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'inactiveDividerRadius',
+        inactiveDividerRadius,
+        defaultValue: defaultData.inactiveDividerRadius,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'thumbStrokeWidth',
+        thumbStrokeWidth,
+        defaultValue: defaultData.thumbStrokeWidth,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'activeDividerStrokeWidth',
+        activeDividerStrokeWidth,
+        defaultValue: defaultData.activeDividerStrokeWidth,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'inactiveDividerStrokeWidth',
+        inactiveDividerStrokeWidth,
+        defaultValue: defaultData.inactiveDividerStrokeWidth,
+      ),
+    );
   }
 
   /// Specifies the height for the active track in the [SfSlider],

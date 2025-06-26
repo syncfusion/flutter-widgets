@@ -60,21 +60,18 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   Range? range;
 
   @override
-
   /// Gets or sets the type of the conditional format.
   ExcelCFType get formatType {
     return getCondition().formatType;
   }
 
   @override
-
   /// Gets or sets the type of the conditional format.
   set formatType(ExcelCFType value) {
     getCondition().formatType = value;
   }
 
   @override
-
   ///  Gets or sets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   CFTimePeriods get timePeriodType {
@@ -82,7 +79,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   ///  Gets or sets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   set timePeriodType(CFTimePeriods value) {
@@ -90,245 +86,210 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets the comparison operator for the conditional format.
   ExcelComparisonOperator get operator {
     return getCondition().operator;
   }
 
   @override
-
   /// Gets or sets the comparison operator for the conditional format.
   set operator(ExcelComparisonOperator value) {
     getCondition().operator = value;
   }
 
   @override
-
   /// Gets or sets a boolean value indicating whether the font is bold.
   bool get isBold {
     return getCondition().isBold;
   }
 
   @override
-
   /// Gets or sets a boolean value indicating whether the font is bold.
   set isBold(bool value) {
     getCondition().isBold = value;
   }
 
   @override
-
   /// Gets or sets a boolean value indicating whether the font is Italic.
   bool get isItalic {
     return getCondition().isItalic;
   }
 
   @override
-
   /// Gets or sets a boolean value indicating whether the font is Italic.
   set isItalic(bool value) {
     getCondition().isItalic = value;
   }
 
   @override
-
   /// Gets or sets the font color from predefined colors.
   String get fontColor {
     return getCondition().fontColor;
   }
 
   @override
-
   /// Gets or sets the font color from predefined colors.
   set fontColor(String value) {
     getCondition().fontColor = value;
   }
 
   @override
-
   /// Gets or sets the underline type for the conditional format.
   bool get underline {
     return getCondition().underline;
   }
 
   @override
-
   /// Gets or sets the underline type for the conditional format.
   set underline(bool value) {
     getCondition().underline = value;
   }
 
   @override
-
   /// Gets or sets the left border color from predefined colors.
   String get leftBorderColor {
     return getCondition().leftBorderColor;
   }
 
   @override
-
   /// Gets or sets the left border color from predefined colors.
   set leftBorderColor(String value) {
     getCondition().leftBorderColor = value;
   }
 
   @override
-
   /// Gets or sets the right border color from predefined colors.
   String get rightBorderColor {
     return getCondition().rightBorderColor;
   }
 
   @override
-
   /// Gets or sets the right border color from predefined colors.
   set rightBorderColor(String value) {
     getCondition().rightBorderColor = value;
   }
 
   @override
-
   /// Gets or sets the top border color from predefined colors.
   String get topBorderColor {
     return getCondition().topBorderColor;
   }
 
   @override
-
   /// Gets or sets the top border color from predefined colors.
   set topBorderColor(String value) {
     getCondition().topBorderColor = value;
   }
 
   @override
-
   /// Gets or sets the bottom border color from predefined colors.
   String get bottomBorderColor {
     return getCondition().bottomBorderColor;
   }
 
   @override
-
   /// Gets or sets the bottom border color from predefined colors.
   set bottomBorderColor(String value) {
     getCondition().bottomBorderColor = value;
   }
 
   @override
-
   /// Gets or sets the left border Style from predefined Styles.
   LineStyle get leftBorderStyle {
     return getCondition().leftBorderStyle;
   }
 
   @override
-
   /// Gets or sets the left border Style from predefined Styles.
   set leftBorderStyle(LineStyle value) {
     getCondition().leftBorderStyle = value;
   }
 
   @override
-
   /// Gets or sets the right border Style from predefined Styles.
   LineStyle get rightBorderStyle {
     return getCondition().rightBorderStyle;
   }
 
   @override
-
   /// Gets or sets the right border Style from predefined Styles.
   set rightBorderStyle(LineStyle value) {
     getCondition().rightBorderStyle = value;
   }
 
   @override
-
   /// Gets or sets the top border Style from predefined Styles.
   LineStyle get topBorderStyle {
     return getCondition().topBorderStyle;
   }
 
   @override
-
   /// Gets or sets the top border Style from predefined Styles.
   set topBorderStyle(LineStyle value) {
     getCondition().topBorderStyle = value;
   }
 
   @override
-
   /// Gets or sets the bottom border Style from predefined Styles.
   LineStyle get bottomBorderStyle {
     return getCondition().bottomBorderStyle;
   }
 
   @override
-
   /// Gets or sets the bottom border Style from predefined Styles.
   set bottomBorderStyle(LineStyle value) {
     getCondition().bottomBorderStyle = value;
   }
 
   @override
-
   /// Gets or sets the value or expression associated with the conditional format.
   String get firstFormula {
     return getCondition().firstFormula;
   }
 
   @override
-
   /// Gets or sets the value or expression associated with the conditional format.
   set firstFormula(String value) {
     getCondition().firstFormula = value;
   }
 
   @override
-
   /// Gets or sets the value or expression associated with the second conditional format.
   String get secondFormula {
     return getCondition().secondFormula;
   }
 
   @override
-
   /// Gets or sets the value or expression associated with the second conditional format.
   set secondFormula(String value) {
     getCondition().secondFormula = value;
   }
 
   @override
-
   /// Gets or sets the background color from predefined colors.
   String get backColor {
     return getCondition().backColor;
   }
 
   @override
-
   /// Gets or sets the background color from predefined colors.
   set backColor(String value) {
     getCondition().backColor = value;
   }
 
   @override
-
   /// Gets or sets number format index of the conditional format rule.
   String? get numberFormat {
     return getCondition().numberFormat;
   }
 
   @override
-
   /// Gets or sets number format index of the conditional format rule.
   set numberFormat(String? value) {
     getCondition().numberFormat = value;
   }
 
   @override
-
   /// Gets or sets a boolean value that determines if additional formatting rules on the cell should be evaluated
   /// if the current rule evaluates to True.
   bool get stopIfTrue {
@@ -336,7 +297,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets a boolean value that determines if additional formatting rules on the cell should be evaluated
   /// if the current rule evaluates to True.
   set stopIfTrue(bool value) {
@@ -344,7 +304,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets the text value used in SpecificText conditional formatting rule.
   /// The default value is null.
   String? get text {
@@ -352,7 +311,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets the text value used in SpecificText conditional formatting rule.
   /// The default value is null.
   set text(String? value) {
@@ -365,12 +323,13 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets TopBottom conditional formatting rule. Read-only.
   TopBottom? get topBottom {
     if (formatType == ExcelCFType.topBottom) {
-      _topBottom ??=
-          TopBottomWrapper(getCondition().topBottom! as TopBottomImpl, this);
+      _topBottom ??= TopBottomWrapper(
+        getCondition().topBottom! as TopBottomImpl,
+        this,
+      );
     } else {
       _topBottom = null;
     }
@@ -383,12 +342,13 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets AboveBelowAverage conditional formatting rule. Read-only.
   AboveBelowAverage? get aboveBelowAverage {
     if (formatType == ExcelCFType.aboveBelowAverage) {
       _aboveBelowAverage ??= AboveBelowAverageWrapper(
-          getCondition().aboveBelowAverage! as AboveBelowAverageImpl, this);
+        getCondition().aboveBelowAverage! as AboveBelowAverageImpl,
+        this,
+      );
     } else {
       _aboveBelowAverage = null;
     }
@@ -402,12 +362,13 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets color scale conditional formatting rule. Read-only.
   ColorScale? get colorScale {
     if (formatType == ExcelCFType.colorScale) {
-      _colorScale ??=
-          ColorScaleWrapper(getCondition().colorScale! as ColorScaleImpl, this);
+      _colorScale ??= ColorScaleWrapper(
+        getCondition().colorScale! as ColorScaleImpl,
+        this,
+      );
     } else {
       _colorScale = null;
     }
@@ -421,7 +382,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets color scale conditional formatting rule. Read-only.
   IconSet? get iconSet {
     if (formatType == ExcelCFType.iconSet) {
@@ -439,7 +399,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets color scale conditional formatting rule. Read-only.
   DataBar? get dataBar {
     if (formatType == ExcelCFType.dataBar) {
@@ -477,7 +436,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets the value or expression associated with the conditional format
   /// in R1C1 notation.
   String get firstFormulaR1C1 {
@@ -485,7 +443,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// sets the value or expression associated with the conditional format
   /// in R1C1 notation.
   set firstFormulaR1C1(String value) {
@@ -494,7 +451,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets the value or expression associated with the conditional format
   /// in R1C1 notation.
   String get secondFormulaR1C1 {
@@ -502,7 +458,6 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// sets the value or expression associated with the conditional format
   /// in R1C1 notation.
   set secondFormulaR1C1(String value) {
@@ -511,84 +466,72 @@ class ConditionalFormatWrapper implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets the font color from Rgb.
   Color get fontColorRgb {
     return getCondition().fontColorRgb;
   }
 
   @override
-
   /// Gets or sets the font color from Rgb.
   set fontColorRgb(Color value) {
     getCondition().fontColorRgb = value;
   }
 
   @override
-
   /// Gets or sets the background color from Rgb.
   Color get backColorRgb {
     return getCondition().backColorRgb;
   }
 
   @override
-
   /// Gets or sets the background color from Rgb.
   set backColorRgb(Color value) {
     getCondition().backColorRgb = value;
   }
 
   @override
-
   /// Gets or sets the left border color from Rgb.
   Color get leftBorderColorRgb {
     return getCondition().leftBorderColorRgb;
   }
 
   @override
-
   /// Gets or sets the left border color from Rgb.
   set leftBorderColorRgb(Color value) {
     getCondition().leftBorderColorRgb = value;
   }
 
   @override
-
   /// Gets or sets the right border color from Rgb.
   Color get rightBorderColorRgb {
     return getCondition().rightBorderColorRgb;
   }
 
   @override
-
   /// Gets or sets the right border color from Rgb.
   set rightBorderColorRgb(Color value) {
     getCondition().rightBorderColorRgb = value;
   }
 
   @override
-
   /// Gets or sets the top border color from Rgb.
   Color get topBorderColorRgb {
     return getCondition().topBorderColorRgb;
   }
 
   @override
-
   /// Gets or sets the top border color from Rgb.
   set topBorderColorRgb(Color value) {
     getCondition().topBorderColorRgb = value;
   }
 
   @override
-
   /// Gets or sets the bottom border color from Rgb.
   Color get bottomBorderColorRgb {
     return getCondition().bottomBorderColorRgb;
   }
 
   @override
-
   /// Gets or sets the bottom border color from Rgb.
   set bottomBorderColorRgb(Color value) {
     getCondition().bottomBorderColorRgb = value;

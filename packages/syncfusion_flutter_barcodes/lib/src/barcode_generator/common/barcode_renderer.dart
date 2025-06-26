@@ -5,18 +5,18 @@ import '../renderers/one_dimensional/symbology_base_renderer.dart';
 /// Represents the render object widget
 class SfBarcodeGeneratorRenderObjectWidget extends LeafRenderObjectWidget {
   /// Creates the render object widget
-  const SfBarcodeGeneratorRenderObjectWidget(
-      {Key? key,
-      this.value,
-      this.symbology,
-      this.foregroundColor,
-      this.showText,
-      this.textSpacing,
-      this.textStyle,
-      this.textSize,
-      this.symbologyRenderer,
-      this.textAlign})
-      : super(key: key);
+  const SfBarcodeGeneratorRenderObjectWidget({
+    Key? key,
+    this.value,
+    this.symbology,
+    this.foregroundColor,
+    this.showText,
+    this.textSpacing,
+    this.textStyle,
+    this.textSize,
+    this.symbologyRenderer,
+    this.textAlign,
+  }) : super(key: key);
 
   ///Defines the value of the barcode to be rendered.
   final String? value;
@@ -49,15 +49,16 @@ class SfBarcodeGeneratorRenderObjectWidget extends LeafRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderBarcode(
-        value: value!,
-        symbology: symbology!,
-        foregroundColor: foregroundColor!,
-        showText: showText!,
-        textSpacing: textSpacing!,
-        symbologyRenderer: symbologyRenderer!,
-        textStyle: textStyle!,
-        textSize: textSize,
-        textAlign: textAlign!);
+      value: value!,
+      symbology: symbology!,
+      foregroundColor: foregroundColor!,
+      showText: showText!,
+      textSpacing: textSpacing!,
+      symbologyRenderer: symbologyRenderer!,
+      textStyle: textStyle!,
+      textSize: textSize,
+      textAlign: textAlign!,
+    );
   }
 
   @override
@@ -79,25 +80,25 @@ class SfBarcodeGeneratorRenderObjectWidget extends LeafRenderObjectWidget {
 /// Represents the RenderBarcode class
 class _RenderBarcode extends RenderBox {
   /// Creates the RenderBarcode
-  _RenderBarcode(
-      {required String value,
-      required Symbology symbology,
-      required SymbologyRenderer symbologyRenderer,
-      required Color foregroundColor,
-      required bool showText,
-      required double textSpacing,
-      required TextStyle textStyle,
-      Size? textSize,
-      required TextAlign textAlign})
-      : _value = value,
-        _symbology = symbology,
-        _symbologyRenderer = symbologyRenderer,
-        _foregroundColor = foregroundColor,
-        _showText = showText,
-        _textSpacing = textSpacing,
-        _textStyle = textStyle,
-        _textSize = textSize,
-        _textAlign = textAlign;
+  _RenderBarcode({
+    required String value,
+    required Symbology symbology,
+    required SymbologyRenderer symbologyRenderer,
+    required Color foregroundColor,
+    required bool showText,
+    required double textSpacing,
+    required TextStyle textStyle,
+    Size? textSize,
+    required TextAlign textAlign,
+  }) : _value = value,
+       _symbology = symbology,
+       _symbologyRenderer = symbologyRenderer,
+       _foregroundColor = foregroundColor,
+       _showText = showText,
+       _textSpacing = textSpacing,
+       _textStyle = textStyle,
+       _textSize = textSize,
+       _textAlign = textAlign;
 
   /// Represents the barcode value
   String _value;
@@ -245,20 +246,21 @@ class _RenderBarcode extends RenderBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     symbologyRenderer.renderBarcode(
-        context.canvas,
-        Size(
-            size.width,
-            size.height -
-                (showText
-                    ? (_textSpacing +
-                        (_textSize != null ? _textSize!.height : 0))
-                    : 0)),
-        offset,
-        value,
-        foregroundColor,
-        textStyle,
-        textSpacing,
-        textAlign,
-        showText);
+      context.canvas,
+      Size(
+        size.width,
+        size.height -
+            (showText
+                ? (_textSpacing + (_textSize != null ? _textSize!.height : 0))
+                : 0),
+      ),
+      offset,
+      value,
+      foregroundColor,
+      textStyle,
+      textSpacing,
+      textAlign,
+      showText,
+    );
   }
 }

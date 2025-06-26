@@ -30,7 +30,10 @@ class Asn1Stream {
 
   /// internal method
   static Asn1? getPrimitiveObject(
-      int tagNumber, Asn1StreamHelper stream, List<List<int>>? buffers) {
+    int tagNumber,
+    Asn1StreamHelper stream,
+    List<List<int>>? buffers,
+  ) {
     switch (tagNumber) {
       case Asn1Tags.boolean:
         return DerBoolean.fromBytes(getBytes(stream, buffers!));
@@ -145,8 +148,9 @@ class Asn1Stream {
     if (isConstructed) {
       switch (tagNumber) {
         case Asn1Tags.octetString:
-          return BerOctet(getBytesfromAsn1EncodeCollection(
-              getDerEncodableCollection(stream)));
+          return BerOctet(
+            getBytesfromAsn1EncodeCollection(getDerEncodableCollection(stream)),
+          );
         case Asn1Tags.sequence:
           return createDerSequence(stream);
         case Asn1Tags.setTag:
@@ -176,10 +180,15 @@ class Asn1Stream {
       if (length < 0) {
         if (!isConstructed) {
           throw ArgumentError.value(
-              length, 'length', 'Encodeing length is invalid');
+            length,
+            'length',
+            'Encodeing length is invalid',
+          );
         }
-        final Asn1Parser sp =
-            Asn1Parser(Asn1LengthStream(_stream, _limit), _limit);
+        final Asn1Parser sp = Asn1Parser(
+          Asn1LengthStream(_stream, _limit),
+          _limit,
+        );
         if ((tag & Asn1Tags.tagged) != 0) {
           return BerTagHelper(true, tagNumber, sp).getAsn1();
         }
@@ -190,7 +199,10 @@ class Asn1Stream {
             return BerSequenceHelper(sp).getAsn1();
           default:
             throw ArgumentError.value(
-                tagNumber, 'tag', 'Invalid object in the sequence');
+              tagNumber,
+              'tag',
+              'Invalid object in the sequence',
+            );
         }
       } else {
         return buildObject(tag, tagNumber, length);
@@ -293,7 +305,7 @@ class Asn1BaseStream extends PdfStreamReader {
 class Asn1StreamHelper extends Asn1BaseStream {
   /// internal constructor
   Asn1StreamHelper(PdfStreamReader? stream, int length)
-      : super(stream, length) {
+    : super(stream, length) {
     if (length < 0) {
       throw Exception('Invalid length specified.');
     }

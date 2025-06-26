@@ -34,8 +34,9 @@ class PdfCatalogNames implements IPdfWrapper {
   //Gets the destinations.
   /// internal property
   PdfDictionary? get destinations {
-    final IPdfPrimitive? obj =
-        PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.dests]);
+    final IPdfPrimitive? obj = PdfCrossTable.dereference(
+      dictionary![PdfDictionaryProperties.dests],
+    );
     final PdfDictionary? dests = obj as PdfDictionary?;
     return dests;
   }
@@ -45,8 +46,10 @@ class PdfCatalogNames implements IPdfWrapper {
   set embeddedFiles(PdfAttachmentCollection value) {
     if (_attachments != value) {
       _attachments = value;
-      dictionary!.setProperty(PdfDictionaryProperties.embeddedFiles,
-          PdfReferenceHolder(_attachments));
+      dictionary!.setProperty(
+        PdfDictionaryProperties.embeddedFiles,
+        PdfReferenceHolder(_attachments),
+      );
     }
   }
 

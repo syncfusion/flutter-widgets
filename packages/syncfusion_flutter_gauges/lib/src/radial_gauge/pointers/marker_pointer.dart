@@ -61,15 +61,16 @@ class MarkerPointer extends LeafRenderObjectWidget implements GaugePointer {
     this.overlayColor,
     this.overlayRadius,
     this.elevation = 0,
-  })  : textStyle = textStyle ?? const GaugeTextStyle(),
-        assert(animationDuration > 0,
-            'Animation duration must be a non-negative value.'),
-        assert(markerWidth >= 0, 'Marker width must be a non-negative value.'),
-        assert(markerHeight >= 0, 'Marker height must be non-negative value.'),
-        assert(borderWidth >= 0, 'Border width must be non-negative value.'),
-        assert(
-            elevation >= 0, 'Shadow elevation must be a non-negative value.'),
-        super(key: key);
+  }) : textStyle = textStyle ?? const GaugeTextStyle(),
+       assert(
+         animationDuration > 0,
+         'Animation duration must be a non-negative value.',
+       ),
+       assert(markerWidth >= 0, 'Marker width must be a non-negative value.'),
+       assert(markerHeight >= 0, 'Marker height must be non-negative value.'),
+       assert(borderWidth >= 0, 'Border width must be non-negative value.'),
+       assert(elevation >= 0, 'Shadow elevation must be a non-negative value.'),
+       super(key: key);
 
   /// Specifies the built-in shape type for  pointer.
   ///
@@ -345,7 +346,7 @@ class MarkerPointer extends LeafRenderObjectWidget implements GaugePointer {
   /// }
   ///```
   final MarkerPointerRendererFactory<MarkerPointerRenderer>?
-      onCreatePointerRenderer;
+  onCreatePointerRenderer;
 
   /// Elevation of the pointer.
   ///
@@ -657,8 +658,9 @@ class MarkerPointer extends LeafRenderObjectWidget implements GaugePointer {
     final ThemeData themeData = Theme.of(context);
     final SfColorScheme colorScheme = SfTheme.colorScheme(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     MarkerPointerRenderer? markerPointerRenderer;
     if (onCreatePointerRenderer != null) {
@@ -667,47 +669,51 @@ class MarkerPointer extends LeafRenderObjectWidget implements GaugePointer {
     }
 
     return RenderMarkerPointer(
-        value: value.clamp(ancestor.minimum, ancestor.maximum),
-        enableDragging: enableDragging,
-        onValueChanged: onValueChanged,
-        onValueChangeStart: onValueChangeStart,
-        onValueChangeEnd: onValueChangeEnd,
-        onValueChanging: onValueChanging,
-        markerType: markerType,
-        color: color,
-        markerWidth: markerWidth,
-        markerHeight: markerHeight,
-        borderWidth: borderWidth,
-        markerOffset: markerOffset,
-        text: text,
-        borderColor: borderColor,
-        offsetUnit: offsetUnit,
-        imageUrl: imageUrl,
-        markerPointerRenderer: markerPointerRenderer,
-        textStyle: textStyle,
-        overlayColor: overlayColor,
-        overlayRadius: overlayRadius,
-        elevation: elevation,
-        animationType: animationType,
-        pointerInterval: radialAxisScope.pointerInterval,
-        enableAnimation: enableAnimation,
-        isRadialGaugeAnimationEnabled:
-            radialAxisScope.isRadialGaugeAnimationEnabled,
-        pointerAnimationController: radialAxisScope.animationController,
-        repaintNotifier: radialAxisScope.repaintNotifier,
-        gaugeThemeData: gaugeTheme,
-        themeData: themeData,
-        colorScheme: colorScheme);
+      value: value.clamp(ancestor.minimum, ancestor.maximum),
+      enableDragging: enableDragging,
+      onValueChanged: onValueChanged,
+      onValueChangeStart: onValueChangeStart,
+      onValueChangeEnd: onValueChangeEnd,
+      onValueChanging: onValueChanging,
+      markerType: markerType,
+      color: color,
+      markerWidth: markerWidth,
+      markerHeight: markerHeight,
+      borderWidth: borderWidth,
+      markerOffset: markerOffset,
+      text: text,
+      borderColor: borderColor,
+      offsetUnit: offsetUnit,
+      imageUrl: imageUrl,
+      markerPointerRenderer: markerPointerRenderer,
+      textStyle: textStyle,
+      overlayColor: overlayColor,
+      overlayRadius: overlayRadius,
+      elevation: elevation,
+      animationType: animationType,
+      pointerInterval: radialAxisScope.pointerInterval,
+      enableAnimation: enableAnimation,
+      isRadialGaugeAnimationEnabled:
+          radialAxisScope.isRadialGaugeAnimationEnabled,
+      pointerAnimationController: radialAxisScope.animationController,
+      repaintNotifier: radialAxisScope.repaintNotifier,
+      gaugeThemeData: gaugeTheme,
+      themeData: themeData,
+      colorScheme: colorScheme,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderMarkerPointer renderObject) {
+    BuildContext context,
+    RenderMarkerPointer renderObject,
+  ) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final ThemeData themeData = Theme.of(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
     MarkerPointerRenderer? markerPointerRenderer;
     if (onCreatePointerRenderer != null) {
       markerPointerRenderer = onCreatePointerRenderer!();

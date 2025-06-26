@@ -54,18 +54,19 @@ class TimeRegion with Diagnosticable {
   ///
   /// The time region used to highlight and block the specific timeslots in
   /// timeslots view of [SfCalendar].
-  TimeRegion(
-      {required this.startTime,
-      required this.endTime,
-      this.text,
-      this.recurrenceRule,
-      this.color,
-      this.enablePointerInteraction = true,
-      this.recurrenceExceptionDates,
-      this.resourceIds,
-      this.timeZone,
-      this.iconData,
-      this.textStyle});
+  TimeRegion({
+    required this.startTime,
+    required this.endTime,
+    this.text,
+    this.recurrenceRule,
+    this.color,
+    this.enablePointerInteraction = true,
+    this.recurrenceExceptionDates,
+    this.resourceIds,
+    this.timeZone,
+    this.iconData,
+    this.textStyle,
+  });
 
   /// Used to specify the start time of the [TimeRegion].
   ///
@@ -542,32 +543,34 @@ class TimeRegion with Diagnosticable {
 
   /// Creates a copy of this [TimeRegion] but with the given fields replaced
   /// with the new values.
-  TimeRegion copyWith(
-      {DateTime? startTime,
-      DateTime? endTime,
-      String? text,
-      String? recurrenceRule,
-      Color? color,
-      bool? enablePointerInteraction,
-      List<DateTime>? recurrenceExceptionDates,
-      String? timeZone,
-      IconData? iconData,
-      TextStyle? textStyle,
-      List<Object>? resourceIds}) {
+  TimeRegion copyWith({
+    DateTime? startTime,
+    DateTime? endTime,
+    String? text,
+    String? recurrenceRule,
+    Color? color,
+    bool? enablePointerInteraction,
+    List<DateTime>? recurrenceExceptionDates,
+    String? timeZone,
+    IconData? iconData,
+    TextStyle? textStyle,
+    List<Object>? resourceIds,
+  }) {
     return TimeRegion(
-        startTime: startTime ?? this.startTime,
-        endTime: endTime ?? this.endTime,
-        color: color ?? this.color,
-        recurrenceRule: recurrenceRule ?? this.recurrenceRule,
-        textStyle: textStyle ?? this.textStyle,
-        enablePointerInteraction:
-            enablePointerInteraction ?? this.enablePointerInteraction,
-        recurrenceExceptionDates:
-            recurrenceExceptionDates ?? this.recurrenceExceptionDates,
-        text: text ?? this.text,
-        iconData: iconData ?? this.iconData,
-        timeZone: timeZone ?? this.timeZone,
-        resourceIds: resourceIds ?? this.resourceIds);
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      color: color ?? this.color,
+      recurrenceRule: recurrenceRule ?? this.recurrenceRule,
+      textStyle: textStyle ?? this.textStyle,
+      enablePointerInteraction:
+          enablePointerInteraction ?? this.enablePointerInteraction,
+      recurrenceExceptionDates:
+          recurrenceExceptionDates ?? this.recurrenceExceptionDates,
+      text: text ?? this.text,
+      iconData: iconData ?? this.iconData,
+      timeZone: timeZone ?? this.timeZone,
+      resourceIds: resourceIds ?? this.resourceIds,
+    );
   }
 
   @override
@@ -599,31 +602,38 @@ class TimeRegion with Diagnosticable {
   @override
   int get hashCode {
     return Object.hash(
-        startTime,
-        endTime,
-        color,
-        recurrenceRule,
-        textStyle,
-        enablePointerInteraction,
+      startTime,
+      endTime,
+      color,
+      recurrenceRule,
+      textStyle,
+      enablePointerInteraction,
 
-        /// Below condition is referred from text style class
-        /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
-        recurrenceExceptionDates == null
-            ? null
-            : Object.hashAll(recurrenceExceptionDates!),
-        resourceIds == null ? null : Object.hashAll(resourceIds!),
-        text,
-        iconData,
-        timeZone);
+      /// Below condition is referred from text style class
+      /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
+      recurrenceExceptionDates == null
+          ? null
+          : Object.hashAll(recurrenceExceptionDates!),
+      resourceIds == null ? null : Object.hashAll(resourceIds!),
+      text,
+      iconData,
+      timeZone,
+    );
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(IterableDiagnostics<DateTime>(recurrenceExceptionDates)
-        .toDiagnosticsNode(name: 'recurrenceExceptionDates'));
-    properties.add(IterableDiagnostics<Object>(resourceIds)
-        .toDiagnosticsNode(name: 'resourceIds'));
+    properties.add(
+      IterableDiagnostics<DateTime>(
+        recurrenceExceptionDates,
+      ).toDiagnosticsNode(name: 'recurrenceExceptionDates'),
+    );
+    properties.add(
+      IterableDiagnostics<Object>(
+        resourceIds,
+      ).toDiagnosticsNode(name: 'resourceIds'),
+    );
     properties.add(StringProperty('timeZone', timeZone));
     properties.add(StringProperty('recurrenceRule', recurrenceRule));
     properties.add(StringProperty('text', text));
@@ -632,7 +642,11 @@ class TimeRegion with Diagnosticable {
     properties.add(DiagnosticsProperty<DateTime>('endTime', endTime));
     properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
     properties.add(DiagnosticsProperty<IconData>('iconData', iconData));
-    properties.add(DiagnosticsProperty<bool>(
-        'enablePointerInteraction', enablePointerInteraction));
+    properties.add(
+      DiagnosticsProperty<bool>(
+        'enablePointerInteraction',
+        enablePointerInteraction,
+      ),
+    );
   }
 }

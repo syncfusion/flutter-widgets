@@ -19,14 +19,13 @@ class ColorScaleImpl implements ColorScale {
   static List<String> _defaultColors3 = <String>[
     '#F8696B',
     '#FFEB84',
-    '#63BE7B'
+    '#63BE7B',
   ];
 
   /// A collection of individual ConditionValue objects.
   List<ColorConditionValue> _arrCriteria = <ColorConditionValue>[];
 
   @override
-
   /// Returns a collection of individual IColorConditionValue objects.
   // ignore: unnecessary_getters_setters
   List<ColorConditionValue> get criteria {
@@ -40,7 +39,6 @@ class ColorScaleImpl implements ColorScale {
   }
 
   @override
-
   /// Sets number of IColorConditionValue objects in the collection. Supported values are 2 and 3.
   void setConditionCount(int count) {
     if (count < 2 || count > 3) {
@@ -58,15 +56,30 @@ class ColorScaleImpl implements ColorScale {
         (count == 2) ? _defaultColors2 : _defaultColors3;
 
     int iColorIndex = 0;
-    _arrCriteria.add(ColorConditionValueImpl(
-        ConditionValueType.lowestValue, '0', arrColors[iColorIndex++]));
+    _arrCriteria.add(
+      ColorConditionValueImpl(
+        ConditionValueType.lowestValue,
+        '0',
+        arrColors[iColorIndex++],
+      ),
+    );
 
     if (count == 3) {
-      _arrCriteria.add(ColorConditionValueImpl(
-          ConditionValueType.percentile, '50', arrColors[iColorIndex++]));
+      _arrCriteria.add(
+        ColorConditionValueImpl(
+          ConditionValueType.percentile,
+          '50',
+          arrColors[iColorIndex++],
+        ),
+      );
     }
 
-    _arrCriteria.add(ColorConditionValueImpl(
-        ConditionValueType.highestValue, '0', arrColors[iColorIndex++]));
+    _arrCriteria.add(
+      ColorConditionValueImpl(
+        ConditionValueType.highestValue,
+        '0',
+        arrColors[iColorIndex++],
+      ),
+    );
   }
 }

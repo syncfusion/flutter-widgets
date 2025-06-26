@@ -72,29 +72,33 @@ class RecurrenceProperties with Diagnosticable {
   /// An object contains properties that hold data for the creation of
   /// [Appointment.recurrenceRule] for [Appointment] using the
   /// [SfCalendar.generateRRule] method.
-  RecurrenceProperties(
-      {this.recurrenceType = RecurrenceType.daily,
-      this.recurrenceCount = 0,
-      required this.startDate,
-      this.endDate,
-      this.interval = 1,
-      this.recurrenceRange = RecurrenceRange.noEndDate,
-      List<WeekDays>? weekDays,
-      this.week = 0,
-      this.dayOfMonth = 1,
-      this.dayOfWeek = 1,
-      this.month = 1})
-      : weekDays = weekDays ?? <WeekDays>[],
-        assert(recurrenceCount >= 0),
-        assert(endDate == null ||
-            CalendarViewHelper.isSameOrBeforeDateTime(endDate, startDate)),
-        assert(endDate == null ||
-            CalendarViewHelper.isSameOrAfterDateTime(startDate, endDate)),
-        assert(interval >= 1),
-        assert(week >= -2 && week <= 5),
-        assert(dayOfMonth >= 1 && dayOfMonth <= 31),
-        assert(dayOfWeek >= 1 && dayOfWeek <= 7),
-        assert(month >= 1 && month <= 12);
+  RecurrenceProperties({
+    this.recurrenceType = RecurrenceType.daily,
+    this.recurrenceCount = 0,
+    required this.startDate,
+    this.endDate,
+    this.interval = 1,
+    this.recurrenceRange = RecurrenceRange.noEndDate,
+    List<WeekDays>? weekDays,
+    this.week = 0,
+    this.dayOfMonth = 1,
+    this.dayOfWeek = 1,
+    this.month = 1,
+  }) : weekDays = weekDays ?? <WeekDays>[],
+       assert(recurrenceCount >= 0),
+       assert(
+         endDate == null ||
+             CalendarViewHelper.isSameOrBeforeDateTime(endDate, startDate),
+       ),
+       assert(
+         endDate == null ||
+             CalendarViewHelper.isSameOrAfterDateTime(startDate, endDate),
+       ),
+       assert(interval >= 1),
+       assert(week >= -2 && week <= 5),
+       assert(dayOfMonth >= 1 && dayOfMonth <= 31),
+       assert(dayOfWeek >= 1 && dayOfWeek <= 7),
+       assert(month >= 1 && month <= 12);
 
   /// Defines the recurrence type of an [Appointment].
   ///
@@ -718,17 +722,18 @@ class RecurrenceProperties with Diagnosticable {
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return Object.hash(
-        recurrenceType,
-        recurrenceCount,
-        startDate,
-        endDate,
-        interval,
-        recurrenceRange,
-        Object.hashAll(weekDays),
-        week,
-        dayOfMonth,
-        dayOfWeek,
-        month);
+      recurrenceType,
+      recurrenceCount,
+      startDate,
+      endDate,
+      interval,
+      recurrenceRange,
+      Object.hashAll(weekDays),
+      week,
+      dayOfMonth,
+      dayOfWeek,
+      month,
+    );
   }
 
   @override
@@ -742,11 +747,16 @@ class RecurrenceProperties with Diagnosticable {
     properties.add(IntProperty('month', month));
     properties.add(DiagnosticsProperty<DateTime>('startTime', startDate));
     properties.add(DiagnosticsProperty<DateTime>('endTime', endDate));
-    properties
-        .add(EnumProperty<RecurrenceType>('recurrenceType', recurrenceType));
-    properties
-        .add(EnumProperty<RecurrenceRange>('recurrenceRange', recurrenceRange));
-    properties.add(IterableDiagnostics<WeekDays>(weekDays)
-        .toDiagnosticsNode(name: 'weekDays'));
+    properties.add(
+      EnumProperty<RecurrenceType>('recurrenceType', recurrenceType),
+    );
+    properties.add(
+      EnumProperty<RecurrenceRange>('recurrenceRange', recurrenceRange),
+    );
+    properties.add(
+      IterableDiagnostics<WeekDays>(
+        weekDays,
+      ).toDiagnosticsNode(name: 'weekDays'),
+    );
   }
 }

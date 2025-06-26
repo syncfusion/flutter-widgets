@@ -33,8 +33,11 @@ class Group extends DataRowEntry {
   TopLevelGroup? topLevelGroup;
 
   /// Refreshes the top-level group for the DataGridSource.
-  void refreshTopLevelGroup(DataGridConfiguration dataGridConfiguration,
-      List<String> groupedColumn, bool autoExpandGroup) {
+  void refreshTopLevelGroup(
+    DataGridConfiguration dataGridConfiguration,
+    List<String> groupedColumn,
+    bool autoExpandGroup,
+  ) {
     if (hasGroups) {
       initializeTopLevelGroup(dataGridConfiguration, autoExpandGroup);
     } else {
@@ -47,7 +50,9 @@ class Group extends DataRowEntry {
 
   /// used to initalize the grouping.
   void initializeTopLevelGroup(
-      DataGridConfiguration dataGridConfiguration, bool autoExpandGroup) {
+    DataGridConfiguration dataGridConfiguration,
+    bool autoExpandGroup,
+  ) {
     final List<String> groupedColumn = <String>[];
     for (final ColumnGroup columnGroupDescription
         in dataGridConfiguration.source.groupedColumns) {
@@ -59,16 +64,20 @@ class Group extends DataRowEntry {
 
     if (groupedColumn.isNotEmpty) {
       final List<Group> result = _performGroupBy(
-          effectiveRows(dataGridConfiguration.source),
-          groupedColumn,
-          dataGridConfiguration.source);
+        effectiveRows(dataGridConfiguration.source),
+        groupedColumn,
+        dataGridConfiguration.source,
+      );
       topLevelGroup?._populate(result, autoExpandGroup);
     }
     dataGridConfiguration.group = topLevelGroup;
   }
 
-  List<Group> _performGroupBy(List<DataGridRow> rows, List<dynamic> columnNames,
-      DataGridSource? source) {
+  List<Group> _performGroupBy(
+    List<DataGridRow> rows,
+    List<dynamic> columnNames,
+    DataGridSource? source,
+  ) {
     final Map<dynamic, dynamic> groupedData = <dynamic, dynamic>{};
 
     for (final DataGridRow row in rows) {
@@ -81,15 +90,19 @@ class Group extends DataRowEntry {
           groupedData[key] = <DataGridRow>[row];
         }
       } else {
-        dynamic currentGroup =
-            groupedData.putIfAbsent(key, () => <dynamic, dynamic>{});
+        dynamic currentGroup = groupedData.putIfAbsent(
+          key,
+          () => <dynamic, dynamic>{},
+        );
 
         for (int i = 1; i < columnNames.length; i++) {
           final dynamic innerKey = performGrouping(source, columnNames[i], row);
 
           if (i != columnNames.length - 1) {
-            currentGroup =
-                currentGroup.putIfAbsent(innerKey, () => <dynamic, dynamic>{});
+            currentGroup = currentGroup.putIfAbsent(
+              innerKey,
+              () => <dynamic, dynamic>{},
+            );
           } else {
             currentGroup.putIfAbsent(innerKey, () => <dynamic>[]).add(row);
           }
@@ -102,8 +115,10 @@ class Group extends DataRowEntry {
     for (final MapEntry<dynamic, dynamic> entry in groupedData.entries) {
       final Group groupResult = Group()..key = entry.key;
 
-      final Group innerGroupResult =
-          _createGroupResult(entry: entry, groupResult: groupResult);
+      final Group innerGroupResult = _createGroupResult(
+        entry: entry,
+        groupResult: groupResult,
+      );
       groupResult.rows = innerGroupResult.rows;
       groupResults.add(groupResult);
     }
@@ -111,8 +126,10 @@ class Group extends DataRowEntry {
     return groupResults;
   }
 
-  dynamic _createGroupResult(
-      {MapEntry<dynamic, dynamic>? entry, Group? groupResult}) {
+  dynamic _createGroupResult({
+    MapEntry<dynamic, dynamic>? entry,
+    Group? groupResult,
+  }) {
     if (entry!.value is List) {
       entry.value.forEach((dynamic item) {
         groupResult!.rows.add(item);
@@ -121,12 +138,15 @@ class Group extends DataRowEntry {
       return groupResult;
     } else {
       entry.value.entries.forEach((dynamic newEntry) {
-        Group newGroupResult = Group()
-          ..key = newEntry.key
-          ..length = newEntry.value.length;
+        Group newGroupResult =
+            Group()
+              ..key = newEntry.key
+              ..length = newEntry.value.length;
 
-        newGroupResult =
-            _createGroupResult(entry: newEntry, groupResult: newGroupResult);
+        newGroupResult = _createGroupResult(
+          entry: newEntry,
+          groupResult: newGroupResult,
+        );
         groupResult!.rows.addAll(newGroupResult.rows);
 
         groupResult.subGroups.add(newGroupResult);
@@ -202,7 +222,10 @@ class Group extends DataRowEntry {
   }
 
   Group? _expandAndCollapseGroup(
-      Group groupsToPopulate, bool expand, Group? newGroup) {
+    Group groupsToPopulate,
+    bool expand,
+    Group? newGroup,
+  ) {
     final Group group = groupsToPopulate;
 
     if (group.subGroups.isEmpty) {
@@ -238,13 +261,18 @@ class Group extends DataRowEntry {
   }
 
   int _addSubGroups(
-      dynamic individualGroup, Group? newGrouping, int startIndex) {
+    dynamic individualGroup,
+    Group? newGrouping,
+    int startIndex,
+  ) {
     int groupIndex = startIndex + 1;
 
     if (individualGroup.subGroups.isNotEmpty) {
       for (final Group nestedSubGroup in individualGroup.subGroups) {
-        newGrouping!.displayElements!.grouped
-            .insert(groupIndex, nestedSubGroup);
+        newGrouping!.displayElements!.grouped.insert(
+          groupIndex,
+          nestedSubGroup,
+        );
         if (nestedSubGroup.isExpanded) {
           nestedSubGroup.isExpanded = true;
           groupIndex = _addSubGroups(nestedSubGroup, newGrouping, groupIndex);
@@ -264,7 +292,10 @@ class Group extends DataRowEntry {
 
   /// Collapses a specific group in SfDataGrid.
   Group? collapseGroups(
-      dynamic individualGroup, Group? newGrouping, int groupIndex) {
+    dynamic individualGroup,
+    Group? newGrouping,
+    int groupIndex,
+  ) {
     if (individualGroup is DataGridRow || !individualGroup.isExpanded) {
       return newGrouping;
     }
@@ -344,7 +375,9 @@ class Group extends DataRowEntry {
   /// Called when the sorting is applied to the column.
   @protected
   void performSorting(
-      DataGridConfiguration dataGridConfiguration, List<String> sortedColumn) {
+    DataGridConfiguration dataGridConfiguration,
+    List<String> sortedColumn,
+  ) {
     bool expand = false;
     Group groupsToPopulate;
     final Group newGroup = Group();
@@ -356,8 +389,13 @@ class Group extends DataRowEntry {
         if (group.level == 1) {
           expand = true;
           groupsToPopulate = group;
-          _sortGroupedRows(dataGridConfiguration, groupsToPopulate, expand,
-              newGroup, sortedColumn);
+          _sortGroupedRows(
+            dataGridConfiguration,
+            groupsToPopulate,
+            expand,
+            newGroup,
+            sortedColumn,
+          );
         }
       }
     }
@@ -368,11 +406,12 @@ class Group extends DataRowEntry {
   }
 
   Group? _sortGroupedRows(
-      DataGridConfiguration dataGridConfiguration,
-      Group groupsToPopulate,
-      bool expand,
-      Group? newGroup,
-      List<String> sortedColumn) {
+    DataGridConfiguration dataGridConfiguration,
+    Group groupsToPopulate,
+    bool expand,
+    Group? newGroup,
+    List<String> sortedColumn,
+  ) {
     final Group group = groupsToPopulate;
 
     if (group.subGroups.isEmpty) {
@@ -393,7 +432,12 @@ class Group extends DataRowEntry {
       for (final Group subGroups in group.subGroups) {
         group.isExpanded = expand;
         _sortGroupedRows(
-            dataGridConfiguration, subGroups, expand, newGroup, sortedColumn);
+          dataGridConfiguration,
+          subGroups,
+          expand,
+          newGroup,
+          sortedColumn,
+        );
       }
     }
     return newGroup;
@@ -416,8 +460,9 @@ class Group extends DataRowEntry {
         if (compareResult == 0) {
           return compareResult;
         } else {
-          final List<String> remainingSortColumns =
-              sortedColumns.sublist(i + 1);
+          final List<String> remainingSortColumns = sortedColumns.sublist(
+            i + 1,
+          );
           return _compareValues(remainingSortColumns, a, b);
         }
       }
@@ -444,7 +489,8 @@ class Group extends DataRowEntry {
   Object? _getCellValue(List<DataGridCell>? cells, String columnName) {
     return cells
         ?.firstWhereOrNull(
-            (DataGridCell element) => element.columnName == columnName)
+          (DataGridCell element) => element.columnName == columnName,
+        )
         ?.value;
   }
 }
@@ -505,15 +551,23 @@ class GroupPopulate extends Group {
     hasGroups = true;
 
     if (groupsToPopulate != null) {
-      rowsCacheCount =
-          _populateGroup(groupsToPopulate, groups, this, level + 1);
+      rowsCacheCount = _populateGroup(
+        groupsToPopulate,
+        groups,
+        this,
+        level + 1,
+      );
       displayElements?.length = rowsCacheCount;
     }
     return rowsCacheCount;
   }
 
-  int _populateGroup(List<Group> groupsToPopulate,
-      List<GroupPopulate> groupPopulates, GroupPopulate parent, int level) {
+  int _populateGroup(
+    List<Group> groupsToPopulate,
+    List<GroupPopulate> groupPopulates,
+    GroupPopulate parent,
+    int level,
+  ) {
     int parentCounter = 0;
     final List<Group> groups = groupsToPopulate.asMap().values.toList();
 
@@ -547,7 +601,11 @@ class GroupPopulate extends Group {
           displayElements?.grouped.add(newGroup);
         }
         counter += _populateGroup(
-            groupResult.subGroups, group.groups, group, level + 1);
+          groupResult.subGroups,
+          group.groups,
+          group,
+          level + 1,
+        );
         group._getRowsCacheCount();
         parentCounter += counter;
         counter = 0;

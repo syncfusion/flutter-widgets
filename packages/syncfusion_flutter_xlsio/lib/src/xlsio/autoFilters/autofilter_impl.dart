@@ -19,8 +19,12 @@ import 'text_filter.dart';
 /// This class represents single autofilter item.
 class AutoFilterImpl implements AutoFilter {
   //Constructor for autofilterimpl class
-  AutoFilterImpl(AutoFilterCollection parent, Worksheet worksheet,
-      [int iRow = 0, int lRow = 0]) {
+  AutoFilterImpl(
+    AutoFilterCollection parent,
+    Worksheet worksheet, [
+    int iRow = 0,
+    int lRow = 0,
+  ]) {
     intializeConditions();
     _autoFilterCollection = parent;
     _worksheet = worksheet;
@@ -236,10 +240,9 @@ class AutoFilterImpl implements AutoFilter {
 
     for (int iRow = _iRow + 1; iRow <= _lastRow; iRow++) {
       if (filterCollection.isNotEmpty) {
-        if (!filterCollection.containsKey(_worksheet
-            .getRangeByIndex(iRow, colIndex)
-            .getText()
-            ?.toLowerCase())) {
+        if (!filterCollection.containsKey(
+          _worksheet.getRangeByIndex(iRow, colIndex).getText()?.toLowerCase(),
+        )) {
           _worksheet.getRangeByIndex(iRow, colIndex).showRows(false);
         } else {
           _worksheet.getRangeByIndex(iRow, colIndex).showRows(true);
@@ -315,8 +318,9 @@ class AutoFilterImpl implements AutoFilter {
             }
             break;
           case DynamicFilterType.nextWeek:
-            startDate =
-                currentDate.add(Duration(days: 7 - currentDate.weekday));
+            startDate = currentDate.add(
+              Duration(days: 7 - currentDate.weekday),
+            );
             endDate = startDate.add(const Duration(days: 6));
             if ((dateTime!.year >= startDate.year &&
                     dateTime.year <= endDate.year) &&
@@ -328,8 +332,9 @@ class AutoFilterImpl implements AutoFilter {
             }
             break;
           case DynamicFilterType.lastWeek:
-            endDate =
-                currentDate.add(Duration(days: -(currentDate.weekday + 1)));
+            endDate = currentDate.add(
+              Duration(days: -(currentDate.weekday + 1)),
+            );
             startDate = endDate.add(const Duration(days: -6));
             if ((dateTime!.year >= startDate.year &&
                     dateTime.year <= endDate.year) &&
@@ -341,30 +346,34 @@ class AutoFilterImpl implements AutoFilter {
             }
             break;
           case DynamicFilterType.lastMonth:
-            final Jiffy jiffyLast =
-                Jiffy.parseFromDateTime(currentDate).add(months: -1);
+            final Jiffy jiffyLast = Jiffy.parseFromDateTime(
+              currentDate,
+            ).add(months: -1);
             startDate = DateTime(
-                jiffyLast.year,
-                jiffyLast.month,
-                jiffyLast.date,
-                jiffyLast.hour,
-                jiffyLast.minute,
-                jiffyLast.second);
+              jiffyLast.year,
+              jiffyLast.month,
+              jiffyLast.date,
+              jiffyLast.hour,
+              jiffyLast.minute,
+              jiffyLast.second,
+            );
             if ((dateTime!.year == startDate.year) &&
                 (dateTime.month == startDate.month)) {
               isVisible = true;
             }
             break;
           case DynamicFilterType.nextMonth:
-            final Jiffy jiffyNext =
-                Jiffy.parseFromDateTime(currentDate).add(months: 1);
+            final Jiffy jiffyNext = Jiffy.parseFromDateTime(
+              currentDate,
+            ).add(months: 1);
             startDate = DateTime(
-                jiffyNext.year,
-                jiffyNext.month,
-                jiffyNext.date,
-                jiffyNext.hour,
-                jiffyNext.minute,
-                jiffyNext.second);
+              jiffyNext.year,
+              jiffyNext.month,
+              jiffyNext.date,
+              jiffyNext.hour,
+              jiffyNext.minute,
+              jiffyNext.second,
+            );
             if ((dateTime!.year == startDate.year) &&
                 (dateTime.month == startDate.month)) {
               isVisible = true;
@@ -396,9 +405,11 @@ class AutoFilterImpl implements AutoFilter {
             if (currentDate.month % 3 != 0) {
               temp++;
             }
-            for (int monthIndex = temp * 3 - 2;
-                monthIndex <= temp * 3;
-                monthIndex++) {
+            for (
+              int monthIndex = temp * 3 - 2;
+              monthIndex <= temp * 3;
+              monthIndex++
+            ) {
               if (dateTime!.year == currentDate.year &&
                   dateTime.month == monthIndex) {
                 isVisible = true;
@@ -413,9 +424,11 @@ class AutoFilterImpl implements AutoFilter {
             }
             if (temp == 4) {
               temp = 1;
-              for (int monthIndex = (temp * 3) - 2;
-                  monthIndex <= temp * 3;
-                  monthIndex++) {
+              for (
+                int monthIndex = (temp * 3) - 2;
+                monthIndex <= temp * 3;
+                monthIndex++
+              ) {
                 if (dateTime!.year == currentDate.year + 1 &&
                     dateTime.month == monthIndex) {
                   isVisible = true;
@@ -424,9 +437,11 @@ class AutoFilterImpl implements AutoFilter {
               }
             } else {
               temp++;
-              for (int monthIndex = (temp * 3) - 2;
-                  monthIndex <= temp * 3;
-                  monthIndex++) {
+              for (
+                int monthIndex = (temp * 3) - 2;
+                monthIndex <= temp * 3;
+                monthIndex++
+              ) {
                 if (dateTime!.year == currentDate.year &&
                     dateTime.month == monthIndex) {
                   isVisible = true;
@@ -442,9 +457,11 @@ class AutoFilterImpl implements AutoFilter {
             }
             if (temp == 1) {
               temp = 4;
-              for (int monthIndex = (temp * 3) - 2;
-                  monthIndex <= temp * 3;
-                  monthIndex++) {
+              for (
+                int monthIndex = (temp * 3) - 2;
+                monthIndex <= temp * 3;
+                monthIndex++
+              ) {
                 if (dateTime!.year == currentDate.year - 1 &&
                     dateTime.month == monthIndex) {
                   isVisible = true;
@@ -453,9 +470,11 @@ class AutoFilterImpl implements AutoFilter {
               }
             } else {
               temp--;
-              for (int monthIndex = (temp * 3) - 2;
-                  monthIndex <= temp * 3;
-                  monthIndex++) {
+              for (
+                int monthIndex = (temp * 3) - 2;
+                monthIndex <= temp * 3;
+                monthIndex++
+              ) {
                 if (dateTime!.year == currentDate.year &&
                     dateTime.month == monthIndex) {
                   isVisible = true;
@@ -605,9 +624,11 @@ class AutoFilterImpl implements AutoFilter {
     for (int row = filterRange.row + 1; row <= filterRange.lastRow; row++) {
       final Range range = _worksheet.getRangeByIndex(row, colIndex);
       if (range.dateTime != null) {
-        for (int index = 0;
-            index < _combinationFilter.filterCollection.length;
-            index++) {
+        for (
+          int index = 0;
+          index < _combinationFilter.filterCollection.length;
+          index++
+        ) {
           final MultipleFilter filter =
               _combinationFilter.filterCollection[index];
           if (filter.combinationFilterType ==
@@ -695,7 +716,12 @@ class AutoFilterImpl implements AutoFilter {
     int lastRow = filterRange.lastRow;
     final int lastColumn = filterRange.lastColumn;
     filterRange = _autoFilterCollection.includeBottomAdjacents(
-        row, column, lastRow, lastColumn, filterRange);
+      row,
+      column,
+      lastRow,
+      lastColumn,
+      filterRange,
+    );
     lastRow = filterRange.lastRow;
     _rangeList.clear();
     for (int rowIndex = row + 1; rowIndex <= lastRow; rowIndex++) {
@@ -706,18 +732,24 @@ class AutoFilterImpl implements AutoFilter {
 
   ///To set condition to check which row going to hide based on condition operator
   void setCondition(
-      ExcelFilterCondition conditionOperator,
-      ExcelFilterDataType datatype,
-      Object conditionValue,
-      int currentAutoFilter,
-      bool isFirstCondition) {
+    ExcelFilterCondition conditionOperator,
+    ExcelFilterDataType datatype,
+    Object conditionValue,
+    int currentAutoFilter,
+    bool isFirstCondition,
+  ) {
     if (datatype == ExcelFilterDataType.matchAllBlanks) {
       _setMatchAllBlanks();
     } else if (datatype == ExcelFilterDataType.matchAllNonBlanks) {
       _setMatchAllNonBlanks();
     } else {
-      _setConditionImpl(conditionOperator, conditionValue, _worksheet,
-          _rangeList, isFirstCondition);
+      _setConditionImpl(
+        conditionOperator,
+        conditionValue,
+        _worksheet,
+        _rangeList,
+        isFirstCondition,
+      );
     }
   }
 
@@ -751,11 +783,12 @@ class AutoFilterImpl implements AutoFilter {
 
   ///To set the condition Between Two Objects Based On ConditionOpertion
   void _setConditionImpl(
-      ExcelFilterCondition conditionOperator,
-      Object conditionValue,
-      Worksheet worksheet,
-      Map<Range, double?> range,
-      bool isFirstCondition) {
+    ExcelFilterCondition conditionOperator,
+    Object conditionValue,
+    Worksheet worksheet,
+    Map<Range, double?> range,
+    bool isFirstCondition,
+  ) {
     for (final Range key in range.keys) {
       if (conditionValue.runtimeType == double ||
           conditionValue.runtimeType == int) {
@@ -791,8 +824,13 @@ class AutoFilterImpl implements AutoFilter {
             break;
         }
 
-        _getCompareResults(cellvalue, compareValue, conditionOperator,
-            isFirstCondition, key.row);
+        _getCompareResults(
+          cellvalue,
+          compareValue,
+          conditionOperator,
+          isFirstCondition,
+          key.row,
+        );
       } else if (conditionValue.runtimeType == String) {
         late Object cellValue, compareValue;
 
@@ -814,15 +852,25 @@ class AutoFilterImpl implements AutoFilter {
             compareValue = conditionValue.toString().toLowerCase();
             break;
         }
-        _getCompareResults(cellValue, compareValue, conditionOperator,
-            isFirstCondition, key.row);
+        _getCompareResults(
+          cellValue,
+          compareValue,
+          conditionOperator,
+          isFirstCondition,
+          key.row,
+        );
       }
     }
   }
 
   ///To get the result of comparison between two objects based on the condition operator
-  void _getCompareResults(Object a, Object b,
-      ExcelFilterCondition conditionOperator, bool isFirstCondition, int key) {
+  void _getCompareResults(
+    Object a,
+    Object b,
+    ExcelFilterCondition conditionOperator,
+    bool isFirstCondition,
+    int key,
+  ) {
     late double doubleA;
     late double doubleB;
     late String stringA;

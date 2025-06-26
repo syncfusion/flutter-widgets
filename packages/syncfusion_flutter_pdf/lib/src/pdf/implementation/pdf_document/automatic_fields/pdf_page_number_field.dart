@@ -92,8 +92,12 @@ class PdfPageNumberField extends PdfMultipleValueField {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfPageNumberField(
-      {super.font, super.brush, super.bounds, bool? isSectionPageNumber}) {
+  PdfPageNumberField({
+    super.font,
+    super.brush,
+    super.bounds,
+    bool? isSectionPageNumber,
+  }) {
     _helper = PdfPageNumberFieldHelper(this);
     _helper._isSectionPageNumber =
         isSectionPageNumber != null && isSectionPageNumber;
@@ -175,11 +179,12 @@ class PdfPageNumberFieldHelper {
       final int index = PdfSectionHelper.getHelper(section).indexOf(page) + 1;
       return PdfAutomaticFieldHelper.convert(index, base.numberStyle);
     } else {
-      final PdfDocument document = PdfSectionCollectionHelper.getHelper(
-              PdfSectionHelper.getHelper(
-                      PdfPageHelper.getHelper(page!).section!)
-                  .parent!)
-          .document!;
+      final PdfDocument document =
+          PdfSectionCollectionHelper.getHelper(
+            PdfSectionHelper.getHelper(
+              PdfPageHelper.getHelper(page!).section!,
+            ).parent!,
+          ).document!;
       final int pageIndex = document.pages.indexOf(page) + 1;
       return PdfAutomaticFieldHelper.convert(pageIndex, base.numberStyle);
     }

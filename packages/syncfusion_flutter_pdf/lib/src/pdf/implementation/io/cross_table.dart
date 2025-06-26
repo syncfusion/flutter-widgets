@@ -119,7 +119,9 @@ class CrossTable {
     final int startingOffset = _checkJunk();
     if (startingOffset < 0) {
       ArgumentError.value(
-          startingOffset, 'Could not find valid signature (%PDF-)');
+        startingOffset,
+        'Could not find valid signature (%PDF-)',
+      );
     }
     objects = <int, ObjectInformation>{};
     PdfReader reader = this.reader;
@@ -156,8 +158,9 @@ class CrossTable {
       startCrossReference = position;
       _parser!.setOffset(position);
       if (_whiteSpace != 0) {
-        final int crossReferencePosition =
-            reader.searchForward(PdfOperators.crossReference);
+        final int crossReferencePosition = reader.searchForward(
+          PdfOperators.crossReference,
+        );
         if (crossReferencePosition == -1) {
           isForwardSearch = false;
           position += _whiteSpace;
@@ -198,8 +201,10 @@ class CrossTable {
     }
     reader.position = position;
     try {
-      final Map<String, dynamic> tempResult =
-          parser.parseCrossReferenceTable(objects, this);
+      final Map<String, dynamic> tempResult = parser.parseCrossReferenceTable(
+        objects,
+        this,
+      );
       trailer = tempResult['object'] as PdfDictionary?;
       objects = tempResult['objects'] as Map<int, ObjectInformation>;
     } catch (e) {
@@ -213,9 +218,9 @@ class CrossTable {
         number.value = number.value! + _whiteSpace;
         _isStructureAltered = true;
       }
-      position = (trailerObj[PdfDictionaryProperties.prev]! as PdfNumber)
-          .value!
-          .toInt();
+      position =
+          (trailerObj[PdfDictionaryProperties.prev]! as PdfNumber).value!
+              .toInt();
       final PdfReader tokenReader = PdfReader(_reader!.streamReader.data);
       tokenReader.position = position;
       String? token = tokenReader.getNextToken();
@@ -227,8 +232,8 @@ class CrossTable {
           token = tokenReader.getNextToken();
           if (token == PdfDictionaryProperties.obj) {
             parser.setOffset(position);
-            final Map<String, dynamic> tempResults =
-                parser.parseCrossReferenceTable(objects, this);
+            final Map<String, dynamic> tempResults = parser
+                .parseCrossReferenceTable(objects, this);
             trailerObj = tempResults['object'] as PdfDictionary;
             objects = tempResults['objects'] as Map<int, ObjectInformation>;
             parser.setOffset(position);
@@ -239,8 +244,8 @@ class CrossTable {
         break;
       } else {
         parser.setOffset(position);
-        final Map<String, dynamic> tempResults =
-            parser.parseCrossReferenceTable(objects, this);
+        final Map<String, dynamic> tempResults = parser
+            .parseCrossReferenceTable(objects, this);
         trailerObj = tempResults['object'] as PdfDictionary;
         objects = tempResults['objects'] as Map<int, ObjectInformation>;
         if (trailerObj.containsKey(PdfDictionaryProperties.size) &&
@@ -259,8 +264,11 @@ class CrossTable {
       for (int i = 0; i < objKey.length; i++) {
         final int key = objKey[i];
         final ObjectInformation info = objects[key]!;
-        objects[key] =
-            ObjectInformation(info._offset! + _whiteSpace, null, this);
+        objects[key] = ObjectInformation(
+          info._offset! + _whiteSpace,
+          null,
+          this,
+        );
       }
       _isStructureAltered = true;
     } else if (_whiteSpace != 0 && _whiteSpace > 0 && !_isStructureAltered) {
@@ -319,7 +327,9 @@ class CrossTable {
 
   /// internal method
   Map<int, ObjectInformation>? parseNewTable(
-      PdfStream? stream, Map<int, ObjectInformation>? objects) {
+    PdfStream? stream,
+    Map<int, ObjectInformation>? objects,
+  ) {
     if (stream == null) {
       throw ArgumentError.value(stream, 'Invalid format');
     }
@@ -328,8 +338,12 @@ class CrossTable {
     int? ssIndex = 0;
     for (int i = 0; i < subSections.length; i++) {
       final _SubSection ss = subSections[i];
-      final Map<String, dynamic> result =
-          _parseWithHashTable(stream, ss, objects, ssIndex);
+      final Map<String, dynamic> result = _parseWithHashTable(
+        stream,
+        ss,
+        objects,
+        ssIndex,
+      );
       ssIndex = result['index'] as int?;
       objects = result['objects'] as Map<int, ObjectInformation>?;
     }
@@ -337,10 +351,11 @@ class CrossTable {
   }
 
   Map<String, dynamic> _parseWithHashTable(
-      PdfStream stream,
-      _SubSection subsection,
-      Map<int, ObjectInformation>? table,
-      int? startIndex) {
+    PdfStream stream,
+    _SubSection subsection,
+    Map<int, ObjectInformation>? table,
+    int? startIndex,
+  ) {
     int? index = startIndex;
     final IPdfPrimitive? entry = getObject(stream[PdfDictionaryProperties.w]);
     if (entry is PdfArray) {
@@ -505,8 +520,9 @@ class CrossTable {
     do {
       final int length =
           _data.length - position < 1024 ? (_data.length - position) : 1024;
-      final String header =
-          String.fromCharCodes(_data.sublist(position, length));
+      final String header = String.fromCharCodes(
+        _data.sublist(position, length),
+      );
       index = header.indexOf('%PDF-');
       position += length;
     } while (index < 0 && position != _data.length);
@@ -560,7 +576,10 @@ class ObjectInformation {
   //Constructor
   /// internal constructor
   ObjectInformation(
-      int offset, ArchiveInformation? arciveInfo, CrossTable? crossTable) {
+    int offset,
+    ArchiveInformation? arciveInfo,
+    CrossTable? crossTable,
+  ) {
     _offset = offset;
     _archive = arciveInfo;
     _crossTable = crossTable;
@@ -594,8 +613,11 @@ class ObjectInformation {
         if (archieveNumber != null) {
           pairs = archieveNumber.value!.toInt();
         }
-        final List<int> indices =
-            List<int>.filled(pairs * 2, 0, growable: true);
+        final List<int> indices = List<int>.filled(
+          pairs * 2,
+          0,
+          growable: true,
+        );
         for (int i = 0; i < pairs; ++i) {
           PdfNumber? obj = parser.simple() as PdfNumber?;
           if (obj != null) {
@@ -609,7 +631,9 @@ class ObjectInformation {
         final int index = _archive!._index;
         if (index * 2 >= indices.length) {
           throw ArgumentError.value(
-              _archive!._archiveNumber, 'Missing indexes in archive');
+            _archive!._archiveNumber,
+            'Missing indexes in archive',
+          );
         }
         _offset = indices[index * 2 + 1];
         final int first =

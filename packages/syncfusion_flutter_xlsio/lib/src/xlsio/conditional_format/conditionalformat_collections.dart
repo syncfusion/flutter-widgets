@@ -34,21 +34,18 @@ class ConditionalFormatsImpl implements ConditionalFormats {
   }
 
   @override
-
   /// Gets the number of conditional formats in the collection. Read-only.
   int get count {
     return innerList.length;
   }
 
   @override
-
   /// Gets the number of conditional formats in the collection. Read-only.
   set count(int value) {
     innerList.length = value;
   }
 
   @override
-
   /// Adds new condition to the collection.
   ConditionalFormat addCondition() {
     if (count >= _maxCFNumber) {

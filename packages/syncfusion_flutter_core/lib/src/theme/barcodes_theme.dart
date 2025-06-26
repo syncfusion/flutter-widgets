@@ -31,7 +31,7 @@ import '../../theme.dart';
 class SfBarcodeTheme extends InheritedTheme {
   /// Initialize the class of SfBarcodeTheme
   const SfBarcodeTheme({Key? key, required this.data, required this.child})
-      : super(key: key, child: child);
+    : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant barcode widgets.
   ///
@@ -267,24 +267,29 @@ class SfBarcodeThemeData with Diagnosticable {
     TextStyle? textStyle,
   }) {
     return SfBarcodeThemeData.raw(
-        brightness: brightness,
-        backgroundColor: backgroundColor ?? this.backgroundColor,
-        barColor: barColor ?? this.barColor,
-        textColor: textColor ?? this.textColor,
-        textStyle: textStyle ?? this.textStyle);
+      brightness: brightness,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      barColor: barColor ?? this.barColor,
+      textColor: textColor ?? this.textColor,
+      textStyle: textStyle ?? this.textStyle,
+    );
   }
 
   /// Returns the barcode theme data
   static SfBarcodeThemeData? lerp(
-      SfBarcodeThemeData? a, SfBarcodeThemeData? b, double t) {
+    SfBarcodeThemeData? a,
+    SfBarcodeThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return SfBarcodeThemeData(
-        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
-        barColor: Color.lerp(a.barColor, b.barColor, t),
-        textColor: Color.lerp(a.textColor, b.textColor, t),
-        textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t));
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+      barColor: Color.lerp(a.barColor, b.barColor, t),
+      textColor: Color.lerp(a.textColor, b.textColor, t),
+      textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
+    );
   }
 
   @override
@@ -309,7 +314,7 @@ class SfBarcodeThemeData with Diagnosticable {
       backgroundColor,
       barColor,
       textColor,
-      textStyle
+      textStyle,
     ];
     return Object.hashAll(values);
   }
@@ -318,13 +323,29 @@ class SfBarcodeThemeData with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     const SfBarcodeThemeData defaultData = SfBarcodeThemeData();
-    properties.add(ColorProperty('backgroundColor', backgroundColor,
-        defaultValue: defaultData.backgroundColor));
-    properties.add(ColorProperty('barColor', barColor,
-        defaultValue: defaultData.barColor));
-    properties.add(ColorProperty('textColor', textColor,
-        defaultValue: defaultData.textColor));
-    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle,
-        defaultValue: defaultData.textStyle));
+    properties.add(
+      ColorProperty(
+        'backgroundColor',
+        backgroundColor,
+        defaultValue: defaultData.backgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty('barColor', barColor, defaultValue: defaultData.barColor),
+    );
+    properties.add(
+      ColorProperty(
+        'textColor',
+        textColor,
+        defaultValue: defaultData.textColor,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'textStyle',
+        textStyle,
+        defaultValue: defaultData.textStyle,
+      ),
+    );
   }
 }

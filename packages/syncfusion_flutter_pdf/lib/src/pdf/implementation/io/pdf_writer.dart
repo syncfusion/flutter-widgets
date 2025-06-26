@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import '../../interfaces/pdf_interface.dart';
 import '../pdf_document/pdf_document.dart';
@@ -7,15 +8,23 @@ import '../pdf_document/pdf_document.dart';
 class PdfWriter implements IPdfWriter {
   //Constructor
   /// internal constructor
-  PdfWriter(this.buffer) {
-    length = buffer!.length;
-    position = buffer!.length;
+  PdfWriter(this.buffer, [PdfBytesBuilder? bytesBuilder]) {
+    if (bytesBuilder != null) {
+      this.bytesBuilder = bytesBuilder;
+      length = this.bytesBuilder!.length;
+      position = this.bytesBuilder!.length;
+      isBytesBuilder = true;
+    } else {
+      length = buffer!.length;
+      position = buffer!.length;
+    }
   }
 
   //Fields
   /// internal field
   List<int>? buffer;
-
+  PdfBytesBuilder? bytesBuilder;
+  bool isBytesBuilder = false;
   //IPdfWriter members
   @override
   PdfDocument? document;
@@ -55,10 +64,29 @@ class PdfWriter implements IPdfWriter {
       length = length! + tempLength;
       position = position! + tempLength;
       if (end == null) {
-        buffer!.addAll(data);
+        if (isBytesBuilder) {
+          bytesBuilder!.add(data);
+        } else {
+          _addDataInChunks(data);
+          //buffer!.addAll(data);
+        }
       } else {
-        buffer!.addAll(data.take(end));
+        if (isBytesBuilder) {
+          bytesBuilder!.add(data.take(end).toList());
+        } else {
+          _addDataInChunks(data.take(end).toList());
+          //buffer!.addAll(data.take(end));
+        }
       }
+    }
+  }
+
+  void _addDataInChunks(List<int> data) {
+    const int chunkSize = 8190;
+    for (int i = 0; i < data.length; i += chunkSize) {
+      final int end =
+          (i + chunkSize < data.length) ? i + chunkSize : data.length;
+      buffer!.addAll(data.sublist(i, end));
     }
   }
 
@@ -93,10 +121,57 @@ class PdfWriter implements IPdfWriter {
       length = length! + tempLength;
       position = position! + tempLength;
       if (end == null) {
-        buffer!.addAll(data);
+        if (isBytesBuilder) {
+          bytesBuilder!.add(data);
+        } else {
+          _addDataInChunks(data);
+          //buffer!.addAll(data);
+        }
       } else {
-        buffer!.addAll(data.take(end));
+        if (isBytesBuilder) {
+          bytesBuilder!.add(data.take(end).toList());
+        } else {
+          _addDataInChunks(data.take(end).toList());
+          //buffer!.addAll(data.take(end));
+        }
       }
     }
+  }
+}
+
+///Helper class to write the PDF document data.
+class PdfBytesBuilder {
+  /// internal fields
+  final List<Uint8List> _chunks = [];
+  int _length = 0;
+
+  /// get the length of the data
+  int get length => _length;
+
+  /// add the data
+  void add(List<int> data) {
+    if (data.isEmpty) {
+      return;
+    }
+    final Uint8List chunk = Uint8List.fromList(data);
+    _chunks.add(chunk);
+    _length += chunk.length;
+  }
+
+  /// get the bytes
+  Uint8List takeBytes() {
+    final Uint8List result = Uint8List(_length);
+    int offset = 0;
+    for (final Uint8List chunk in _chunks) {
+      result.setRange(offset, offset + chunk.length, chunk);
+      offset += chunk.length;
+    }
+    return result;
+  }
+
+  /// clear the data
+  void clear() {
+    _chunks.clear();
+    _length = 0;
   }
 }

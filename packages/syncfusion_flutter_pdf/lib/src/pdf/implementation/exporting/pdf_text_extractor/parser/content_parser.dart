@@ -99,7 +99,7 @@ class ContentParser {
     'B*',
     "'",
     '"',
-    'true'
+    'true',
   ];
 
   // Implementation
@@ -184,18 +184,20 @@ class ContentParser {
       ArgumentError.value('Invalid operand');
     }
     PdfRecord record;
-    final List<String> op = operands.isNotEmpty
-        ? List<String>.filled(operands.length, '', growable: true)
-        : <String>[];
+    final List<String> op =
+        operands.isNotEmpty
+            ? List<String>.filled(operands.length, '', growable: true)
+            : <String>[];
     if (operands.isNotEmpty) {
       List.copyRange(op, 0, operands);
     }
     if (!_isByteOperands) {
       record = PdfRecord(operand, op);
     } else {
-      final List<int> imBytes = inlineImageBytes!.isNotEmpty
-          ? List<int>.filled(inlineImageBytes.length, 0, growable: true)
-          : <int>[];
+      final List<int> imBytes =
+          inlineImageBytes!.isNotEmpty
+              ? List<int>.filled(inlineImageBytes.length, 0, growable: true)
+              : <int>[];
       if (inlineImageBytes.isNotEmpty) {
         List.copyRange(imBytes, 0, inlineImageBytes);
       }
@@ -242,17 +244,21 @@ class ContentParser {
                     snc == '\r') &&
                 thirdChar.isNotEmpty) {
               if (String.fromCharCode(
-                          int.parse(thirdChar[thirdChar.length - 1])) ==
+                        int.parse(thirdChar[thirdChar.length - 1]),
+                      ) ==
                       'Q' ||
                   thirdChar[thirdChar.length - 1] == '65535' ||
                   String.fromCharCode(
-                          int.parse(thirdChar[thirdChar.length - 1])) ==
+                        int.parse(thirdChar[thirdChar.length - 1]),
+                      ) ==
                       'S') {
                 _operatorParams!.clear();
-                _operatorParams!
-                    .write(String.fromCharCode(int.parse(currentChar)));
-                _operatorParams!
-                    .write(String.fromCharCode(int.parse(nextChar)));
+                _operatorParams!.write(
+                  String.fromCharCode(int.parse(currentChar)),
+                );
+                _operatorParams!.write(
+                  String.fromCharCode(int.parse(nextChar)),
+                );
                 _isByteOperands = true;
                 _createRecord(operands, inlineImageBytes);
                 _isByteOperands = false;
@@ -320,10 +326,12 @@ class ContentParser {
                   thirdChar == '65535' ||
                   String.fromCharCode(int.parse(thirdChar)) == 'S') {
                 _operatorParams!.clear();
-                _operatorParams!
-                    .write(String.fromCharCode(int.parse(currentChar)));
-                _operatorParams!
-                    .write(String.fromCharCode(int.parse(nextChar)));
+                _operatorParams!.write(
+                  String.fromCharCode(int.parse(currentChar)),
+                );
+                _operatorParams!.write(
+                  String.fromCharCode(int.parse(nextChar)),
+                );
                 _isByteOperands = true;
                 _createRecord(operands, inlineImageBytes);
                 _isByteOperands = false;

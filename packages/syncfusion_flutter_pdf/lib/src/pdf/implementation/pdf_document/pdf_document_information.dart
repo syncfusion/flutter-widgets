@@ -11,10 +11,12 @@ import 'pdf_catalog.dart';
 ///	A class containing the information about the document.
 class PdfDocumentInformation implements IPdfWrapper {
   //Constructor
-  PdfDocumentInformation._(PdfCatalog catalog,
-      {PdfDictionary? dictionary,
-      bool isLoaded = false,
-      PdfConformanceLevel? conformance}) {
+  PdfDocumentInformation._(
+    PdfCatalog catalog, {
+    PdfDictionary? dictionary,
+    bool isLoaded = false,
+    PdfConformanceLevel? conformance,
+  }) {
     _helper = PdfDocumentInformationHelper(this);
     _helper._catalog = catalog;
     if (conformance != null) {
@@ -27,7 +29,9 @@ class PdfDocumentInformation implements IPdfWrapper {
       _helper._dictionary = PdfDictionary();
       if (_helper.conformance != PdfConformanceLevel.a1b) {
         _helper._dictionary!.setDateTime(
-            PdfDictionaryProperties.creationDate, _helper.creationDate);
+          PdfDictionaryProperties.creationDate,
+          _helper.creationDate,
+        );
       }
     }
   }
@@ -45,12 +49,15 @@ class PdfDocumentInformation implements IPdfWrapper {
 
   /// Gets the creation date of the PDF document
   DateTime get creationDate {
-    if (_helper._dictionary!
-            .containsKey(PdfDictionaryProperties.creationDate) &&
+    if (_helper._dictionary!.containsKey(
+          PdfDictionaryProperties.creationDate,
+        ) &&
         _helper._dictionary![PdfDictionaryProperties.creationDate]
             is PdfString) {
-      return _helper.creationDate = _helper._dictionary!.getDateTime(_helper
-          ._dictionary![PdfDictionaryProperties.creationDate]! as PdfString);
+      return _helper.creationDate = _helper._dictionary!.getDateTime(
+        _helper._dictionary![PdfDictionaryProperties.creationDate]!
+            as PdfString,
+      );
     }
     return _helper.creationDate = DateTime.now();
   }
@@ -60,19 +67,23 @@ class PdfDocumentInformation implements IPdfWrapper {
     if (_helper.creationDate != value) {
       _helper.creationDate = value;
       _helper._dictionary!.setDateTime(
-          PdfDictionaryProperties.creationDate, _helper.creationDate);
+        PdfDictionaryProperties.creationDate,
+        _helper.creationDate,
+      );
     }
   }
 
   /// Gets the modification date of the PDF document
   DateTime get modificationDate {
-    if (_helper._dictionary!
-            .containsKey(PdfDictionaryProperties.modificationDate) &&
+    if (_helper._dictionary!.containsKey(
+          PdfDictionaryProperties.modificationDate,
+        ) &&
         _helper._dictionary![PdfDictionaryProperties.modificationDate]
             is PdfString) {
       return _helper.modificationDate = _helper._dictionary!.getDateTime(
-          _helper._dictionary![PdfDictionaryProperties.modificationDate]!
-              as PdfString);
+        _helper._dictionary![PdfDictionaryProperties.modificationDate]!
+            as PdfString,
+      );
     }
     return _helper.modificationDate = DateTime.now();
   }
@@ -81,17 +92,19 @@ class PdfDocumentInformation implements IPdfWrapper {
   set modificationDate(DateTime value) {
     _helper.modificationDate = value;
     _helper._dictionary!.setDateTime(
-        PdfDictionaryProperties.modificationDate, _helper.modificationDate);
+      PdfDictionaryProperties.modificationDate,
+      _helper.modificationDate,
+    );
   }
 
   /// Gets the title.
   String get title {
     if (_helper._dictionary!.containsKey(PdfDictionaryProperties.title) &&
         _helper._dictionary![PdfDictionaryProperties.title] is PdfString) {
-      return _title =
-          (_helper._dictionary![PdfDictionaryProperties.title]! as PdfString)
-              .value!
-              .replaceAll('\u0000', '');
+      return _title = (_helper._dictionary![PdfDictionaryProperties.title]!
+              as PdfString)
+          .value!
+          .replaceAll('\u0000', '');
     }
     return _title = '';
   }
@@ -160,8 +173,10 @@ class PdfDocumentInformation implements IPdfWrapper {
   set keywords(String value) {
     if (_keywords != value) {
       _keywords = value;
-      _helper._dictionary!
-          .setString(PdfDictionaryProperties.keywords, _keywords);
+      _helper._dictionary!.setString(
+        PdfDictionaryProperties.keywords,
+        _keywords,
+      );
     }
     if (_helper._catalog != null && _helper._catalog!.metadata != null) {
       _helper._xmp = _helper.xmpMetadata;
@@ -204,29 +219,35 @@ class PdfDocumentInformation implements IPdfWrapper {
   set producer(String value) {
     if (_producer != value) {
       _producer = value;
-      _helper._dictionary!
-          .setString(PdfDictionaryProperties.producer, _producer);
+      _helper._dictionary!.setString(
+        PdfDictionaryProperties.producer,
+        _producer,
+      );
     }
   }
 
   /// Remove the modification date from existing document.
   void removeModificationDate() {
     if (_helper._dictionary != null &&
-        _helper._dictionary!
-            .containsKey(PdfDictionaryProperties.modificationDate)) {
+        _helper._dictionary!.containsKey(
+          PdfDictionaryProperties.modificationDate,
+        )) {
       _helper._dictionary!.remove(PdfDictionaryProperties.modificationDate);
       if (_helper._dictionary!.changed! && !_helper._catalog!.changed!) {
         PdfDocumentInformationHelper.getHelper(
-                _helper._catalog!.document!.documentInformation)
-            ._dictionary!
-            .remove(PdfDictionaryProperties.modificationDate);
+          _helper._catalog!.document!.documentInformation,
+        )._dictionary!.remove(PdfDictionaryProperties.modificationDate);
         PdfDocumentInformationHelper.getHelper(
-                _helper._catalog!.document!.documentInformation)
-            .isRemoveModifyDate = true;
-        _helper._xmp =
-            XmpMetadata(_helper._catalog!.document!.documentInformation);
+              _helper._catalog!.document!.documentInformation,
+            ).isRemoveModifyDate =
+            true;
+        _helper._xmp = XmpMetadata(
+          _helper._catalog!.document!.documentInformation,
+        );
         _helper._catalog!.setProperty(
-            PdfDictionaryProperties.metadata, PdfReferenceHolder(_helper._xmp));
+          PdfDictionaryProperties.metadata,
+          PdfReferenceHolder(_helper._xmp),
+        );
       }
     }
   }
@@ -246,12 +267,18 @@ class PdfDocumentInformationHelper {
   }
 
   /// internal method
-  static PdfDocumentInformation load(PdfCatalog catalog,
-      {PdfDictionary? dictionary,
-      bool isLoaded = false,
-      PdfConformanceLevel? conformance}) {
-    return PdfDocumentInformation._(catalog,
-        dictionary: dictionary, isLoaded: isLoaded, conformance: conformance);
+  static PdfDocumentInformation load(
+    PdfCatalog catalog, {
+    PdfDictionary? dictionary,
+    bool isLoaded = false,
+    PdfConformanceLevel? conformance,
+  }) {
+    return PdfDocumentInformation._(
+      catalog,
+      dictionary: dictionary,
+      isLoaded: isLoaded,
+      conformance: conformance,
+    );
   }
 
   /// internal field
@@ -284,27 +311,36 @@ class PdfDocumentInformationHelper {
     if (_xmp == null) {
       if (_catalog!.metadata == null && _catalog!.pages != null) {
         _xmp = XmpMetadata(
-            PdfSectionCollectionHelper.getHelper(_catalog!.pages!)
-                .document!
-                .documentInformation);
+          PdfSectionCollectionHelper.getHelper(
+            _catalog!.pages!,
+          ).document!.documentInformation,
+        );
         _catalog!.setProperty(
-            PdfDictionaryProperties.metadata, PdfReferenceHolder(_xmp));
+          PdfDictionaryProperties.metadata,
+          PdfReferenceHolder(_xmp),
+        );
       } else {
         if (_dictionary!.changed! && !_catalog!.changed!) {
           _xmp = XmpMetadata(_catalog!.document!.documentInformation);
           _catalog!.setProperty(
-              PdfDictionaryProperties.metadata, PdfReferenceHolder(_xmp));
+            PdfDictionaryProperties.metadata,
+            PdfReferenceHolder(_xmp),
+          );
         } else {
           _xmp = _catalog!.metadata;
           _catalog!.setProperty(
-              PdfDictionaryProperties.metadata, PdfReferenceHolder(_xmp));
+            PdfDictionaryProperties.metadata,
+            PdfReferenceHolder(_xmp),
+          );
         }
       }
     } else if (_catalog!.metadata != null && _catalog!.document != null) {
       if (_dictionary!.changed! && !_catalog!.changed!) {
         _xmp = XmpMetadata(_catalog!.document!.documentInformation);
         _catalog!.setProperty(
-            PdfDictionaryProperties.metadata, PdfReferenceHolder(_xmp));
+          PdfDictionaryProperties.metadata,
+          PdfReferenceHolder(_xmp),
+        );
       }
     }
     return _xmp;

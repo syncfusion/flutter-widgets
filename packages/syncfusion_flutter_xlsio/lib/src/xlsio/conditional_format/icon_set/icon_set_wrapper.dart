@@ -25,7 +25,6 @@ class IconSetWrapper implements IconSet {
   List<ConditionValue> _arrConditions = <ConditionValue>[];
 
   @override
-
   /// Returns an IconCriteria collection which represents the set of criteria for
   /// an icon set conditional formatting rule.
   List<ConditionValue> get iconCriteria {
@@ -40,7 +39,6 @@ class IconSetWrapper implements IconSet {
   }
 
   @override
-
   /// Returns or sets an IconSets collection which specifies the icon set used
   /// in the conditional format.
   ExcelIconSetType get iconSet {
@@ -57,7 +55,6 @@ class IconSetWrapper implements IconSet {
   }
 
   @override
-
   /// Returns or sets a Boolean value indicating if the thresholds for an icon
   /// set conditional format are determined using percentiles.
   bool get percentileValues {
@@ -74,7 +71,6 @@ class IconSetWrapper implements IconSet {
   }
 
   @override
-
   /// Returns or sets a Boolean value indicating if the order of icons is
   /// reversed for an icon set.
   bool get reverseOrder {
@@ -91,7 +87,6 @@ class IconSetWrapper implements IconSet {
   }
 
   @override
-
   /// Returns or sets a Boolean value indicating if only the icon is displayed
   /// for an icon set conditional format.
   bool get showIconOnly {
@@ -136,7 +131,9 @@ class IconSetWrapper implements IconSet {
   void _add(int count, List<ConditionValue> arrSource) {
     for (int i = 0; i < count; i++) {
       final IconConditionValueWrapper wrapper = IconConditionValueWrapper(
-          arrSource[i] as IconConditionValueImpl, this);
+        arrSource[i] as IconConditionValueImpl,
+        this,
+      );
       _arrConditions.add(wrapper);
     }
   }
@@ -156,6 +153,8 @@ class IconSetWrapper implements IconSet {
   /// Removes wrappers from criteria collection.
   void _remove(int count) {
     _arrConditions.removeRange(
-        _arrConditions.length - count, _arrConditions.length);
+      _arrConditions.length - count,
+      _arrConditions.length,
+    );
   }
 }

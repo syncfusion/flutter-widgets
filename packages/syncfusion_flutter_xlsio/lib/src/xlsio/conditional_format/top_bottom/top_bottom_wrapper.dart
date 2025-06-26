@@ -20,42 +20,36 @@ class TopBottomWrapper implements TopBottom {
   late ConditionalFormatWrapper _format;
 
   @override
-
   /// Specifies whether the ranking is evaluated from the top or bottom.
   ExcelCFTopBottomType get type {
     return _wrapped.type;
   }
 
   @override
-
   /// Specifies whether the ranking is evaluated from the top or bottom.
   set type(ExcelCFTopBottomType value) {
     _wrapped.type = value;
   }
 
   @override
-
   /// Specifies whether the rank is determined by a percentage value.
   bool get percent {
     return _wrapped.percent;
   }
 
   @override
-
   /// Specifies whether the rank is determined by a percentage value.
   set percent(bool value) {
     _wrapped.percent = value;
   }
 
   @override
-
   /// Specifies the maximum number or percentage of cells to be highlighted for this conditional formatting rule.
   int get rank {
     return _wrapped.rank;
   }
 
   @override
-
   /// Specifies the maximum number or percentage of cells to be highlighted for this conditional formatting rule.
   set rank(int value) {
     _wrapped.rank = value;

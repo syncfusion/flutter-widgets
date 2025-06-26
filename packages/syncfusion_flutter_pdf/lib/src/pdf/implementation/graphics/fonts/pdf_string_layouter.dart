@@ -30,11 +30,14 @@ class PdfStringLayouter {
   //Implementation
   /// internal method
   PdfStringLayoutResult layout(
-      String text, PdfFont font, PdfStringFormat? format,
-      {double? width,
-      double? height,
-      PdfRectangle? bounds,
-      double? pageHeight}) {
+    String text,
+    PdfFont font,
+    PdfStringFormat? format, {
+    double? width,
+    double? height,
+    PdfRectangle? bounds,
+    double? pageHeight,
+  }) {
     _text = text;
     _font = font;
     _format = format;
@@ -85,12 +88,14 @@ class PdfStringLayouter {
   double? _getLineIndent(bool firstLine) {
     double? lineIndent = 0;
     if (_format != null) {
-      lineIndent = firstLine
-          ? PdfStringFormatHelper.getHelper(_format!).firstLineIndent
-          : _format!.paragraphIndent;
-      lineIndent = (_size.width > 0)
-          ? (_size.width <= lineIndent ? _size.width : lineIndent)
-          : lineIndent;
+      lineIndent =
+          firstLine
+              ? PdfStringFormatHelper.getHelper(_format!).firstLineIndent
+              : _format!.paragraphIndent;
+      lineIndent =
+          (_size.width > 0)
+              ? (_size.width <= lineIndent ? _size.width : lineIndent)
+              : lineIndent;
     }
     return lineIndent;
   }
@@ -117,12 +122,12 @@ class PdfStringLayouter {
     if (maxWidth <= 0 ||
         lineWidth.roundToDouble() <= maxWidth.roundToDouble()) {
       _addToLineResult(
-          lineResult,
-          lines,
-          line,
-          lineWidth,
-          getLineTypeValue(LineType.newLineBreak)! |
-              getLineTypeValue(lineType)!);
+        lineResult,
+        lines,
+        line,
+        lineWidth,
+        getLineTypeValue(LineType.newLineBreak)! | getLineTypeValue(lineType)!,
+      );
     } else {
       String builder = '';
       String curLine = '';
@@ -167,12 +172,13 @@ class PdfStringLayouter {
               final String ln = builder;
               if (ln != ' ') {
                 _addToLineResult(
-                    lineResult,
-                    lines,
-                    ln,
-                    lineWidth,
-                    getLineTypeValue(LineType.layoutBreak)! |
-                        getLineTypeValue(lineType)!);
+                  lineResult,
+                  lines,
+                  ln,
+                  lineWidth,
+                  getLineTypeValue(LineType.layoutBreak)! |
+                      getLineTypeValue(lineType)!,
+                );
               }
               curLine = '';
               builder = '';
@@ -203,12 +209,13 @@ class PdfStringLayouter {
       if (builder.isNotEmpty) {
         final String ln = builder;
         _addToLineResult(
-            lineResult,
-            lines,
-            ln,
-            lineWidth,
-            getLineTypeValue(LineType.newLineBreak)! |
-                getLineTypeValue(LineType.lastParagraphLine)!);
+          lineResult,
+          lines,
+          ln,
+          lineWidth,
+          getLineTypeValue(LineType.newLineBreak)! |
+              getLineTypeValue(LineType.lastParagraphLine)!,
+        );
       }
       reader.close();
     }
@@ -217,8 +224,13 @@ class PdfStringLayouter {
     return lineResult;
   }
 
-  void _addToLineResult(PdfStringLayoutResult lineResult, List<LineInfo> lines,
-      String line, double lineWidth, int breakType) {
+  void _addToLineResult(
+    PdfStringLayoutResult lineResult,
+    List<LineInfo> lines,
+    String line,
+    double lineWidth,
+    int breakType,
+  ) {
     final LineInfo info = LineInfo();
     info.text = line;
     info.width = lineWidth;
@@ -266,10 +278,11 @@ class PdfStringLayouter {
   }
 
   dynamic _copyToResult(
-      PdfStringLayoutResult result,
-      PdfStringLayoutResult lineResult,
-      List<LineInfo> lines,
-      int? numInserted) {
+    PdfStringLayoutResult result,
+    PdfStringLayoutResult lineResult,
+    List<LineInfo> lines,
+    int? numInserted,
+  ) {
     bool success = true;
     final bool allowPartialLines = _format != null && !_format!.lineLimit;
     double? height = result.size.height;
@@ -317,7 +330,8 @@ class PdfStringLayouter {
   LineInfo _trimLine(LineInfo info, bool firstLine) {
     String line = info.text.toString();
     double? lineWidth = info.width;
-    final bool start = _format == null ||
+    final bool start =
+        _format == null ||
         _format!.textDirection != PdfTextDirection.rightToLeft;
     if (!info.lineTypeList.contains(LineType.firstParagraphLine)) {
       line = start ? line.trimLeft() : line.trimRight();

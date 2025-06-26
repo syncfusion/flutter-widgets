@@ -15,12 +15,13 @@ class PdfAnnotationBorder implements IPdfWrapper {
   /// horizontal and vertical radius.
   ///
   /// The borderStyle and dashArray only used for shape annotations.
-  PdfAnnotationBorder(
-      [double? borderWidth,
-      double? horizontalRadius,
-      double? verticalRadius,
-      PdfBorderStyle? borderStyle,
-      int? dashArray]) {
+  PdfAnnotationBorder([
+    double? borderWidth,
+    double? horizontalRadius,
+    double? verticalRadius,
+    PdfBorderStyle? borderStyle,
+    int? dashArray,
+  ]) {
     _helper.array.add(PdfNumber(0));
     _helper.array.add(PdfNumber(0));
     _helper.array.add(PdfNumber(1));
@@ -29,7 +30,9 @@ class PdfAnnotationBorder implements IPdfWrapper {
     this.verticalRadius = verticalRadius ??= 0;
     _borderStyle = borderStyle ??= PdfBorderStyle.solid;
     _helper.dictionary.setName(
-        PdfName(PdfDictionaryProperties.s), _styleToString(_borderStyle));
+      PdfName(PdfDictionaryProperties.s),
+      _styleToString(_borderStyle),
+    );
     if (dashArray != null) {
       this.dashArray = dashArray;
     }
@@ -37,10 +40,14 @@ class PdfAnnotationBorder implements IPdfWrapper {
 
   PdfAnnotationBorder._asWidgetBorder() {
     _helper.dictionary.setProperty(
-        PdfDictionaryProperties.type, PdfName(PdfDictionaryProperties.border));
+      PdfDictionaryProperties.type,
+      PdfName(PdfDictionaryProperties.border),
+    );
     _borderStyle = PdfBorderStyle.solid;
     _helper.dictionary.setName(
-        PdfName(PdfDictionaryProperties.s), _styleToString(_borderStyle));
+      PdfName(PdfDictionaryProperties.s),
+      _styleToString(_borderStyle),
+    );
     _helper.isWidgetBorder = true;
   }
 
@@ -82,8 +89,10 @@ class PdfAnnotationBorder implements IPdfWrapper {
       if (!_helper.isWidgetBorder) {
         _setNumber(2, value);
       }
-      _helper.dictionary
-          .setNumber(PdfDictionaryProperties.w, _borderWidth.toInt());
+      _helper.dictionary.setNumber(
+        PdfDictionaryProperties.w,
+        _borderWidth.toInt(),
+      );
     }
   }
 
@@ -94,7 +103,9 @@ class PdfAnnotationBorder implements IPdfWrapper {
     if (value != _borderStyle) {
       _borderStyle = value;
       _helper.dictionary.setName(
-          PdfName(PdfDictionaryProperties.s), _styleToString(_borderStyle));
+        PdfName(PdfDictionaryProperties.s),
+        _styleToString(_borderStyle),
+      );
     }
   }
 
@@ -172,7 +183,8 @@ class PdfAnnotationBorderHelper {
 
   /// internal method
   static PdfAnnotationBorderHelper getHelper(
-      PdfAnnotationBorder annotationBorder) {
+    PdfAnnotationBorder annotationBorder,
+  ) {
     return annotationBorder._helper;
   }
 }

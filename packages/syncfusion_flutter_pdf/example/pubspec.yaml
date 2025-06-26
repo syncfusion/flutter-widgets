@@ -3,7 +3,7 @@ description: Demo for creating a PDF file using syncfusion_flutter_pdf package.
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: ^3.7.0-0
 
 dependencies:
   flutter:

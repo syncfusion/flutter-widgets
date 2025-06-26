@@ -59,7 +59,7 @@ class PdfRadioButtonItemCollection extends PdfObjectCollection
 class PdfRadioButtonItemCollectionHelper extends PdfObjectCollectionHelper {
   /// internal constructor
   PdfRadioButtonItemCollectionHelper(this.radioButtonItemCollection, this.field)
-      : super(radioButtonItemCollection);
+    : super(radioButtonItemCollection);
 
   /// internal field
   PdfRadioButtonItemCollection radioButtonItemCollection;
@@ -72,13 +72,15 @@ class PdfRadioButtonItemCollectionHelper extends PdfObjectCollectionHelper {
 
   /// internal method
   static PdfRadioButtonItemCollectionHelper getHelper(
-      PdfRadioButtonItemCollection collection) {
+    PdfRadioButtonItemCollection collection,
+  ) {
     return collection._helper;
   }
 
   /// internal method
   static PdfRadioButtonItemCollection getCollection(
-      PdfRadioButtonListField field) {
+    PdfRadioButtonListField field,
+  ) {
     return PdfRadioButtonItemCollection._(field);
   }
 

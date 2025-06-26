@@ -8,54 +8,55 @@ import 'renderer_base.dart';
 /// Represents the render object for spark chart.
 class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
   /// Creates the render object for spark chart.
-  const SfSparkBarChartRenderObjectWidget(
-      {Key? key,
-      this.borderWidth,
-      this.borderColor,
-      List<dynamic>? data,
-      int? dataCount,
-      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
-      SparkChartIndexedValueMapper<num>? yValueMapper,
-      bool? isInversed,
-      double? axisCrossesAt,
-      Color? axisLineColor,
-      double? axisLineWidth,
-      List<double>? axisLineDashArray,
-      Color? firstPointColor,
-      Color? lowPointColor,
-      Color? highPointColor,
-      Color? lastPointColor,
-      Color? negativePointColor,
-      Color? color,
-      SparkChartPlotBand? plotBand,
-      this.labelDisplayMode,
-      this.labelStyle,
-      SfSparkChartThemeData? themeData,
-      SparkChartDataDetails? sparkChartDataDetails,
-      List<Offset>? coordinatePoints,
-      List<SparkChartPoint>? dataPoints})
-      : super(
-            key: key,
-            data: data,
-            dataCount: dataCount,
-            xValueMapper: xValueMapper,
-            yValueMapper: yValueMapper,
-            isInversed: isInversed,
-            axisCrossesAt: axisCrossesAt,
-            axisLineColor: axisLineColor,
-            axisLineWidth: axisLineWidth,
-            axisLineDashArray: axisLineDashArray,
-            firstPointColor: firstPointColor,
-            lowPointColor: lowPointColor,
-            highPointColor: highPointColor,
-            lastPointColor: lastPointColor,
-            negativePointColor: negativePointColor,
-            color: color,
-            plotBand: plotBand,
-            sparkChartDataDetails: sparkChartDataDetails,
-            themeData: themeData,
-            coordinatePoints: coordinatePoints,
-            dataPoints: dataPoints);
+  const SfSparkBarChartRenderObjectWidget({
+    Key? key,
+    this.borderWidth,
+    this.borderColor,
+    List<dynamic>? data,
+    int? dataCount,
+    SparkChartIndexedValueMapper<dynamic>? xValueMapper,
+    SparkChartIndexedValueMapper<num>? yValueMapper,
+    bool? isInversed,
+    double? axisCrossesAt,
+    Color? axisLineColor,
+    double? axisLineWidth,
+    List<double>? axisLineDashArray,
+    Color? firstPointColor,
+    Color? lowPointColor,
+    Color? highPointColor,
+    Color? lastPointColor,
+    Color? negativePointColor,
+    Color? color,
+    SparkChartPlotBand? plotBand,
+    this.labelDisplayMode,
+    this.labelStyle,
+    SfSparkChartThemeData? themeData,
+    SparkChartDataDetails? sparkChartDataDetails,
+    List<Offset>? coordinatePoints,
+    List<SparkChartPoint>? dataPoints,
+  }) : super(
+         key: key,
+         data: data,
+         dataCount: dataCount,
+         xValueMapper: xValueMapper,
+         yValueMapper: yValueMapper,
+         isInversed: isInversed,
+         axisCrossesAt: axisCrossesAt,
+         axisLineColor: axisLineColor,
+         axisLineWidth: axisLineWidth,
+         axisLineDashArray: axisLineDashArray,
+         firstPointColor: firstPointColor,
+         lowPointColor: lowPointColor,
+         highPointColor: highPointColor,
+         lastPointColor: lastPointColor,
+         negativePointColor: negativePointColor,
+         color: color,
+         plotBand: plotBand,
+         sparkChartDataDetails: sparkChartDataDetails,
+         themeData: themeData,
+         coordinatePoints: coordinatePoints,
+         dataPoints: dataPoints,
+       );
 
   /// Specifies the bar chart border width.
   final double? borderWidth;
@@ -72,37 +73,39 @@ class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSparkBarChart(
-        dataCount: dataCount,
-        data: data,
-        xValueMapper: xValueMapper,
-        yValueMapper: yValueMapper,
-        isInversed: isInversed,
-        axisCrossesAt: axisCrossesAt,
-        axisLineColor: axisLineColor,
-        axisLineWidth: axisLineWidth,
-        axisLineDashArray: axisLineDashArray,
-        firstPointColor: firstPointColor,
-        lastPointColor: lastPointColor,
-        highPointColor: highPointColor,
-        lowPointColor: lowPointColor,
-        negativePointColor: negativePointColor,
-        color: color,
-        plotBand: plotBand,
-        borderColor: borderColor,
-        borderWidth: borderWidth,
-        labelDisplayMode: labelDisplayMode,
-        labelStyle: labelStyle,
-        sparkChartDataDetails: sparkChartDataDetails,
-        themeData: themeData,
-        coordinatePoints: coordinatePoints,
-        dataPoints: dataPoints);
+      dataCount: dataCount,
+      data: data,
+      xValueMapper: xValueMapper,
+      yValueMapper: yValueMapper,
+      isInversed: isInversed,
+      axisCrossesAt: axisCrossesAt,
+      axisLineColor: axisLineColor,
+      axisLineWidth: axisLineWidth,
+      axisLineDashArray: axisLineDashArray,
+      firstPointColor: firstPointColor,
+      lastPointColor: lastPointColor,
+      highPointColor: highPointColor,
+      lowPointColor: lowPointColor,
+      negativePointColor: negativePointColor,
+      color: color,
+      plotBand: plotBand,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      labelDisplayMode: labelDisplayMode,
+      labelStyle: labelStyle,
+      sparkChartDataDetails: sparkChartDataDetails,
+      themeData: themeData,
+      coordinatePoints: coordinatePoints,
+      dataPoints: dataPoints,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context,
-      // ignore: library_private_types_in_public_api
-      _RenderSparkBarChart renderObject) {
+    BuildContext context,
+    // ignore: library_private_types_in_public_api
+    _RenderSparkBarChart renderObject,
+  ) {
     renderObject
       ..isInversed = isInversed
       ..axisCrossesAt = axisCrossesAt
@@ -133,57 +136,58 @@ class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
 /// Represents the render spark bar chart class.
 class _RenderSparkBarChart extends RenderSparkChart {
   /// Creates the render object widget.
-  _RenderSparkBarChart(
-      {List<dynamic>? data,
-      int? dataCount,
-      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
-      SparkChartIndexedValueMapper<num>? yValueMapper,
-      bool? isInversed,
-      double? axisCrossesAt,
-      double? axisLineWidth,
-      Color? axisLineColor,
-      List<double>? axisLineDashArray,
-      Color? color,
-      Color? firstPointColor,
-      Color? lastPointColor,
-      Color? highPointColor,
-      Color? lowPointColor,
-      Color? negativePointColor,
-      SparkChartPlotBand? plotBand,
-      double? borderWidth,
-      Color? borderColor,
-      SparkChartLabelDisplayMode? labelDisplayMode,
-      TextStyle? labelStyle,
-      SparkChartDataDetails? sparkChartDataDetails,
-      SfSparkChartThemeData? themeData,
-      List<Offset>? coordinatePoints,
-      List<SparkChartPoint>? dataPoints})
-      : _borderWidth = borderWidth,
-        _borderColor = borderColor,
-        _labelDisplayMode = labelDisplayMode,
-        _labelStyle = labelStyle,
-        _axisCrossesAt = axisCrossesAt,
-        super(
-            data: data,
-            dataCount: dataCount,
-            xValueMapper: xValueMapper,
-            yValueMapper: yValueMapper,
-            isInversed: isInversed,
-            axisCrossesAt: axisCrossesAt,
-            axisLineWidth: axisLineWidth,
-            axisLineColor: axisLineColor,
-            axisLineDashArray: axisLineDashArray,
-            color: color,
-            firstPointColor: firstPointColor,
-            lastPointColor: lastPointColor,
-            highPointColor: highPointColor,
-            lowPointColor: lowPointColor,
-            negativePointColor: negativePointColor,
-            plotBand: plotBand,
-            sparkChartDataDetails: sparkChartDataDetails,
-            themeData: themeData,
-            coordinatePoints: coordinatePoints,
-            dataPoints: dataPoints);
+  _RenderSparkBarChart({
+    List<dynamic>? data,
+    int? dataCount,
+    SparkChartIndexedValueMapper<dynamic>? xValueMapper,
+    SparkChartIndexedValueMapper<num>? yValueMapper,
+    bool? isInversed,
+    double? axisCrossesAt,
+    double? axisLineWidth,
+    Color? axisLineColor,
+    List<double>? axisLineDashArray,
+    Color? color,
+    Color? firstPointColor,
+    Color? lastPointColor,
+    Color? highPointColor,
+    Color? lowPointColor,
+    Color? negativePointColor,
+    SparkChartPlotBand? plotBand,
+    double? borderWidth,
+    Color? borderColor,
+    SparkChartLabelDisplayMode? labelDisplayMode,
+    TextStyle? labelStyle,
+    SparkChartDataDetails? sparkChartDataDetails,
+    SfSparkChartThemeData? themeData,
+    List<Offset>? coordinatePoints,
+    List<SparkChartPoint>? dataPoints,
+  }) : _borderWidth = borderWidth,
+       _borderColor = borderColor,
+       _labelDisplayMode = labelDisplayMode,
+       _labelStyle = labelStyle,
+       _axisCrossesAt = axisCrossesAt,
+       super(
+         data: data,
+         dataCount: dataCount,
+         xValueMapper: xValueMapper,
+         yValueMapper: yValueMapper,
+         isInversed: isInversed,
+         axisCrossesAt: axisCrossesAt,
+         axisLineWidth: axisLineWidth,
+         axisLineColor: axisLineColor,
+         axisLineDashArray: axisLineDashArray,
+         color: color,
+         firstPointColor: firstPointColor,
+         lastPointColor: lastPointColor,
+         highPointColor: highPointColor,
+         lowPointColor: lowPointColor,
+         negativePointColor: negativePointColor,
+         plotBand: plotBand,
+         sparkChartDataDetails: sparkChartDataDetails,
+         themeData: themeData,
+         coordinatePoints: coordinatePoints,
+         dataPoints: dataPoints,
+       );
 
   /// Defines the border width.
   double? _borderWidth;
@@ -283,9 +287,10 @@ class _RenderSparkBarChart extends RenderSparkChart {
     diffX = diffX == 0 ? 1 : diffX;
 
     _segments = <Rect>[];
-    final double xInterval = dataPoints!.length > 1
-        ? dataPoints![1].x.toDouble() - dataPoints![0].x.toDouble()
-        : dataPoints!.length.toDouble();
+    final double xInterval =
+        dataPoints!.length > 1
+            ? dataPoints![1].x.toDouble() - dataPoints![0].x.toDouble()
+            : dataPoints!.length.toDouble();
     const double columnSpace = 0.5; // Default space for column and winloss
     const double space = columnSpace * 2;
     final double? axisBaseValue = minY! < 0 ? minY : 0;
@@ -307,12 +312,13 @@ class _RenderSparkBarChart extends RenderSparkChart {
       visibleXPoint =
           (((x - minX!) / xInterval) * (columnWidth + space)) + (space / 2);
       columnHeight = (areaSize!.height / diffY!) * (y - axisBaseValue);
-      currentColumnHeight = (y == axisBaseValue && y > axisCrossesAt)
-          ? ((dataPoints!.length != 1 && diffY != 1)
-                  ? (areaSize!.height / diffY!) * axisBaseValue
-                  : (columnHeight.toInt() | 1))
-              .toDouble()
-          : (y == maxY &&
+      currentColumnHeight =
+          (y == axisBaseValue && y > axisCrossesAt)
+              ? ((dataPoints!.length != 1 && diffY != 1)
+                      ? (areaSize!.height / diffY!) * axisBaseValue
+                      : (columnHeight.toInt() | 1))
+                  .toDouble()
+              : (y == maxY &&
                   y < axisCrossesAt &&
                   dataPoints!.length != 1 &&
                   diffY != 1)
@@ -320,8 +326,12 @@ class _RenderSparkBarChart extends RenderSparkChart {
               : columnHeight;
       y2 = (areaSize!.height - currentColumnHeight).abs();
       top = (y2 > axisHeight!) ? axisHeight! : y2;
-      rect = Rect.fromLTRB(visibleXPoint, top, visibleXPoint + columnWidth,
-          top + (y2 - axisHeight!).abs());
+      rect = Rect.fromLTRB(
+        visibleXPoint,
+        top,
+        visibleXPoint + columnWidth,
+        top + (y2 - axisHeight!).abs(),
+      );
       _segments!.add(rect);
       yPoint = y >= axisCrossesAt ? rect.top : rect.bottom;
       coordinatePoints!.add(Offset(visibleXPoint + columnWidth / 2, yPoint));
@@ -335,13 +345,15 @@ class _RenderSparkBarChart extends RenderSparkChart {
     final double minimumColumnValue = minY! < 0 ? minY! : 0;
     double? axisLineHeight =
         areaSize!.height - ((areaSize!.height / diffY!) * (-minY!));
-    axisLineHeight = (minY! < 0 && maxY! <= 0)
-        ? 0
-        : (minY! < 0 && maxY! > 0)
+    axisLineHeight =
+        (minY! < 0 && maxY! <= 0)
+            ? 0
+            : (minY! < 0 && maxY! > 0)
             ? axisHeight
             : areaSize!.height;
     if (value >= minimumColumnValue && value <= maxY!) {
-      axisLineHeight = areaSize!.height -
+      axisLineHeight =
+          areaSize!.height -
           (areaSize!.height * ((value - minimumColumnValue) / diffY!))
               .roundToDouble();
     }
@@ -373,14 +385,16 @@ class _RenderSparkBarChart extends RenderSparkChart {
   void _renderBarSeries(Canvas canvas, Offset offset) {
     Color currentColor;
     Paint paint;
-    final Paint strokePaint = Paint()
-      ..color = borderColor ?? Colors.transparent
-      ..strokeWidth = borderWidth ?? 0
-      ..style = PaintingStyle.stroke;
+    final Paint strokePaint =
+        Paint()
+          ..color = borderColor ?? Colors.transparent
+          ..strokeWidth = borderWidth ?? 0
+          ..style = PaintingStyle.stroke;
 
     Size size;
     double yPosition;
-    final bool canDrawBorder = borderColor != null &&
+    final bool canDrawBorder =
+        borderColor != null &&
         borderColor != Colors.transparent &&
         borderWidth != null &&
         borderWidth! > 0;
@@ -396,10 +410,11 @@ class _RenderSparkBarChart extends RenderSparkChart {
         _lowPoint = coordinatePoints![i].dy;
       }
       rect = Rect.fromLTRB(
-          _segments![i].left + offset.dx,
-          _segments![i].top + offset.dy,
-          _segments![i].right + offset.dx,
-          _segments![i].bottom + offset.dy);
+        _segments![i].left + offset.dx,
+        _segments![i].top + offset.dy,
+        _segments![i].right + offset.dx,
+        _segments![i].bottom + offset.dy,
+      );
       if (dataPoints![i].y == maxY && highPointColor != null) {
         currentColor = highPointColor!;
       } else if (dataPoints![i].y == minY && lowPointColor != null) {
@@ -424,22 +439,27 @@ class _RenderSparkBarChart extends RenderSparkChart {
       if (labelDisplayMode != SparkChartLabelDisplayMode.none &&
           labelStyle != null) {
         size = getTextSize(dataLabels![i], labelStyle!);
-        yPosition = dataPoints![i].y > 0
-            ? ((_segments![i].topCenter.dy + offset.dy) - size.height)
-            : (_segments![i].bottomCenter.dy + offset.dy);
+        yPosition =
+            dataPoints![i].y > 0
+                ? ((_segments![i].topCenter.dy + offset.dy) - size.height)
+                : (_segments![i].bottomCenter.dy + offset.dy);
         dataPoints![i].dataLabelOffset = Offset(
-            (offset.dx + _segments![i].topCenter.dx) - size.width / 2,
-            yPosition);
+          (offset.dx + _segments![i].topCenter.dx) - size.width / 2,
+          yPosition,
+        );
 
         if (dataPoints![i].dataLabelOffset!.dy <= offset.dy) {
           dataPoints![i].dataLabelOffset = Offset(
-              dataPoints![i].dataLabelOffset!.dx, offset.dy + size.height);
+            dataPoints![i].dataLabelOffset!.dx,
+            offset.dy + size.height,
+          );
         }
         if (dataPoints![i].dataLabelOffset!.dy >=
             offset.dy + areaSize!.height) {
           dataPoints![i].dataLabelOffset = Offset(
-              dataPoints![i].dataLabelOffset!.dx,
-              (offset.dy + areaSize!.height) - size.height);
+            dataPoints![i].dataLabelOffset!.dx,
+            (offset.dy + areaSize!.height) - size.height,
+          );
         }
       }
     }
@@ -456,19 +476,20 @@ class _RenderSparkBarChart extends RenderSparkChart {
       if (labelDisplayMode != null &&
           labelDisplayMode != SparkChartLabelDisplayMode.none) {
         renderDataLabel(
-            context.canvas,
-            dataLabels!,
-            dataPoints!,
-            coordinatePoints!,
-            labelStyle!,
-            labelDisplayMode!,
-            'Bar',
-            themeData!,
-            offset,
-            color!,
-            _highPoint,
-            _lowPoint,
-            _segments);
+          context.canvas,
+          dataLabels!,
+          dataPoints!,
+          coordinatePoints!,
+          labelStyle!,
+          labelDisplayMode!,
+          'Bar',
+          themeData!,
+          offset,
+          color!,
+          _highPoint,
+          _lowPoint,
+          _segments,
+        );
       }
     }
   }

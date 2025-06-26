@@ -45,10 +45,13 @@ class CustomScrollViewerLayout extends MultiChildRenderObjectWidget {
   ///  }
   ///
   /// ```
-  const CustomScrollViewerLayout(List<Widget> children,
-      this._navigationDirection, this._position, this._currentChildIndex,
-      {super.key})
-      : super(children: children);
+  const CustomScrollViewerLayout(
+    List<Widget> children,
+    this._navigationDirection,
+    this._position,
+    this._currentChildIndex, {
+    super.key,
+  }) : super(children: children);
   final CustomScrollDirection _navigationDirection;
   final double _position;
   final int _currentChildIndex;
@@ -56,12 +59,17 @@ class CustomScrollViewerLayout extends MultiChildRenderObjectWidget {
   @override
   _CustomScrollViewLayout createRenderObject(BuildContext context) {
     return _CustomScrollViewLayout(
-        _navigationDirection, _position, _currentChildIndex);
+      _navigationDirection,
+      _position,
+      _currentChildIndex,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, _CustomScrollViewLayout renderObject) {
+    BuildContext context,
+    _CustomScrollViewLayout renderObject,
+  ) {
     renderObject
       ..position = _position
       ..navigationDirection = _navigationDirection
@@ -71,7 +79,10 @@ class CustomScrollViewerLayout extends MultiChildRenderObjectWidget {
 
 class _CustomScrollViewLayout extends RenderWrap {
   _CustomScrollViewLayout(
-      this._navigationDirection, this._position, this._currentChildIndex);
+    this._navigationDirection,
+    this._position,
+    this._currentChildIndex,
+  );
 
   CustomScrollDirection _navigationDirection;
 
@@ -197,12 +208,12 @@ class _CustomScrollViewLayout extends RenderWrap {
     currentChildParentData.offset = Offset(currentChildXPos, currentChildYPos);
     lastChildParentData.offset = Offset(lastChildXPos, lastChildYPos);
 
-    children.forEach((dynamic child) => child.layout(
-        BoxConstraints(
-          maxWidth: width,
-          maxHeight: height,
-        ),
-        parentUsesSize: true));
+    children.forEach(
+      (dynamic child) => child.layout(
+        BoxConstraints(maxWidth: width, maxHeight: height),
+        parentUsesSize: true,
+      ),
+    );
 
     size = Size(constraints.maxWidth, constraints.maxHeight);
   }

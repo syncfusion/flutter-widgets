@@ -11,7 +11,8 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Row;
 // Local import
 import 'helper/save_file_mobile.dart'
     if (dart.library.html) 'helper/save_file_web.dart'
-    if (dart.library.js_interop) 'helper/save_file_wasm.dart' as helper;
+    if (dart.library.js_interop) 'helper/save_file_wasm.dart'
+    as helper;
 
 void main() {
   runApp(const MyApp());
@@ -64,8 +65,9 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _exportDataGridToPdf() async {
-    final PdfDocument document =
-        _key.currentState!.exportToPdfDocument(fitAllColumnsInOnePage: true);
+    final PdfDocument document = _key.currentState!.exportToPdfDocument(
+      fitAllColumnsInOnePage: true,
+    );
 
     final List<int> bytes = document.saveSync();
     await helper.saveAndLaunchFile(bytes, 'DataGrid.pdf');
@@ -91,26 +93,30 @@ class MyHomePageState extends State<MyHomePage> {
                   height: 40.0,
                   width: 150.0,
                   child: MaterialButton(
-                      color: Colors.blue,
-                      onPressed: _exportDataGridToExcel,
-                      child: const Center(
-                          child: Text(
+                    color: Colors.blue,
+                    onPressed: _exportDataGridToExcel,
+                    child: const Center(
+                      child: Text(
                         'Export to Excel',
                         style: TextStyle(color: Colors.white),
-                      ))),
+                      ),
+                    ),
+                  ),
                 ),
                 const Padding(padding: EdgeInsets.all(20)),
                 SizedBox(
                   height: 40.0,
                   width: 150.0,
                   child: MaterialButton(
-                      color: Colors.blue,
-                      onPressed: _exportDataGridToPdf,
-                      child: const Center(
-                          child: Text(
+                    color: Colors.blue,
+                    onPressed: _exportDataGridToPdf,
+                    child: const Center(
+                      child: Text(
                         'Export to PDF',
                         style: TextStyle(color: Colors.white),
-                      ))),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -121,34 +127,40 @@ class MyHomePageState extends State<MyHomePage> {
               source: _employeeDataSource,
               columns: <GridColumn>[
                 GridColumn(
-                    columnName: 'ID',
-                    label: Container(
-                        padding: const EdgeInsets.all(16.0),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'ID',
-                        ))),
+                  columnName: 'ID',
+                  label: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    alignment: Alignment.center,
+                    child: const Text('ID'),
+                  ),
+                ),
                 GridColumn(
-                    columnName: 'Name',
-                    label: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        alignment: Alignment.center,
-                        child: const Text('Name'))),
+                  columnName: 'Name',
+                  label: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    alignment: Alignment.center,
+                    child: const Text('Name'),
+                  ),
+                ),
                 GridColumn(
-                    columnName: 'Designation',
-                    label: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'Designation',
-                          overflow: TextOverflow.ellipsis,
-                        ))),
+                  columnName: 'Designation',
+                  label: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Designation',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
                 GridColumn(
-                    columnName: 'Salary',
-                    label: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        alignment: Alignment.center,
-                        child: const Text('Salary'))),
+                  columnName: 'Salary',
+                  label: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    alignment: Alignment.center,
+                    child: const Text('Salary'),
+                  ),
+                ),
               ],
             ),
           ),
@@ -168,7 +180,7 @@ class MyHomePageState extends State<MyHomePage> {
       Employee(10007, 'Balnc', 'Developer', 15000),
       Employee(10008, 'Perry', 'Developer', 15000),
       Employee(10009, 'Gable', 'Developer', 15000),
-      Employee(10010, 'Grimes', 'Developer', 15000)
+      Employee(10010, 'Grimes', 'Developer', 15000),
     ];
   }
 }
@@ -198,13 +210,19 @@ class EmployeeDataSource extends DataGridSource {
   /// Creates the employee data source class with required details.
   EmployeeDataSource({required List<Employee> employeeData}) {
     _employeeData = employeeData
-        .map<DataGridRow>((Employee e) => DataGridRow(cells: <DataGridCell>[
+        .map<DataGridRow>(
+          (Employee e) => DataGridRow(
+            cells: <DataGridCell>[
               DataGridCell<int>(columnName: 'ID', value: e.id),
               DataGridCell<String>(columnName: 'Name', value: e.name),
               DataGridCell<String>(
-                  columnName: 'Designation', value: e.designation),
+                columnName: 'Designation',
+                value: e.designation,
+              ),
               DataGridCell<int>(columnName: 'Salary', value: e.salary),
-            ]))
+            ],
+          ),
+        )
         .toList();
   }
 
@@ -216,12 +234,13 @@ class EmployeeDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>((DataGridCell cell) {
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(8.0),
-        child: Text(cell.value.toString()),
-      );
-    }).toList());
+      cells: row.getCells().map<Widget>((DataGridCell cell) {
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(8.0),
+          child: Text(cell.value.toString()),
+        );
+      }).toList(),
+    );
   }
 }

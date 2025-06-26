@@ -236,22 +236,33 @@ class DragAndDropSettings with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties
-        .add(DiagnosticsProperty<bool>('allowNavigation', allowNavigation));
-    properties.add(DiagnosticsProperty<bool>('allowScroll', allowScroll));
-    properties
-        .add(DiagnosticsProperty<bool>('showTimeIndicator', showTimeIndicator));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'timeIndicatorStyle', timeIndicatorStyle));
-    properties.add(DiagnosticsProperty<String>(
-        'indicatorTimeFormat', indicatorTimeFormat));
     properties.add(
-        DiagnosticsProperty<Duration>('autoNavigateDelay', autoNavigateDelay));
+      DiagnosticsProperty<bool>('allowNavigation', allowNavigation),
+    );
+    properties.add(DiagnosticsProperty<bool>('allowScroll', allowScroll));
+    properties.add(
+      DiagnosticsProperty<bool>('showTimeIndicator', showTimeIndicator),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>('timeIndicatorStyle', timeIndicatorStyle),
+    );
+    properties.add(
+      DiagnosticsProperty<String>('indicatorTimeFormat', indicatorTimeFormat),
+    );
+    properties.add(
+      DiagnosticsProperty<Duration>('autoNavigateDelay', autoNavigateDelay),
+    );
   }
 
   @override
   int get hashCode {
-    return Object.hash(allowNavigation, allowScroll, showTimeIndicator,
-        timeIndicatorStyle, indicatorTimeFormat, autoNavigateDelay);
+    return Object.hash(
+      allowNavigation,
+      allowScroll,
+      showTimeIndicator,
+      timeIndicatorStyle,
+      indicatorTimeFormat,
+      autoNavigateDelay,
+    );
   }
 }

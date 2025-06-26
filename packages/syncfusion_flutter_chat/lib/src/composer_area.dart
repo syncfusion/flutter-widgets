@@ -37,10 +37,7 @@ class TextEditor extends StatelessWidget {
     }
 
     if (composer.margin != EdgeInsets.zero) {
-      result = Padding(
-        padding: composer.margin,
-        child: result,
-      );
+      result = Padding(padding: composer.margin, child: result);
     }
 
     return result;
@@ -108,9 +105,10 @@ class _ActionButtonWidgetState extends State<ActionButtonWidget> {
       return Icon(
         Icons.send,
         size: _defaultActionButtonIconSize,
-        color: enabled
-            ? widget.actionButtonForegroundColor
-            : widget.actionButtonDisabledForegroundColor,
+        color:
+            enabled
+                ? widget.actionButtonForegroundColor
+                : widget.actionButtonDisabledForegroundColor,
       );
     }
   }
@@ -136,7 +134,8 @@ class _ActionButtonWidgetState extends State<ActionButtonWidget> {
   @override
   void initState() {
     widget.textController.addListener(_handleTextChange);
-    _editorIsEmpty = widget.composer != null &&
+    _editorIsEmpty =
+        widget.composer != null &&
         widget.composer!.builder == null &&
         widget.textController.text.isEmpty;
     super.initState();
@@ -160,9 +159,10 @@ class _ActionButtonWidgetState extends State<ActionButtonWidget> {
       hoverElevation: widget.actionButtonHoverElevation,
       highlightElevation: widget.actionButtonHighlightElevation,
       disabledElevation: widget.actionButtonDisabledElevation,
-      fillColor: enabled
-          ? widget.actionButtonBackgroundColor
-          : widget.actionButtonDisabledBackgroundColor,
+      fillColor:
+          enabled
+              ? widget.actionButtonBackgroundColor
+              : widget.actionButtonDisabledBackgroundColor,
       focusColor: widget.actionButtonFocusColor,
       hoverColor: widget.actionButtonHoverColor,
       splashColor: widget.actionButtonSplashColor,

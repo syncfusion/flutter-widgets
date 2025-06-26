@@ -181,7 +181,7 @@ class DerBitString extends DerString {
       'C',
       'D',
       'E',
-      'F'
+      'F',
     ];
   }
 
@@ -207,8 +207,10 @@ class DerBitString extends DerString {
   @override
   // ignore: avoid_renaming_method_parameters
   void encode(DerStream stream) {
-    final List<int> bytes =
-        List<int>.generate(getBytes()!.length + 1, (int i) => 0);
+    final List<int> bytes = List<int>.generate(
+      getBytes()!.length + 1,
+      (int i) => 0,
+    );
     bytes[0] = extra!;
     List.copyRange(bytes, 1, getBytes()!, 0, bytes.length - 1);
     stream.writeEncoded(Asn1Tags.bitString, bytes);
@@ -277,8 +279,9 @@ class DerBmpString extends DerString {
   DerBmpString(List<int> bytes) {
     String result = '';
     for (int i = 0; i != (bytes.length ~/ 2); i++) {
-      result +=
-          String.fromCharCode((bytes[2 * i] << 8) | (bytes[2 * i + 1] & 0xff));
+      result += String.fromCharCode(
+        (bytes[2 * i] << 8) | (bytes[2 * i + 1] & 0xff),
+      );
     }
     _value = result;
   }
@@ -309,8 +312,10 @@ class DerBmpString extends DerString {
   @override
   // ignore: avoid_renaming_method_parameters
   void encode(DerStream stream) {
-    final List<int> bytes =
-        List<int>.generate(_value!.length * 2, (int i) => 0);
+    final List<int> bytes = List<int>.generate(
+      _value!.length * 2,
+      (int i) => 0,
+    );
     for (int i = 0; i != _value!.length; i++) {
       bytes[2 * i] = (_value!.codeUnitAt(i) >> 8).toUnsigned(8);
       bytes[2 * i + 1] = _value!.codeUnitAt(i).toUnsigned(8);
@@ -536,8 +541,10 @@ class DerObjectID extends Asn1 {
   String? id;
 
   // ignore: prefer_final_fields
-  static List<DerObjectID?> _objects =
-      List<DerObjectID?>.generate(1024, (int i) => null);
+  static List<DerObjectID?> _objects = List<DerObjectID?>.generate(
+    1024,
+    (int i) => null,
+  );
   //Implemnetation
   /// internal method
   List<int>? getBytes() {
@@ -555,8 +562,10 @@ class DerObjectID extends Asn1 {
     if (token.length <= 18) {
       stream = writeField(stream, fieldValue: first + int.parse(token));
     } else {
-      stream = writeField(stream,
-          numberValue: BigInt.parse(token) + BigInt.from(first));
+      stream = writeField(
+        stream,
+        numberValue: BigInt.parse(token) + BigInt.from(first),
+      );
     }
     while (oidToken.hasMoreTokens) {
       token = oidToken.nextToken()!;
@@ -570,8 +579,11 @@ class DerObjectID extends Asn1 {
   }
 
   /// internal method
-  List<int> writeField(List<int> stream,
-      {int? fieldValue, BigInt? numberValue}) {
+  List<int> writeField(
+    List<int> stream, {
+    int? fieldValue,
+    BigInt? numberValue,
+  }) {
     if (fieldValue != null) {
       final List<int> result = <int>[];
       result.add((fieldValue & 0x7f).toUnsigned(8));
@@ -756,7 +768,7 @@ class DerOctet extends Asn1Octet {
 class DerSequence extends Asn1Sequence {
   /// internal constructor
   DerSequence({List<Asn1Encode?>? array, Asn1EncodeCollection? collection})
-      : super() {
+    : super() {
     if (array != null) {
       // ignore: prefer_foreach
       for (final Asn1Encode? entry in array) {
@@ -788,7 +800,9 @@ class DerSequence extends Asn1Sequence {
     // ignore: avoid_function_literals_in_foreach_calls
     objects!.forEach((dynamic asn1) => stream.writeObject(asn1));
     outputStream.writeEncoded(
-        Asn1Tags.sequence | Asn1Tags.constructed, stream.stream);
+      Asn1Tags.sequence | Asn1Tags.constructed,
+      stream.stream,
+    );
   }
 }
 
@@ -816,11 +830,11 @@ class DerSequenceHelper implements IAsn1Collection {
 class DerSet extends Asn1Set {
   //Constructor
   /// internal constructor
-  DerSet(
-      {List<Asn1Encode?>? array,
-      Asn1EncodeCollection? collection,
-      bool? isSort})
-      : super() {
+  DerSet({
+    List<Asn1Encode?>? array,
+    Asn1EncodeCollection? collection,
+    bool? isSort,
+  }) : super() {
     if (array != null) {
       // ignore: avoid_function_literals_in_foreach_calls
       array.forEach((Asn1Encode? asn1) => addObject(asn1));
@@ -843,7 +857,9 @@ class DerSet extends Asn1Set {
     // ignore: avoid_function_literals_in_foreach_calls
     objects.forEach((dynamic entry) => stream.writeObject(entry));
     outputStream.writeEncoded(
-        Asn1Tags.setTag | Asn1Tags.constructed, stream.stream);
+      Asn1Tags.setTag | Asn1Tags.constructed,
+      stream.stream,
+    );
   }
 }
 
@@ -958,7 +974,10 @@ class DerTag extends Asn1Tag {
     final List<int>? bytes = object!.getDerEncoded();
     if (explicit!) {
       stream.writeEncoded(
-          tagNumber, bytes, Asn1Tags.constructed | Asn1Tags.tagged);
+        tagNumber,
+        bytes,
+        Asn1Tags.constructed | Asn1Tags.tagged,
+      );
     } else {
       final int flag = (bytes![0] & Asn1Tags.constructed) | Asn1Tags.tagged;
       stream.writeTag(flag, tagNumber!);

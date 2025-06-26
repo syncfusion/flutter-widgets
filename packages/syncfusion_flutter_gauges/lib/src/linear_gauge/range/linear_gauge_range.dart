@@ -8,24 +8,24 @@ import '../../linear_gauge/utils/enum.dart';
 class LinearGaugeRange extends SingleChildRenderObjectWidget {
   /// Creates a new range in linear gauge.
   ///
-  const LinearGaugeRange(
-      {Key? key,
-      this.startValue = 0,
-      double? midValue,
-      this.endValue = 100,
-      this.startWidth = 5.0,
-      this.endWidth = 5.0,
-      double? midWidth,
-      this.color,
-      this.shaderCallback,
-      this.rangeShapeType = LinearRangeShapeType.flat,
-      this.edgeStyle = LinearEdgeStyle.bothFlat,
-      this.position = LinearElementPosition.outside,
-      Widget? child})
-      : assert(startValue <= endValue),
-        midValue = midValue ?? startValue,
-        midWidth = midWidth ?? startWidth,
-        super(key: key, child: child);
+  const LinearGaugeRange({
+    Key? key,
+    this.startValue = 0,
+    double? midValue,
+    this.endValue = 100,
+    this.startWidth = 5.0,
+    this.endWidth = 5.0,
+    double? midWidth,
+    this.color,
+    this.shaderCallback,
+    this.rangeShapeType = LinearRangeShapeType.flat,
+    this.edgeStyle = LinearEdgeStyle.bothFlat,
+    this.position = LinearElementPosition.outside,
+    Widget? child,
+  }) : assert(startValue <= endValue),
+       midValue = midValue ?? startValue,
+       midWidth = midWidth ?? startWidth,
+       super(key: key, child: child);
 
   /// Specifies the start value of the range.
   ///
@@ -205,32 +205,37 @@ class LinearGaugeRange extends SingleChildRenderObjectWidget {
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     return RenderLinearRange(
-        color: color ??
-            (isDarkTheme ? const Color(0xffFF7B7B) : const Color(0xffF45656)),
-        position: position,
-        startValue: startValue,
-        midValue: midValue,
-        endValue: endValue,
-        startThickness: startWidth,
-        midThickness: midWidth,
-        endThickness: endWidth,
-        rangeShapeType: rangeShapeType,
-        shaderCallback: shaderCallback,
-        edgeStyle: edgeStyle,
-        orientation: linearGaugeScope.orientation,
-        isMirrored: linearGaugeScope.isMirrored,
-        isAxisInversed: linearGaugeScope.isAxisInversed,
-        rangeAnimation: linearGaugeScope.animation);
+      color:
+          color ??
+          (isDarkTheme ? const Color(0xffFF7B7B) : const Color(0xffF45656)),
+      position: position,
+      startValue: startValue,
+      midValue: midValue,
+      endValue: endValue,
+      startThickness: startWidth,
+      midThickness: midWidth,
+      endThickness: endWidth,
+      rangeShapeType: rangeShapeType,
+      shaderCallback: shaderCallback,
+      edgeStyle: edgeStyle,
+      orientation: linearGaugeScope.orientation,
+      isMirrored: linearGaugeScope.isMirrored,
+      isAxisInversed: linearGaugeScope.isAxisInversed,
+      rangeAnimation: linearGaugeScope.animation,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderLinearRange renderObject) {
+    BuildContext context,
+    RenderLinearRange renderObject,
+  ) {
     final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     renderObject
-      ..color = color ??
+      ..color =
+          color ??
           (isDarkTheme ? const Color(0xffFF7B7B) : const Color(0xffF45656))
       ..position = position
       ..startValue = startValue

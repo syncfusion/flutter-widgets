@@ -234,26 +234,29 @@ class CanvasRenderBox extends RenderBox {
     this.onAnnotationSelectionChanged,
   ) {
     final GestureArenaTeam team = GestureArenaTeam();
-    _tapRecognizer = TapGestureRecognizer()
-      ..onTapUp = handleTapUp
-      ..onTapDown = handleTapDown;
-    _longPressRecognizer = LongPressGestureRecognizer()
-      ..onLongPressStart = handleLongPressStart;
-    _dragRecognizer = HorizontalDragGestureRecognizer()
-      ..team = team
-      ..onStart = handleDragStart
-      ..onUpdate = handleDragUpdate
-      ..onEnd = handleDragEnd
-      ..onDown = handleDragDown;
+    _tapRecognizer =
+        TapGestureRecognizer()
+          ..onTapUp = handleTapUp
+          ..onTapDown = handleTapDown;
+    _longPressRecognizer =
+        LongPressGestureRecognizer()..onLongPressStart = handleLongPressStart;
+    _dragRecognizer =
+        HorizontalDragGestureRecognizer()
+          ..team = team
+          ..onStart = handleDragStart
+          ..onUpdate = handleDragUpdate
+          ..onEnd = handleDragEnd
+          ..onDown = handleDragDown;
     _dragRecognizer.gestureSettings = const DeviceGestureSettings(
       touchSlop: 10,
     );
-    _verticalDragRecognizer = VerticalDragGestureRecognizer()
-      ..team = team
-      ..onStart = handleDragStart
-      ..onUpdate = handleDragUpdate
-      ..onEnd = handleDragEnd
-      ..onDown = handleDragDown;
+    _verticalDragRecognizer =
+        VerticalDragGestureRecognizer()
+          ..team = team
+          ..onStart = handleDragStart
+          ..onUpdate = handleDragUpdate
+          ..onEnd = handleDragEnd
+          ..onDown = handleDragDown;
     _verticalDragRecognizer.gestureSettings = const DeviceGestureSettings(
       touchSlop: 10,
     );
@@ -467,9 +470,10 @@ class CanvasRenderBox extends RenderBox {
 
   Future<void> _showMobileHyperLinkDialog(Uri url) {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
-    _effectiveThemeData = Theme.of(context).useMaterial3
-        ? SfPdfViewerThemeDataM3(context)
-        : SfPdfViewerThemeDataM2(context);
+    _effectiveThemeData =
+        Theme.of(context).useMaterial3
+            ? SfPdfViewerThemeDataM3(context)
+            : SfPdfViewerThemeDataM2(context);
     _themeData = Theme.of(context);
     final bool isMaterial3 = _themeData.useMaterial3;
     _localizations = SfLocalizations.of(context);
@@ -482,12 +486,14 @@ class CanvasRenderBox extends RenderBox {
           child: AlertDialog(
             scrollable: true,
             insetPadding: EdgeInsets.zero,
-            contentPadding: orientation == Orientation.portrait
-                ? const EdgeInsets.all(24)
-                : const EdgeInsets.all(15),
-            buttonPadding: orientation == Orientation.portrait
-                ? const EdgeInsets.all(8)
-                : const EdgeInsets.all(6),
+            contentPadding:
+                orientation == Orientation.portrait
+                    ? const EdgeInsets.all(24)
+                    : const EdgeInsets.all(15),
+            buttonPadding:
+                orientation == Orientation.portrait
+                    ? const EdgeInsets.all(8)
+                    : const EdgeInsets.all(6),
             backgroundColor:
                 _pdfViewerThemeData!.hyperlinkDialogStyle?.backgroundColor ??
                 _effectiveThemeData.hyperlinkDialogStyle?.backgroundColor ??
@@ -499,35 +505,36 @@ class CanvasRenderBox extends RenderBox {
               children: <Widget>[
                 Text(
                   _localizations.pdfHyperlinkLabel,
-                  style: isMaterial3
-                      ? Theme.of(context).textTheme.headlineMedium!
-                            .copyWith(
-                              fontSize: 24,
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Colors.black.withValues(alpha: 0.87)
-                                  : Colors.white.withValues(alpha: 0.87),
-                            )
-                            .merge(
-                              _pdfViewerThemeData!
-                                  .hyperlinkDialogStyle
-                                  ?.headerTextStyle,
-                            )
-                      : Theme.of(context).textTheme.headlineMedium!
-                            .copyWith(
-                              fontSize: 20,
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Colors.black.withValues(alpha: 0.87)
-                                  : Colors.white.withValues(alpha: 0.87),
-                            )
-                            .merge(
-                              _pdfViewerThemeData!
-                                  .hyperlinkDialogStyle
-                                  ?.headerTextStyle,
-                            ),
+                  style:
+                      isMaterial3
+                          ? Theme.of(context).textTheme.headlineMedium!
+                              .copyWith(
+                                fontSize: 24,
+                                color:
+                                    Theme.of(context).brightness ==
+                                            Brightness.light
+                                        ? Colors.black.withValues(alpha: 0.87)
+                                        : Colors.white.withValues(alpha: 0.87),
+                              )
+                              .merge(
+                                _pdfViewerThemeData!
+                                    .hyperlinkDialogStyle
+                                    ?.headerTextStyle,
+                              )
+                          : Theme.of(context).textTheme.headlineMedium!
+                              .copyWith(
+                                fontSize: 20,
+                                color:
+                                    Theme.of(context).brightness ==
+                                            Brightness.light
+                                        ? Colors.black.withValues(alpha: 0.87)
+                                        : Colors.white.withValues(alpha: 0.87),
+                              )
+                              .merge(
+                                _pdfViewerThemeData!
+                                    .hyperlinkDialogStyle
+                                    ?.headerTextStyle,
+                              ),
                 ),
                 SizedBox(
                   height: isMaterial3 ? 40 : 36,
@@ -537,11 +544,12 @@ class CanvasRenderBox extends RenderBox {
                       Navigator.of(context).pop();
                       _isHyperLinkTapped = false;
                     },
-                    shape: isMaterial3
-                        ? RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40),
-                          )
-                        : const RoundedRectangleBorder(),
+                    shape:
+                        isMaterial3
+                            ? RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40),
+                            )
+                            : const RoundedRectangleBorder(),
                     child: Icon(
                       Icons.clear,
                       color:
@@ -560,24 +568,27 @@ class CanvasRenderBox extends RenderBox {
                 ),
               ],
             ),
-            shape: isMaterial3
-                ? null
-                : const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                  ),
+            shape:
+                isMaterial3
+                    ? null
+                    : const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                    ),
             content: SingleChildScrollView(
               child: SizedBox(
                 width: 296,
                 child: Column(
                   children: <Widget>[
                     Align(
-                      alignment: textDirection == TextDirection.rtl
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
+                      alignment:
+                          textDirection == TextDirection.rtl
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
                       child: Padding(
-                        padding: orientation == Orientation.portrait
-                            ? const EdgeInsets.fromLTRB(2, 0, 0, 8)
-                            : const EdgeInsets.fromLTRB(10, 0, 0, 8),
+                        padding:
+                            orientation == Orientation.portrait
+                                ? const EdgeInsets.fromLTRB(2, 0, 0, 8)
+                                : const EdgeInsets.fromLTRB(10, 0, 0, 8),
                         child: Text(
                           _localizations.pdfHyperlinkContentLabel,
                           style: Theme.of(context).textTheme.bodyMedium!
@@ -585,9 +596,9 @@ class CanvasRenderBox extends RenderBox {
                                 fontSize: 14,
                                 color:
                                     Theme.of(context).brightness ==
-                                        Brightness.light
-                                    ? Colors.black.withValues(alpha: 0.87)
-                                    : Colors.white.withValues(alpha: 0.87),
+                                            Brightness.light
+                                        ? Colors.black.withValues(alpha: 0.87)
+                                        : Colors.white.withValues(alpha: 0.87),
                               )
                               .merge(
                                 _pdfViewerThemeData!
@@ -598,13 +609,15 @@ class CanvasRenderBox extends RenderBox {
                       ),
                     ),
                     Align(
-                      alignment: textDirection == TextDirection.rtl
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
+                      alignment:
+                          textDirection == TextDirection.rtl
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
                       child: Padding(
-                        padding: orientation == Orientation.portrait
-                            ? const EdgeInsets.fromLTRB(2, 0, 0, 0)
-                            : const EdgeInsets.fromLTRB(10, 0, 0, 4),
+                        padding:
+                            orientation == Orientation.portrait
+                                ? const EdgeInsets.fromLTRB(2, 0, 0, 0)
+                                : const EdgeInsets.fromLTRB(10, 0, 0, 4),
                         child: Text(
                           '$url?',
                           textDirection: TextDirection.ltr,
@@ -613,9 +626,9 @@ class CanvasRenderBox extends RenderBox {
                                 fontSize: 14,
                                 color:
                                     Theme.of(context).brightness ==
-                                        Brightness.light
-                                    ? Colors.black.withValues(alpha: 0.87)
-                                    : Colors.white.withValues(alpha: 0.87),
+                                            Brightness.light
+                                        ? Colors.black.withValues(alpha: 0.87)
+                                        : Colors.white.withValues(alpha: 0.87),
                               )
                               .merge(
                                 _pdfViewerThemeData!
@@ -635,25 +648,27 @@ class CanvasRenderBox extends RenderBox {
                   Navigator.of(context).pop();
                   _isHyperLinkTapped = false;
                 },
-                style: isMaterial3
-                    ? ButtonStyle(
-                        padding: WidgetStateProperty.all(
-                          const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 20,
+                style:
+                    isMaterial3
+                        ? ButtonStyle(
+                          padding: WidgetStateProperty.all(
+                            const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 20,
+                            ),
                           ),
-                        ),
-                      )
-                    : null,
+                        )
+                        : null,
                 child: Text(
                   _localizations.pdfHyperlinkDialogCancelLabel,
                   style: Theme.of(context).textTheme.bodyMedium!
                       .copyWith(
                         fontSize: 14,
                         fontWeight: isMaterial3 ? FontWeight.w500 : null,
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.black.withValues(alpha: 0.6)
-                            : Colors.white.withValues(alpha: 0.6),
+                        color:
+                            Theme.of(context).brightness == Brightness.light
+                                ? Colors.black.withValues(alpha: 0.6)
+                                : Colors.white.withValues(alpha: 0.6),
                       )
                       .merge(
                         _pdfViewerThemeData!
@@ -669,16 +684,17 @@ class CanvasRenderBox extends RenderBox {
                     Navigator.of(context).pop();
                     await launchUrl(url, mode: LaunchMode.externalApplication);
                   },
-                  style: isMaterial3
-                      ? ButtonStyle(
-                          padding: WidgetStateProperty.all(
-                            const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 20,
+                  style:
+                      isMaterial3
+                          ? ButtonStyle(
+                            padding: WidgetStateProperty.all(
+                              const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 20,
+                              ),
                             ),
-                          ),
-                        )
-                      : null,
+                          )
+                          : null,
                   child: Text(
                     _localizations.pdfHyperlinkDialogOpenLabel,
                     style: Theme.of(context).textTheme.bodyMedium!
@@ -705,9 +721,10 @@ class CanvasRenderBox extends RenderBox {
   Future<void> _showDesktopHyperLinkDialog(Uri url) {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
     final bool isMaterial3 = Theme.of(context).useMaterial3;
-    _effectiveThemeData = isMaterial3
-        ? SfPdfViewerThemeDataM3(context)
-        : SfPdfViewerThemeDataM2(context);
+    _effectiveThemeData =
+        isMaterial3
+            ? SfPdfViewerThemeDataM3(context)
+            : SfPdfViewerThemeDataM2(context);
     _themeData = Theme.of(context);
     _localizations = SfLocalizations.of(context);
     return showDialog<void>(
@@ -719,9 +736,8 @@ class CanvasRenderBox extends RenderBox {
             scrollable: true,
             insetPadding: EdgeInsets.zero,
             titlePadding: isMaterial3 ? null : const EdgeInsets.all(16),
-            contentPadding: isMaterial3
-                ? null
-                : const EdgeInsets.symmetric(horizontal: 16),
+            contentPadding:
+                isMaterial3 ? null : const EdgeInsets.symmetric(horizontal: 16),
             buttonPadding: const EdgeInsets.all(24),
             backgroundColor:
                 _pdfViewerThemeData!.hyperlinkDialogStyle?.backgroundColor ??
@@ -737,11 +753,13 @@ class CanvasRenderBox extends RenderBox {
                   style: Theme.of(context).textTheme.headlineMedium!
                       .copyWith(
                         fontSize: isMaterial3 ? 24 : 20,
-                        color: isMaterial3
-                            ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).brightness == Brightness.light
-                            ? Colors.black.withValues(alpha: 0.87)
-                            : Colors.white.withValues(alpha: 0.87),
+                        color:
+                            isMaterial3
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).brightness ==
+                                    Brightness.light
+                                ? Colors.black.withValues(alpha: 0.87)
+                                : Colors.white.withValues(alpha: 0.87),
                       )
                       .merge(
                         _pdfViewerThemeData!
@@ -757,11 +775,12 @@ class CanvasRenderBox extends RenderBox {
                       Navigator.of(context).pop();
                       _isHyperLinkTapped = false;
                     },
-                    shape: isMaterial3
-                        ? RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40),
-                          )
-                        : const RoundedRectangleBorder(),
+                    shape:
+                        isMaterial3
+                            ? RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40),
+                            )
+                            : const RoundedRectangleBorder(),
                     child: Icon(
                       Icons.clear,
                       color:
@@ -786,13 +805,15 @@ class CanvasRenderBox extends RenderBox {
                 child: Column(
                   children: <Widget>[
                     Align(
-                      alignment: textDirection == TextDirection.rtl
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
+                      alignment:
+                          textDirection == TextDirection.rtl
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
                       child: Padding(
-                        padding: isMaterial3
-                            ? const EdgeInsets.fromLTRB(2, 0, 0, 2)
-                            : const EdgeInsets.fromLTRB(2, 0, 0, 8),
+                        padding:
+                            isMaterial3
+                                ? const EdgeInsets.fromLTRB(2, 0, 0, 2)
+                                : const EdgeInsets.fromLTRB(2, 0, 0, 8),
                         child: Text(
                           _localizations.pdfHyperlinkContentLabel,
                           style: Theme.of(context).textTheme.bodyMedium!
@@ -800,9 +821,9 @@ class CanvasRenderBox extends RenderBox {
                                 fontSize: 14,
                                 color:
                                     Theme.of(context).brightness ==
-                                        Brightness.light
-                                    ? Colors.black.withValues(alpha: 0.87)
-                                    : Colors.white.withValues(alpha: 0.87),
+                                            Brightness.light
+                                        ? Colors.black.withValues(alpha: 0.87)
+                                        : Colors.white.withValues(alpha: 0.87),
                               )
                               .merge(
                                 _pdfViewerThemeData!
@@ -813,9 +834,10 @@ class CanvasRenderBox extends RenderBox {
                       ),
                     ),
                     Align(
-                      alignment: textDirection == TextDirection.rtl
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
+                      alignment:
+                          textDirection == TextDirection.rtl
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(2, 0, 0, 0),
                         child: Text(
@@ -826,9 +848,9 @@ class CanvasRenderBox extends RenderBox {
                                 fontSize: 14,
                                 color:
                                     Theme.of(context).brightness ==
-                                        Brightness.light
-                                    ? Colors.black.withValues(alpha: 0.87)
-                                    : Colors.white.withValues(alpha: 0.87),
+                                            Brightness.light
+                                        ? Colors.black.withValues(alpha: 0.87)
+                                        : Colors.white.withValues(alpha: 0.87),
                               )
                               .merge(
                                 _pdfViewerThemeData!
@@ -848,24 +870,26 @@ class CanvasRenderBox extends RenderBox {
                   Navigator.of(context).pop();
                   _isHyperLinkTapped = false;
                 },
-                style: isMaterial3
-                    ? TextButton.styleFrom(
-                        fixedSize: const Size(double.infinity, 40),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 20,
-                        ),
-                      )
-                    : null,
+                style:
+                    isMaterial3
+                        ? TextButton.styleFrom(
+                          fixedSize: const Size(double.infinity, 40),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 20,
+                          ),
+                        )
+                        : null,
                 child: Text(
                   _localizations.pdfHyperlinkDialogCancelLabel,
                   style: Theme.of(context).textTheme.bodyMedium!
                       .copyWith(
                         fontSize: 14,
                         fontWeight: isMaterial3 ? FontWeight.w500 : null,
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.black.withValues(alpha: 0.6)
-                            : Colors.white.withValues(alpha: 0.6),
+                        color:
+                            Theme.of(context).brightness == Brightness.light
+                                ? Colors.black.withValues(alpha: 0.6)
+                                : Colors.white.withValues(alpha: 0.6),
                       )
                       .merge(
                         _pdfViewerThemeData!
@@ -879,15 +903,16 @@ class CanvasRenderBox extends RenderBox {
                   Navigator.of(context).pop();
                   await launchUrl(url, mode: LaunchMode.externalApplication);
                 },
-                style: isMaterial3
-                    ? TextButton.styleFrom(
-                        fixedSize: const Size(double.infinity, 40),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 20,
-                        ),
-                      )
-                    : null,
+                style:
+                    isMaterial3
+                        ? TextButton.styleFrom(
+                          fixedSize: const Size(double.infinity, 40),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 20,
+                          ),
+                        )
+                        : null,
                 child: Text(
                   _localizations.pdfHyperlinkDialogOpenLabel,
                   style: Theme.of(context).textTheme.bodyMedium!
@@ -961,21 +986,23 @@ class CanvasRenderBox extends RenderBox {
                 r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$',
               ).hasMatch(_pdfTextWebLink!.url);
               final bool isTel = _pdfTextWebLink!.url.startsWith('tel:');
-              final String scheme = isMailID
-                  ? !_pdfTextWebLink!.url.contains('mailto')
-                        ? 'mailto'
-                        : ''
-                  : isTel
-                  ? 'tel'
-                  : (!_pdfTextWebLink!.url.contains('https') &&
-                        !_pdfTextWebLink!.url.contains('http'))
-                  ? 'https'
-                  : '';
-              final Uri url = !_pdfTextWebLink!.url.contains(scheme)
-                  ? scheme.contains('mailto') || scheme.contains('tel')
-                        ? Uri(scheme: scheme, path: _pdfTextWebLink!.url)
-                        : Uri(scheme: scheme, host: _pdfTextWebLink!.url)
-                  : Uri.parse(_pdfTextWebLink!.url);
+              final String scheme =
+                  isMailID
+                      ? !_pdfTextWebLink!.url.contains('mailto')
+                          ? 'mailto'
+                          : ''
+                      : isTel
+                      ? 'tel'
+                      : (!_pdfTextWebLink!.url.contains('https') &&
+                          !_pdfTextWebLink!.url.contains('http'))
+                      ? 'https'
+                      : '';
+              final Uri url =
+                  !_pdfTextWebLink!.url.contains(scheme)
+                      ? scheme.contains('mailto') || scheme.contains('tel')
+                          ? Uri(scheme: scheme, path: _pdfTextWebLink!.url)
+                          : Uri(scheme: scheme, host: _pdfTextWebLink!.url)
+                      : Uri.parse(_pdfTextWebLink!.url);
               _showHyperLinkDialog(url);
               markNeedsPaint();
               break;
@@ -1077,10 +1104,13 @@ class CanvasRenderBox extends RenderBox {
     final double heightPercentage =
         pdfDocument!.pages[pageIndex].size.height / height;
 
-    final List<Annotation> annotations = pdfViewerController
-        .getAnnotations()
-        .where((Annotation annotation) => annotation.pageNumber == pageNumber)
-        .toList();
+    final List<Annotation> annotations =
+        pdfViewerController
+            .getAnnotations()
+            .where(
+              (Annotation annotation) => annotation.pageNumber == pageNumber,
+            )
+            .toList();
 
     annotations.sort(
       (Annotation b, Annotation a) => a.zOrder.compareTo(b.zOrder),
@@ -1335,9 +1365,10 @@ class CanvasRenderBox extends RenderBox {
                 .length;
         wordIndex++
       ) {
-        final TextWord textWord = _textSelectionHelper
-            .textLines![textLineIndex]
-            .wordCollection[wordIndex];
+        final TextWord textWord =
+            _textSelectionHelper
+                .textLines![textLineIndex]
+                .wordCollection[wordIndex];
         for (
           int glyphIndex = 0;
           glyphIndex < textWord.glyphs.length;
@@ -1428,9 +1459,10 @@ class CanvasRenderBox extends RenderBox {
                     .length;
             wordIndex++
           ) {
-            final TextWord textWord = _textSelectionHelper
-                .textLines![textLineIndex]
-                .wordCollection[wordIndex];
+            final TextWord textWord =
+                _textSelectionHelper
+                    .textLines![textLineIndex]
+                    .wordCollection[wordIndex];
             for (
               int glyphIndex = 0;
               glyphIndex < textWord.glyphs.length;
@@ -2097,9 +2129,10 @@ class CanvasRenderBox extends RenderBox {
   void _performHyperLinkNavigation(Canvas canvas, Offset offset) {
     if (pageIndex == _viewId) {
       if (_isHyperLinkTapped && enableHyperlinkNavigation) {
-        final Rect bounds = _pdfTextWebLink != null
-            ? _pdfTextWebLink!.bounds
-            : _pdfUriAnnotation!.bounds;
+        final Rect bounds =
+            _pdfTextWebLink != null
+                ? _pdfTextWebLink!.bounds
+                : _pdfUriAnnotation!.bounds;
         _drawHyperLinkTapColor(canvas, offset, bounds);
         _isHyperLinkTapped = false;
         Future<dynamic>.delayed(Duration.zero, () async {
@@ -2113,8 +2146,8 @@ class CanvasRenderBox extends RenderBox {
   void _drawHyperLinkTapColor(Canvas canvas, Offset offset, Rect bounds) {
     final double heightPercentage =
         pdfDocument!.pages[_viewId!].size.height / height;
-    final Paint wordPaint = Paint()
-      ..color = const Color.fromRGBO(228, 238, 244, 0.75);
+    final Paint wordPaint =
+        Paint()..color = const Color.fromRGBO(228, 238, 244, 0.75);
     canvas.drawRect(
       offset.translate(
             bounds.left / heightPercentage,
@@ -2134,8 +2167,8 @@ class CanvasRenderBox extends RenderBox {
       if (_isTOCTapped) {
         final double heightPercentage =
             pdfDocument!.pages[_viewId!].size.height / height;
-        final Paint wordPaint = Paint()
-          ..color = const Color.fromRGBO(228, 238, 244, 0.75);
+        final Paint wordPaint =
+            Paint()..color = const Color.fromRGBO(228, 238, 244, 0.75);
         canvas.drawRect(
           offset.translate(
                 _documentLinkAnnotation!.bounds.left / heightPercentage,
@@ -2158,12 +2191,12 @@ class CanvasRenderBox extends RenderBox {
           } else {
             final double xOffSet =
                 textDirection == TextDirection.rtl &&
-                    scrollDirection == PdfScrollDirection.horizontal &&
-                    !isSinglePageView
-                ? (pdfScrollableStateKey.currentWidget! as PdfScrollable)
-                          .maxScrollExtent -
-                      _totalPageOffset.dx
-                : _totalPageOffset.dx;
+                        scrollDirection == PdfScrollDirection.horizontal &&
+                        !isSinglePageView
+                    ? (pdfScrollableStateKey.currentWidget! as PdfScrollable)
+                            .maxScrollExtent -
+                        _totalPageOffset.dx
+                    : _totalPageOffset.dx;
             pdfViewerController.jumpTo(
               xOffset: xOffSet,
               yOffset: _totalPageOffset.dy,
@@ -2178,10 +2211,10 @@ class CanvasRenderBox extends RenderBox {
   /// Perform text search.
   void _performTextSearch(Canvas canvas, Offset offset) {
     if (textCollection!.isNotEmpty) {
-      final Paint currentInstancePaint = Paint()
-        ..color = currentSearchTextHighlightColor;
-      final Paint otherInstancePaint = Paint()
-        ..color = otherSearchTextHighlightColor;
+      final Paint currentInstancePaint =
+          Paint()..color = currentSearchTextHighlightColor;
+      final Paint otherInstancePaint =
+          Paint()..color = otherSearchTextHighlightColor;
       for (int i = 0; i < textCollection!.length; i++) {
         final MatchedItem item = textCollection![i];
         final double heightPercentage =
@@ -2470,9 +2503,10 @@ class CanvasRenderBox extends RenderBox {
         final double nextGlyph = textWord.glyphs[glyphIndex + 1].bounds.left;
         glyphPosition = (currentGlyph - nextGlyph).abs();
       }
-      glyphText = (glyphPosition > 1.0)
-          ? '$glyphText${glyph.text} '
-          : glyphText + glyph.text;
+      glyphText =
+          (glyphPosition > 1.0)
+              ? '$glyphText${glyph.text} '
+              : glyphText + glyph.text;
     }
     return glyphText;
   }
@@ -2619,9 +2653,10 @@ class CanvasRenderBox extends RenderBox {
     }
     final Paint textPaint = Paint()..color = _selectionColor!;
     final Paint bubblePaint = Paint()..color = _selectionHandleColor!;
-    _zoomPercentage = pdfViewerController.zoomLevel > _maximumZoomLevel
-        ? _maximumZoomLevel
-        : pdfViewerController.zoomLevel;
+    _zoomPercentage =
+        pdfViewerController.zoomLevel > _maximumZoomLevel
+            ? _maximumZoomLevel
+            : pdfViewerController.zoomLevel;
 
     _performDocumentLinkNavigation(canvas, offset);
     _performHyperLinkNavigation(canvas, offset);
@@ -2707,9 +2742,8 @@ class CanvasRenderBox extends RenderBox {
             final bool isRTLGlyph = intl.Bidi.detectRtlDirectionality(
               textWord.text,
             );
-            _textSelectionHelper.firstSelectedGlyph = isRTLGlyph
-                ? textWord.glyphs.last
-                : textWord.glyphs.first;
+            _textSelectionHelper.firstSelectedGlyph =
+                isRTLGlyph ? textWord.glyphs.last : textWord.glyphs.first;
             _textSelectionHelper.selectionEnabled = true;
             _textSelectionHelper.selectedTextLines.clear();
             _textSelectionHelper.selectedTextLines.add(
@@ -2777,16 +2811,19 @@ class CanvasRenderBox extends RenderBox {
                 (_isRTLText
                     ? _textSelectionHelper.endBubbleLine!.wordCollection.length
                     : _textSelectionHelper
-                          .startBubbleLine!
-                          .wordCollection
-                          .length);
+                        .startBubbleLine!
+                        .wordCollection
+                        .length);
             wordIndex++
           ) {
-            final TextWord textWord = _isRTLText
-                ? _textSelectionHelper.endBubbleLine!.wordCollection[wordIndex]
-                : _textSelectionHelper
-                      .startBubbleLine!
-                      .wordCollection[wordIndex];
+            final TextWord textWord =
+                _isRTLText
+                    ? _textSelectionHelper
+                        .endBubbleLine!
+                        .wordCollection[wordIndex]
+                    : _textSelectionHelper
+                        .startBubbleLine!
+                        .wordCollection[wordIndex];
             for (
               int glyphIndex = 0;
               glyphIndex < textWord.glyphs.length;
@@ -2818,31 +2855,34 @@ class CanvasRenderBox extends RenderBox {
                     heightPercentage)) {
               _textSelectionHelper.startBubbleX =
                   _textSelectionHelper.startBubbleLine!.bounds.bottomLeft.dx;
-              _textSelectionHelper.firstSelectedGlyph = _textSelectionHelper
-                  .startBubbleLine!
-                  .wordCollection
-                  .first
-                  .glyphs
-                  .first;
+              _textSelectionHelper.firstSelectedGlyph =
+                  _textSelectionHelper
+                      .startBubbleLine!
+                      .wordCollection
+                      .first
+                      .glyphs
+                      .first;
             }
             if (_startBubbleTapX >=
                 (_textSelectionHelper.startBubbleLine!.bounds.bottomRight.dx /
                     heightPercentage)) {
-              _textSelectionHelper.startBubbleX = _textSelectionHelper
-                  .startBubbleLine!
-                  .wordCollection
-                  .last
-                  .glyphs
-                  .last
-                  .bounds
-                  .bottomLeft
-                  .dx;
-              _textSelectionHelper.firstSelectedGlyph = _textSelectionHelper
-                  .startBubbleLine!
-                  .wordCollection
-                  .last
-                  .glyphs
-                  .last;
+              _textSelectionHelper.startBubbleX =
+                  _textSelectionHelper
+                      .startBubbleLine!
+                      .wordCollection
+                      .last
+                      .glyphs
+                      .last
+                      .bounds
+                      .bottomLeft
+                      .dx;
+              _textSelectionHelper.firstSelectedGlyph =
+                  _textSelectionHelper
+                      .startBubbleLine!
+                      .wordCollection
+                      .last
+                      .glyphs
+                      .last;
             }
             if (_textSelectionHelper.startBubbleLine!.bounds.bottom /
                         heightPercentage ==
@@ -2855,9 +2895,10 @@ class CanvasRenderBox extends RenderBox {
                     _textSelectionHelper.startBubbleLine!.wordCollection.length;
                 wordIndex++
               ) {
-                final TextWord textWord = _textSelectionHelper
-                    .startBubbleLine!
-                    .wordCollection[wordIndex];
+                final TextWord textWord =
+                    _textSelectionHelper
+                        .startBubbleLine!
+                        .wordCollection[wordIndex];
                 for (
                   int glyphIndex = 0;
                   glyphIndex < textWord.glyphs.length;
@@ -2890,31 +2931,34 @@ class CanvasRenderBox extends RenderBox {
                       heightPercentage)) {
                 _textSelectionHelper.endBubbleX =
                     _textSelectionHelper.endBubbleLine!.bounds.bottomLeft.dx;
-                _textSelectionHelper.firstSelectedGlyph = _textSelectionHelper
-                    .endBubbleLine!
-                    .wordCollection
-                    .first
-                    .glyphs
-                    .first;
+                _textSelectionHelper.firstSelectedGlyph =
+                    _textSelectionHelper
+                        .endBubbleLine!
+                        .wordCollection
+                        .first
+                        .glyphs
+                        .first;
               }
               if (_endBubbleTapX >=
                   (_textSelectionHelper.endBubbleLine!.bounds.bottomRight.dx /
                       heightPercentage)) {
-                _textSelectionHelper.endBubbleX = _textSelectionHelper
-                    .endBubbleLine!
-                    .wordCollection
-                    .last
-                    .glyphs
-                    .last
-                    .bounds
-                    .bottomLeft
-                    .dx;
-                _textSelectionHelper.firstSelectedGlyph = _textSelectionHelper
-                    .endBubbleLine!
-                    .wordCollection
-                    .last
-                    .glyphs
-                    .last;
+                _textSelectionHelper.endBubbleX =
+                    _textSelectionHelper
+                        .endBubbleLine!
+                        .wordCollection
+                        .last
+                        .glyphs
+                        .last
+                        .bounds
+                        .bottomLeft
+                        .dx;
+                _textSelectionHelper.firstSelectedGlyph =
+                    _textSelectionHelper
+                        .endBubbleLine!
+                        .wordCollection
+                        .last
+                        .glyphs
+                        .last;
               }
             }
           }
@@ -2956,20 +3000,23 @@ class CanvasRenderBox extends RenderBox {
             wordIndex <
                 (_isRTLText
                     ? _textSelectionHelper
-                          .startBubbleLine!
-                          .wordCollection
-                          .length
+                        .startBubbleLine!
+                        .wordCollection
+                        .length
                     : _textSelectionHelper
-                          .endBubbleLine!
-                          .wordCollection
-                          .length);
+                        .endBubbleLine!
+                        .wordCollection
+                        .length);
             wordIndex++
           ) {
-            final TextWord textWord = _isRTLText
-                ? _textSelectionHelper
-                      .startBubbleLine!
-                      .wordCollection[wordIndex]
-                : _textSelectionHelper.endBubbleLine!.wordCollection[wordIndex];
+            final TextWord textWord =
+                _isRTLText
+                    ? _textSelectionHelper
+                        .startBubbleLine!
+                        .wordCollection[wordIndex]
+                    : _textSelectionHelper
+                        .endBubbleLine!
+                        .wordCollection[wordIndex];
             for (
               int glyphIndex = 0;
               glyphIndex < textWord.glyphs.length;
@@ -3005,15 +3052,16 @@ class CanvasRenderBox extends RenderBox {
                 (_textSelectionHelper.endBubbleLine!.bounds.bottomLeft.dx /
                         heightPercentage)
                     .floor()) {
-              _textSelectionHelper.endBubbleX = _textSelectionHelper
-                  .endBubbleLine!
-                  .wordCollection
-                  .first
-                  .glyphs
-                  .first
-                  .bounds
-                  .bottomRight
-                  .dx;
+              _textSelectionHelper.endBubbleX =
+                  _textSelectionHelper
+                      .endBubbleLine!
+                      .wordCollection
+                      .first
+                      .glyphs
+                      .first
+                      .bounds
+                      .bottomRight
+                      .dx;
             }
             if (_textSelectionHelper.endBubbleLine!.bounds.bottom /
                         heightPercentage ==
@@ -3026,9 +3074,10 @@ class CanvasRenderBox extends RenderBox {
                     _textSelectionHelper.endBubbleLine!.wordCollection.length;
                 wordIndex++
               ) {
-                final TextWord textWord = _textSelectionHelper
-                    .endBubbleLine!
-                    .wordCollection[wordIndex];
+                final TextWord textWord =
+                    _textSelectionHelper
+                        .endBubbleLine!
+                        .wordCollection[wordIndex];
                 for (
                   int glyphIndex = 0;
                   glyphIndex < textWord.glyphs.length;
@@ -3066,15 +3115,16 @@ class CanvasRenderBox extends RenderBox {
                   (_textSelectionHelper.startBubbleLine!.bounds.bottomLeft.dx /
                           heightPercentage)
                       .floor()) {
-                _textSelectionHelper.startBubbleX = _textSelectionHelper
-                    .startBubbleLine!
-                    .wordCollection
-                    .first
-                    .glyphs
-                    .first
-                    .bounds
-                    .bottomRight
-                    .dx;
+                _textSelectionHelper.startBubbleX =
+                    _textSelectionHelper
+                        .startBubbleLine!
+                        .wordCollection
+                        .first
+                        .glyphs
+                        .first
+                        .bounds
+                        .bottomRight
+                        .dx;
               }
             }
           }

@@ -45,8 +45,12 @@ class PdfTrueTypeFont extends PdfFont {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfTrueTypeFont(List<int> fontData, double size,
-      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+  PdfTrueTypeFont(
+    List<int> fontData,
+    double size, {
+    PdfFontStyle? style,
+    List<PdfFontStyle>? multiStyle,
+  }) {
     _helper = PdfTrueTypeFontHelper(this);
     _initializeFont(fontData, size, style, multiStyle);
   }
@@ -75,8 +79,12 @@ class PdfTrueTypeFont extends PdfFont {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
-  PdfTrueTypeFont.fromBase64String(String fontData, double size,
-      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+  PdfTrueTypeFont.fromBase64String(
+    String fontData,
+    double size, {
+    PdfFontStyle? style,
+    List<PdfFontStyle>? multiStyle,
+  }) {
     _helper = PdfTrueTypeFontHelper(this);
     if (fontData.isEmpty) {
       throw ArgumentError.value(fontData, 'fontData', 'Invalid font data');
@@ -88,10 +96,15 @@ class PdfTrueTypeFont extends PdfFont {
   late PdfTrueTypeFontHelper _helper;
 
   //Implementation
-  void _initializeFont(List<int> fontData, double size, PdfFontStyle? style,
-      List<PdfFontStyle>? multiStyle) {
-    PdfFontHelper.getHelper(this)
-        .initialize(size, style: style, multiStyle: multiStyle);
+  void _initializeFont(
+    List<int> fontData,
+    double size,
+    PdfFontStyle? style,
+    List<PdfFontStyle>? multiStyle,
+  ) {
+    PdfFontHelper.getHelper(
+      this,
+    ).initialize(size, style: style, multiStyle: multiStyle);
     _helper.unicode = true;
     _createFontInternals(fontData);
   }

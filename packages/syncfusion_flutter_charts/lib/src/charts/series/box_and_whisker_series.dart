@@ -164,13 +164,13 @@ class BoxAndWhiskerSeries<T, D> extends CartesianSeries<T, D> {
       case SeriesSlot.dataLabel:
         return dataLabelSettings.isVisible
             ? CartesianDataLabelContainer<T, D>(
-                series: this,
-                dataSource: dataSource!,
-                mapper: dataLabelMapper,
-                builder: dataLabelSettings.builder,
-                settings: dataLabelSettings,
-                positions: positions,
-              )
+              series: this,
+              dataSource: dataSource!,
+              mapper: dataLabelMapper,
+              builder: dataLabelSettings.builder,
+              settings: dataLabelSettings,
+              positions: positions,
+            )
             : null;
 
       case SeriesSlot.marker:
@@ -190,13 +190,13 @@ class BoxAndWhiskerSeries<T, D> extends CartesianSeries<T, D> {
 
   @override
   List<ChartDataPointType> get positions => <ChartDataPointType>[
-        ChartDataPointType.high,
-        ChartDataPointType.low,
-        ChartDataPointType.open,
-        ChartDataPointType.close,
-        ChartDataPointType.median,
-        ChartDataPointType.outliers,
-      ];
+    ChartDataPointType.high,
+    ChartDataPointType.low,
+    ChartDataPointType.open,
+    ChartDataPointType.close,
+    ChartDataPointType.median,
+    ChartDataPointType.outliers,
+  ];
 
   /// Create the Box and Whisker series renderer.
   @override
@@ -225,7 +225,9 @@ class BoxAndWhiskerSeries<T, D> extends CartesianSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, BoxAndWhiskerSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    BoxAndWhiskerSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..yValueMapper = yValueMapper
@@ -254,8 +256,9 @@ class BoxAndWhiskerSeriesRenderer<T, D>
 
   @override
   set color(Color? value) {
-    markerSettings =
-        markerSettings.copyWith(borderColor: value ?? paletteColor);
+    markerSettings = markerSettings.copyWith(
+      borderColor: value ?? paletteColor,
+    );
     super.color = value;
   }
 
@@ -321,7 +324,13 @@ class BoxAndWhiskerSeriesRenderer<T, D>
   ]) {
     _resetDataSourceHolders();
     super.populateDataSource(
-        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
+      yPaths,
+      chaoticYLists,
+      yLists,
+      fPaths,
+      chaoticFLists,
+      fLists,
+    );
     populateChartPoints();
   }
 
@@ -337,7 +346,7 @@ class BoxAndWhiskerSeriesRenderer<T, D>
     List<List<Object?>>? chaoticFLists,
     List<List<Object?>>? fLists,
   ]) {
-    outliersValues.clear();
+    _resetDataSourceHolders();
     super.updateDataPoints(
       removedIndexes,
       addedIndexes,
@@ -371,8 +380,10 @@ class BoxAndWhiskerSeriesRenderer<T, D>
     }
 
     for (int i = 0; i < dataCount; i++) {
-      final CartesianChartPoint<D> point =
-          CartesianChartPoint<D>(x: xRawValues[i], xValue: xValues[i]);
+      final CartesianChartPoint<D> point = CartesianChartPoint<D>(
+        x: xRawValues[i],
+        xValue: xValues[i],
+      );
       chartPoints.add(point);
     }
   }
@@ -531,8 +542,11 @@ class BoxAndWhiskerSeriesRenderer<T, D>
         : alignment;
   }
 
-  void _findBoxPlotValues(List<num> yValues, BoxPlotMode mode,
-      BoxPlotQuartileValues boxPlotValues) {
+  void _findBoxPlotValues(
+    List<num> yValues,
+    BoxPlotMode mode,
+    BoxPlotQuartileValues boxPlotValues,
+  ) {
     final int yCount = yValues.length;
     if (yCount == 0) {
       return;
@@ -541,16 +555,28 @@ class BoxAndWhiskerSeriesRenderer<T, D>
     boxPlotValues.average =
         (yValues.fold(0, (num x, num? y) => (x.toDouble()) + y!)) / yCount;
     if (mode == BoxPlotMode.exclusive) {
-      boxPlotValues.lowerQuartile =
-          _exclusiveQuartileValue(yValues, yCount, 0.25);
-      boxPlotValues.upperQuartile =
-          _exclusiveQuartileValue(yValues, yCount, 0.75);
+      boxPlotValues.lowerQuartile = _exclusiveQuartileValue(
+        yValues,
+        yCount,
+        0.25,
+      );
+      boxPlotValues.upperQuartile = _exclusiveQuartileValue(
+        yValues,
+        yCount,
+        0.75,
+      );
       boxPlotValues.median = _exclusiveQuartileValue(yValues, yCount, 0.5);
     } else if (mode == BoxPlotMode.inclusive) {
-      boxPlotValues.lowerQuartile =
-          _inclusiveQuartileValue(yValues, yCount, 0.25);
-      boxPlotValues.upperQuartile =
-          _inclusiveQuartileValue(yValues, yCount, 0.75);
+      boxPlotValues.lowerQuartile = _inclusiveQuartileValue(
+        yValues,
+        yCount,
+        0.25,
+      );
+      boxPlotValues.upperQuartile = _inclusiveQuartileValue(
+        yValues,
+        yCount,
+        0.75,
+      );
       boxPlotValues.median = _inclusiveQuartileValue(yValues, yCount, 0.5);
     } else {
       boxPlotValues.median = _median(yValues);
@@ -574,7 +600,8 @@ class BoxAndWhiskerSeriesRenderer<T, D>
     } else if (integerRank > count - 1) {
       value = yValues[count - 1];
     } else {
-      value = fractionRank * (yValues[integerRank] - yValues[integerRank - 1]) +
+      value =
+          fractionRank * (yValues[integerRank] - yValues[integerRank - 1]) +
           yValues[integerRank - 1];
     }
     return value.toDouble();
@@ -590,7 +617,8 @@ class BoxAndWhiskerSeriesRenderer<T, D>
     final num rank = percentile * (count - 1);
     final int integerRank = rank.abs().floor();
     final num fractionRank = rank - integerRank;
-    value = fractionRank * (yValues[integerRank + 1] - yValues[integerRank]) +
+    value =
+        fractionRank * (yValues[integerRank + 1] - yValues[integerRank]) +
         yValues[integerRank];
     return value.toDouble();
   }
@@ -608,23 +636,32 @@ class BoxAndWhiskerSeriesRenderer<T, D>
         .toDouble();
   }
 
-  void _quartileValues(List<num> yValues, int count,
-      BoxPlotQuartileValues boxPlotQuartileValues) {
+  void _quartileValues(
+    List<num> yValues,
+    int count,
+    BoxPlotQuartileValues boxPlotQuartileValues,
+  ) {
     if (count == 1) {
       boxPlotQuartileValues.lowerQuartile = yValues[0].toDouble();
       boxPlotQuartileValues.upperQuartile = yValues[0].toDouble();
     }
     final int halfLength = count ~/ 2;
     final List<num> lowerQuartileArray = yValues.sublist(0, halfLength);
-    final List<num> upperQuartileArray =
-        yValues.sublist(count.isEven ? halfLength : halfLength + 1, count);
+    final List<num> upperQuartileArray = yValues.sublist(
+      count.isEven ? halfLength : halfLength + 1,
+      count,
+    );
     boxPlotQuartileValues.lowerQuartile = _median(lowerQuartileArray);
     boxPlotQuartileValues.upperQuartile = _median(upperQuartileArray);
   }
 
-  void _minMaxOutlier(List<num> yValues, int count,
-      BoxPlotQuartileValues boxPlotQuartileValues) {
-    final double interQuartile = boxPlotQuartileValues.upperQuartile! -
+  void _minMaxOutlier(
+    List<num> yValues,
+    int count,
+    BoxPlotQuartileValues boxPlotQuartileValues,
+  ) {
+    final double interQuartile =
+        boxPlotQuartileValues.upperQuartile! -
         boxPlotQuartileValues.lowerQuartile!;
     final num rangeIQR = 1.5 * interQuartile;
     for (int i = 0; i < count; i++) {
@@ -657,10 +694,12 @@ class BoxAndWhiskerSeriesRenderer<T, D>
             ? Colors.black
             : borderColor;
     updateSegmentColor(boxAndWhiskerSegment, customBorderColor, borderWidth);
-    updateSegmentGradient(boxAndWhiskerSegment,
-        gradientBounds: boxAndWhiskerSegment.segmentRect,
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      boxAndWhiskerSegment,
+      gradientBounds: boxAndWhiskerSegment.segmentRect,
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
@@ -717,7 +756,9 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldSegmentRect = null;
@@ -752,8 +793,11 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
         }
       }
 
-      _oldSegmentRect =
-          Rect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
+      _oldSegmentRect = Rect.lerp(
+        _oldSegmentRect,
+        segmentRect,
+        segmentAnimationFactor,
+      );
     } else {
       _oldPoints.clear();
       _oldSegmentRect = segmentRect;
@@ -822,10 +866,12 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
     _addMinMaxPoints(transformX, transformY, centerX, centerY, left, right);
 
     if (!median.isNaN) {
-      _medianLinePoints
-          .add(Offset(transformX(left, median), transformY(left, median)));
-      _medianLinePoints
-          .add(Offset(transformX(right, median), transformY(right, median)));
+      _medianLinePoints.add(
+        Offset(transformX(left, median), transformY(left, median)),
+      );
+      _medianLinePoints.add(
+        Offset(transformX(right, median), transformY(right, median)),
+      );
     }
 
     if (series.showMean && !mean.isNaN) {
@@ -834,15 +880,19 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
 
       final double markerHeight = series.markerSettings.height;
       final double markerWidth = series.markerSettings.width;
-      _meanLinePoints
-          .add(Offset(meanX + markerWidth / 2, meanY - markerHeight / 2));
-      _meanLinePoints
-          .add(Offset(meanX - markerWidth / 2, meanY + markerHeight / 2));
+      _meanLinePoints.add(
+        Offset(meanX + markerWidth / 2, meanY - markerHeight / 2),
+      );
+      _meanLinePoints.add(
+        Offset(meanX - markerWidth / 2, meanY + markerHeight / 2),
+      );
 
-      _meanLinePoints
-          .add(Offset(meanX + markerWidth / 2, meanY + markerHeight / 2));
-      _meanLinePoints
-          .add(Offset(meanX - markerWidth / 2, meanY - markerHeight / 2));
+      _meanLinePoints.add(
+        Offset(meanX + markerWidth / 2, meanY + markerHeight / 2),
+      );
+      _meanLinePoints.add(
+        Offset(meanX - markerWidth / 2, meanY - markerHeight / 2),
+      );
     }
 
     if (outliers != null && outliers!.isNotEmpty) {
@@ -857,52 +907,75 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
   }
 
   void _addMinMaxPoints(
-      PointToPixelCallback transformX,
-      PointToPixelCallback transformY,
-      double centerX,
-      double centerY,
-      num left,
-      num right) {
+    PointToPixelCallback transformX,
+    PointToPixelCallback transformY,
+    double centerX,
+    double centerY,
+    num left,
+    num right,
+  ) {
     if (!minimum.isNaN && !maximum.isNaN) {
-      final Offset maxStart =
-          Offset(transformX(left, maximum), transformY(left, maximum));
-      final Offset maxEnd =
-          Offset(transformX(right, maximum), transformY(right, maximum));
+      final Offset maxStart = Offset(
+        transformX(left, maximum),
+        transformY(left, maximum),
+      );
+      final Offset maxEnd = Offset(
+        transformX(right, maximum),
+        transformY(right, maximum),
+      );
       points.add(maxStart);
       points.add(maxEnd);
 
-      final Offset maxConnectorStart =
-          Offset(transformX(x, upperQuartile), transformY(x, upperQuartile));
-      final Offset maxConnectorEnd =
-          Offset(transformX(x, maximum), transformY(x, maximum));
+      final Offset maxConnectorStart = Offset(
+        transformX(x, upperQuartile),
+        transformY(x, upperQuartile),
+      );
+      final Offset maxConnectorEnd = Offset(
+        transformX(x, maximum),
+        transformY(x, maximum),
+      );
       points.add(maxConnectorStart);
       points.add(maxConnectorEnd);
 
-      final Offset minStart =
-          Offset(transformX(left, minimum), transformY(left, minimum));
-      final Offset minEnd =
-          Offset(transformX(right, minimum), transformY(right, minimum));
+      final Offset minStart = Offset(
+        transformX(left, minimum),
+        transformY(left, minimum),
+      );
+      final Offset minEnd = Offset(
+        transformX(right, minimum),
+        transformY(right, minimum),
+      );
       points.add(minStart);
       points.add(minEnd);
 
-      final Offset minConnectorStart =
-          Offset(transformX(x, lowerQuartile), transformY(x, lowerQuartile));
-      final Offset minConnectorEnd =
-          Offset(transformX(x, minimum), transformY(x, minimum));
+      final Offset minConnectorStart = Offset(
+        transformX(x, lowerQuartile),
+        transformY(x, lowerQuartile),
+      );
+      final Offset minConnectorEnd = Offset(
+        transformX(x, minimum),
+        transformY(x, minimum),
+      );
       points.add(minConnectorStart);
       points.add(minConnectorEnd);
 
       if (_oldPoints.isEmpty) {
         // Max points.
-        final Offset start =
-            Offset(transformX(left, centerY), transformY(left, centerY));
-        final Offset end =
-            Offset(transformX(right, centerY), transformY(right, centerY));
+        final Offset start = Offset(
+          transformX(left, centerY),
+          transformY(left, centerY),
+        );
+        final Offset end = Offset(
+          transformX(right, centerY),
+          transformY(right, centerY),
+        );
         _oldPoints.add(start);
         _oldPoints.add(end);
 
-        final Offset center =
-            Offset(transformX(centerX, centerY), transformY(centerX, centerY));
+        final Offset center = Offset(
+          transformX(centerX, centerY),
+          transformY(centerX, centerY),
+        );
         _oldPoints.add(center);
         _oldPoints.add(center);
 
@@ -925,8 +998,11 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
       final MarkerSettings marker = series.markerSettings;
       final int length = _outlierPoints.length;
       for (int i = 0; i < length; i++) {
-        if (tooltipTouchBounds(_outlierPoints[i], marker.width, marker.height)
-            .contains(position)) {
+        if (tooltipTouchBounds(
+          _outlierPoints[i],
+          marker.width,
+          marker.height,
+        ).contains(position)) {
           return true;
         }
       }
@@ -960,9 +1036,10 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
         for (int i = 0; i < length; i++) {
           final ChartMarker marker = series.markerAt(i);
           final Rect outlierRect = Rect.fromCenter(
-              center: _outlierPoints[i],
-              width: marker.width,
-              height: marker.height);
+            center: _outlierPoints[i],
+            width: marker.width,
+            height: marker.height,
+          );
           if (outlierRect.contains(position)) {
             outlierBounds = outlierRect;
             outlierIndex = i;
@@ -984,9 +1061,10 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
         if (points.isNotEmpty && points.length == 8) {
           primaryPos = secondaryPos = series.localToGlobal(points[3]);
         } else {
-          primaryPos = tooltipPosition == TooltipPosition.pointer
-              ? series.localToGlobal(position ?? segmentRect!.topCenter)
-              : series.localToGlobal(segmentRect!.topCenter);
+          primaryPos =
+              tooltipPosition == TooltipPosition.pointer
+                  ? series.localToGlobal(position ?? segmentRect!.topCenter)
+                  : series.localToGlobal(segmentRect!.topCenter);
           secondaryPos = primaryPos;
         }
       }
@@ -994,9 +1072,10 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
         primaryPosition: primaryPos,
         secondaryPosition: secondaryPos,
         text: series.tooltipText(chartPoint, outlierIndex),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -1018,8 +1097,10 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
       if (points.isNotEmpty && points.length == 8) {
         primaryPos = points[3];
       } else {
-        primaryPos = Offset(series.pointToPixelX(x, chartPoint.upperQuartile!),
-            series.pointToPixelY(x, chartPoint.upperQuartile!));
+        primaryPos = Offset(
+          series.pointToPixelX(x, chartPoint.upperQuartile!),
+          series.pointToPixelY(x, chartPoint.upperQuartile!),
+        );
       }
 
       return ChartTrackballInfo<T, D>(
@@ -1058,40 +1139,84 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
         points.length == 8 &&
         strokePaint.strokeWidth > 0 &&
         strokePaint.color != Colors.transparent) {
-      final Offset? maxStart =
-          Offset.lerp(_oldPoints[0], points[0], animationFactor);
-      final Offset? maxEnd =
-          Offset.lerp(_oldPoints[1], points[1], animationFactor);
+      final Offset? maxStart = Offset.lerp(
+        _oldPoints[0],
+        points[0],
+        animationFactor,
+      );
+      final Offset? maxEnd = Offset.lerp(
+        _oldPoints[1],
+        points[1],
+        animationFactor,
+      );
       if (maxStart != null && maxEnd != null) {
-        drawDashes(canvas, series.dashArray, strokePaint,
-            start: maxStart, end: maxEnd);
+        drawDashes(
+          canvas,
+          series.dashArray,
+          strokePaint,
+          start: maxStart,
+          end: maxEnd,
+        );
       }
 
-      final Offset? maxConnectorStart =
-          Offset.lerp(_oldPoints[2], points[2], animationFactor);
-      final Offset? maxConnectorEnd =
-          Offset.lerp(_oldPoints[3], points[3], animationFactor);
+      final Offset? maxConnectorStart = Offset.lerp(
+        _oldPoints[2],
+        points[2],
+        animationFactor,
+      );
+      final Offset? maxConnectorEnd = Offset.lerp(
+        _oldPoints[3],
+        points[3],
+        animationFactor,
+      );
       if (maxConnectorStart != null && maxConnectorEnd != null) {
-        drawDashes(canvas, series.dashArray, strokePaint,
-            start: maxConnectorStart, end: maxConnectorEnd);
+        drawDashes(
+          canvas,
+          series.dashArray,
+          strokePaint,
+          start: maxConnectorStart,
+          end: maxConnectorEnd,
+        );
       }
 
-      final Offset? minStart =
-          Offset.lerp(_oldPoints[4], points[4], animationFactor);
-      final Offset? minEnd =
-          Offset.lerp(_oldPoints[5], points[5], animationFactor);
+      final Offset? minStart = Offset.lerp(
+        _oldPoints[4],
+        points[4],
+        animationFactor,
+      );
+      final Offset? minEnd = Offset.lerp(
+        _oldPoints[5],
+        points[5],
+        animationFactor,
+      );
       if (minStart != null && minEnd != null) {
-        drawDashes(canvas, series.dashArray, strokePaint,
-            start: minStart, end: minEnd);
+        drawDashes(
+          canvas,
+          series.dashArray,
+          strokePaint,
+          start: minStart,
+          end: minEnd,
+        );
       }
 
-      final Offset? minConnectorStart =
-          Offset.lerp(_oldPoints[6], points[6], animationFactor);
-      final Offset? minConnectorEnd =
-          Offset.lerp(_oldPoints[7], points[7], animationFactor);
+      final Offset? minConnectorStart = Offset.lerp(
+        _oldPoints[6],
+        points[6],
+        animationFactor,
+      );
+      final Offset? minConnectorEnd = Offset.lerp(
+        _oldPoints[7],
+        points[7],
+        animationFactor,
+      );
       if (minConnectorStart != null && minConnectorEnd != null) {
-        drawDashes(canvas, series.dashArray, strokePaint,
-            start: minConnectorStart, end: minConnectorEnd);
+        drawDashes(
+          canvas,
+          series.dashArray,
+          strokePaint,
+          start: minConnectorStart,
+          end: minConnectorEnd,
+        );
       }
     }
 
@@ -1099,8 +1224,11 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final Rect? paintRect =
-        Rect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+    final Rect? paintRect = Rect.lerp(
+      _oldSegmentRect,
+      segmentRect,
+      animationFactor,
+    );
     if (paintRect == null) {
       return;
     }
@@ -1113,13 +1241,20 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
     final double strokeWidth = strokePaint.strokeWidth;
     if (strokeWidth > 0 && strokePaint.color != Colors.transparent) {
       final Path strokePath = strokePathFromRRect(
-          RRect.fromRectAndRadius(paintRect, Radius.zero), strokeWidth);
+        RRect.fromRectAndRadius(paintRect, Radius.zero),
+        strokeWidth,
+      );
       drawDashes(canvas, series.dashArray, strokePaint, path: strokePath);
     }
 
     if (_medianLinePoints.isNotEmpty) {
-      drawDashes(canvas, series.dashArray, strokePaint,
-          start: _medianLinePoints[0], end: _medianLinePoints[1]);
+      drawDashes(
+        canvas,
+        series.dashArray,
+        strokePaint,
+        start: _medianLinePoints[0],
+        end: _medianLinePoints[1],
+      );
     }
 
     if (animationFactor > 0.75 && _meanLinePoints.isNotEmpty) {
@@ -1127,18 +1262,29 @@ class BoxAndWhiskerSegment<T, D> extends ChartSegment {
       // only 0.25. So, 0.25 * 4 = 1.0. So, the animation factor is multiplied
       // by 4 to get the animation factor for mean line.
       final double opacity = (animationFactor - 0.75) * 4.0;
-      final Paint meanPaint = Paint()
-        ..color = strokePaint.color.withValues(alpha: opacity)
-        ..strokeWidth = strokePaint.strokeWidth
-        ..shader = strokePaint.shader
-        ..style = strokePaint.style
-        ..strokeCap = strokePaint.strokeCap
-        ..strokeJoin = strokePaint.strokeJoin
-        ..strokeMiterLimit = strokePaint.strokeMiterLimit;
-      drawDashes(canvas, series.dashArray, meanPaint,
-          start: _meanLinePoints[0], end: _meanLinePoints[1]);
-      drawDashes(canvas, series.dashArray, meanPaint,
-          start: _meanLinePoints[2], end: _meanLinePoints[3]);
+      final Paint meanPaint =
+          Paint()
+            ..color = strokePaint.color.withValues(alpha: opacity)
+            ..strokeWidth = strokePaint.strokeWidth
+            ..shader = strokePaint.shader
+            ..style = strokePaint.style
+            ..strokeCap = strokePaint.strokeCap
+            ..strokeJoin = strokePaint.strokeJoin
+            ..strokeMiterLimit = strokePaint.strokeMiterLimit;
+      drawDashes(
+        canvas,
+        series.dashArray,
+        meanPaint,
+        start: _meanLinePoints[0],
+        end: _meanLinePoints[1],
+      );
+      drawDashes(
+        canvas,
+        series.dashArray,
+        meanPaint,
+        start: _meanLinePoints[2],
+        end: _meanLinePoints[3],
+      );
     }
   }
 

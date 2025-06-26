@@ -40,9 +40,10 @@ class MarkerContainer extends Stack {
 
   @override
   void updateRenderObject(
-      BuildContext context,
-      // ignore: library_private_types_in_public_api
-      _RenderMarkerContainer renderObject) {
+    BuildContext context,
+    // ignore: library_private_types_in_public_api
+    _RenderMarkerContainer renderObject,
+  ) {
     renderObject
       ..markerTooltipBuilder = markerTooltipBuilder
       ..themeData = themeData
@@ -63,9 +64,10 @@ class _RenderMarkerContainer extends RenderStack {
     return container.children.indexOf(marker);
   }
 
-  Size get containerSize => controller.layerType == LayerType.tile
-      ? controller.getTileSize(controller.tileCurrentLevelDetails.zoomLevel)
-      : controller.shapeLayerBoxSize;
+  Size get containerSize =>
+      controller.layerType == LayerType.tile
+          ? controller.getTileSize(controller.tileCurrentLevelDetails.zoomLevel)
+          : controller.shapeLayerBoxSize;
 
   void _handleZooming(MapZoomDetails details) {
     markNeedsLayout();
@@ -114,9 +116,10 @@ class _RenderMarkerContainer extends RenderStack {
 
   @override
   void performLayout() {
-    size = controller.layerType == LayerType.shape
-        ? controller.shapeLayerBoxSize
-        : controller.tileLayerBoxSize!;
+    size =
+        controller.layerType == LayerType.shape
+            ? controller.shapeLayerBoxSize
+            : controller.tileLayerBoxSize!;
     final double factor = getLayerSizeFactor(controller);
     final Offset translation = getTranslationOffset(controller);
     RenderBox? child = firstChild;
@@ -127,22 +130,31 @@ class _RenderMarkerContainer extends RenderStack {
           // ignore: avoid_as
           child.parentData! as StackParentData;
       child.layout(constraints, parentUsesSize: true);
-      childParentData.offset = pixelFromLatLng(marker.latitude,
-          marker.longitude, containerSize, translation, factor);
+      childParentData.offset = pixelFromLatLng(
+        marker.latitude,
+        marker.longitude,
+        containerSize,
+        translation,
+        factor,
+      );
       if (controller.layerType == LayerType.tile) {
         final TileZoomLevelDetails level = controller.tileCurrentLevelDetails;
         childParentData.offset =
             childParentData.offset.scale(level.scale, level.scale) +
-                level.translatePoint;
+            level.translatePoint;
       }
-      childParentData.offset -=
-          Offset(marker.size.width / 2, marker.size.height / 2);
+      childParentData.offset -= Offset(
+        marker.size.width / 2,
+        marker.size.height / 2,
+      );
       if (marker.alignment != Alignment.center) {
-        final Alignment effectiveAlignment =
-            marker.alignment.resolve(textDirection);
+        final Alignment effectiveAlignment = marker.alignment.resolve(
+          textDirection,
+        );
         childParentData.offset -= Offset(
-            effectiveAlignment.x * marker.size.width / 2,
-            effectiveAlignment.y * marker.size.height / 2);
+          effectiveAlignment.x * marker.size.width / 2,
+          effectiveAlignment.y * marker.size.height / 2,
+        );
       }
 
       if (marker.offset != Offset.zero) {
@@ -160,8 +172,12 @@ class _RenderMarkerContainer extends RenderStack {
       final StackParentData childParentData =
           // ignore: avoid_as
           child.parentData! as StackParentData;
-      final Rect childRect = Rect.fromLTWH(childParentData.offset.dx,
-          childParentData.offset.dy, child.size.width, child.size.height);
+      final Rect childRect = Rect.fromLTWH(
+        childParentData.offset.dx,
+        childParentData.offset.dy,
+        child.size.width,
+        child.size.height,
+      );
       if (sublayer != null || controller.visibleBounds!.overlaps(childRect)) {
         context.paintChild(child, childParentData.offset);
       }
@@ -920,15 +936,15 @@ class _RenderMapMarker extends RenderProxyBox
     required double? iconStrokeWidth,
     required MapIconType iconType,
     required this.marker,
-  })  : _longitude = longitude,
-        _latitude = latitude,
-        _markerSize = markerSize,
-        _alignment = alignment,
-        _offset = offset,
-        _iconColor = iconColor,
-        _iconStrokeColor = iconStrokeColor,
-        _iconStrokeWidth = iconStrokeWidth,
-        _iconType = iconType {
+  }) : _longitude = longitude,
+       _latitude = latitude,
+       _markerSize = markerSize,
+       _alignment = alignment,
+       _offset = offset,
+       _iconColor = iconColor,
+       _iconStrokeColor = iconStrokeColor,
+       _iconStrokeWidth = iconStrokeWidth,
+       _iconType = iconType {
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
@@ -1051,8 +1067,9 @@ class _RenderMapMarker extends RenderProxyBox
       if (markerContainer.markerTooltipBuilder != null) {
         final ShapeLayerChildRenderBoxBase tooltipRenderBox =
             markerContainer.controller.tooltipKey!.currentContext!
-                // ignore: avoid_as
-                .findRenderObject()! as ShapeLayerChildRenderBoxBase;
+                    // ignore: avoid_as
+                    .findRenderObject()!
+                as ShapeLayerChildRenderBoxBase;
         tooltipRenderBox.hideTooltip();
       }
     }
@@ -1067,24 +1084,28 @@ class _RenderMapMarker extends RenderProxyBox
       if (markerContainerRenderBox.markerTooltipBuilder != null) {
         if (markerContainerRenderBox.sublayer != null) {
           sublayerIndex = markerContainerRenderBox
-              .container.ancestor!.sublayers!
+              .container
+              .ancestor!
+              .sublayers!
               .indexOf(markerContainerRenderBox.sublayer!);
         }
 
         final ShapeLayerChildRenderBoxBase tooltipRenderBox =
             markerContainerRenderBox.controller.tooltipKey!.currentContext!
-                // ignore: avoid_as
-                .findRenderObject()! as ShapeLayerChildRenderBoxBase;
+                    // ignore: avoid_as
+                    .findRenderObject()!
+                as ShapeLayerChildRenderBoxBase;
         // ignore: avoid_as
         final StackParentData childParentData = parentData! as StackParentData;
         tooltipRenderBox.paintTooltip(
-            markerContainerRenderBox.getMarkerIndex(marker),
-            childParentData.offset & size,
-            MapLayerElement.marker,
-            kind,
-            // [sublayerIndex] is applicable only when the markers
-            // added to the [MapShapeSublayer].
-            sublayerIndex);
+          markerContainerRenderBox.getMarkerIndex(marker),
+          childParentData.offset & size,
+          MapLayerElement.marker,
+          kind,
+          // [sublayerIndex] is applicable only when the markers
+          // added to the [MapShapeSublayer].
+          sublayerIndex,
+        );
       }
     }
   }
@@ -1170,12 +1191,15 @@ class _RenderMapMarker extends RenderProxyBox
         parent! as _RenderMarkerContainer;
     if (child == null) {
       core.paint(
-          canvas: context.canvas,
-          rect: paintBounds,
-          shapeType: _getEffectiveShapeType(),
-          paint: Paint()
-            ..color = _iconColor ?? markerContainer.themeData.markerIconColor!,
-          borderPaint: _getBorderPaint());
+        canvas: context.canvas,
+        rect: paintBounds,
+        shapeType: _getEffectiveShapeType(),
+        paint:
+            Paint()
+              ..color =
+                  _iconColor ?? markerContainer.themeData.markerIconColor!,
+        borderPaint: _getBorderPaint(),
+      );
     } else {
       context.paintChild(child!, offset);
     }

@@ -52,8 +52,11 @@ class RangeCollection {
 
       _iCount = (iCount >= iBufCount) ? iCount : iBufCount;
 
-      final List<Range?> list =
-          List<Range?>.filled(_iCount, null, growable: true);
+      final List<Range?> list = List<Range?>.filled(
+        _iCount,
+        null,
+        growable: true,
+      );
 
       list.setAll(0, _innerList);
 

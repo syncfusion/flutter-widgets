@@ -9,53 +9,54 @@ import 'renderer_base.dart';
 class SfSparkWinLossChartRenderObjectWidget
     extends SfSparkChartRenderObjectWidget {
   /// Creates the render object for spark chart.
-  const SfSparkWinLossChartRenderObjectWidget(
-      {Key? key,
-      List<dynamic>? data,
-      int? dataCount,
-      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
-      SparkChartIndexedValueMapper<num>? yValueMapper,
-      Color? color,
-      SparkChartPlotBand? plotBand,
-      this.borderWidth,
-      this.borderColor,
-      this.tiePointColor,
-      bool? isInversed,
-      double? axisCrossesAt,
-      Color? axisLineColor,
-      double? axisLineWidth,
-      List<double>? axisLineDashArray,
-      Color? firstPointColor,
-      Color? lowPointColor,
-      Color? highPointColor,
-      Color? lastPointColor,
-      Color? negativePointColor,
-      SparkChartDataDetails? sparkChartDataDetails,
-      SfSparkChartThemeData? themeData,
-      List<Offset>? coordinatePoints,
-      List<SparkChartPoint>? dataPoints})
-      : super(
-            key: key,
-            data: data,
-            dataCount: dataCount,
-            xValueMapper: xValueMapper,
-            yValueMapper: yValueMapper,
-            isInversed: isInversed,
-            axisCrossesAt: axisCrossesAt,
-            axisLineColor: axisLineColor,
-            axisLineWidth: axisLineWidth,
-            axisLineDashArray: axisLineDashArray,
-            firstPointColor: firstPointColor,
-            lowPointColor: lowPointColor,
-            highPointColor: highPointColor,
-            lastPointColor: lastPointColor,
-            negativePointColor: negativePointColor,
-            color: color,
-            plotBand: plotBand,
-            sparkChartDataDetails: sparkChartDataDetails,
-            themeData: themeData,
-            coordinatePoints: coordinatePoints,
-            dataPoints: dataPoints);
+  const SfSparkWinLossChartRenderObjectWidget({
+    Key? key,
+    List<dynamic>? data,
+    int? dataCount,
+    SparkChartIndexedValueMapper<dynamic>? xValueMapper,
+    SparkChartIndexedValueMapper<num>? yValueMapper,
+    Color? color,
+    SparkChartPlotBand? plotBand,
+    this.borderWidth,
+    this.borderColor,
+    this.tiePointColor,
+    bool? isInversed,
+    double? axisCrossesAt,
+    Color? axisLineColor,
+    double? axisLineWidth,
+    List<double>? axisLineDashArray,
+    Color? firstPointColor,
+    Color? lowPointColor,
+    Color? highPointColor,
+    Color? lastPointColor,
+    Color? negativePointColor,
+    SparkChartDataDetails? sparkChartDataDetails,
+    SfSparkChartThemeData? themeData,
+    List<Offset>? coordinatePoints,
+    List<SparkChartPoint>? dataPoints,
+  }) : super(
+         key: key,
+         data: data,
+         dataCount: dataCount,
+         xValueMapper: xValueMapper,
+         yValueMapper: yValueMapper,
+         isInversed: isInversed,
+         axisCrossesAt: axisCrossesAt,
+         axisLineColor: axisLineColor,
+         axisLineWidth: axisLineWidth,
+         axisLineDashArray: axisLineDashArray,
+         firstPointColor: firstPointColor,
+         lowPointColor: lowPointColor,
+         highPointColor: highPointColor,
+         lastPointColor: lastPointColor,
+         negativePointColor: negativePointColor,
+         color: color,
+         plotBand: plotBand,
+         sparkChartDataDetails: sparkChartDataDetails,
+         themeData: themeData,
+         coordinatePoints: coordinatePoints,
+         dataPoints: dataPoints,
+       );
 
   /// Specifies the area chart border width.
   final double? borderWidth;
@@ -69,36 +70,38 @@ class SfSparkWinLossChartRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSparkWinLossChart(
-        dataCount: dataCount,
-        data: data,
-        xValueMapper: xValueMapper,
-        yValueMapper: yValueMapper,
-        isInversed: isInversed,
-        axisCrossesAt: axisCrossesAt,
-        axisLineColor: axisLineColor,
-        axisLineWidth: axisLineWidth,
-        axisLineDashArray: axisLineDashArray,
-        firstPointColor: firstPointColor,
-        lastPointColor: lastPointColor,
-        highPointColor: highPointColor,
-        lowPointColor: lowPointColor,
-        negativePointColor: negativePointColor,
-        color: color,
-        plotBand: plotBand,
-        tiePointColor: tiePointColor,
-        borderColor: borderColor,
-        borderWidth: borderWidth,
-        sparkChartDataDetails: sparkChartDataDetails,
-        themeData: themeData,
-        coordinatePoints: coordinatePoints,
-        dataPoints: dataPoints);
+      dataCount: dataCount,
+      data: data,
+      xValueMapper: xValueMapper,
+      yValueMapper: yValueMapper,
+      isInversed: isInversed,
+      axisCrossesAt: axisCrossesAt,
+      axisLineColor: axisLineColor,
+      axisLineWidth: axisLineWidth,
+      axisLineDashArray: axisLineDashArray,
+      firstPointColor: firstPointColor,
+      lastPointColor: lastPointColor,
+      highPointColor: highPointColor,
+      lowPointColor: lowPointColor,
+      negativePointColor: negativePointColor,
+      color: color,
+      plotBand: plotBand,
+      tiePointColor: tiePointColor,
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      sparkChartDataDetails: sparkChartDataDetails,
+      themeData: themeData,
+      coordinatePoints: coordinatePoints,
+      dataPoints: dataPoints,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context,
-      // ignore: library_private_types_in_public_api
-      _RenderSparkWinLossChart renderObject) {
+    BuildContext context,
+    // ignore: library_private_types_in_public_api
+    _RenderSparkWinLossChart renderObject,
+  ) {
     renderObject
       ..isInversed = isInversed
       ..axisCrossesAt = axisCrossesAt
@@ -128,54 +131,55 @@ class SfSparkWinLossChartRenderObjectWidget
 /// Represents the render spark win loss chart class.
 class _RenderSparkWinLossChart extends RenderSparkChart {
   /// Creates the render object widget.
-  _RenderSparkWinLossChart(
-      {List<dynamic>? data,
-      int? dataCount,
-      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
-      SparkChartIndexedValueMapper<num>? yValueMapper,
-      bool? isInversed,
-      double? axisCrossesAt,
-      double? axisLineWidth,
-      Color? axisLineColor,
-      List<double>? axisLineDashArray,
-      Color? color,
-      Color? firstPointColor,
-      Color? lastPointColor,
-      Color? highPointColor,
-      Color? lowPointColor,
-      Color? negativePointColor,
-      SparkChartPlotBand? plotBand,
-      Color? tiePointColor,
-      double? borderWidth,
-      Color? borderColor,
-      SfSparkChartThemeData? themeData,
-      SparkChartDataDetails? sparkChartDataDetails,
-      List<Offset>? coordinatePoints,
-      List<SparkChartPoint>? dataPoints})
-      : _tiePointColor = tiePointColor,
-        _borderWidth = borderWidth,
-        _borderColor = borderColor,
-        super(
-            data: data,
-            dataCount: dataCount,
-            xValueMapper: xValueMapper,
-            yValueMapper: yValueMapper,
-            isInversed: isInversed,
-            axisCrossesAt: axisCrossesAt,
-            axisLineWidth: axisLineWidth,
-            axisLineColor: axisLineColor,
-            axisLineDashArray: axisLineDashArray,
-            color: color,
-            firstPointColor: firstPointColor,
-            lastPointColor: lastPointColor,
-            highPointColor: highPointColor,
-            lowPointColor: lowPointColor,
-            negativePointColor: negativePointColor,
-            plotBand: plotBand,
-            sparkChartDataDetails: sparkChartDataDetails,
-            themeData: themeData,
-            coordinatePoints: coordinatePoints,
-            dataPoints: dataPoints);
+  _RenderSparkWinLossChart({
+    List<dynamic>? data,
+    int? dataCount,
+    SparkChartIndexedValueMapper<dynamic>? xValueMapper,
+    SparkChartIndexedValueMapper<num>? yValueMapper,
+    bool? isInversed,
+    double? axisCrossesAt,
+    double? axisLineWidth,
+    Color? axisLineColor,
+    List<double>? axisLineDashArray,
+    Color? color,
+    Color? firstPointColor,
+    Color? lastPointColor,
+    Color? highPointColor,
+    Color? lowPointColor,
+    Color? negativePointColor,
+    SparkChartPlotBand? plotBand,
+    Color? tiePointColor,
+    double? borderWidth,
+    Color? borderColor,
+    SfSparkChartThemeData? themeData,
+    SparkChartDataDetails? sparkChartDataDetails,
+    List<Offset>? coordinatePoints,
+    List<SparkChartPoint>? dataPoints,
+  }) : _tiePointColor = tiePointColor,
+       _borderWidth = borderWidth,
+       _borderColor = borderColor,
+       super(
+         data: data,
+         dataCount: dataCount,
+         xValueMapper: xValueMapper,
+         yValueMapper: yValueMapper,
+         isInversed: isInversed,
+         axisCrossesAt: axisCrossesAt,
+         axisLineWidth: axisLineWidth,
+         axisLineColor: axisLineColor,
+         axisLineDashArray: axisLineDashArray,
+         color: color,
+         firstPointColor: firstPointColor,
+         lastPointColor: lastPointColor,
+         highPointColor: highPointColor,
+         lowPointColor: lowPointColor,
+         negativePointColor: negativePointColor,
+         plotBand: plotBand,
+         sparkChartDataDetails: sparkChartDataDetails,
+         themeData: themeData,
+         coordinatePoints: coordinatePoints,
+         dataPoints: dataPoints,
+       );
 
   /// Defines the border width.
   double? _borderWidth;
@@ -239,9 +243,10 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
     diffY = diffY == 0 ? 1 : diffY;
 
     _segments = <Rect>[];
-    final double xInterval = dataPoints!.length > 1
-        ? dataPoints![1].x.toDouble() - dataPoints![0].x.toDouble()
-        : dataPoints!.length.toDouble();
+    final double xInterval =
+        dataPoints!.length > 1
+            ? dataPoints![1].x.toDouble() - dataPoints![0].x.toDouble()
+            : dataPoints!.length.toDouble();
     const double columnSpace = 0.5; // Default space for column and winloss
     const double space = columnSpace * 2;
     const double winLossFactor = 0.5;
@@ -264,17 +269,22 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
 
       visibleXPoint =
           (((x - minX!) / xInterval) * (columnWidth + space)) + (space / 2);
-      y2 = (y > axisCrossesAt!)
-          ? (areaSize!.height / 2)
-          : (y < axisCrossesAt!)
+      y2 =
+          (y > axisCrossesAt!)
+              ? (areaSize!.height / 2)
+              : (y < axisCrossesAt!)
               ? areaSize!.height * winLossFactor
               : ((areaSize!.height * winLossFactor) -
                   (areaSize!.height / heightFactor));
       rectHeight =
           (y != axisCrossesAt) ? (areaSize!.height / 2) : areaSize!.height / 20;
       bottom = y > axisCrossesAt! ? rectHeight - y2 : rectHeight + y2;
-      rect =
-          Rect.fromLTRB(visibleXPoint, y2, visibleXPoint + columnWidth, bottom);
+      rect = Rect.fromLTRB(
+        visibleXPoint,
+        y2,
+        visibleXPoint + columnWidth,
+        bottom,
+      );
       _segments.add(rect);
       coordinatePoints!.add(Offset(visibleXPoint + columnWidth / 2, y2));
     }
@@ -282,17 +292,19 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
 
   /// Method to render win loss series.
   void _renderWinLossSeries(Canvas canvas, Offset offset) {
-    final Paint tiePointPaint = Paint()
-      ..color = tiePointColor ?? Colors.deepPurple;
-    final Paint negativePointPaint = Paint()
-      ..color = negativePointColor ?? Colors.red;
+    final Paint tiePointPaint =
+        Paint()..color = tiePointColor ?? Colors.deepPurple;
+    final Paint negativePointPaint =
+        Paint()..color = negativePointColor ?? Colors.red;
     final Paint paint = Paint()..color = color!;
-    final Paint strokePaint = Paint()
-      ..color = borderColor ?? Colors.transparent
-      ..strokeWidth = borderWidth ?? 0
-      ..style = PaintingStyle.stroke;
+    final Paint strokePaint =
+        Paint()
+          ..color = borderColor ?? Colors.transparent
+          ..strokeWidth = borderWidth ?? 0
+          ..style = PaintingStyle.stroke;
 
-    final bool canDrawBorder = borderColor != null &&
+    final bool canDrawBorder =
+        borderColor != null &&
         borderColor != Colors.transparent &&
         borderWidth != null &&
         borderWidth! > 0;
@@ -300,10 +312,11 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
 
     for (int i = 0; i < dataPoints!.length; i++) {
       rect = Rect.fromLTRB(
-          _segments[i].left + offset.dx,
-          _segments[i].top + offset.dy,
-          _segments[i].right + offset.dx,
-          _segments[i].bottom + offset.dy);
+        _segments[i].left + offset.dx,
+        _segments[i].top + offset.dy,
+        _segments[i].right + offset.dx,
+        _segments[i].bottom + offset.dy,
+      );
       if (dataPoints![i].y < axisCrossesAt!) {
         canvas.drawRect(rect, negativePointPaint);
       } else if (dataPoints![i].y == axisCrossesAt) {

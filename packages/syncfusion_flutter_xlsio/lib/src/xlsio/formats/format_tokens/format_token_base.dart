@@ -14,14 +14,16 @@ abstract class FormatTokenBase {
   int tryParseRegex(RegExp regex, String stringFormat, int iIndex) {
     final int iFormatLength = stringFormat.length;
     if (iFormatLength == 0) {
-      final Error error =
-          ArgumentError('stringFormat - string cannot be empty');
+      final Error error = ArgumentError(
+        'stringFormat - string cannot be empty',
+      );
       throw error;
     }
 
     if (iIndex < 0 || iIndex > iFormatLength) {
       final Error error = ArgumentError(
-          'iIndex - Value cannot be less than 0 or greater than Format Length');
+        'iIndex - Value cannot be less than 0 or greater than Format Length',
+      );
       throw error;
     }
     final Match? m = regex.matchAsPrefix(stringFormat, iIndex);
@@ -37,8 +39,12 @@ abstract class FormatTokenBase {
   }
 
   /// Applies format to the value.
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section);
+  String applyFormat(
+    double value,
+    bool bShowHiddenSymbols,
+    CultureInfo culture,
+    FormatSection section,
+  );
 
   /// Applies format to the value.
   // ignore: unused_element
@@ -64,7 +70,11 @@ abstract class FormatTokenBase {
   /// Searches for string from strings array in the format starting from the specified position.
   // ignore: unused_element
   int _findString(
-      List<String> arrStrings, String strFormat, int iIndex, bool bIgnoreCase) {
+    List<String> arrStrings,
+    String strFormat,
+    int iIndex,
+    bool bIgnoreCase,
+  ) {
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) {
@@ -74,7 +84,8 @@ abstract class FormatTokenBase {
 
     if (iIndex < 0 || iIndex > iFormatLength - 1) {
       final Error error = ArgumentError(
-          'iIndex - Value cannot be less than 0 and greater than than format length - 1.');
+        'iIndex - Value cannot be less than 0 and greater than than format length - 1.',
+      );
       throw error;
     }
     return -1;

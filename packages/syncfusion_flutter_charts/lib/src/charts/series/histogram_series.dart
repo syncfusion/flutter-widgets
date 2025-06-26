@@ -354,7 +354,9 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, HistogramSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    HistogramSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..binInterval = binInterval
@@ -387,7 +389,13 @@ class HistogramSeriesRenderer<T, D> extends HistogramSeriesRendererBase<T, D> {
     List<List<Object?>>? fLists,
   ]) {
     super.populateDataSource(
-        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
+      yPaths,
+      chaoticYLists,
+      yLists,
+      fPaths,
+      chaoticFLists,
+      fLists,
+    );
     populateChartPoints();
   }
 
@@ -414,12 +422,18 @@ class HistogramSeriesRenderer<T, D> extends HistogramSeriesRendererBase<T, D> {
     final HistogramSegment<T, D> histogramSegment =
         segment as HistogramSegment<T, D>;
     updateSegmentTrackerStyle(
-        histogramSegment, trackColor, trackBorderColor, trackBorderWidth);
+      histogramSegment,
+      trackColor,
+      trackBorderColor,
+      trackBorderWidth,
+    );
     updateSegmentColor(histogramSegment, borderColor, borderWidth);
-    updateSegmentGradient(histogramSegment,
-        gradientBounds: histogramSegment.segmentRect?.outerRect,
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      histogramSegment,
+      gradientBounds: histogramSegment.segmentRect?.outerRect,
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 }
 
@@ -436,7 +450,9 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldSegmentRect = null;
@@ -445,8 +461,11 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
     }
 
     if (series.animationDuration > 0) {
-      _oldSegmentRect =
-          RRect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
+      _oldSegmentRect = RRect.lerp(
+        _oldSegmentRect,
+        segmentRect,
+        segmentAnimationFactor,
+      );
     } else {
       _oldSegmentRect = segmentRect;
     }
@@ -519,20 +538,26 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       final ChartMarker marker = series.markerAt(pointIndex);
       final double markerHeight =
           series.markerSettings.isVisible ? marker.height / 2 : 0;
-      final Offset preferredPos = tooltipPosition == TooltipPosition.pointer
-          ? position ?? segmentRect!.outerRect.topCenter
-          : segmentRect!.outerRect.topCenter;
+      final Offset preferredPos =
+          tooltipPosition == TooltipPosition.pointer
+              ? position ?? segmentRect!.outerRect.topCenter
+              : segmentRect!.outerRect.topCenter;
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: _tooltipTextFormat(chartPoint, digits),
-        header: tooltipBehavior.shared
-            ? _tooltipText(series.tooltipHeaderText(chartPoint), digits)
-            : series.name,
-        data: series.dataSource![
-            pointIndex >= dataSourceLength ? dataSourceLength - 1 : pointIndex],
+        header:
+            tooltipBehavior.shared
+                ? _tooltipText(series.tooltipHeaderText(chartPoint), digits)
+                : series.name,
+        data:
+            series.dataSource![pointIndex >= dataSourceLength
+                ? dataSourceLength - 1
+                : pointIndex],
         point: chartPoint,
         series: series.widget,
         renderer: series,
@@ -551,8 +576,10 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
     if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       return ChartTrackballInfo<T, D>(
-        position:
-            Offset(series.pointToPixelX(x, y), series.pointToPixelY(x, y)),
+        position: Offset(
+          series.pointToPixelX(x, y),
+          series.pointToPixelY(x, y),
+        ),
         point: chartPoint,
         series: series,
         seriesIndex: series.index,
@@ -594,10 +621,16 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
 
     final num xValue = series.xValues[currentSegmentIndex];
     final num binWidth = _binWidth / 2;
-    final String x1 =
-        formatNumericValue(xValue - binWidth, series.xAxis, digits);
-    final String x2 =
-        formatNumericValue(xValue + binWidth, series.xAxis, digits);
+    final String x1 = formatNumericValue(
+      xValue - binWidth,
+      series.xAxis,
+      digits,
+    );
+    final String x2 = formatNumericValue(
+      xValue + binWidth,
+      series.xAxis,
+      digits,
+    );
     if (text.contains(':')) {
       // Tooltip text.
       text = '$x1 - $x2 : ${text.split(':')[1]}';
@@ -633,8 +666,11 @@ class HistogramSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       return;
     }
 
-    final RRect? paintRRect =
-        RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+    final RRect? paintRRect = RRect.lerp(
+      _oldSegmentRect,
+      segmentRect,
+      animationFactor,
+    );
     if (paintRRect == null) {
       return;
     }

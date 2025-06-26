@@ -79,9 +79,10 @@ class LogarithmicAxis extends ChartAxis {
     super.axisLabelFormatter,
     this.onRendererCreated,
   }) : assert(
-            (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
-                autoScrollingDelta == null,
-            'Both properties have the same behavior to display the visible data points, use any one of the properties');
+         (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
+             autoScrollingDelta == null,
+         'Both properties have the same behavior to display the visible data points, use any one of the properties',
+       );
 
   /// Formats the numeric axis labels.
   ///
@@ -343,7 +344,9 @@ class LogarithmicAxis extends ChartAxis {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderLogarithmicAxis renderObject) {
+    BuildContext context,
+    RenderLogarithmicAxis renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..labelFormat = labelFormat
@@ -361,8 +364,9 @@ class RenderLogarithmicAxis extends RenderChartAxis {
 
   @override
   LogarithmicAxisController get controller => _controller;
-  late final LogarithmicAxisController _controller =
-      LogarithmicAxisController(this);
+  late final LogarithmicAxisController _controller = LogarithmicAxisController(
+    this,
+  );
 
   @override
   @nonVirtual
@@ -513,7 +517,10 @@ class RenderLogarithmicAxis extends RenderChartAxis {
 
   @override
   DoubleRange applyRangePadding(
-      DoubleRange range, num interval, Size availableSize) {
+    DoubleRange range,
+    num interval,
+    Size availableSize,
+  ) {
     return range;
   }
 
@@ -573,12 +580,18 @@ class RenderLogarithmicAxis extends RenderChartAxis {
 
   @override
   DoubleRange updateAutoScrollingDelta(
-      int scrollingDelta, DoubleRange actualRange, DoubleRange visibleRange) {
+    int scrollingDelta,
+    DoubleRange actualRange,
+    DoubleRange visibleRange,
+  ) {
     if (initialVisibleMaximum != null || initialVisibleMinimum != null) {
       return visibleRange;
     }
-    return super
-        .updateAutoScrollingDelta(scrollingDelta, actualRange, visibleRange);
+    return super.updateAutoScrollingDelta(
+      scrollingDelta,
+      actualRange,
+      visibleRange,
+    );
   }
 
   @override
@@ -626,9 +639,10 @@ class RenderLogarithmicAxis extends RenderChartAxis {
       }
 
       final num currentValue = toPow(current);
-      String text = currentValue < 1
-          ? currentValue.toString()
-          : currentValue.floor().toString();
+      String text =
+          currentValue < 1
+              ? currentValue.toString()
+              : currentValue.floor().toString();
       if (numberFormat != null) {
         text = numberFormat!.format(toPow(current));
       }
@@ -641,11 +655,18 @@ class RenderLogarithmicAxis extends RenderChartAxis {
         text = '$text%';
       }
       String callbackText = text;
-      TextStyle callbackTextStyle =
-          chartThemeData!.axisLabelTextStyle!.merge(labelStyle);
+      TextStyle callbackTextStyle = chartThemeData!.axisLabelTextStyle!.merge(
+        labelStyle,
+      );
       if (axisLabelFormatter != null) {
         final AxisLabelRenderDetails details = AxisLabelRenderDetails(
-            current, callbackText, callbackTextStyle, this, null, null);
+          current,
+          callbackText,
+          callbackTextStyle,
+          this,
+          null,
+          null,
+        );
         final ChartAxisLabel label = axisLabelFormatter!(details);
         callbackText = label.text;
         callbackTextStyle = callbackTextStyle.merge(label.textStyle);
@@ -663,8 +684,11 @@ class RenderLogarithmicAxis extends RenderChartAxis {
         );
       }
 
-      textSize =
-          measureText(textAfterTrimming, callbackTextStyle, labelRotation);
+      textSize = measureText(
+        textAfterTrimming,
+        callbackTextStyle,
+        labelRotation,
+      );
       final bool isTextTrimmed = callbackText != textAfterTrimming;
       final AxisLabel label = AxisLabel(
         callbackTextStyle,
@@ -706,7 +730,8 @@ class RenderLogarithmicAxis extends RenderChartAxis {
         if (i < lastIndex) {
           current = toLog(visibleLabels[i].value) - tickBetweenLabel;
         } else {
-          current = (toLog(visibleLabels[i - 1].value) + visibleInterval) -
+          current =
+              (toLog(visibleLabels[i - 1].value) + visibleInterval) -
               tickBetweenLabel;
         }
       } else {
@@ -743,12 +768,14 @@ class RenderLogarithmicAxis extends RenderChartAxis {
       for (int i = 0; i < length; i++) {
         final PlotBand plotBand = plotBands[i];
         if (plotBand.isVisible) {
-          final num min = plotBand.start != null
-              ? actualValue(plotBand.start)
-              : toPow(visibleRange!.minimum);
-          num max = plotBand.end != null
-              ? actualValue(plotBand.end)
-              : toPow(visibleRange!.maximum);
+          final num min =
+              plotBand.start != null
+                  ? actualValue(plotBand.start)
+                  : toPow(visibleRange!.minimum);
+          num max =
+              plotBand.end != null
+                  ? actualValue(plotBand.end)
+                  : toPow(visibleRange!.maximum);
 
           num extent;
           if (plotBand.isRepeatable) {
@@ -769,8 +796,13 @@ class RenderLogarithmicAxis extends RenderChartAxis {
           num current = min;
           if (plotBand.isRepeatable) {
             while (current < max) {
-              current =
-                  formPlotBandFrame(plotBand, current, extent, max, bounds);
+              current = formPlotBandFrame(
+                plotBand,
+                current,
+                extent,
+                max,
+                bounds,
+              );
             }
           } else {
             formPlotBandFrame(plotBand, current, extent, max, bounds);
@@ -781,23 +813,37 @@ class RenderLogarithmicAxis extends RenderChartAxis {
   }
 
   @override
-  num formPlotBandFrame(PlotBand plotBand, num current, num extent, num max,
-      Rect Function(PlotBand plotBand, num start, num end) bounds) {
+  num formPlotBandFrame(
+    PlotBand plotBand,
+    num current,
+    num extent,
+    num max,
+    Rect Function(PlotBand plotBand, num start, num end) bounds,
+  ) {
     num end = plotBandExtent(
-        plotBand, current, plotBand.isRepeatable ? plotBand.size : extent);
+      plotBand,
+      current,
+      plotBand.isRepeatable ? plotBand.size : extent,
+    );
     if (end > max) {
       end = max;
     }
     final DoubleRange logRange = visibleRange!.copyWith();
-    final DoubleRange powRange =
-        DoubleRange(toPow(logRange.minimum), toPow(logRange.maximum));
+    final DoubleRange powRange = DoubleRange(
+      toPow(logRange.minimum),
+      toPow(logRange.maximum),
+    );
     if (powRange.lies(current, end)) {
       final Rect frame = bounds(plotBand, current, end);
       addPlotBand(frame, plotBand);
-      current = plotBand.size != null
-          ? plotBandExtent(plotBand, current,
-              plotBand.isRepeatable ? plotBand.repeatEvery : end)
-          : end;
+      current =
+          plotBand.size != null
+              ? plotBandExtent(
+                plotBand,
+                current,
+                plotBand.isRepeatable ? plotBand.repeatEvery : end,
+              )
+              : end;
     }
     return current;
   }
@@ -815,17 +861,26 @@ class RenderLogarithmicAxis extends RenderChartAxis {
     for (int i = 0; i < length; i++) {
       final LogarithmicMultiLevelLabel label = multiLevelLabels![i];
       assert(label.start <= label.end);
-      _multilevelLabels.add(AxisMultilevelLabel(
-          label.text, label.level, toLog(label.start), toLog(label.end)));
+      _multilevelLabels.add(
+        AxisMultilevelLabel(
+          label.text,
+          label.level,
+          toLog(label.start),
+          toLog(label.end),
+        ),
+      );
     }
 
-    _multilevelLabels.sort((AxisMultilevelLabel a, AxisMultilevelLabel b) =>
-        a.level.compareTo(b.level));
+    _multilevelLabels.sort(
+      (AxisMultilevelLabel a, AxisMultilevelLabel b) =>
+          a.level.compareTo(b.level),
+    );
 
-    final void Function(AxisMultilevelLabel label) add = invertElementsOrder
-        ? (AxisMultilevelLabel label) =>
-            visibleMultilevelLabels.insert(0, label)
-        : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
+    final void Function(AxisMultilevelLabel label) add =
+        invertElementsOrder
+            ? (AxisMultilevelLabel label) =>
+                visibleMultilevelLabels.insert(0, label)
+            : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
 
     final int labelsLength = _multilevelLabels.length;
     final TextStyle textStyle = chartThemeData!.axisMultiLevelLabelTextStyle!
@@ -838,7 +893,12 @@ class RenderLogarithmicAxis extends RenderChartAxis {
         if (multiLevelLabelFormatter != null) {
           final MultiLevelLabelRenderDetails details =
               MultiLevelLabelRenderDetails(
-                  current.level, desiredText, desiredTextStyle, i, name);
+                current.level,
+                desiredText,
+                desiredTextStyle,
+                i,
+                name,
+              );
           final ChartAxisLabel label = multiLevelLabelFormatter!(details);
           desiredText = label.text;
           desiredTextStyle = textStyle.merge(label.textStyle);

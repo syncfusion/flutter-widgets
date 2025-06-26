@@ -65,9 +65,7 @@ class FunnelSeries<T, D> extends ChartSeries<T, D> {
     super.opacity,
     super.selectionBehavior,
     super.initialSelectedDataIndexes,
-  }) : super(
-          dataLabelMapper: textFieldMapper,
-        );
+  }) : super(dataLabelMapper: textFieldMapper);
 
   /// Maps the field name, which will be considered as y-values.
   ///
@@ -321,8 +319,9 @@ class FunnelSeries<T, D> extends ChartSeries<T, D> {
   final FunnelSeriesRendererCreatedCallback<T, D>? onRendererCreated;
 
   @override
-  List<ChartDataPointType> get positions =>
-      <ChartDataPointType>[ChartDataPointType.y];
+  List<ChartDataPointType> get positions => <ChartDataPointType>[
+    ChartDataPointType.y,
+  ];
 
   @override
   Widget? childForSlot(SeriesSlot slot) {
@@ -330,11 +329,12 @@ class FunnelSeries<T, D> extends ChartSeries<T, D> {
       case SeriesSlot.dataLabel:
         return dataLabelSettings.isVisible
             ? FunnelDataLabelContainer<T, D>(
-                series: this,
-                dataSource: dataSource!,
-                mapper: dataLabelMapper,
-                builder: dataLabelSettings.builder,
-                settings: dataLabelSettings)
+              series: this,
+              dataSource: dataSource!,
+              mapper: dataLabelMapper,
+              builder: dataLabelSettings.builder,
+              settings: dataLabelSettings,
+            )
             : null;
 
       case SeriesSlot.marker:
@@ -371,7 +371,9 @@ class FunnelSeries<T, D> extends ChartSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, FunnelSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    FunnelSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..yValueMapper = yValueMapper
@@ -399,10 +401,11 @@ class FunnelSeries<T, D> extends ChartSeries<T, D> {
     if (onCreateRenderer != null) {
       renderer = onCreateRenderer!(this) as FunnelSeriesRenderer<T, D>?;
       assert(
-          renderer != null,
-          'This onCreateRenderer callback function should return value as '
-          'extends from ChartSeriesRenderer class and should not be return '
-          'value as null');
+        renderer != null,
+        'This onCreateRenderer callback function should return value as '
+        'extends from ChartSeriesRenderer class and should not be return '
+        'value as null',
+      );
     }
     return renderer ?? FunnelSeriesRenderer<T, D>();
   }
@@ -469,8 +472,10 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
   set gapRatio(double value) {
     if (_gapRatio != value) {
       _gapRatio = value;
-      assert(_gapRatio >= 0 && _gapRatio <= 1,
-          'The gap ratio for the funnel chart must be between 0 and 1.');
+      assert(
+        _gapRatio >= 0 && _gapRatio <= 1,
+        'The gap ratio for the funnel chart must be between 0 and 1.',
+      );
       _gapRatio = clampDouble(value, 0, 1);
       markNeedsLayout();
     }
@@ -533,9 +538,7 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
 
   @override
   Iterable<RenderBox> get children {
-    return <RenderBox>[
-      if (dataLabelContainer != null) dataLabelContainer!,
-    ];
+    return <RenderBox>[if (dataLabelContainer != null) dataLabelContainer!];
   }
 
   /// Stores pointer down time to determine whether a long press interaction is handled at pointer up
@@ -553,8 +556,9 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     final List<Offset> points =
         segments[segmentsLastIndex - current.dataPointIndex].points;
     final Rect region = _calculateSegmentRect(
-        segments[segmentsLastIndex - current.dataPointIndex].points,
-        segmentsLastIndex - current.dataPointIndex);
+      segments[segmentsLastIndex - current.dataPointIndex].points,
+      segmentsLastIndex - current.dataPointIndex,
+    );
     final List<Offset> connectorPoints = segments[0].points;
     final double connectorLength = _calculateConnectorLength(
       connectorPoints,
@@ -563,22 +567,27 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
 
     final Offset insideLabelOffset =
         dataLabelSettings.labelPosition == ChartDataLabelPosition.inside
-            ? Offset(region.left + region.width / 2 - size.width / 2,
-                region.top + region.height / 2 - size.height / 2)
-            : Offset((points[0].dx + points[1].dx) / 2 - size.width / 2,
-                (points[0].dy + points[2].dy) / 2 - size.height / 2);
+            ? Offset(
+              region.left + region.width / 2 - size.width / 2,
+              region.top + region.height / 2 - size.height / 2,
+            )
+            : Offset(
+              (points[0].dx + points[1].dx) / 2 - size.width / 2,
+              (points[0].dy + points[2].dy) / 2 - size.height / 2,
+            );
     final double connectorLengthWithXValue =
         insideLabelOffset.dx + connectorLength + size.width / 2;
     final Offset outsideLabelOffset = Offset(
-        (connectorLengthWithXValue +
-                    size.width +
-                    dataLabelSettings.margin.left +
-                    dataLabelSettings.margin.right >
-                paintBounds.right)
-            ? connectorLengthWithXValue -
-                (percentToValue(explodeOffset, paintBounds.width)!)
-            : connectorLengthWithXValue,
-        insideLabelOffset.dy);
+      (connectorLengthWithXValue +
+                  size.width +
+                  dataLabelSettings.margin.left +
+                  dataLabelSettings.margin.right >
+              paintBounds.right)
+          ? connectorLengthWithXValue -
+              (percentToValue(explodeOffset, paintBounds.width)!)
+          : connectorLengthWithXValue,
+      insideLabelOffset.dy,
+    );
     final Offset finalOffset =
         dataLabelSettings.labelPosition == ChartDataLabelPosition.inside
             ? insideLabelOffset
@@ -621,26 +630,33 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       ..lineTo(endPoint, y);
   }
 
-  RRect _calculateRect(Offset offset, int padding, EdgeInsets margin, Size size,
-      ChartDataLabelPosition labelPosition) {
+  RRect _calculateRect(
+    Offset offset,
+    int padding,
+    EdgeInsets margin,
+    Size size,
+    ChartDataLabelPosition labelPosition,
+  ) {
     if (labelPosition == ChartDataLabelPosition.inside) {
       return RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-            offset.dx - padding,
-            offset.dy - padding,
-            size.width + (2 * padding),
-            size.height + (2 * padding),
-          ),
-          Radius.circular(dataLabelSettings.borderRadius));
+        Rect.fromLTWH(
+          offset.dx - padding,
+          offset.dy - padding,
+          size.width + (2 * padding),
+          size.height + (2 * padding),
+        ),
+        Radius.circular(dataLabelSettings.borderRadius),
+      );
     }
     return RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          offset.dx,
-          offset.dy - margin.top,
-          size.width + margin.top + margin.left,
-          size.height + margin.bottom + margin.right,
-        ),
-        Radius.circular(dataLabelSettings.borderRadius));
+      Rect.fromLTWH(
+        offset.dx,
+        offset.dy - margin.top,
+        size.width + margin.top + margin.left,
+        size.height + margin.bottom + margin.right,
+      ),
+      Radius.circular(dataLabelSettings.borderRadius),
+    );
   }
 
   Rect _calculateSegmentRect(List<Offset> points, int index) {
@@ -650,22 +666,31 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     final double x = (points[0].dx + points[bottom].dx) / 2;
     final double right = (points[1].dx + points[bottom - 1].dx) / 2;
     final Rect region = Rect.fromLTWH(
-        x, points[0].dy, right - x, points[bottom].dy - points[0].dy);
+      x,
+      points[0].dy,
+      right - x,
+      points[bottom].dy - points[0].dy,
+    );
     return region;
   }
 
   double _calculateConnectorLength(
-      List<Offset> points, DataLabelSettings settings) {
-    final Path segmentPath = Path()
-      ..moveTo(points[0].dx, points[0].dy)
-      ..lineTo(points[1].dx, points[1].dy)
-      ..lineTo(points[2].dx, points[2].dy)
-      ..lineTo(points[3].dx, points[3].dy)
-      ..close();
+    List<Offset> points,
+    DataLabelSettings settings,
+  ) {
+    final Path segmentPath =
+        Path()
+          ..moveTo(points[0].dx, points[0].dy)
+          ..lineTo(points[1].dx, points[1].dy)
+          ..lineTo(points[2].dx, points[2].dy)
+          ..lineTo(points[3].dx, points[3].dy)
+          ..close();
     final Rect segmentBounds = segmentPath.getBounds();
-    final double connectorLength = percentToValue(
-            settings.connectorLineSettings.length ?? '0%',
-            _plotAreaBounds.width / 2)! +
+    final double connectorLength =
+        percentToValue(
+          settings.connectorLineSettings.length ?? '0%',
+          _plotAreaBounds.width / 2,
+        )! +
         (segmentBounds.width / 2);
     return connectorLength;
   }
@@ -694,8 +719,13 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     return isCollide;
   }
 
-  String _getTrimmedText(String? text, Rect rect, Offset labelLocation,
-      Rect region, TextStyle style) {
+  String _getTrimmedText(
+    String? text,
+    Rect rect,
+    Offset labelLocation,
+    Rect region,
+    TextStyle style,
+  ) {
     const int labelPadding = 2;
     const String ellipse = '...';
     String label = text!;
@@ -713,17 +743,22 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       }
       final Size trimTextSize = measureText(label, style);
       final Rect trimRect = Rect.fromLTWH(
-          labelLocation.dx - labelPadding,
-          labelLocation.dy - labelPadding,
-          trimTextSize.width + (2 * labelPadding),
-          trimTextSize.height + (2 * labelPadding));
+        labelLocation.dx - labelPadding,
+        labelLocation.dy - labelPadding,
+        trimTextSize.width + (2 * labelPadding),
+        trimTextSize.height + (2 * labelPadding),
+      );
       isCollide = _isLabelsColliding(trimRect, region);
     }
     return label == ellipse ? '' : label;
   }
 
-  String _addEllipse(String text, int maxLength, String ellipse,
-      {bool isRtl = false}) {
+  String _addEllipse(
+    String text,
+    int maxLength,
+    String ellipse, {
+    bool isRtl = false,
+  }) {
     if (isRtl) {
       if (text.contains(ellipse)) {
         text = text.replaceAll(ellipse, '');
@@ -772,8 +807,14 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     final int segmentsLastIndex = segments.length - 1;
     final int dataPointIndex = segmentsLastIndex - index;
     final ChartSegment segment = segments[dataPointIndex];
-    Color surfaceColor = dataLabelSurfaceColor(fillPaint.color, dataPointIndex,
-        dataLabelSettings.labelPosition, chartThemeData, themeData, segment);
+    Color surfaceColor = dataLabelSurfaceColor(
+      fillPaint.color,
+      dataPointIndex,
+      dataLabelSettings.labelPosition,
+      chartThemeData,
+      themeData,
+      segment,
+    );
     TextStyle effectiveTextStyle = saturatedTextStyle(surfaceColor, style);
     final EdgeInsets margin = dataLabelSettings.margin;
     final Radius radius = Radius.circular(dataLabelSettings.borderRadius);
@@ -790,11 +831,13 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       connectorPoints,
       dataLabelSettings,
     );
-    final Paint connectorPaint = Paint()
-      ..color = dataLabelSettings.connectorLineSettings.color ??
-          segments[segmentsLastIndex - index].fillPaint.color
-      ..strokeWidth = dataLabelSettings.connectorLineSettings.width
-      ..style = PaintingStyle.stroke;
+    final Paint connectorPaint =
+        Paint()
+          ..color =
+              dataLabelSettings.connectorLineSettings.color ??
+              segments[segmentsLastIndex - index].fillPaint.color
+          ..strokeWidth = dataLabelSettings.connectorLineSettings.width
+          ..style = PaintingStyle.stroke;
 
     if ((yValues[index] == 0 && !dataLabelSettings.showZeroValue) ||
         yValues[index].isNaN ||
@@ -804,11 +847,14 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
 
     for (int i = segmentsLastIndex; i >= 0; i--) {
       final Rect region = _calculateSegmentRect(segmentAt(i).points, i);
-      labels.add(Rect.fromLTWH(
+      labels.add(
+        Rect.fromLTWH(
           region.left + region.width / 2 - (size.width / 2) - labelPadding,
           region.top + region.height / 2 - (size.height / 2) - labelPadding,
           size.width + (2 * labelPadding),
-          size.height + (2 * labelPadding)));
+          size.height + (2 * labelPadding),
+        ),
+      );
     }
 
     if (!offset.dx.isNaN && !offset.dy.isNaN) {
@@ -816,31 +862,47 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
         if (fillPaint.color != Colors.transparent ||
             (strokePaint.color != const Color.fromARGB(0, 25, 5, 5) &&
                 strokePaint.strokeWidth > 0)) {
-          RRect labelRect =
-              _calculateRect(offset, labelPadding, margin, size, labelPosition);
+          RRect labelRect = _calculateRect(
+            offset,
+            labelPadding,
+            margin,
+            size,
+            labelPosition,
+          );
           final Rect region = _calculateSegmentRect(
-              segments[segmentsLastIndex - index].points,
-              segmentsLastIndex - index);
-          final bool isDataLabelCollide = (_findingCollision(
-                  labels[index], previousRect, region)) &&
+            segments[segmentsLastIndex - index].points,
+            segmentsLastIndex - index,
+          );
+          final bool isDataLabelCollide =
+              (_findingCollision(labels[index], previousRect, region)) &&
               dataLabelSettings.labelPosition != ChartDataLabelPosition.outside;
           if (isDataLabelCollide) {
             switch (dataLabelSettings.overflowMode) {
               case OverflowMode.trim:
-                dataLabel = _getTrimmedText(dataLabel, labels[index],
-                    finalOffset, region, effectiveTextStyle);
-                final Size trimSize =
-                    measureText(dataLabel, effectiveTextStyle);
+                dataLabel = _getTrimmedText(
+                  dataLabel,
+                  labels[index],
+                  finalOffset,
+                  region,
+                  effectiveTextStyle,
+                );
+                final Size trimSize = measureText(
+                  dataLabel,
+                  effectiveTextStyle,
+                );
                 finalOffset = Offset(
-                    finalOffset.dx + size.width / 2 - trimSize.width / 2,
-                    finalOffset.dy + size.height / 2 - trimSize.height / 2);
+                  finalOffset.dx + size.width / 2 - trimSize.width / 2,
+                  finalOffset.dy + size.height / 2 - trimSize.height / 2,
+                );
                 labelRect = RRect.fromRectAndRadius(
-                    Rect.fromLTWH(
-                        finalOffset.dx - labelPadding,
-                        finalOffset.dy - labelPadding,
-                        trimSize.width + (2 * labelPadding),
-                        trimSize.height + (2 * labelPadding)),
-                    radius);
+                  Rect.fromLTWH(
+                    finalOffset.dx - labelPadding,
+                    finalOffset.dy - labelPadding,
+                    trimSize.width + (2 * labelPadding),
+                    trimSize.height + (2 * labelPadding),
+                  ),
+                  radius,
+                );
                 break;
               case OverflowMode.hide:
                 dataLabel = '';
@@ -860,12 +922,13 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
               !dataLabelSettings.useSeriesColor) {
             if (style.color == Colors.transparent) {
               surfaceColor = dataLabelSurfaceColor(
-                  fillPaint.color,
-                  dataPointIndex,
-                  ChartDataLabelPosition.outside,
-                  chartThemeData,
-                  themeData,
-                  segment);
+                fillPaint.color,
+                dataPointIndex,
+                ChartDataLabelPosition.outside,
+                chartThemeData,
+                themeData,
+                segment,
+              );
               effectiveTextStyle = saturatedTextStyle(surfaceColor, style);
             }
           }
@@ -890,34 +953,49 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
             labelPosition = ChartDataLabelPosition.outside;
             offset =
                 dataLabelSettings.labelPosition == ChartDataLabelPosition.inside
-                    ? Offset((points[0].dx + points[1].dx) / 2 - size.width / 2,
-                        (points[0].dy + points[2].dy) / 2 - size.height / 2)
+                    ? Offset(
+                      (points[0].dx + points[1].dx) / 2 - size.width / 2,
+                      (points[0].dy + points[2].dy) / 2 - size.height / 2,
+                    )
                     : offset;
-            finalOffset = dataLabelSettings.labelPosition ==
-                    ChartDataLabelPosition.outside
-                ? offset
-                : offset + Offset(connectorLength + size.width / 2, 0);
+            finalOffset =
+                dataLabelSettings.labelPosition ==
+                        ChartDataLabelPosition.outside
+                    ? offset
+                    : offset + Offset(connectorLength + size.width / 2, 0);
             labelRect = _calculateRect(
-                finalOffset, labelPadding, margin, size, labelPosition);
+              finalOffset,
+              labelPadding,
+              margin,
+              size,
+              labelPosition,
+            );
             connectorPath = _calculateConnectorPath(index, finalOffset, size);
             if (_plotAreaBounds.right < labelRect.right) {
               isOverlapRight = true;
               labelRect = RRect.fromRectAndRadius(
-                  Rect.fromLTRB(
-                      _plotAreaBounds.right - labelRect.width - labelPadding,
-                      labelRect.top,
-                      _plotAreaBounds.right - labelPadding,
-                      labelRect.bottom),
-                  radius);
+                Rect.fromLTRB(
+                  _plotAreaBounds.right - labelRect.width - labelPadding,
+                  labelRect.top,
+                  _plotAreaBounds.right - labelPadding,
+                  labelRect.bottom,
+                ),
+                radius,
+              );
             }
-            final RRect previous = previousRect.isEmpty
-                ? labelRect
-                : previousRect[previousRect.length - 1];
-            final bool isIntersectOutside =
-                _isFunnelLabelIntersectOutside(labelRect, previous);
+            final RRect previous =
+                previousRect.isEmpty
+                    ? labelRect
+                    : previousRect[previousRect.length - 1];
+            final bool isIntersectOutside = _isFunnelLabelIntersectOutside(
+              labelRect,
+              previous,
+            );
             if (!isIntersectOutside && isOverlapRight) {
-              finalOffset = Offset(labelRect.left,
-                  (labelRect.top + labelRect.height / 2) - size.height / 2);
+              finalOffset = Offset(
+                labelRect.left,
+                (labelRect.top + labelRect.height / 2) - size.height / 2,
+              );
               connectorPath = _calculateConnectorPath(index, finalOffset, size);
             }
             if (dataLabelSettings.labelIntersectAction ==
@@ -928,21 +1006,31 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
                 dataLabelSettings.labelIntersectAction ==
                     LabelIntersectAction.shift) {
               labelRect = RRect.fromRectAndRadius(
-                  Rect.fromLTWH(
-                      labelRect.left,
-                      previous.top - labelPadding - labelRect.height,
-                      labelRect.width,
-                      labelRect.height),
-                  radius);
+                Rect.fromLTWH(
+                  labelRect.left,
+                  previous.top - labelPadding - labelRect.height,
+                  labelRect.width,
+                  labelRect.height,
+                ),
+                radius,
+              );
 
-              connectorPath = Path()
-                ..moveTo(startPoint, finalOffset.dy + size.height / 2)
-                ..lineTo(labelRect.left - connectorPadding,
-                    finalOffset.dy + size.height / 2)
-                ..lineTo(labelRect.left, labelRect.top + labelRect.height / 2);
+              connectorPath =
+                  Path()
+                    ..moveTo(startPoint, finalOffset.dy + size.height / 2)
+                    ..lineTo(
+                      labelRect.left - connectorPadding,
+                      finalOffset.dy + size.height / 2,
+                    )
+                    ..lineTo(
+                      labelRect.left,
+                      labelRect.top + labelRect.height / 2,
+                    );
             }
-            finalOffset = Offset(labelRect.left + margin.left,
-                (labelRect.top + labelRect.height / 2) - size.height / 2);
+            finalOffset = Offset(
+              labelRect.left + margin.left,
+              (labelRect.top + labelRect.height / 2) - size.height / 2,
+            );
           }
           previousRect.add(labelRect);
           if (labelRect.top < dataLabelSettings.margin.top) {
@@ -970,15 +1058,21 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
   }
 
   void drawDataLabel(
-      Canvas canvas, String text, Offset point, TextStyle style, int angle,
-      [bool? isRtl]) {
+    Canvas canvas,
+    String text,
+    Offset point,
+    TextStyle style,
+    int angle, [
+    bool? isRtl,
+  ]) {
     final int maxLines = getMaxLinesContent(text);
     final TextSpan span = TextSpan(text: text, style: style);
     final TextPainter tp = TextPainter(
-        text: span,
-        textDirection: (isRtl ?? false) ? TextDirection.rtl : TextDirection.ltr,
-        textAlign: TextAlign.center,
-        maxLines: maxLines);
+      text: span,
+      textDirection: (isRtl ?? false) ? TextDirection.rtl : TextDirection.ltr,
+      textAlign: TextAlign.center,
+      maxLines: maxLines,
+    );
     tp.layout();
     canvas.save();
     canvas.translate(point.dx + tp.width / 2, point.dy + tp.height / 2);
@@ -1021,7 +1115,13 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       }
     }
     super.populateDataSource(
-        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
+      yPaths,
+      chaoticYLists,
+      yLists,
+      fPaths,
+      chaoticFLists,
+      fLists,
+    );
     markNeedsLegendUpdate();
     populateChartPoints();
   }
@@ -1069,8 +1169,17 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
         yLists?.add(yValues);
       }
     }
-    super.updateDataPoints(removedIndexes, addedIndexes, replacedIndexes,
-        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
+    super.updateDataPoints(
+      removedIndexes,
+      addedIndexes,
+      replacedIndexes,
+      yPaths,
+      chaoticYLists,
+      yLists,
+      fPaths,
+      chaoticFLists,
+      fLists,
+    );
   }
 
   @override
@@ -1108,10 +1217,14 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     }
 
     _plotAreaBounds = Rect.fromLTWH(0, 0, size.width, size.height);
-    _triangleSize = Size(percentToValue(width, _plotAreaBounds.width)!,
-        percentToValue(height, _plotAreaBounds.height)!);
-    _neckSize = Size(percentToValue(neckWidth, _plotAreaBounds.width)!,
-        percentToValue(neckHeight, _plotAreaBounds.height)!);
+    _triangleSize = Size(
+      percentToValue(width, _plotAreaBounds.width)!,
+      percentToValue(height, _plotAreaBounds.height)!,
+    );
+    _neckSize = Size(
+      percentToValue(neckWidth, _plotAreaBounds.width)!,
+      percentToValue(neckHeight, _plotAreaBounds.height)!,
+    );
     _coefficient = 1 / (_sumOfY * (1 + gapRatio / (1 - gapRatio)));
     _spacing = gapRatio / (dataCount - emptyPointIndexes.length - 1);
     _y = 0;
@@ -1144,7 +1257,8 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       .._neckSize = _neckSize
       .._plotAreaBounds = _plotAreaBounds
       ..isExploded = explode && i == explodeIndex
-      ..isEmpty = (emptyPointSettings.mode != EmptyPointMode.drop &&
+      ..isEmpty =
+          (emptyPointSettings.mode != EmptyPointMode.drop &&
               emptyPointSettings.mode != EmptyPointMode.gap) &&
           isEmpty(i);
 
@@ -1164,12 +1278,12 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
   }
 
   @override
-  List<LegendItem>? buildLegendItems(int index) {
-    final List<LegendItem> legendItems = <LegendItem>[];
+  List<FunnelLegendItem>? buildLegendItems(int index) {
+    final List<FunnelLegendItem> legendItems = <FunnelLegendItem>[];
     final int segmentsCount = segments.length;
     for (int i = 0; i < dataCount; i++) {
       final int legendIndex = dataCount - 1 - i;
-      final ChartLegendItem legendItem = ChartLegendItem(
+      final FunnelLegendItem legendItem = FunnelLegendItem(
         text: xRawValues[legendIndex].toString(),
         iconType: toLegendShapeMarkerType(legendIconType, this),
         iconColor: effectiveColor(legendIndex),
@@ -1177,9 +1291,10 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
         series: this,
         seriesIndex: index,
         pointIndex: legendIndex,
-        imageProvider: legendIconType == LegendIconType.image
-            ? parent?.legend?.image
-            : null,
+        imageProvider:
+            legendIconType == LegendIconType.image
+                ? parent?.legend?.image
+                : null,
         isToggled: i < segmentsCount && !segmentAt(i).isVisible,
         onTap: handleLegendItemTapped,
         onRender: _handleLegendItemCreated,
@@ -1191,7 +1306,7 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
 
   void _handleLegendItemCreated(ItemRendererDetails details) {
     if (parent != null && parent!.onLegendItemRender != null) {
-      final ChartLegendItem item = details.item as ChartLegendItem;
+      final FunnelLegendItem item = details.item as FunnelLegendItem;
       final LegendIconType iconType = toLegendIconType(details.iconType);
       final LegendRenderArgs args =
           LegendRenderArgs(item.seriesIndex, item.pointIndex)
@@ -1201,7 +1316,9 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
       parent!.onLegendItemRender!(args);
       if (args.legendIconType != iconType) {
         details.iconType = toLegendShapeMarkerType(
-            args.legendIconType ?? LegendIconType.seriesType, this);
+          args.legendIconType ?? LegendIconType.seriesType,
+          this,
+        );
       }
       details
         ..text = args.text ?? ''
@@ -1213,7 +1330,7 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
   void handleLegendItemTapped(LegendItem item, bool isToggled) {
     super.handleLegendItemTapped(item, isToggled);
 
-    final ChartLegendItem legendItem = item as ChartLegendItem;
+    final FunnelLegendItem legendItem = item as FunnelLegendItem;
     final int toggledIndex = legendItem.pointIndex;
     if (toggledIndex < segments.length) {
       segmentAt(toggledIndex).isVisible = !isToggled;
@@ -1229,8 +1346,11 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip =
-        clipRect(paintBounds, animationFactor, isTransposed: true);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isTransposed: true,
+    );
     context.canvas.clipRect(clip);
     paintSegments(context, offset);
     context.canvas.restore();
@@ -1325,8 +1445,10 @@ class FunnelSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
 
   @override
   ChartSegment segmentAt(int segmentPointIndex) {
-    return segments.firstWhere((ChartSegment segment) =>
-        segment.currentSegmentIndex == segmentPointIndex);
+    return segments.firstWhere(
+      (ChartSegment segment) =>
+          segment.currentSegmentIndex == segmentPointIndex,
+    );
   }
 
   @override
@@ -1364,7 +1486,8 @@ class FunnelSegment<T, D> extends ChartSegment {
     final double triangleHeight = _triangleSize.height;
 
     final double funnelHeight = triangleHeight - neckSizeHeight;
-    final double left = (isExploded
+    final double left =
+        (isExploded
             ? percentToValue(series.explodeOffset, _plotAreaBounds.width)!
             : 0) +
         (_plotAreaBounds.width - triangleWidth) / 2;
@@ -1373,17 +1496,19 @@ class FunnelSegment<T, D> extends ChartSegment {
     double topY = y * triangleHeight;
     double bottomY = topY + _height * triangleHeight;
 
-    double funnelWidth = neckSizeWidth +
+    double funnelWidth =
+        neckSizeWidth +
         (triangleWidth - neckSizeWidth) *
             ((funnelHeight - topY) / funnelHeight);
     double topX1 = (triangleWidth / 2) - funnelWidth / 2;
     double topX2 = topX1 + funnelWidth;
 
-    funnelWidth = (bottomY > funnelHeight || triangleHeight == neckSizeHeight)
-        ? neckSizeWidth
-        : neckSizeWidth +
-            (triangleWidth - neckSizeWidth) *
-                ((funnelHeight - bottomY) / funnelHeight);
+    funnelWidth =
+        (bottomY > funnelHeight || triangleHeight == neckSizeHeight)
+            ? neckSizeWidth
+            : neckSizeWidth +
+                (triangleWidth - neckSizeWidth) *
+                    ((funnelHeight - bottomY) / funnelHeight);
     double bottomX1 = triangleWidth / 2 - funnelWidth / 2;
     double bottomX2 = bottomX1 + funnelWidth;
 
@@ -1456,14 +1581,16 @@ class FunnelSegment<T, D> extends ChartSegment {
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
     final ChartPoint<D> point = ChartPoint<D>(
-        x: series.xRawValues[currentSegmentIndex],
-        y: series.yValues[currentSegmentIndex]);
+      x: series.xRawValues[currentSegmentIndex],
+      y: series.yValues[currentSegmentIndex],
+    );
     final Offset location = path.getBounds().center;
     final TooltipPosition? tooltipPosition =
         series.parent?.tooltipBehavior?.tooltipPosition;
-    final Offset preferredPos = tooltipPosition == TooltipPosition.pointer
-        ? series.localToGlobal(position ?? location)
-        : series.localToGlobal(location);
+    final Offset preferredPos =
+        tooltipPosition == TooltipPosition.pointer
+            ? series.localToGlobal(position ?? location)
+            : series.localToGlobal(location);
     return ChartTooltipInfo<T, D>(
       primaryPosition: preferredPos,
       secondaryPosition: preferredPos,

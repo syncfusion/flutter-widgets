@@ -18,14 +18,14 @@ Color _saturatedColor(Color color, double factor) {
 
 class AIAssistViewM2ThemeData extends SfAIAssistViewThemeData {
   AIAssistViewM2ThemeData(this.context)
-      : super(
-          requestMessageShape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(4.0)),
-          ),
-          responseMessageShape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(4.0)),
-          ),
-        );
+    : super(
+        requestMessageShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(4.0)),
+        ),
+        responseMessageShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(4.0)),
+        ),
+      );
 
   final BuildContext context;
   late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
@@ -61,8 +61,8 @@ class AIAssistViewM2ThemeData extends SfAIAssistViewThemeData {
 
   @override
   ShapeBorder? get actionButtonShape => const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-      );
+    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+  );
 
   @override
   Color? get requestMessageBackgroundColor => _colorScheme.surfaceContainer;
@@ -78,18 +78,16 @@ class AIAssistViewM2ThemeData extends SfAIAssistViewThemeData {
 
   @override
   WidgetStateProperty<Color?> get suggestionItemBackgroundColor =>
-      WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.hovered) ||
-              states.contains(WidgetState.focused)) {
-            return _saturatedColor(_colorScheme.surfaceContainer, 0.08);
-          }
-          if (states.contains(WidgetState.disabled)) {
-            return _saturatedColor(_colorScheme.surfaceContainer, 0.12);
-          }
-          return _colorScheme.surfaceContainer;
-        },
-      );
+      WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.focused)) {
+          return _saturatedColor(_colorScheme.surfaceContainer, 0.08);
+        }
+        if (states.contains(WidgetState.disabled)) {
+          return _saturatedColor(_colorScheme.surfaceContainer, 0.12);
+        }
+        return _colorScheme.surfaceContainer;
+      });
 
   @override
   WidgetStateProperty<ShapeBorder?>? get suggestionItemShape =>
@@ -101,19 +99,17 @@ class AIAssistViewM2ThemeData extends SfAIAssistViewThemeData {
 
   @override
   WidgetStateProperty<Color?> get responseToolbarItemBackgroundColor =>
-      WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.hovered) ||
-              states.contains(WidgetState.focused)) {
-            return _colorScheme.onSurface.withValues(alpha: 0.08);
-          }
-          if (states.contains(WidgetState.pressed) ||
-              states.contains(WidgetState.selected)) {
-            return _colorScheme.onSurface.withValues(alpha: 0.01);
-          }
-          return _colorScheme.surface;
-        },
-      );
+      WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.focused)) {
+          return _colorScheme.onSurface.withValues(alpha: 0.08);
+        }
+        if (states.contains(WidgetState.pressed) ||
+            states.contains(WidgetState.selected)) {
+          return _colorScheme.onSurface.withValues(alpha: 0.01);
+        }
+        return _colorScheme.surface;
+      });
 
   @override
   WidgetStateProperty<ShapeBorder?>? get responseToolbarItemShape =>
@@ -125,28 +121,26 @@ class AIAssistViewM2ThemeData extends SfAIAssistViewThemeData {
 
   @override
   WidgetStateProperty<TextStyle?>? get suggestionItemTextStyle =>
-      WidgetStateProperty.resolveWith<TextStyle?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.disabled)) {
-            return TextStyle(
-              color: _colorScheme.onSurface.withValues(alpha: 0.38),
-            );
-          }
-          return TextStyle(color: _colorScheme.onSurface);
-        },
-      );
+      WidgetStateProperty.resolveWith<TextStyle?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.disabled)) {
+          return TextStyle(
+            color: _colorScheme.onSurface.withValues(alpha: 0.38),
+          );
+        }
+        return TextStyle(color: _colorScheme.onSurface);
+      });
 }
 
 class AIAssistViewM3ThemeData extends SfAIAssistViewThemeData {
   AIAssistViewM3ThemeData(this.context)
-      : super(
-          requestMessageShape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(4.0)),
-          ),
-          responseMessageShape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(4.0)),
-          ),
-        );
+    : super(
+        requestMessageShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(4.0)),
+        ),
+        responseMessageShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(4.0)),
+        ),
+      );
 
   final BuildContext context;
   late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
@@ -182,8 +176,8 @@ class AIAssistViewM3ThemeData extends SfAIAssistViewThemeData {
 
   @override
   ShapeBorder? get actionButtonShape => const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-      );
+    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+  );
 
   @override
   Color? get requestMessageBackgroundColor => _colorScheme.surfaceContainer;
@@ -199,18 +193,16 @@ class AIAssistViewM3ThemeData extends SfAIAssistViewThemeData {
 
   @override
   WidgetStateProperty<Color?> get suggestionItemBackgroundColor =>
-      WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.hovered) ||
-              states.contains(WidgetState.focused)) {
-            return _saturatedColor(_colorScheme.surfaceContainer, 0.08);
-          }
-          if (states.contains(WidgetState.disabled)) {
-            return _saturatedColor(_colorScheme.surfaceContainer, 0.12);
-          }
-          return _colorScheme.surfaceContainer;
-        },
-      );
+      WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.focused)) {
+          return _saturatedColor(_colorScheme.surfaceContainer, 0.08);
+        }
+        if (states.contains(WidgetState.disabled)) {
+          return _saturatedColor(_colorScheme.surfaceContainer, 0.12);
+        }
+        return _colorScheme.surfaceContainer;
+      });
 
   @override
   WidgetStateProperty<ShapeBorder?>? get suggestionItemShape =>
@@ -222,19 +214,17 @@ class AIAssistViewM3ThemeData extends SfAIAssistViewThemeData {
 
   @override
   WidgetStateProperty<Color?> get responseToolbarItemBackgroundColor =>
-      WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.hovered) ||
-              states.contains(WidgetState.focused)) {
-            return _colorScheme.onSurface.withValues(alpha: 0.08);
-          }
-          if (states.contains(WidgetState.pressed) ||
-              states.contains(WidgetState.selected)) {
-            return _colorScheme.onSurface.withValues(alpha: 0.01);
-          }
-          return _colorScheme.surface;
-        },
-      );
+      WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.focused)) {
+          return _colorScheme.onSurface.withValues(alpha: 0.08);
+        }
+        if (states.contains(WidgetState.pressed) ||
+            states.contains(WidgetState.selected)) {
+          return _colorScheme.onSurface.withValues(alpha: 0.01);
+        }
+        return _colorScheme.surface;
+      });
 
   @override
   WidgetStateProperty<ShapeBorder?>? get responseToolbarItemShape =>
@@ -246,14 +236,12 @@ class AIAssistViewM3ThemeData extends SfAIAssistViewThemeData {
 
   @override
   WidgetStateProperty<TextStyle?>? get suggestionItemTextStyle =>
-      WidgetStateProperty.resolveWith<TextStyle?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.disabled)) {
-            return TextStyle(
-              color: _colorScheme.onSurface.withValues(alpha: 0.38),
-            );
-          }
-          return TextStyle(color: _colorScheme.onSurface);
-        },
-      );
+      WidgetStateProperty.resolveWith<TextStyle?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.disabled)) {
+          return TextStyle(
+            color: _colorScheme.onSurface.withValues(alpha: 0.38),
+          );
+        }
+        return TextStyle(color: _colorScheme.onSurface);
+      });
 }

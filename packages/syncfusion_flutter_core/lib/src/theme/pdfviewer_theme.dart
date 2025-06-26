@@ -23,7 +23,7 @@ import '../../theme.dart';
 class SfPdfViewerTheme extends InheritedTheme {
   /// Creates an argument constructor of [SfPdfViewerTheme] class.
   const SfPdfViewerTheme({Key? key, required this.data, required this.child})
-      : super(key: key, child: child);
+    : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant
   /// [SfPdfViewer] widgets.
@@ -127,24 +127,26 @@ class SfPdfViewerThemeData with Diagnosticable {
   });
 
   /// Creating an argument constructor of SfPdfViewerThemeData class.
-  factory SfPdfViewerThemeData.raw(
-      {Color? backgroundColor,
-      Color? progressBarColor,
-      PdfScrollStatusStyle? scrollStatusStyle,
-      PdfScrollHeadStyle? scrollHeadStyle,
-      PdfBookmarkViewStyle? bookmarkViewStyle,
-      PdfPaginationDialogStyle? paginationDialogStyle,
-      PdfHyperlinkDialogStyle? hyperlinkDialogStyle,
-      PdfPasswordDialogStyle? passwordDialogStyle}) {
+  factory SfPdfViewerThemeData.raw({
+    Color? backgroundColor,
+    Color? progressBarColor,
+    PdfScrollStatusStyle? scrollStatusStyle,
+    PdfScrollHeadStyle? scrollHeadStyle,
+    PdfBookmarkViewStyle? bookmarkViewStyle,
+    PdfPaginationDialogStyle? paginationDialogStyle,
+    PdfHyperlinkDialogStyle? hyperlinkDialogStyle,
+    PdfPasswordDialogStyle? passwordDialogStyle,
+  }) {
     return SfPdfViewerThemeData(
-        backgroundColor: backgroundColor,
-        progressBarColor: progressBarColor,
-        scrollStatusStyle: scrollStatusStyle,
-        scrollHeadStyle: scrollHeadStyle,
-        bookmarkViewStyle: bookmarkViewStyle,
-        paginationDialogStyle: paginationDialogStyle,
-        hyperlinkDialogStyle: hyperlinkDialogStyle,
-        passwordDialogStyle: passwordDialogStyle);
+      backgroundColor: backgroundColor,
+      progressBarColor: progressBarColor,
+      scrollStatusStyle: scrollStatusStyle,
+      scrollHeadStyle: scrollHeadStyle,
+      bookmarkViewStyle: bookmarkViewStyle,
+      paginationDialogStyle: paginationDialogStyle,
+      hyperlinkDialogStyle: hyperlinkDialogStyle,
+      passwordDialogStyle: passwordDialogStyle,
+    );
   }
 
   /// Specifies the background color of [SfPdfViewer] widget.
@@ -369,15 +371,16 @@ class SfPdfViewerThemeData with Diagnosticable {
 
   /// Creates a copy of this [SfPdfViewer] theme data object with the
   /// matching fields replaced with the non-null parameter values.
-  SfPdfViewerThemeData copyWith(
-      {Color? backgroundColor,
-      Color? progressBarColor,
-      PdfScrollStatusStyle? scrollStatusStyle,
-      PdfScrollHeadStyle? scrollHeadStyle,
-      PdfBookmarkViewStyle? bookmarkViewStyle,
-      PdfPaginationDialogStyle? paginationDialogStyle,
-      PdfHyperlinkDialogStyle? hyperlinkDialogStyle,
-      PdfPasswordDialogStyle? passwordDialogStyle}) {
+  SfPdfViewerThemeData copyWith({
+    Color? backgroundColor,
+    Color? progressBarColor,
+    PdfScrollStatusStyle? scrollStatusStyle,
+    PdfScrollHeadStyle? scrollHeadStyle,
+    PdfBookmarkViewStyle? bookmarkViewStyle,
+    PdfPaginationDialogStyle? paginationDialogStyle,
+    PdfHyperlinkDialogStyle? hyperlinkDialogStyle,
+    PdfPasswordDialogStyle? passwordDialogStyle,
+  }) {
     return SfPdfViewerThemeData.raw(
       backgroundColor: backgroundColor ?? this.backgroundColor,
       progressBarColor: progressBarColor ?? this.progressBarColor,
@@ -393,25 +396,47 @@ class SfPdfViewerThemeData with Diagnosticable {
 
   /// Linearly interpolate between two themes.
   static SfPdfViewerThemeData? lerp(
-      SfPdfViewerThemeData? a, SfPdfViewerThemeData? b, double t) {
+    SfPdfViewerThemeData? a,
+    SfPdfViewerThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return SfPdfViewerThemeData(
-        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
-        progressBarColor: Color.lerp(a.progressBarColor, b.progressBarColor, t),
-        scrollStatusStyle: PdfScrollStatusStyle.lerp(
-            a.scrollStatusStyle, b.scrollStatusStyle, t),
-        scrollHeadStyle:
-            PdfScrollHeadStyle.lerp(a.scrollHeadStyle, b.scrollHeadStyle, t),
-        bookmarkViewStyle: PdfBookmarkViewStyle.lerp(
-            a.bookmarkViewStyle, b.bookmarkViewStyle, t),
-        paginationDialogStyle: PdfPaginationDialogStyle.lerp(
-            a.paginationDialogStyle, b.paginationDialogStyle, t),
-        hyperlinkDialogStyle: PdfHyperlinkDialogStyle.lerp(
-            a.hyperlinkDialogStyle, b.hyperlinkDialogStyle, t),
-        passwordDialogStyle: PdfPasswordDialogStyle.lerp(
-            a.passwordDialogStyle, b.passwordDialogStyle, t));
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+      progressBarColor: Color.lerp(a.progressBarColor, b.progressBarColor, t),
+      scrollStatusStyle: PdfScrollStatusStyle.lerp(
+        a.scrollStatusStyle,
+        b.scrollStatusStyle,
+        t,
+      ),
+      scrollHeadStyle: PdfScrollHeadStyle.lerp(
+        a.scrollHeadStyle,
+        b.scrollHeadStyle,
+        t,
+      ),
+      bookmarkViewStyle: PdfBookmarkViewStyle.lerp(
+        a.bookmarkViewStyle,
+        b.bookmarkViewStyle,
+        t,
+      ),
+      paginationDialogStyle: PdfPaginationDialogStyle.lerp(
+        a.paginationDialogStyle,
+        b.paginationDialogStyle,
+        t,
+      ),
+      hyperlinkDialogStyle: PdfHyperlinkDialogStyle.lerp(
+        a.hyperlinkDialogStyle,
+        b.hyperlinkDialogStyle,
+        t,
+      ),
+      passwordDialogStyle: PdfPasswordDialogStyle.lerp(
+        a.passwordDialogStyle,
+        b.passwordDialogStyle,
+        t,
+      ),
+    );
   }
 
   @override
@@ -453,28 +478,62 @@ class SfPdfViewerThemeData with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     const SfPdfViewerThemeData defaultData = SfPdfViewerThemeData();
-    properties.add(ColorProperty('backgroundColor', backgroundColor,
-        defaultValue: defaultData.backgroundColor));
-    properties.add(ColorProperty('progressBarColor', progressBarColor,
-        defaultValue: defaultData.progressBarColor));
-    properties.add(DiagnosticsProperty<PdfScrollStatusStyle>(
-        'scrollStatusStyle', scrollStatusStyle,
-        defaultValue: defaultData.scrollStatusStyle));
-    properties.add(DiagnosticsProperty<PdfScrollHeadStyle>(
-        'scrollHeadStyle', scrollHeadStyle,
-        defaultValue: defaultData.scrollHeadStyle));
-    properties.add(DiagnosticsProperty<PdfBookmarkViewStyle>(
-        'bookmarkViewStyle', bookmarkViewStyle,
-        defaultValue: defaultData.bookmarkViewStyle));
-    properties.add(DiagnosticsProperty<PdfPaginationDialogStyle>(
-        'paginationDialogStyle', paginationDialogStyle,
-        defaultValue: defaultData.paginationDialogStyle));
-    properties.add(DiagnosticsProperty<PdfHyperlinkDialogStyle>(
-        'hyperlinkDialogStyle', hyperlinkDialogStyle,
-        defaultValue: defaultData.hyperlinkDialogStyle));
-    properties.add(DiagnosticsProperty<PdfPasswordDialogStyle>(
-        'passwordDialogStyle', passwordDialogStyle,
-        defaultValue: defaultData.passwordDialogStyle));
+    properties.add(
+      ColorProperty(
+        'backgroundColor',
+        backgroundColor,
+        defaultValue: defaultData.backgroundColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'progressBarColor',
+        progressBarColor,
+        defaultValue: defaultData.progressBarColor,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<PdfScrollStatusStyle>(
+        'scrollStatusStyle',
+        scrollStatusStyle,
+        defaultValue: defaultData.scrollStatusStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<PdfScrollHeadStyle>(
+        'scrollHeadStyle',
+        scrollHeadStyle,
+        defaultValue: defaultData.scrollHeadStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<PdfBookmarkViewStyle>(
+        'bookmarkViewStyle',
+        bookmarkViewStyle,
+        defaultValue: defaultData.bookmarkViewStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<PdfPaginationDialogStyle>(
+        'paginationDialogStyle',
+        paginationDialogStyle,
+        defaultValue: defaultData.paginationDialogStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<PdfHyperlinkDialogStyle>(
+        'hyperlinkDialogStyle',
+        hyperlinkDialogStyle,
+        defaultValue: defaultData.hyperlinkDialogStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<PdfPasswordDialogStyle>(
+        'passwordDialogStyle',
+        passwordDialogStyle,
+        defaultValue: defaultData.passwordDialogStyle,
+      ),
+    );
   }
 }
 
@@ -513,14 +572,21 @@ class PdfScrollStatusStyle {
 
   /// Linearly interpolate between two styles.
   static PdfScrollStatusStyle? lerp(
-      PdfScrollStatusStyle? a, PdfScrollStatusStyle? b, double t) {
+    PdfScrollStatusStyle? a,
+    PdfScrollStatusStyle? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return PdfScrollStatusStyle(
-        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
-        pageInfoTextStyle:
-            TextStyle.lerp(a.pageInfoTextStyle, b.pageInfoTextStyle, t));
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+      pageInfoTextStyle: TextStyle.lerp(
+        a.pageInfoTextStyle,
+        b.pageInfoTextStyle,
+        t,
+      ),
+    );
   }
 }
 
@@ -541,7 +607,7 @@ class PdfScrollHeadStyle {
   int get hashCode {
     final List<Object?> values = <Object?>[
       backgroundColor,
-      pageNumberTextStyle
+      pageNumberTextStyle,
     ];
     return Object.hashAll(values);
   }
@@ -562,14 +628,21 @@ class PdfScrollHeadStyle {
 
   /// Linearly interpolate between two styles.
   static PdfScrollHeadStyle? lerp(
-      PdfScrollHeadStyle? a, PdfScrollHeadStyle? b, double t) {
+    PdfScrollHeadStyle? a,
+    PdfScrollHeadStyle? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return PdfScrollHeadStyle(
-        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
-        pageNumberTextStyle:
-            TextStyle.lerp(a.pageNumberTextStyle, b.pageNumberTextStyle, t));
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+      pageNumberTextStyle: TextStyle.lerp(
+        a.pageNumberTextStyle,
+        b.pageNumberTextStyle,
+        t,
+      ),
+    );
   }
 }
 
@@ -577,16 +650,17 @@ class PdfScrollHeadStyle {
 class PdfBookmarkViewStyle {
   /// Creates a [PdfBookmarkViewStyle] that's used to configure styles for the
   /// bookmark view in [SfPdfViewer].
-  const PdfBookmarkViewStyle(
-      {this.backgroundColor,
-      this.headerBarColor,
-      this.closeIconColor,
-      this.backIconColor,
-      this.navigationIconColor,
-      this.selectionColor,
-      this.titleSeparatorColor,
-      this.titleTextStyle,
-      this.headerTextStyle});
+  const PdfBookmarkViewStyle({
+    this.backgroundColor,
+    this.headerBarColor,
+    this.closeIconColor,
+    this.backIconColor,
+    this.navigationIconColor,
+    this.selectionColor,
+    this.titleSeparatorColor,
+    this.titleTextStyle,
+    this.headerTextStyle,
+  });
 
   /// The background color of bookmark view in [SfPdfViewer].
   final Color? backgroundColor;
@@ -627,7 +701,7 @@ class PdfBookmarkViewStyle {
       selectionColor,
       titleSeparatorColor,
       titleTextStyle,
-      headerTextStyle
+      headerTextStyle,
     ];
     return Object.hashAll(values);
   }
@@ -655,23 +729,32 @@ class PdfBookmarkViewStyle {
 
   /// Linearly interpolate between two styles.
   static PdfBookmarkViewStyle? lerp(
-      PdfBookmarkViewStyle? a, PdfBookmarkViewStyle? b, double t) {
+    PdfBookmarkViewStyle? a,
+    PdfBookmarkViewStyle? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return PdfBookmarkViewStyle(
-        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
-        headerBarColor: Color.lerp(a.headerBarColor, b.headerBarColor, t),
-        closeIconColor: Color.lerp(a.closeIconColor, b.closeIconColor, t),
-        backIconColor: Color.lerp(a.backIconColor, b.backIconColor, t),
-        navigationIconColor:
-            Color.lerp(a.navigationIconColor, b.navigationIconColor, t),
-        selectionColor: Color.lerp(a.selectionColor, b.selectionColor, t),
-        titleSeparatorColor:
-            Color.lerp(a.titleSeparatorColor, b.titleSeparatorColor, t),
-        titleTextStyle: TextStyle.lerp(a.titleTextStyle, b.titleTextStyle, t),
-        headerTextStyle:
-            TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t));
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+      headerBarColor: Color.lerp(a.headerBarColor, b.headerBarColor, t),
+      closeIconColor: Color.lerp(a.closeIconColor, b.closeIconColor, t),
+      backIconColor: Color.lerp(a.backIconColor, b.backIconColor, t),
+      navigationIconColor: Color.lerp(
+        a.navigationIconColor,
+        b.navigationIconColor,
+        t,
+      ),
+      selectionColor: Color.lerp(a.selectionColor, b.selectionColor, t),
+      titleSeparatorColor: Color.lerp(
+        a.titleSeparatorColor,
+        b.titleSeparatorColor,
+        t,
+      ),
+      titleTextStyle: TextStyle.lerp(a.titleTextStyle, b.titleTextStyle, t),
+      headerTextStyle: TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t),
+    );
   }
 }
 
@@ -680,15 +763,16 @@ class PdfBookmarkViewStyle {
 class PdfPaginationDialogStyle {
   /// Creates a [PdfPaginationDialogStyle] that's used to configure styles for
   /// the pagination dialog in [SfPdfViewer].
-  const PdfPaginationDialogStyle(
-      {this.backgroundColor,
-      this.headerTextStyle,
-      this.inputFieldTextStyle,
-      this.hintTextStyle,
-      this.pageInfoTextStyle,
-      this.validationTextStyle,
-      this.okTextStyle,
-      this.cancelTextStyle});
+  const PdfPaginationDialogStyle({
+    this.backgroundColor,
+    this.headerTextStyle,
+    this.inputFieldTextStyle,
+    this.hintTextStyle,
+    this.pageInfoTextStyle,
+    this.validationTextStyle,
+    this.okTextStyle,
+    this.cancelTextStyle,
+  });
 
   /// The background color of pagination dialog in [SfPdfViewer].
   final Color? backgroundColor;
@@ -727,7 +811,7 @@ class PdfPaginationDialogStyle {
       pageInfoTextStyle,
       validationTextStyle,
       okTextStyle,
-      cancelTextStyle
+      cancelTextStyle,
     ];
     return Object.hashAll(values);
   }
@@ -754,24 +838,35 @@ class PdfPaginationDialogStyle {
 
   /// Linearly interpolate between two styles.
   static PdfPaginationDialogStyle? lerp(
-      PdfPaginationDialogStyle? a, PdfPaginationDialogStyle? b, double t) {
+    PdfPaginationDialogStyle? a,
+    PdfPaginationDialogStyle? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return PdfPaginationDialogStyle(
-        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
-        headerTextStyle:
-            TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t),
-        inputFieldTextStyle:
-            TextStyle.lerp(a.inputFieldTextStyle, b.inputFieldTextStyle, t),
-        hintTextStyle: TextStyle.lerp(a.hintTextStyle, b.hintTextStyle, t),
-        pageInfoTextStyle:
-            TextStyle.lerp(a.pageInfoTextStyle, b.pageInfoTextStyle, t),
-        validationTextStyle:
-            TextStyle.lerp(a.validationTextStyle, b.validationTextStyle, t),
-        okTextStyle: TextStyle.lerp(a.okTextStyle, b.okTextStyle, t),
-        cancelTextStyle:
-            TextStyle.lerp(a.cancelTextStyle, b.cancelTextStyle, t));
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+      headerTextStyle: TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t),
+      inputFieldTextStyle: TextStyle.lerp(
+        a.inputFieldTextStyle,
+        b.inputFieldTextStyle,
+        t,
+      ),
+      hintTextStyle: TextStyle.lerp(a.hintTextStyle, b.hintTextStyle, t),
+      pageInfoTextStyle: TextStyle.lerp(
+        a.pageInfoTextStyle,
+        b.pageInfoTextStyle,
+        t,
+      ),
+      validationTextStyle: TextStyle.lerp(
+        a.validationTextStyle,
+        b.validationTextStyle,
+        t,
+      ),
+      okTextStyle: TextStyle.lerp(a.okTextStyle, b.okTextStyle, t),
+      cancelTextStyle: TextStyle.lerp(a.cancelTextStyle, b.cancelTextStyle, t),
+    );
   }
 }
 
@@ -780,13 +875,14 @@ class PdfPaginationDialogStyle {
 class PdfHyperlinkDialogStyle {
   /// Creates a [PdfHyperlinkDialogStyle] that's used to configure styles for
   /// the hyperlink dialog in [SfPdfViewer].
-  const PdfHyperlinkDialogStyle(
-      {this.backgroundColor,
-      this.headerTextStyle,
-      this.contentTextStyle,
-      this.openTextStyle,
-      this.cancelTextStyle,
-      this.closeIconColor});
+  const PdfHyperlinkDialogStyle({
+    this.backgroundColor,
+    this.headerTextStyle,
+    this.contentTextStyle,
+    this.openTextStyle,
+    this.cancelTextStyle,
+    this.closeIconColor,
+  });
 
   /// The background color of hyperlink dialog in [SfPdfViewer].
   final Color? backgroundColor;
@@ -841,20 +937,25 @@ class PdfHyperlinkDialogStyle {
 
   /// Linearly interpolate between two styles.
   static PdfHyperlinkDialogStyle? lerp(
-      PdfHyperlinkDialogStyle? a, PdfHyperlinkDialogStyle? b, double t) {
+    PdfHyperlinkDialogStyle? a,
+    PdfHyperlinkDialogStyle? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return PdfHyperlinkDialogStyle(
-        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
-        headerTextStyle:
-            TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t),
-        contentTextStyle:
-            TextStyle.lerp(a.contentTextStyle, b.contentTextStyle, t),
-        openTextStyle: TextStyle.lerp(a.openTextStyle, b.openTextStyle, t),
-        cancelTextStyle:
-            TextStyle.lerp(a.cancelTextStyle, b.cancelTextStyle, t),
-        closeIconColor: Color.lerp(a.closeIconColor, b.closeIconColor, t));
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
+      headerTextStyle: TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t),
+      contentTextStyle: TextStyle.lerp(
+        a.contentTextStyle,
+        b.contentTextStyle,
+        t,
+      ),
+      openTextStyle: TextStyle.lerp(a.openTextStyle, b.openTextStyle, t),
+      cancelTextStyle: TextStyle.lerp(a.cancelTextStyle, b.cancelTextStyle, t),
+      closeIconColor: Color.lerp(a.closeIconColor, b.closeIconColor, t),
+    );
   }
 }
 
@@ -937,7 +1038,7 @@ class PdfPasswordDialogStyle {
       closeIconColor,
       visibleIconColor,
       inputFieldBorderColor,
-      errorBorderColor
+      errorBorderColor,
     ];
     return Object.hashAll(values);
   }
@@ -969,28 +1070,46 @@ class PdfPasswordDialogStyle {
 
   /// Linearly interpolate between two styles.
   static PdfPasswordDialogStyle? lerp(
-      PdfPasswordDialogStyle? a, PdfPasswordDialogStyle? b, double t) {
+    PdfPasswordDialogStyle? a,
+    PdfPasswordDialogStyle? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return PdfPasswordDialogStyle(
       backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
       headerTextStyle: TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t),
-      contentTextStyle:
-          TextStyle.lerp(a.contentTextStyle, b.contentTextStyle, t),
-      inputFieldTextStyle:
-          TextStyle.lerp(a.inputFieldTextStyle, b.inputFieldTextStyle, t),
+      contentTextStyle: TextStyle.lerp(
+        a.contentTextStyle,
+        b.contentTextStyle,
+        t,
+      ),
+      inputFieldTextStyle: TextStyle.lerp(
+        a.inputFieldTextStyle,
+        b.inputFieldTextStyle,
+        t,
+      ),
       inputFieldHintTextStyle: TextStyle.lerp(
-          a.inputFieldHintTextStyle, b.inputFieldHintTextStyle, t),
+        a.inputFieldHintTextStyle,
+        b.inputFieldHintTextStyle,
+        t,
+      ),
       inputFieldLabelTextStyle: TextStyle.lerp(
-          a.inputFieldLabelTextStyle, b.inputFieldLabelTextStyle, t),
+        a.inputFieldLabelTextStyle,
+        b.inputFieldLabelTextStyle,
+        t,
+      ),
       errorTextStyle: TextStyle.lerp(a.errorTextStyle, b.errorTextStyle, t),
       openTextStyle: TextStyle.lerp(a.openTextStyle, b.openTextStyle, t),
       cancelTextStyle: TextStyle.lerp(a.cancelTextStyle, b.cancelTextStyle, t),
       closeIconColor: Color.lerp(a.closeIconColor, b.closeIconColor, t),
       visibleIconColor: Color.lerp(a.visibleIconColor, b.visibleIconColor, t),
-      inputFieldBorderColor:
-          Color.lerp(a.inputFieldBorderColor, b.inputFieldBorderColor, t),
+      inputFieldBorderColor: Color.lerp(
+        a.inputFieldBorderColor,
+        b.inputFieldBorderColor,
+        t,
+      ),
       errorBorderColor: Color.lerp(a.errorBorderColor, b.errorBorderColor, t),
     );
   }

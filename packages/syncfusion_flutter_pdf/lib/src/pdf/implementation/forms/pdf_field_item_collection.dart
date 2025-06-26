@@ -33,7 +33,7 @@ class PdfFieldItemCollection extends PdfObjectCollection {
 class PdfFieldItemCollectionHelper extends PdfObjectCollectionHelper {
   /// internal constructor
   PdfFieldItemCollectionHelper(this.fieldItemCollection, this.field)
-      : super(fieldItemCollection);
+    : super(fieldItemCollection);
 
   /// internal field
   late PdfFieldItemCollection fieldItemCollection;
@@ -51,7 +51,8 @@ class PdfFieldItemCollectionHelper extends PdfObjectCollectionHelper {
 
   /// internal method
   static PdfFieldItemCollectionHelper getHelper(
-      PdfFieldItemCollection collection) {
+    PdfFieldItemCollection collection,
+  ) {
     return collection._helper;
   }
 
@@ -64,8 +65,8 @@ class PdfFieldItemCollectionHelper extends PdfObjectCollectionHelper {
   void clear() {
     PdfFieldHelper.getHelper(field).array.clear();
     list.clear();
-    PdfFieldHelper.getHelper(field)
-        .dictionary!
-        .remove(PdfDictionaryProperties.kids);
+    PdfFieldHelper.getHelper(
+      field,
+    ).dictionary!.remove(PdfDictionaryProperties.kids);
   }
 }

@@ -42,11 +42,16 @@ class PdfCjkStandardFont extends PdfFont {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  PdfCjkStandardFont(PdfCjkFontFamily fontFamily, double size,
-      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+  PdfCjkStandardFont(
+    PdfCjkFontFamily fontFamily,
+    double size, {
+    PdfFontStyle? style,
+    List<PdfFontStyle>? multiStyle,
+  }) {
     _helper = PdfCjkStandardFontHelper(this);
-    PdfFontHelper.getHelper(this)
-        .initialize(size, style: style, multiStyle: multiStyle);
+    PdfFontHelper.getHelper(
+      this,
+    ).initialize(size, style: style, multiStyle: multiStyle);
     _fontFamily = fontFamily;
     _initializeInternals();
   }
@@ -68,11 +73,16 @@ class PdfCjkStandardFont extends PdfFont {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  PdfCjkStandardFont.protoType(PdfCjkStandardFont prototype, double size,
-      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+  PdfCjkStandardFont.protoType(
+    PdfCjkStandardFont prototype,
+    double size, {
+    PdfFontStyle? style,
+    List<PdfFontStyle>? multiStyle,
+  }) {
     _helper = PdfCjkStandardFontHelper(this);
-    PdfFontHelper.getHelper(this)
-        .initialize(size, style: style, multiStyle: multiStyle);
+    PdfFontHelper.getHelper(
+      this,
+    ).initialize(size, style: style, multiStyle: multiStyle);
     _fontFamily = prototype.fontFamily;
     if (style == null && (multiStyle == null || multiStyle.isEmpty)) {
       PdfFontHelper.getHelper(this).setStyle(prototype.style, null);
@@ -107,9 +117,13 @@ class PdfCjkStandardFont extends PdfFont {
   PdfCjkFontFamily get fontFamily => _fontFamily;
 
   void _initializeInternals() {
-    PdfFontHelper.getHelper(this).metrics =
-        PdfCjkStandardFontMetricsFactory.getMetrics(
-            _fontFamily, PdfFontHelper.getHelper(this).fontStyle, size);
+    PdfFontHelper.getHelper(
+      this,
+    ).metrics = PdfCjkStandardFontMetricsFactory.getMetrics(
+      _fontFamily,
+      PdfFontHelper.getHelper(this).fontStyle,
+      size,
+    );
     PdfFontHelper.getHelper(this).fontInternals = _createInternals();
   }
 
@@ -117,12 +131,15 @@ class PdfCjkStandardFont extends PdfFont {
   PdfDictionary _createInternals() {
     final PdfDictionary dictionary = PdfDictionary();
 
-    dictionary[PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.font);
-    dictionary[PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.type0);
-    dictionary[PdfDictionaryProperties.baseFont] =
-        PdfName(PdfFontHelper.getHelper(this).metrics!.postScriptName);
+    dictionary[PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.font,
+    );
+    dictionary[PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.type0,
+    );
+    dictionary[PdfDictionaryProperties.baseFont] = PdfName(
+      PdfFontHelper.getHelper(this).metrics!.postScriptName,
+    );
 
     dictionary[PdfDictionaryProperties.encoding] = _getEncoding(_fontFamily);
     dictionary[PdfDictionaryProperties.descendantFonts] = _getDescendantFont();
@@ -162,9 +179,10 @@ class PdfCjkStandardFont extends PdfFont {
   PdfArray _getDescendantFont() {
     final PdfArray df = PdfArray();
     final PdfCidFont cidFont = PdfCidFont(
-        _fontFamily,
-        PdfFontHelper.getHelper(this).fontStyle,
-        PdfFontHelper.getHelper(this).metrics!);
+      _fontFamily,
+      PdfFontHelper.getHelper(this).fontStyle,
+      PdfFontHelper.getHelper(this).metrics!,
+    );
     df.add(cidFont);
     return df;
   }

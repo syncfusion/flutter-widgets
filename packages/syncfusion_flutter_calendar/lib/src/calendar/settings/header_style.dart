@@ -35,8 +35,11 @@ class CalendarHeaderStyle with Diagnosticable {
   /// Creates a header style for calendar.
   ///
   /// The properties allows to customize the header view of [SfCalendar].
-  const CalendarHeaderStyle(
-      {this.textAlign = TextAlign.start, this.backgroundColor, this.textStyle});
+  const CalendarHeaderStyle({
+    this.textAlign = TextAlign.start,
+    this.backgroundColor,
+    this.textStyle,
+  });
 
   /// The text style for the text in the [SfCalendar] header view.
   ///

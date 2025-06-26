@@ -41,8 +41,8 @@ class FormatParser {
 
   /// Regular expression for checking if specified switch argument present in numberformat.
   static final RegExp numberFormatRegex =
-      // ignore: use_raw_strings
-      RegExp('\\[(DBNUM[1-4]{1}|GB[1-4]{1})\\]');
+  // ignore: use_raw_strings
+  RegExp('\\[(DBNUM[1-4]{1}|GB[1-4]{1})\\]');
 
   /// Parses format string.
   // ignore: unused_element
@@ -51,9 +51,10 @@ class FormatParser {
       final Error error = ArgumentError('strFormat - string cannot be null');
       throw error;
     }
-    strFormat = numberFormatRegex.hasMatch(strFormat)
-        ? strFormat.replaceAll(RegExp(r'strFormat'), '')
-        : strFormat;
+    strFormat =
+        numberFormatRegex.hasMatch(strFormat)
+            ? strFormat.replaceAll(RegExp(r'strFormat'), '')
+            : strFormat;
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) {

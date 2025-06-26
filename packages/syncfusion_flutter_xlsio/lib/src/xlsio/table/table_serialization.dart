@@ -31,9 +31,11 @@ class TableSerialization {
     int id = 1;
     if (tableCollection.count > 0) {
       if (sheet.hyperlinks.count > 0) {
-        for (int hyperlinkIndex = 0;
-            hyperlinkIndex < sheet.hyperlinks.count;
-            hyperlinkIndex++) {
+        for (
+          int hyperlinkIndex = 0;
+          hyperlinkIndex < sheet.hyperlinks.count;
+          hyperlinkIndex++
+        ) {
           if (sheet.hyperlinks[hyperlinkIndex].attachedType ==
                   ExcelHyperlinkAttachedType.range &&
               sheet.hyperlinks[hyperlinkIndex].type != HyperlinkType.workbook) {
@@ -42,9 +44,11 @@ class TableSerialization {
         }
       }
       if (sheet.pictures.count > 0) {
-        for (int imageIndex = 0;
-            imageIndex < sheet.pictures.count;
-            imageIndex++) {
+        for (
+          int imageIndex = 0;
+          imageIndex < sheet.pictures.count;
+          imageIndex++
+        ) {
           id++;
         }
       }
@@ -53,25 +57,37 @@ class TableSerialization {
           id++;
         }
       }
-      builder.element('tableParts', nest: () {
-        builder.attribute('count', tableCollection.count);
-        for (int tableCount = 0;
+      builder.element(
+        'tableParts',
+        nest: () {
+          builder.attribute('count', tableCollection.count);
+          for (
+            int tableCount = 0;
             tableCount < tableCollection.count;
-            tableCount++) {
-          rid = id++;
-          final ExcelTable table = tableCollection[tableCount];
-          _serializeTable(table, tableCount + 1, sheet);
-          builder.element('tablePart', nest: () {
-            builder.attribute('r:id', 'rId$rid');
-          });
-        }
-      });
+            tableCount++
+          ) {
+            rid = id++;
+            final ExcelTable table = tableCollection[tableCount];
+            _serializeTable(table, tableCount + 1, sheet);
+            builder.element(
+              'tablePart',
+              nest: () {
+                builder.attribute('r:id', 'rId$rid');
+              },
+            );
+          }
+        },
+      );
     }
   }
 
   /// Serializes attribute if it differs from default value.
   void _serializeAttributeBool(
-      XmlBuilder builder, String attributeName, bool value, bool defaultValue) {
+    XmlBuilder builder,
+    String attributeName,
+    bool value,
+    bool defaultValue,
+  ) {
     String? strValue;
     if (value != defaultValue) {
       strValue = value ? '1' : '0';
@@ -83,7 +99,11 @@ class TableSerialization {
 
   /// Serializes attribute if it differs from default value.
   void _serializeAttributeInt(
-      XmlBuilder builder, String attributeName, int value, int defaultValue) {
+    XmlBuilder builder,
+    String attributeName,
+    int value,
+    int defaultValue,
+  ) {
     if (value != defaultValue) {
       final String strValue = value.toString();
       builder.attribute(attributeName, strValue);
@@ -91,8 +111,12 @@ class TableSerialization {
   }
 
   /// Serializes attribute if it differs from default value.
-  void _serializeAttributeString(XmlBuilder builder, String attributeName,
-      String value, String defaultValue) {
+  void _serializeAttributeString(
+    XmlBuilder builder,
+    String attributeName,
+    String value,
+    String defaultValue,
+  ) {
     if (value != defaultValue) {
       builder.attribute(attributeName, value);
     }
@@ -102,46 +126,61 @@ class TableSerialization {
   void _serializeTable(ExcelTable table, int index, Worksheet sheet) {
     final XmlBuilder builder = XmlBuilder();
     _workbook.tableCount++;
-    builder.element('table', nest: () {
-      builder.attribute('id', (table as ExcelTableImpl).tableIndex);
-      builder.attribute('name', table.tableName);
-      builder.attribute('displayName', table.displayName);
-      builder.attribute('ref', table.dataRange.addressLocal);
-      if (!table.totalsRowShown) {
-        _serializeAttributeBool(builder, 'totalsRowShown', false, true);
-      } else {
-        _serializeAttributeInt(
-            builder, 'totalsRowCount', table.totalRowCount, 0);
-      }
-      builder.namespace(
-          'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+    builder.element(
+      'table',
+      nest: () {
+        builder.attribute('id', (table as ExcelTableImpl).tableIndex);
+        builder.attribute('name', table.tableName);
+        builder.attribute('displayName', table.displayName);
+        builder.attribute('ref', table.dataRange.addressLocal);
+        if (!table.totalsRowShown) {
+          _serializeAttributeBool(builder, 'totalsRowShown', false, true);
+        } else {
+          _serializeAttributeInt(
+            builder,
+            'totalsRowCount',
+            table.totalRowCount,
+            0,
+          );
+        }
+        builder.namespace(
+          'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+        );
 
-      final ExcelTableImpl typedTable = table;
-      if (!typedTable.showHeaderRow) {
-        builder.attribute('headerRowCount', '0');
-      }
-      if (_isTableAutoFlter(sheet)) {
-        builder.element('autoFilter', nest: () {
-          builder.attribute('ref', sheet.autoFilters.filterRange.addressLocal);
-          // ignore: always_specify_types
-          for (int i = 0; i < sheet.autoFilters.count; i++) {
-            final AutoFilterImpl autoFilter =
-                sheet.autoFilters[i] as AutoFilterImpl;
+        final ExcelTableImpl typedTable = table;
+        if (!typedTable.showHeaderRow) {
+          builder.attribute('headerRowCount', '0');
+        }
+        if (_isTableAutoFlter(sheet)) {
+          builder.element(
+            'autoFilter',
+            nest: () {
+              builder.attribute(
+                'ref',
+                sheet.autoFilters.filterRange.addressLocal,
+              );
+              // ignore: always_specify_types
+              for (int i = 0; i < sheet.autoFilters.count; i++) {
+                final AutoFilterImpl autoFilter =
+                    sheet.autoFilters[i] as AutoFilterImpl;
 
-            if (autoFilter.isFiltered) {
-              final SerializeWorkbook serializeWorkbook =
-                  SerializeWorkbook(sheet.workbook);
-              serializeWorkbook.serializeFilterColumn(builder, autoFilter);
-            }
-          }
-        });
-      }
-      _serializeTableColumns(builder, table.columns);
+                if (autoFilter.isFiltered) {
+                  final SerializeWorkbook serializeWorkbook = SerializeWorkbook(
+                    sheet.workbook,
+                  );
+                  serializeWorkbook.serializeFilterColumn(builder, autoFilter);
+                }
+              }
+            },
+          );
+        }
+        _serializeTableColumns(builder, table.columns);
 
-      _serializeTableStyle(builder, table);
+        _serializeTableStyle(builder, table);
 
-      _serializeTableExtensionList(builder, table);
-    });
+        _serializeTableExtensionList(builder, table);
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchive(bytes, 'xl/tables/table${_workbook.tableCount}.xml');
@@ -167,64 +206,103 @@ class TableSerialization {
 
   /// Serialize Columns
   void _serializeTableColumns(
-      XmlBuilder builder, List<ExcelTableColumn> columns) {
-    builder.element('tableColumns', nest: () {
-      for (int columnCount = 0; columnCount < columns.length; columnCount++) {
-        final ExcelTableColumn column = columns[columnCount];
-        _serializeTableColumn(builder, column);
-      }
-    });
+    XmlBuilder builder,
+    List<ExcelTableColumn> columns,
+  ) {
+    builder.element(
+      'tableColumns',
+      nest: () {
+        for (int columnCount = 0; columnCount < columns.length; columnCount++) {
+          final ExcelTableColumn column = columns[columnCount];
+          _serializeTableColumn(builder, column);
+        }
+      },
+    );
   }
 
   /// Serialize Column.
   void _serializeTableColumn(XmlBuilder builder, ExcelTableColumn column) {
-    builder.element('tableColumn', nest: () {
-      builder.attribute('id', (column as ExcelTableColumnImpl).columnId);
-      builder.attribute('name', column.columnName);
-      _serializeAttributeString(
-          builder, 'totalsRowLabel', column.totalRowLabel, '');
-      if (column.totalFormula != ExcelTableTotalFormula.none) {
-        builder.attribute(
-            'totalsRowFunction', _getTotalsCalculation(column.totalFormula));
-      }
-    });
+    builder.element(
+      'tableColumn',
+      nest: () {
+        builder.attribute('id', (column as ExcelTableColumnImpl).columnId);
+        builder.attribute('name', column.columnName);
+        _serializeAttributeString(
+          builder,
+          'totalsRowLabel',
+          column.totalRowLabel,
+          '',
+        );
+        if (column.totalFormula != ExcelTableTotalFormula.none) {
+          builder.attribute(
+            'totalsRowFunction',
+            _getTotalsCalculation(column.totalFormula),
+          );
+        }
+      },
+    );
   }
 
   /// Serialize Table Style.
   void _serializeTableStyle(XmlBuilder builder, ExcelTable table) {
     final ExcelTableBuiltInStyle style = table.builtInTableStyle;
-    builder.element('tableStyleInfo', nest: () {
-      builder.attribute('name', _getTableStyles(style));
+    builder.element(
+      'tableStyleInfo',
+      nest: () {
+        builder.attribute('name', _getTableStyles(style));
 
-      builder.attribute(
-          'showFirstColumn', (table.showFirstColumn ? 1 : 0).toString());
-      builder.attribute(
-          'showLastColumn', (table.showLastColumn ? 1 : 0).toString());
-      builder.attribute(
-          'showRowStripes', (table.showBandedRows ? 1 : 0).toString());
-      builder.attribute(
-          'showColumnStripes', (table.showBandedColumns ? 1 : 0).toString());
-    });
+        builder.attribute(
+          'showFirstColumn',
+          (table.showFirstColumn ? 1 : 0).toString(),
+        );
+        builder.attribute(
+          'showLastColumn',
+          (table.showLastColumn ? 1 : 0).toString(),
+        );
+        builder.attribute(
+          'showRowStripes',
+          (table.showBandedRows ? 1 : 0).toString(),
+        );
+        builder.attribute(
+          'showColumnStripes',
+          (table.showBandedColumns ? 1 : 0).toString(),
+        );
+      },
+    );
   }
 
   /// Serializes the table extension list.
   void _serializeTableExtensionList(XmlBuilder builder, ExcelTable table) {
     if (table.altTextTitle.isNotEmpty || table.altTextSummary.isNotEmpty) {
-      builder.element('extLst', nest: () {
-        builder.element('ext', nest: () {
-          builder.attribute('uri', '{504A1905-F514-4f6f-8877-14C23A59335A}');
-          builder.attribute('xmlns:x14',
-              'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
-          builder.element('x14:table', nest: () {
-            if (table.altTextTitle.isNotEmpty) {
-              builder.attribute('altText', table.altTextTitle);
-            }
-            if (table.altTextSummary.isNotEmpty) {
-              builder.attribute('altTextSummary', table.altTextSummary);
-            }
-          });
-        });
-      });
+      builder.element(
+        'extLst',
+        nest: () {
+          builder.element(
+            'ext',
+            nest: () {
+              builder.attribute(
+                'uri',
+                '{504A1905-F514-4f6f-8877-14C23A59335A}',
+              );
+              builder.attribute(
+                'xmlns:x14',
+                'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
+              );
+              builder.element(
+                'x14:table',
+                nest: () {
+                  if (table.altTextTitle.isNotEmpty) {
+                    builder.attribute('altText', table.altTextTitle);
+                  }
+                  if (table.altTextSummary.isNotEmpty) {
+                    builder.attribute('altTextSummary', table.altTextSummary);
+                  }
+                },
+              );
+            },
+          );
+        },
+      );
     }
   }
 
@@ -458,9 +536,11 @@ class TableSerialization {
     int id = 1;
     if (tableCollection.count > 0) {
       if (sheet.hyperlinks.count > 0) {
-        for (int hyperlinkIndex = 0;
-            hyperlinkIndex < sheet.hyperlinks.count;
-            hyperlinkIndex++) {
+        for (
+          int hyperlinkIndex = 0;
+          hyperlinkIndex < sheet.hyperlinks.count;
+          hyperlinkIndex++
+        ) {
           if (sheet.hyperlinks[hyperlinkIndex].attachedType ==
                   ExcelHyperlinkAttachedType.range &&
               sheet.hyperlinks[hyperlinkIndex].type != HyperlinkType.workbook) {
@@ -469,31 +549,45 @@ class TableSerialization {
         }
       }
       if (sheet.pictures.count > 0) {
-        for (int imageIndex = 0;
-            imageIndex < sheet.pictures.count;
-            imageIndex++) {
+        for (
+          int imageIndex = 0;
+          imageIndex < sheet.pictures.count;
+          imageIndex++
+        ) {
           id++;
         }
       }
-      builder.element('tableParts', nest: () async {
-        builder.attribute('count', tableCollection.count);
-        for (int tableCount = 0;
+      builder.element(
+        'tableParts',
+        nest: () async {
+          builder.attribute('count', tableCollection.count);
+          for (
+            int tableCount = 0;
             tableCount < tableCollection.count;
-            tableCount++) {
-          rid = id++;
-          final ExcelTable table = tableCollection[tableCount];
-          _serializeTableAsync(table, tableCount + 1);
-          builder.element('tablePart', nest: () {
-            builder.attribute('r:id', 'rId$rid');
-          });
-        }
-      });
+            tableCount++
+          ) {
+            rid = id++;
+            final ExcelTable table = tableCollection[tableCount];
+            _serializeTableAsync(table, tableCount + 1);
+            builder.element(
+              'tablePart',
+              nest: () {
+                builder.attribute('r:id', 'rId$rid');
+              },
+            );
+          }
+        },
+      );
     }
   }
 
   /// Serializes attribute if it differs from default value.
-  Future<void> _serializeAttributeBoolAsync(XmlBuilder builder,
-      String attributeName, bool value, bool defaultValue) async {
+  Future<void> _serializeAttributeBoolAsync(
+    XmlBuilder builder,
+    String attributeName,
+    bool value,
+    bool defaultValue,
+  ) async {
     String? strValue;
     if (value != defaultValue) {
       strValue = value ? '1' : '0';
@@ -504,8 +598,12 @@ class TableSerialization {
   }
 
   /// Serializes attribute if it differs from default value.
-  Future<void> _serializeAttributeIntAsync(XmlBuilder builder,
-      String attributeName, int value, int defaultValue) async {
+  Future<void> _serializeAttributeIntAsync(
+    XmlBuilder builder,
+    String attributeName,
+    int value,
+    int defaultValue,
+  ) async {
     if (value != defaultValue) {
       final String strValue = value.toString();
       builder.attribute(attributeName, strValue);
@@ -513,8 +611,12 @@ class TableSerialization {
   }
 
   /// Serializes attribute if it differs from default value.
-  Future<void> _serializeAttributeStringAsync(XmlBuilder builder,
-      String attributeName, String value, String defaultValue) async {
+  Future<void> _serializeAttributeStringAsync(
+    XmlBuilder builder,
+    String attributeName,
+    String value,
+    String defaultValue,
+  ) async {
     if (value != defaultValue) {
       builder.attribute(attributeName, value);
     }
@@ -524,29 +626,37 @@ class TableSerialization {
   Future<void> _serializeTableAsync(ExcelTable table, int index) async {
     final XmlBuilder builder = XmlBuilder();
     _workbook.tableCount++;
-    builder.element('table', nest: () async {
-      builder.attribute('id', (table as ExcelTableImpl).tableIndex);
-      builder.attribute('name', table.tableName);
-      builder.attribute('displayName', table.displayName);
-      builder.attribute('ref', table.dataRange.addressLocal);
-      if (!table.totalsRowShown) {
-        _serializeAttributeBoolAsync(builder, 'totalsRowShown', false, true);
-      } else {
-        _serializeAttributeIntAsync(
-            builder, 'totalsRowCount', table.totalRowCount, 0);
-      }
-      builder.namespace(
-          'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+    builder.element(
+      'table',
+      nest: () async {
+        builder.attribute('id', (table as ExcelTableImpl).tableIndex);
+        builder.attribute('name', table.tableName);
+        builder.attribute('displayName', table.displayName);
+        builder.attribute('ref', table.dataRange.addressLocal);
+        if (!table.totalsRowShown) {
+          _serializeAttributeBoolAsync(builder, 'totalsRowShown', false, true);
+        } else {
+          _serializeAttributeIntAsync(
+            builder,
+            'totalsRowCount',
+            table.totalRowCount,
+            0,
+          );
+        }
+        builder.namespace(
+          'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+        );
 
-      final ExcelTableImpl typedTable = table;
-      if (!typedTable.showHeaderRow) {
-        builder.attribute('headerRowCount', '0');
-      }
+        final ExcelTableImpl typedTable = table;
+        if (!typedTable.showHeaderRow) {
+          builder.attribute('headerRowCount', '0');
+        }
 
-      _serializeTableColumnsAsync(builder, table.columns);
-      _serializeTableStyleAsync(builder, table);
-      _serializeTableExtensionListAsync(builder, table);
-    });
+        _serializeTableColumnsAsync(builder, table.columns);
+        _serializeTableStyleAsync(builder, table);
+        _serializeTableExtensionListAsync(builder, table);
+      },
+    );
     final String stringXml = builder.buildDocument().toString();
     final List<int> bytes = utf8.encode(stringXml);
     _addToArchiveAsync(bytes, 'xl/tables/table${_workbook.tableCount}.xml');
@@ -560,66 +670,111 @@ class TableSerialization {
 
   /// Serialize Columns
   Future<void> _serializeTableColumnsAsync(
-      XmlBuilder builder, List<ExcelTableColumn> columns) async {
-    builder.element('tableColumns', nest: () async {
-      for (int columnCount = 0; columnCount < columns.length; columnCount++) {
-        final ExcelTableColumn column = columns[columnCount];
-        _serializeTableColumnAsync(builder, column);
-      }
-    });
+    XmlBuilder builder,
+    List<ExcelTableColumn> columns,
+  ) async {
+    builder.element(
+      'tableColumns',
+      nest: () async {
+        for (int columnCount = 0; columnCount < columns.length; columnCount++) {
+          final ExcelTableColumn column = columns[columnCount];
+          _serializeTableColumnAsync(builder, column);
+        }
+      },
+    );
   }
 
   /// Serialize Column.
   Future<void> _serializeTableColumnAsync(
-      XmlBuilder builder, ExcelTableColumn column) async {
-    builder.element('tableColumn', nest: () async {
-      builder.attribute('id', (column as ExcelTableColumnImpl).columnId);
-      builder.attribute('name', column.columnName);
-      _serializeAttributeStringAsync(
-          builder, 'totalsRowLabel', column.totalRowLabel, '');
-      if (column.totalFormula != ExcelTableTotalFormula.none) {
-        builder.attribute(
-            'totalsRowFunction', _getTotalsCalculation(column.totalFormula));
-      }
-    });
+    XmlBuilder builder,
+    ExcelTableColumn column,
+  ) async {
+    builder.element(
+      'tableColumn',
+      nest: () async {
+        builder.attribute('id', (column as ExcelTableColumnImpl).columnId);
+        builder.attribute('name', column.columnName);
+        _serializeAttributeStringAsync(
+          builder,
+          'totalsRowLabel',
+          column.totalRowLabel,
+          '',
+        );
+        if (column.totalFormula != ExcelTableTotalFormula.none) {
+          builder.attribute(
+            'totalsRowFunction',
+            _getTotalsCalculation(column.totalFormula),
+          );
+        }
+      },
+    );
   }
 
   /// Serialize Table Style.
   Future<void> _serializeTableStyleAsync(
-      XmlBuilder builder, ExcelTable table) async {
+    XmlBuilder builder,
+    ExcelTable table,
+  ) async {
     final ExcelTableBuiltInStyle style = table.builtInTableStyle;
-    builder.element('tableStyleInfo', nest: () async {
-      builder.attribute('name', _getTableStyles(style));
-      builder.attribute(
-          'showFirstColumn', (table.showFirstColumn ? 1 : 0).toString());
-      builder.attribute(
-          'showLastColumn', (table.showLastColumn ? 1 : 0).toString());
-      builder.attribute(
-          'showRowStripes', (table.showBandedRows ? 1 : 0).toString());
-      builder.attribute(
-          'showColumnStripes', (table.showBandedColumns ? 1 : 0).toString());
-    });
+    builder.element(
+      'tableStyleInfo',
+      nest: () async {
+        builder.attribute('name', _getTableStyles(style));
+        builder.attribute(
+          'showFirstColumn',
+          (table.showFirstColumn ? 1 : 0).toString(),
+        );
+        builder.attribute(
+          'showLastColumn',
+          (table.showLastColumn ? 1 : 0).toString(),
+        );
+        builder.attribute(
+          'showRowStripes',
+          (table.showBandedRows ? 1 : 0).toString(),
+        );
+        builder.attribute(
+          'showColumnStripes',
+          (table.showBandedColumns ? 1 : 0).toString(),
+        );
+      },
+    );
   }
 
   /// Serializes the table extension list.
   Future<void> _serializeTableExtensionListAsync(
-      XmlBuilder builder, ExcelTable table) async {
+    XmlBuilder builder,
+    ExcelTable table,
+  ) async {
     if (table.altTextTitle.isNotEmpty || table.altTextSummary.isNotEmpty) {
-      builder.element('extLst', nest: () {
-        builder.element('ext', nest: () {
-          builder.attribute('uri', '{504A1905-F514-4f6f-8877-14C23A59335A}');
-          builder.attribute('xmlns:x14',
-              'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
-          builder.element('x14:table', nest: () {
-            if (table.altTextTitle.isNotEmpty) {
-              builder.attribute('altText', table.altTextTitle);
-            }
-            if (table.altTextSummary.isNotEmpty) {
-              builder.attribute('altTextSummary', table.altTextSummary);
-            }
-          });
-        });
-      });
+      builder.element(
+        'extLst',
+        nest: () {
+          builder.element(
+            'ext',
+            nest: () {
+              builder.attribute(
+                'uri',
+                '{504A1905-F514-4f6f-8877-14C23A59335A}',
+              );
+              builder.attribute(
+                'xmlns:x14',
+                'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
+              );
+              builder.element(
+                'x14:table',
+                nest: () {
+                  if (table.altTextTitle.isNotEmpty) {
+                    builder.attribute('altText', table.altTextTitle);
+                  }
+                  if (table.altTextSummary.isNotEmpty) {
+                    builder.attribute('altTextSummary', table.altTextSummary);
+                  }
+                },
+              );
+            },
+          );
+        },
+      );
     }
   }
 }

@@ -61,7 +61,8 @@ class RangeValuePair<T> implements Comparable<T> {
   ///
   /// Returns a `string` with state information about this `object`.
   @override
-  String toString() => 'RangeValuePair Start = $start '
+  String toString() =>
+      'RangeValuePair Start = $start '
       'Count = $count End = $end Value = $value';
 }
 
@@ -139,8 +140,13 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
   ///
   void ensureCount(num index) {
     if (index - count > 0) {
-      rangeValues.add(RangeValuePair<T>.fromRangeValuePair(
-          count.toInt(), index.toInt() - count.toInt(), defaultValue));
+      rangeValues.add(
+        RangeValuePair<T>.fromRangeValuePair(
+          count.toInt(),
+          index.toInt() - count.toInt(),
+          defaultValue,
+        ),
+      );
     }
   }
 
@@ -165,8 +171,10 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
 
   ///
   RangeValuePair<T> getRangeValue(int index) {
-    final int n =
-        binarySearch<RangeValuePair<T>>(rangeValues, RangeValuePair<T>(index));
+    final int n = binarySearch<RangeValuePair<T>>(
+      rangeValues,
+      RangeValuePair<T>(index),
+    );
     return rangeValues[n];
   }
 
@@ -192,8 +200,12 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
   /// * moveRanges - _required_ - Allocate this object before a preceding
   /// Remove call when moving ranges.
   /// Otherwise specify null.
-  void insertWithFourArgs(num insertAt, num count, Object? value,
-      SortedRangeValueList<T>? moveRanges) {
+  void insertWithFourArgs(
+    num insertAt,
+    num count,
+    Object? value,
+    SortedRangeValueList<T>? moveRanges,
+  ) {
     if (insertAt >= this.count) {
       if (value == defaultValue &&
           (moveRanges == null || moveRanges.count == 0)) {
@@ -201,14 +213,21 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
       }
 
       ensureCount(insertAt);
-      rangeValues.add(RangeValuePair<T>.fromRangeValuePair(
-          insertAt.toInt(), count.toInt(), value));
+      rangeValues.add(
+        RangeValuePair<T>.fromRangeValuePair(
+          insertAt.toInt(),
+          count.toInt(),
+          value,
+        ),
+      );
       if (rangeValues.length >= 2) {
         merge(rangeValues.length - 2);
       }
     } else {
       int n = binarySearch<RangeValuePair<T>>(
-          rangeValues, RangeValuePair<T>(insertAt.toInt()));
+        rangeValues,
+        RangeValuePair<T>(insertAt.toInt()),
+      );
       final RangeValuePair<T> rv = rangeValues[n];
       if (value == (rv.value)) {
         rv.count += count.toInt();
@@ -217,7 +236,10 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
         n = splitWithTwoArgs(insertAt, n);
         split(insertAt + 1);
         final RangeValuePair<T> rv2 = RangeValuePair<T>.fromRangeValuePair(
-            insertAt.toInt(), count.toInt(), value);
+          insertAt.toInt(),
+          count.toInt(),
+          value,
+        );
         rangeValues.insert(n, rv2);
         adjustStart(n + 1, count);
         merge(n);
@@ -246,7 +268,10 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
   /// remove call when moving ranges.
   /// Otherwise specify null.
   void insertWithThreeArgs(
-      num insertAt, num count, SortedRangeValueList<T>? moveRanges) {
+    num insertAt,
+    num count,
+    SortedRangeValueList<T>? moveRanges,
+  ) {
     insertWithFourArgs(insertAt, count, defaultValue, moveRanges);
   }
 
@@ -287,7 +312,10 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
   /// when moving ranges
   /// and pass it to a subsequent insert call. Otherwise specify null.
   void removeWithThreeArgs(
-      num removeAt, num count, SortedRangeValueList<T>? moveRanges) {
+    num removeAt,
+    num count,
+    SortedRangeValueList<T>? moveRanges,
+  ) {
     if (removeAt >= this.count) {
       return;
     }
@@ -301,7 +329,10 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
 
   ///
   num removeHelper(
-      int removeAt, int count, SortedRangeValueList<T>? moveRanges) {
+    int removeAt,
+    int count,
+    SortedRangeValueList<T>? moveRanges,
+  ) {
     if (removeAt >= this.count) {
       return rangeValues.length;
     }
@@ -315,8 +346,13 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
       total += rv.count;
       deleteCount++;
       if (moveRanges != null && !(rv.value == defaultValue)) {
-        moveRanges.rangeValues.add(RangeValuePair<T>.fromRangeValuePair(
-            rv.start - removeAt, rv.count, rv.value));
+        moveRanges.rangeValues.add(
+          RangeValuePair<T>.fromRangeValuePair(
+            rv.start - removeAt,
+            rv.count,
+            rv.value,
+          ),
+        );
       }
     }
 
@@ -337,16 +373,23 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
   /// * index - _required_ - The index for the range to be changed.
   /// * count - _required_ - The count.
   /// * value - _required_ - The value.
-  void setRange(int index, int count, Object value,
-      [bool canMergeLines = true]) {
+  void setRange(
+    int index,
+    int count,
+    Object value, [
+    bool canMergeLines = true,
+  ]) {
     if (index >= this.count && value == defaultValue) {
       return;
     }
 
     ensureCount(index);
     final num n = removeHelper(index, count, null);
-    final RangeValuePair<T> rv =
-        RangeValuePair<T>.fromRangeValuePair(index, count, value);
+    final RangeValuePair<T> rv = RangeValuePair<T>.fromRangeValuePair(
+      index,
+      count,
+      value,
+    );
     rangeValues.insert(n.toInt(), rv);
     merge(n.toInt());
 
@@ -374,7 +417,9 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
       return rangeValues.length;
     }
     final int n = binarySearch<RangeValuePair<T>>(
-        rangeValues, RangeValuePair<T>(index.toInt()));
+      rangeValues,
+      RangeValuePair<T>(index.toInt()),
+    );
     return splitWithTwoArgs(index, n);
   }
 
@@ -389,8 +434,11 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
     final int count2 = rangeValues[n].count - count1;
     rv.count = count1;
 
-    final RangeValuePair<T> rv2 =
-        RangeValuePair<T>.fromRangeValuePair(index.toInt(), count2, rv.value);
+    final RangeValuePair<T> rv2 = RangeValuePair<T>.fromRangeValuePair(
+      index.toInt(),
+      count2,
+      rv.value,
+    );
     rangeValues.insert(n + 1, rv2);
     return n + 1;
   }
@@ -448,7 +496,8 @@ class SortedRangeValueList<T> extends EnumerableGenericBase<RangeValuePair<T>> {
           rangeValues[n.toInt() - 1].count++;
         } else {
           rangeValues.add(
-              RangeValuePair<T>.fromRangeValuePair(index.toInt(), 1, value));
+            RangeValuePair<T>.fromRangeValuePair(index.toInt(), 1, value),
+          );
         }
       } else {
         rangeValues[n.toInt()].value = value;

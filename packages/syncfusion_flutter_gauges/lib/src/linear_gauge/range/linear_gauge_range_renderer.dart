@@ -10,37 +10,37 @@ import '../../linear_gauge/utils/linear_gauge_helper.dart';
 /// Represents the render object of range element.
 class RenderLinearRange extends RenderOpacity {
   ///Creates a instance for RenderLinearRange.
-  RenderLinearRange(
-      {required double startValue,
-      required double midValue,
-      required double endValue,
-      required double startThickness,
-      required double midThickness,
-      required double endThickness,
-      required Color color,
-      required LinearElementPosition position,
-      required LinearRangeShapeType rangeShapeType,
-      ShaderCallback? shaderCallback,
-      required LinearEdgeStyle edgeStyle,
-      required LinearGaugeOrientation orientation,
-      Animation<double>? rangeAnimation,
-      required bool isAxisInversed,
-      required bool isMirrored})
-      : _startValue = startValue,
-        _midValue = midValue,
-        _endValue = endValue,
-        _startThickness = startThickness,
-        _midThickness = midThickness,
-        _endThickness = endThickness,
-        _color = color,
-        _position = position,
-        _rangeShapeType = rangeShapeType,
-        _shaderCallback = shaderCallback,
-        _edgeStyle = edgeStyle,
-        _orientation = orientation,
-        _rangeAnimation = rangeAnimation,
-        _isAxisInversed = isAxisInversed,
-        _isMirrored = isMirrored {
+  RenderLinearRange({
+    required double startValue,
+    required double midValue,
+    required double endValue,
+    required double startThickness,
+    required double midThickness,
+    required double endThickness,
+    required Color color,
+    required LinearElementPosition position,
+    required LinearRangeShapeType rangeShapeType,
+    ShaderCallback? shaderCallback,
+    required LinearEdgeStyle edgeStyle,
+    required LinearGaugeOrientation orientation,
+    Animation<double>? rangeAnimation,
+    required bool isAxisInversed,
+    required bool isMirrored,
+  }) : _startValue = startValue,
+       _midValue = midValue,
+       _endValue = endValue,
+       _startThickness = startThickness,
+       _midThickness = midThickness,
+       _endThickness = endThickness,
+       _color = color,
+       _position = position,
+       _rangeShapeType = rangeShapeType,
+       _shaderCallback = shaderCallback,
+       _edgeStyle = edgeStyle,
+       _orientation = orientation,
+       _rangeAnimation = rangeAnimation,
+       _isAxisInversed = isAxisInversed,
+       _isMirrored = isMirrored {
     _rangePaint = Paint()..color = Colors.black12;
     _rangeOffsets = List<Offset>.filled(5, Offset.zero);
     _isHorizontal = orientation == LinearGaugeOrientation.horizontal;
@@ -299,8 +299,10 @@ class RenderLinearRange extends RenderOpacity {
 
   @override
   void performLayout() {
-    final double thickness =
-        max(max(startThickness, midThickness), endThickness);
+    final double thickness = max(
+      max(startThickness, midThickness),
+      endThickness,
+    );
     double rangeWidth = 0;
 
     if (axis != null) {
@@ -319,8 +321,10 @@ class RenderLinearRange extends RenderOpacity {
       child!.layout(BoxConstraints.tight(controlSize));
     }
 
-    size = Size(min(controlSize.width, constraints.maxWidth),
-        min(controlSize.height, constraints.maxHeight));
+    size = Size(
+      min(controlSize.width, constraints.maxWidth),
+      min(controlSize.height, constraints.maxHeight),
+    );
   }
 
   ///Calculation Position based on value.
@@ -382,8 +386,12 @@ class RenderLinearRange extends RenderOpacity {
       path.lineTo(_rangeOffsets[1].dx, _rangeOffsets[1].dy);
       path.lineTo(_rangeOffsets[2].dx, _rangeOffsets[2].dy);
     } else {
-      path.quadraticBezierTo(_rangeOffsets[1].dx, _rangeOffsets[1].dy,
-          _rangeOffsets[2].dx, _rangeOffsets[2].dy);
+      path.quadraticBezierTo(
+        _rangeOffsets[1].dx,
+        _rangeOffsets[1].dy,
+        _rangeOffsets[2].dx,
+        _rangeOffsets[2].dy,
+      );
     }
 
     path.lineTo(_rangeOffsets[3].dx, _rangeOffsets[3].dy);
@@ -392,8 +400,12 @@ class RenderLinearRange extends RenderOpacity {
 
   void _getRangePath() {
     if (startThickness == endThickness && startThickness == midThickness) {
-      final Rect rangeRect = Rect.fromLTRB(_rangeOffsets[0].dx,
-          _rangeOffsets[0].dy, _rangeOffsets[3].dx, _rangeOffsets[3].dy);
+      final Rect rangeRect = Rect.fromLTRB(
+        _rangeOffsets[0].dx,
+        _rangeOffsets[0].dy,
+        _rangeOffsets[3].dx,
+        _rangeOffsets[3].dy,
+      );
 
       if (rangeRect.hasNaN) {
         return;
@@ -404,22 +416,32 @@ class RenderLinearRange extends RenderOpacity {
           _path.addRect(rangeRect);
           break;
         case LinearEdgeStyle.bothCurve:
-          _path.addRRect(RRect.fromRectAndRadius(
-              rangeRect, Radius.circular(startThickness / 2)));
+          _path.addRRect(
+            RRect.fromRectAndRadius(
+              rangeRect,
+              Radius.circular(startThickness / 2),
+            ),
+          );
           break;
         case LinearEdgeStyle.startCurve:
-          _path.addRRect(getStartCurve(
+          _path.addRRect(
+            getStartCurve(
               isHorizontal: _isHorizontal,
               isAxisInversed: isAxisInversed,
               rect: rangeRect,
-              radius: startThickness / 2));
+              radius: startThickness / 2,
+            ),
+          );
           break;
         case LinearEdgeStyle.endCurve:
-          _path.addRRect(getEndCurve(
+          _path.addRRect(
+            getEndCurve(
               isHorizontal: _isHorizontal,
               isAxisInversed: isAxisInversed,
               rect: rangeRect,
-              radius: startThickness / 2));
+              radius: startThickness / 2,
+            ),
+          );
           break;
       }
     } else {

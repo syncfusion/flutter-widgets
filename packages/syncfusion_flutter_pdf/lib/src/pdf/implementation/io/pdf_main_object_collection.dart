@@ -135,7 +135,9 @@ class PdfMainObjectCollection {
 
   /// internal method
   Future<Map<String, dynamic>> getReferenceAsync(
-      IPdfPrimitive object, bool? isNew) async {
+    IPdfPrimitive object,
+    bool? isNew,
+  ) async {
     _index = await lookForAsync(object);
     PdfReference? reference;
     if (_index! < 0 || _index! > count) {
@@ -166,8 +168,9 @@ class PdfMainObjectCollection {
       for (int i = count - 1; i >= 0; i--) {
         final PdfObjectInfo objectInfo = objectCollection![i];
         final IPdfPrimitive? primitive = objectInfo.object;
-        final bool isValidType = !((primitive is PdfName && obj is! PdfName) ||
-            (primitive is! PdfName && obj is PdfName));
+        final bool isValidType =
+            !((primitive is PdfName && obj is! PdfName) ||
+                (primitive is! PdfName && obj is PdfName));
         if (isValidType && primitive == obj) {
           index = i;
           break;
@@ -190,8 +193,9 @@ class PdfMainObjectCollection {
       for (int i = count - 1; i >= 0; i--) {
         final PdfObjectInfo objectInfo = objectCollection![i];
         final IPdfPrimitive? primitive = objectInfo.object;
-        final bool isValidType = !((primitive is PdfName && obj is! PdfName) ||
-            (primitive is! PdfName && obj is PdfName));
+        final bool isValidType =
+            !((primitive is PdfName && obj is! PdfName) ||
+                (primitive is! PdfName && obj is PdfName));
         if (isValidType && primitive == obj) {
           index = i;
           break;
@@ -257,7 +261,9 @@ class PdfMainObjectCollection {
 
   /// internal method
   Future<bool> trySetReferenceAsync(
-      IPdfPrimitive object, PdfReference reference) async {
+    IPdfPrimitive object,
+    PdfReference reference,
+  ) async {
     bool result = true;
     _index = await lookForAsync(object);
     if (_index! < 0 || _index! >= objectCollection!.length) {
@@ -286,7 +292,10 @@ class PdfMainObjectCollection {
   void reregisterReference(int oldObjIndex, IPdfPrimitive newObj) {
     if (oldObjIndex < 0 || oldObjIndex > count) {
       throw ArgumentError.value(
-          oldObjIndex, 'oldObjIndex', 'index out of range');
+        oldObjIndex,
+        'oldObjIndex',
+        'index out of range',
+      );
     }
     final PdfObjectInfo oi = objectCollection![oldObjIndex];
     if (oi.object != newObj) {
@@ -299,10 +308,15 @@ class PdfMainObjectCollection {
 
   /// internal method
   Future<void> reregisterReferenceAsync(
-      int oldObjIndex, IPdfPrimitive newObj) async {
+    int oldObjIndex,
+    IPdfPrimitive newObj,
+  ) async {
     if (oldObjIndex < 0 || oldObjIndex > count) {
       throw ArgumentError.value(
-          oldObjIndex, 'oldObjIndex', 'index out of range');
+        oldObjIndex,
+        'oldObjIndex',
+        'index out of range',
+      );
     }
     final PdfObjectInfo oi = objectCollection![oldObjIndex];
     if (oi.object != newObj) {

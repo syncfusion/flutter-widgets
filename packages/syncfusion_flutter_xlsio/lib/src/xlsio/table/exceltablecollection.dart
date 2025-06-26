@@ -38,8 +38,11 @@ class ExcelTableCollection {
     final Workbook book = range.worksheet.workbook;
     range = _checkRange(range);
     _checkOverlap(range);
-    final ExcelTableImpl result =
-        ExcelTableImpl(tableName, range, _tableCollection.length + 1);
+    final ExcelTableImpl result = ExcelTableImpl(
+      tableName,
+      range,
+      _tableCollection.length + 1,
+    );
     result.name = _isNameExists(tableName);
     result.dataRange = range;
     result.index = ++book.maxTableIndex;
@@ -66,9 +69,11 @@ class ExcelTableCollection {
     final int column = range.column;
     final int lastRow = range.lastRow;
     final int lastColumn = range.lastColumn;
-    for (int tableCount = 0;
-        tableCount < sheet.tableCollection.count;
-        tableCount++) {
+    for (
+      int tableCount = 0;
+      tableCount < sheet.tableCollection.count;
+      tableCount++
+    ) {
       final ExcelTable table = sheet.tableCollection[tableCount];
       final int tableRow = table.dataRange.row;
       final int tableColumn = table.dataRange.column;
@@ -77,35 +82,41 @@ class ExcelTableCollection {
       if ((row > tableRow - 1 && row < tableLastRow + 1) &&
           (column > tableColumn - 1 && column < tableLastColumn + 1)) {
         throw Exception(
-            'A table cannot overlap a range that contains another table');
+          'A table cannot overlap a range that contains another table',
+        );
       }
       if ((row > tableRow - 1 && row < tableLastRow + 1) &&
           (lastColumn > tableColumn - 1 && lastColumn < tableLastColumn + 1)) {
         throw Exception(
-            'A table cannot overlap a range that contains  another table');
+          'A table cannot overlap a range that contains  another table',
+        );
       }
       if ((lastRow > tableRow - 1 && lastRow < tableLastRow + 1) &&
           (column > tableColumn - 1 && column < tableLastColumn + 1)) {
         throw Exception(
-            'A table cannot overlap a range that contains another table');
+          'A table cannot overlap a range that contains another table',
+        );
       }
       if ((lastRow > tableRow - 1 && lastRow < tableLastRow + 1) &&
           (lastColumn > tableColumn - 1 && lastColumn < tableLastColumn + 1)) {
         throw Exception(
-            'A table cannot overlap a range that contains another table');
+          'A table cannot overlap a range that contains another table',
+        );
       }
       if ((row < tableRow - 1 && row < tableLastRow + 1) ||
           (lastRow > tableRow - 1 && lastRow < tableLastRow + 1)) {
         if (tableColumn > column && tableLastColumn < lastColumn) {
           throw Exception(
-              'A table cannot overlap a range that contains another table');
+            'A table cannot overlap a range that contains another table',
+          );
         }
       }
       if ((column < tableColumn - 1 && column < tableLastColumn + 1) ||
           (lastColumn > tableColumn - 1 && lastColumn < tableLastColumn + 1)) {
         if (tableRow > row && tableLastRow < lastRow) {
           throw Exception(
-              'A table cannot overlap a range that contains another table');
+            'A table cannot overlap a range that contains another table',
+          );
         }
       }
     }
@@ -115,7 +126,11 @@ class ExcelTableCollection {
   Range _checkRange(Range range) {
     if (range.row == range.lastRow) {
       range = _sheet.getRangeByIndex(
-          range.row, range.column, range.row + 1, range.lastColumn);
+        range.row,
+        range.column,
+        range.row + 1,
+        range.lastColumn,
+      );
     }
     return range;
   }

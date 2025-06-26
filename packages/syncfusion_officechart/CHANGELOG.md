@@ -1,4 +1,17 @@
-## [Unreleased]
+## Unreleased
+
+**General**
+
+* Upgraded the archive package. The Flutter XlsIO widget supports archive package version 4.0.0 and above.
+* The compatible version of our Flutter OfficeChart widget has been updated to Flutter SDK 3.32.0
+
+## [29.1.39] - 22/04/2025
+
+**General**
+
+* The minimum Dart version has been updated to 3.7.
+
+## [29.1.33] - 25/03/2025
 
 **General**
 

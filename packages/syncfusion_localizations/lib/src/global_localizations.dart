@@ -39,8 +39,8 @@ abstract class SfGlobalLocalizations implements SfLocalizations {
   const SfGlobalLocalizations({
     required String localeName,
     // ignore: unnecessary_null_comparison
-  })  : assert(localeName != null),
-        _localeName = localeName;
+  }) : assert(localeName != null),
+       _localeName = localeName;
   // ignore: unused_field
   final String _localeName;
   //ignore: public_member_api_docs
@@ -63,9 +63,7 @@ abstract class SfGlobalLocalizations implements SfLocalizations {
   /// ```
   ///
   static const List<LocalizationsDelegate<dynamic>> delegates =
-      <LocalizationsDelegate<dynamic>>[
-    SfGlobalLocalizations.delegate,
-  ];
+      <LocalizationsDelegate<dynamic>>[SfGlobalLocalizations.delegate];
 }
 
 class _SfLocalizationsDelegate extends LocalizationsDelegate<SfLocalizations> {
@@ -82,17 +80,18 @@ class _SfLocalizationsDelegate extends LocalizationsDelegate<SfLocalizations> {
   Future<SfLocalizations> load(Locale locale) {
     assert(isSupported(locale));
     return _loadedTranslations.putIfAbsent(locale, () {
-      final String localeName =
-          intl.Intl.canonicalizedLocale(locale.toString());
+      final String localeName = intl.Intl.canonicalizedLocale(
+        locale.toString(),
+      );
       assert(
         locale.toString() == localeName,
         'Flutter does not support the non-standard locale form $locale (which '
         'might be $localeName',
       );
 
-      return SynchronousFuture<SfLocalizations>(getSyncfusionTranslation(
-        locale,
-      )!);
+      return SynchronousFuture<SfLocalizations>(
+        getSyncfusionTranslation(locale)!,
+      );
     });
   }
 
@@ -100,6 +99,7 @@ class _SfLocalizationsDelegate extends LocalizationsDelegate<SfLocalizations> {
   bool shouldReload(_SfLocalizationsDelegate old) => false;
 
   @override
-  String toString() => 'SfGlobalLocalizations.delegate('
+  String toString() =>
+      'SfGlobalLocalizations.delegate('
       '${kSyncfusionSupportedLanguages.length} locales)';
 }

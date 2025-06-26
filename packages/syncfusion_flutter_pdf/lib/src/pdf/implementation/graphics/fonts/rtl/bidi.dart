@@ -95,7 +95,7 @@ class Bidi {
     }
     return <String, dynamic>{
       'rtlText': renderedString,
-      'orderedIndexes': indexes
+      'orderedIndexes': indexes,
     };
   }
 
@@ -155,8 +155,9 @@ class Bidi {
     for (int i = 0; i < text.length; i++) {
       if (((indexLevels[i] & 1) == 1) &&
           mirroringShapeCharacters.containsKey(text[i].codeUnitAt(0))) {
-        result.write(String.fromCharCode(
-            mirroringShapeCharacters[text[i].codeUnitAt(0)]!));
+        result.write(
+          String.fromCharCode(mirroringShapeCharacters[text[i].codeUnitAt(0)]!),
+        );
       } else {
         result.write(text[i]);
       }
@@ -580,8 +581,11 @@ class _RTLCharacters {
   // Specifies the resultant levels.
   late List<int> levels; //sbyte
   // Specifies the RTL character types.
-  List<int> rtlCharacterTypes =
-      List<int>.filled(65536, 0, growable: true); //sbyte
+  List<int> rtlCharacterTypes = List<int>.filled(
+    65536,
+    0,
+    growable: true,
+  ); //sbyte
 
   // Left-to-Right (Non-European or non-Arabic digits).
   static const int l = 0;
@@ -2352,7 +2356,7 @@ class _RTLCharacters {
     otn,
     65534,
     65535,
-    l
+    l,
   ];
 
   // Implementations.
@@ -2360,8 +2364,11 @@ class _RTLCharacters {
     types = getCharacterCode(inputText);
     textOrder = isRTL ? lre : l;
     doVisualOrder();
-    final List<int> result =
-        List<int>.filled(this.result.length, 0, growable: true);
+    final List<int> result = List<int>.filled(
+      this.result.length,
+      0,
+      growable: true,
+    );
     for (int i = 0; i < levels.length; i++) {
       result[i] = levels[i].toUnsigned(8);
     }
@@ -2369,8 +2376,11 @@ class _RTLCharacters {
   }
 
   List<int> getCharacterCode(String text) {
-    final List<int> characterCodes =
-        List<int>.filled(text.length, 0, growable: true);
+    final List<int> characterCodes = List<int>.filled(
+      text.length,
+      0,
+      growable: true,
+    );
     for (int i = 0; i < text.length; i++) {
       characterCodes[i] = rtlCharacterTypes[text[i].codeUnitAt(0)];
     }
@@ -2497,7 +2507,12 @@ class _RTLCharacters {
   }
 
   void checkEuropeanDigits(
-      int index, int length, int level, int startType, int endType) {
+    int index,
+    int length,
+    int level,
+    int startType,
+    int endType,
+  ) {
     for (int i = index; i < length; ++i) {
       if (result[i] == en) {
         for (int j = i - 1; j >= index; --j) {
@@ -2514,7 +2529,12 @@ class _RTLCharacters {
   }
 
   void checkArabicCharacters(
-      int index, int length, int level, int startType, int endType) {
+    int index,
+    int length,
+    int level,
+    int startType,
+    int endType,
+  ) {
     for (int i = index; i < length; ++i) {
       if (result[i] == al) {
         result[i] = r;
@@ -2524,7 +2544,12 @@ class _RTLCharacters {
   }
 
   void checkEuropeanNumberSeparator(
-      int index, int length, int level, int startType, int endType) {
+    int index,
+    int length,
+    int level,
+    int startType,
+    int endType,
+  ) {
     for (int i = index + 1; i < length - 1; ++i) {
       if (result[i] == es || result[i] == cs) {
         final int preview = result[i - 1];
@@ -2540,7 +2565,12 @@ class _RTLCharacters {
   }
 
   void checkEuropeanNumberTerminator(
-      int index, int length, int level, int startType, int endType) {
+    int index,
+    int length,
+    int level,
+    int startType,
+    int endType,
+  ) {
     for (int i = index; i < length; ++i) {
       if (result[i] == et) {
         final int s = i;
@@ -2575,7 +2605,12 @@ class _RTLCharacters {
   }
 
   void checkOtherNeutrals(
-      int index, int length, int level, int startType, int endType) {
+    int index,
+    int length,
+    int level,
+    int startType,
+    int endType,
+  ) {
     for (int i = index; i < length; ++i) {
       if (result[i] == es || result[i] == et || result[i] == cs) {
         result[i] = otn;
@@ -2585,7 +2620,12 @@ class _RTLCharacters {
   }
 
   void checkOtherCharacters(
-      int index, int length, int level, int startType, int endType) {
+    int index,
+    int length,
+    int level,
+    int startType,
+    int endType,
+  ) {
     for (int i = index; i < length; ++i) {
       if (result[i] == en) {
         int pst = startType;
@@ -2604,7 +2644,12 @@ class _RTLCharacters {
   }
 
   void checkCommanCharacters(
-      int index, int length, int level, int startType, int endType) {
+    int index,
+    int length,
+    int level,
+    int startType,
+    int endType,
+  ) {
     for (int i = index; i < length; ++i) {
       if (result[i] == ws ||
           result[i] == otn ||

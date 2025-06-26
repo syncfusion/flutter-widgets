@@ -313,10 +313,12 @@ abstract class Asn1 extends Asn1Encode {
 
   /// internal method
   static BigInt leToUInt32(List<int> bs, int off) {
-    return BigInt.from(bs[off].toUnsigned(32) |
-        bs[off + 1].toUnsigned(32) << 8 |
-        bs[off + 2].toUnsigned(32) << 16 |
-        bs[off + 3].toUnsigned(32) << 24);
+    return BigInt.from(
+      bs[off].toUnsigned(32) |
+          bs[off + 1].toUnsigned(32) << 8 |
+          bs[off + 2].toUnsigned(32) << 16 |
+          bs[off + 3].toUnsigned(32) << 24,
+    );
   }
 
   /// internal method
@@ -420,7 +422,7 @@ class Asn1EncodeCollection {
 class Asn1Octet extends Asn1 implements IAsn1Octet {
   /// internal constructor
   Asn1Octet(this.value)
-      : super(<Asn1UniversalTags>[Asn1UniversalTags.octetString]);
+    : super(<Asn1UniversalTags>[Asn1UniversalTags.octetString]);
 
   /// internal constructor
   Asn1Octet.fromObject(Asn1Encode obj) {
@@ -528,10 +530,10 @@ class Asn1Sequence extends Asn1 {
   //Constructor
   /// internal constructor
   Asn1Sequence()
-      : super(<Asn1UniversalTags>[
-          Asn1UniversalTags.sequence,
-          Asn1UniversalTags.constructed
-        ]) {
+    : super(<Asn1UniversalTags>[
+        Asn1UniversalTags.sequence,
+        Asn1UniversalTags.constructed,
+      ]) {
     objects = <dynamic>[];
   }
   //Fields
@@ -571,7 +573,8 @@ class Asn1Sequence extends Asn1 {
         result = Asn1Sequence.getSequence(obj.getAsn1());
       } else if (obj is List<int>) {
         result = Asn1Sequence.getSequence(
-            Asn1Stream(PdfStreamReader(obj)).readAsn1());
+          Asn1Stream(PdfStreamReader(obj)).readAsn1(),
+        );
       } else if (obj is Asn1Encode) {
         final Asn1? primitive = obj.getAsn1();
         if (primitive != null && primitive is Asn1Sequence) {
@@ -585,7 +588,10 @@ class Asn1Sequence extends Asn1 {
       if (explicitly) {
         if (!obj.explicit!) {
           throw ArgumentError.value(
-              explicitly, 'explicitly', 'Invalid entry in sequence');
+            explicitly,
+            'explicitly',
+            'Invalid entry in sequence',
+          );
         }
         result = inner as Asn1Sequence?;
       } else if (obj.explicit!) {
@@ -725,8 +731,10 @@ class Asn1SequenceCollection extends Asn1Encode {
   Asn1Set? attributes;
   @override
   Asn1 getAsn1() {
-    final Asn1EncodeCollection collection =
-        Asn1EncodeCollection(<Asn1Encode?>[id, DerTag(0, value)]);
+    final Asn1EncodeCollection collection = Asn1EncodeCollection(<Asn1Encode?>[
+      id,
+      DerTag(0, value),
+    ]);
     if (attributes != null) {
       collection.encodableObjects.add(attributes);
     }
@@ -772,9 +780,10 @@ class Asn1SequenceHelper implements IAsn1Collection {
 class Asn1Set extends Asn1 {
   /// internal constructor
   Asn1Set([int? capacity]) {
-    objects = capacity != null
-        ? List<dynamic>.generate(capacity, (dynamic i) => null)
-        : <dynamic>[];
+    objects =
+        capacity != null
+            ? List<dynamic>.generate(capacity, (dynamic i) => null)
+            : <dynamic>[];
   }
   //Fields
   /// internal field
@@ -898,8 +907,9 @@ class Asn1Set extends Asn1 {
       } else if (obj is IAsn1SetHelper) {
         result = Asn1Set.getAsn1Set(obj.getAsn1());
       } else if (obj is List<int>) {
-        result =
-            Asn1Set.getAsn1Set(Asn1Stream(PdfStreamReader(obj)).readAsn1());
+        result = Asn1Set.getAsn1Set(
+          Asn1Stream(PdfStreamReader(obj)).readAsn1(),
+        );
       } else if (obj is Asn1Encode) {
         final Asn1? asn1 = obj.getAsn1();
         if (asn1 != null && asn1 is Asn1Set) {
@@ -922,9 +932,9 @@ class Asn1Set extends Asn1 {
       } else if (inner is Asn1Sequence) {
         final Asn1EncodeCollection collection = Asn1EncodeCollection();
         // ignore: avoid_function_literals_in_foreach_calls
-        inner.objects!
-            .toList()
-            .forEach((dynamic entry) => collection.encodableObjects.add(entry));
+        inner.objects!.toList().forEach(
+          (dynamic entry) => collection.encodableObjects.add(entry),
+        );
         result = DerSet(collection: collection, isSort: false);
       } else {
         throw ArgumentError.value(obj, 'obj', 'Invalid entry in sequence');
@@ -1060,7 +1070,10 @@ class Asn1Tag extends Asn1 implements IAsn1Tag {
       return getObject();
     }
     throw ArgumentError.value(
-        tagNumber, 'tagNumber', 'Implicit tagging is not supported');
+      tagNumber,
+      'tagNumber',
+      'Implicit tagging is not supported',
+    );
   }
 }
 
@@ -1080,7 +1093,7 @@ class Asn1DerStream extends DerStream {
 class Asn1Integer extends Asn1 {
   /// internal constructor
   Asn1Integer(this._value)
-      : super(<Asn1UniversalTags>[Asn1UniversalTags.integer]);
+    : super(<Asn1UniversalTags>[Asn1UniversalTags.integer]);
 
   /// internal field
   late final int _value;
@@ -1098,7 +1111,9 @@ class Asn1Integer extends Asn1 {
   @override
   void encode(DerStream derOut) {
     derOut.writeEncoded(
-        getTagValue(<Asn1UniversalTags>[Asn1UniversalTags.integer]), null);
+      getTagValue(<Asn1UniversalTags>[Asn1UniversalTags.integer]),
+      null,
+    );
   }
 
   List<int> _getBytesFromLong(int value) {
@@ -1114,7 +1129,7 @@ class Asn1Integer extends Asn1 {
 class Asn1Boolean extends Asn1 {
   /// internal constructor
   Asn1Boolean(this._value)
-      : super(<Asn1UniversalTags>[Asn1UniversalTags.boolean]);
+    : super(<Asn1UniversalTags>[Asn1UniversalTags.boolean]);
 
   /// internal field
   late final bool _value;
@@ -1132,8 +1147,9 @@ class Asn1Boolean extends Asn1 {
   @override
   void encode(DerStream derOut) {
     derOut.writeEncoded(
-        getTagValue(<Asn1UniversalTags>[Asn1UniversalTags.boolean]),
-        _toArray());
+      getTagValue(<Asn1UniversalTags>[Asn1UniversalTags.boolean]),
+      _toArray(),
+    );
   }
 }
 
@@ -1141,7 +1157,7 @@ class Asn1Boolean extends Asn1 {
 class Asn1Identifier extends Asn1 {
   /// internal constructor
   Asn1Identifier(this._id)
-      : super(<Asn1UniversalTags>[Asn1UniversalTags.objectIdentifier]);
+    : super(<Asn1UniversalTags>[Asn1UniversalTags.objectIdentifier]);
 
   /// internal field
   late final String _id;
@@ -1217,8 +1233,9 @@ class Asn1Identifier extends Asn1 {
   @override
   void encode(DerStream derOut) {
     derOut.writeEncoded(
-        getTagValue(<Asn1UniversalTags>[Asn1UniversalTags.objectIdentifier]),
-        _toArray());
+      getTagValue(<Asn1UniversalTags>[Asn1UniversalTags.objectIdentifier]),
+      _toArray(),
+    );
   }
 }
 
@@ -1345,5 +1362,5 @@ enum Asn1UniversalTags {
   bmpString,
   constructed,
   application,
-  tagged
+  tagged,
 }

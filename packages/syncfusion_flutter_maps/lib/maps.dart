@@ -267,10 +267,7 @@ Future<http.Response> _fetchResponse(String url) {
 /// instance of [MapZoomPanBehavior].
 class SfMaps extends StatefulWidget {
   /// Creates a [SfMaps].
-  const SfMaps({
-    Key? key,
-    required this.layers,
-  }) : super(key: key);
+  const SfMaps({Key? key, required this.layers}) : super(key: key);
 
   /// The collection of map shape layer in which geographical rendering is done.
   ///
@@ -326,8 +323,9 @@ class _SfMapsState extends State<SfMaps> {
   /// Otherwise, returns the last layer.
   List<MapLayer> _buildLayers(List<MapLayer> layers) {
     if (layers.length > 1) {
-      final bool loadMultiTileLayer =
-          layers.every((MapLayer layer) => layer is MapTileLayer);
+      final bool loadMultiTileLayer = layers.every(
+        (MapLayer layer) => layer is MapTileLayer,
+      );
       return loadMultiTileLayer ? layers : <MapLayer>[layers.last];
     } else {
       return layers;
@@ -337,7 +335,7 @@ class _SfMapsState extends State<SfMaps> {
 
 class _MapsRenderObjectWidget extends SingleChildRenderObjectWidget {
   const _MapsRenderObjectWidget({Key? key, required Widget child})
-      : super(key: key, child: child);
+    : super(key: key, child: child);
 
   @override
   _RenderMaps createRenderObject(BuildContext context) {
@@ -353,8 +351,10 @@ class _RenderMaps extends RenderProxyBox {
     final double height =
         constraints.hasBoundedHeight ? constraints.maxHeight : 300;
     if (child != null) {
-      child!.layout(BoxConstraints.loose(Size(width, height)),
-          parentUsesSize: true);
+      child!.layout(
+        BoxConstraints.loose(Size(width, height)),
+        parentUsesSize: true,
+      );
       size = child!.size;
     }
   }
@@ -923,18 +923,35 @@ class MapShapeSublayer extends MapSublayer {
       properties.add(IntProperty('markersCount', initialMarkersCount));
     }
 
-    properties.add(ObjectFlagProperty<MapMarkerBuilder>.has(
-        'markerBuilder', markerBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'shapeTooltip', shapeTooltipBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'bubbleTooltip', bubbleTooltipBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'markerTooltip', markerTooltipBuilder));
-    properties.add(FlagProperty('showDataLabels',
+    properties.add(
+      ObjectFlagProperty<MapMarkerBuilder>.has('markerBuilder', markerBuilder),
+    );
+    properties.add(
+      ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'shapeTooltip',
+        shapeTooltipBuilder,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'bubbleTooltip',
+        bubbleTooltipBuilder,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'markerTooltip',
+        markerTooltipBuilder,
+      ),
+    );
+    properties.add(
+      FlagProperty(
+        'showDataLabels',
         value: showDataLabels,
         ifTrue: 'Data labels are showing',
-        ifFalse: 'Data labels are not showing'));
+        ifFalse: 'Data labels are not showing',
+      ),
+    );
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
@@ -948,11 +965,13 @@ class MapShapeSublayer extends MapSublayer {
     }
 
     properties.add(IntProperty('selectedIndex', selectedIndex));
-    properties
-        .add(dataLabelSettings.toDiagnosticsNode(name: 'dataLabelSettings'));
+    properties.add(
+      dataLabelSettings.toDiagnosticsNode(name: 'dataLabelSettings'),
+    );
     properties.add(bubbleSettings.toDiagnosticsNode(name: 'bubbleSettings'));
-    properties
-        .add(selectionSettings.toDiagnosticsNode(name: 'selectionSettings'));
+    properties.add(
+      selectionSettings.toDiagnosticsNode(name: 'selectionSettings'),
+    );
   }
 }
 
@@ -1040,17 +1059,17 @@ class MapShapeLayer extends MapLayer {
     WillZoomCallback? onWillZoom,
     WillPanCallback? onWillPan,
   }) : super(
-          key: key,
-          initialLatLngBounds: initialLatLngBounds,
-          sublayers: sublayers,
-          initialMarkersCount: initialMarkersCount,
-          markerBuilder: markerBuilder,
-          markerTooltipBuilder: markerTooltipBuilder,
-          tooltipSettings: tooltipSettings,
-          zoomPanBehavior: zoomPanBehavior,
-          onWillZoom: onWillZoom,
-          onWillPan: onWillPan,
-        );
+         key: key,
+         initialLatLngBounds: initialLatLngBounds,
+         sublayers: sublayers,
+         initialMarkersCount: initialMarkersCount,
+         markerBuilder: markerBuilder,
+         markerTooltipBuilder: markerTooltipBuilder,
+         tooltipSettings: tooltipSettings,
+         zoomPanBehavior: zoomPanBehavior,
+         onWillZoom: onWillZoom,
+         onWillPan: onWillPan,
+       );
 
   /// The source that maps the data source with the shape file and provides
   /// data for the elements of the this layer like data labels, bubbles,
@@ -1644,11 +1663,19 @@ class MapShapeLayer extends MapLayer {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(source.toDiagnosticsNode(name: 'source'));
-    properties.add(ObjectFlagProperty<MapLoadingBuilder>.has(
-        'loadingBuilder', loadingBuilder));
+    properties.add(
+      ObjectFlagProperty<MapLoadingBuilder>.has(
+        'loadingBuilder',
+        loadingBuilder,
+      ),
+    );
     if (initialLatLngBounds != null) {
-      properties.add(DiagnosticsProperty<MapLatLngBounds>(
-          'initialLatLngBounds', initialLatLngBounds));
+      properties.add(
+        DiagnosticsProperty<MapLatLngBounds>(
+          'initialLatLngBounds',
+          initialLatLngBounds,
+        ),
+      );
     }
     if (controller != null) {
       properties.add(IntProperty('markersCount', controller!.markersCount));
@@ -1659,18 +1686,35 @@ class MapShapeLayer extends MapLayer {
       final DebugSublayerTree pointerTreeNode = DebugSublayerTree(sublayers!);
       properties.add(pointerTreeNode.toDiagnosticsNode());
     }
-    properties.add(ObjectFlagProperty<MapMarkerBuilder>.has(
-        'markerBuilder', markerBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'shapeTooltip', shapeTooltipBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'bubbleTooltip', bubbleTooltipBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'markerTooltip', markerTooltipBuilder));
-    properties.add(FlagProperty('showDataLabels',
+    properties.add(
+      ObjectFlagProperty<MapMarkerBuilder>.has('markerBuilder', markerBuilder),
+    );
+    properties.add(
+      ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'shapeTooltip',
+        shapeTooltipBuilder,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'bubbleTooltip',
+        bubbleTooltipBuilder,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'markerTooltip',
+        markerTooltipBuilder,
+      ),
+    );
+    properties.add(
+      FlagProperty(
+        'showDataLabels',
         value: showDataLabels,
         ifTrue: 'Data labels are showing',
-        ifFalse: 'Data labels are not showing'));
+        ifFalse: 'Data labels are not showing',
+      ),
+    );
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
@@ -1684,23 +1728,28 @@ class MapShapeLayer extends MapLayer {
     }
 
     properties.add(IntProperty('selectedIndex', selectedIndex));
-    properties
-        .add(dataLabelSettings.toDiagnosticsNode(name: 'dataLabelSettings'));
+    properties.add(
+      dataLabelSettings.toDiagnosticsNode(name: 'dataLabelSettings'),
+    );
     if (legend != null) {
       properties.add(legend!.toDiagnosticsNode(name: 'legend'));
     }
     properties.add(bubbleSettings.toDiagnosticsNode(name: 'bubbleSettings'));
-    properties
-        .add(selectionSettings.toDiagnosticsNode(name: 'selectionSettings'));
+    properties.add(
+      selectionSettings.toDiagnosticsNode(name: 'selectionSettings'),
+    );
     properties.add(tooltipSettings.toDiagnosticsNode(name: 'tooltipSettings'));
     if (zoomPanBehavior != null) {
-      properties
-          .add(zoomPanBehavior!.toDiagnosticsNode(name: 'zoomPanBehavior'));
+      properties.add(
+        zoomPanBehavior!.toDiagnosticsNode(name: 'zoomPanBehavior'),
+      );
     }
     properties.add(
-        ObjectFlagProperty<WillZoomCallback>.has('onWillZoom', onWillZoom));
-    properties
-        .add(ObjectFlagProperty<WillPanCallback>.has('onWillPan', onWillPan));
+      ObjectFlagProperty<WillZoomCallback>.has('onWillZoom', onWillZoom),
+    );
+    properties.add(
+      ObjectFlagProperty<WillPanCallback>.has('onWillPan', onWillPan),
+    );
   }
 }
 
@@ -1766,9 +1815,10 @@ class _ShapeLayerState extends State<_ShapeLayer> {
 
   @override
   void initState() {
-    _controller = MapController()
-      ..tooltipKey = GlobalKey()
-      ..layerType = LayerType.shape;
+    _controller =
+        MapController()
+          ..tooltipKey = GlobalKey()
+          ..layerType = LayerType.shape;
     super.initState();
   }
 
@@ -1882,21 +1932,23 @@ class MapTileLayer extends MapLayer {
     MapZoomPanBehavior? zoomPanBehavior,
     WillZoomCallback? onWillZoom,
     WillPanCallback? onWillPan,
-  })  : assert(initialZoomLevel >= 1 && initialZoomLevel <= 15),
-        assert(initialMarkersCount == 0 ||
-            initialMarkersCount != 0 && markerBuilder != null),
-        super(
-          key: key,
-          initialLatLngBounds: initialLatLngBounds,
-          sublayers: sublayers,
-          initialMarkersCount: initialMarkersCount,
-          markerBuilder: markerBuilder,
-          markerTooltipBuilder: markerTooltipBuilder,
-          tooltipSettings: tooltipSettings,
-          zoomPanBehavior: zoomPanBehavior,
-          onWillZoom: onWillZoom,
-          onWillPan: onWillPan,
-        );
+  }) : assert(initialZoomLevel >= 1 && initialZoomLevel <= 15),
+       assert(
+         initialMarkersCount == 0 ||
+             initialMarkersCount != 0 && markerBuilder != null,
+       ),
+       super(
+         key: key,
+         initialLatLngBounds: initialLatLngBounds,
+         sublayers: sublayers,
+         initialMarkersCount: initialMarkersCount,
+         markerBuilder: markerBuilder,
+         markerTooltipBuilder: markerTooltipBuilder,
+         tooltipSettings: tooltipSettings,
+         zoomPanBehavior: zoomPanBehavior,
+         onWillZoom: onWillZoom,
+         onWillPan: onWillPan,
+       );
 
   /// URL template to request the tiles from the providers.
   ///
@@ -2125,32 +2177,41 @@ class MapTileLayer extends MapLayer {
     super.debugFillProperties(properties);
 
     properties.add(StringProperty('urlTemplate', urlTemplate));
-    properties.add(DiagnosticsProperty<MapLatLng>(
-        'initialFocalLatLng', initialFocalLatLng));
+    properties.add(
+      DiagnosticsProperty<MapLatLng>('initialFocalLatLng', initialFocalLatLng),
+    );
     properties.add(IntProperty('initialZoomLevel', initialZoomLevel));
     if (initialLatLngBounds != null) {
-      properties.add(DiagnosticsProperty<MapLatLngBounds>(
-          'initialLatLngBounds', initialLatLngBounds));
+      properties.add(
+        DiagnosticsProperty<MapLatLngBounds>(
+          'initialLatLngBounds',
+          initialLatLngBounds,
+        ),
+      );
     }
     if (sublayers != null && sublayers!.isNotEmpty) {
       final DebugSublayerTree pointerTreeNode = DebugSublayerTree(sublayers!);
       properties.add(pointerTreeNode.toDiagnosticsNode());
     }
     if (zoomPanBehavior != null) {
-      properties
-          .add(zoomPanBehavior!.toDiagnosticsNode(name: 'zoomPanBehavior'));
+      properties.add(
+        zoomPanBehavior!.toDiagnosticsNode(name: 'zoomPanBehavior'),
+      );
     }
-    properties.add(ObjectFlagProperty<MapMarkerBuilder>.has(
-        'markerBuilder', markerBuilder));
+    properties.add(
+      ObjectFlagProperty<MapMarkerBuilder>.has('markerBuilder', markerBuilder),
+    );
     if (controller != null) {
       properties.add(IntProperty('markersCount', controller!.markersCount));
     } else {
       properties.add(IntProperty('markersCount', initialMarkersCount));
     }
     properties.add(
-        ObjectFlagProperty<WillZoomCallback>.has('onWillZoom', onWillZoom));
-    properties
-        .add(ObjectFlagProperty<WillPanCallback>.has('onWillPan', onWillPan));
+      ObjectFlagProperty<WillZoomCallback>.has('onWillZoom', onWillZoom),
+    );
+    properties.add(
+      ObjectFlagProperty<WillPanCallback>.has('onWillPan', onWillPan),
+    );
   }
 }
 
@@ -2196,10 +2257,11 @@ class _TileLayerState extends State<_TileLayer> {
 
   @override
   void initState() {
-    _controller = MapController()
-      ..tooltipKey = GlobalKey()
-      ..layerType = LayerType.tile
-      ..tileCurrentLevelDetails = TileZoomLevelDetails();
+    _controller =
+        MapController()
+          ..tooltipKey = GlobalKey()
+          ..layerType = LayerType.tile
+          ..tileCurrentLevelDetails = TileZoomLevelDetails();
     if (widget.zoomPanBehavior != null &&
         widget.zoomPanBehavior!._zoomController == null) {
       widget.zoomPanBehavior!._zoomController = ZoomableController();
@@ -2342,18 +2404,18 @@ class MapZoomPanBehavior extends MapBehavior {
     bool enableMouseWheelZooming = false,
     bool showToolbar = true,
     MapToolbarSettings toolbarSettings = const MapToolbarSettings(),
-  })  : _zoomLevel = zoomLevel.clamp(minZoomLevel, maxZoomLevel),
-        _focalLatLng = focalLatLng,
-        _latLngBounds = latLngBounds,
-        _minZoomLevel = minZoomLevel,
-        _maxZoomLevel = maxZoomLevel,
-        _enablePinching = enablePinching,
-        _enablePanning = enablePanning,
-        _enableDoubleTapZooming = enableDoubleTapZooming,
-        _enableMouseWheelZooming = enableMouseWheelZooming,
-        _showToolbar = showToolbar,
-        _toolbarSettings = toolbarSettings,
-        _zoomController = ZoomableController();
+  }) : _zoomLevel = zoomLevel.clamp(minZoomLevel, maxZoomLevel),
+       _focalLatLng = focalLatLng,
+       _latLngBounds = latLngBounds,
+       _minZoomLevel = minZoomLevel,
+       _maxZoomLevel = maxZoomLevel,
+       _enablePinching = enablePinching,
+       _enablePanning = enablePanning,
+       _enableDoubleTapZooming = enableDoubleTapZooming,
+       _enableMouseWheelZooming = enableMouseWheelZooming,
+       _showToolbar = showToolbar,
+       _toolbarSettings = toolbarSettings,
+       _zoomController = ZoomableController();
 
   /// Current zoom level of the map layer.
   ///
@@ -2432,9 +2494,12 @@ class MapZoomPanBehavior extends MapBehavior {
 
     _latLngBounds = value;
     if (_controller != null) {
-      zoomLevel = getZoomLevel(_latLngBounds!, _controller!.layerType!,
-              renderBox.size, _controller!.shapeLayerSizeFactor / zoomLevel)
-          .clamp(minZoomLevel, maxZoomLevel);
+      zoomLevel = getZoomLevel(
+        _latLngBounds!,
+        _controller!.layerType!,
+        renderBox.size,
+        _controller!.shapeLayerSizeFactor / zoomLevel,
+      ).clamp(minZoomLevel, maxZoomLevel);
       focalLatLng = getFocalLatLng(_latLngBounds!);
     }
   }
@@ -2648,16 +2713,20 @@ class MapZoomPanBehavior extends MapBehavior {
   // Converts the current focalLatLng into a offset and validates it with
   // zoom controller actual rect to perform animation.
   void _updateZoomControllerActualRect() {
-    final Offset center = pixelFromLatLng(_focalLatLng!.latitude,
-        _focalLatLng!.longitude, Size.square(getTotalTileWidth(_zoomLevel)));
+    final Offset center = pixelFromLatLng(
+      _focalLatLng!.latitude,
+      _focalLatLng!.longitude,
+      Size.square(getTotalTileWidth(_zoomLevel)),
+    );
     final Offset newOffset = Offset(
-        _zoomController!.parentRect!.width / 2 - center.dx,
-        _zoomController!.parentRect!.height / 2 - center.dy);
+      _zoomController!.parentRect!.width / 2 - center.dx,
+      _zoomController!.parentRect!.height / 2 - center.dy,
+    );
     final Offset delta = newOffset - _zoomController!.actualRect.topLeft;
     if (delta != Offset.zero) {
       _zoomController!.actualRect =
           (_zoomController!.actualRect.topLeft + delta) &
-              _zoomController!.actualRect.size;
+          _zoomController!.actualRect.size;
       return;
     }
   }
@@ -2669,32 +2738,51 @@ class MapZoomPanBehavior extends MapBehavior {
     properties.add(DoubleProperty('zoomLevel', zoomLevel));
     properties.add(DoubleProperty('minZoomLevel', minZoomLevel));
     properties.add(DoubleProperty('maxZoomLevel', maxZoomLevel));
-    properties.add(FlagProperty('enablePanning',
+    properties.add(
+      FlagProperty(
+        'enablePanning',
         value: enablePanning,
         ifTrue: 'Panning is enabled',
-        ifFalse: 'Panning is disabled'));
-    properties.add(FlagProperty('enablePinching',
+        ifFalse: 'Panning is disabled',
+      ),
+    );
+    properties.add(
+      FlagProperty(
+        'enablePinching',
         value: enablePinching,
         ifTrue: 'Pinching is enabled',
-        ifFalse: 'Pinching is disabled'));
-    properties.add(FlagProperty('enableDoubleTapZooming',
+        ifFalse: 'Pinching is disabled',
+      ),
+    );
+    properties.add(
+      FlagProperty(
+        'enableDoubleTapZooming',
         value: enableDoubleTapZooming,
         ifTrue: 'Double tap is enabled',
-        ifFalse: 'Double tap is disabled'));
-    properties.add(FlagProperty('enableMouseWheelZooming',
+        ifFalse: 'Double tap is disabled',
+      ),
+    );
+    properties.add(
+      FlagProperty(
+        'enableMouseWheelZooming',
         value: enableMouseWheelZooming,
         ifTrue: 'Mouse wheel is enabled',
-        ifFalse: 'Mouse wheel is disabled'));
+        ifFalse: 'Mouse wheel is disabled',
+      ),
+    );
     properties.add(DiagnosticsProperty<MapLatLng>('focalLatLng', focalLatLng));
     properties.add(
-        DiagnosticsProperty<MapLatLngBounds>('latLngBounds', latLngBounds));
-    properties.add(FlagProperty('showToolbar',
+      DiagnosticsProperty<MapLatLngBounds>('latLngBounds', latLngBounds),
+    );
+    properties.add(
+      FlagProperty(
+        'showToolbar',
         value: showToolbar,
         ifTrue: 'Toolbar is enabled',
-        ifFalse: 'Toolbar is disabled'));
-    properties.add(
-      toolbarSettings.toDiagnosticsNode(name: 'toolbarSettings'),
+        ifFalse: 'Toolbar is disabled',
+      ),
     );
+    properties.add(toolbarSettings.toDiagnosticsNode(name: 'toolbarSettings'));
   }
 }
 
@@ -2702,10 +2790,7 @@ class MapZoomPanBehavior extends MapBehavior {
 @immutable
 class MapLatLng {
   /// Creates a [MapLatLng].
-  const MapLatLng(
-    this.latitude,
-    this.longitude,
-  );
+  const MapLatLng(this.latitude, this.longitude);
 
   /// The latitude in the maps.
   final double latitude;
@@ -2735,8 +2820,10 @@ class MapLatLng {
       return null;
     }
 
-    return MapLatLng(a.latitude + (b.latitude - a.latitude) * t,
-        a.longitude + (b.longitude - a.longitude) * t);
+    return MapLatLng(
+      a.latitude + (b.latitude - a.latitude) * t,
+      a.longitude + (b.longitude - a.longitude) * t,
+    );
   }
 
   @override
@@ -2920,12 +3007,19 @@ class _BehaviorViewState extends State<BehaviorView> {
   late Rect? _initialRect;
 
   Offset _pixelFromLatLng(MapLatLng latLng, double scale) {
-    final double latitude =
-        latLng.latitude.clamp(minimumLatitude, maximumLatitude);
-    final double longitude =
-        latLng.longitude.clamp(minimumLongitude, maximumLongitude);
+    final double latitude = latLng.latitude.clamp(
+      minimumLatitude,
+      maximumLatitude,
+    );
+    final double longitude = latLng.longitude.clamp(
+      minimumLongitude,
+      maximumLongitude,
+    );
     return pixelFromLatLng(
-        latitude, longitude, Size.square(getTotalTileWidth(scale)));
+      latitude,
+      longitude,
+      Size.square(getTotalTileWidth(scale)),
+    );
   }
 
   MapLatLng _pixelToLatLng(Offset point, double scale) {
@@ -2941,17 +3035,23 @@ class _BehaviorViewState extends State<BehaviorView> {
     required Offset? pinchCenter,
   }) {
     newZoomLevel = newZoomLevel.clamp(
-        widget.behavior.minZoomLevel, widget.behavior.maxZoomLevel);
+      widget.behavior.minZoomLevel,
+      widget.behavior.maxZoomLevel,
+    );
     final Rect previousVisibleBounds = Rect.fromCenter(
       center: _pixelFromLatLng(
-          widget.behavior.focalLatLng!, widget.behavior.zoomLevel),
+        widget.behavior.focalLatLng!,
+        widget.behavior.zoomLevel,
+      ),
       width: _size!.width,
       height: _size!.height,
     );
     final MapLatLngBounds previousVisibleLatLngBounds = MapLatLngBounds(
       _pixelToLatLng(previousVisibleBounds.topRight, widget.behavior.zoomLevel),
       _pixelToLatLng(
-          previousVisibleBounds.bottomLeft, widget.behavior.zoomLevel),
+        previousVisibleBounds.bottomLeft,
+        widget.behavior.zoomLevel,
+      ),
     );
     widget.controller
       ..localScale = scale
@@ -2991,17 +3091,23 @@ class _BehaviorViewState extends State<BehaviorView> {
 
   void _handleToolbarZooming(double newZoomLevel) {
     newZoomLevel = newZoomLevel.clamp(
-        widget.behavior.minZoomLevel, widget.behavior.maxZoomLevel);
+      widget.behavior.minZoomLevel,
+      widget.behavior.maxZoomLevel,
+    );
     final Rect previousVisibleBounds = Rect.fromCenter(
       center: _pixelFromLatLng(
-          widget.behavior.focalLatLng!, widget.behavior.zoomLevel),
+        widget.behavior.focalLatLng!,
+        widget.behavior.zoomLevel,
+      ),
       width: _size!.width,
       height: _size!.height,
     );
     final MapLatLngBounds previousVisibleLatLngBounds = MapLatLngBounds(
       _pixelToLatLng(previousVisibleBounds.topRight, widget.behavior.zoomLevel),
       _pixelToLatLng(
-          previousVisibleBounds.bottomLeft, widget.behavior.zoomLevel),
+        previousVisibleBounds.bottomLeft,
+        widget.behavior.zoomLevel,
+      ),
     );
 
     final Rect newVisibleBounds = Rect.fromCenter(
@@ -3039,14 +3145,18 @@ class _BehaviorViewState extends State<BehaviorView> {
   }) {
     final Rect previousVisibleBounds = Rect.fromCenter(
       center: _pixelFromLatLng(
-          widget.behavior.focalLatLng!, widget.behavior.zoomLevel),
+        widget.behavior.focalLatLng!,
+        widget.behavior.zoomLevel,
+      ),
       width: _size!.width,
       height: _size!.height,
     );
     final MapLatLngBounds previousVisibleLatLngBounds = MapLatLngBounds(
       _pixelToLatLng(previousVisibleBounds.topRight, widget.behavior.zoomLevel),
       _pixelToLatLng(
-          previousVisibleBounds.bottomLeft, widget.behavior.zoomLevel),
+        previousVisibleBounds.bottomLeft,
+        widget.behavior.zoomLevel,
+      ),
     );
 
     final Rect newVisibleBounds = Rect.fromCenter(
@@ -3083,10 +3193,13 @@ class _BehaviorViewState extends State<BehaviorView> {
 
   void _handleZoomableChange(ZoomPanDetails details) {
     final Offset focalPoint = Offset(
-        (_size!.width / 2) - details.actualRect.left,
-        (_size!.height / 2) - details.actualRect.top);
+      (_size!.width / 2) - details.actualRect.left,
+      (_size!.height / 2) - details.actualRect.top,
+    );
     final MapLatLng newFocalLatLng = pixelToLatLng(
-        focalPoint, Size.square(getTotalTileWidth(details.newZoomLevel)));
+      focalPoint,
+      Size.square(getTotalTileWidth(details.newZoomLevel)),
+    );
     _currentZoomLevel = details.newZoomLevel;
     _currentFocalLatLng = newFocalLatLng;
 
@@ -3123,10 +3236,13 @@ class _BehaviorViewState extends State<BehaviorView> {
 
   bool _handleZoomableFling(ZoomPanDetails details) {
     final Offset focalPoint = Offset(
-        (_size!.width / 2) - details.actualRect.left,
-        (_size!.height / 2) - details.actualRect.top);
+      (_size!.width / 2) - details.actualRect.left,
+      (_size!.height / 2) - details.actualRect.top,
+    );
     final MapLatLng newFocalLatLng = pixelToLatLng(
-        focalPoint, Size.square(getTotalTileWidth(details.newZoomLevel)));
+      focalPoint,
+      Size.square(getTotalTileWidth(details.newZoomLevel)),
+    );
     _currentZoomLevel = details.newZoomLevel;
     _currentFocalLatLng = newFocalLatLng;
     bool canFling = false;
@@ -3160,11 +3276,13 @@ class _BehaviorViewState extends State<BehaviorView> {
   Rect _getInitialRect() {
     widget.behavior._zoomController!.parentRect = Offset.zero & _size!;
     final double tileSize = getTotalTileWidth(_currentZoomLevel);
-    final Offset center =
-        _pixelFromLatLng(_currentFocalLatLng, _currentZoomLevel);
+    final Offset center = _pixelFromLatLng(
+      _currentFocalLatLng,
+      _currentZoomLevel,
+    );
     final Rect initialRect =
         Offset(_size!.width / 2 - center.dx, _size!.height / 2 - center.dy) &
-            Size.square(tileSize);
+        Size.square(tileSize);
     return initialRect;
   }
 
@@ -3252,9 +3370,10 @@ class BehaviorViewRenderObjectWidget extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context,
-      // ignore: library_private_types_in_public_api
-      _RenderBehaviorView renderObject) {
+    BuildContext context,
+    // ignore: library_private_types_in_public_api
+    _RenderBehaviorView renderObject,
+  ) {
     renderObject
       ..controller = controller
       ..zoomPanBehavior = zoomPanBehavior;
@@ -3265,8 +3384,8 @@ class _RenderBehaviorView extends RenderBox implements MouseTrackerAnnotation {
   _RenderBehaviorView({
     required MapController listener,
     required MapZoomPanBehavior zoomPanBehavior,
-  })  : controller = listener,
-        _zoomPanBehavior = zoomPanBehavior {
+  }) : controller = listener,
+       _zoomPanBehavior = zoomPanBehavior {
     _zoomPanBehavior._renderBox = this;
     _zoomPanBehavior._controller = controller;
   }
@@ -3312,9 +3431,10 @@ class _RenderBehaviorView extends RenderBox implements MouseTrackerAnnotation {
   }
 
   @override
-  MouseCursor get cursor => controller.gesture == Gesture.pan
-      ? SystemMouseCursors.grabbing
-      : SystemMouseCursors.basic;
+  MouseCursor get cursor =>
+      controller.gesture == Gesture.pan
+          ? SystemMouseCursors.grabbing
+          : SystemMouseCursors.basic;
 
   @override
   PointerEnterEventListener? get onEnter => _handleEnter;

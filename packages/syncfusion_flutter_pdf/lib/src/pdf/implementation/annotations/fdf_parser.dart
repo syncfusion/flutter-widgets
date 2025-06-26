@@ -43,7 +43,7 @@ class FdfParser {
     return _groupObjects!;
   }
 
-//Implementations.
+  //Implementations.
   /// Parse the annotation data.
   void parseAnnotationData() {
     final PdfCrossTable table = PdfCrossTable.fromFdf(_data);
@@ -112,15 +112,20 @@ class FdfParser {
                     contentText = contentText.substring(1);
                   }
                   while (contentText.endsWith(')')) {
-                    contentText =
-                        contentText.substring(0, contentText.length - 1);
+                    contentText = contentText.substring(
+                      0,
+                      contentText.length - 1,
+                    );
                   }
                 }
-                dictionary[PdfDictionaryProperties.contents] =
-                    PdfString(contentText);
+                dictionary[PdfDictionaryProperties.contents] = PdfString(
+                  contentText,
+                );
                 if (dictionary.containsKey('RC')) {
-                  dictionary.setString('RC',
-                      '<?xml version="1.0"?><body xmlns="http://www.w3.org/1999/xhtml"><p dir="ltr">$contentText</p></body>');
+                  dictionary.setString(
+                    'RC',
+                    '<?xml version="1.0"?><body xmlns="http://www.w3.org/1999/xhtml"><p dir="ltr">$contentText</p></body>',
+                  );
                 }
                 dictionary.modify();
               }
@@ -136,12 +141,14 @@ class FdfParser {
                 final PdfDictionary? pageDictionary =
                     PdfPageHelper.getHelper(loadedPage).dictionary;
                 if (pageDictionary != null) {
-                  if (!pageDictionary
-                      .containsKey(PdfDictionaryProperties.annots)) {
+                  if (!pageDictionary.containsKey(
+                    PdfDictionaryProperties.annots,
+                  )) {
                     pageDictionary[PdfDictionaryProperties.annots] = PdfArray();
                   }
                   final IPdfPrimitive? annots = PdfCrossTable.dereference(
-                      pageDictionary[PdfDictionaryProperties.annots]);
+                    pageDictionary[PdfDictionaryProperties.annots],
+                  );
                   if (annots != null && annots is PdfArray) {
                     annots.elements.add(holder);
                     annots.changed = true;
@@ -201,8 +208,9 @@ class FdfParser {
                           final String key =
                               '${reference.objNum} ${reference.genNum}';
                           if (objects.containsKey(key)) {
-                            mappedObjects[key] =
-                                PdfReferenceHolder(objects[key]);
+                            mappedObjects[key] = PdfReferenceHolder(
+                              objects[key],
+                            );
                             objects.remove(key);
                           }
                         }
@@ -245,7 +253,8 @@ class FdfParser {
     final int index = header.indexOf('%FDF-');
     if (index < 0) {
       throw ArgumentError(
-          'The source is not a valid FDF file because it does not start with"%FDF-"');
+        'The source is not a valid FDF file because it does not start with"%FDF-"',
+      );
     }
     return index + headerLength;
   }
@@ -352,8 +361,9 @@ class FdfParser {
             } else if (objects[objectKey] != null &&
                 objects[objectKey] is PdfDictionary) {
               _parseDictionary(objects[objectKey]! as PdfDictionary);
-              final PdfReferenceHolder holder =
-                  PdfReferenceHolder(objects[objectKey]);
+              final PdfReferenceHolder holder = PdfReferenceHolder(
+                objects[objectKey],
+              );
               array.elements[i] = holder;
               objects[objectKey] = holder;
               array.changed = true;

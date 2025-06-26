@@ -23,11 +23,7 @@ class SfChatTheme extends InheritedTheme {
   /// Applies the given theme [data] to [child].
   ///
   /// The [data] and [child] arguments must not be null.
-  const SfChatTheme({
-    super.key,
-    required this.data,
-    required super.child,
-  });
+  const SfChatTheme({super.key, required this.data, required super.child});
 
   /// Specifies the color and typography values for descendant Chat widgets.
   ///
@@ -813,10 +809,10 @@ class SfChatThemeData with Diagnosticable {
           actionButtonSplashColor ?? this.actionButtonSplashColor,
       actionButtonDisabledForegroundColor:
           actionButtonDisabledForegroundColor ??
-              this.actionButtonDisabledForegroundColor,
+          this.actionButtonDisabledForegroundColor,
       actionButtonDisabledBackgroundColor:
           actionButtonDisabledBackgroundColor ??
-              this.actionButtonDisabledBackgroundColor,
+          this.actionButtonDisabledBackgroundColor,
       actionButtonElevation:
           actionButtonElevation ?? this.actionButtonElevation,
       actionButtonFocusElevation:
@@ -847,9 +843,11 @@ class SfChatThemeData with Diagnosticable {
           outgoingPrimaryHeaderTextStyle ?? this.outgoingPrimaryHeaderTextStyle,
       incomingPrimaryHeaderTextStyle:
           incomingPrimaryHeaderTextStyle ?? this.incomingPrimaryHeaderTextStyle,
-      outgoingSecondaryHeaderTextStyle: outgoingSecondaryHeaderTextStyle ??
+      outgoingSecondaryHeaderTextStyle:
+          outgoingSecondaryHeaderTextStyle ??
           this.outgoingSecondaryHeaderTextStyle,
-      incomingSecondaryHeaderTextStyle: incomingSecondaryHeaderTextStyle ??
+      incomingSecondaryHeaderTextStyle:
+          incomingSecondaryHeaderTextStyle ??
           this.incomingSecondaryHeaderTextStyle,
       suggestionItemTextStyle:
           suggestionItemTextStyle ?? this.suggestionItemTextStyle,
@@ -866,97 +864,164 @@ class SfChatThemeData with Diagnosticable {
   }
 
   static SfChatThemeData? lerp(
-      SfChatThemeData? a, SfChatThemeData? b, double t) {
+    SfChatThemeData? a,
+    SfChatThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
     return SfChatThemeData(
       actionButtonForegroundColor: Color.lerp(
-          a!.actionButtonForegroundColor, b!.actionButtonForegroundColor, t),
+        a!.actionButtonForegroundColor,
+        b!.actionButtonForegroundColor,
+        t,
+      ),
       actionButtonBackgroundColor: Color.lerp(
-          a.actionButtonBackgroundColor, b.actionButtonBackgroundColor, t),
-      actionButtonFocusColor:
-          Color.lerp(a.actionButtonFocusColor, b.actionButtonFocusColor, t),
-      actionButtonHoverColor:
-          Color.lerp(a.actionButtonHoverColor, b.actionButtonHoverColor, t),
-      actionButtonSplashColor:
-          Color.lerp(a.actionButtonSplashColor, b.actionButtonSplashColor, t),
+        a.actionButtonBackgroundColor,
+        b.actionButtonBackgroundColor,
+        t,
+      ),
+      actionButtonFocusColor: Color.lerp(
+        a.actionButtonFocusColor,
+        b.actionButtonFocusColor,
+        t,
+      ),
+      actionButtonHoverColor: Color.lerp(
+        a.actionButtonHoverColor,
+        b.actionButtonHoverColor,
+        t,
+      ),
+      actionButtonSplashColor: Color.lerp(
+        a.actionButtonSplashColor,
+        b.actionButtonSplashColor,
+        t,
+      ),
       actionButtonDisabledForegroundColor: Color.lerp(
-          a.actionButtonDisabledForegroundColor,
-          b.actionButtonDisabledForegroundColor,
-          t),
+        a.actionButtonDisabledForegroundColor,
+        b.actionButtonDisabledForegroundColor,
+        t,
+      ),
       actionButtonDisabledBackgroundColor: Color.lerp(
-          a.actionButtonDisabledBackgroundColor,
-          b.actionButtonDisabledBackgroundColor,
-          t),
+        a.actionButtonDisabledBackgroundColor,
+        b.actionButtonDisabledBackgroundColor,
+        t,
+      ),
       actionButtonElevation:
           lerpDouble(a.actionButtonElevation, b.actionButtonElevation, t) ??
-              0.0,
-      actionButtonFocusElevation: lerpDouble(
-              a.actionButtonFocusElevation, b.actionButtonFocusElevation, t) ??
           0.0,
-      actionButtonHoverElevation: lerpDouble(
-              a.actionButtonHoverElevation, b.actionButtonHoverElevation, t) ??
+      actionButtonFocusElevation:
+          lerpDouble(
+            a.actionButtonFocusElevation,
+            b.actionButtonFocusElevation,
+            t,
+          ) ??
           0.0,
-      actionButtonDisabledElevation: lerpDouble(a.actionButtonDisabledElevation,
-              b.actionButtonDisabledElevation, t) ??
+      actionButtonHoverElevation:
+          lerpDouble(
+            a.actionButtonHoverElevation,
+            b.actionButtonHoverElevation,
+            t,
+          ) ??
           0.0,
-      actionButtonHighlightElevation: lerpDouble(
-              a.actionButtonHighlightElevation,
-              b.actionButtonHighlightElevation,
-              t) ??
+      actionButtonDisabledElevation:
+          lerpDouble(
+            a.actionButtonDisabledElevation,
+            b.actionButtonDisabledElevation,
+            t,
+          ) ??
           0.0,
-      actionButtonShape:
-          ShapeBorder.lerp(a.actionButtonShape, b.actionButtonShape, t),
+      actionButtonHighlightElevation:
+          lerpDouble(
+            a.actionButtonHighlightElevation,
+            b.actionButtonHighlightElevation,
+            t,
+          ) ??
+          0.0,
+      actionButtonShape: ShapeBorder.lerp(
+        a.actionButtonShape,
+        b.actionButtonShape,
+        t,
+      ),
       actionButtonMouseCursor:
           t < 0.5 ? a.actionButtonMouseCursor : b.actionButtonMouseCursor,
       outgoingAvatarBackgroundColor: Color.lerp(
-          a.outgoingAvatarBackgroundColor, b.outgoingAvatarBackgroundColor, t),
+        a.outgoingAvatarBackgroundColor,
+        b.outgoingAvatarBackgroundColor,
+        t,
+      ),
       incomingAvatarBackgroundColor: Color.lerp(
-          a.incomingAvatarBackgroundColor, b.incomingAvatarBackgroundColor, t),
+        a.incomingAvatarBackgroundColor,
+        b.incomingAvatarBackgroundColor,
+        t,
+      ),
       outgoingMessageBackgroundColor: Color.lerp(
-          a.outgoingMessageBackgroundColor,
-          b.outgoingMessageBackgroundColor,
-          t),
+        a.outgoingMessageBackgroundColor,
+        b.outgoingMessageBackgroundColor,
+        t,
+      ),
       incomingMessageBackgroundColor: Color.lerp(
-          a.incomingMessageBackgroundColor,
-          b.incomingMessageBackgroundColor,
-          t),
+        a.incomingMessageBackgroundColor,
+        b.incomingMessageBackgroundColor,
+        t,
+      ),
       editorTextStyle: TextStyle.lerp(a.editorTextStyle, b.editorTextStyle, t),
       outgoingContentTextStyle: TextStyle.lerp(
-          a.outgoingContentTextStyle, b.outgoingContentTextStyle, t),
+        a.outgoingContentTextStyle,
+        b.outgoingContentTextStyle,
+        t,
+      ),
       incomingContentTextStyle: TextStyle.lerp(
-          a.incomingContentTextStyle, b.incomingContentTextStyle, t),
+        a.incomingContentTextStyle,
+        b.incomingContentTextStyle,
+        t,
+      ),
       outgoingPrimaryHeaderTextStyle: TextStyle.lerp(
-          a.outgoingPrimaryHeaderTextStyle,
-          b.outgoingPrimaryHeaderTextStyle,
-          t),
+        a.outgoingPrimaryHeaderTextStyle,
+        b.outgoingPrimaryHeaderTextStyle,
+        t,
+      ),
       incomingPrimaryHeaderTextStyle: TextStyle.lerp(
-          a.incomingPrimaryHeaderTextStyle,
-          b.incomingPrimaryHeaderTextStyle,
-          t),
+        a.incomingPrimaryHeaderTextStyle,
+        b.incomingPrimaryHeaderTextStyle,
+        t,
+      ),
       outgoingSecondaryHeaderTextStyle: TextStyle.lerp(
-          a.outgoingSecondaryHeaderTextStyle,
-          b.outgoingSecondaryHeaderTextStyle,
-          t),
+        a.outgoingSecondaryHeaderTextStyle,
+        b.outgoingSecondaryHeaderTextStyle,
+        t,
+      ),
       incomingSecondaryHeaderTextStyle: TextStyle.lerp(
-          a.incomingSecondaryHeaderTextStyle,
-          b.incomingSecondaryHeaderTextStyle,
-          t),
+        a.incomingSecondaryHeaderTextStyle,
+        b.incomingSecondaryHeaderTextStyle,
+        t,
+      ),
       suggestionItemTextStyle: WidgetStateProperty.lerp<TextStyle?>(
         a.suggestionItemTextStyle,
         b.suggestionItemTextStyle,
         t,
         TextStyle.lerp,
       ),
-      outgoingMessageShape:
-          ShapeBorder.lerp(a.outgoingMessageShape, b.outgoingMessageShape, t),
-      incomingMessageShape:
-          ShapeBorder.lerp(a.incomingMessageShape, b.incomingMessageShape, t),
+      outgoingMessageShape: ShapeBorder.lerp(
+        a.outgoingMessageShape,
+        b.outgoingMessageShape,
+        t,
+      ),
+      incomingMessageShape: ShapeBorder.lerp(
+        a.incomingMessageShape,
+        b.incomingMessageShape,
+        t,
+      ),
       suggestionBackgroundColor: Color.lerp(
-          a.suggestionBackgroundColor, b.suggestionBackgroundColor, t),
+        a.suggestionBackgroundColor,
+        b.suggestionBackgroundColor,
+        t,
+      ),
       suggestionBackgroundShape: ShapeBorder.lerp(
-          a.suggestionBackgroundShape, b.suggestionBackgroundShape, t),
+        a.suggestionBackgroundShape,
+        b.suggestionBackgroundShape,
+        t,
+      ),
       suggestionItemBackgroundColor: WidgetStateProperty.lerp<Color?>(
         a.suggestionItemBackgroundColor,
         b.suggestionItemBackgroundColor,

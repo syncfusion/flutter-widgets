@@ -7,8 +7,10 @@ import 'format_section.dart';
 /// Class used for Section Collection.
 class FormatSectionCollection {
   /// Initializes a new instance of the FormatSectionCollection class.
-  FormatSectionCollection(Workbook workbook,
-      [List<FormatTokenBase>? arrTokens]) {
+  FormatSectionCollection(
+    Workbook workbook, [
+    List<FormatTokenBase>? arrTokens,
+  ]) {
     _workbook = workbook;
     innerList = <FormatSection?>[];
     if (arrTokens != null) {
@@ -123,7 +125,8 @@ class FormatSectionCollection {
   FormatSection? _getZeroSection() {
     if (_bConditionalFormat) {
       throw Exception(
-          'This method is not supported for number formats with conditions.');
+        'This method is not supported for number formats with conditions.',
+      );
     }
 
     final int iSectionsCount = innerList.length;

@@ -17,8 +17,8 @@ enum _LegendType {
 }
 
 /// Signature to return a [Widget] for the given value.
-typedef TreemapLegendPointerBuilder = Widget Function(
-    BuildContext context, dynamic value);
+typedef TreemapLegendPointerBuilder =
+    Widget Function(BuildContext context, dynamic value);
 
 /// Positions the legend in the different directions.
 enum TreemapLegendPosition {
@@ -69,7 +69,7 @@ enum TreemapLabelOverflow {
 
   /// It trims the labels based on the available space in their respective
   /// legend item.
-  ellipsis
+  ellipsis,
 }
 
 /// Option to place the labels either between the bars or on the bar in bar
@@ -81,7 +81,7 @@ enum TreemapLegendLabelsPlacement {
 
   /// [TreemapLegendLabelsPlacement.betweenItems] places labels
   /// in-between two bars.
-  betweenItems
+  betweenItems,
 }
 
 /// Placement of edge labels in the bar legend.
@@ -91,7 +91,7 @@ enum TreemapLegendEdgeLabelsPlacement {
 
   /// Place the edge labels in the center of the starting position of the
   /// legend bars.
-  center
+  center,
 }
 
 /// Applies gradient or solid color for the bar segments.
@@ -100,7 +100,7 @@ enum TreemapLegendPaintingStyle {
   solid,
 
   /// Applies gradient color for bar segments.
-  gradient
+  gradient,
 }
 
 /// Shows legend for the data rendered in the treemap.
@@ -321,17 +321,17 @@ class TreemapLegend extends DiagnosticableTree {
     this.textStyle,
     this.iconType = TreemapIconType.circle,
     this.iconSize = const Size(8.0, 8.0),
-  })  : _type = _LegendType.vector,
-        segmentSize = null,
-        labelsPlacement = null,
-        edgeLabelsPlacement = TreemapLegendEdgeLabelsPlacement.inside,
-        labelOverflow = TreemapLabelOverflow.visible,
-        segmentPaintingStyle = TreemapLegendPaintingStyle.solid,
-        showPointerOnHover = false,
-        pointerBuilder = null,
-        pointerColor = null,
-        pointerSize = const Size(16, 12),
-        assert(spacing >= 0);
+  }) : _type = _LegendType.vector,
+       segmentSize = null,
+       labelsPlacement = null,
+       edgeLabelsPlacement = TreemapLegendEdgeLabelsPlacement.inside,
+       labelOverflow = TreemapLabelOverflow.visible,
+       segmentPaintingStyle = TreemapLegendPaintingStyle.solid,
+       showPointerOnHover = false,
+       pointerBuilder = null,
+       pointerColor = null,
+       pointerSize = const Size(16, 12),
+       assert(spacing >= 0);
 
   /// Creates a bar type legend for the tree map.
   ///
@@ -442,10 +442,10 @@ class TreemapLegend extends DiagnosticableTree {
     this.pointerBuilder,
     this.pointerColor,
     this.pointerSize = const Size(16, 12),
-  })  : _type = _LegendType.bar,
-        iconType = TreemapIconType.circle,
-        iconSize = const Size(8.0, 8.0),
-        assert(spacing >= 0);
+  }) : _type = _LegendType.bar,
+       iconType = TreemapIconType.circle,
+       iconSize = const Size(8.0, 8.0),
+       assert(spacing >= 0);
 
   /// Enables a title for the legends to provide a small note about the legends.
   ///
@@ -1465,16 +1465,25 @@ class TreemapLegend extends DiagnosticableTree {
   }
 
   @override
-  int get hashCode => Object.hash(padding, offset, spacing, direction,
-      overflowMode, position, textStyle, title);
+  int get hashCode => Object.hash(
+    padding,
+    offset,
+    spacing,
+    direction,
+    overflowMode,
+    position,
+    textStyle,
+    title,
+  );
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(EnumProperty<_LegendType>('legendType', _type));
     if (padding != null) {
-      properties
-          .add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
+      properties.add(
+        DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding),
+      );
     }
     if (offset != null) {
       properties.add(DiagnosticsProperty<Offset>('offset', offset));
@@ -1484,7 +1493,8 @@ class TreemapLegend extends DiagnosticableTree {
       properties.add(EnumProperty<Axis>('direction', direction));
     }
     properties.add(
-        EnumProperty<TreemapLegendOverflowMode>('overflowMode', overflowMode));
+      EnumProperty<TreemapLegendOverflowMode>('overflowMode', overflowMode),
+    );
     properties.add(EnumProperty<TreemapLegendPosition>('position', position));
     if (textStyle != null) {
       properties.add(textStyle!.toDiagnosticsNode(name: 'textStyle'));
@@ -1496,14 +1506,27 @@ class TreemapLegend extends DiagnosticableTree {
       if (segmentSize != null) {
         properties.add(DiagnosticsProperty<Size>('segmentSize', segmentSize));
       }
-      properties.add(EnumProperty<TreemapLegendLabelsPlacement>(
-          'labelsPlacement', labelsPlacement));
-      properties.add(EnumProperty<TreemapLegendEdgeLabelsPlacement>(
-          'edgeLabelsPlacement', edgeLabelsPlacement));
-      properties.add(EnumProperty<TreemapLabelOverflow>(
-          'labelOverflowMode', labelOverflow));
-      properties.add(EnumProperty<TreemapLegendPaintingStyle>(
-          'segmentPaintingStyle', segmentPaintingStyle));
+      properties.add(
+        EnumProperty<TreemapLegendLabelsPlacement>(
+          'labelsPlacement',
+          labelsPlacement,
+        ),
+      );
+      properties.add(
+        EnumProperty<TreemapLegendEdgeLabelsPlacement>(
+          'edgeLabelsPlacement',
+          edgeLabelsPlacement,
+        ),
+      );
+      properties.add(
+        EnumProperty<TreemapLabelOverflow>('labelOverflowMode', labelOverflow),
+      );
+      properties.add(
+        EnumProperty<TreemapLegendPaintingStyle>(
+          'segmentPaintingStyle',
+          segmentPaintingStyle,
+        ),
+      );
     }
   }
 }
@@ -1518,8 +1541,8 @@ class Legend extends StatelessWidget {
     required this.legend,
     required this.controller,
     required this.child,
-  })  : assert(colorMappers != null || dataSource != null),
-        super(key: key);
+  }) : assert(colorMappers != null || dataSource != null),
+       super(key: key);
 
   /// Collection of [TreemapColorMapper] which specifies treemap color based
   /// on the data.
@@ -1553,15 +1576,18 @@ class Legend extends StatelessWidget {
               final String startValue = _getStartSegmentLabel(colorMapper);
               items.add(LegendItem(text: startValue, color: colorMapper.color));
             } else {
-              final String text = colorMapper.from != null
-                  ? colorMapper.name ?? colorMapper.to.toString()
-                  : colorMapper.value!;
+              final String text =
+                  colorMapper.from != null
+                      ? colorMapper.name ?? colorMapper.to.toString()
+                      : colorMapper.value!;
               items.add(LegendItem(text: text, color: colorMapper.color));
             }
           } else {
-            final String text = colorMapper.from != null
-                ? colorMapper.name ?? '${colorMapper.from} - ${colorMapper.to}'
-                : colorMapper.value!;
+            final String text =
+                colorMapper.from != null
+                    ? colorMapper.name ??
+                        '${colorMapper.from} - ${colorMapper.to}'
+                    : colorMapper.value!;
             items.add(LegendItem(text: text, color: colorMapper.color));
           }
         }
@@ -1612,7 +1638,8 @@ class Legend extends StatelessWidget {
   }
 
   LegendPaintingStyle _getEffectiveSegmentPaintingStyle(
-      TreemapLegendPaintingStyle paintingStyle) {
+    TreemapLegendPaintingStyle paintingStyle,
+  ) {
     switch (paintingStyle) {
       case TreemapLegendPaintingStyle.solid:
         return LegendPaintingStyle.solid;
@@ -1622,7 +1649,8 @@ class Legend extends StatelessWidget {
   }
 
   LegendLabelOverflow _getEffectiveLabelOverflow(
-      TreemapLabelOverflow labelOverflow) {
+    TreemapLabelOverflow labelOverflow,
+  ) {
     switch (labelOverflow) {
       case TreemapLabelOverflow.visible:
         return LegendLabelOverflow.visible;
@@ -1634,7 +1662,8 @@ class Legend extends StatelessWidget {
   }
 
   LegendEdgeLabelsPlacement _getEffectiveEdgeLabelsPlacement(
-      TreemapLegendEdgeLabelsPlacement edgeLabelsPlacement) {
+    TreemapLegendEdgeLabelsPlacement edgeLabelsPlacement,
+  ) {
     switch (edgeLabelsPlacement) {
       case TreemapLegendEdgeLabelsPlacement.center:
         return LegendEdgeLabelsPlacement.center;
@@ -1644,7 +1673,8 @@ class Legend extends StatelessWidget {
   }
 
   LegendLabelsPlacement _getEffectiveLabelPlacement(
-      TreemapLegendLabelsPlacement labelsPlacement) {
+    TreemapLegendLabelsPlacement labelsPlacement,
+  ) {
     switch (labelsPlacement) {
       case TreemapLegendLabelsPlacement.betweenItems:
         return LegendLabelsPlacement.betweenItems;
@@ -1667,7 +1697,8 @@ class Legend extends StatelessWidget {
   }
 
   LegendOverflowMode _getEffectiveOverflowMode(
-      TreemapLegendOverflowMode overflowMode) {
+    TreemapLegendOverflowMode overflowMode,
+  ) {
     switch (overflowMode) {
       case TreemapLegendOverflowMode.scroll:
         return LegendOverflowMode.scroll;
@@ -1691,9 +1722,7 @@ class Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle legendTextStyle = Theme.of(context)
-        .textTheme
-        .bodySmall!
+    final TextStyle legendTextStyle = Theme.of(context).textTheme.bodySmall!
         .merge(SfTreemapTheme.of(context).legendTextStyle)
         .merge(legend.textStyle);
     switch (legend._type) {
@@ -1725,14 +1754,17 @@ class Legend extends StatelessWidget {
           offset: legend.offset,
           padding: legend.padding,
           textStyle: legendTextStyle,
-          labelsPlacement:
-              _getEffectiveLabelPlacement(_getActualLabelsPlacement()),
-          edgeLabelsPlacement:
-              _getEffectiveEdgeLabelsPlacement(legend.edgeLabelsPlacement),
+          labelsPlacement: _getEffectiveLabelPlacement(
+            _getActualLabelsPlacement(),
+          ),
+          edgeLabelsPlacement: _getEffectiveEdgeLabelsPlacement(
+            legend.edgeLabelsPlacement,
+          ),
           labelOverflow: _getEffectiveLabelOverflow(legend.labelOverflow),
           segmentSize: legend.segmentSize,
-          segmentPaintingStyle:
-              _getEffectiveSegmentPaintingStyle(legend.segmentPaintingStyle),
+          segmentPaintingStyle: _getEffectiveSegmentPaintingStyle(
+            legend.segmentPaintingStyle,
+          ),
           pointerBuilder: legend.pointerBuilder,
           pointerColor: legend.pointerColor,
           pointerSize:

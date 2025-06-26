@@ -123,15 +123,18 @@ class _ToolbarItemState extends State<_ToolbarItem> {
     bool enabled;
     switch (widget.icon) {
       case _ToolbarIcon.zoomIn:
-        enabled = widget.zoomPanBehavior.zoomLevel !=
+        enabled =
+            widget.zoomPanBehavior.zoomLevel !=
             widget.zoomPanBehavior.maxZoomLevel;
         break;
       case _ToolbarIcon.zoomOut:
-        enabled = widget.zoomPanBehavior.zoomLevel !=
+        enabled =
+            widget.zoomPanBehavior.zoomLevel !=
             widget.zoomPanBehavior.minZoomLevel;
         break;
       case _ToolbarIcon.reset:
-        enabled = widget.zoomPanBehavior.zoomLevel !=
+        enabled =
+            widget.zoomPanBehavior.zoomLevel !=
             widget.zoomPanBehavior.minZoomLevel;
         break;
     }
@@ -198,9 +201,10 @@ class _ToolbarItemState extends State<_ToolbarItem> {
               offset: const Offset(0.0, 2.0),
             ),
           ],
-          color: _isLightTheme
-              ? const Color.fromARGB(255, 250, 250, 250)
-              : const Color.fromARGB(255, 66, 66, 66),
+          color:
+              _isLightTheme
+                  ? const Color.fromARGB(255, 250, 250, 250)
+                  : const Color.fromARGB(255, 66, 66, 66),
         ),
         child: Container(
           height: _toolbarItemSize.height,
@@ -215,19 +219,22 @@ class _ToolbarItemState extends State<_ToolbarItem> {
             highlightColor: Colors.transparent,
             hoverColor: Colors.transparent,
             splashColor: Colors.transparent,
-            disabledColor: _isLightTheme
-                ? const Color.fromRGBO(0, 0, 0, 0.24)
-                : const Color.fromRGBO(255, 255, 255, 0.24),
+            disabledColor:
+                _isLightTheme
+                    ? const Color.fromRGBO(0, 0, 0, 0.24)
+                    : const Color.fromRGBO(255, 255, 255, 0.24),
             icon: Icon(widget.iconData),
-            color: widget.zoomPanBehavior.toolbarSettings.iconColor ??
+            color:
+                widget.zoomPanBehavior.toolbarSettings.iconColor ??
                 (_isLightTheme
                     ? const Color.fromRGBO(0, 0, 0, 0.54)
                     : const Color.fromRGBO(255, 255, 255, 0.54)),
-            onPressed: _enabled
-                ? () {
-                    _handlePointerUp();
-                  }
-                : null,
+            onPressed:
+                _enabled
+                    ? () {
+                      _handlePointerUp();
+                    }
+                    : null,
             mouseCursor:
                 _enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
             tooltip: widget.tooltipText,
@@ -263,8 +270,10 @@ class _ToolbarItemState extends State<_ToolbarItem> {
         break;
     }
 
-    newZoomLevel = newZoomLevel.clamp(widget.zoomPanBehavior.minZoomLevel,
-        widget.zoomPanBehavior.maxZoomLevel);
+    newZoomLevel = newZoomLevel.clamp(
+      widget.zoomPanBehavior.minZoomLevel,
+      widget.zoomPanBehavior.maxZoomLevel,
+    );
     if (widget.controller != null &&
         newZoomLevel != widget.zoomPanBehavior.zoomLevel) {
       widget.controller!.notifyToolbarZoomedListeners(newZoomLevel);

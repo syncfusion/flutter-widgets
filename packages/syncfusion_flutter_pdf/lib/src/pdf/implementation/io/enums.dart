@@ -5,7 +5,7 @@ enum PdfObjectStatus {
   none,
 
   /// internal enumerator
-  registered
+  registered,
 }
 
 /// Represents a type of an object.
@@ -15,9 +15,9 @@ enum PdfObjectType {
 
   /// internal enumerator
   normal,
-// ignore: unused_field
+  // ignore: unused_field
   /// internal enumerator
-  packed
+  packed,
 }
 
 /// internal enumerator
@@ -104,5 +104,5 @@ enum PdfTokenType {
   hexStringWeirdEscape,
 
   /// internal enumerator
-  whiteSpace
+  whiteSpace,
 }

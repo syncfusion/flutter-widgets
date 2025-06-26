@@ -51,7 +51,9 @@ class _FormFieldContainerState extends State<FormFieldContainer> {
         final PdfFormFieldHelper helper = PdfFormFieldHelper.getHelper(
           formField,
         );
-        _updateGlobalRect(helper);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _updateGlobalRect(helper);
+        });
         helper.onChanged = () {
           if (mounted) {
             setState(() {});
@@ -106,6 +108,9 @@ class _FormFieldContainerState extends State<FormFieldContainer> {
 
   /// Updates the global rect of the form field.
   void _updateGlobalRect(PdfFormFieldHelper helper) {
+    if (!mounted) {
+      return;
+    }
     final renderObject = context.findRenderObject();
     if (renderObject is RenderBox && renderObject.hasSize) {
       helper.globalRect = Rect.fromPoints(

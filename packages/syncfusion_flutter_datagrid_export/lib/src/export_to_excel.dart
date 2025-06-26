@@ -11,14 +11,18 @@ import 'helper.dart';
 
 /// Signature for `cellExport` callback which is passed as an argument in
 /// `exportToExcelWorkbook` and `exportToExcelWorksheet` methods.
-typedef DataGridCellExcelExportCallback = void Function(
-    DataGridCellExcelExportDetails details);
+typedef DataGridCellExcelExportCallback =
+    void Function(DataGridCellExcelExportDetails details);
 
 /// Details for the callback that use [DataGridCellExcelExportDetails].
 class DataGridCellExcelExportDetails {
   /// Creates the [DataGridCellExcelExportDetails].
   const DataGridCellExcelExportDetails(
-      this.cellValue, this.columnName, this.excelRange, this.cellType);
+    this.cellValue,
+    this.columnName,
+    this.excelRange,
+    this.cellType,
+  );
 
   /// The value of the cell. Typically, it is [DataGridCell.value].
   final Object? cellValue;
@@ -117,23 +121,32 @@ class DataGridToExcelConverter {
 
   /// Exports a column header to Excel.
   @protected
-  void exportColumnHeader(SfDataGrid dataGrid, GridColumn column,
-      String columnName, Worksheet worksheet) {
+  void exportColumnHeader(
+    SfDataGrid dataGrid,
+    GridColumn column,
+    String columnName,
+    Worksheet worksheet,
+  ) {
     Range range;
     int rowSpan = 0;
 
     if (exportStackedHeaders && dataGrid.stackedHeaderRows.isNotEmpty) {
       rowSpan = getRowSpan(
-          dataGrid: dataGrid,
-          isStackedHeader: false,
-          columnName: column.columnName,
-          rowIndex: excelRowIndex - startRowIndex - 1,
-          columnIndex: dataGrid.columns.indexOf(column));
+        dataGrid: dataGrid,
+        isStackedHeader: false,
+        columnName: column.columnName,
+        rowIndex: excelRowIndex - startRowIndex - 1,
+        columnIndex: dataGrid.columns.indexOf(column),
+      );
     }
 
     if (rowSpan > 0) {
-      range = worksheet.getRangeByIndex(excelRowIndex - rowSpan,
-          excelColumnIndex, excelRowIndex, excelColumnIndex);
+      range = worksheet.getRangeByIndex(
+        excelRowIndex - rowSpan,
+        excelColumnIndex,
+        excelRowIndex,
+        excelColumnIndex,
+      );
       range.merge();
     } else {
       range = worksheet.getRangeByIndex(excelRowIndex, excelColumnIndex);
@@ -144,14 +157,22 @@ class DataGridToExcelConverter {
       ..hAlign = HAlignType.center
       ..vAlign = VAlignType.center;
 
-    _exportCellToExcel(worksheet, range, column,
-        DataGridExportCellType.columnHeader, columnName);
+    _exportCellToExcel(
+      worksheet,
+      range,
+      column,
+      DataGridExportCellType.columnHeader,
+      columnName,
+    );
   }
 
   /// Exports all the data rows to Excel.
   @protected
   void exportRows(
-      SfDataGrid dataGrid, List<DataGridRow> rows, Worksheet worksheet) {
+    SfDataGrid dataGrid,
+    List<DataGridRow> rows,
+    Worksheet worksheet,
+  ) {
     if (rows.isEmpty) {
       return;
     }
@@ -172,13 +193,24 @@ class DataGridToExcelConverter {
 
   /// Exports a [DataGridRow] to Excel.
   @protected
-  void exportRow(SfDataGrid dataGrid, DataGridRow row, GridColumn column,
-      Worksheet worksheet) {
+  void exportRow(
+    SfDataGrid dataGrid,
+    DataGridRow row,
+    GridColumn column,
+    Worksheet worksheet,
+  ) {
     final Object? cellValue = getCellValue(row, column);
-    final Range range =
-        worksheet.getRangeByIndex(excelRowIndex, excelColumnIndex);
+    final Range range = worksheet.getRangeByIndex(
+      excelRowIndex,
+      excelColumnIndex,
+    );
     _exportCellToExcel(
-        worksheet, range, column, DataGridExportCellType.row, cellValue);
+      worksheet,
+      range,
+      column,
+      DataGridExportCellType.row,
+      cellValue,
+    );
   }
 
   /// Exports all the stacked header rows to Excel.
@@ -196,33 +228,48 @@ class DataGridToExcelConverter {
 
   /// Exports a stacked header row to Excel.
   @protected
-  void exportStackedHeaderRow(SfDataGrid dataGrid,
-      StackedHeaderRow stackedHeaderRow, Worksheet worksheet) {
+  void exportStackedHeaderRow(
+    SfDataGrid dataGrid,
+    StackedHeaderRow stackedHeaderRow,
+    Worksheet worksheet,
+  ) {
     _setRowHeight(dataGrid, DataGridExportCellType.stackedHeader, worksheet);
 
     for (final StackedHeaderCell column in stackedHeaderRow.cells) {
-      final List<int> columnSequences =
-          getColumnSequences(dataGrid.columns, column);
+      final List<int> columnSequences = getColumnSequences(
+        dataGrid.columns,
+        column,
+      );
       for (final List<int> indexes in getConsecutiveRanges(columnSequences)) {
         final int columnIndex = indexes.reduce(min);
         final int columnSpan = indexes.length - 1;
         final int rowSpan = getRowSpan(
-            dataGrid: dataGrid,
-            isStackedHeader: true,
-            columnIndex: columnIndex,
-            stackedHeaderCell: column,
-            rowIndex: excelRowIndex - startRowIndex - 1);
+          dataGrid: dataGrid,
+          isStackedHeader: true,
+          columnIndex: columnIndex,
+          stackedHeaderCell: column,
+          rowIndex: excelRowIndex - startRowIndex - 1,
+        );
 
         _exportStackedHeaderCell(
-            dataGrid, column, columnIndex, columnSpan, rowSpan, worksheet);
+          dataGrid,
+          column,
+          columnIndex,
+          columnSpan,
+          rowSpan,
+          worksheet,
+        );
       }
     }
   }
 
   /// Export table summary rows to the Excel.
   @protected
-  void exportTableSummaryRows(SfDataGrid dataGrid,
-      GridTableSummaryRowPosition position, Worksheet worksheet) {
+  void exportTableSummaryRows(
+    SfDataGrid dataGrid,
+    GridTableSummaryRowPosition position,
+    Worksheet worksheet,
+  ) {
     if (dataGrid.tableSummaryRows.isEmpty) {
       return;
     }
@@ -243,8 +290,11 @@ class DataGridToExcelConverter {
 
   /// Export table summary row to the Excel.
   @protected
-  void exportTableSummaryRow(SfDataGrid dataGrid,
-      GridTableSummaryRow summaryRow, Worksheet worksheet) {
+  void exportTableSummaryRow(
+    SfDataGrid dataGrid,
+    GridTableSummaryRow summaryRow,
+    Worksheet worksheet,
+  ) {
     // Resets the column index when creating a new row.
     excelColumnIndex = startColumnIndex;
 
@@ -252,32 +302,41 @@ class DataGridToExcelConverter {
 
     if (summaryRow.showSummaryInRow) {
       _exportTableSummaryCell(
-          sheet: worksheet,
-          dataGrid: dataGrid,
-          summaryRow: summaryRow,
-          columnSpan: columns.length);
+        sheet: worksheet,
+        dataGrid: dataGrid,
+        summaryRow: summaryRow,
+        columnSpan: columns.length,
+      );
     } else {
       int titleColumnCount = summaryRow.titleColumnSpan;
       if (titleColumnCount > 0) {
         // To consider the exclude columns in the `titleColumnCount`.
-        titleColumnCount =
-            getTitleColumnCount(summaryRow, dataGrid.columns, excludeColumns);
+        titleColumnCount = getTitleColumnCount(
+          summaryRow,
+          dataGrid.columns,
+          excludeColumns,
+        );
 
         if (titleColumnCount > 0) {
           _exportTableSummaryCell(
-              sheet: worksheet,
-              dataGrid: dataGrid,
-              summaryRow: summaryRow,
-              columnSpan: titleColumnCount);
+            sheet: worksheet,
+            dataGrid: dataGrid,
+            summaryRow: summaryRow,
+            columnSpan: titleColumnCount,
+          );
         }
       }
 
       for (final GridSummaryColumn summaryColumn in summaryRow.columns) {
         final GridColumn? column = dataGrid.columns.firstWhereOrNull(
-            (GridColumn element) =>
-                element.columnName == summaryColumn.columnName);
+          (GridColumn element) =>
+              element.columnName == summaryColumn.columnName,
+        );
         final int columnIndex = getSummaryColumnIndex(
-            dataGrid.columns, summaryColumn.columnName, excludeColumns);
+          dataGrid.columns,
+          summaryColumn.columnName,
+          excludeColumns,
+        );
 
         // Restricts if the column doesn't exist or its column index is less
         // than the `titleColumnCount`. because the `titleColumn` summary cell
@@ -289,12 +348,13 @@ class DataGridToExcelConverter {
         }
 
         _exportTableSummaryCell(
-            column: column,
-            sheet: worksheet,
-            dataGrid: dataGrid,
-            summaryRow: summaryRow,
-            columnIndex: columnIndex,
-            summaryColumn: summaryColumn);
+          column: column,
+          sheet: worksheet,
+          dataGrid: dataGrid,
+          summaryRow: summaryRow,
+          columnIndex: columnIndex,
+          summaryColumn: summaryColumn,
+        );
       }
     }
   }
@@ -303,16 +363,21 @@ class DataGridToExcelConverter {
   @protected
   Object? getCellValue(DataGridRow row, GridColumn column) {
     final DataGridCell cellValue = row.getCells().firstWhereOrNull(
-        (DataGridCell cell) => cell.columnName == column.columnName)!;
+      (DataGridCell cell) => cell.columnName == column.columnName,
+    )!;
     return cellValue.value;
   }
 
   /// Exports the [SfDataGrid] to Excel [Worksheet].
   void exportToExcelWorksheet(
-      SfDataGrid dataGrid, List<DataGridRow>? rows, Worksheet worksheet) {
+    SfDataGrid dataGrid,
+    List<DataGridRow>? rows,
+    Worksheet worksheet,
+  ) {
     _columns = dataGrid.columns
         .where(
-            (GridColumn column) => !excludeColumns.contains(column.columnName))
+          (GridColumn column) => !excludeColumns.contains(column.columnName),
+        )
         .toList();
 
     // Return if all the columns are `excludeColumns`.
@@ -335,7 +400,10 @@ class DataGridToExcelConverter {
     // Exports the top table summary rows.
     if (exportTableSummaries) {
       exportTableSummaryRows(
-          dataGrid, GridTableSummaryRowPosition.top, worksheet);
+        dataGrid,
+        GridTableSummaryRowPosition.top,
+        worksheet,
+      );
     }
 
     // Exports the data rows.
@@ -344,7 +412,10 @@ class DataGridToExcelConverter {
     // Exports the bottom table summary rows.
     if (exportTableSummaries) {
       exportTableSummaryRows(
-          dataGrid, GridTableSummaryRowPosition.bottom, worksheet);
+        dataGrid,
+        GridTableSummaryRowPosition.bottom,
+        worksheet,
+      );
     }
   }
 
@@ -356,30 +427,46 @@ class DataGridToExcelConverter {
     return workbook;
   }
 
-  void _exportCellToExcel(Worksheet sheet, Range range, GridColumn column,
-      DataGridExportCellType cellType, Object? cellValue) {
+  void _exportCellToExcel(
+    Worksheet sheet,
+    Range range,
+    GridColumn column,
+    DataGridExportCellType cellType,
+    Object? cellValue,
+  ) {
     range.setValue(cellValue);
     if (cellExport != null) {
       final DataGridCellExcelExportDetails details =
           DataGridCellExcelExportDetails(
-              cellValue, column.columnName, range, cellType);
+            cellValue,
+            column.columnName,
+            range,
+            cellType,
+          );
       cellExport!(details);
     }
   }
 
-  void _exportStackedHeaderCell(SfDataGrid dataGrid, StackedHeaderCell column,
-      int columnIndex, int columnSpan, int rowSpan, Worksheet sheet) {
+  void _exportStackedHeaderCell(
+    SfDataGrid dataGrid,
+    StackedHeaderCell column,
+    int columnIndex,
+    int columnSpan,
+    int rowSpan,
+    Worksheet sheet,
+  ) {
     Range range;
     int firstColumnIndex = startColumnIndex + columnIndex;
     int lastColumnIndex = firstColumnIndex + columnSpan;
 
     if (excludeColumns.isNotEmpty) {
       final List<int> startAndEndIndex = getSpannedCellStartAndEndIndex(
-          columnSpan: columnSpan,
-          columnIndex: columnIndex,
-          columns: dataGrid.columns,
-          excludeColumns: excludeColumns,
-          startColumnIndex: startColumnIndex);
+        columnSpan: columnSpan,
+        columnIndex: columnIndex,
+        columns: dataGrid.columns,
+        excludeColumns: excludeColumns,
+        startColumnIndex: startColumnIndex,
+      );
 
       firstColumnIndex = startAndEndIndex[0];
       lastColumnIndex = startAndEndIndex[1];
@@ -388,8 +475,12 @@ class DataGridToExcelConverter {
     if (firstColumnIndex <= lastColumnIndex) {
       excelColumnIndex = firstColumnIndex;
       if (rowSpan > 0 || lastColumnIndex > firstColumnIndex) {
-        range = sheet.getRangeByIndex(excelRowIndex - rowSpan, firstColumnIndex,
-            excelRowIndex, lastColumnIndex);
+        range = sheet.getRangeByIndex(
+          excelRowIndex - rowSpan,
+          firstColumnIndex,
+          excelRowIndex,
+          lastColumnIndex,
+        );
         range.merge();
       } else {
         range = sheet.getRangeByIndex(excelRowIndex, firstColumnIndex);
@@ -400,45 +491,68 @@ class DataGridToExcelConverter {
         ..hAlign = HAlignType.center
         ..vAlign = VAlignType.center;
 
-      _exportCellToExcel(sheet, range, dataGrid.columns[columnIndex],
-          DataGridExportCellType.stackedHeader, column.text);
+      _exportCellToExcel(
+        sheet,
+        range,
+        dataGrid.columns[columnIndex],
+        DataGridExportCellType.stackedHeader,
+        column.text,
+      );
     }
   }
 
-  void _exportTableSummaryCell(
-      {int columnSpan = 0,
-      int columnIndex = 0,
-      GridColumn? column,
-      required Worksheet sheet,
-      required SfDataGrid dataGrid,
-      GridSummaryColumn? summaryColumn,
-      required GridTableSummaryRow summaryRow}) {
+  void _exportTableSummaryCell({
+    int columnSpan = 0,
+    int columnIndex = 0,
+    GridColumn? column,
+    required Worksheet sheet,
+    required SfDataGrid dataGrid,
+    GridSummaryColumn? summaryColumn,
+    required GridTableSummaryRow summaryRow,
+  }) {
     Range range;
     final GridColumn? column = dataGrid.columns.firstWhereOrNull(
-        (GridColumn column) => column.columnName == summaryColumn?.columnName);
+      (GridColumn column) => column.columnName == summaryColumn?.columnName,
+    );
     final RowColumnIndex rowColumnIndex = RowColumnIndex(
-        excelRowIndex - startRowIndex,
-        column != null ? dataGrid.columns.indexOf(column) : 0);
+      excelRowIndex - startRowIndex,
+      column != null ? dataGrid.columns.indexOf(column) : 0,
+    );
     final String summaryValue = dataGrid.source.calculateSummaryValue(
-        summaryRow, summaryColumn ?? summaryRow.columns.first, rowColumnIndex);
+      summaryRow,
+      summaryColumn ?? summaryRow.columns.first,
+      rowColumnIndex,
+    );
 
     columnIndex += startColumnIndex;
     excelColumnIndex = columnIndex;
 
     if (columnSpan > 0) {
-      range = sheet.getRangeByIndex(excelRowIndex, excelColumnIndex,
-          excelRowIndex, excelColumnIndex + columnSpan - 1);
+      range = sheet.getRangeByIndex(
+        excelRowIndex,
+        excelColumnIndex,
+        excelRowIndex,
+        excelColumnIndex + columnSpan - 1,
+      );
       range.merge();
     } else {
       range = sheet.getRangeByIndex(excelRowIndex, excelColumnIndex);
     }
 
-    _exportCellToExcel(sheet, range, column ?? dataGrid.columns[0],
-        DataGridExportCellType.tableSummaryRow, summaryValue);
+    _exportCellToExcel(
+      sheet,
+      range,
+      column ?? dataGrid.columns[0],
+      DataGridExportCellType.tableSummaryRow,
+      summaryValue,
+    );
   }
 
   void _setColumnWidths(
-      bool exportColumnWidth, Worksheet sheet, double columnWidth) {
+    bool exportColumnWidth,
+    Worksheet sheet,
+    double columnWidth,
+  ) {
     excelColumnIndex = startColumnIndex;
     for (final GridColumn column in columns) {
       if (exportColumnWidth && !column.actualWidth.isNaN) {
@@ -451,19 +565,24 @@ class DataGridToExcelConverter {
   }
 
   void _setRowHeight(
-      SfDataGrid dataGrid, DataGridExportCellType cellType, Worksheet sheet) {
+    SfDataGrid dataGrid,
+    DataGridExportCellType cellType,
+    Worksheet sheet,
+  ) {
     if (exportRowHeight) {
       switch (cellType) {
         case DataGridExportCellType.columnHeader:
         case DataGridExportCellType.stackedHeader:
-          final double height =
-              dataGrid.headerRowHeight.isNaN ? 56.0 : dataGrid.headerRowHeight;
+          final double height = dataGrid.headerRowHeight.isNaN
+              ? 56.0
+              : dataGrid.headerRowHeight;
           sheet.setRowHeightInPixels(excelRowIndex, height);
           break;
         case DataGridExportCellType.row:
         case DataGridExportCellType.tableSummaryRow:
-          final double height =
-              dataGrid.rowHeight.isNaN ? 49.0 : dataGrid.rowHeight;
+          final double height = dataGrid.rowHeight.isNaN
+              ? 49.0
+              : dataGrid.rowHeight;
           sheet.setRowHeightInPixels(excelRowIndex, height);
           break;
       }
@@ -477,17 +596,19 @@ class DataGridToExcelConverter {
 /// [SfDataGrid] to Excel.
 extension DataGridExcelExportExtensions on SfDataGridState {
   // Initializes the properties to the converter.
-  void _initializeProperties(DataGridToExcelConverter converter,
-      {required int excelStartRowIndex,
-      required int excelStartColumnIndex,
-      required bool canExportStackedHeaders,
-      required bool canExportTableSummaries,
-      required bool canExportColumnWidth,
-      required bool canExportRowHeight,
-      required int columnWidth,
-      required int rowHeight,
-      required List<String> excludeColumns,
-      DataGridCellExcelExportCallback? cellExport}) {
+  void _initializeProperties(
+    DataGridToExcelConverter converter, {
+    required int excelStartRowIndex,
+    required int excelStartColumnIndex,
+    required bool canExportStackedHeaders,
+    required bool canExportTableSummaries,
+    required bool canExportColumnWidth,
+    required bool canExportRowHeight,
+    required int columnWidth,
+    required int rowHeight,
+    required List<String> excludeColumns,
+    DataGridCellExcelExportCallback? cellExport,
+  }) {
     converter
       ..defaultColumnWidth = columnWidth.toDouble()
       ..defaultRowHeight = rowHeight.toDouble()
@@ -593,19 +714,21 @@ extension DataGridExcelExportExtensions on SfDataGridState {
   ///   );
   /// }
   /// ```
-  void exportToExcelWorksheet(Worksheet worksheet,
-      {List<DataGridRow>? rows,
-      bool exportStackedHeaders = true,
-      bool exportTableSummaries = true,
-      int defaultColumnWidth = 90,
-      int defaultRowHeight = 49,
-      bool exportColumnWidth = true,
-      bool exportRowHeight = true,
-      int startColumnIndex = 1,
-      int startRowIndex = 1,
-      List<String> excludeColumns = const <String>[],
-      DataGridToExcelConverter? converter,
-      DataGridCellExcelExportCallback? cellExport}) {
+  void exportToExcelWorksheet(
+    Worksheet worksheet, {
+    List<DataGridRow>? rows,
+    bool exportStackedHeaders = true,
+    bool exportTableSummaries = true,
+    int defaultColumnWidth = 90,
+    int defaultRowHeight = 49,
+    bool exportColumnWidth = true,
+    bool exportRowHeight = true,
+    int startColumnIndex = 1,
+    int startRowIndex = 1,
+    List<String> excludeColumns = const <String>[],
+    DataGridToExcelConverter? converter,
+    DataGridCellExcelExportCallback? cellExport,
+  }) {
     converter ??= DataGridToExcelConverter();
 
     _initializeProperties(
@@ -724,19 +847,20 @@ extension DataGridExcelExportExtensions on SfDataGridState {
   ///   );
   /// }
   /// ```
-  Workbook exportToExcelWorkbook(
-      {List<DataGridRow>? rows,
-      bool exportStackedHeaders = true,
-      bool exportTableSummaries = true,
-      int defaultColumnWidth = 90,
-      int defaultRowHeight = 49,
-      bool exportRowHeight = true,
-      bool exportColumnWidth = true,
-      int startColumnIndex = 1,
-      int startRowIndex = 1,
-      List<String> excludeColumns = const <String>[],
-      DataGridToExcelConverter? converter,
-      DataGridCellExcelExportCallback? cellExport}) {
+  Workbook exportToExcelWorkbook({
+    List<DataGridRow>? rows,
+    bool exportStackedHeaders = true,
+    bool exportTableSummaries = true,
+    int defaultColumnWidth = 90,
+    int defaultRowHeight = 49,
+    bool exportRowHeight = true,
+    bool exportColumnWidth = true,
+    int startColumnIndex = 1,
+    int startRowIndex = 1,
+    List<String> excludeColumns = const <String>[],
+    DataGridToExcelConverter? converter,
+    DataGridCellExcelExportCallback? cellExport,
+  }) {
     converter ??= DataGridToExcelConverter();
 
     _initializeProperties(

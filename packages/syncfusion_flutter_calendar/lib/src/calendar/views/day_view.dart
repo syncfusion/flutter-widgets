@@ -15,24 +15,25 @@ class TimeSlotWidget extends StatefulWidget {
   /// Constructor to create the time slot widget to holds time slots view for
   /// day, week, workweek views.
   const TimeSlotWidget(
-      this.visibleDates,
-      this.horizontalLinesCount,
-      this.timeIntervalHeight,
-      this.timeLabelWidth,
-      this.cellBorderColor,
-      this.calendarTheme,
-      this.themeData,
-      this.timeSlotViewSettings,
-      this.isRTL,
-      this.specialRegion,
-      this.calendarCellNotifier,
-      this.textScaleFactor,
-      this.timeRegionBuilder,
-      this.width,
-      this.height,
-      this.minDate,
-      this.maxDate,
-      {super.key});
+    this.visibleDates,
+    this.horizontalLinesCount,
+    this.timeIntervalHeight,
+    this.timeLabelWidth,
+    this.cellBorderColor,
+    this.calendarTheme,
+    this.themeData,
+    this.timeSlotViewSettings,
+    this.isRTL,
+    this.specialRegion,
+    this.calendarCellNotifier,
+    this.textScaleFactor,
+    this.timeRegionBuilder,
+    this.width,
+    this.height,
+    this.minDate,
+    this.maxDate, {
+    super.key,
+  });
 
   /// Holds the visible dates collection for current time slot view.
   final List<DateTime> visibleDates;
@@ -112,7 +113,9 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
         widget.height != oldWidget.height ||
         widget.timeRegionBuilder != oldWidget.timeRegionBuilder ||
         !CalendarViewHelper.isCollectionEqual(
-            widget.specialRegion, oldWidget.specialRegion)) {
+          widget.specialRegion,
+          oldWidget.specialRegion,
+        )) {
       _updateSpecialRegionDetails();
       _children.clear();
     }
@@ -129,9 +132,13 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
       for (int i = 0; i < count; i++) {
         final TimeRegionView view = _specialRegionViews[i];
         final Widget child = widget.timeRegionBuilder!(
-            context,
-            TimeRegionDetails(view.region.data,
-                widget.visibleDates[view.visibleIndex], view.bound));
+          context,
+          TimeRegionDetails(
+            view.region.data,
+            widget.visibleDates[view.visibleIndex],
+            view.bound,
+          ),
+        );
 
         _children.add(RepaintBoundary(child: child));
       }
@@ -165,13 +172,16 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
       return;
     }
 
-    final double minuteHeight = widget.timeIntervalHeight /
+    final double minuteHeight =
+        widget.timeIntervalHeight /
         CalendarViewHelper.getTimeInterval(widget.timeSlotViewSettings);
-    final DateTime startDate =
-        AppointmentHelper.convertToStartTime(widget.visibleDates[0]);
+    final DateTime startDate = AppointmentHelper.convertToStartTime(
+      widget.visibleDates[0],
+    );
     final int visibleDatesLength = widget.visibleDates.length;
     final DateTime endDate = AppointmentHelper.convertToEndTime(
-        widget.visibleDates[visibleDatesLength - 1]);
+      widget.visibleDates[visibleDatesLength - 1],
+    );
     final double width = widget.width - widget.timeLabelWidth;
     final double cellWidth = width / visibleDatesLength;
     for (int i = 0; i < widget.specialRegion!.length; i++) {
@@ -195,15 +205,19 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
       }
 
       int startIndex = DateTimeHelper.getVisibleDateIndex(
-          widget.visibleDates, regionStartTime);
+        widget.visibleDates,
+        regionStartTime,
+      );
       int endIndex = DateTimeHelper.getVisibleDateIndex(
-          widget.visibleDates, regionEndTime);
+        widget.visibleDates,
+        regionEndTime,
+      );
 
       double startYPosition = CalendarViewHelper.getTimeToPosition(
-          Duration(
-              hours: regionStartTime.hour, minutes: regionStartTime.minute),
-          widget.timeSlotViewSettings,
-          minuteHeight);
+        Duration(hours: regionStartTime.hour, minutes: regionStartTime.minute),
+        widget.timeSlotViewSettings,
+        minuteHeight,
+      );
       if (startIndex == -1) {
         if (startDate.isAfter(regionStartTime)) {
           // Set index as 0 when the region start date before the visible
@@ -232,9 +246,10 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
       }
 
       double endYPosition = CalendarViewHelper.getTimeToPosition(
-          Duration(hours: regionEndTime.hour, minutes: regionEndTime.minute),
-          widget.timeSlotViewSettings,
-          minuteHeight);
+        Duration(hours: regionEndTime.hour, minutes: regionEndTime.minute),
+        widget.timeSlotViewSettings,
+        minuteHeight,
+      );
       if (endIndex == -1) {
         /// Find the previous index when the end date as non working date.
         if (endDate.isAfter(regionEndTime)) {
@@ -279,8 +294,12 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
           startXPosition = widget.width - (startXPosition + cellWidth);
         }
 
-        final Rect rect = Rect.fromLTRB(startXPosition, startPosition,
-            startXPosition + cellWidth, endPosition);
+        final Rect rect = Rect.fromLTRB(
+          startXPosition,
+          startPosition,
+          startXPosition + cellWidth,
+          endPosition,
+        );
         _specialRegionViews.add(TimeRegionView(j, region, rect));
       }
     }
@@ -289,25 +308,25 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
 
 class _TimeSlotRenderWidget extends MultiChildRenderObjectWidget {
   const _TimeSlotRenderWidget(
-      this.visibleDates,
-      this.horizontalLinesCount,
-      this.timeIntervalHeight,
-      this.timeLabelWidth,
-      this.cellBorderColor,
-      this.calendarTheme,
-      this.themeData,
-      this.timeSlotViewSettings,
-      this.isRTL,
-      this.specialRegion,
-      this.calendarCellNotifier,
-      this.textScaleFactor,
-      this.width,
-      this.height,
-      this.specialRegionBounds,
-      this.minDate,
-      this.maxDate,
-      {List<Widget> widgets = const <Widget>[]})
-      : super(children: widgets);
+    this.visibleDates,
+    this.horizontalLinesCount,
+    this.timeIntervalHeight,
+    this.timeLabelWidth,
+    this.cellBorderColor,
+    this.calendarTheme,
+    this.themeData,
+    this.timeSlotViewSettings,
+    this.isRTL,
+    this.specialRegion,
+    this.calendarCellNotifier,
+    this.textScaleFactor,
+    this.width,
+    this.height,
+    this.specialRegionBounds,
+    this.minDate,
+    this.maxDate, {
+    List<Widget> widgets = const <Widget>[],
+  }) : super(children: widgets);
 
   final List<DateTime> visibleDates;
   final double horizontalLinesCount;
@@ -330,28 +349,31 @@ class _TimeSlotRenderWidget extends MultiChildRenderObjectWidget {
   @override
   _TimeSlotRenderObject createRenderObject(BuildContext context) {
     return _TimeSlotRenderObject(
-        visibleDates,
-        horizontalLinesCount,
-        timeIntervalHeight,
-        timeLabelWidth,
-        cellBorderColor,
-        calendarTheme,
-        themeData,
-        timeSlotViewSettings,
-        isRTL,
-        specialRegion,
-        calendarCellNotifier,
-        textScaleFactor,
-        width,
-        height,
-        specialRegionBounds,
-        minDate,
-        maxDate);
+      visibleDates,
+      horizontalLinesCount,
+      timeIntervalHeight,
+      timeLabelWidth,
+      cellBorderColor,
+      calendarTheme,
+      themeData,
+      timeSlotViewSettings,
+      isRTL,
+      specialRegion,
+      calendarCellNotifier,
+      textScaleFactor,
+      width,
+      height,
+      specialRegionBounds,
+      minDate,
+      maxDate,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, _TimeSlotRenderObject renderObject) {
+    BuildContext context,
+    _TimeSlotRenderObject renderObject,
+  ) {
     renderObject
       ..visibleDates = visibleDates
       ..horizontalLinesCount = horizontalLinesCount
@@ -375,23 +397,24 @@ class _TimeSlotRenderWidget extends MultiChildRenderObjectWidget {
 
 class _TimeSlotRenderObject extends CustomCalendarRenderObject {
   _TimeSlotRenderObject(
-      this._visibleDates,
-      this._horizontalLinesCount,
-      this._timeIntervalHeight,
-      this._timeLabelWidth,
-      this._cellBorderColor,
-      this._calendarTheme,
-      this._themeData,
-      this._timeSlotViewSettings,
-      this._isRTL,
-      this._specialRegion,
-      this._calendarCellNotifier,
-      this._textScaleFactor,
-      this._width,
-      this._height,
-      this.specialRegionBounds,
-      this._minDate,
-      this._maxDate);
+    this._visibleDates,
+    this._horizontalLinesCount,
+    this._timeIntervalHeight,
+    this._timeLabelWidth,
+    this._cellBorderColor,
+    this._calendarTheme,
+    this._themeData,
+    this._timeSlotViewSettings,
+    this._isRTL,
+    this._specialRegion,
+    this._calendarCellNotifier,
+    this._textScaleFactor,
+    this._width,
+    this._height,
+    this.specialRegionBounds,
+    this._minDate,
+    this._maxDate,
+  );
 
   List<DateTime> _visibleDates;
 
@@ -648,8 +671,10 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
   @override
   void performLayout() {
     final Size widgetSize = constraints.biggest;
-    size = Size(widgetSize.width.isInfinite ? width : widgetSize.width,
-        widgetSize.height.isInfinite ? height : widgetSize.height);
+    size = Size(
+      widgetSize.width.isInfinite ? width : widgetSize.width,
+      widgetSize.height.isInfinite ? height : widgetSize.height,
+    );
     RenderBox? child = firstChild;
     if (specialRegion == null || specialRegion!.isEmpty) {
       return;
@@ -662,11 +687,14 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
         continue;
       }
       final Rect rect = view.bound;
-      child.layout(constraints.copyWith(
+      child.layout(
+        constraints.copyWith(
           minHeight: rect.height,
           maxHeight: rect.height,
           minWidth: rect.width,
-          maxWidth: rect.width));
+          maxWidth: rect.width,
+        ),
+      );
       child = childAfter(child);
     }
   }
@@ -700,12 +728,17 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     _drawTimeSlots(context.canvas, visibleDatesCount);
   }
 
-  void _minMaxExceeds(DateTime minDate, DateTime maxDate, Canvas canvas,
-      int visibleDatesCount) {
+  void _minMaxExceeds(
+    DateTime minDate,
+    DateTime maxDate,
+    Canvas canvas,
+    int visibleDatesCount,
+  ) {
     final DateTime visibleStartDate = visibleDates[0];
     final DateTime visibleEndDate = visibleDates[visibleDatesCount - 1];
-    final DateTime maxEndDate =
-        AppointmentHelper.convertToEndTime(visibleDates[visibleDatesCount - 1]);
+    final DateTime maxEndDate = AppointmentHelper.convertToEndTime(
+      visibleDates[visibleDatesCount - 1],
+    );
     if (isDateWithInDateRange(visibleStartDate, visibleEndDate, minDate)) {
       _drawDisabledDate(visibleStartDate, minDate, canvas, visibleDatesCount);
     }
@@ -714,26 +747,39 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     }
   }
 
-  void _drawDisabledDate(DateTime disabledStartDate, DateTime disabledEndDate,
-      Canvas canvas, int visibleDatesCount) {
-    final double minuteHeight = timeIntervalHeight /
+  void _drawDisabledDate(
+    DateTime disabledStartDate,
+    DateTime disabledEndDate,
+    Canvas canvas,
+    int visibleDatesCount,
+  ) {
+    final double minuteHeight =
+        timeIntervalHeight /
         CalendarViewHelper.getTimeInterval(timeSlotViewSettings);
     final double viewWidth = width - timeLabelWidth;
     final double cellWidth = viewWidth / visibleDatesCount;
 
-    final int startIndex =
-        DateTimeHelper.getVisibleDateIndex(visibleDates, disabledStartDate);
-    final int endIndex =
-        DateTimeHelper.getVisibleDateIndex(visibleDates, disabledEndDate);
+    final int startIndex = DateTimeHelper.getVisibleDateIndex(
+      visibleDates,
+      disabledStartDate,
+    );
+    final int endIndex = DateTimeHelper.getVisibleDateIndex(
+      visibleDates,
+      disabledEndDate,
+    );
     final double startYPosition = CalendarViewHelper.getTimeToPosition(
-        Duration(
-            hours: disabledStartDate.hour, minutes: disabledStartDate.minute),
-        timeSlotViewSettings,
-        minuteHeight);
+      Duration(
+        hours: disabledStartDate.hour,
+        minutes: disabledStartDate.minute,
+      ),
+      timeSlotViewSettings,
+      minuteHeight,
+    );
     final double endYPosition = CalendarViewHelper.getTimeToPosition(
-        Duration(hours: disabledEndDate.hour, minutes: disabledEndDate.minute),
-        timeSlotViewSettings,
-        minuteHeight);
+      Duration(hours: disabledEndDate.hour, minutes: disabledEndDate.minute),
+      timeSlotViewSettings,
+      minuteHeight,
+    );
     for (int i = startIndex; i <= endIndex; i++) {
       final double topPosition = i == startIndex ? startYPosition : 0;
       final double bottomPosition = i == endIndex ? endYPosition : height;
@@ -752,7 +798,11 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
         rightPosition = width - rightPosition;
       }
       rect = Rect.fromLTRB(
-          leftPosition, topPosition, rightPosition, bottomPosition);
+        leftPosition,
+        topPosition,
+        rightPosition,
+        bottomPosition,
+      );
       _linePainter.style = PaintingStyle.fill;
       _linePainter.color = Colors.grey.withValues(alpha: 0.2);
       canvas.drawRect(rect, _linePainter);
@@ -771,7 +821,10 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
         isRTL ? size.width - timeLabelWidth : size.width;
     for (int i = 1; i <= horizontalLinesCount; i++) {
       canvas.drawLine(
-          Offset(startXPosition, y), Offset(endXPosition, y), _linePainter);
+        Offset(startXPosition, y),
+        Offset(endXPosition, y),
+        _linePainter,
+      );
 
       y += timeIntervalHeight;
       if (y == size.height) {
@@ -794,12 +847,14 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     const double strokeWidth = 2;
     const double padding = strokeWidth / 2;
     double left = (calendarCellNotifier.value!.dx ~/ _cellWidth) * _cellWidth;
-    double top = (calendarCellNotifier.value!.dy ~/ timeIntervalHeight) *
+    double top =
+        (calendarCellNotifier.value!.dy ~/ timeIntervalHeight) *
         timeIntervalHeight;
     _linePainter.style = PaintingStyle.stroke;
     _linePainter.strokeWidth = strokeWidth;
-    _linePainter.color =
-        calendarTheme.selectionBorderColor!.withValues(alpha: 0.4);
+    _linePainter.color = calendarTheme.selectionBorderColor!.withValues(
+      alpha: 0.4,
+    );
     left += isRTL ? 0 : timeLabelWidth;
     double height = timeIntervalHeight;
     if (top == 0) {
@@ -808,12 +863,14 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     }
 
     canvas.drawRect(
-        Rect.fromLTWH(
-            left,
-            top,
-            left + _cellWidth == size.width ? _cellWidth - padding : _cellWidth,
-            top + height == size.height ? height - padding : height),
-        _linePainter);
+      Rect.fromLTWH(
+        left,
+        top,
+        left + _cellWidth == size.width ? _cellWidth - padding : _cellWidth,
+        top + height == size.height ? height - padding : height,
+      ),
+      _linePainter,
+    );
   }
 
   void _addSpecialRegions(Canvas canvas) {
@@ -822,18 +879,21 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     }
 
     final TextPainter painter = TextPainter(
-        textDirection: TextDirection.ltr,
-        maxLines: 1,
-        textAlign: isRTL ? TextAlign.right : TextAlign.left,
-        textScaler: TextScaler.linear(textScaleFactor),
-        textWidthBasis: TextWidthBasis.longestLine);
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+      textAlign: isRTL ? TextAlign.right : TextAlign.left,
+      textScaler: TextScaler.linear(textScaleFactor),
+      textWidthBasis: TextWidthBasis.longestLine,
+    );
 
     _linePainter.style = PaintingStyle.fill;
     final int count = specialRegionBounds.length;
     final TextStyle defaultTextStyle = TextStyle(
-        color: themeData.brightness == Brightness.dark
-            ? Colors.white54
-            : Colors.black45);
+      color:
+          themeData.brightness == Brightness.dark
+              ? Colors.white54
+              : Colors.black45,
+    );
     for (int i = 0; i < count; i++) {
       final TimeRegionView view = specialRegionBounds[i];
       final CalendarTimeRegion region = view.region;
@@ -854,8 +914,9 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
         painter.ellipsis = '..';
       } else {
         painter.text = TextSpan(
-            text: String.fromCharCode(region.iconData!.codePoint),
-            style: textStyle.copyWith(fontFamily: region.iconData!.fontFamily));
+          text: String.fromCharCode(region.iconData!.codePoint),
+          style: textStyle.copyWith(fontFamily: region.iconData!.fontFamily),
+        );
       }
 
       painter.layout(maxWidth: rect.width - 4);
@@ -879,20 +940,23 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     final int startHour = timeSlotViewSettings.startHour.toInt();
     final int hour =
         ((timeSlotViewSettings.startHour - startHour) * 60).toInt();
-    final int timeInterval =
-        CalendarViewHelper.getTimeInterval(timeSlotViewSettings);
+    final int timeInterval = CalendarViewHelper.getTimeInterval(
+      timeSlotViewSettings,
+    );
     for (int j = 0; j < visibleDates.length; j++) {
       DateTime date = visibleDates[j];
       for (int i = 0; i < horizontalLinesCount; i++) {
         final int minute = (i * timeInterval) + hour;
         date = DateTime(date.year, date.month, date.day, startHour, minute);
-        semanticsBuilder.add(CustomPainterSemantics(
-          rect: Rect.fromLTWH(left, top, cellWidth, cellHeight),
-          properties: SemanticsProperties(
-            label: DateFormat('h a, dd MMMM yyyy').format(date),
-            textDirection: TextDirection.ltr,
+        semanticsBuilder.add(
+          CustomPainterSemantics(
+            rect: Rect.fromLTWH(left, top, cellWidth, cellHeight),
+            properties: SemanticsProperties(
+              label: DateFormat('h a, dd MMMM yyyy').format(date),
+              textDirection: TextDirection.ltr,
+            ),
           ),
-        ));
+        );
         top += cellHeight;
       }
 

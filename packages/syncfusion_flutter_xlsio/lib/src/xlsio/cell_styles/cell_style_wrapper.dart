@@ -519,7 +519,6 @@ class CellStyleWrapper implements Style {
   }
 
   @override
-
   /// Represents the locked.
   bool get locked {
     bool locked = true;

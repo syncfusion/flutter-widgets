@@ -126,19 +126,21 @@ class RenderInteractiveGraphicsView extends RenderBox {
     _selectorColor = selectorColor;
     _selectorStorkeWidth = selectorStorkeWidth;
 
-    tapGestureRecognizer = TapGestureRecognizer()
-      ..onTap = onTap
-      ..onTapDown = onTapDown
-      ..onTapUp = onTapUp
-      ..onTapCancel = onTapCancel;
+    tapGestureRecognizer =
+        TapGestureRecognizer()
+          ..onTap = onTap
+          ..onTapDown = onTapDown
+          ..onTapUp = onTapUp
+          ..onTapCancel = onTapCancel;
 
-    panGestureRecognizer = PanGestureRecognizer()
-      ..onDown = onDragDown
-      ..onStart = onDragStart
-      ..onEnd = onDragEnd
-      ..onUpdate = onDragUpdate
-      ..onCancel = onDragCancel
-      ..gestureSettings = const DeviceGestureSettings(touchSlop: 0.0);
+    panGestureRecognizer =
+        PanGestureRecognizer()
+          ..onDown = onDragDown
+          ..onStart = onDragStart
+          ..onEnd = onDragEnd
+          ..onUpdate = onDragUpdate
+          ..onCancel = onDragCancel
+          ..gestureSettings = const DeviceGestureSettings(touchSlop: 0.0);
   }
 
   late Color _color;
@@ -272,10 +274,11 @@ class RenderInteractiveGraphicsView extends RenderBox {
       size.width,
       size.height,
     );
-    final Paint selectorPaint = Paint()
-      ..color = selectorColor
-      ..strokeWidth = selectorStorkeWidth
-      ..style = PaintingStyle.stroke;
+    final Paint selectorPaint =
+        Paint()
+          ..color = selectorColor
+          ..strokeWidth = selectorStorkeWidth
+          ..style = PaintingStyle.stroke;
     canvas.drawRect(selectorBounds, selectorPaint);
   }
 

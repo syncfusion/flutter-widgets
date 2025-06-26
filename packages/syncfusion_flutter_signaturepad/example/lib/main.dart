@@ -10,10 +10,7 @@ void main() {
 class SignaturePadApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SfSignaturePad Demo',
-      home: _MyHomePage(),
-    );
+    return MaterialApp(title: 'SfSignaturePad Demo', home: _MyHomePage());
   }
 }
 
@@ -37,8 +34,9 @@ class _MyHomePageState extends State<_MyHomePage> {
   }
 
   void _handleSaveButtonPressed() async {
-    final data =
-        await signatureGlobalKey.currentState!.toImage(pixelRatio: 3.0);
+    final data = await signatureGlobalKey.currentState!.toImage(
+      pixelRatio: 3.0,
+    );
     final bytes = await data.toByteData(format: ui.ImageByteFormat.png);
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -60,32 +58,39 @@ class _MyHomePageState extends State<_MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
-            children: [
+      body: Column(
+        children: [
           Padding(
-              padding: EdgeInsets.all(10),
-              child: Container(
-                  child: SfSignaturePad(
-                      key: signatureGlobalKey,
-                      backgroundColor: Colors.white,
-                      strokeColor: Colors.black,
-                      minimumStrokeWidth: 1.0,
-                      maximumStrokeWidth: 4.0),
-                  decoration:
-                      BoxDecoration(border: Border.all(color: Colors.grey)))),
-          SizedBox(height: 10),
-          Row(children: <Widget>[
-            TextButton(
-              child: Text('ToImage'),
-              onPressed: _handleSaveButtonPressed,
+            padding: EdgeInsets.all(10),
+            child: Container(
+              child: SfSignaturePad(
+                key: signatureGlobalKey,
+                backgroundColor: Colors.white,
+                strokeColor: Colors.black,
+                minimumStrokeWidth: 1.0,
+                maximumStrokeWidth: 4.0,
+              ),
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
             ),
-            TextButton(
-              child: Text('Clear'),
-              onPressed: _handleClearButtonPressed,
-            )
-          ], mainAxisAlignment: MainAxisAlignment.spaceEvenly)
+          ),
+          SizedBox(height: 10),
+          Row(
+            children: <Widget>[
+              TextButton(
+                child: Text('ToImage'),
+                onPressed: _handleSaveButtonPressed,
+              ),
+              TextButton(
+                child: Text('Clear'),
+                onPressed: _handleClearButtonPressed,
+              ),
+            ],
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ),
         ],
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center));
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+      ),
+    );
   }
 }

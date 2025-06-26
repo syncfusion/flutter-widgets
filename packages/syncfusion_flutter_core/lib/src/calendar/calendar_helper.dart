@@ -15,8 +15,9 @@ part of core;
 dynamic addDuration(dynamic date, Duration duration) {
   dynamic currentDate = date.add(duration);
   if (date.timeZoneOffset != currentDate.timeZoneOffset) {
-    currentDate =
-        currentDate.add(date.timeZoneOffset - currentDate.timeZoneOffset);
+    currentDate = currentDate.add(
+      date.timeZoneOffset - currentDate.timeZoneOffset,
+    );
   }
 
   return currentDate;
@@ -38,8 +39,9 @@ dynamic addDuration(dynamic date, Duration duration) {
 dynamic subtractDuration(dynamic date, Duration duration) {
   dynamic currentDate = date.subtract(duration);
   if (date.timeZoneOffset != currentDate.timeZoneOffset) {
-    currentDate =
-        currentDate.add(date.timeZoneOffset - currentDate.timeZoneOffset);
+    currentDate = currentDate.add(
+      date.timeZoneOffset - currentDate.timeZoneOffset,
+    );
   }
 
   return currentDate;
@@ -137,8 +139,12 @@ bool isSameOrAfterDate(dynamic firstDate, dynamic date) {
 
 /// Get the visible dates based on the date value and visible dates count.
 // ignore: always_specify_types, strict_raw_type
-List getVisibleDates(dynamic date, List<int>? nonWorkingDays,
-    int firstDayOfWeek, int visibleDatesCount) {
+List getVisibleDates(
+  dynamic date,
+  List<int>? nonWorkingDays,
+  int firstDayOfWeek,
+  int visibleDatesCount,
+) {
   // ignore: always_specify_types, strict_raw_type
   List datesCollection;
   if (date is HijriDateTime) {
@@ -150,7 +156,10 @@ List getVisibleDates(dynamic date, List<int>? nonWorkingDays,
   final int nonWorkingDaysCount =
       nonWorkingDays == null ? 0 : nonWorkingDays.length;
   final dynamic currentDate = getFirstDayOfWeekDate(
-      visibleDatesCount + nonWorkingDaysCount, date, firstDayOfWeek);
+    visibleDatesCount + nonWorkingDaysCount,
+    date,
+    firstDayOfWeek,
+  );
 
   for (int i = 0; i < visibleDatesCount; i++) {
     final dynamic visibleDate = addDays(currentDate, i);
@@ -178,7 +187,10 @@ dynamic addDays(dynamic date, int days) {
 /// Calculate first day of week date value based original date with first day of
 /// week value.
 dynamic getFirstDayOfWeekDate(
-    int visibleDatesCount, dynamic date, int firstDayOfWeek) {
+  int visibleDatesCount,
+  dynamic date,
+  int firstDayOfWeek,
+) {
   if (visibleDatesCount % 7 != 0) {
     return date;
   }

@@ -11,8 +11,12 @@ class FractionToken extends FormatTokenBase {
 
   /// Applies format to the value.
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String applyFormat(
+    double value,
+    bool bShowHiddenSymbols,
+    CultureInfo culture,
+    FormatSection section,
+  ) {
     return (section.formatType == ExcelFormatType.dateTime)
         ? culture.dateTimeFormat.dateSeparator
         : strFormat;
@@ -30,7 +34,8 @@ class FractionToken extends FormatTokenBase {
 
     if (iIndex < 0 || iIndex > iFormatLength - 1) {
       final Error error = ArgumentError(
-          'iIndex - Value cannot be less than 0 and greater than than format length - 1.');
+        'iIndex - Value cannot be less than 0 and greater than than format length - 1.',
+      );
       throw error;
     }
 

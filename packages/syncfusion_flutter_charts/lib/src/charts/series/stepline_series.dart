@@ -91,7 +91,11 @@ class StepLineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     num y2 = double.nan;
 
     final int nextIndex = nextIndexConsideringEmptyPointMode(
-        index, emptyPointSettings.mode, yValues, dataCount);
+      index,
+      emptyPointSettings.mode,
+      yValues,
+      dataCount,
+    );
     if (nextIndex != -1) {
       x2 = xValues[nextIndex];
       y2 = yValues[nextIndex];
@@ -131,8 +135,12 @@ class StepLineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
     paintSegments(context, offset);
     context.canvas.restore();
@@ -159,7 +167,9 @@ class StepLineSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldPoints.clear();
@@ -226,8 +236,11 @@ class StepLineSegment<T, D> extends ChartSegment {
     final MarkerSettings marker = series.markerSettings;
     final int length = points.length;
     for (int i = 0; i < length; i++) {
-      if (tooltipTouchBounds(points[i], marker.width, marker.height)
-          .contains(position)) {
+      if (tooltipTouchBounds(
+        points[i],
+        marker.width,
+        marker.height,
+      ).contains(position)) {
         return true;
       }
     }
@@ -262,9 +275,10 @@ class StepLineSegment<T, D> extends ChartSegment {
     final int nearestPointIndex =
         position == null ? 0 : _nearestPointIndex(linePoints, position);
     if (nearestPointIndex != -1) {
-      pointIndex ??= (position == null || nearestPointIndex == 0
-          ? currentSegmentIndex
-          : currentSegmentIndex + 1);
+      pointIndex ??=
+          (position == null || nearestPointIndex == 0
+              ? currentSegmentIndex
+              : currentSegmentIndex + 1);
       CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
       List<Color?> markerColors = <Color?>[fillPaint.color];
       if (chartPoint.y != null && chartPoint.y!.isNaN) {
@@ -277,14 +291,17 @@ class StepLineSegment<T, D> extends ChartSegment {
           series.markerSettings.isVisible ? marker.height / 2 : 0;
       final Offset preferredPos = linePoints[nearestPointIndex];
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,

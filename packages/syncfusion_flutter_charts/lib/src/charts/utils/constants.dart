@@ -42,8 +42,9 @@ const double tooltipMarkerSize = 10.0;
 /// Specifies the tooltip marker padding.
 const EdgeInsets tooltipMarkerPadding = EdgeInsets.all(2.0);
 
-const EdgeInsetsDirectional tooltipItemSpacing =
-    EdgeInsetsDirectional.only(end: 3.0);
+const EdgeInsetsDirectional tooltipItemSpacing = EdgeInsetsDirectional.only(
+  end: 3.0,
+);
 
 const EdgeInsets tooltipInnerPadding = EdgeInsets.all(6.0);
 

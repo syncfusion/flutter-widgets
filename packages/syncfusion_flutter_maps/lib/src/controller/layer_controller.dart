@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 
 import '../common.dart';
 
-typedef _ListenerEntry = void Function(MarkerAction action,
-    [List<int>? indices]);
+typedef _ListenerEntry =
+    void Function(MarkerAction action, [List<int>? indices]);
 
 /// Base class of [MapShapeLayerController] and [MapTileLayerController].
 abstract class MapLayerController extends ChangeNotifier {

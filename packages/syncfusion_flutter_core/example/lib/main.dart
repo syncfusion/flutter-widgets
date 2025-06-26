@@ -10,10 +10,7 @@ class ChartApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Chart Demo',
-      home: _SalesAnalysisPage(),
-    );
+    return MaterialApp(title: 'Chart Demo', home: _SalesAnalysisPage());
   }
 }
 

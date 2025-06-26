@@ -13,16 +13,25 @@ import 'helper.dart';
 
 /// Returns the tooltip label on zooming.
 String tooltipValue(
-    Offset position, RenderChartAxis axis, Rect plotAreaBounds) {
-  final num value = axis.isVertical
-      ? axis.pixelToPoint(axis.paintBounds, position.dx, position.dy)
-      : axis.pixelToPoint(axis.paintBounds, position.dx - plotAreaBounds.left,
-          position.dy - plotAreaBounds.top);
+  Offset position,
+  RenderChartAxis axis,
+  Rect plotAreaBounds,
+) {
+  final num value =
+      axis.isVertical
+          ? axis.pixelToPoint(axis.paintBounds, position.dx, position.dy)
+          : axis.pixelToPoint(
+            axis.paintBounds,
+            position.dx - plotAreaBounds.left,
+            position.dy - plotAreaBounds.top,
+          );
 
   dynamic result = interactiveTooltipLabel(value, axis);
   if (axis.interactiveTooltip.format != null) {
-    final String stringValue =
-        axis.interactiveTooltip.format!.replaceAll('{value}', result);
+    final String stringValue = axis.interactiveTooltip.format!.replaceAll(
+      '{value}',
+      result,
+    );
     result = stringValue;
   }
   return result.toString();
@@ -43,31 +52,45 @@ dynamic interactiveTooltipLabel(dynamic value, RenderChartAxis axis) {
     final num index = value < 0 ? 0 : value;
     final List<int> labels = axis.labels;
     final int labelsLength = labels.length;
-    final int milliseconds = labels[(index.round() >= labelsLength
-            ? (index.round() > labelsLength ? labelsLength - 1 : index - 1)
-            : index)
-        .round()];
+    final int milliseconds =
+        labels[(index.round() >= labelsLength
+                ? (index.round() > labelsLength ? labelsLength - 1 : index - 1)
+                : index)
+            .round()];
     final num interval = axis.visibleRange!.minimum.ceil();
     final num previousInterval =
         labels.isNotEmpty ? labels[labelsLength - 1] : interval;
-    final DateFormat dateFormat = axis.dateFormat ??
+    final DateFormat dateFormat =
+        axis.dateFormat ??
         dateTimeCategoryAxisLabelFormat(
-            axis, interval.toInt(), previousInterval.toInt());
+          axis,
+          interval.toInt(),
+          previousInterval.toInt(),
+        );
     return dateFormat.format(DateTime.fromMillisecondsSinceEpoch(milliseconds));
   } else if (axis is RenderDateTimeAxis) {
     final num interval = axis.visibleRange!.minimum.ceil();
     final List<AxisLabel> visibleLabels = axis.visibleLabels;
-    final num previousInterval = visibleLabels.isNotEmpty
-        ? visibleLabels[visibleLabels.length - 1].value
-        : interval;
-    final DateFormat dateFormat = axis.dateFormat ??
+    final num previousInterval =
+        visibleLabels.isNotEmpty
+            ? visibleLabels[visibleLabels.length - 1].value
+            : interval;
+    final DateFormat dateFormat =
+        axis.dateFormat ??
         dateTimeAxisLabelFormat(
-            axis, interval.toInt(), previousInterval.toInt());
-    return dateFormat
-        .format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
+          axis,
+          interval.toInt(),
+          previousInterval.toInt(),
+        );
+    return dateFormat.format(
+      DateTime.fromMillisecondsSinceEpoch(value.toInt()),
+    );
   } else if (axis is RenderLogarithmicAxis) {
     return logAxisLabel(
-        axis, axis.toPow(value), axis.interactiveTooltip.decimalPlaces);
+      axis,
+      axis.toPow(value),
+      axis.interactiveTooltip.decimalPlaces,
+    );
   } else if (axis is RenderNumericAxis) {
     return numericAxisLabel(axis, value, axis.interactiveTooltip.decimalPlaces);
   } else {
@@ -76,17 +99,17 @@ dynamic interactiveTooltipLabel(dynamic value, RenderChartAxis axis) {
 }
 
 /// Validate the rect by comparing small and large rect.
-Rect validateRect(
-        Rect largeRect, Rect smallRect, String axisPosition) =>
+Rect validateRect(Rect largeRect, Rect smallRect, String axisPosition) =>
     Rect.fromLTRB(
-        axisPosition == 'left'
-            ? (smallRect.left - (largeRect.width - smallRect.width))
-            : smallRect.left,
-        smallRect.top,
-        axisPosition == 'right'
-            ? (smallRect.right + (largeRect.width - smallRect.width))
-            : smallRect.right,
-        smallRect.bottom);
+      axisPosition == 'left'
+          ? (smallRect.left - (largeRect.width - smallRect.width))
+          : smallRect.left,
+      smallRect.top,
+      axisPosition == 'right'
+          ? (smallRect.right + (largeRect.width - smallRect.width))
+          : smallRect.right,
+      smallRect.bottom,
+    );
 
 /// Calculate the interactive tooltip rect, based on the zoomed axis position.
 Rect calculateRect(RenderChartAxis axis, Offset position, Size labelSize) {
@@ -117,81 +140,125 @@ Rect calculateRect(RenderChartAxis axis, Offset position, Size labelSize) {
 
 /// To draw connectors.
 void drawConnector(
-    Canvas canvas,
-    Paint connectorLinePaint,
-    RRect startTooltipRect,
-    RRect endTooltipRect,
-    Offset startPosition,
-    Offset endPosition,
-    RenderChartAxis axis) {
+  Canvas canvas,
+  Paint connectorLinePaint,
+  RRect startTooltipRect,
+  RRect endTooltipRect,
+  Offset startPosition,
+  Offset endPosition,
+  RenderChartAxis axis,
+) {
   final InteractiveTooltip tooltip = axis.interactiveTooltip;
   if (!axis.isVertical && !axis.opposedPosition) {
-    startPosition =
-        Offset(startPosition.dx, startTooltipRect.top - tooltip.arrowLength);
-    endPosition =
-        Offset(endPosition.dx, endTooltipRect.top - tooltip.arrowLength);
+    startPosition = Offset(
+      startPosition.dx,
+      startTooltipRect.top - tooltip.arrowLength,
+    );
+    endPosition = Offset(
+      endPosition.dx,
+      endTooltipRect.top - tooltip.arrowLength,
+    );
   } else if (!axis.isVertical && axis.opposedPosition) {
-    startPosition =
-        Offset(startPosition.dx, startTooltipRect.bottom + tooltip.arrowLength);
-    endPosition =
-        Offset(endPosition.dx, endTooltipRect.bottom + tooltip.arrowLength);
+    startPosition = Offset(
+      startPosition.dx,
+      startTooltipRect.bottom + tooltip.arrowLength,
+    );
+    endPosition = Offset(
+      endPosition.dx,
+      endTooltipRect.bottom + tooltip.arrowLength,
+    );
   } else if (axis.isVertical && !axis.opposedPosition) {
-    startPosition =
-        Offset(startTooltipRect.right + tooltip.arrowLength, startPosition.dy);
-    endPosition =
-        Offset(endTooltipRect.right + tooltip.arrowLength, endPosition.dy);
+    startPosition = Offset(
+      startTooltipRect.right + tooltip.arrowLength,
+      startPosition.dy,
+    );
+    endPosition = Offset(
+      endTooltipRect.right + tooltip.arrowLength,
+      endPosition.dy,
+    );
   } else {
-    startPosition =
-        Offset(startTooltipRect.left - tooltip.arrowLength, startPosition.dy);
-    endPosition =
-        Offset(endTooltipRect.left - tooltip.arrowLength, endPosition.dy);
+    startPosition = Offset(
+      startTooltipRect.left - tooltip.arrowLength,
+      startPosition.dy,
+    );
+    endPosition = Offset(
+      endTooltipRect.left - tooltip.arrowLength,
+      endPosition.dy,
+    );
   }
-  drawDashedPath(canvas, connectorLinePaint, startPosition, endPosition,
-      tooltip.connectorLineDashArray);
+  drawDashedPath(
+    canvas,
+    connectorLinePaint,
+    startPosition,
+    endPosition,
+    tooltip.connectorLineDashArray,
+  );
 }
 
 /// To draw tooltip.
 RRect calculateTooltipRect(
-    Canvas canvas,
-    Paint fillPaint,
-    Paint strokePaint,
-    Path path,
-    Offset position,
-    Rect labelRect,
-    RRect? rect,
-    String value,
-    Size labelSize,
-    Rect plotAreaBound,
-    TextStyle textStyle,
-    RenderChartAxis axis,
-    Offset plotAreaOffset) {
+  Canvas canvas,
+  Paint fillPaint,
+  Paint strokePaint,
+  Path path,
+  Offset position,
+  Rect labelRect,
+  RRect? rect,
+  String value,
+  Size labelSize,
+  Rect plotAreaBound,
+  TextStyle textStyle,
+  RenderChartAxis axis,
+  Offset plotAreaOffset,
+) {
   final Offset parentDataOffset = (axis.parentData! as BoxParentData).offset;
-  final Offset axisOffset =
-      parentDataOffset.translate(-plotAreaOffset.dx, -plotAreaOffset.dy);
+  final Offset axisOffset = parentDataOffset.translate(
+    -plotAreaOffset.dx,
+    -plotAreaOffset.dy,
+  );
   final Rect axisRect = axisOffset & axis.size;
   labelRect = validateRectBounds(labelRect, axisRect);
-  labelRect = axis.isVertical
-      ? validateRectYPosition(labelRect, plotAreaBound)
-      : validateRectXPosition(labelRect, plotAreaBound);
+  labelRect =
+      axis.isVertical
+          ? validateRectYPosition(labelRect, plotAreaBound)
+          : validateRectXPosition(labelRect, plotAreaBound);
   path.reset();
   rect = RRect.fromRectAndRadius(
-      labelRect, Radius.circular(axis.interactiveTooltip.borderRadius));
+    labelRect,
+    Radius.circular(axis.interactiveTooltip.borderRadius),
+  );
   path.addRRect(rect);
   calculateNeckPositions(
-      canvas, fillPaint, strokePaint, path, position, rect, axis);
+    canvas,
+    fillPaint,
+    strokePaint,
+    path,
+    position,
+    rect,
+    axis,
+  );
   drawText(
     canvas,
     value,
-    Offset((rect.left + rect.width / 2) - labelSize.width / 2,
-        (rect.top + rect.height / 2) - labelSize.height / 2),
+    Offset(
+      (rect.left + rect.width / 2) - labelSize.width / 2,
+      (rect.top + rect.height / 2) - labelSize.height / 2,
+    ),
     textStyle,
   );
   return rect;
 }
 
 /// To calculate tooltip neck positions.
-void calculateNeckPositions(Canvas canvas, Paint fillPaint, Paint strokePaint,
-    Path path, Offset position, RRect rect, RenderChartAxis axis) {
+void calculateNeckPositions(
+  Canvas canvas,
+  Paint fillPaint,
+  Paint strokePaint,
+  Path path,
+  Offset position,
+  RRect rect,
+  RenderChartAxis axis,
+) {
   final InteractiveTooltip tooltip = axis.interactiveTooltip;
   double x1, x2, x3, x4, y1, y2, y3, y4;
   if (!axis.isVertical && !axis.opposedPosition) {
@@ -232,7 +299,19 @@ void calculateNeckPositions(Canvas canvas, Paint fillPaint, Paint strokePaint,
     y4 = position.dy;
   }
   drawTooltipArrowhead(
-      canvas, path, fillPaint, strokePaint, x1, y1, x2, y2, x3, y3, x4, y4);
+    canvas,
+    path,
+    fillPaint,
+    strokePaint,
+    x1,
+    y1,
+    x2,
+    y2,
+    x3,
+    y3,
+    x4,
+    y4,
+  );
 }
 
 /// This method will validate whether the tooltip exceeds the screen or not.
@@ -269,13 +348,18 @@ Rect validateRectYPosition(Rect labelRect, Rect axisClipRect) {
   Rect validatedRect = labelRect;
   if (labelRect.bottom >= axisClipRect.bottom) {
     validatedRect = Rect.fromLTRB(
-        labelRect.left,
-        labelRect.top - (labelRect.bottom - axisClipRect.bottom),
-        labelRect.right,
-        axisClipRect.bottom);
+      labelRect.left,
+      labelRect.top - (labelRect.bottom - axisClipRect.bottom),
+      labelRect.right,
+      axisClipRect.bottom,
+    );
   } else if (labelRect.top <= axisClipRect.top) {
-    validatedRect = Rect.fromLTRB(labelRect.left, axisClipRect.top,
-        labelRect.right, labelRect.bottom + (axisClipRect.top - labelRect.top));
+    validatedRect = Rect.fromLTRB(
+      labelRect.left,
+      axisClipRect.top,
+      labelRect.right,
+      labelRect.bottom + (axisClipRect.top - labelRect.top),
+    );
   }
   return validatedRect;
 }
@@ -285,34 +369,37 @@ Rect validateRectXPosition(Rect labelRect, Rect axisClipRect) {
   Rect validatedRect = labelRect;
   if (labelRect.right >= axisClipRect.right) {
     validatedRect = Rect.fromLTRB(
-        labelRect.left - (labelRect.right - axisClipRect.right),
-        labelRect.top,
-        axisClipRect.right,
-        labelRect.bottom);
+      labelRect.left - (labelRect.right - axisClipRect.right),
+      labelRect.top,
+      axisClipRect.right,
+      labelRect.bottom,
+    );
   } else if (labelRect.left <= axisClipRect.left) {
     validatedRect = Rect.fromLTRB(
-        axisClipRect.left,
-        labelRect.top,
-        labelRect.right + (axisClipRect.left - labelRect.left),
-        labelRect.bottom);
+      axisClipRect.left,
+      labelRect.top,
+      labelRect.right + (axisClipRect.left - labelRect.left),
+      labelRect.bottom,
+    );
   }
   return validatedRect;
 }
 
 /// Draw tooltip arrow head.
 void drawTooltipArrowhead(
-    Canvas canvas,
-    Path backgroundPath,
-    Paint fillPaint,
-    Paint strokePaint,
-    double x1,
-    double y1,
-    double x2,
-    double y2,
-    double x3,
-    double y3,
-    double x4,
-    double y4) {
+  Canvas canvas,
+  Path backgroundPath,
+  Paint fillPaint,
+  Paint strokePaint,
+  double x1,
+  double y1,
+  double x2,
+  double y2,
+  double x3,
+  double y3,
+  double x4,
+  double y4,
+) {
   backgroundPath.moveTo(x1, y1);
   backgroundPath.lineTo(x2, y2);
   backgroundPath.lineTo(x3, y3);

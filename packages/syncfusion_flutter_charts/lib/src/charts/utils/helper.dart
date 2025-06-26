@@ -62,9 +62,10 @@ Widget buildChartWithTitle(
               decoration: BoxDecoration(
                 color: chartThemeData.titleBackgroundColor,
                 border: Border.all(
-                  color: title.borderWidth == 0
-                      ? Colors.transparent
-                      : title.borderColor,
+                  color:
+                      title.borderWidth == 0
+                          ? Colors.transparent
+                          : title.borderColor,
                   width: title.borderWidth,
                 ),
               ),
@@ -126,16 +127,22 @@ Offset _rotatePoint(Offset point, Offset center, double radius) {
 
 double factorFromValue(String? value) {
   if (value != null && value.isNotEmpty) {
-    final double? factor = value.contains('%')
-        ? double.tryParse(value.replaceAll(RegExp('%'), ''))! / 100.0
-        : double.tryParse(value);
+    final double? factor =
+        value.contains('%')
+            ? double.tryParse(value.replaceAll(RegExp('%'), ''))! / 100.0
+            : double.tryParse(value);
     return factor != null ? clampDouble(factor, 0.0, 1.0) : 0.0;
   }
   return 0.0;
 }
 
-Offset rawValueToPixelPoint(dynamic x, num y, RenderChartAxis? xAxis,
-    RenderChartAxis? yAxis, bool isTransposed) {
+Offset rawValueToPixelPoint(
+  dynamic x,
+  num y,
+  RenderChartAxis? xAxis,
+  RenderChartAxis? yAxis,
+  bool isTransposed,
+) {
   if (xAxis == null || yAxis == null) {
     return Offset.zero;
   }
@@ -165,13 +172,23 @@ Offset rawValueToPixelPoint(dynamic x, num y, RenderChartAxis? xAxis,
   );
 }
 
-double _pointToPixelX(num x, num y, RenderChartAxis xAxis,
-    RenderChartAxis yAxis, bool isTransposed) {
+double _pointToPixelX(
+  num x,
+  num y,
+  RenderChartAxis xAxis,
+  RenderChartAxis yAxis,
+  bool isTransposed,
+) {
   return isTransposed ? yAxis.pointToPixel(y) : xAxis.pointToPixel(x);
 }
 
-double _pointToPixelY(num x, num y, RenderChartAxis xAxis,
-    RenderChartAxis yAxis, bool isTransposed) {
+double _pointToPixelY(
+  num x,
+  num y,
+  RenderChartAxis xAxis,
+  RenderChartAxis yAxis,
+  bool isTransposed,
+) {
   return isTransposed ? xAxis.pointToPixel(x) : yAxis.pointToPixel(y);
 }
 
@@ -236,7 +253,11 @@ Path createPath(List<Offset> points) {
 }
 
 void drawDashesFromPoints(
-    Canvas canvas, List<Offset> points, List<double>? dashArray, Paint paint) {
+  Canvas canvas,
+  List<Offset> points,
+  List<double>? dashArray,
+  Paint paint,
+) {
   if (points.isEmpty) {
     return;
   }
@@ -245,8 +266,14 @@ void drawDashesFromPoints(
   drawDashes(canvas, dashArray, paint, path: path);
 }
 
-void drawDashes(Canvas canvas, List<double>? dashArray, Paint paint,
-    {Path? path, Offset? start, Offset? end}) {
+void drawDashes(
+  Canvas canvas,
+  List<double>? dashArray,
+  Paint paint, {
+  Path? path,
+  Offset? start,
+  Offset? end,
+}) {
   if (path == null &&
       (start == null || start.isNaN || end == null || end.isNaN)) {
     return;
@@ -270,9 +297,10 @@ void drawDashes(Canvas canvas, List<double>? dashArray, Paint paint,
     }
   } else {
     if (path == null && start != null && end != null) {
-      path = Path()
-        ..moveTo(start.dx, start.dy)
-        ..lineTo(end.dx, end.dy);
+      path =
+          Path()
+            ..moveTo(start.dx, start.dy)
+            ..lineTo(end.dx, end.dy);
     }
 
     if (path == null) {
@@ -281,15 +309,14 @@ void drawDashes(Canvas canvas, List<double>? dashArray, Paint paint,
 
     paint.isAntiAlias = false;
     canvas.drawPath(
-        _dashPath(path, dashArray: _IntervalList<double>(dashArray!))!, paint);
+      _dashPath(path, dashArray: _IntervalList<double>(dashArray!))!,
+      paint,
+    );
   }
 }
 
 /// To calculate dash array path for series.
-Path? _dashPath(
-  Path? source, {
-  required _IntervalList<double> dashArray,
-}) {
+Path? _dashPath(Path? source, {required _IntervalList<double> dashArray}) {
   if (source == null) {
     return null;
   }
@@ -302,7 +329,9 @@ Path? _dashPath(
       final double length = dashArray.next;
       if (canDraw) {
         path.addPath(
-            matric.extractPath(distance, distance + length), Offset.zero);
+          matric.extractPath(distance, distance + length),
+          Offset.zero,
+        );
       }
       distance += length;
       canDraw = !canDraw;
@@ -312,12 +341,13 @@ Path? _dashPath(
 }
 
 Color dataLabelSurfaceColor(
-    Color labelColor,
-    int dataPointIndex,
-    ChartDataLabelPosition labelPosition,
-    SfChartThemeData chartThemeData,
-    ThemeData themeData,
-    ChartSegment segment) {
+  Color labelColor,
+  int dataPointIndex,
+  ChartDataLabelPosition labelPosition,
+  SfChartThemeData chartThemeData,
+  ThemeData themeData,
+  ChartSegment segment,
+) {
   switch (labelPosition) {
     case ChartDataLabelPosition.inside:
       return labelColor != Colors.transparent
@@ -374,7 +404,9 @@ double? percentToValue(String? value, num size) {
 Offset calculateOffset(double degree, double radius, Offset center) {
   final double radian = degreesToRadians(degree);
   return Offset(
-      center.dx + cos(radian) * radius, center.dy + sin(radian) * radius);
+    center.dx + cos(radian) * radius,
+    center.dy + sin(radian) * radius,
+  );
 }
 
 double degreesToRadians(double deg) => deg * (pi / 180);
@@ -387,8 +419,12 @@ bool isLies(num start, num end, DoubleRange range) {
 }
 
 String trimmedText(
-    String text, TextStyle labelStyle, num labelsExtent, int labelRotation,
-    {bool? isRtl}) {
+  String text,
+  TextStyle labelStyle,
+  num labelsExtent,
+  int labelRotation, {
+  bool? isRtl,
+}) {
   String current = text;
   num width = measureText(text, labelStyle, labelRotation).width;
   if (width > labelsExtent) {
@@ -427,8 +463,12 @@ double paddingFromSize(String? padding, double size) {
   return 0;
 }
 
-Rect clipRect(Rect bounds, double animationFactor,
-    {bool isInversed = false, bool isTransposed = false}) {
+Rect clipRect(
+  Rect bounds,
+  double animationFactor, {
+  bool isInversed = false,
+  bool isTransposed = false,
+}) {
   double left = bounds.left;
   double top = bounds.top;
   double width = bounds.width;
@@ -474,7 +514,9 @@ ShapeMarkerType toShapeMarkerType(DataMarkerType type) {
 }
 
 ShapeMarkerType toLegendShapeMarkerType(
-    LegendIconType iconType, core.LegendItemProviderMixin provider) {
+  LegendIconType iconType,
+  core.LegendItemProviderMixin provider,
+) {
   switch (iconType) {
     case LegendIconType.seriesType:
       return provider.effectiveLegendIconType();
@@ -530,15 +572,16 @@ String decimalLabelValue(num? value, [int? showDigits]) {
     final String str = value.toString();
     final List<String> list = str.split('.');
     value = double.parse(value.toStringAsFixed(showDigits ?? 3));
-    value = (list[1] == '0' ||
-            list[1] == '00' ||
-            list[1] == '000' ||
-            list[1] == '0000' ||
-            list[1] == '00000' ||
-            list[1] == '000000' ||
-            list[1] == '0000000')
-        ? value.round()
-        : value;
+    value =
+        (list[1] == '0' ||
+                list[1] == '00' ||
+                list[1] == '000' ||
+                list[1] == '0000' ||
+                list[1] == '00000' ||
+                list[1] == '000000' ||
+                list[1] == '0000000')
+            ? value.round()
+            : value;
   }
 
   return value == null ? '' : value.toString();
@@ -596,9 +639,10 @@ String formatRTLText(String tooltipText) {
       String string = '';
       for (int i = secondStringCollection.length - 1; i >= 0; i--) {
         secondStringCollection[i] = secondStringCollection[i].trim();
-        string += (i == secondStringCollection.length - 1
-            ? secondStringCollection[i]
-            : ' : ${secondStringCollection[i]}');
+        string +=
+            (i == secondStringCollection.length - 1
+                ? secondStringCollection[i]
+                : ' : ${secondStringCollection[i]}');
       }
       resultantString += (resultantString.isEmpty ? '' : '\n') + string;
     } else {
@@ -630,13 +674,15 @@ Widget? buildTooltipWidget(
       );
 
       if (tooltip == null) {
-        final bool hasMarker = tooltipBehavior.canShowMarker &&
+        final bool hasMarker =
+            tooltipBehavior.canShowMarker &&
             info.markerColors.isNotEmpty &&
             info.markerColors.any((Color? color) => color != null);
 
         final TextStyle textStyle = chartThemeData.tooltipTextStyle!;
-        final TextStyle headerStyle =
-            textStyle.copyWith(fontWeight: FontWeight.bold);
+        final TextStyle headerStyle = textStyle.copyWith(
+          fontWeight: FontWeight.bold,
+        );
         final String header = tooltipBehavior.header ?? info.header;
         final Size headerSize = measureText(header, headerStyle);
         final Size textSize = measureText(info.text!, textStyle);
@@ -647,9 +693,10 @@ Widget? buildTooltipWidget(
           headerAlignedSize = maxSize.width - tooltipInnerPadding.horizontal;
           dividerWidth = headerAlignedSize;
         } else {
-          dividerWidth += tooltipBehavior.canShowMarker
-              ? tooltipMarkerSize + tooltipMarkerPadding.horizontal
-              : 0.0;
+          dividerWidth +=
+              tooltipBehavior.canShowMarker
+                  ? tooltipMarkerSize + tooltipMarkerPadding.horizontal
+                  : 0.0;
         }
 
         final bool isLtr = Directionality.of(context) == TextDirection.ltr;
@@ -671,7 +718,8 @@ Widget? buildTooltipWidget(
                     child: Divider(
                       height: 10.0,
                       thickness: 0.5,
-                      color: tooltipBehavior.textStyle?.color ??
+                      color:
+                          tooltipBehavior.textStyle?.color ??
                           chartThemeData.tooltipSeparatorColor,
                     ),
                   ),
@@ -715,10 +763,7 @@ Widget? buildTooltipWidget(
           ],
         );
 
-        tooltip = Padding(
-          padding: tooltipInnerPadding,
-          child: tooltip,
-        );
+        tooltip = Padding(padding: tooltipInnerPadding, child: tooltip);
       }
     }
   } else if (info != null && info.text != null && info.text!.isNotEmpty) {
@@ -763,7 +808,9 @@ class TooltipMarkerShapeRenderObject<T, D> extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderTooltipMarkerShape<T, D> renderObject) {
+    BuildContext context,
+    RenderTooltipMarkerShape<T, D> renderObject,
+  ) {
     renderObject
       ..index = index
       ..colors = colors
@@ -853,13 +900,15 @@ class RenderTooltipMarkerShape<T, D> extends RenderBox {
     size = const Size(tooltipMarkerSize, tooltipMarkerSize);
   }
 
-  final Paint strokePaint = Paint()
-    ..style = PaintingStyle.stroke
-    ..isAntiAlias = true
-    ..strokeWidth = 1.0;
-  final Paint fillPaint = Paint()
-    ..style = PaintingStyle.fill
-    ..isAntiAlias = true;
+  final Paint strokePaint =
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..isAntiAlias = true
+        ..strokeWidth = 1.0;
+  final Paint fillPaint =
+      Paint()
+        ..style = PaintingStyle.fill
+        ..isAntiAlias = true;
 
   @override
   void paint(PaintingContext context, Offset offset) {
@@ -876,9 +925,10 @@ class RenderTooltipMarkerShape<T, D> extends RenderBox {
       if (markerType == DataMarkerType.image) {
         if (_markerImage != null) {
           paintImage(
-              canvas: context.canvas,
-              rect: offset & size,
-              image: _markerImage!);
+            canvas: context.canvas,
+            rect: offset & size,
+            image: _markerImage!,
+          );
         }
       } else {
         _drawTooltipMarker(
@@ -929,9 +979,11 @@ Future<Image?> fetchImage(ImageProvider? imageProvider) async {
   final Completer<ImageInfo> completer = Completer<ImageInfo>();
   imageProvider
       .resolve(ImageConfiguration.empty)
-      .addListener(ImageStreamListener((ImageInfo info, bool _) {
-    completer.complete(info);
-  }));
+      .addListener(
+        ImageStreamListener((ImageInfo info, bool _) {
+          completer.complete(info);
+        }),
+      );
   final ImageInfo imageInfo = await completer.future;
   return imageInfo.image;
 }
@@ -965,9 +1017,15 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
   }
 
   String _replace(
-      String tooltipText, String replacingText, num value, int digits) {
+    String tooltipText,
+    String replacingText,
+    num value,
+    int digits,
+  ) {
     return tooltipText.replaceAll(
-        replacingText, formatNumericValue(value, yAxis, digits));
+      replacingText,
+      formatNumericValue(value, yAxis, digits),
+    );
   }
 
   String _formatTrackballLabel(num value, int digits, String text, bool isLtr) {
@@ -1013,63 +1071,104 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
       }
 
       if (point.close != null) {
-        tooltipText =
-            _replace(tooltipText, 'point.close', point.close!, digits);
+        tooltipText = _replace(
+          tooltipText,
+          'point.close',
+          point.close!,
+          digits,
+        );
       }
 
       if (outlierIndex != -1) {
         if (point.outliers != null && point.outliers!.isNotEmpty) {
-          tooltipText = _replace(tooltipText, 'point.outliers',
-              point.outliers![outlierIndex], digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.outliers',
+            point.outliers![outlierIndex],
+            digits,
+          );
         }
       } else {
         if (point.minimum != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.minimum', point.minimum!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.minimum',
+            point.minimum!,
+            digits,
+          );
         }
 
         if (point.maximum != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.maximum', point.maximum!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.maximum',
+            point.maximum!,
+            digits,
+          );
         }
 
         if (point.lowerQuartile != null) {
           tooltipText = _replace(
-              tooltipText, 'point.lowerQuartile', point.lowerQuartile!, digits);
+            tooltipText,
+            'point.lowerQuartile',
+            point.lowerQuartile!,
+            digits,
+          );
         }
 
         if (point.upperQuartile != null) {
           tooltipText = _replace(
-              tooltipText, 'point.upperQuartile', point.upperQuartile!, digits);
+            tooltipText,
+            'point.upperQuartile',
+            point.upperQuartile!,
+            digits,
+          );
         }
 
         if (point.mean != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.mean', point.mean!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.mean',
+            point.mean!,
+            digits,
+          );
         }
 
         if (point.median != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.median', point.median!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.median',
+            point.median!,
+            digits,
+          );
         }
       }
 
       if (point.cumulative != null) {
         tooltipText = _replace(
-            tooltipText, 'point.cumulative', point.cumulative!, digits);
+          tooltipText,
+          'point.cumulative',
+          point.cumulative!,
+          digits,
+        );
       }
 
       if (point.bubbleSize != null) {
-        tooltipText =
-            _replace(tooltipText, 'point.size', point.bubbleSize!, digits);
+        tooltipText = _replace(
+          tooltipText,
+          'point.size',
+          point.bubbleSize!,
+          digits,
+        );
       }
 
       tooltipText = tooltipText.replaceAll('series.name', name);
       text = isLtr ? tooltipText : formatRTLText(tooltipText);
     } else {
-      text = parent!.tooltipBehavior!.shared
-          ? name
-          : tooltipHeaderText(point, digits);
+      text =
+          parent!.tooltipBehavior!.shared
+              ? name
+              : tooltipHeaderText(point, digits);
 
       if (point.y != null) {
         text = _formatTooltipLabel(point.y!, digits, text, isLtr);
@@ -1111,7 +1210,11 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
           }
 
           text += _formatTooltipLabel(
-              point.outliers![outlierIndex], digits, 'Outliers', isLtr);
+            point.outliers![outlierIndex],
+            digits,
+            'Outliers',
+            isLtr,
+          );
         }
       } else {
         if (point.minimum != null) {
@@ -1151,8 +1254,12 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
             text += '\n';
           }
 
-          text +=
-              _formatTooltipLabel(point.lowerQuartile!, digits, 'LQ', isLtr);
+          text += _formatTooltipLabel(
+            point.lowerQuartile!,
+            digits,
+            'LQ',
+            isLtr,
+          );
         }
 
         if (point.upperQuartile != null) {
@@ -1160,8 +1267,12 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
             text += '\n';
           }
 
-          text +=
-              _formatTooltipLabel(point.upperQuartile!, digits, 'HQ', isLtr);
+          text += _formatTooltipLabel(
+            point.upperQuartile!,
+            digits,
+            'HQ',
+            isLtr,
+          );
         }
       }
     }
@@ -1169,8 +1280,11 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
     return text;
   }
 
-  String trackballText(CartesianChartPoint<D> point, String seriesName,
-      {int outlierIndex = -1}) {
+  String trackballText(
+    CartesianChartPoint<D> point,
+    String seriesName, {
+    int outlierIndex = -1,
+  }) {
     if (parent == null ||
         parent!.trackballBehavior == null ||
         xAxis == null ||
@@ -1209,55 +1323,95 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
       }
 
       if (point.close != null) {
-        tooltipText =
-            _replace(tooltipText, 'point.close', point.close!, digits);
+        tooltipText = _replace(
+          tooltipText,
+          'point.close',
+          point.close!,
+          digits,
+        );
       }
 
       if (outlierIndex != -1) {
         if (point.outliers != null && point.outliers!.isNotEmpty) {
-          tooltipText = _replace(tooltipText, 'point.outliers',
-              point.outliers![outlierIndex], digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.outliers',
+            point.outliers![outlierIndex],
+            digits,
+          );
         }
       } else {
         if (point.minimum != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.minimum', point.minimum!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.minimum',
+            point.minimum!,
+            digits,
+          );
         }
 
         if (point.maximum != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.maximum', point.maximum!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.maximum',
+            point.maximum!,
+            digits,
+          );
         }
 
         if (point.lowerQuartile != null) {
           tooltipText = _replace(
-              tooltipText, 'point.lowerQuartile', point.lowerQuartile!, digits);
+            tooltipText,
+            'point.lowerQuartile',
+            point.lowerQuartile!,
+            digits,
+          );
         }
 
         if (point.upperQuartile != null) {
           tooltipText = _replace(
-              tooltipText, 'point.upperQuartile', point.upperQuartile!, digits);
+            tooltipText,
+            'point.upperQuartile',
+            point.upperQuartile!,
+            digits,
+          );
         }
 
         if (point.mean != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.mean', point.mean!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.mean',
+            point.mean!,
+            digits,
+          );
         }
 
         if (point.median != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.median', point.median!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.median',
+            point.median!,
+            digits,
+          );
         }
       }
 
       if (point.cumulative != null) {
         tooltipText = _replace(
-            tooltipText, 'point.cumulative', point.cumulative!, digits);
+          tooltipText,
+          'point.cumulative',
+          point.cumulative!,
+          digits,
+        );
       }
 
       if (point.bubbleSize != null) {
-        tooltipText =
-            _replace(tooltipText, 'point.size', point.bubbleSize!, digits);
+        tooltipText = _replace(
+          tooltipText,
+          'point.size',
+          point.bubbleSize!,
+          digits,
+        );
       }
 
       tooltipText = tooltipText.replaceAll('series.name', seriesName);
@@ -1303,7 +1457,11 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
           }
 
           text += _formatTrackballLabel(
-              point.outliers![outlierIndex], digits, 'Outliers', isLtr);
+            point.outliers![outlierIndex],
+            digits,
+            'Outliers',
+            isLtr,
+          );
         }
       } else {
         if (point.minimum != null) {
@@ -1311,8 +1469,12 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
             text += '\n';
           }
 
-          text +=
-              _formatTrackballLabel(point.minimum!, digits, 'Minimum', isLtr);
+          text += _formatTrackballLabel(
+            point.minimum!,
+            digits,
+            'Minimum',
+            isLtr,
+          );
         }
 
         if (point.maximum != null) {
@@ -1320,8 +1482,12 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
             text += '\n';
           }
 
-          text +=
-              _formatTrackballLabel(point.maximum!, digits, 'Maximum', isLtr);
+          text += _formatTrackballLabel(
+            point.maximum!,
+            digits,
+            'Maximum',
+            isLtr,
+          );
         }
 
         if (point.median != null) {
@@ -1346,7 +1512,11 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
           }
 
           text += _formatTrackballLabel(
-              point.lowerQuartile!, digits, 'LowerQuartile', isLtr);
+            point.lowerQuartile!,
+            digits,
+            'LowerQuartile',
+            isLtr,
+          );
         }
 
         if (point.upperQuartile != null) {
@@ -1355,7 +1525,11 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
           }
 
           text += _formatTrackballLabel(
-              point.upperQuartile!, digits, 'UpperQuartile', isLtr);
+            point.upperQuartile!,
+            digits,
+            'UpperQuartile',
+            isLtr,
+          );
         }
       }
     }
@@ -1385,12 +1559,15 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
     return text;
   }
 
-  DateFormat _dateTimeLabelFormat(RenderChartAxis axis,
-      [int? interval, int? prevInterval]) {
+  DateFormat _dateTimeLabelFormat(
+    RenderChartAxis axis, [
+    int? interval,
+    int? prevInterval,
+  ]) {
     DateFormat? format;
     final bool notDoubleInterval =
         (axis.interval != null && axis.interval! % 1 == 0) ||
-            axis.interval == null;
+        axis.interval == null;
     DateTimeIntervalType? actualIntervalType;
     num? minimum;
     minimum = axis.visibleRange!.minimum;
@@ -1405,15 +1582,17 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
         format = notDoubleInterval ? DateFormat.y() : DateFormat.MMMd();
         break;
       case DateTimeIntervalType.months:
-        format = (minimum == interval || interval == prevInterval)
-            ? _firstLabelFormat(actualIntervalType)
-            : _dateTimeFormat(actualIntervalType, interval, prevInterval);
+        format =
+            (minimum == interval || interval == prevInterval)
+                ? _firstLabelFormat(actualIntervalType)
+                : _dateTimeFormat(actualIntervalType, interval, prevInterval);
 
         break;
       case DateTimeIntervalType.days:
-        format = (minimum == interval || interval == prevInterval)
-            ? _firstLabelFormat(actualIntervalType)
-            : _dateTimeFormat(actualIntervalType, interval, prevInterval);
+        format =
+            (minimum == interval || interval == prevInterval)
+                ? _firstLabelFormat(actualIntervalType)
+                : _dateTimeFormat(actualIntervalType, interval, prevInterval);
         break;
       case DateTimeIntervalType.hours:
         format = DateFormat.j();
@@ -1435,20 +1614,25 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
     return format!;
   }
 
-  DateFormat? _dateTimeFormat(DateTimeIntervalType? actualIntervalType,
-      int? interval, int? prevInterval) {
+  DateFormat? _dateTimeFormat(
+    DateTimeIntervalType? actualIntervalType,
+    int? interval,
+    int? prevInterval,
+  ) {
     final DateTime minimum = DateTime.fromMillisecondsSinceEpoch(interval!);
     final DateTime maximum = DateTime.fromMillisecondsSinceEpoch(prevInterval!);
     DateFormat? format;
     final bool isIntervalDecimal = interval % 1 == 0;
     if (actualIntervalType == DateTimeIntervalType.months) {
-      format = minimum.year == maximum.year
-          ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
-          : DateFormat('yyy MMM');
+      format =
+          minimum.year == maximum.year
+              ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
+              : DateFormat('yyy MMM');
     } else if (actualIntervalType == DateTimeIntervalType.days) {
-      format = minimum.month != maximum.month
-          ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
-          : DateFormat.d();
+      format =
+          minimum.month != maximum.month
+              ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
+              : DateFormat.d();
     }
 
     return format;
@@ -1468,8 +1652,12 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
     return format;
   }
 
-  Offset translateTransform(num x, num y,
-      [double translationX = 0, double translationY = 0]) {
+  Offset translateTransform(
+    num x,
+    num y, [
+    double translationX = 0,
+    double translationY = 0,
+  ]) {
     final double posX = pointToPixelX(x, y);
     final double posY = pointToPixelY(x, y);
     return Offset(posX + translationX, posY + translationY);
@@ -1495,9 +1683,15 @@ extension CartesianSeriesExtension<T, D> on CartesianSeriesRenderer<T, D> {
 
 extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
   String _replace(
-      String tooltipText, String replacingText, num value, int digits) {
+    String tooltipText,
+    String replacingText,
+    num value,
+    int digits,
+  ) {
     return tooltipText.replaceAll(
-        replacingText, formatNumericValue(value, yAxis, digits));
+      replacingText,
+      formatNumericValue(value, yAxis, digits),
+    );
   }
 
   String _formatTrackballLabel(num value, int digits, String text, bool isLtr) {
@@ -1509,8 +1703,11 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
         : '${formatNumericValue(value, yAxis, digits)} :$text';
   }
 
-  String trackballText(CartesianChartPoint<D> point, String seriesName,
-      {int outlierIndex = -1}) {
+  String trackballText(
+    CartesianChartPoint<D> point,
+    String seriesName, {
+    int outlierIndex = -1,
+  }) {
     if (parent == null ||
         parent!.trackballBehavior == null ||
         xAxis == null ||
@@ -1526,13 +1723,14 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
     }
 
     return _behaviorText(
-        parent!.trackballBehavior!.tooltipSettings.format,
-        text,
-        point,
-        digits,
-        outlierIndex,
-        seriesName,
-        parent!.textDirection == TextDirection.ltr);
+      parent!.trackballBehavior!.tooltipSettings.format,
+      text,
+      point,
+      digits,
+      outlierIndex,
+      seriesName,
+      parent!.textDirection == TextDirection.ltr,
+    );
   }
 
   String _behaviorText(
@@ -1565,55 +1763,95 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
       }
 
       if (point.close != null) {
-        tooltipText =
-            _replace(tooltipText, 'point.close', point.close!, digits);
+        tooltipText = _replace(
+          tooltipText,
+          'point.close',
+          point.close!,
+          digits,
+        );
       }
 
       if (outlierIndex != -1) {
         if (point.outliers != null && point.outliers!.isNotEmpty) {
-          tooltipText = _replace(tooltipText, 'point.outliers',
-              point.outliers![outlierIndex], digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.outliers',
+            point.outliers![outlierIndex],
+            digits,
+          );
         }
       } else {
         if (point.minimum != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.minimum', point.minimum!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.minimum',
+            point.minimum!,
+            digits,
+          );
         }
 
         if (point.maximum != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.maximum', point.maximum!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.maximum',
+            point.maximum!,
+            digits,
+          );
         }
 
         if (point.lowerQuartile != null) {
           tooltipText = _replace(
-              tooltipText, 'point.lowerQuartile', point.lowerQuartile!, digits);
+            tooltipText,
+            'point.lowerQuartile',
+            point.lowerQuartile!,
+            digits,
+          );
         }
 
         if (point.upperQuartile != null) {
           tooltipText = _replace(
-              tooltipText, 'point.upperQuartile', point.upperQuartile!, digits);
+            tooltipText,
+            'point.upperQuartile',
+            point.upperQuartile!,
+            digits,
+          );
         }
 
         if (point.mean != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.mean', point.mean!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.mean',
+            point.mean!,
+            digits,
+          );
         }
 
         if (point.median != null) {
-          tooltipText =
-              _replace(tooltipText, 'point.median', point.median!, digits);
+          tooltipText = _replace(
+            tooltipText,
+            'point.median',
+            point.median!,
+            digits,
+          );
         }
       }
 
       if (point.cumulative != null) {
         tooltipText = _replace(
-            tooltipText, 'point.cumulative', point.cumulative!, digits);
+          tooltipText,
+          'point.cumulative',
+          point.cumulative!,
+          digits,
+        );
       }
 
       if (point.bubbleSize != null) {
-        tooltipText =
-            _replace(tooltipText, 'point.size', point.bubbleSize!, digits);
+        tooltipText = _replace(
+          tooltipText,
+          'point.size',
+          point.bubbleSize!,
+          digits,
+        );
       }
 
       tooltipText = tooltipText.replaceAll('series.name', seriesName);
@@ -1659,7 +1897,11 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
           }
 
           text += _formatTrackballLabel(
-              point.outliers![outlierIndex], digits, 'Outliers', isLtr);
+            point.outliers![outlierIndex],
+            digits,
+            'Outliers',
+            isLtr,
+          );
         }
       } else {
         if (point.minimum != null) {
@@ -1667,8 +1909,12 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
             text += '\n';
           }
 
-          text +=
-              _formatTrackballLabel(point.minimum!, digits, 'Minimum', isLtr);
+          text += _formatTrackballLabel(
+            point.minimum!,
+            digits,
+            'Minimum',
+            isLtr,
+          );
         }
 
         if (point.maximum != null) {
@@ -1676,8 +1922,12 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
             text += '\n';
           }
 
-          text +=
-              _formatTrackballLabel(point.maximum!, digits, 'Maximum', isLtr);
+          text += _formatTrackballLabel(
+            point.maximum!,
+            digits,
+            'Maximum',
+            isLtr,
+          );
         }
 
         if (point.median != null) {
@@ -1702,7 +1952,11 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
           }
 
           text += _formatTrackballLabel(
-              point.lowerQuartile!, digits, 'LowerQuartile', isLtr);
+            point.lowerQuartile!,
+            digits,
+            'LowerQuartile',
+            isLtr,
+          );
         }
 
         if (point.upperQuartile != null) {
@@ -1711,7 +1965,11 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
           }
 
           text += _formatTrackballLabel(
-              point.upperQuartile!, digits, 'UpperQuartile', isLtr);
+            point.upperQuartile!,
+            digits,
+            'UpperQuartile',
+            isLtr,
+          );
         }
       }
     }
@@ -1740,12 +1998,15 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
     return text;
   }
 
-  DateFormat _dateTimeLabelFormat(RenderChartAxis axis,
-      [int? interval, int? prevInterval]) {
+  DateFormat _dateTimeLabelFormat(
+    RenderChartAxis axis, [
+    int? interval,
+    int? prevInterval,
+  ]) {
     DateFormat? format;
     final bool notDoubleInterval =
         (axis.interval != null && axis.interval! % 1 == 0) ||
-            axis.interval == null;
+        axis.interval == null;
     DateTimeIntervalType? actualIntervalType;
     num? minimum;
     minimum = axis.visibleRange!.minimum;
@@ -1760,15 +2021,17 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
         format = notDoubleInterval ? DateFormat.y() : DateFormat.MMMd();
         break;
       case DateTimeIntervalType.months:
-        format = (minimum == interval || interval == prevInterval)
-            ? _firstLabelFormat(actualIntervalType)
-            : _dateTimeFormat(actualIntervalType, interval, prevInterval);
+        format =
+            (minimum == interval || interval == prevInterval)
+                ? _firstLabelFormat(actualIntervalType)
+                : _dateTimeFormat(actualIntervalType, interval, prevInterval);
 
         break;
       case DateTimeIntervalType.days:
-        format = (minimum == interval || interval == prevInterval)
-            ? _firstLabelFormat(actualIntervalType)
-            : _dateTimeFormat(actualIntervalType, interval, prevInterval);
+        format =
+            (minimum == interval || interval == prevInterval)
+                ? _firstLabelFormat(actualIntervalType)
+                : _dateTimeFormat(actualIntervalType, interval, prevInterval);
         break;
       case DateTimeIntervalType.hours:
         format = DateFormat.j();
@@ -1790,20 +2053,25 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
     return format!;
   }
 
-  DateFormat? _dateTimeFormat(DateTimeIntervalType? actualIntervalType,
-      int? interval, int? prevInterval) {
+  DateFormat? _dateTimeFormat(
+    DateTimeIntervalType? actualIntervalType,
+    int? interval,
+    int? prevInterval,
+  ) {
     final DateTime minimum = DateTime.fromMillisecondsSinceEpoch(interval!);
     final DateTime maximum = DateTime.fromMillisecondsSinceEpoch(prevInterval!);
     DateFormat? format;
     final bool isIntervalDecimal = interval % 1 == 0;
     if (actualIntervalType == DateTimeIntervalType.months) {
-      format = minimum.year == maximum.year
-          ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
-          : DateFormat('yyy MMM');
+      format =
+          minimum.year == maximum.year
+              ? (isIntervalDecimal ? DateFormat.MMM() : DateFormat.MMMd())
+              : DateFormat('yyy MMM');
     } else if (actualIntervalType == DateTimeIntervalType.days) {
-      format = minimum.month != maximum.month
-          ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
-          : DateFormat.d();
+      format =
+          minimum.month != maximum.month
+              ? (isIntervalDecimal ? DateFormat.MMMd() : DateFormat.MEd())
+              : DateFormat.d();
     }
 
     return format;
@@ -1825,7 +2093,11 @@ extension IndicatorExtension<T, D> on IndicatorRenderer<T, D> {
 }
 
 int nextIndexConsideringEmptyPointMode(
-    int index, EmptyPointMode mode, List<num> yValues, int dataCount) {
+  int index,
+  EmptyPointMode mode,
+  List<num> yValues,
+  int dataCount,
+) {
   return mode == EmptyPointMode.drop
       ? _nextValidIndex(index, dataCount, yValues)
       : _nextIndex(index, dataCount);
@@ -1856,8 +2128,13 @@ int _nextValidIndex(int index, int dataCount, List<num> yValues) {
   return -1;
 }
 
-RRect toRRect(double left, double top, double right, double bottom,
-    BorderRadius borderRadius) {
+RRect toRRect(
+  double left,
+  double top,
+  double right,
+  double bottom,
+  BorderRadius borderRadius,
+) {
   if (top > bottom) {
     final double temp = top;
     top = bottom;
@@ -1887,8 +2164,10 @@ extension OffsetExtension on Offset {
 
   Offset? lerp(Offset b, double t, num visibleMin) {
     final Offset a = this;
-    return Offset(_lerpDouble(a.dx, b.dx, t, visibleMin),
-        _lerpDouble(a.dy, b.dy, t, visibleMin));
+    return Offset(
+      _lerpDouble(a.dx, b.dx, t, visibleMin),
+      _lerpDouble(a.dy, b.dy, t, visibleMin),
+    );
   }
 }
 
@@ -1990,40 +2269,47 @@ Widget? buildLegendTitle(SfChartThemeData? chartThemeData, Legend legend) {
       legend.title!.text!.isNotEmpty) {
     return Padding(
       padding: const EdgeInsets.all(5.0),
-      child: Text(legend.title!.text!,
-          style: chartThemeData!.legendTitleTextStyle),
+      child: Text(
+        legend.title!.text!,
+        style: chartThemeData!.legendTitleTextStyle,
+      ),
     );
   }
   return null;
 }
 
 Widget buildLegendItem(
-    BuildContext context, core.LegendItem legendItem, Legend legend) {
-  final ChartLegendItem item = legendItem as ChartLegendItem;
+  BuildContext context,
+  core.LegendItem legendItem,
+  Legend legend,
+) {
   ChartPoint point;
-  if (item.series != null) {
-    final int length = item.series!.chartPoints.length;
-    final int pointIndex = item.pointIndex;
+  if (legendItem.series != null) {
+    final int length = legendItem.series!.chartPoints.length;
+    final int pointIndex = legendItem.pointIndex;
     if (length > 0 && pointIndex > -1 && pointIndex < length) {
-      point = item.series!.chartPoints[item.pointIndex];
+      point = legendItem.series!.chartPoints[legendItem.pointIndex];
     } else {
-      point = ChartPoint(x: item.text);
+      point = ChartPoint(x: legendItem.text);
     }
   } else {
-    point = ChartPoint(x: item.text);
+    point = ChartPoint(x: legendItem.text);
   }
 
-  if (item.series is! CartesianSeriesRenderer &&
-      item.series!.segments.isNotEmpty &&
-      item.pointIndex < item.series!.segments.length) {
-    point.isVisible = item.series!.segmentAt(item.pointIndex).isVisible;
+  if (legendItem.series is! CartesianSeriesRenderer &&
+      legendItem.series!.segments.isNotEmpty &&
+      legendItem.pointIndex < legendItem.series!.segments.length) {
+    point.isVisible =
+        legendItem.series!.segmentAt(legendItem.pointIndex).isVisible;
   }
 
   return legend.legendItemBuilder!(
-    item.text,
-    item.series?.widget,
+    legendItem.text,
+    legendItem.series?.widget,
     point,
-    item.series is CartesianSeriesRenderer ? item.seriesIndex : item.pointIndex,
+    legendItem.series is CartesianSeriesRenderer
+        ? legendItem.seriesIndex
+        : legendItem.pointIndex,
   );
 }
 
@@ -2047,19 +2333,43 @@ bool isValueLinear(int index, num value, List<num> values) {
 }
 
 DateFormat dateTimeAxisLabelFormat(
-    RenderDateTimeAxis axis, num current, int previous) {
-  return _niceDateFormat(current, previous, axis.visibleRange!.minimum,
-      axis.interval, axis.visibleInterval, axis.visibleIntervalType);
+  RenderDateTimeAxis axis,
+  num current,
+  int previous,
+) {
+  return _niceDateFormat(
+    current,
+    previous,
+    axis.visibleRange!.minimum,
+    axis.interval,
+    axis.visibleInterval,
+    axis.visibleIntervalType,
+  );
 }
 
 DateFormat dateTimeCategoryAxisLabelFormat(
-    RenderDateTimeCategoryAxis axis, num current, int previous) {
-  return _niceDateFormat(current, previous, axis.visibleRange!.minimum,
-      axis.interval, axis.visibleInterval, axis.visibleIntervalType);
+  RenderDateTimeCategoryAxis axis,
+  num current,
+  int previous,
+) {
+  return _niceDateFormat(
+    current,
+    previous,
+    axis.visibleRange!.minimum,
+    axis.interval,
+    axis.visibleInterval,
+    axis.visibleIntervalType,
+  );
 }
 
-DateFormat _niceDateFormat(num current, int previous, num minimum,
-    double? interval, num visibleInterval, DateTimeIntervalType intervalType) {
+DateFormat _niceDateFormat(
+  num current,
+  int previous,
+  num minimum,
+  double? interval,
+  num visibleInterval,
+  DateTimeIntervalType intervalType,
+) {
   final bool notDoubleInterval =
       (interval != null && interval % 1 == 0) || interval == null;
   switch (intervalType) {
@@ -2105,8 +2415,12 @@ DateFormat _firstLabelFormat(DateTimeIntervalType visibleIntervalType) {
   }
 }
 
-DateFormat _normalDateFormat(DateTimeIntervalType visibleIntervalType,
-    num visibleInterval, num current, int previousLabel) {
+DateFormat _normalDateFormat(
+  DateTimeIntervalType visibleIntervalType,
+  num visibleInterval,
+  num current,
+  int previousLabel,
+) {
   final DateTime minimum = DateTime.fromMillisecondsSinceEpoch(current.toInt());
   final DateTime maximum = DateTime.fromMillisecondsSinceEpoch(previousLabel);
   final bool isIntervalDecimal = visibleInterval % 1 == 0;
@@ -2131,13 +2445,18 @@ String logAxisLabel(RenderLogarithmicAxis axis, num value, int showDigits) {
   return _labelValue(value, showDigits, axis.numberFormat, axis.labelFormat);
 }
 
-String _labelValue(num value, int showDigits, NumberFormat? numberFormat,
-    String? labelFormat) {
+String _labelValue(
+  num value,
+  int showDigits,
+  NumberFormat? numberFormat,
+  String? labelFormat,
+) {
   final List pieces = value.toString().split('.');
   if (pieces.length > 1) {
     value = double.parse(value.toStringAsFixed(showDigits));
     final String decimals = pieces[1];
-    final bool isDecimalContainsZero = decimals == '0' ||
+    final bool isDecimalContainsZero =
+        decimals == '0' ||
         decimals == '00' ||
         decimals == '000' ||
         decimals == '0000' ||
@@ -2166,8 +2485,14 @@ RRect performLegendToggleAnimation(
   final bool oldSeriesVisible = series.visibilityBeforeTogglingLegend;
 
   if (series.parent!.isTransposed) {
-    return performTransposedLegendToggleAnimation(series, segmentRect,
-        oldSegmentRect, oldSeriesVisible, animationFactor, borderRadius);
+    return performTransposedLegendToggleAnimation(
+      series,
+      segmentRect,
+      oldSegmentRect,
+      oldSeriesVisible,
+      animationFactor,
+      borderRadius,
+    );
   }
 
   final RenderCartesianChartPlotArea plotArea = series.parent!;
@@ -2190,12 +2515,14 @@ RRect performLegendToggleAnimation(
     final double newRight = segmentRect.right;
     final double newLeft = segmentRect.left;
 
-    right = oldRight > newRight
-        ? oldRight + (animationFactor * (newRight - oldRight))
-        : oldRight - (animationFactor * (oldRight - newRight));
-    left = oldLeft > newLeft
-        ? oldLeft - (animationFactor * (oldLeft - newLeft))
-        : oldLeft + (animationFactor * (newLeft - oldLeft));
+    right =
+        oldRight > newRight
+            ? oldRight + (animationFactor * (newRight - oldRight))
+            : oldRight - (animationFactor * (oldRight - newRight));
+    left =
+        oldLeft > newLeft
+            ? oldLeft - (animationFactor * (oldLeft - newLeft))
+            : oldLeft + (animationFactor * (newLeft - oldLeft));
     width = right - left;
   } else {
     final bool isInversed = series.xAxis!.isInversed;
@@ -2263,12 +2590,14 @@ RRect performTransposedLegendToggleAnimation(
     final double newBottom = segmentRect.bottom;
     final double newTop = segmentRect.top;
 
-    bottom = oldBottom > newBottom
-        ? oldBottom + (animationFactor * (newBottom - oldBottom))
-        : oldBottom - (animationFactor * (oldBottom - newBottom));
-    top = oldTop > newTop
-        ? oldTop - (animationFactor * (oldTop - newTop))
-        : oldTop + (animationFactor * (newTop - oldTop));
+    bottom =
+        oldBottom > newBottom
+            ? oldBottom + (animationFactor * (newBottom - oldBottom))
+            : oldBottom - (animationFactor * (oldBottom - newBottom));
+    top =
+        oldTop > newTop
+            ? oldTop - (animationFactor * (oldTop - newTop))
+            : oldTop + (animationFactor * (newTop - oldTop));
     height = bottom - top;
   } else {
     final bool isInversed = series.xAxis!.isInversed;

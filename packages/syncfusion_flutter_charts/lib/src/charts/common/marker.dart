@@ -256,7 +256,7 @@ class MarkerSettings {
       shape,
       borderWidth,
       borderColor,
-      image
+      image,
     ];
     return Object.hashAll(values);
   }
@@ -376,8 +376,13 @@ class _MarkerContainerState<T, D> extends State<MarkerContainer<T, D>>
     }
   }
 
-  void _updateDetails(int index, ChartMarker base, double sbsValue, int yLength,
-      Color themeFillColor) {
+  void _updateDetails(
+    int index,
+    ChartMarker base,
+    double sbsValue,
+    int yLength,
+    Color themeFillColor,
+  ) {
     final num x = xValues![index] + sbsValue;
     for (int j = 0; j < yLength; j++) {
       final List<num> yValues = yLists![j];
@@ -393,14 +398,18 @@ class _MarkerContainerState<T, D> extends State<MarkerContainer<T, D>>
         ..index = index;
       if (renderer!.parent != null &&
           renderer!.parent!.onMarkerRender != null) {
-        final MarkerRenderArgs args = MarkerRenderArgs(
-            renderer!.viewportIndex(index), renderer!.index, index)
-          ..shape = marker.type
-          ..color = marker.color
-          ..borderColor = marker.borderColor
-          ..borderWidth = marker.borderWidth
-          ..markerHeight = marker.height
-          ..markerWidth = marker.width;
+        final MarkerRenderArgs args =
+            MarkerRenderArgs(
+                renderer!.viewportIndex(index),
+                renderer!.index,
+                index,
+              )
+              ..shape = marker.type
+              ..color = marker.color
+              ..borderColor = marker.borderColor
+              ..borderWidth = marker.borderWidth
+              ..markerHeight = marker.height
+              ..markerWidth = marker.width;
         renderer!.parent!.onMarkerRender!(args);
         marker.merge(
           type: args.shape,
@@ -487,7 +496,9 @@ class _MarkerStack<T, D> extends ChartElementStack {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderMarkerStack<T, D> renderObject) {
+    BuildContext context,
+    _RenderMarkerStack<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..series = series
@@ -565,12 +576,14 @@ class _RenderMarkerStack<T, D> extends RenderChartElementStack {
       return;
     }
 
-    final Paint fillPaint = Paint()
-      ..isAntiAlias = true
-      ..style = PaintingStyle.fill;
-    final Paint strokePaint = Paint()
-      ..isAntiAlias = true
-      ..style = PaintingStyle.stroke;
+    final Paint fillPaint =
+        Paint()
+          ..isAntiAlias = true
+          ..style = PaintingStyle.fill;
+    final Paint strokePaint =
+        Paint()
+          ..isAntiAlias = true
+          ..style = PaintingStyle.stroke;
     for (final ChartMarker marker in markers) {
       if (marker.position.isNaN) {
         continue;

@@ -16,7 +16,10 @@ class X509Name extends Asn1Encode {
             Asn1Sequence.getSequence(asn1Set[i]!.getAsn1())!;
         if (asn1Sequence.count != 2) {
           throw ArgumentError.value(
-              sequence, 'sequence', 'Invalid length in sequence');
+            sequence,
+            'sequence',
+            'Invalid length in sequence',
+          );
         }
         _ordering.add(DerObjectID.getID(asn1Sequence[0]!.getAsn1()));
         final Asn1? asn1 = asn1Sequence[1]!.getAsn1();
@@ -210,11 +213,19 @@ class X509Name extends Asn1Encode {
       if (_added[i] as bool) {
         result = '+';
         result = appendValue(
-            result, symbols, _ordering[i] as DerObjectID?, _values[i]);
+          result,
+          symbols,
+          _ordering[i] as DerObjectID?,
+          _values[i],
+        );
       } else {
         result = '';
         result = appendValue(
-            result, symbols, _ordering[i] as DerObjectID?, _values[i]);
+          result,
+          symbols,
+          _ordering[i] as DerObjectID?,
+          _values[i],
+        );
         components.add(result);
       }
     }
@@ -233,8 +244,12 @@ class X509Name extends Asn1Encode {
   }
 
   /// internal method
-  String appendValue(String builder, Map<DerObjectID, String> symbols,
-      DerObjectID? id, String value) {
+  String appendValue(
+    String builder,
+    Map<DerObjectID, String> symbols,
+    DerObjectID? id,
+    String value,
+  ) {
     final String? symbol = symbols[id!];
     if (symbol != null) {
       builder += symbol;
@@ -257,7 +272,8 @@ class X509Name extends Asn1Encode {
           (builder[index] == '<') ||
           (builder[index] == '>') ||
           (builder[index] == ';')) {
-        builder = builder.substring(0, index) +
+        builder =
+            builder.substring(0, index) +
             r'\' +
             builder.substring(index, builder.length);
         index++;

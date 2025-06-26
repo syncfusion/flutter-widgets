@@ -42,13 +42,14 @@ class PdfListItem {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfListItem(
-      {this.text = '',
-      this.font,
-      PdfStringFormat? format,
-      this.pen,
-      this.brush,
-      this.subList}) {
+  PdfListItem({
+    this.text = '',
+    this.font,
+    PdfStringFormat? format,
+    this.pen,
+    this.brush,
+    this.subList,
+  }) {
     stringFormat = format;
   }
 

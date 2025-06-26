@@ -50,30 +50,40 @@ class PdfPolygonAnnotation extends PdfAnnotation {
   /// List<int> bytes = await document.save();
   /// document.dispose();
   /// ```
-  PdfPolygonAnnotation(List<int> points, String text,
-      {PdfColor? color,
-      PdfColor? innerColor,
-      PdfAnnotationBorder? border,
-      String? author,
-      String? subject,
-      DateTime? modifiedDate,
-      double? opacity,
-      List<PdfAnnotationFlags>? flags,
-      bool? setAppearance}) {
-    _helper = PdfPolygonAnnotationHelper(this, points, text,
-        color: color,
-        innerColor: innerColor,
-        border: border,
-        author: author,
-        subject: subject,
-        modifiedDate: modifiedDate,
-        opacity: opacity,
-        flags: flags,
-        setAppearance: setAppearance);
+  PdfPolygonAnnotation(
+    List<int> points,
+    String text, {
+    PdfColor? color,
+    PdfColor? innerColor,
+    PdfAnnotationBorder? border,
+    String? author,
+    String? subject,
+    DateTime? modifiedDate,
+    double? opacity,
+    List<PdfAnnotationFlags>? flags,
+    bool? setAppearance,
+  }) {
+    _helper = PdfPolygonAnnotationHelper(
+      this,
+      points,
+      text,
+      color: color,
+      innerColor: innerColor,
+      border: border,
+      author: author,
+      subject: subject,
+      modifiedDate: modifiedDate,
+      opacity: opacity,
+      flags: flags,
+      setAppearance: setAppearance,
+    );
   }
 
   PdfPolygonAnnotation._(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
     _helper = PdfPolygonAnnotationHelper._(this, dictionary, crossTable);
     this.text = text;
   }
@@ -143,36 +153,44 @@ class PdfPolygonAnnotation extends PdfAnnotation {
 /// [PdfPolygonAnnotation] helper
 class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
   /// internal constructor
-  PdfPolygonAnnotationHelper(this.annotation, List<int> points, String text,
-      {PdfColor? color,
-      PdfColor? innerColor,
-      PdfAnnotationBorder? border,
-      String? author,
-      String? subject,
-      DateTime? modifiedDate,
-      double? opacity,
-      List<PdfAnnotationFlags>? flags,
-      bool? setAppearance})
-      : super(annotation) {
+  PdfPolygonAnnotationHelper(
+    this.annotation,
+    List<int> points,
+    String text, {
+    PdfColor? color,
+    PdfColor? innerColor,
+    PdfAnnotationBorder? border,
+    String? author,
+    String? subject,
+    DateTime? modifiedDate,
+    double? opacity,
+    List<PdfAnnotationFlags>? flags,
+    bool? setAppearance,
+  }) : super(annotation) {
     initializeAnnotation(
-        text: text,
-        color: color,
-        innerColor: innerColor,
-        border: border,
-        author: author,
-        subject: subject,
-        modifiedDate: modifiedDate,
-        opacity: opacity,
-        flags: flags,
-        setAppearance: setAppearance);
-    dictionary!.setProperty(PdfDictionaryProperties.subtype,
-        PdfName(PdfDictionaryProperties.polygon));
+      text: text,
+      color: color,
+      innerColor: innerColor,
+      border: border,
+      author: author,
+      subject: subject,
+      modifiedDate: modifiedDate,
+      opacity: opacity,
+      flags: flags,
+      setAppearance: setAppearance,
+    );
+    dictionary!.setProperty(
+      PdfDictionaryProperties.subtype,
+      PdfName(PdfDictionaryProperties.polygon),
+    );
     linePoints = PdfArray(points);
     _polygonPoints = points;
   }
   PdfPolygonAnnotationHelper._(
-      this.annotation, PdfDictionary dictionary, PdfCrossTable crossTable)
-      : super(annotation) {
+    this.annotation,
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) : super(annotation) {
     initializeExistingAnnotation(dictionary, crossTable);
   }
 
@@ -185,7 +203,10 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
 
   /// internal method
   static PdfPolygonAnnotation load(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
     return PdfPolygonAnnotation._(dictionary, crossTable, text);
   }
 
@@ -205,8 +226,9 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
 
   /// internal method
   void save() {
-    if (PdfAnnotationCollectionHelper.getHelper(annotation.page!.annotations)
-        .flatten) {
+    if (PdfAnnotationCollectionHelper.getHelper(
+      annotation.page!.annotations,
+    ).flatten) {
       PdfAnnotationHelper.getHelper(annotation).flatten = true;
     }
     if (PdfAnnotationHelper.getHelper(annotation).isLoadedAnnotation) {
@@ -217,40 +239,52 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
   }
 
   void _saveNewPolygonAnnotation() {
-    final PdfAnnotationHelper helper =
-        PdfAnnotationHelper.getHelper(annotation);
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(
+      annotation,
+    );
     final PdfDictionary dictionary = helper.dictionary!;
     Rect nativeRectangle = Rect.zero;
     if (annotation.setAppearance) {
       _getBoundsValue();
       nativeRectangle = Rect.fromLTWH(
-          annotation.bounds.left - annotation.border.width,
-          annotation.bounds.top - (annotation.border.width),
-          annotation.bounds.width + (2 * annotation.border.width),
-          annotation.bounds.height + (2 * annotation.border.width));
+        annotation.bounds.left - annotation.border.width,
+        annotation.bounds.top - (annotation.border.width),
+        annotation.bounds.width + (2 * annotation.border.width),
+        annotation.bounds.height + (2 * annotation.border.width),
+      );
       dictionary.setProperty(PdfDictionaryProperties.ap, annotation.appearance);
       if (dictionary[PdfDictionaryProperties.ap] != null) {
-        annotation.appearance.normal =
-            PdfTemplateHelper.fromRect(nativeRectangle);
+        annotation.appearance.normal = PdfTemplateHelper.fromRect(
+          nativeRectangle,
+        );
         final PdfTemplate template = annotation.appearance.normal;
         PdfTemplateHelper.getHelper(template).writeTransformation = false;
         final PdfGraphics? graphics = template.graphics;
-        final PdfBrush? backBrushColor = annotation.innerColor.isEmpty
-            ? null
-            : PdfSolidBrush(annotation.innerColor);
+        final PdfBrush? backBrushColor =
+            annotation.innerColor.isEmpty
+                ? null
+                : PdfSolidBrush(annotation.innerColor);
         PdfPen? borderPenColor;
         if (annotation.border.width > 0 &&
             PdfColorHelper.getHelper(annotation.color).alpha != 0) {
-          borderPenColor =
-              PdfPen(annotation.color, width: annotation.border.width);
+          borderPenColor = PdfPen(
+            annotation.color,
+            width: annotation.border.width,
+          );
         }
         if (helper.flatten) {
           annotation.page!.annotations.remove(annotation);
-          annotation.page!.graphics.drawPolygon(_getLinePoints()!,
-              pen: borderPenColor, brush: backBrushColor);
+          annotation.page!.graphics.drawPolygon(
+            _getLinePoints()!,
+            pen: borderPenColor,
+            brush: backBrushColor,
+          );
         } else {
-          graphics!.drawPolygon(_getLinePoints()!,
-              pen: borderPenColor, brush: backBrushColor);
+          graphics!.drawPolygon(
+            _getLinePoints()!,
+            pen: borderPenColor,
+            brush: backBrushColor,
+          );
         }
       }
     }
@@ -259,49 +293,64 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
       PdfPen? borderPenColor;
       if (annotation.border.width > 0 &&
           PdfColorHelper.getHelper(annotation.color).alpha != 0) {
-        borderPenColor =
-            PdfPen(annotation.color, width: annotation.border.width);
+        borderPenColor = PdfPen(
+          annotation.color,
+          width: annotation.border.width,
+        );
       }
-      final PdfBrush? backBrushColor = annotation.innerColor.isEmpty
-          ? null
-          : PdfSolidBrush(annotation.innerColor);
-      annotation.page!.graphics.drawPolygon(_getLinePoints()!,
-          pen: borderPenColor, brush: backBrushColor);
+      final PdfBrush? backBrushColor =
+          annotation.innerColor.isEmpty
+              ? null
+              : PdfSolidBrush(annotation.innerColor);
+      annotation.page!.graphics.drawPolygon(
+        _getLinePoints()!,
+        pen: borderPenColor,
+        brush: backBrushColor,
+      );
     } else if (!helper.flatten) {
       helper.saveAnnotation();
       dictionary.setProperty(
-          PdfDictionaryProperties.vertices, PdfArray(linePoints));
+        PdfDictionaryProperties.vertices,
+        PdfArray(linePoints),
+      );
       dictionary.setProperty(PdfDictionaryProperties.bs, annotation.border);
       _getBoundsValue();
-      dictionary.setProperty(PdfDictionaryProperties.rect,
-          PdfArray.fromRectangle(PdfRectangle.fromRect(annotation.bounds)));
+      dictionary.setProperty(
+        PdfDictionaryProperties.rect,
+        PdfArray.fromRectangle(PdfRectangle.fromRect(annotation.bounds)),
+      );
       if (annotation.setAppearance) {
-        dictionary.setProperty(PdfDictionaryProperties.rect,
-            PdfArray.fromRectangle(PdfRectangle.fromRect(nativeRectangle)));
+        dictionary.setProperty(
+          PdfDictionaryProperties.rect,
+          PdfArray.fromRectangle(PdfRectangle.fromRect(nativeRectangle)),
+        );
       }
     }
   }
 
   void _saveOldPolygonAnnotation() {
-    final PdfAnnotationHelper helper =
-        PdfAnnotationHelper.getHelper(annotation);
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(
+      annotation,
+    );
     PdfGraphicsState? state;
     PdfRectangle nativeRectangle = PdfRectangle.empty;
     final PdfDictionary dictionary = helper.dictionary!;
     if (annotation.setAppearance) {
       _getBoundsValue();
       nativeRectangle = PdfRectangle(
-          annotation.bounds.left - annotation.border.width,
-          annotation.page!.size.height -
-              annotation.bounds.top -
-              (annotation.border.width) -
-              annotation.bounds.height,
-          annotation.bounds.width + (2 * annotation.border.width),
-          annotation.bounds.height + (2 * annotation.border.width));
+        annotation.bounds.left - annotation.border.width,
+        annotation.page!.size.height -
+            annotation.bounds.top -
+            (annotation.border.width) -
+            annotation.bounds.height,
+        annotation.bounds.width + (2 * annotation.border.width),
+        annotation.bounds.height + (2 * annotation.border.width),
+      );
       dictionary.setProperty(PdfDictionaryProperties.ap, annotation.appearance);
       if (dictionary[PdfDictionaryProperties.ap] != null) {
-        annotation.appearance.normal =
-            PdfTemplateHelper.fromRect(nativeRectangle.rect);
+        annotation.appearance.normal = PdfTemplateHelper.fromRect(
+          nativeRectangle.rect,
+        );
         final PdfTemplate template = annotation.appearance.normal;
         PdfTemplateHelper.getHelper(template).writeTransformation = false;
         final PdfGraphics? graphics = annotation.appearance.normal.graphics;
@@ -311,8 +360,10 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
         }
         PdfPen? borderPenColor;
         if (annotation.border.width > 0) {
-          borderPenColor =
-              PdfPen(annotation.color, width: annotation.border.width);
+          borderPenColor = PdfPen(
+            annotation.color,
+            width: annotation.border.width,
+          );
         }
         if (dictionary.containsKey(PdfDictionaryProperties.bs)) {
           PdfDictionary? bSDictionary;
@@ -320,20 +371,26 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
               is PdfReferenceHolder) {
             bSDictionary =
                 (dictionary.items![PdfName(PdfDictionaryProperties.bs)]!
-                        as PdfReferenceHolder)
-                    .object as PdfDictionary?;
+                            as PdfReferenceHolder)
+                        .object
+                    as PdfDictionary?;
           } else {
-            bSDictionary = dictionary
-                .items![PdfName(PdfDictionaryProperties.bs)] as PdfDictionary?;
+            bSDictionary =
+                dictionary.items![PdfName(PdfDictionaryProperties.bs)]
+                    as PdfDictionary?;
           }
           if (bSDictionary!.containsKey(PdfDictionaryProperties.d)) {
-            final PdfArray? dashPatternArray = PdfCrossTable.dereference(
-                    bSDictionary.items![PdfName(PdfDictionaryProperties.d)])
-                as PdfArray?;
+            final PdfArray? dashPatternArray =
+                PdfCrossTable.dereference(
+                      bSDictionary.items![PdfName(PdfDictionaryProperties.d)],
+                    )
+                    as PdfArray?;
             if (dashPatternArray != null) {
               final List<double> dashPattern = List<double>.filled(
-                  dashPatternArray.count, 0,
-                  growable: true);
+                dashPatternArray.count,
+                0,
+                growable: true,
+              );
               for (int i = 0; i < dashPatternArray.count; i++) {
                 final IPdfPrimitive? pdfPrimitive =
                     dashPatternArray.elements[i];
@@ -357,25 +414,47 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
             final PdfDictionary beDictionary =
                 dictionary[PdfName(PdfDictionaryProperties.be)]!
                     as PdfDictionary;
-            final double? iNumber = (beDictionary
-                    .items![PdfName(PdfDictionaryProperties.i)]! as PdfNumber)
-                .value as double?;
+            final double? iNumber =
+                (beDictionary.items![PdfName(PdfDictionaryProperties.i)]!
+                            as PdfNumber)
+                        .value
+                    as double?;
             final double radius = iNumber == 1 ? 5 : 10;
             if (radius > 0) {
               final List<Offset> points = _getLinePoints()!;
               if (points[0].dy > points[points.length - 1].dy) {
-                helper.drawCloudStyle(graphics!, backgroundBrush,
-                    borderPenColor, radius, 0.833, _getLinePoints()!, false);
+                helper.drawCloudStyle(
+                  graphics!,
+                  backgroundBrush,
+                  borderPenColor,
+                  radius,
+                  0.833,
+                  _getLinePoints()!,
+                  false,
+                );
               }
-              helper.drawCloudStyle(annotation.page!.graphics, backgroundBrush,
-                  borderPenColor, radius, 0.833, _getLinePoints()!, false);
+              helper.drawCloudStyle(
+                annotation.page!.graphics,
+                backgroundBrush,
+                borderPenColor,
+                radius,
+                0.833,
+                _getLinePoints()!,
+                false,
+              );
             } else {
-              annotation.page!.graphics.drawPolygon(_getLinePoints()!,
-                  pen: borderPenColor, brush: backgroundBrush);
+              annotation.page!.graphics.drawPolygon(
+                _getLinePoints()!,
+                pen: borderPenColor,
+                brush: backgroundBrush,
+              );
             }
           } else {
-            annotation.page!.graphics.drawPolygon(_getLinePoints()!,
-                pen: borderPenColor, brush: backgroundBrush);
+            annotation.page!.graphics.drawPolygon(
+              _getLinePoints()!,
+              pen: borderPenColor,
+              brush: backgroundBrush,
+            );
           }
           if (annotation.opacity < 1) {
             annotation.page!.graphics.restore(state);
@@ -389,9 +468,11 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
             final PdfDictionary beDictionary =
                 dictionary[PdfName(PdfDictionaryProperties.be)]!
                     as PdfDictionary;
-            final double? iNumber = (beDictionary
-                    .items![PdfName(PdfDictionaryProperties.i)]! as PdfNumber)
-                .value as double?;
+            final double? iNumber =
+                (beDictionary.items![PdfName(PdfDictionaryProperties.i)]!
+                            as PdfNumber)
+                        .value
+                    as double?;
             final double radius = iNumber == 1 ? 5 : 10;
             List<Offset> points = _getLinePoints()!;
             if (points[0].dy > points[points.length - 1].dy) {
@@ -400,22 +481,41 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
                 point.add(Offset(points[i].dx, -points[i].dy));
               }
               points = point;
-              helper.drawCloudStyle(graphics!, backgroundBrush, borderPenColor,
-                  radius, 0.833, points, true);
+              helper.drawCloudStyle(
+                graphics!,
+                backgroundBrush,
+                borderPenColor,
+                radius,
+                0.833,
+                points,
+                true,
+              );
             } else {
-              helper.drawCloudStyle(graphics!, backgroundBrush, borderPenColor,
-                  radius, 0.833, points, false);
+              helper.drawCloudStyle(
+                graphics!,
+                backgroundBrush,
+                borderPenColor,
+                radius,
+                0.833,
+                points,
+                false,
+              );
             }
           } else {
-            graphics!.drawPolygon(_getLinePoints()!,
-                pen: borderPenColor, brush: backgroundBrush);
+            graphics!.drawPolygon(
+              _getLinePoints()!,
+              pen: borderPenColor,
+              brush: backgroundBrush,
+            );
           }
           if (annotation.opacity < 1) {
             graphics.restore(state);
           }
         }
-        dictionary.setProperty(PdfDictionaryProperties.rect,
-            PdfArray.fromRectangle(nativeRectangle));
+        dictionary.setProperty(
+          PdfDictionaryProperties.rect,
+          PdfArray.fromRectangle(nativeRectangle),
+        );
       }
     }
     if (helper.flatten && !annotation.setAppearance) {
@@ -435,20 +535,30 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
             }
             final bool isNormalMatrix = helper.validateTemplateMatrix(dic);
             final Rect rect = helper.calculateTemplateBounds(
-                annotation.bounds, annotation.page, template, isNormalMatrix);
-            annotation.page!.graphics
-                .drawPdfTemplate(template, rect.topLeft, rect.size);
+              annotation.bounds,
+              annotation.page,
+              template,
+              isNormalMatrix,
+            );
+            annotation.page!.graphics.drawPdfTemplate(
+              template,
+              rect.topLeft,
+              rect.size,
+            );
             annotation.page!.graphics.restore(state);
             annotation.page!.annotations.remove(annotation);
           }
         }
       } else {
         annotation.page!.annotations.remove(annotation);
-        final PdfPen borderPenColor =
-            PdfPen(annotation.color, width: annotation.border.width);
-        final PdfBrush? backgroundBrush = annotation.innerColor.isEmpty
-            ? null
-            : PdfSolidBrush(annotation.innerColor);
+        final PdfPen borderPenColor = PdfPen(
+          annotation.color,
+          width: annotation.border.width,
+        );
+        final PdfBrush? backgroundBrush =
+            annotation.innerColor.isEmpty
+                ? null
+                : PdfSolidBrush(annotation.innerColor);
         if (annotation.opacity < 1) {
           state = annotation.page!.graphics.save();
           annotation.page!.graphics.setTransparency(annotation.opacity);
@@ -456,18 +566,30 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
         if (dictionary.containsKey(PdfDictionaryProperties.be)) {
           final IPdfPrimitive? primitive =
               dictionary[PdfName(PdfDictionaryProperties.be)];
-          final PdfDictionary beDictionary = (primitive is PdfReferenceHolder
-              ? primitive.object
-              : primitive)! as PdfDictionary;
-          final double? iNumber = (beDictionary
-                  .items![PdfName(PdfDictionaryProperties.i)]! as PdfNumber)
-              .value as double?;
+          final PdfDictionary beDictionary =
+              (primitive is PdfReferenceHolder ? primitive.object : primitive)!
+                  as PdfDictionary;
+          final double? iNumber =
+              (beDictionary.items![PdfName(PdfDictionaryProperties.i)]!
+                          as PdfNumber)
+                      .value
+                  as double?;
           final double radius = iNumber == 1 ? 5 : 10;
-          helper.drawCloudStyle(annotation.page!.graphics, backgroundBrush,
-              borderPenColor, radius, 0.833, _getLinePoints()!, false);
+          helper.drawCloudStyle(
+            annotation.page!.graphics,
+            backgroundBrush,
+            borderPenColor,
+            radius,
+            0.833,
+            _getLinePoints()!,
+            false,
+          );
         } else {
-          annotation.page!.graphics.drawPolygon(_getLinePoints()!,
-              pen: borderPenColor, brush: backgroundBrush);
+          annotation.page!.graphics.drawPolygon(
+            _getLinePoints()!,
+            pen: borderPenColor,
+            brush: backgroundBrush,
+          );
         }
         if (annotation.opacity < 1) {
           annotation.page!.graphics.restore(state);
@@ -480,8 +602,9 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
   }
 
   List<Offset>? _getLinePoints() {
-    final PdfAnnotationHelper helper =
-        PdfAnnotationHelper.getHelper(annotation);
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(
+      annotation,
+    );
     if (helper.isLoadedAnnotation) {
       List<Offset>? points;
       if (helper.dictionary!.containsKey(PdfDictionaryProperties.vertices)) {
@@ -496,8 +619,9 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
           points = <Offset>[];
           for (int j = 0; j < point.length; j = j + 2) {
             if (helper.flatten) {
-              points.add(Offset(
-                  point[j], annotation.page!.size.height - point[j + 1]));
+              points.add(
+                Offset(point[j], annotation.page!.size.height - point[j + 1]),
+              );
             } else {
               points.add(Offset(point[j], -point[j + 1]));
             }
@@ -520,21 +644,21 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
           if (helper.flatten) {
             PdfPageHelper.getHelper(annotation.page!).isLoadedPage
                 ? points.add(
-                    Offset(pointsValue[j], pageHeight - pointsValue[j + 1]))
-                : points.add(Offset(
+                  Offset(pointsValue[j], pageHeight - pointsValue[j + 1]),
+                )
+                : points.add(
+                  Offset(
                     pointsValue[j] -
-                        PdfPageHelper.getHelper(annotation.page!)
-                            .section!
-                            .pageSettings
-                            .margins
-                            .left,
+                        PdfPageHelper.getHelper(
+                          annotation.page!,
+                        ).section!.pageSettings.margins.left,
                     pageHeight -
                         pointsValue[j + 1] -
-                        PdfPageHelper.getHelper(annotation.page!)
-                            .section!
-                            .pageSettings
-                            .margins
-                            .right));
+                        PdfPageHelper.getHelper(
+                          annotation.page!,
+                        ).section!.pageSettings.margins.right,
+                  ),
+                );
           } else {
             points.add(Offset(pointsValue[j], -pointsValue[j + 1]));
           }
@@ -545,8 +669,9 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
   }
 
   void _getBoundsValue() {
-    final PdfAnnotationHelper helper =
-        PdfAnnotationHelper.getHelper(annotation);
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(
+      annotation,
+    );
     if (helper.isLoadedAnnotation) {
       final PdfArray rect =
           helper.dictionary![PdfDictionaryProperties.rect]! as PdfArray;
@@ -554,11 +679,17 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
       final List<double> xval = <double>[];
       final List<double> yval = <double>[];
       if (helper.dictionary!.containsKey(PdfDictionaryProperties.vertices)) {
-        final PdfArray linePoints = PdfCrossTable.dereference(
-            helper.dictionary![PdfDictionaryProperties.vertices])! as PdfArray;
+        final PdfArray linePoints =
+            PdfCrossTable.dereference(
+                  helper.dictionary![PdfDictionaryProperties.vertices],
+                )!
+                as PdfArray;
         if (linePoints.count > 0) {
-          final List<double> points =
-              List<double>.filled(linePoints.count, 0, growable: true);
+          final List<double> points = List<double>.filled(
+            linePoints.count,
+            0,
+            growable: true,
+          );
           for (int j = 0; j < linePoints.count; j++) {
             final PdfNumber number = linePoints[j]! as PdfNumber;
             points[j] = number.value!.toDouble();
@@ -574,8 +705,12 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
       }
       xval.sort();
       yval.sort();
-      annotation.bounds = Rect.fromLTWH(xval[0], yval[0],
-          xval[xval.length - 1] - xval[0], yval[yval.length - 1] - yval[0]);
+      annotation.bounds = Rect.fromLTWH(
+        xval[0],
+        yval[0],
+        xval[xval.length - 1] - xval[0],
+        yval[yval.length - 1] - yval[0],
+      );
     } else {
       final List<double> xval = <double>[];
       final List<double> yval = <double>[];
@@ -597,8 +732,12 @@ class PdfPolygonAnnotationHelper extends PdfAnnotationHelper {
       }
       xval.sort();
       yval.sort();
-      annotation.bounds = Rect.fromLTWH(xval[0], yval[0],
-          xval[xval.length - 1] - xval[0], yval[yval.length - 1] - yval[0]);
+      annotation.bounds = Rect.fromLTWH(
+        xval[0],
+        yval[0],
+        xval[xval.length - 1] - xval[0],
+        yval[yval.length - 1] - yval[0],
+      );
     }
   }
 }

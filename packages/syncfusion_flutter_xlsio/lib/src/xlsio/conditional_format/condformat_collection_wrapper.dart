@@ -38,21 +38,18 @@ class CondFormatCollectionWrapper implements ConditionalFormats {
   }
 
   @override
-
   /// Gets the number of conditional formats in the collection. Read-only.
   int get count {
     return condFormats!.innerList.length;
   }
 
   @override
-
   /// Gets the number of conditional formats in the collection. Read-only.
   set count(int value) {
     condFormats!.innerList.length = value;
   }
 
   @override
-
   /// Adds new condition to the collection.
   ConditionalFormat addCondition() {
     if (condFormats == null) {

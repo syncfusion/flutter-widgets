@@ -87,10 +87,14 @@ class HiloOpenCloseSeries<T, D> extends FinancialSeriesBase<T, D> {
 
 /// Creates series renderer for hilo open close series.
 class HiloOpenCloseSeriesRenderer<T, D>
-    extends FinancialSeriesRendererBase<T, D> with SegmentAnimationMixin<T, D> {
+    extends FinancialSeriesRendererBase<T, D>
+    with SegmentAnimationMixin<T, D> {
   @override
-  Offset dataLabelPosition(ChartElementParentData current,
-      ChartDataLabelAlignment alignment, Size size) {
+  Offset dataLabelPosition(
+    ChartElementParentData current,
+    ChartDataLabelAlignment alignment,
+    Size size,
+  ) {
     if (current.position != ChartDataPointType.open ||
         current.position != ChartDataPointType.close) {
       return super.dataLabelPosition(current, alignment, size);
@@ -107,46 +111,77 @@ class HiloOpenCloseSeriesRenderer<T, D>
   }
 
   Offset _calculateDataLabelOpenPosition(
-      num x, num y, ChartDataLabelAlignment alignment, Size size) {
+    num x,
+    num y,
+    ChartDataLabelAlignment alignment,
+    Size size,
+  ) {
     switch (alignment) {
       case ChartDataLabelAlignment.auto:
       case ChartDataLabelAlignment.outer:
       case ChartDataLabelAlignment.top:
       case ChartDataLabelAlignment.middle:
         return _calculateOpenAndClosePosition(
-            x, y, ChartDataLabelAlignment.outer, size, ChartDataPointType.open);
+          x,
+          y,
+          ChartDataLabelAlignment.outer,
+          size,
+          ChartDataPointType.open,
+        );
 
       case ChartDataLabelAlignment.bottom:
         return _calculateOpenAndClosePosition(
-            x, y, ChartDataLabelAlignment.top, size, ChartDataPointType.open);
+          x,
+          y,
+          ChartDataLabelAlignment.top,
+          size,
+          ChartDataPointType.open,
+        );
     }
   }
 
   Offset _calculateDataLabelClosePosition(
-      num x, num y, ChartDataLabelAlignment alignment, Size size) {
+    num x,
+    num y,
+    ChartDataLabelAlignment alignment,
+    Size size,
+  ) {
     switch (alignment) {
       case ChartDataLabelAlignment.auto:
       case ChartDataLabelAlignment.outer:
       case ChartDataLabelAlignment.top:
       case ChartDataLabelAlignment.middle:
-        return _calculateOpenAndClosePosition(x, y,
-            ChartDataLabelAlignment.outer, size, ChartDataPointType.close);
+        return _calculateOpenAndClosePosition(
+          x,
+          y,
+          ChartDataLabelAlignment.outer,
+          size,
+          ChartDataPointType.close,
+        );
 
       case ChartDataLabelAlignment.bottom:
         return _calculateOpenAndClosePosition(
-            x, y, ChartDataLabelAlignment.top, size, ChartDataPointType.close);
+          x,
+          y,
+          ChartDataLabelAlignment.top,
+          size,
+          ChartDataPointType.close,
+        );
     }
   }
 
   Offset _calculateOpenAndClosePosition(
-      num x,
-      num y,
-      ChartDataLabelAlignment alignment,
-      Size size,
-      ChartDataPointType position) {
+    num x,
+    num y,
+    ChartDataLabelAlignment alignment,
+    Size size,
+    ChartDataPointType position,
+  ) {
     final EdgeInsets margin = dataLabelSettings.margin;
-    final double openAndCloseDataLabelPadding =
-        _openAndCloseDataLabelPadding(position, margin);
+    final double openAndCloseDataLabelPadding = _openAndCloseDataLabelPadding(
+      position,
+      margin,
+    );
 
     double translationX = 0.0;
     double translationY = 0.0;
@@ -177,7 +212,9 @@ class HiloOpenCloseSeriesRenderer<T, D>
   }
 
   double _openAndCloseDataLabelPadding(
-      ChartDataPointType position, EdgeInsets margin) {
+    ChartDataPointType position,
+    EdgeInsets margin,
+  ) {
     double paddingValue = dataLabelPadding + (2 * margin.left);
     if (isTransposed) {
       paddingValue = dataLabelPadding + (2 * margin.top);
@@ -223,12 +260,18 @@ class HiloOpenCloseSeriesRenderer<T, D>
     final int index = segment.currentSegmentIndex;
     final bool isBull = closeValues[index] > openValues[index];
     final Color color = isBull ? bullColor : bearColor;
-    final Color? segmentColor = pointColorMapper != null &&
-            pointColors[segment.currentSegmentIndex] != null
-        ? null
-        : color;
-    updateSegmentColor(segment, segmentColor, borderWidth,
-        fillColor: segmentColor, isLineType: true);
+    final Color? segmentColor =
+        pointColorMapper != null &&
+                pointColors[segment.currentSegmentIndex] != null
+            ? null
+            : color;
+    updateSegmentColor(
+      segment,
+      segmentColor,
+      borderWidth,
+      fillColor: segmentColor,
+      isLineType: true,
+    );
     updateSegmentGradient(segment);
   }
 }
@@ -248,7 +291,9 @@ class HiloOpenCloseSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldPoints.clear();
@@ -325,15 +370,19 @@ class HiloOpenCloseSegment<T, D> extends ChartSegment {
     }
 
     if (_oldPoints.isEmpty) {
-      final Offset center =
-          Offset(transformX(centerX, centerY), transformY(centerX, centerY));
+      final Offset center = Offset(
+        transformX(centerX, centerY),
+        transformY(centerX, centerY),
+      );
       _oldPoints.add(center);
       _oldPoints.add(center);
-      _oldPoints
-          .add(Offset(transformX(left, centerY), transformY(left, centerY)));
+      _oldPoints.add(
+        Offset(transformX(left, centerY), transformY(left, centerY)),
+      );
       _oldPoints.add(center);
-      _oldPoints
-          .add(Offset(transformX(right, centerY), transformY(right, centerY)));
+      _oldPoints.add(
+        Offset(transformX(right, centerY), transformY(right, centerY)),
+      );
       _oldPoints.add(center);
     }
 
@@ -346,23 +395,35 @@ class HiloOpenCloseSegment<T, D> extends ChartSegment {
   bool contains(Offset position) {
     late Rect segmentRegion;
     if (series.isTransposed) {
-      final Offset start = series.yAxis != null && series.yAxis!.isInversed
-          ? points[0]
-          : points[1];
-      final Offset end = series.yAxis != null && series.yAxis!.isInversed
-          ? points[1]
-          : points[0];
+      final Offset start =
+          series.yAxis != null && series.yAxis!.isInversed
+              ? points[0]
+              : points[1];
+      final Offset end =
+          series.yAxis != null && series.yAxis!.isInversed
+              ? points[1]
+              : points[0];
       segmentRegion = Rect.fromLTRB(
-          start.dx, start.dy - hiloPadding, end.dx, end.dy + hiloPadding);
+        start.dx,
+        start.dy - hiloPadding,
+        end.dx,
+        end.dy + hiloPadding,
+      );
     } else {
-      final Offset start = series.yAxis != null && series.yAxis!.isInversed
-          ? points[1]
-          : points[0];
-      final Offset end = series.yAxis != null && series.yAxis!.isInversed
-          ? points[0]
-          : points[1];
+      final Offset start =
+          series.yAxis != null && series.yAxis!.isInversed
+              ? points[1]
+              : points[0];
+      final Offset end =
+          series.yAxis != null && series.yAxis!.isInversed
+              ? points[0]
+              : points[1];
       segmentRegion = Rect.fromLTRB(
-          start.dx - hiloPadding, start.dy, end.dx + hiloPadding, end.dy);
+        start.dx - hiloPadding,
+        start.dy,
+        end.dx + hiloPadding,
+        end.dy,
+      );
     }
 
     if (segmentRegion.contains(position)) {
@@ -395,9 +456,10 @@ class HiloOpenCloseSegment<T, D> extends ChartSegment {
       primaryPosition: preferredPos,
       secondaryPosition: preferredPos,
       text: series.tooltipText(chartPoint),
-      header: series.parent!.tooltipBehavior!.shared
-          ? series.tooltipHeaderText(chartPoint)
-          : series.name,
+      header:
+          series.parent!.tooltipBehavior!.shared
+              ? series.tooltipHeaderText(chartPoint)
+              : series.name,
       data: series.dataSource![pointIndex],
       point: chartPoint,
       series: series.widget,
@@ -414,8 +476,10 @@ class HiloOpenCloseSegment<T, D> extends ChartSegment {
   @override
   TrackballInfo? trackballInfo(Offset position, int pointIndex) {
     if (pointIndex != -1 && points.isNotEmpty) {
-      final Offset preferredPos =
-          Offset(series.pointToPixelX(x, high), series.pointToPixelY(x, high));
+      final Offset preferredPos = Offset(
+        series.pointToPixelX(x, high),
+        series.pointToPixelY(x, high),
+      );
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       return ChartTrackballInfo<T, D>(
         position: preferredPos,

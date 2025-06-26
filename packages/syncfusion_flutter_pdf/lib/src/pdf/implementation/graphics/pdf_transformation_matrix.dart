@@ -32,7 +32,8 @@ class PdfTransformationMatrix {
   /// internal method
   void rotate(double angle) {
     angle = double.parse(
-        (angle * 3.1415926535897931 / 180).toStringAsExponential(9));
+      (angle * 3.1415926535897931 / 180).toStringAsExponential(9),
+    );
     matrix.elements[0] = cos(angle);
     matrix.elements[1] = sin(angle);
     matrix.elements[2] = -sin(angle);
@@ -41,14 +42,16 @@ class PdfTransformationMatrix {
 
   /// internal method
   void skew(double angleX, double angleY) {
-    matrix.multiply(Matrix(<double>[
-      1,
-      tan((pi / 180) * angleX),
-      tan((pi / 180) * angleY),
-      1,
-      0,
-      0
-    ]));
+    matrix.multiply(
+      Matrix(<double>[
+        1,
+        tan((pi / 180) * angleX),
+        tan((pi / 180) * angleY),
+        1,
+        0,
+        0,
+      ]),
+    );
   }
 
   /// internal method
@@ -118,9 +121,11 @@ class Matrix {
         (elements[2] * matrix.elements[0]) + (elements[3] * matrix.elements[2]);
     tempMatrix[3] =
         (elements[2] * matrix.elements[1]) + (elements[3] * matrix.elements[3]);
-    tempMatrix[4] = (_offsetX! * matrix.elements[0]) +
+    tempMatrix[4] =
+        (_offsetX! * matrix.elements[0]) +
         (_offsetY! * matrix.elements[2] + matrix._offsetX!);
-    tempMatrix[5] = (_offsetX! * matrix.elements[1]) +
+    tempMatrix[5] =
+        (_offsetX! * matrix.elements[1]) +
         (_offsetY! * matrix.elements[3] + matrix._offsetY!);
     for (int i = 0; i < tempMatrix.length; i++) {
       elements[i] = tempMatrix[i];

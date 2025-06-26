@@ -67,7 +67,7 @@ enum InflaterState {
   vFooter,
 
   /// internal enumerator
-  done
+  done,
 }
 
 /// internal enumerator
@@ -79,5 +79,5 @@ enum BlockType {
   staticType,
 
   /// internal enumerator
-  dynamicType
+  dynamicType,
 }

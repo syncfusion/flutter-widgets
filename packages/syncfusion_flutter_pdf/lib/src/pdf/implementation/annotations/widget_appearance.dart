@@ -9,7 +9,9 @@ class WidgetAppearance implements IPdfWrapper {
   /// internal Constructor
   WidgetAppearance() : super() {
     dictionary!.setProperty(
-        PdfDictionaryProperties.bc, PdfColorHelper.toArray(_borderColor));
+      PdfDictionaryProperties.bc,
+      PdfColorHelper.toArray(_borderColor),
+    );
   }
 
   /// internal field
@@ -32,10 +34,14 @@ class WidgetAppearance implements IPdfWrapper {
     if (_borderColor != value) {
       _borderColor = value;
       PdfColorHelper.getHelper(value).alpha == 0
-          ? dictionary!
-              .setProperty(PdfDictionaryProperties.bc, PdfArray(<int>[]))
+          ? dictionary!.setProperty(
+            PdfDictionaryProperties.bc,
+            PdfArray(<int>[]),
+          )
           : dictionary!.setProperty(
-              PdfDictionaryProperties.bc, PdfColorHelper.toArray(_borderColor));
+            PdfDictionaryProperties.bc,
+            PdfColorHelper.toArray(_borderColor),
+          );
     }
   }
 
@@ -45,12 +51,16 @@ class WidgetAppearance implements IPdfWrapper {
     if (_backColor != value) {
       _backColor = value;
       if (PdfColorHelper.getHelper(_backColor).alpha == 0) {
-        dictionary!
-            .setProperty(PdfDictionaryProperties.bc, PdfArray(<int>[0, 0, 0]));
+        dictionary!.setProperty(
+          PdfDictionaryProperties.bc,
+          PdfArray(<int>[0, 0, 0]),
+        );
         dictionary!.remove(PdfDictionaryProperties.bg);
       } else {
         dictionary!.setProperty(
-            PdfDictionaryProperties.bg, PdfColorHelper.toArray(_backColor));
+          PdfDictionaryProperties.bg,
+          PdfColorHelper.toArray(_backColor),
+        );
       }
     }
   }

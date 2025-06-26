@@ -154,15 +154,15 @@ class ConditionalFormatImpl implements ConditionalFormat {
 
   late String _backColor;
   @override
-
   /// Gets/sets back color.
   String get backColor => _backColor;
 
   @override
   set backColor(String value) {
     _backColor = value;
-    _backColorRgb =
-        Color(int.parse(_backColor.substring(1, 7), radix: 16) + 0xFF000000);
+    _backColorRgb = Color(
+      int.parse(_backColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   late int numberFormatIndex;
@@ -179,28 +179,24 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Returns or sets the format code for the object. Read/write String.
   String? get numberFormat {
     return numberFormatObject.formatString;
   }
 
   @override
-
   /// Sets the number format.
   set numberFormat(String? value) {
     numberFormatIndex = book.innerFormats.findOrCreateFormat(value);
   }
 
   @override
-
   /// Gets or sets the type of the conditional format.
   ExcelCFType get formatType {
     return _formatType;
   }
 
   @override
-
   /// Gets or sets the type of the conditional format.
   set formatType(ExcelCFType value) {
     switch (value) {
@@ -263,7 +259,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   late String _topBorderColor;
 
   @override
-
   /// Gets/sets top Border.
   String get topBorderColor => _topBorderColor;
 
@@ -271,13 +266,13 @@ class ConditionalFormatImpl implements ConditionalFormat {
   set topBorderColor(String value) {
     _topBorderColor = value;
     _topBorderColorRgb = Color(
-        int.parse(_topBorderColor.substring(1, 7), radix: 16) + 0xFF000000);
+      int.parse(_topBorderColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   late String _bottomBorderColor;
 
   @override
-
   /// Gets/sets top Border.
   String get bottomBorderColor => _bottomBorderColor;
 
@@ -285,13 +280,13 @@ class ConditionalFormatImpl implements ConditionalFormat {
   set bottomBorderColor(String value) {
     _bottomBorderColor = value;
     _bottomBorderColorRgb = Color(
-        int.parse(_bottomBorderColor.substring(1, 7), radix: 16) + 0xFF000000);
+      int.parse(_bottomBorderColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   late String _rightBorderColor;
 
   @override
-
   /// Gets/sets right Border.
   String get rightBorderColor => _rightBorderColor;
 
@@ -299,12 +294,12 @@ class ConditionalFormatImpl implements ConditionalFormat {
   set rightBorderColor(String value) {
     _rightBorderColor = value;
     _rightBorderColorRgb = Color(
-        int.parse(_rightBorderColor.substring(1, 7), radix: 16) + 0xFF000000);
+      int.parse(_rightBorderColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   late String _leftBorderColor;
   @override
-
   /// Gets/sets leftBorder.
   String get leftBorderColor => _leftBorderColor;
 
@@ -312,26 +307,23 @@ class ConditionalFormatImpl implements ConditionalFormat {
   set leftBorderColor(String value) {
     _leftBorderColor = value;
     _leftBorderColorRgb = Color(
-        int.parse(_leftBorderColor.substring(1, 7), radix: 16) + 0xFF000000);
+      int.parse(_leftBorderColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   @override
-
   // Gets or sets right border style
   late LineStyle rightBorderStyle;
 
   @override
-
   // Gets or set bottom border style
   late LineStyle bottomBorderStyle;
 
   @override
-
   // Gets or sets left border style
   late LineStyle leftBorderStyle;
 
   @override
-
   // Gets or sets top border style
   late LineStyle topBorderStyle;
 
@@ -339,45 +331,39 @@ class ConditionalFormatImpl implements ConditionalFormat {
   late String _fontColor;
 
   @override
-
   /// Gets/sets font color.
   String get fontColor => _fontColor;
 
   @override
   set fontColor(String value) {
     _fontColor = value;
-    _fontColorRgb =
-        Color(int.parse(_fontColor.substring(1, 7), radix: 16) + 0xFF000000);
+    _fontColorRgb = Color(
+      int.parse(_fontColor.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   @override
-
   /// Gets or sets the comparison operator for the conditional format.
   late ExcelComparisonOperator operator;
 
   @override
-
   /// Gets and sets boolean value indicating whether the font is bold.
   late bool isBold;
 
   @override
-
   /// Gets a boolean value indicating whether the font is italic.
   late bool isItalic;
 
   @override
-
   /// Gets or sets the underline type for the conditional format.
   late bool underline;
 
   @override
-
   /// Gets the text value used in conditional formatting rule.
   /// The default value is null.
   String? get text => _text;
 
   @override
-
   /// sets the text value used in conditional formatting rule.
   set text(String? value) {
     if (value == null || value == '') {
@@ -390,19 +376,16 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets a boolean value that determines if additional formatting rules on the cell should be evaluated
   /// if the current rule evaluates to True.
   late bool stopIfTrue;
 
   @override
-
   ///  Gets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   CFTimePeriods get timePeriodType => _cfTimePeriod;
 
   @override
-
   ///  Sets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   set timePeriodType(CFTimePeriods value) {
@@ -413,18 +396,18 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets the value or expression associated with the conditional format.
   String firstFormula = '';
 
   @override
-
   /// Gets the value or expression associated with the conditional format.
   String secondFormula = '';
 
   /// Sets the specifed text value for the SpecficText conditional format.
   void _setSpecificTextString(
-      ExcelComparisonOperator compOperator, String value) {
+    ExcelComparisonOperator compOperator,
+    String value,
+  ) {
     String val;
     switch (compOperator) {
       case ExcelComparisonOperator.beginsWith:
@@ -527,7 +510,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets TopBottom conditional formatting rule.
   TopBottom? get topBottom {
     return _topBottom;
@@ -539,7 +521,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets AboveBelowAverage conditional formatting rule.
   AboveBelowAverage? get aboveBelowAverage {
     return _aboveBelowAverage;
@@ -551,7 +532,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Color scale settings.
   ColorScale? get colorScale {
     return _colorScale;
@@ -563,7 +543,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Color scale settings.
   IconSet? get iconSet {
     return _iconSet;
@@ -575,7 +554,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets data bar conditional formatting rule. Valid only if FormatType is set to DataBar.
   DataBar? get dataBar {
     return _dataBar;
@@ -589,13 +567,11 @@ class ConditionalFormatImpl implements ConditionalFormat {
   late String _firstFormulaR1C1;
 
   @override
-
   /// Gets the value or expression associated with the conditional format
   /// in R1C1 notation.
   String get firstFormulaR1C1 => _firstFormulaR1C1;
 
   @override
-
   /// sets the value or expression associated with the conditional format
   /// in R1C1 notation.
   set firstFormulaR1C1(String value) {
@@ -615,7 +591,8 @@ class ConditionalFormatImpl implements ConditionalFormat {
     if (range != null) {
       final List<String> cells = <String>[];
       final RegExp regex = RegExp(
-          r'\R\C(-?\d+)|\R\[(-?\d+)\]\C(-?\d+)|\R(-?\d+)\C(-?\d+)|\R(-?\d+)\C\[(-?\d+)\]|\R\[(-?\d+)\]\C\[(-?\d+)\]|\R\C\[(-?\d+)\]|\R\[(-?\d+)\]\C|\R\C|\R(-?\d+)\C');
+        r'\R\C(-?\d+)|\R\[(-?\d+)\]\C(-?\d+)|\R(-?\d+)\C(-?\d+)|\R(-?\d+)\C\[(-?\d+)\]|\R\[(-?\d+)\]\C\[(-?\d+)\]|\R\C\[(-?\d+)\]|\R\[(-?\d+)\]\C|\R\C|\R(-?\d+)\C',
+      );
       final List<RegExpMatch> matches = regex.allMatches(formulaR1C1).toList();
       for (final Match match in matches) {
         cells.add(formulaR1C1.substring(match.start, match.end));
@@ -706,13 +683,11 @@ class ConditionalFormatImpl implements ConditionalFormat {
   String _secondFormulaR1C1 = '';
 
   @override
-
   /// Gets the value or expression associated with the conditional format
   /// in R1C1 notation.
   String get secondFormulaR1C1 => _secondFormulaR1C1;
 
   @override
-
   /// sets the value or expression associated with the conditional format
   /// in R1C1 notation.
   set secondFormulaR1C1(String value) {
@@ -739,7 +714,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   late Color _topBorderColorRgb;
 
   @override
-
   /// Gets/sets back color Rgb.
   Color get backColorRgb => _backColorRgb;
 
@@ -750,7 +724,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets/sets font color Rgb.
   Color get fontColorRgb => _fontColorRgb;
 
@@ -761,7 +734,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets the left border color from Rgb.
   Color get leftBorderColorRgb => _leftBorderColorRgb;
 
@@ -773,7 +745,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets the right border color from Rgb.
   Color get rightBorderColorRgb => _rightBorderColorRgb;
 
@@ -785,7 +756,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets the top border color from Rgb.
   Color get topBorderColorRgb => _topBorderColorRgb;
 
@@ -797,7 +767,6 @@ class ConditionalFormatImpl implements ConditionalFormat {
   }
 
   @override
-
   /// Gets or sets the bottom border color from Rgb.
   Color get bottomBorderColorRgb => _bottomBorderColorRgb;
 

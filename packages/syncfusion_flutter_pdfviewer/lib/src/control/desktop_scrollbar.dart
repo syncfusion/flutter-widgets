@@ -248,8 +248,8 @@ class _DesktopScrollbarState extends State<DesktopScrollbar>
               onHorizontalDragUpdate: (DragUpdateDetails details) {
                 // Convert drag delta to content scroll delta
                 final double dx = details.primaryDelta! / _widthRatio;
-                widget.controller.value = widget.controller.value.clone()
-                  ..translate(-dx);
+                widget.controller.value =
+                    widget.controller.value.clone()..translate(-dx);
                 widget.onHorizontalDragUpdate?.call(details);
               },
               child: Container(
@@ -307,8 +307,8 @@ class _DesktopScrollbarState extends State<DesktopScrollbar>
               onVerticalDragUpdate: (DragUpdateDetails details) {
                 // Convert drag delta to content scroll delta
                 final double dy = details.primaryDelta! / _heightRatio;
-                widget.controller.value = widget.controller.value.clone()
-                  ..translate(0.0, -dy);
+                widget.controller.value =
+                    widget.controller.value.clone()..translate(0.0, -dy);
                 widget.onVerticalDragUpdate?.call(details);
               },
               child: Container(

@@ -39,34 +39,40 @@ class PdfForm implements IPdfWrapper {
     _helper = PdfFormHelper(this);
     _helper._fields = PdfFormFieldCollectionHelper.getCollection();
     PdfFormFieldCollectionHelper.getHelper(_helper._fields!).form = this;
-    _helper.dictionary!
-        .setProperty(PdfDictionaryProperties.fields, _helper._fields);
+    _helper.dictionary!.setProperty(
+      PdfDictionaryProperties.fields,
+      _helper._fields,
+    );
     if (!_helper.isLoadedForm) {
       _helper.dictionary!.beginSave = _helper.beginSave;
     }
     _helper.setAppearanceDictionary = true;
   }
 
-  PdfForm._internal(PdfCrossTable? crossTable,
-      [PdfDictionary? formDictionary]) {
+  PdfForm._internal(
+    PdfCrossTable? crossTable, [
+    PdfDictionary? formDictionary,
+  ]) {
     _helper = PdfFormHelper(this);
     _helper.isLoadedForm = true;
     _helper.crossTable = crossTable;
     _helper.dictionary!.setBoolean(
-        PdfDictionaryProperties.needAppearances, _helper.needAppearances);
+      PdfDictionaryProperties.needAppearances,
+      _helper.needAppearances,
+    );
     PdfDocumentHelper.getHelper(_helper.crossTable!.document!)
         .catalog
         .beginSaveList ??= <SavePdfPrimitiveCallback>[];
-    PdfDocumentHelper.getHelper(_helper.crossTable!.document!)
-        .catalog
-        .beginSaveList!
-        .add(_helper.beginSave);
+    PdfDocumentHelper.getHelper(
+      _helper.crossTable!.document!,
+    ).catalog.beginSaveList!.add(_helper.beginSave);
     PdfDocumentHelper.getHelper(_helper.crossTable!.document!).catalog.modify();
-    if (PdfDocumentHelper.getHelper(_helper.crossTable!.document!)
-        .catalog
-        .containsKey(PdfDictionaryProperties.perms)) {
+    if (PdfDocumentHelper.getHelper(
+      _helper.crossTable!.document!,
+    ).catalog.containsKey(PdfDictionaryProperties.perms)) {
       _checkPerms(
-          PdfDocumentHelper.getHelper(_helper.crossTable!.document!).catalog);
+        PdfDocumentHelper.getHelper(_helper.crossTable!.document!).catalog,
+      );
     }
     if (formDictionary != null) {
       _initialize(formDictionary, crossTable!);
@@ -127,15 +133,24 @@ class PdfForm implements IPdfWrapper {
   }
 
   /// Imports form value from base 64 string to the file with the specific [DataFormat].
-  void importDataFromBase64String(String base64String, DataFormat dataFormat,
-      [bool continueImportOnError = false]) {
-    importData(base64.decode(base64String).toList(), dataFormat,
-        continueImportOnError);
+  void importDataFromBase64String(
+    String base64String,
+    DataFormat dataFormat, [
+    bool continueImportOnError = false,
+  ]) {
+    importData(
+      base64.decode(base64String).toList(),
+      dataFormat,
+      continueImportOnError,
+    );
   }
 
   /// Imports form value to the file with the specific [DataFormat].
-  void importData(List<int> inputBytes, DataFormat dataFormat,
-      [bool continueImportOnError = false]) {
+  void importData(
+    List<int> inputBytes,
+    DataFormat dataFormat, [
+    bool continueImportOnError = false,
+  ]) {
     if (dataFormat == DataFormat.fdf) {
       _importDataFDF(inputBytes, continueImportOnError);
     } else if (dataFormat == DataFormat.json) {
@@ -170,8 +185,9 @@ class PdfForm implements IPdfWrapper {
     for (final XmlNode node in xmlDoc.rootElement.firstElementChild!.children) {
       if (node is XmlElement) {
         final String fieldName = node.attributes.first.value;
-        final int index = PdfFormFieldCollectionHelper.getHelper(fields)
-            .getFieldIndex(fieldName);
+        final int index = PdfFormFieldCollectionHelper.getHelper(
+          fields,
+        ).getFieldIndex(fieldName);
         if (index >= 0 && index < fields.count) {
           formField = fields[index];
           String? fieldInnerValue;
@@ -184,11 +200,13 @@ class PdfForm implements IPdfWrapper {
             fieldInnerValue = node.firstElementChild!.innerText;
           }
           if (fieldInnerValues.isNotEmpty) {
-            PdfFieldHelper.getHelper(formField)
-                .importFieldValue(fieldInnerValues);
+            PdfFieldHelper.getHelper(
+              formField,
+            ).importFieldValue(fieldInnerValues);
           } else if (fieldInnerValue != null) {
-            PdfFieldHelper.getHelper(formField)
-                .importFieldValue(fieldInnerValue);
+            PdfFieldHelper.getHelper(
+              formField,
+            ).importFieldValue(fieldInnerValue);
           }
         }
       }
@@ -202,11 +220,14 @@ class PdfForm implements IPdfWrapper {
     //Get terminal fields.
     _createFields();
     //Gets NeedAppearance
-    if (_helper.dictionary!
-        .containsKey(PdfDictionaryProperties.needAppearances)) {
-      final PdfBoolean needAppearance = crossTable.getObject(
-              _helper.dictionary![PdfDictionaryProperties.needAppearances])!
-          as PdfBoolean;
+    if (_helper.dictionary!.containsKey(
+      PdfDictionaryProperties.needAppearances,
+    )) {
+      final PdfBoolean needAppearance =
+          crossTable.getObject(
+                _helper.dictionary![PdfDictionaryProperties.needAppearances],
+              )!
+              as PdfBoolean;
       _helper.needAppearances = needAppearance.value;
       _helper.setAppearanceDictionary = true;
     } else {
@@ -215,7 +236,8 @@ class PdfForm implements IPdfWrapper {
     //Gets resource dictionary
     if (_helper.dictionary!.containsKey(PdfDictionaryProperties.dr)) {
       final IPdfPrimitive? resourceDictionary = PdfCrossTable.dereference(
-          _helper.dictionary![PdfDictionaryProperties.dr]);
+        _helper.dictionary![PdfDictionaryProperties.dr],
+      );
       if (resourceDictionary != null && resourceDictionary is PdfDictionary) {
         _helper.resources = PdfResources(resourceDictionary);
       }
@@ -226,8 +248,9 @@ class PdfForm implements IPdfWrapper {
   void _createFields() {
     PdfArray? fields;
     if (_helper.dictionary!.containsKey(PdfDictionaryProperties.fields)) {
-      final IPdfPrimitive? obj = _helper.crossTable!
-          .getObject(_helper.dictionary![PdfDictionaryProperties.fields]);
+      final IPdfPrimitive? obj = _helper.crossTable!.getObject(
+        _helper.dictionary![PdfDictionaryProperties.fields],
+      );
       if (obj != null) {
         fields = obj as PdfArray;
       }
@@ -236,24 +259,28 @@ class PdfForm implements IPdfWrapper {
     final Queue<_NodeInfo> nodes = Queue<_NodeInfo>();
     while (true && fields != null) {
       for (; count < fields!.count; ++count) {
-        final IPdfPrimitive? fieldDictionary =
-            _helper.crossTable!.getObject(fields[count]);
+        final IPdfPrimitive? fieldDictionary = _helper.crossTable!.getObject(
+          fields[count],
+        );
         PdfArray? fieldKids;
         if (fieldDictionary != null &&
             fieldDictionary is PdfDictionary &&
             fieldDictionary.containsKey(PdfDictionaryProperties.kids)) {
-          final IPdfPrimitive? fieldKid = _helper.crossTable!
-              .getObject(fieldDictionary[PdfDictionaryProperties.kids]);
+          final IPdfPrimitive? fieldKid = _helper.crossTable!.getObject(
+            fieldDictionary[PdfDictionaryProperties.kids],
+          );
           if (fieldKid != null && fieldKid is PdfArray) {
             fieldKids = fieldKid;
             for (int i = 0; i < fieldKids.count; i++) {
-              final IPdfPrimitive? kidsDict =
-                  PdfCrossTable.dereference(fieldKids[i]);
+              final IPdfPrimitive? kidsDict = PdfCrossTable.dereference(
+                fieldKids[i],
+              );
               if (kidsDict != null &&
                   kidsDict is PdfDictionary &&
                   !kidsDict.containsKey(PdfDictionaryProperties.parent)) {
-                kidsDict[PdfDictionaryProperties.parent] =
-                    PdfReferenceHolder(fieldDictionary);
+                kidsDict[PdfDictionaryProperties.parent] = PdfReferenceHolder(
+                  fieldDictionary,
+                );
               }
             }
           }
@@ -265,8 +292,9 @@ class PdfForm implements IPdfWrapper {
             }
           }
         } else {
-          if (!(fieldDictionary! as PdfDictionary)
-                  .containsKey(PdfDictionaryProperties.ft) ||
+          if (!(fieldDictionary! as PdfDictionary).containsKey(
+                PdfDictionaryProperties.ft,
+              ) ||
               _isNode(fieldKids)) {
             nodes.addFirst(_NodeInfo(fields, count));
             _helper.formHasKids = true;
@@ -294,8 +322,11 @@ class PdfForm implements IPdfWrapper {
       final PdfDictionary dictionary =
           _helper.crossTable!.getObject(kids[0])! as PdfDictionary;
       if (dictionary.containsKey(PdfDictionaryProperties.subtype)) {
-        final PdfName name = _helper.crossTable!
-            .getObject(dictionary[PdfDictionaryProperties.subtype])! as PdfName;
+        final PdfName name =
+            _helper.crossTable!.getObject(
+                  dictionary[PdfDictionaryProperties.subtype],
+                )!
+                as PdfName;
         if (name.name != PdfDictionaryProperties.widget) {
           isNode = true;
         }
@@ -327,7 +358,8 @@ class PdfForm implements IPdfWrapper {
       token = reader.getNextToken();
       if (token != null && !token.startsWith('FDF-')) {
         throw ArgumentError(
-            'The source is not a valid FDF file because it does not start with"%FDF-"');
+          'The source is not a valid FDF file because it does not start with"%FDF-"',
+        );
       }
     }
     final Map<String, List<String>> table = <String, List<String>>{};
@@ -347,8 +379,9 @@ class PdfForm implements IPdfWrapper {
     PdfField? field;
     table.forEach((String k, List<String> v) {
       try {
-        final int index =
-            PdfFormFieldCollectionHelper.getHelper(fields).getFieldIndex(k);
+        final int index = PdfFormFieldCollectionHelper.getHelper(
+          fields,
+        ).getFieldIndex(k);
         if (index == -1) {
           throw ArgumentError('Incorrect field name.');
         }
@@ -385,7 +418,8 @@ class PdfForm implements IPdfWrapper {
       ..encode = ForceEncoding.ascii;
     final StringBuffer buffer = StringBuffer();
     buffer.write(
-        '$count 0 obj<</F <${PdfString.bytesToHex(formNameEncodedString.value!.codeUnits)}>  /Fields [');
+      '$count 0 obj<</F <${PdfString.bytesToHex(formNameEncodedString.value!.codeUnits)}>  /Fields [',
+    );
     for (int i = 0; i < fields.count; i++) {
       final PdfField field = fields[i];
       final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
@@ -432,8 +466,12 @@ class PdfForm implements IPdfWrapper {
     return <String?>[fieldname, token];
   }
 
-  void _getFieldValue(PdfReader reader, String? token, String fieldName,
-      Map<String, List<String>> table) {
+  void _getFieldValue(
+    PdfReader reader,
+    String? token,
+    String fieldName,
+    Map<String, List<String>> table,
+  ) {
     token = reader.getNextToken();
     if (token != null && token.isNotEmpty) {
       if (token == '[') {
@@ -441,8 +479,14 @@ class PdfForm implements IPdfWrapper {
         if (token != null && token.isNotEmpty) {
           final List<String> fieldValues = <String>[];
           while (token != ']') {
-            token =
-                _fieldValue(reader, token, true, table, fieldName, fieldValues);
+            token = _fieldValue(
+              reader,
+              token,
+              true,
+              table,
+              fieldName,
+              fieldValues,
+            );
           }
           if (!table.containsKey(fieldName) && fieldValues.isNotEmpty) {
             table[fieldName] = fieldValues;
@@ -455,12 +499,13 @@ class PdfForm implements IPdfWrapper {
   }
 
   String? _fieldValue(
-      PdfReader reader,
-      String? token,
-      bool isMultiSelect,
-      Map<String, List<String>> table,
-      String fieldName,
-      List<String>? fieldValues) {
+    PdfReader reader,
+    String? token,
+    bool isMultiSelect,
+    Map<String, List<String>> table,
+    String fieldName,
+    List<String>? fieldValues,
+  ) {
     if (token == '<') {
       token = reader.getNextToken();
       if (token != null && token.isNotEmpty && token != '>') {
@@ -540,16 +585,21 @@ class PdfForm implements IPdfWrapper {
       final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
       if (field.canExport) {
         helper.exportEmptyField = exportEmptyFields;
-        final IPdfPrimitive? name = PdfFieldHelper.getValue(helper.dictionary!,
-            helper.crossTable, PdfDictionaryProperties.ft, true);
+        final IPdfPrimitive? name = PdfFieldHelper.getValue(
+          helper.dictionary!,
+          helper.crossTable,
+          PdfDictionaryProperties.ft,
+          true,
+        );
         if (name != null && name is PdfName) {
           switch (name.name) {
             case 'Tx':
               final IPdfPrimitive? fieldValue = PdfFieldHelper.getValue(
-                  helper.dictionary!,
-                  helper.crossTable,
-                  PdfDictionaryProperties.v,
-                  true);
+                helper.dictionary!,
+                helper.crossTable,
+                PdfDictionaryProperties.v,
+                true,
+              );
               if (fieldValue is PdfString) {
                 xfdf.setFields(field.name!, fieldValue.value!);
               } else if (exportEmptyFields) {
@@ -559,10 +609,11 @@ class PdfForm implements IPdfWrapper {
             case 'Ch':
               if (field is PdfListBoxField) {
                 final IPdfPrimitive? primitive = PdfFieldHelper.getValue(
-                    helper.dictionary!,
-                    helper.crossTable,
-                    PdfDictionaryProperties.v,
-                    true);
+                  helper.dictionary!,
+                  helper.crossTable,
+                  PdfDictionaryProperties.v,
+                  true,
+                );
                 if (primitive is PdfArray) {
                   xfdf.setFields(field.name!, primitive);
                 } else if (primitive is PdfString) {
@@ -572,18 +623,20 @@ class PdfForm implements IPdfWrapper {
                 }
               } else {
                 final IPdfPrimitive? listField = PdfFieldHelper.getValue(
-                    helper.dictionary!,
-                    helper.crossTable,
-                    PdfDictionaryProperties.v,
-                    true);
+                  helper.dictionary!,
+                  helper.crossTable,
+                  PdfDictionaryProperties.v,
+                  true,
+                );
                 if (listField is PdfName) {
                   xfdf.setFields(field.name!, listField.name!);
                 } else {
                   final IPdfPrimitive? comboValue = PdfFieldHelper.getValue(
-                      helper.dictionary!,
-                      helper.crossTable,
-                      PdfDictionaryProperties.v,
-                      true);
+                    helper.dictionary!,
+                    helper.crossTable,
+                    PdfDictionaryProperties.v,
+                    true,
+                  );
                   if (comboValue is PdfString) {
                     xfdf.setFields(field.name!, comboValue.value!);
                   } else if (exportEmptyFields) {
@@ -594,11 +647,17 @@ class PdfForm implements IPdfWrapper {
               break;
             case 'Btn':
               final IPdfPrimitive? buttonFieldPrimitive =
-                  PdfFieldHelper.getValue(helper.dictionary!, helper.crossTable,
-                      PdfDictionaryProperties.v, true);
+                  PdfFieldHelper.getValue(
+                    helper.dictionary!,
+                    helper.crossTable,
+                    PdfDictionaryProperties.v,
+                    true,
+                  );
               if (buttonFieldPrimitive != null) {
-                final String? value =
-                    helper.getExportValue(field, buttonFieldPrimitive);
+                final String? value = helper.getExportValue(
+                  field,
+                  buttonFieldPrimitive,
+                );
                 if (value != null && value.isNotEmpty) {
                   xfdf.setFields(field.name!, value);
                 } else if (field is PdfRadioButtonListField ||
@@ -612,7 +671,9 @@ class PdfForm implements IPdfWrapper {
               } else {
                 if (field is PdfRadioButtonListField) {
                   xfdf.setFields(
-                      field.name!, helper.getAppearanceStateValue(field));
+                    field.name!,
+                    helper.getAppearanceStateValue(field),
+                  );
                 } else {
                   final PdfDictionary holder = helper.getWidgetAnnotation(
                     helper.dictionary!,
@@ -656,8 +717,9 @@ class PdfForm implements IPdfWrapper {
         }
       }
       if (fieldKey != null && fieldValue != null) {
-        table[PdfFormHelper.decodeXMLConversion(fieldKey)] =
-            PdfFormHelper.decodeXMLConversion(fieldValue);
+        table[PdfFormHelper.decodeXMLConversion(
+          fieldKey,
+        )] = PdfFormHelper.decodeXMLConversion(fieldValue);
         fieldKey = fieldValue = null;
       }
       token = reader.getNextJsonToken();
@@ -665,8 +727,9 @@ class PdfForm implements IPdfWrapper {
     PdfField? field;
     table.forEach((String k, String v) {
       try {
-        final int index =
-            PdfFormFieldCollectionHelper.getHelper(fields).getFieldIndex(k);
+        final int index = PdfFormFieldCollectionHelper.getHelper(
+          fields,
+        ).getFieldIndex(k);
         if (index == -1) {
           throw ArgumentError('Incorrect field name.');
         }
@@ -689,16 +752,21 @@ class PdfForm implements IPdfWrapper {
       final PdfField field = fields[i];
       final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
       if (helper.isLoadedField && field.canExport) {
-        final IPdfPrimitive? name = PdfFieldHelper.getValue(helper.dictionary!,
-            helper.crossTable, PdfDictionaryProperties.ft, true);
+        final IPdfPrimitive? name = PdfFieldHelper.getValue(
+          helper.dictionary!,
+          helper.crossTable,
+          PdfDictionaryProperties.ft,
+          true,
+        );
         if (name != null && name is PdfName) {
           switch (name.name) {
             case 'Tx':
               final IPdfPrimitive? textField = PdfFieldHelper.getValue(
-                  helper.dictionary!,
-                  helper.crossTable,
-                  PdfDictionaryProperties.v,
-                  true);
+                helper.dictionary!,
+                helper.crossTable,
+                PdfDictionaryProperties.v,
+                true,
+              );
               if (textField != null && textField is PdfString) {
                 table[field.name!] = textField.value!;
               }
@@ -706,10 +774,11 @@ class PdfForm implements IPdfWrapper {
             case 'Ch':
               if (field is PdfListBoxField || field is PdfComboBoxField) {
                 final IPdfPrimitive? listValue = PdfFieldHelper.getValue(
-                    helper.dictionary!,
-                    helper.crossTable,
-                    PdfDictionaryProperties.v,
-                    true);
+                  helper.dictionary!,
+                  helper.crossTable,
+                  PdfDictionaryProperties.v,
+                  true,
+                );
                 if (listValue != null) {
                   final String? value = helper.getExportValue(field, listValue);
                   if (value != null && value.isNotEmpty) {
@@ -720,11 +789,17 @@ class PdfForm implements IPdfWrapper {
               break;
             case 'Btn':
               final IPdfPrimitive? buttonFieldPrimitive =
-                  PdfFieldHelper.getValue(helper.dictionary!, helper.crossTable,
-                      PdfDictionaryProperties.v, true);
+                  PdfFieldHelper.getValue(
+                    helper.dictionary!,
+                    helper.crossTable,
+                    PdfDictionaryProperties.v,
+                    true,
+                  );
               if (buttonFieldPrimitive != null) {
-                final String? value =
-                    helper.getExportValue(field, buttonFieldPrimitive);
+                final String? value = helper.getExportValue(
+                  field,
+                  buttonFieldPrimitive,
+                );
                 if (value != null && value.isNotEmpty) {
                   table[field.name!] = value;
                 } else if (field is PdfRadioButtonListField ||
@@ -736,7 +811,9 @@ class PdfForm implements IPdfWrapper {
                   table[field.name!] = helper.getAppearanceStateValue(field);
                 } else {
                   final PdfDictionary holder = helper.getWidgetAnnotation(
-                      helper.dictionary!, helper.crossTable);
+                    helper.dictionary!,
+                    helper.crossTable,
+                  );
                   final IPdfPrimitive? holderName =
                       holder[PdfDictionaryProperties.usageApplication];
                   if (holderName != null && holderName is PdfName) {
@@ -803,14 +880,16 @@ class PdfForm implements IPdfWrapper {
               .replaceAll('_x007D_', '}')
               .replaceAll('_x0024_', r'$');
           try {
-            final int index = PdfFormFieldCollectionHelper.getHelper(fields)
-                .getFieldIndex(fieldName);
+            final int index = PdfFormFieldCollectionHelper.getHelper(
+              fields,
+            ).getFieldIndex(fieldName);
             if (index == -1) {
               throw ArgumentError('Incorrect field name.');
             }
             final PdfField formField = fields[index];
-            PdfFieldHelper.getHelper(formField)
-                .importFieldValue(childNode.innerText);
+            PdfFieldHelper.getHelper(
+              formField,
+            ).importFieldValue(childNode.innerText);
           } catch (e) {
             if (!continueImportOnError) {
               rethrow;
@@ -904,8 +983,10 @@ class PdfFormHelper {
   }
 
   /// internal method
-  static PdfForm internal(PdfCrossTable? crossTable,
-      [PdfDictionary? formDictionary]) {
+  static PdfForm internal(
+    PdfCrossTable? crossTable, [
+    PdfDictionary? formDictionary,
+  ]) {
     return PdfForm._internal(crossTable, formDictionary);
   }
 
@@ -938,7 +1019,9 @@ class PdfFormHelper {
       _checkFlatten();
       if (form.fields.count > 0 && setAppearanceDictionary) {
         dictionary!.setBoolean(
-            PdfDictionaryProperties.needAppearances, needAppearances);
+          PdfDictionaryProperties.needAppearances,
+          needAppearances,
+        );
       }
     } else {
       int i = 0;
@@ -952,7 +1035,9 @@ class PdfFormHelper {
         }
         if (dictionary!.containsKey(PdfDictionaryProperties.needAppearances)) {
           dictionary!.setBoolean(
-              PdfDictionaryProperties.needAppearances, needAppearances);
+            PdfDictionaryProperties.needAppearances,
+            needAppearances,
+          );
         }
       }
       while (i < form.fields.count) {
@@ -966,8 +1051,9 @@ class PdfFormHelper {
           bool isSigned = false;
           if (field is PdfSignatureField) {
             if (dic.containsKey(PdfDictionaryProperties.v)) {
-              final IPdfPrimitive? value =
-                  PdfCrossTable.dereference(dic[PdfDictionaryProperties.v]);
+              final IPdfPrimitive? value = PdfCrossTable.dereference(
+                dic[PdfDictionaryProperties.v],
+              );
               if (value != null) {
                 isSigned = true;
               }
@@ -986,16 +1072,20 @@ class PdfFormHelper {
           }
           int fieldFlag = 0;
           if (dic.containsKey(PdfDictionaryProperties.f)) {
-            final IPdfPrimitive? flag =
-                PdfCrossTable.dereference(dic[PdfDictionaryProperties.f]);
+            final IPdfPrimitive? flag = PdfCrossTable.dereference(
+              dic[PdfDictionaryProperties.f],
+            );
             if (flag != null && flag is PdfNumber) {
               fieldFlag = flag.value!.toInt();
             }
           }
           PdfArray? kids;
           if (helper.dictionary!.containsKey(PdfDictionaryProperties.kids)) {
-            kids = PdfCrossTable.dereference(
-                helper.dictionary![PdfDictionaryProperties.kids]) as PdfArray?;
+            kids =
+                PdfCrossTable.dereference(
+                      helper.dictionary![PdfDictionaryProperties.kids],
+                    )
+                    as PdfArray?;
           }
           if (helper.flattenField && fieldFlag != 6) {
             if (field.page != null || kids != null) {
@@ -1020,24 +1110,28 @@ class PdfFormHelper {
           } else {
             helper.save();
           }
-          if (_fields?.count == 0) {
-            final int? index = crossTable!.items!.lookFor(helper.dictionary!);
-            dictionary?.clear();
-            (sender as PdfDictionary).remove(PdfDictionaryProperties.acroForm);
-            if (index != -1) {
-              crossTable!.items!.objectCollection!.removeAt(index!);
-            }
+        }
+        if (_fields?.count == 0) {
+          final int? index = crossTable!.items!.lookFor(helper.dictionary!);
+          dictionary?.clear();
+          (sender as PdfDictionary).remove(PdfDictionaryProperties.acroForm);
+          if (index != -1) {
+            crossTable!.items!.objectCollection!.removeAt(index!);
           }
         }
         ++i;
       }
       if (_isDefaultAppearance) {
         dictionary!.setBoolean(
-            PdfDictionaryProperties.needAppearances, _isDefaultAppearance);
+          PdfDictionaryProperties.needAppearances,
+          _isDefaultAppearance,
+        );
       } else if (!_isDefaultAppearance &&
           dictionary!.containsKey(PdfDictionaryProperties.needAppearances)) {
         dictionary!.setBoolean(
-            PdfDictionaryProperties.needAppearances, _isDefaultAppearance);
+          PdfDictionaryProperties.needAppearances,
+          _isDefaultAppearance,
+        );
       }
       dictionary!.remove('XFA');
     }
@@ -1066,8 +1160,9 @@ class PdfFormHelper {
           if (pageFontResource == null ||
               (pageFontResource is PdfDictionary &&
                   !pageFontResource.containsKey(key))) {
-            final PdfReferenceHolder? fieldFontReference = (fieldFontResource!
-                as PdfDictionary)[key] as PdfReferenceHolder?;
+            final PdfReferenceHolder? fieldFontReference =
+                (fieldFontResource! as PdfDictionary)[key]
+                    as PdfReferenceHolder?;
             if (pageFontResource == null) {
               final PdfDictionary fontDictionary = PdfDictionary();
               fontDictionary.items![key] = fieldFontReference;
@@ -1091,8 +1186,9 @@ class PdfFormHelper {
         int? fieldFlag = 0;
         final PdfDictionary fieldDictionary = helper.dictionary!;
         if (fieldDictionary.containsKey(PdfDictionaryProperties.f)) {
-          fieldFlag = (fieldDictionary[PdfDictionaryProperties.f]! as PdfNumber)
-              .value as int?;
+          fieldFlag =
+              (fieldDictionary[PdfDictionaryProperties.f]! as PdfNumber).value
+                  as int?;
         }
         if (fieldFlag != 6) {
           _addFieldResourcesToPage(field);
@@ -1140,7 +1236,8 @@ class PdfFormHelper {
               pageRef = crossTable!.getReference(dic[pName]);
             } else if (field.page != null) {
               pageRef = crossTable!.getReference(
-                  PdfPageHelper.getHelper(field.page!).dictionary);
+                PdfPageHelper.getHelper(field.page!).dictionary,
+              );
             }
             page = crossTable!.getObject(pageRef) as PdfDictionary?;
           }
@@ -1182,10 +1279,9 @@ class PdfFormHelper {
                   final PdfAnnotationCollection annotCollection =
                       helper.page!.annotations;
                   if (annotCollection.count > 0) {
-                    final int index =
-                        PdfAnnotationCollectionHelper.getHelper(annotCollection)
-                            .annotations
-                            .indexOf(holder);
+                    final int index = PdfAnnotationCollectionHelper.getHelper(
+                      annotCollection,
+                    ).annotations.indexOf(holder);
                     if (index >= 0 && index < annotCollection.count) {
                       annotCollection.remove(annotCollection[index]);
                     }
@@ -1196,12 +1292,16 @@ class PdfFormHelper {
           } else if (isLoaded) {
             helper.requiredReference = holder;
             if (field.page != null &&
-                PdfPageHelper.getHelper(field.page!)
-                    .dictionary!
-                    .containsKey(annotsName)) {
-              final PdfArray annots = crossTable!.getObject(
-                  PdfPageHelper.getHelper(field.page!)
-                      .dictionary![annotsName])! as PdfArray;
+                PdfPageHelper.getHelper(
+                  field.page!,
+                ).dictionary!.containsKey(annotsName)) {
+              final PdfArray annots =
+                  crossTable!.getObject(
+                        PdfPageHelper.getHelper(
+                          field.page!,
+                        ).dictionary![annotsName],
+                      )!
+                      as PdfArray;
               for (int i = 0; i < annots.count; i++) {
                 final IPdfPrimitive? obj = annots.elements[i];
                 if (obj != null &&
@@ -1216,8 +1316,9 @@ class PdfFormHelper {
             }
             if (crossTable!.items != null &&
                 crossTable!.items!.contains(widget)) {
-              crossTable!.items!.objectCollection!
-                  .removeAt(crossTable!.items!.lookFor(widget)!);
+              crossTable!.items!.objectCollection!.removeAt(
+                crossTable!.items!.lookFor(widget)!,
+              );
             }
             helper.requiredReference = null;
           }
@@ -1225,10 +1326,12 @@ class PdfFormHelper {
       } else {
         IPdfPrimitive? page;
         if (!isLoaded) {
-          final PdfReferenceHolder pageRef = dic.containsKey(pName)
-              ? (dic[pName] as PdfReferenceHolder?)!
-              : PdfReferenceHolder(
-                  PdfPageHelper.getHelper(field.page!).dictionary);
+          final PdfReferenceHolder pageRef =
+              dic.containsKey(pName)
+                  ? (dic[pName] as PdfReferenceHolder?)!
+                  : PdfReferenceHolder(
+                    PdfPageHelper.getHelper(field.page!).dictionary,
+                  );
           page = pageRef.object;
         } else {
           PdfReference? pageRef;
@@ -1236,17 +1339,19 @@ class PdfFormHelper {
               dic[PdfDictionaryProperties.p] is! PdfNull) {
             pageRef = crossTable!.getReference(dic[pName]);
           } else if (field.page != null) {
-            pageRef = crossTable!
-                .getReference(PdfPageHelper.getHelper(field.page!).dictionary);
+            pageRef = crossTable!.getReference(
+              PdfPageHelper.getHelper(field.page!).dictionary,
+            );
           }
           page = crossTable!.getObject(pageRef);
         }
         if (page != null &&
             page is PdfDictionary &&
             page.containsKey(PdfDictionaryProperties.annots)) {
-          final IPdfPrimitive? annots = isLoaded
-              ? crossTable!.getObject(page[annotsName])
-              : page[PdfDictionaryProperties.annots];
+          final IPdfPrimitive? annots =
+              isLoaded
+                  ? crossTable!.getObject(page[annotsName])
+                  : page[PdfDictionaryProperties.annots];
           if (annots != null && annots is PdfArray) {
             for (int i = 0; i < annots.count; i++) {
               final IPdfPrimitive? obj = annots.elements[i];
@@ -1263,12 +1368,16 @@ class PdfFormHelper {
           }
         } else if (isLoaded &&
             field.page != null &&
-            PdfPageHelper.getHelper(field.page!)
-                .dictionary!
-                .containsKey(annotsName)) {
-          final PdfArray annots = crossTable!.getObject(
-                  PdfPageHelper.getHelper(field.page!).dictionary![annotsName])!
-              as PdfArray;
+            PdfPageHelper.getHelper(
+              field.page!,
+            ).dictionary!.containsKey(annotsName)) {
+          final PdfArray annots =
+              crossTable!.getObject(
+                    PdfPageHelper.getHelper(
+                      field.page!,
+                    ).dictionary![annotsName],
+                  )!
+                  as PdfArray;
           for (int i = 0; i < annots.count; i++) {
             final IPdfPrimitive? obj = annots.elements[i];
             if (obj != null &&
@@ -1300,10 +1409,11 @@ class PdfFormHelper {
     if (dic.items != null) {
       if (dic.containsKey(PdfDictionaryProperties.kids)) {
         PdfArray? array;
-        array = !helper.isLoadedField
-            ? dic[PdfDictionaryProperties.kids] as PdfArray?
-            : crossTable!.getObject(dic[PdfDictionaryProperties.kids])
-                as PdfArray?;
+        array =
+            !helper.isLoadedField
+                ? dic[PdfDictionaryProperties.kids] as PdfArray?
+                : crossTable!.getObject(dic[PdfDictionaryProperties.kids])
+                    as PdfArray?;
         array!.clear();
         dic.setProperty(PdfDictionaryProperties.kids, array);
       }
@@ -1327,8 +1437,10 @@ class PdfFormHelper {
 
   /// internal method
   //Removes field and kids annotation from dictionaries.
-  void removeFromDictionaries(PdfField field,
-      [bool removeFieldFromAcroForm = false]) {
+  void removeFromDictionaries(
+    PdfField field, [
+    bool removeFieldFromAcroForm = false,
+  ]) {
     final PdfFieldHelper helper = PdfFieldHelper.getHelper(field);
     if ((_fields != null && _fields!.count > 0) || removeFieldFromAcroForm) {
       final PdfName fieldsDict = PdfName(PdfDictionaryProperties.fields);
@@ -1346,36 +1458,18 @@ class PdfFormHelper {
       }
       helper.dictionary!.isSkip = true;
       fields.changed = true;
-      if (!formHasKids ||
-          !helper.dictionary!.items!
-              .containsKey(PdfName(PdfDictionaryProperties.parent))) {
-        for (int i = 0; i < fields.count; i++) {
-          final IPdfPrimitive? fieldDictionary =
-              PdfCrossTable.dereference(crossTable!.getObject(fields[i]));
-          final PdfName kidsName = PdfName(PdfDictionaryProperties.kids);
-          if (fieldDictionary != null &&
-              fieldDictionary is PdfDictionary &&
-              fieldDictionary.containsKey(kidsName)) {
-            final PdfArray kids =
-                crossTable!.getObject(fieldDictionary[kidsName])! as PdfArray;
-            for (int i = 0; i < kids.count; i++) {
-              final IPdfPrimitive? obj = kids[i];
-              if (obj != null &&
-                  obj is PdfReferenceHolder &&
-                  obj.object == helper.dictionary) {
-                kids.remove(obj);
-                break;
-              }
-            }
-          }
-        }
-      } else {
-        if (helper.dictionary!.items!
-            .containsKey(PdfName(PdfDictionaryProperties.parent))) {
+      if (!(!formHasKids ||
+          !helper.dictionary!.items!.containsKey(
+            PdfName(PdfDictionaryProperties.parent),
+          ))) {
+        if (helper.dictionary!.items!.containsKey(
+          PdfName(PdfDictionaryProperties.parent),
+        )) {
           final PdfDictionary dic =
               (helper.dictionary![PdfDictionaryProperties.parent]!
-                      as PdfReferenceHolder)
-                  .object! as PdfDictionary;
+                          as PdfReferenceHolder)
+                      .object!
+                  as PdfDictionary;
           final PdfArray kids =
               dic.items![PdfName(PdfDictionaryProperties.kids)]! as PdfArray;
           for (int k = 0; k < kids.count; k++) {
@@ -1405,11 +1499,16 @@ class PdfFormHelper {
       final String tempString = newString.substring(index);
       if (tempString.length >= 7 && tempString[6] == '_') {
         newString = newString.replaceRange(index, index + 2, '--');
-        final int? charCode =
-            int.tryParse(value.substring(index + 2, index + 6), radix: 16);
+        final int? charCode = int.tryParse(
+          value.substring(index + 2, index + 6),
+          radix: 16,
+        );
         if (charCode != null && charCode >= 0) {
           value = value.replaceRange(
-              index, index + 7, String.fromCharCode(charCode));
+            index,
+            index + 7,
+            String.fromCharCode(charCode),
+          );
           newString = newString.replaceRange(index, index + 7, '-');
         }
       } else {

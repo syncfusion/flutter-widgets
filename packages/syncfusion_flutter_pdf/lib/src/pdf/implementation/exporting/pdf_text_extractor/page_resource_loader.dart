@@ -23,10 +23,14 @@ class PageResourceLoader {
     PdfPageResources pageResources = PdfPageResources();
     double resourceNumber = 0;
     PdfDictionary? resources = PdfPageHelper.getHelper(page).getResources();
-    pageResources =
-        updatePageResources(pageResources, getFontResources(resources, page));
-    pageResources = updatePageResources(pageResources,
-        getFormResources(resources, PdfPageHelper.getHelper(page).crossTable));
+    pageResources = updatePageResources(
+      pageResources,
+      getFontResources(resources, page),
+    );
+    pageResources = updatePageResources(
+      pageResources,
+      getFormResources(resources, PdfPageHelper.getHelper(page).crossTable),
+    );
     while (resources != null &&
         resources.containsKey(PdfDictionaryProperties.xObject)) {
       PdfDictionary? tempResources = resources;
@@ -34,7 +38,8 @@ class PageResourceLoader {
       if (resources[PdfDictionaryProperties.xObject] is PdfReferenceHolder) {
         xobjects =
             (resources[PdfDictionaryProperties.xObject]! as PdfReferenceHolder)
-                .object as PdfDictionary?;
+                    .object
+                as PdfDictionary?;
       } else {
         xobjects = resources[PdfDictionaryProperties.xObject] as PdfDictionary?;
       }
@@ -67,8 +72,9 @@ class PageResourceLoader {
               continue;
             }
           } else {
-            resources = xobjectDictionary[PdfDictionaryProperties.resources]
-                as PdfDictionary?;
+            resources =
+                xobjectDictionary[PdfDictionaryProperties.resources]
+                    as PdfDictionary?;
           }
           xobjectDictionary = null;
           if (resources == tempResources) {
@@ -76,7 +82,9 @@ class PageResourceLoader {
             tempResources = null;
           }
           pageResources = updatePageResources(
-              pageResources, getFontResources(resources, page));
+            pageResources,
+            getFontResources(resources, page),
+          );
         } else {
           if (objKey != null &&
               !pageResources.resources.containsKey(objKey.name) &&
@@ -108,8 +116,10 @@ class PageResourceLoader {
   }
 
   /// internal method
-  Map<String?, dynamic> getFormResources(PdfDictionary? resourceDictionary,
-      [PdfCrossTable? crosstable]) {
+  Map<String?, dynamic> getFormResources(
+    PdfDictionary? resourceDictionary, [
+    PdfCrossTable? crosstable,
+  ]) {
     final Map<String?, dynamic> pageResources = <String?, dynamic>{};
     if (resourceDictionary != null &&
         resourceDictionary.containsKey(PdfDictionaryProperties.xObject)) {
@@ -142,8 +152,10 @@ class PageResourceLoader {
                 (subType.name == PdfDictionaryProperties.form ||
                     (subType.name != PdfDictionaryProperties.image &&
                         !pageResources.containsKey(key!.name)))) {
-              pageResources[key!.name] =
-                  XObjectElement(xObjectDictionary, key.name);
+              pageResources[key!.name] = XObjectElement(
+                xObjectDictionary,
+                key.name,
+              );
             } else if (xObjectDictionary is PdfStream) {
               if (crosstable != null &&
                   referenceHolder != null &&
@@ -153,8 +165,10 @@ class PageResourceLoader {
                 crosstable.items!.remove(referenceHolder.reference!.objNum!);
                 crosstable.objNumbers.remove(referenceHolder.reference);
                 if (crosstable.crossTable != null) {
-                  final ObjectInformation? oi = crosstable
-                      .crossTable![referenceHolder.reference!.objNum!];
+                  final ObjectInformation? oi =
+                      crosstable.crossTable![referenceHolder
+                          .reference!
+                          .objNum!];
                   oi!.obj = null;
                 }
               }
@@ -171,8 +185,10 @@ class PageResourceLoader {
   // Collects all the fonts in the page in a dictionary.
   // Returns dictionary containing font name and the font.
   /// internal method
-  Map<String?, Object?> getFontResources(PdfDictionary? resourceDictionary,
-      [PdfPage? page]) {
+  Map<String?, Object?> getFontResources(
+    PdfDictionary? resourceDictionary, [
+    PdfPage? page,
+  ]) {
     final Map<String?, Object?> pageResources = <String?, Object?>{};
     if (resourceDictionary != null) {
       IPdfPrimitive? fonts = resourceDictionary[PdfDictionaryProperties.font];
@@ -188,8 +204,10 @@ class PageResourceLoader {
           fontsDictionary.items!.forEach((PdfName? k, IPdfPrimitive? v) {
             if (v is PdfReferenceHolder) {
               if (v.reference != null) {
-                pageResources[k!.name] =
-                    FontStructure(v.object, v.reference.toString());
+                pageResources[k!.name] = FontStructure(
+                  v.object,
+                  v.reference.toString(),
+                );
               } else {
                 pageResources[k!.name] = FontStructure(v.object);
               }
@@ -198,20 +216,24 @@ class PageResourceLoader {
                 pageResources[k!.name] = FontStructure(v);
               } else {
                 pageResources[k!.name] = FontStructure(
-                    v, (v! as PdfReferenceHolder).reference.toString());
+                  v,
+                  (v! as PdfReferenceHolder).reference.toString(),
+                );
               }
             }
           });
         }
       }
       if (page != null) {
-        final IPdfPrimitive? parentPage = PdfPageHelper.getHelper(page)
-            .dictionary![PdfDictionaryProperties.parent];
+        final IPdfPrimitive? parentPage =
+            PdfPageHelper.getHelper(page).dictionary![PdfDictionaryProperties
+                .parent];
         if (parentPage != null) {
           final IPdfPrimitive? parentRef =
               (parentPage as PdfReferenceHolder).object;
-          final PdfResources parentResources =
-              PdfResources(parentRef as PdfDictionary?);
+          final PdfResources parentResources = PdfResources(
+            parentRef as PdfDictionary?,
+          );
           fonts = parentResources[PdfDictionaryProperties.font];
           if (fonts != null && fonts is PdfDictionary) {
             final PdfDictionary fontsDictionary = fonts;
@@ -220,7 +242,9 @@ class PageResourceLoader {
                 pageResources[k!.name] = (v as PdfReferenceHolder).object;
               }
               pageResources[k!.name] = FontStructure(
-                  v, (v! as PdfReferenceHolder).reference.toString());
+                v,
+                (v! as PdfReferenceHolder).reference.toString(),
+              );
             });
           }
         }
@@ -231,7 +255,9 @@ class PageResourceLoader {
 
   /// Updates the resources in the page
   PdfPageResources updatePageResources(
-      PdfPageResources pageResources, Map<String?, Object?> objects) {
+    PdfPageResources pageResources,
+    Map<String?, Object?> objects,
+  ) {
     objects.forEach((String? k, Object? v) {
       pageResources.add(k, v);
     });

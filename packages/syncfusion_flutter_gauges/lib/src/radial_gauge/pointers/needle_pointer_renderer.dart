@@ -16,46 +16,46 @@ import '../../radial_gauge/utils/radial_callback_args.dart';
 /// Represents the renderer of radial gauge needle pointer.
 class RenderNeedlePointer extends RenderBox {
   /// Creates a object for [RenderNeedlePointer].
-  RenderNeedlePointer(
-      {required double value,
-      required this.enableDragging,
-      this.onValueChanged,
-      this.onValueChangeStart,
-      this.onValueChangeEnd,
-      this.onValueChanging,
-      required KnobStyle knobStyle,
-      TailStyle? tailStyle,
-      Gradient? gradient,
-      required double needleLength,
-      required GaugeSizeUnit lengthUnit,
-      required double needleStartWidth,
-      required double needleEndWidth,
-      NeedlePointerRenderer? needlePointerRenderer,
-      Color? needleColor,
-      AnimationController? pointerAnimationController,
-      this.pointerInterval,
-      required this.animationType,
-      required this.enableAnimation,
-      required this.isRadialGaugeAnimationEnabled,
-      required ValueNotifier<int> repaintNotifier,
-      required ThemeData themeData,
-      required SfColorScheme colorScheme,
-      required SfGaugeThemeData gaugeThemeData})
-      : _value = value,
-        _knobStyle = knobStyle,
-        _tailStyle = tailStyle,
-        _gradient = gradient,
-        _needleLength = needleLength,
-        _lengthUnit = lengthUnit,
-        _needleStartWidth = needleStartWidth,
-        _needleEndWidth = needleEndWidth,
-        _needleColor = needleColor,
-        _repaintNotifier = repaintNotifier,
-        _pointerAnimationController = pointerAnimationController,
-        _needlePointerRenderer = needlePointerRenderer,
-        _themeData = themeData,
-        _colorScheme = colorScheme,
-        _gaugeThemeData = gaugeThemeData;
+  RenderNeedlePointer({
+    required double value,
+    required this.enableDragging,
+    this.onValueChanged,
+    this.onValueChangeStart,
+    this.onValueChangeEnd,
+    this.onValueChanging,
+    required KnobStyle knobStyle,
+    TailStyle? tailStyle,
+    Gradient? gradient,
+    required double needleLength,
+    required GaugeSizeUnit lengthUnit,
+    required double needleStartWidth,
+    required double needleEndWidth,
+    NeedlePointerRenderer? needlePointerRenderer,
+    Color? needleColor,
+    AnimationController? pointerAnimationController,
+    this.pointerInterval,
+    required this.animationType,
+    required this.enableAnimation,
+    required this.isRadialGaugeAnimationEnabled,
+    required ValueNotifier<int> repaintNotifier,
+    required ThemeData themeData,
+    required SfColorScheme colorScheme,
+    required SfGaugeThemeData gaugeThemeData,
+  }) : _value = value,
+       _knobStyle = knobStyle,
+       _tailStyle = tailStyle,
+       _gradient = gradient,
+       _needleLength = needleLength,
+       _lengthUnit = lengthUnit,
+       _needleStartWidth = needleStartWidth,
+       _needleEndWidth = needleEndWidth,
+       _needleColor = needleColor,
+       _repaintNotifier = repaintNotifier,
+       _pointerAnimationController = pointerAnimationController,
+       _needlePointerRenderer = needlePointerRenderer,
+       _themeData = themeData,
+       _colorScheme = colorScheme,
+       _gaugeThemeData = gaugeThemeData;
 
   double _actualTailLength = 0;
   late double _actualNeedleLength;
@@ -474,15 +474,22 @@ class RenderNeedlePointer extends RenderBox {
 
   /// Calculates the default value
   void _calculateDefaultValue() {
-    _actualNeedleLength =
-        axisRenderer!.getActualValue(needleLength, lengthUnit, false);
-    _actualCapRadius = axisRenderer!
-        .getActualValue(knobStyle.knobRadius, knobStyle.sizeUnit, false);
-    final double currentFactor = (axisRenderer!.renderer != null &&
-            axisRenderer!.renderer!.valueToFactor(value) != null)
-        ? axisRenderer!.renderer!.valueToFactor(value) ??
-            axisRenderer!.valueToFactor(value)
-        : axisRenderer!.valueToFactor(value);
+    _actualNeedleLength = axisRenderer!.getActualValue(
+      needleLength,
+      lengthUnit,
+      false,
+    );
+    _actualCapRadius = axisRenderer!.getActualValue(
+      knobStyle.knobRadius,
+      knobStyle.sizeUnit,
+      false,
+    );
+    final double currentFactor =
+        (axisRenderer!.renderer != null &&
+                axisRenderer!.renderer!.valueToFactor(value) != null)
+            ? axisRenderer!.renderer!.valueToFactor(value) ??
+                axisRenderer!.valueToFactor(value)
+            : axisRenderer!.valueToFactor(value);
     _angle = (currentFactor * _sweepAngle) + axisRenderer!.startAngle;
     _radian = getDegreeToRadian(_angle);
     _centerPoint = _axisCenter;
@@ -552,8 +559,11 @@ class RenderNeedlePointer extends RenderBox {
   /// Calculates the values to render the needle tail
   void _calculateTailPosition(double needleRadian) {
     final double pointerWidth = tailStyle!.width;
-    _actualTailLength = axisRenderer!
-        .getActualValue(tailStyle!.length, tailStyle!.lengthUnit, false);
+    _actualTailLength = axisRenderer!.getActualValue(
+      tailStyle!.length,
+      tailStyle!.lengthUnit,
+      false,
+    );
     if (_actualTailLength > 0) {
       final double tailEndX =
           _startX - _actualTailLength * math.cos(needleRadian);
@@ -576,10 +586,14 @@ class RenderNeedlePointer extends RenderBox {
   /// By overriding this method, you can draw the customized needled pointer
   /// using required values.
   ///
-  void drawPointer(Canvas canvas, PointerPaintingDetails pointerPaintingDetails,
-      SfGaugeThemeData gaugeThemeData) {
-    final double pointerRadian =
-        getDegreeToRadian(pointerPaintingDetails.pointerAngle);
+  void drawPointer(
+    Canvas canvas,
+    PointerPaintingDetails pointerPaintingDetails,
+    SfGaugeThemeData gaugeThemeData,
+  ) {
+    final double pointerRadian = getDegreeToRadian(
+      pointerPaintingDetails.pointerAngle,
+    );
     if (_actualNeedleLength > 0) {
       _renderNeedle(canvas, pointerRadian);
     }
@@ -591,11 +605,13 @@ class RenderNeedlePointer extends RenderBox {
 
   /// To render the needle of the pointer
   void _renderNeedle(Canvas canvas, double pointerRadian) {
-    final Paint paint = Paint()
-      ..color = needleColor ??
-          _gaugeThemeData.needleColor ??
-          colorScheme.onSurface[255]!
-      ..style = PaintingStyle.fill;
+    final Paint paint =
+        Paint()
+          ..color =
+              needleColor ??
+              _gaugeThemeData.needleColor ??
+              colorScheme.onSurface[255]!
+          ..style = PaintingStyle.fill;
 
     final Path path = Path();
     path.moveTo(_startLeftX, _startLeftY);
@@ -628,23 +644,27 @@ class RenderNeedlePointer extends RenderBox {
     canvas.translate(_centerPoint.dx, _centerPoint.dy);
     canvas.rotate(pointerRadian);
 
-    final Paint tailPaint = Paint()
-      ..color = tailStyle!.color ??
-          _gaugeThemeData.tailColor ??
-          colorScheme.onSurface[255]!;
+    final Paint tailPaint =
+        Paint()
+          ..color =
+              tailStyle!.color ??
+              _gaugeThemeData.tailColor ??
+              colorScheme.onSurface[255]!;
 
     if (tailStyle!.gradient != null) {
-      tailPaint.shader =
-          tailStyle!.gradient!.createShader(tailPath.getBounds());
+      tailPaint.shader = tailStyle!.gradient!.createShader(
+        tailPath.getBounds(),
+      );
     }
 
     canvas.drawPath(tailPath, tailPaint);
 
     if (tailStyle!.borderWidth > 0) {
-      final Paint tailStrokePaint = Paint()
-        ..color = tailStyle!.borderColor ?? _gaugeThemeData.tailBorderColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = tailStyle!.borderWidth;
+      final Paint tailStrokePaint =
+          Paint()
+            ..color = tailStyle!.borderColor ?? _gaugeThemeData.tailBorderColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = tailStyle!.borderWidth;
 
       canvas.drawPath(tailPath, tailStrokePaint);
     }
@@ -655,20 +675,26 @@ class RenderNeedlePointer extends RenderBox {
   /// To render the cap of needle
   void _renderCap(Canvas canvas, SfGaugeThemeData gaugeThemeData) {
     if (_actualCapRadius > 0) {
-      final Paint knobPaint = Paint()
-        ..color = knobStyle.color ??
-            gaugeThemeData.knobColor ??
-            colorScheme.onSurface[255]!;
+      final Paint knobPaint =
+          Paint()
+            ..color =
+                knobStyle.color ??
+                gaugeThemeData.knobColor ??
+                colorScheme.onSurface[255]!;
 
       canvas.drawCircle(_axisCenter, _actualCapRadius, knobPaint);
 
       if (knobStyle.borderWidth > 0) {
-        final double actualBorderWidth = axisRenderer!
-            .getActualValue(knobStyle.borderWidth, knobStyle.sizeUnit, false);
-        final Paint strokePaint = Paint()
-          ..color = knobStyle.borderColor ?? gaugeThemeData.knobBorderColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = actualBorderWidth;
+        final double actualBorderWidth = axisRenderer!.getActualValue(
+          knobStyle.borderWidth,
+          knobStyle.sizeUnit,
+          false,
+        );
+        final Paint strokePaint =
+            Paint()
+              ..color = knobStyle.borderColor ?? gaugeThemeData.knobBorderColor
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = actualBorderWidth;
 
         canvas.drawCircle(_centerPoint, _actualCapRadius, strokePaint);
       }
@@ -682,7 +708,8 @@ class RenderNeedlePointer extends RenderBox {
     bool needsShowPointer = false;
 
     if (_pointerAnimation != null && _isAnimating) {
-      angle = (_sweepAngle * _pointerAnimation!.value) +
+      angle =
+          (_sweepAngle * _pointerAnimation!.value) +
           axisRenderer!.startAngle +
           90;
     } else {
@@ -691,9 +718,10 @@ class RenderNeedlePointer extends RenderBox {
 
     if (isRadialGaugeAnimationEnabled) {
       if (_pointerAnimation != null && _isInitialLoading) {
-        needsShowPointer = axisRenderer!.isInversed
-            ? _pointerAnimation!.value < 1
-            : _pointerAnimation!.value > 0;
+        needsShowPointer =
+            axisRenderer!.isInversed
+                ? _pointerAnimation!.value < 1
+                : _pointerAnimation!.value > 0;
       } else {
         needsShowPointer = true;
       }
@@ -707,14 +735,18 @@ class RenderNeedlePointer extends RenderBox {
 
       final PointerPaintingDetails pointerPaintingDetails =
           PointerPaintingDetails(
-              startOffset: startPosition,
-              endOffset: endPosition,
-              pointerAngle: angle,
-              axisRadius: _radius,
-              axisCenter: _axisCenter);
+            startOffset: startPosition,
+            endOffset: endPosition,
+            pointerAngle: angle,
+            axisRadius: _radius,
+            axisCenter: _axisCenter,
+          );
       if (needlePointerRenderer != null) {
         needlePointerRenderer!.drawPointer(
-            context.canvas, pointerPaintingDetails, _gaugeThemeData);
+          context.canvas,
+          pointerPaintingDetails,
+          _gaugeThemeData,
+        );
       } else {
         drawPointer(context.canvas, pointerPaintingDetails, _gaugeThemeData);
       }

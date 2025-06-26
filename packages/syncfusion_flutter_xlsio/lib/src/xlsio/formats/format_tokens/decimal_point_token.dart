@@ -10,8 +10,12 @@ class DecimalPointToken extends FormatTokenBase {
 
   /// Applies format to the value.
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String applyFormat(
+    double value,
+    bool bShowHiddenSymbols,
+    CultureInfo culture,
+    FormatSection section,
+  ) {
     return strFormat;
   }
 
@@ -21,14 +25,16 @@ class DecimalPointToken extends FormatTokenBase {
     final int iFormatLength = stringFormat.length;
 
     if (iFormatLength == 0) {
-      final Error error =
-          ArgumentError('stringFormat - string cannot be empty');
+      final Error error = ArgumentError(
+        'stringFormat - string cannot be empty',
+      );
       throw error;
     }
 
     if (iIndex < 0 || iIndex > iFormatLength - 1) {
       final Error error = ArgumentError(
-          'iIndex - Value cannot be less than 0 and greater than than format length - 1.');
+        'iIndex - Value cannot be less than 0 and greater than than format length - 1.',
+      );
       throw error;
     }
 

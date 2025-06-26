@@ -326,7 +326,7 @@ class CartesianChartAnnotation {
       x,
       y,
       xAxisName,
-      yAxisName
+      yAxisName,
     ];
     return Object.hashAll(values);
   }
@@ -544,7 +544,7 @@ class CircularChartAnnotation {
       horizontalAlignment,
       verticalAlignment,
       height,
-      width
+      width,
     ];
     return Object.hashAll(values);
   }

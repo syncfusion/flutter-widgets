@@ -9,7 +9,11 @@ import 'exceltablecolumn.dart';
 class ExcelTableColumnImpl implements ExcelTableColumn {
   /// Initializes new instance of the class.
   ExcelTableColumnImpl(
-      String name, int index, ExcelTableImpl parentTable, int id) {
+    String name,
+    int index,
+    ExcelTableImpl parentTable,
+    int id,
+  ) {
     _name = name;
     _index = index;
     _parentTable = parentTable;
@@ -56,9 +60,11 @@ class ExcelTableColumnImpl implements ExcelTableColumn {
     final List<String> colNames = <String>[];
     final int firstColumn = tableRange.column - tableColumnIndex;
     final int lastColumn = tableRange.lastColumn - tableColumnIndex;
-    for (int columnIndex = firstColumn;
-        columnIndex <= lastColumn;
-        columnIndex++) {
+    for (
+      int columnIndex = firstColumn;
+      columnIndex <= lastColumn;
+      columnIndex++
+    ) {
       colNames.add(_parentTable.columns[columnIndex].columnName);
     }
     colNames.removeAt(setIndex);
@@ -76,8 +82,10 @@ class ExcelTableColumnImpl implements ExcelTableColumn {
   /// Get the total cell for the column.
   Range get totalCell {
     final Range location = _parentTable.dataRange;
-    return location.worksheet
-        .getRangeByIndex(location.lastRow, location.column + _columnIndex - 1);
+    return location.worksheet.getRangeByIndex(
+      location.lastRow,
+      location.column + _columnIndex - 1,
+    );
   }
 
   /// Gets or sets the function used for totals calculation.

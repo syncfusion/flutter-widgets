@@ -42,8 +42,11 @@ class RsaAlgorithm implements ICipherBlock {
       final BigInt? e = (_key! as RsaPrivateKeyParam).publicExponent;
       if (e != null) {
         final BigInt m = _key!.modulus!;
-        final BigInt r =
-            createRandomInRange(BigInt.one, m - BigInt.one, _random);
+        final BigInt r = createRandomInRange(
+          BigInt.one,
+          m - BigInt.one,
+          _random,
+        );
         final BigInt blindedInput = getMod(r.modPow(e, m) * input, m);
         final BigInt blindedResult = _rsaCoreEngine.processBlock(blindedInput);
         final BigInt reverse = r.modInverse(m);
@@ -117,8 +120,10 @@ class _RsaCoreAlgorithm {
     if (length > maxLength) {
       throw ArgumentError.value(length, 'length', 'Invalid length in inputs');
     }
-    final BigInt input =
-        bigIntFromBytes(bytes.sublist(offset, offset + length), 1);
+    final BigInt input = bigIntFromBytes(
+      bytes.sublist(offset, offset + length),
+      1,
+    );
     if (input.compareTo(_key.modulus!) >= 0) {
       throw ArgumentError.value(length, 'length', 'Invalid length in inputs');
     }
@@ -132,9 +137,11 @@ class _RsaCoreAlgorithm {
       if (output.length < outSize) {
         final List<int> bytes = List<int>.generate(outSize, (int i) => 0);
         int j = 0;
-        for (int i = bytes.length - output.length;
-            j < output.length && i < bytes.length;
-            i++) {
+        for (
+          int i = bytes.length - output.length;
+          j < output.length && i < bytes.length;
+          i++
+        ) {
           bytes[i] = output[j];
           j += 1;
         }

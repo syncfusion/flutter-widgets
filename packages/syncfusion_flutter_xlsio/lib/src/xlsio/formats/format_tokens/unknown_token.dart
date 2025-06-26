@@ -13,8 +13,9 @@ class UnknownToken extends FormatTokenBase {
     final int iFormatLength = stringFormat.length;
 
     if (iFormatLength == 0) {
-      final Error error =
-          ArgumentError('stringFormat - string cannot be empty');
+      final Error error = ArgumentError(
+        'stringFormat - string cannot be empty',
+      );
       throw error;
     }
     strFormat = stringFormat[iIndex];
@@ -24,8 +25,12 @@ class UnknownToken extends FormatTokenBase {
   /// Applies format to the value.
 
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String applyFormat(
+    double value,
+    bool bShowHiddenSymbols,
+    CultureInfo culture,
+    FormatSection section,
+  ) {
     if (strFormat == 'g' || strFormat == 'G') {
       return '';
     } else {

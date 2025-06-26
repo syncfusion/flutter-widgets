@@ -27,7 +27,9 @@ int getHeaderIndex(DataGridConfiguration dataGridConfiguration) {
   // actual column header row index.
   if (dataGridConfiguration.tableSummaryRows.isNotEmpty) {
     headerIndex -= getTableSummaryCount(
-        dataGridConfiguration, GridTableSummaryRowPosition.top);
+      dataGridConfiguration,
+      GridTableSummaryRowPosition.top,
+    );
   }
 
   return headerIndex < 0 ? 0 : headerIndex;
@@ -37,7 +39,9 @@ int getHeaderIndex(DataGridConfiguration dataGridConfiguration) {
 /// In this we will not include the  column like, indent column, row
 /// header etc
 int resolveToGridVisibleColumnIndex(
-    DataGridConfiguration dataGridConfiguration, int columnIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int columnIndex,
+) {
   if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
     final int length = dataGridConfiguration.source.groupedColumns.length;
     columnIndex -= length;
@@ -53,8 +57,11 @@ int resolveToGridVisibleColumnIndex(
 /// Helps to resolve the column index based on the [DataGridRowAdapter.cells]
 /// count when indent cell, row header, [SfDataGrid.showCheckboxColumn] are enabled.
 int resolveToDataGridRowAdapterCellIndex(
-    DataGridConfiguration dataGridConfiguration, int columnIndex) {
-  final int totalColumnCount = dataGridConfiguration.container.columnCount +
+  DataGridConfiguration dataGridConfiguration,
+  int columnIndex,
+) {
+  final int totalColumnCount =
+      dataGridConfiguration.container.columnCount +
       dataGridConfiguration.source.groupedColumns.length;
 
   if (columnIndex >= totalColumnCount) {
@@ -72,7 +79,9 @@ int resolveToDataGridRowAdapterCellIndex(
 
 /// Help to resolve the record index to [SfDataGrid] position row index.
 int resolveToRowIndex(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   if (rowIndex < 0) {
     return -1;
   }
@@ -87,16 +96,20 @@ int resolveToRowIndex(
 
 /// Help to resolve the record index to display element position row index.
 int resolveStartRecordIndex(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   if (rowIndex < 0) {
     return -1;
   }
-  final int headerLineCount =
-      resolveStartIndexBasedOnPosition(dataGridConfiguration);
+  final int headerLineCount = resolveStartIndexBasedOnPosition(
+    dataGridConfiguration,
+  );
   rowIndex -= headerLineCount;
-  final int totalCount = dataGridConfiguration.source.groupedColumns.isNotEmpty
-      ? dataGridConfiguration.group!.displayElements!.grouped.length
-      : dataGridConfiguration.container.rowCount;
+  final int totalCount =
+      dataGridConfiguration.source.groupedColumns.isNotEmpty
+          ? dataGridConfiguration.group!.displayElements!.grouped.length
+          : dataGridConfiguration.container.rowCount;
   if (rowIndex >= 0 && rowIndex < totalCount) {
     return rowIndex;
   } else {
@@ -106,7 +119,9 @@ int resolveStartRecordIndex(
 
 /// Help to resolve the group from the display elements.
 dynamic getGroupElement(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   if (rowIndex >= 0 &&
       rowIndex < dataGridConfiguration.group!.displayElements!.grouped.length) {
     return dataGridConfiguration.group!.displayElements!.grouped[rowIndex];
@@ -116,7 +131,9 @@ dynamic getGroupElement(
 
 /// Help to get the row by the row index.
 DataGridRow? getDataRow(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
     final dynamic element = getGroupElement(dataGridConfiguration, rowIndex);
     return element is DataGridRow ? element : null;
@@ -135,7 +152,9 @@ int resolveEffectiveRowCount(DataGridConfiguration dataGridConfiguration) {
 
 /// Help to resolve the next grouped row from the display elements.
 dynamic getNextGroupInfo(
-    dynamic rowData, DataGridConfiguration dataGridConfiguration) {
+  dynamic rowData,
+  DataGridConfiguration dataGridConfiguration,
+) {
   final List<dynamic> grouped =
       dataGridConfiguration.group!.displayElements!.grouped;
   final int index = grouped.indexOf(rowData) + 1;
@@ -155,7 +174,9 @@ double getSwipeMaxOffset(DataGridConfiguration dataGridConfiguration) {
 
 /// Help to resolve the [SfDataGrid] position row index to record index.
 int resolveToRecordIndex(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   if (rowIndex < 0) {
     return -1;
   }
@@ -165,9 +186,10 @@ int resolveToRecordIndex(
   }
 
   rowIndex = rowIndex - resolveStartIndexBasedOnPosition(dataGridConfiguration);
-  final int endIndex = dataGridConfiguration.source.groupedColumns.isNotEmpty
-      ? dataGridConfiguration.group!.displayElements!.grouped.length
-      : effectiveRows(dataGridConfiguration.source).length;
+  final int endIndex =
+      dataGridConfiguration.source.groupedColumns.isNotEmpty
+          ? dataGridConfiguration.group!.displayElements!.grouped.length
+          : effectiveRows(dataGridConfiguration.source).length;
   if (rowIndex >= 0 && (rowIndex < endIndex)) {
     return rowIndex;
   } else {
@@ -177,29 +199,40 @@ int resolveToRecordIndex(
 
 /// Helps to resolve the [SfDataGrid] row column index to record [RowColumnIndex].
 RowColumnIndex resolveToRecordRowColumnIndex(
-    DataGridConfiguration dataGridConfiguration,
-    RowColumnIndex rowColumnIndex) {
-  final int rowIndex =
-      resolveToRecordIndex(dataGridConfiguration, rowColumnIndex.rowIndex);
+  DataGridConfiguration dataGridConfiguration,
+  RowColumnIndex rowColumnIndex,
+) {
+  final int rowIndex = resolveToRecordIndex(
+    dataGridConfiguration,
+    rowColumnIndex.rowIndex,
+  );
   final int columnIndex = resolveToGridVisibleColumnIndex(
-      dataGridConfiguration, rowColumnIndex.columnIndex);
+    dataGridConfiguration,
+    rowColumnIndex.columnIndex,
+  );
   return RowColumnIndex(rowIndex, columnIndex);
 }
 
 /// Helps to resolve the row and column index according to DataGrid alignment
 RowColumnIndex resolveToRowColumnIndex(
-    DataGridConfiguration dataGridConfiguration,
-    RowColumnIndex rowColumnIndex) {
-  final int rowIndex =
-      resolveToRowIndex(dataGridConfiguration, rowColumnIndex.rowIndex);
+  DataGridConfiguration dataGridConfiguration,
+  RowColumnIndex rowColumnIndex,
+) {
+  final int rowIndex = resolveToRowIndex(
+    dataGridConfiguration,
+    rowColumnIndex.rowIndex,
+  );
   final int columnIndex = resolveToGridVisibleColumnIndex(
-      dataGridConfiguration, rowColumnIndex.columnIndex);
+    dataGridConfiguration,
+    rowColumnIndex.columnIndex,
+  );
   return RowColumnIndex(rowIndex, columnIndex);
 }
 
 /// Helps to find the exact starting scrolling row index.
 int resolveStartIndexBasedOnPosition(
-    DataGridConfiguration dataGridConfiguration) {
+  DataGridConfiguration dataGridConfiguration,
+) {
   return dataGridConfiguration.headerLineCount;
 }
 
@@ -212,7 +245,9 @@ int resolveToStartColumnIndex(DataGridConfiguration dataGridConfiguration) => 0;
 /// order. Its ignore the indent column, row header and provide the exact
 /// column index
 int resolveToScrollColumnIndex(
-    DataGridConfiguration dataGridConfiguration, int gridColumnIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int gridColumnIndex,
+) {
   final int indentColumnCount =
       dataGridConfiguration.source.groupedColumns.length;
 
@@ -234,7 +269,8 @@ int getLastFrozenColumnIndex(DataGridConfiguration dataGridConfiguration) {
 /// Get the  starting index of frozen column in right side view, it
 /// will consider the right frozen pane
 int getStartFooterFrozenColumnIndex(
-    DataGridConfiguration dataGridConfiguration) {
+  DataGridConfiguration dataGridConfiguration,
+) {
   final int columnsCount = dataGridConfiguration.container.columnCount;
   if (columnsCount <= 0 ||
       dataGridConfiguration.footerFrozenColumnsCount <= 0) {
@@ -264,7 +300,7 @@ int getStartFooterFrozenRowIndex(DataGridConfiguration dataGridConfiguration) {
   // Check footer frozen rows count exceeds the effective row count.
   final bool isFrozenRowCountExceeded =
       (effectiveRowCount - dataGridConfiguration.frozenRowsCount).isNegative ||
-          dataGridConfiguration.footerFrozenRowsCount > effectiveRowCount;
+      dataGridConfiguration.footerFrozenRowsCount > effectiveRowCount;
 
   final int rowCount = dataGridConfiguration.container.rowCount;
   if (rowCount <= 0 ||
@@ -282,17 +318,24 @@ int getStartFooterFrozenRowIndex(DataGridConfiguration dataGridConfiguration) {
 
 /// Checks whether the row is a footer widget row or not.
 bool isFooterWidgetRow(
-    int rowIndex, DataGridConfiguration dataGridConfiguration) {
+  int rowIndex,
+  DataGridConfiguration dataGridConfiguration,
+) {
   final int bottomSummariesCount = getTableSummaryCount(
-      dataGridConfiguration, GridTableSummaryRowPosition.bottom);
+    dataGridConfiguration,
+    GridTableSummaryRowPosition.bottom,
+  );
   final int footerIndex =
       dataGridConfiguration.container.rowCount - bottomSummariesCount - 1;
   return dataGridConfiguration.footer != null && rowIndex == footerIndex;
 }
 
 /// Checks whether the row is a caption summary row or not.
-bool isCaptionSummaryRow(DataGridConfiguration dataGridConfiguration,
-    int rowIndex, bool canResolveIndex) {
+bool isCaptionSummaryRow(
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+  bool canResolveIndex,
+) {
   if (canResolveIndex) {
     if (rowIndex == getHeaderIndex(dataGridConfiguration)) {
       return false;
@@ -300,7 +343,7 @@ bool isCaptionSummaryRow(DataGridConfiguration dataGridConfiguration,
     rowIndex = resolveToRecordIndex(dataGridConfiguration, rowIndex);
   }
 
-  if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
+  if (rowIndex >= 0 && dataGridConfiguration.source.groupedColumns.isNotEmpty) {
     final dynamic group =
         dataGridConfiguration.group?.displayElements?.grouped[rowIndex];
     return group != null && group is Group;
@@ -312,7 +355,9 @@ bool isCaptionSummaryRow(DataGridConfiguration dataGridConfiguration,
 /// Returns the row index of a footer widget row.
 int getFooterViewRowIndex(DataGridConfiguration dataGridConfiguration) {
   final int bottomSummaryRowsCount = getTableSummaryCount(
-      dataGridConfiguration, GridTableSummaryRowPosition.bottom);
+    dataGridConfiguration,
+    GridTableSummaryRowPosition.bottom,
+  );
   return dataGridConfiguration.container.rowCount - bottomSummaryRowsCount - 1;
 }
 
@@ -320,14 +365,19 @@ int getFooterViewRowIndex(DataGridConfiguration dataGridConfiguration) {
 
 /// Checks whether the given row is a top summary row or not.
 bool isTopTableSummaryRow(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   if (dataGridConfiguration.tableSummaryRows.isNotEmpty &&
       rowIndex < dataGridConfiguration.headerLineCount) {
     final int tableSummaryStartIndex =
         dataGridConfiguration.stackedHeaderRows.length + 1;
-    final int tableSummaryEndIndex = tableSummaryStartIndex +
+    final int tableSummaryEndIndex =
+        tableSummaryStartIndex +
         getTableSummaryCount(
-            dataGridConfiguration, GridTableSummaryRowPosition.top);
+          dataGridConfiguration,
+          GridTableSummaryRowPosition.top,
+        );
     return rowIndex >= tableSummaryStartIndex &&
         rowIndex < tableSummaryEndIndex;
   }
@@ -336,12 +386,17 @@ bool isTopTableSummaryRow(
 
 /// Checks whether the given row is a bottom summary row or not.
 bool isBottomTableSummaryRow(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   if (dataGridConfiguration.tableSummaryRows.isNotEmpty) {
     final int tableSummaryEndIndex = dataGridConfiguration.container.rowCount;
-    final int tableSummaryStartIndex = tableSummaryEndIndex -
+    final int tableSummaryStartIndex =
+        tableSummaryEndIndex -
         getTableSummaryCount(
-            dataGridConfiguration, GridTableSummaryRowPosition.bottom);
+          dataGridConfiguration,
+          GridTableSummaryRowPosition.bottom,
+        );
     return rowIndex >= tableSummaryStartIndex &&
         rowIndex < tableSummaryEndIndex;
   }
@@ -350,7 +405,9 @@ bool isBottomTableSummaryRow(
 
 /// Checks whether the given row index is a table summary row or not.
 bool isTableSummaryIndex(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   return isTopTableSummaryRow(dataGridConfiguration, rowIndex) ||
       isBottomTableSummaryRow(dataGridConfiguration, rowIndex);
 }
@@ -358,13 +415,17 @@ bool isTableSummaryIndex(
 /// Checks whether the row index is a start index of a bottom summary rows or not.
 int getStartBottomSummaryRowIndex(DataGridConfiguration dataGridConfiguration) {
   final int bottomSummariesCount = getTableSummaryCount(
-      dataGridConfiguration, GridTableSummaryRowPosition.bottom);
+    dataGridConfiguration,
+    GridTableSummaryRowPosition.bottom,
+  );
   return dataGridConfiguration.container.rowCount - bottomSummariesCount;
 }
 
 /// Returns the table summary count based on position.
-int getTableSummaryCount(DataGridConfiguration dataGridConfiguration,
-    GridTableSummaryRowPosition position) {
+int getTableSummaryCount(
+  DataGridConfiguration dataGridConfiguration,
+  GridTableSummaryRowPosition position,
+) {
   if (dataGridConfiguration.tableSummaryRows.isNotEmpty) {
     return dataGridConfiguration.tableSummaryRows
         .where((GridTableSummaryRow row) => row.position == position)
@@ -374,20 +435,29 @@ int getTableSummaryCount(DataGridConfiguration dataGridConfiguration,
 }
 
 /// Returns the title column span to the table summary column.
-int getSummaryTitleColumnSpan(DataGridConfiguration dataGridConfiguration,
-    GridTableSummaryRow tableSummaryRow) {
-  int titleSpan = dataGridConfiguration.frozenColumnsCount > 0
-      ? min(dataGridConfiguration.frozenColumnsCount,
-          tableSummaryRow.titleColumnSpan)
-      : tableSummaryRow.titleColumnSpan;
+int getSummaryTitleColumnSpan(
+  DataGridConfiguration dataGridConfiguration,
+  GridTableSummaryRow tableSummaryRow,
+) {
+  int titleSpan =
+      dataGridConfiguration.frozenColumnsCount > 0
+          ? min(
+            dataGridConfiguration.frozenColumnsCount,
+            tableSummaryRow.titleColumnSpan,
+          )
+          : tableSummaryRow.titleColumnSpan;
   titleSpan = min(titleSpan, dataGridConfiguration.container.columnCount);
   return titleSpan;
 }
 
 /// Returns the span count for the table summary column.
-int getSummaryColumnSpan(DataGridConfiguration dataGridConfiguration, int index,
-    RowType rowType, GridTableSummaryRow? tableSummaryRow,
-    [int rowLevel = 0]) {
+int getSummaryColumnSpan(
+  DataGridConfiguration dataGridConfiguration,
+  int index,
+  RowType rowType,
+  GridTableSummaryRow? tableSummaryRow, [
+  int rowLevel = 0,
+]) {
   int span = 0;
   int columnCount = dataGridConfiguration.container.columnCount;
   if (rowType == RowType.captionSummaryCoveredRow) {
@@ -401,8 +471,10 @@ int getSummaryColumnSpan(DataGridConfiguration dataGridConfiguration, int index,
   index = resolveToScrollColumnIndex(dataGridConfiguration, index);
   if (rowType == RowType.tableSummaryRow) {
     if (tableSummaryRow != null) {
-      final int titleSpan =
-          getSummaryTitleColumnSpan(dataGridConfiguration, tableSummaryRow);
+      final int titleSpan = getSummaryTitleColumnSpan(
+        dataGridConfiguration,
+        tableSummaryRow,
+      );
       if (titleSpan > 0 && index < titleSpan) {
         span = titleSpan - 1;
       }
@@ -416,15 +488,18 @@ int getSummaryColumnSpan(DataGridConfiguration dataGridConfiguration, int index,
 /// Helps to get the table summary row for the given rowIndex from the
 /// `SfDataGrid.tableSummaryRows` collection.
 GridTableSummaryRow? getTableSummaryRow(
-    DataGridConfiguration dataGridConfiguration,
-    int rowIndex,
-    GridTableSummaryRowPosition position) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+  GridTableSummaryRowPosition position,
+) {
   GridTableSummaryRow getSummaryRowByPosition(
-      GridTableSummaryRowPosition position, int index) {
-    final List<GridTableSummaryRow> summaryRows = dataGridConfiguration
-        .tableSummaryRows
-        .where((GridTableSummaryRow row) => row.position == position)
-        .toList();
+    GridTableSummaryRowPosition position,
+    int index,
+  ) {
+    final List<GridTableSummaryRow> summaryRows =
+        dataGridConfiguration.tableSummaryRows
+            .where((GridTableSummaryRow row) => row.position == position)
+            .toList();
     return summaryRows[index];
   }
 
@@ -432,8 +507,10 @@ GridTableSummaryRow? getTableSummaryRow(
   if (position == GridTableSummaryRowPosition.bottom) {
     final int startTableSummaryIndex =
         dataGridConfiguration.container.rowCount -
-            getTableSummaryCount(
-                dataGridConfiguration, GridTableSummaryRowPosition.bottom);
+        getTableSummaryCount(
+          dataGridConfiguration,
+          GridTableSummaryRowPosition.bottom,
+        );
     currentSummaryRowIndex = rowIndex - startTableSummaryIndex;
   } else if (position == GridTableSummaryRowPosition.top) {
     final int startTableSummaryIndex =
@@ -446,7 +523,9 @@ GridTableSummaryRow? getTableSummaryRow(
 /// Calculates the summary value for the given summary column based on the
 /// summary type.
 String getSummaryValue(
-    GridSummaryColumn summaryColumn, List<DataGridRow> rows) {
+  GridSummaryColumn summaryColumn,
+  List<DataGridRow> rows,
+) {
   switch (summaryColumn.summaryType) {
     case GridSummaryType.sum:
       return calculateSum(rows, summaryColumn);
@@ -467,8 +546,8 @@ String calculateSum(List<DataGridRow> rows, GridSummaryColumn summaryColumn) {
   bool isNumericColumn = false;
   for (final DataGridRow row in rows) {
     final DataGridCell? cell = row.getCells().firstWhereOrNull(
-        (DataGridCell element) =>
-            element.columnName == summaryColumn.columnName);
+      (DataGridCell element) => element.columnName == summaryColumn.columnName,
+    );
     if (cell != null && cell.value != null) {
       if (!isNumericColumn && cell.value is! num) {
         break;
@@ -487,13 +566,15 @@ String calculateSum(List<DataGridRow> rows, GridSummaryColumn summaryColumn) {
 
 /// Calculates the minimum value for the given summary column.
 String calculateMinimum(
-    List<DataGridRow> rows, GridSummaryColumn summaryColumn) {
+  List<DataGridRow> rows,
+  GridSummaryColumn summaryColumn,
+) {
   dynamic minimum;
   bool isNumericColumn = false;
   for (final DataGridRow row in rows) {
     final DataGridCell? cell = row.getCells().firstWhereOrNull(
-        (DataGridCell element) =>
-            element.columnName == summaryColumn.columnName);
+      (DataGridCell element) => element.columnName == summaryColumn.columnName,
+    );
     if (cell != null && cell.value != null) {
       if (!isNumericColumn && cell.value is! num) {
         break;
@@ -513,13 +594,15 @@ String calculateMinimum(
 
 /// Calculates the maximum value for the given summary column.
 String calculateMaximum(
-    List<DataGridRow> rows, GridSummaryColumn summaryColumn) {
+  List<DataGridRow> rows,
+  GridSummaryColumn summaryColumn,
+) {
   dynamic maximum;
   bool isNumericColumn = false;
   for (final DataGridRow row in rows) {
     final DataGridCell? cell = row.getCells().firstWhereOrNull(
-        (DataGridCell element) =>
-            element.columnName == summaryColumn.columnName);
+      (DataGridCell element) => element.columnName == summaryColumn.columnName,
+    );
     if (cell != null && cell.value != null) {
       if (!isNumericColumn && cell.value is! num) {
         break;
@@ -539,14 +622,16 @@ String calculateMaximum(
 
 /// Calculates the average value for the given summary column.
 String calculateAverage(
-    List<DataGridRow> rows, GridSummaryColumn summaryColumn) {
+  List<DataGridRow> rows,
+  GridSummaryColumn summaryColumn,
+) {
   num? sum;
   int count = 0;
   bool isNumericColumn = false;
   for (final DataGridRow row in rows) {
     final DataGridCell? cell = row.getCells().firstWhereOrNull(
-        (DataGridCell element) =>
-            element.columnName == summaryColumn.columnName);
+      (DataGridCell element) => element.columnName == summaryColumn.columnName,
+    );
 
     if (cell != null && cell.value != null) {
       if (!isNumericColumn && cell.value is! num) {
@@ -644,8 +729,11 @@ bool _compareByType(FilterCondition condition, Object? cellValue, String type) {
 }
 
 /// Checkes whether any cell has greater value than the filter value.
-bool compareGreaterThan(FilterCondition condition, Object? cellValue,
-    [bool checkEqual = false]) {
+bool compareGreaterThan(
+  FilterCondition condition,
+  Object? cellValue, [
+  bool checkEqual = false,
+]) {
   if (condition.value == null || cellValue == null) {
     return false;
   }
@@ -659,8 +747,11 @@ bool compareGreaterThan(FilterCondition condition, Object? cellValue,
 }
 
 /// Checkes whether any cell has less value than the filter value.
-bool compareLessThan(FilterCondition condition, Object? cellValue,
-    [bool checkEqual = false]) {
+bool compareLessThan(
+  FilterCondition condition,
+  Object? cellValue, [
+  bool checkEqual = false,
+]) {
   if (condition.value == null || cellValue == null) {
     return false;
   }
@@ -690,7 +781,9 @@ int? _getCompareValue(Object? cellValue, Object? filterValue) {
 
 /// Gets the advanced filter name.
 String getFilterTileText(
-    SfLocalizations localizations, AdvancedFilterType type) {
+  SfLocalizations localizations,
+  AdvancedFilterType type,
+) {
   switch (type) {
     case AdvancedFilterType.text:
       return localizations.textFiltersDataGridFilteringLabel;
@@ -703,7 +796,10 @@ String getFilterTileText(
 
 /// Returns the Sort button text based on the filter type.
 String getSortButtonText(
-    SfLocalizations localizations, bool isAscending, AdvancedFilterType type) {
+  SfLocalizations localizations,
+  bool isAscending,
+  AdvancedFilterType type,
+) {
   switch (type) {
     case AdvancedFilterType.text:
       return isAscending
@@ -722,7 +818,9 @@ String getSortButtonText(
 
 /// Returns the `FilterType` based on the given value.
 FilterType getFilterType(
-    DataGridConfiguration dataGridConfiguration, String value) {
+  DataGridConfiguration dataGridConfiguration,
+  String value,
+) {
   bool isEqual(String labelValue) {
     return labelValue == value;
   }
@@ -766,8 +864,11 @@ FilterType getFilterType(
 }
 
 /// Gets the name of the given `FilterType`.
-String getFilterName(DataGridConfiguration dataGridConfiguration,
-    FilterType type, Object? value) {
+String getFilterName(
+  DataGridConfiguration dataGridConfiguration,
+  FilterType type,
+  Object? value,
+) {
   final SfLocalizations localizations = dataGridConfiguration.localizations;
   switch (type) {
     case FilterType.equals:
@@ -828,8 +929,11 @@ String getFilterName(DataGridConfiguration dataGridConfiguration,
 //----------------------------------------------------------------------------//
 
 /// Helps to get the sequence of spanned cell indexes
-List<int> getChildSequence(DataGridConfiguration dataGridConfiguration,
-    StackedHeaderCell? column, int rowIndex) {
+List<int> getChildSequence(
+  DataGridConfiguration dataGridConfiguration,
+  StackedHeaderCell? column,
+  int rowIndex,
+) {
   final List<int> childSequenceNo = <int>[];
 
   if (column != null && column.columnNames.isNotEmpty) {
@@ -847,17 +951,24 @@ List<int> getChildSequence(DataGridConfiguration dataGridConfiguration,
 }
 
 /// Helps to find the total count of row spanned.
-int getRowSpan(DataGridConfiguration dataGridConfiguration, int rowIndex,
-    int columnIndex, bool isStackedHeader,
-    {String? mappingName, StackedHeaderCell? stackedHeaderCell}) {
+int getRowSpan(
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+  int columnIndex,
+  bool isStackedHeader, {
+  String? mappingName,
+  StackedHeaderCell? stackedHeaderCell,
+}) {
   int rowSpan = 0;
   int startIndex = 0;
   int endIndex = 0;
   if (isStackedHeader && stackedHeaderCell != null) {
-    final List<List<int>> spannedColumns =
-        getConsecutiveRanges(getChildColumnIndexes(stackedHeaderCell));
-    final List<int>? spannedColumn = spannedColumns
-        .singleWhereOrNull((List<int> element) => element.first == columnIndex);
+    final List<List<int>> spannedColumns = getConsecutiveRanges(
+      getChildColumnIndexes(stackedHeaderCell),
+    );
+    final List<int>? spannedColumn = spannedColumns.singleWhereOrNull(
+      (List<int> element) => element.first == columnIndex,
+    );
     if (spannedColumn != null) {
       startIndex = spannedColumn.reduce(min);
       endIndex = startIndex + spannedColumn.length - 1;
@@ -874,8 +985,9 @@ int getRowSpan(DataGridConfiguration dataGridConfiguration, int rowIndex,
         dataGridConfiguration.stackedHeaderRows[rowIndex];
     for (final StackedHeaderCell stackedColumn in stackedHeaderRow.cells) {
       if (isStackedHeader) {
-        final List<List<int>> columnsRange =
-            getConsecutiveRanges(getChildColumnIndexes(stackedColumn));
+        final List<List<int>> columnsRange = getConsecutiveRanges(
+          getChildColumnIndexes(stackedColumn),
+        );
         for (final List<int> column in columnsRange) {
           if ((startIndex >= column.first && startIndex <= column.last) ||
               (endIndex >= column.first && endIndex <= column.last)) {
@@ -931,20 +1043,24 @@ List<List<int>> getConsecutiveRanges(List<int> columnsIndex) {
 /// Get the visible line based on view size and scroll offset.
 /// Based on the [TextDirection] it will return visible lines info.
 VisibleLinesCollection getVisibleLines(
-    DataGridConfiguration dataGridConfiguration) {
+  DataGridConfiguration dataGridConfiguration,
+) {
   if (dataGridConfiguration.textDirection == TextDirection.rtl) {
     dataGridConfiguration.container.scrollColumns.markDirty();
   }
 
   return dataGridConfiguration.container.scrollColumns.getVisibleLines(
-      dataGridConfiguration.textDirection == TextDirection.rtl);
+    dataGridConfiguration.textDirection == TextDirection.rtl,
+  );
 }
 
 /// Helps to scroll the [SfDataGrid] vertically.
 /// [canAnimate]: decide to apply animation on scrolling or not.
 Future<void> scrollVertical(
-    DataGridConfiguration dataGridConfiguration, double verticalOffset,
-    [bool canAnimate = false]) async {
+  DataGridConfiguration dataGridConfiguration,
+  double verticalOffset, [
+  bool canAnimate = false,
+]) async {
   final ScrollController? verticalController =
       dataGridConfiguration.verticalScrollController;
 
@@ -953,19 +1069,22 @@ Future<void> scrollVertical(
   }
 
   final double maxScrollExtent = max(
-      dataGridConfiguration.container.rowHeights.totalExtent -
-          dataGridConfiguration.viewHeight,
-      0.0);
+    dataGridConfiguration.container.rowHeights.totalExtent -
+        dataGridConfiguration.viewHeight,
+    0.0,
+  );
   verticalOffset = min(verticalOffset, maxScrollExtent);
-  verticalOffset = verticalOffset.isNegative || verticalOffset == 0.0
-      ? verticalController.position.minScrollExtent
-      : verticalOffset;
+  verticalOffset =
+      verticalOffset.isNegative || verticalOffset == 0.0
+          ? verticalController.position.minScrollExtent
+          : verticalOffset;
 
   if (canAnimate) {
     await dataGridConfiguration.verticalScrollController!.animateTo(
-        verticalOffset,
-        duration: const Duration(milliseconds: 1000),
-        curve: Curves.fastOutSlowIn);
+      verticalOffset,
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.fastOutSlowIn,
+    );
   } else {
     dataGridConfiguration.verticalScrollController!.jumpTo(verticalOffset);
   }
@@ -975,8 +1094,10 @@ Future<void> scrollVertical(
 /// Helps to scroll the [SfDataGrid] horizontally.
 /// [canAnimate]: decide to apply animation on scrolling or not.
 Future<void> scrollHorizontal(
-    DataGridConfiguration dataGridConfiguration, double horizontalOffset,
-    [bool canAnimate = false]) async {
+  DataGridConfiguration dataGridConfiguration,
+  double horizontalOffset, [
+  bool canAnimate = false,
+]) async {
   final ScrollController? horizontalController =
       dataGridConfiguration.horizontalScrollController;
 
@@ -985,19 +1106,22 @@ Future<void> scrollHorizontal(
   }
 
   final double maxScrollExtent = max(
-      dataGridConfiguration.container.columnWidths.totalExtent -
-          dataGridConfiguration.viewWidth,
-      0.0);
+    dataGridConfiguration.container.columnWidths.totalExtent -
+        dataGridConfiguration.viewWidth,
+    0.0,
+  );
   horizontalOffset = min(horizontalOffset, maxScrollExtent);
-  horizontalOffset = horizontalOffset.isNegative || horizontalOffset == 0.0
-      ? horizontalController.position.minScrollExtent
-      : horizontalOffset;
+  horizontalOffset =
+      horizontalOffset.isNegative || horizontalOffset == 0.0
+          ? horizontalController.position.minScrollExtent
+          : horizontalOffset;
 
   if (canAnimate) {
     await dataGridConfiguration.horizontalScrollController!.animateTo(
-        horizontalOffset,
-        duration: const Duration(milliseconds: 1000),
-        curve: Curves.fastOutSlowIn);
+      horizontalOffset,
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.fastOutSlowIn,
+    );
   } else {
     dataGridConfiguration.horizontalScrollController!.jumpTo(horizontalOffset);
   }
@@ -1005,8 +1129,11 @@ Future<void> scrollHorizontal(
 }
 
 /// Decide to enable swipe in [SfDataGrid]
-bool canSwipeRow(DataGridConfiguration dataGridConfiguration,
-    DataGridRowSwipeDirection swipeDirection, double swipeOffset) {
+bool canSwipeRow(
+  DataGridConfiguration dataGridConfiguration,
+  DataGridRowSwipeDirection swipeDirection,
+  double swipeOffset,
+) {
   if (dataGridConfiguration.container.horizontalOffset == 0) {
     if ((dataGridConfiguration.container.extentWidth >
             dataGridConfiguration.viewWidth) &&
@@ -1034,32 +1161,41 @@ bool canSwipeRow(DataGridConfiguration dataGridConfiguration,
 
 /// Decide the swipe direction based on [TextDirection].
 DataGridRowSwipeDirection getSwipeDirection(
-    DataGridConfiguration dataGridConfiguration, double swipingOffset) {
+  DataGridConfiguration dataGridConfiguration,
+  double swipingOffset,
+) {
   return swipingOffset >= 0
       ? dataGridConfiguration.textDirection == TextDirection.ltr
           ? DataGridRowSwipeDirection.startToEnd
           : DataGridRowSwipeDirection.endToStart
       : dataGridConfiguration.textDirection == TextDirection.ltr
-          ? DataGridRowSwipeDirection.endToStart
-          : DataGridRowSwipeDirection.startToEnd;
+      ? DataGridRowSwipeDirection.endToStart
+      : DataGridRowSwipeDirection.startToEnd;
 }
 
 /// Helps to get the [DataGridRow] based on respective rowIndex.
 DataGridRow getDataGridRow(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   final int recordIndex = resolveToRecordIndex(dataGridConfiguration, rowIndex);
   return effectiveRows(dataGridConfiguration.source)[recordIndex];
 }
 
 /// Helps to get the [DataGridRowAdapter] based on respective [DataGridRow].
 DataGridRowAdapter? getDataGridRowAdapter(
-    DataGridConfiguration dataGridConfiguration, DataGridRow dataGridRow) {
+  DataGridConfiguration dataGridConfiguration,
+  DataGridRow dataGridRow,
+) {
   DataGridRowAdapter buildBlankRow(DataGridRow dataGridRow) {
     return DataGridRowAdapter(
-        cells: dataGridConfiguration.columns
-            .map<Widget>(
-                (GridColumn dataCell) => SizedBox.fromSize(size: Size.zero))
-            .toList());
+      cells:
+          dataGridConfiguration.columns
+              .map<Widget>(
+                (GridColumn dataCell) => SizedBox.fromSize(size: Size.zero),
+              )
+              .toList(),
+    );
   }
 
   return dataGridConfiguration.source.buildRow(dataGridRow) ??
@@ -1068,8 +1204,12 @@ DataGridRowAdapter? getDataGridRowAdapter(
 
 /// Check the length of two list.
 /// If its not satisfies it throw a exception.
-bool debugCheckTheLength(DataGridConfiguration dataGridConfiguration,
-    int columnLength, int cellLength, String message) {
+bool debugCheckTheLength(
+  DataGridConfiguration dataGridConfiguration,
+  int columnLength,
+  int cellLength,
+  String message,
+) {
   cellLength += dataGridConfiguration.showCheckboxColumn ? 1 : 0;
   assert(() {
     if (columnLength != cellLength) {
@@ -1085,7 +1225,8 @@ bool debugCheckTheLength(DataGridConfiguration dataGridConfiguration,
 /// Return the cumulative distance of frozen top rows. The cumulative distance
 /// covered the header, stacked header and freeze pane
 double getCumulativeFrozenRowsHeight(
-    DataGridConfiguration dataGridConfiguration) {
+  DataGridConfiguration dataGridConfiguration,
+) {
   final int topFrozenRowsLength = dataGridConfiguration.container.frozenRows;
   double cumulativeFrozenRowsHeight = 0.0;
   for (int index = 0; index < topFrozenRowsLength; index++) {
@@ -1097,7 +1238,8 @@ double getCumulativeFrozenRowsHeight(
 
 /// Return the cumulative distance of frozen bottom rows.
 double getCumulativeFooterFrozenRowsHeight(
-    DataGridConfiguration dataGridConfiguration) {
+  DataGridConfiguration dataGridConfiguration,
+) {
   final int bottomFrozenRowsLength =
       dataGridConfiguration.container.footerFrozenRows;
   double cumulativeFooterFrozenRowsHeight = 0.0;
@@ -1112,7 +1254,8 @@ double getCumulativeFooterFrozenRowsHeight(
 /// Return the cumulative distance of frozen column on left side. The
 /// cumulative distance covered the row header, indent cell, freeze pane
 double getCumulativeFrozenColumnsWidth(
-    DataGridConfiguration dataGridConfiguration) {
+  DataGridConfiguration dataGridConfiguration,
+) {
   final int leftColumnCount = dataGridConfiguration.container.frozenColumns;
   double cumulativeFrozenColumnWidth = 0.0;
   for (int index = 0; index < leftColumnCount; index++) {
@@ -1124,7 +1267,8 @@ double getCumulativeFrozenColumnsWidth(
 
 /// Return the cumulative distance of frozen right side columns.
 double getCumulativeFooterFrozenColumnsWidth(
-    DataGridConfiguration dataGridConfiguration) {
+  DataGridConfiguration dataGridConfiguration,
+) {
   final int rightColumnCount =
       dataGridConfiguration.container.footerFrozenColumns;
   double cumulativeFooterFrozenColumnWidth = 0.0;
@@ -1138,21 +1282,29 @@ double getCumulativeFooterFrozenColumnsWidth(
 
 /// Resolve the cumulative horizontal offset with frozen rows.
 double resolveVerticalScrollOffset(
-    DataGridConfiguration dataGridConfiguration, double verticalOffset) {
-  final double leftOffset =
-      getCumulativeFrozenRowsHeight(dataGridConfiguration);
-  final double rightOffset =
-      getCumulativeFooterFrozenRowsHeight(dataGridConfiguration);
+  DataGridConfiguration dataGridConfiguration,
+  double verticalOffset,
+) {
+  final double leftOffset = getCumulativeFrozenRowsHeight(
+    dataGridConfiguration,
+  );
+  final double rightOffset = getCumulativeFooterFrozenRowsHeight(
+    dataGridConfiguration,
+  );
   final double bottomOffset =
       dataGridConfiguration.container.extentHeight - rightOffset;
   if (verticalOffset >= bottomOffset) {
     return dataGridConfiguration
-        .verticalScrollController!.position.maxScrollExtent;
+        .verticalScrollController!
+        .position
+        .maxScrollExtent;
   }
 
   if (verticalOffset <= leftOffset) {
     return dataGridConfiguration
-        .verticalScrollController!.position.minScrollExtent;
+        .verticalScrollController!
+        .position
+        .minScrollExtent;
   }
 
   for (int i = 0; i < dataGridConfiguration.container.frozenRows; i++) {
@@ -1164,21 +1316,29 @@ double resolveVerticalScrollOffset(
 
 /// Resolve the cumulative horizontal offset with frozen column.
 double resolveHorizontalScrollOffset(
-    DataGridConfiguration dataGridConfiguration, double horizontalOffset) {
-  final double topOffset =
-      getCumulativeFrozenColumnsWidth(dataGridConfiguration);
-  final double bottomOffset =
-      getCumulativeFooterFrozenColumnsWidth(dataGridConfiguration);
+  DataGridConfiguration dataGridConfiguration,
+  double horizontalOffset,
+) {
+  final double topOffset = getCumulativeFrozenColumnsWidth(
+    dataGridConfiguration,
+  );
+  final double bottomOffset = getCumulativeFooterFrozenColumnsWidth(
+    dataGridConfiguration,
+  );
   final double rightOffset =
       dataGridConfiguration.container.extentWidth - bottomOffset;
   if (horizontalOffset >= rightOffset) {
     return dataGridConfiguration
-        .horizontalScrollController!.position.maxScrollExtent;
+        .horizontalScrollController!
+        .position
+        .maxScrollExtent;
   }
 
   if (horizontalOffset <= topOffset) {
     return dataGridConfiguration
-        .horizontalScrollController!.position.minScrollExtent;
+        .horizontalScrollController!
+        .position
+        .minScrollExtent;
   }
 
   for (int i = 0; i < dataGridConfiguration.container.frozenColumns; i++) {
@@ -1190,7 +1350,9 @@ double resolveHorizontalScrollOffset(
 
 /// Get the vertical offset with reduction of frozen rows
 double getVerticalOffset(
-    DataGridConfiguration dataGridConfiguration, int rowIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int rowIndex,
+) {
   if (rowIndex < 0) {
     return dataGridConfiguration.container.verticalOffset;
   }
@@ -1203,7 +1365,9 @@ double getVerticalOffset(
 
 /// Get the vertical offset with reduction of frozen columns
 double getHorizontalOffset(
-    DataGridConfiguration dataGridConfiguration, int columnIndex) {
+  DataGridConfiguration dataGridConfiguration,
+  int columnIndex,
+) {
   if (columnIndex < 0) {
     return dataGridConfiguration.container.horizontalOffset;
   }
@@ -1218,21 +1382,24 @@ double getHorizontalOffset(
 /// It's helps to get the position of rows and column scroll into desired
 /// DataGridScrollPosition.
 double resolveScrollOffsetToPosition(
-    DataGridScrollPosition position,
-    ScrollAxisBase scrollAxisBase,
-    double measuredScrollOffset,
-    double viewDimension,
-    double headerExtent,
-    double bottomExtent,
-    double defaultDimension,
-    double defaultScrollOffset,
-    int index) {
+  DataGridScrollPosition position,
+  ScrollAxisBase scrollAxisBase,
+  double measuredScrollOffset,
+  double viewDimension,
+  double headerExtent,
+  double bottomExtent,
+  double defaultDimension,
+  double defaultScrollOffset,
+  int index,
+) {
   if (position == DataGridScrollPosition.center) {
-    measuredScrollOffset = measuredScrollOffset -
+    measuredScrollOffset =
+        measuredScrollOffset -
         ((viewDimension - bottomExtent - headerExtent) / 2) +
         (defaultDimension / 2);
   } else if (position == DataGridScrollPosition.end) {
-    measuredScrollOffset = measuredScrollOffset -
+    measuredScrollOffset =
+        measuredScrollOffset -
         (viewDimension - bottomExtent - headerExtent) +
         defaultDimension;
   } else if (position == DataGridScrollPosition.makeVisible) {
@@ -1246,7 +1413,8 @@ double resolveScrollOffsetToPosition(
       measuredScrollOffset = defaultScrollOffset;
     }
     if (defaultScrollOffset - measuredScrollOffset < 0) {
-      measuredScrollOffset = measuredScrollOffset -
+      measuredScrollOffset =
+          measuredScrollOffset -
           (viewDimension - bottomExtent - headerExtent) +
           defaultDimension;
     }
@@ -1257,7 +1425,9 @@ double resolveScrollOffsetToPosition(
 
 /// This method helps to resolve getting the column for the tap interaction callbacks.
 GridColumn? getGridColumn(
-    DataGridConfiguration dataGridConfiguration, DataCellBase dataCell) {
+  DataGridConfiguration dataGridConfiguration,
+  DataCellBase dataCell,
+) {
   GridColumn? column = dataCell.gridColumn;
   if (dataCell.dataRow != null &&
       (dataCell.dataRow!.rowType == RowType.captionSummaryCoveredRow ||
@@ -1265,10 +1435,11 @@ GridColumn? getGridColumn(
     final int startIndex = dataGridConfiguration.showCheckboxColumn ? 1 : 0;
 
     column = dataGridConfiguration.columns.firstWhereOrNull(
-        (GridColumn element) =>
-            element.actualWidth > 0 &&
-            element.visible &&
-            dataGridConfiguration.columns.indexOf(element) >= startIndex);
+      (GridColumn element) =>
+          element.actualWidth > 0 &&
+          element.visible &&
+          dataGridConfiguration.columns.indexOf(element) >= startIndex,
+    );
   }
   return column;
 }

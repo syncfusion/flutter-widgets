@@ -43,67 +43,71 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
     }
 
     return RenderRadialAxisWidget(
-        startAngle: axis.startAngle,
-        endAngle: axis.endAngle,
-        radiusFactor: axis.radiusFactor,
-        centerX: axis.centerX,
-        centerY: axis.centerY,
-        canRotateLabels: axis.canRotateLabels,
-        canScaleToFit: axis.canScaleToFit,
-        showFirstLabel: axis.showFirstLabel,
-        showLastLabel: axis.showLastLabel,
-        onLabelCreated: axis.onLabelCreated,
-        onAxisTapped: axis.onAxisTapped,
-        minimum: axis.minimum,
-        maximum: axis.maximum,
-        interval: axis.interval,
-        isInversed: axis.isInversed,
-        minorTicksPerInterval: axis.minorTicksPerInterval,
-        showAxisLine: axis.showAxisLine,
-        showLabels: axis.showLabels,
-        showTicks: axis.showTicks,
-        tickOffset: axis.tickOffset,
-        numberFormat: axis.numberFormat,
-        labelFormat: axis.labelFormat,
-        maximumLabels: axis.maximumLabels,
-        labelOffset: axis.labelOffset,
-        useRangeColorForAxis: axis.useRangeColorForAxis,
-        labelPosition: axis.labelsPosition,
-        tickPosition: axis.ticksPosition,
-        offsetUnit: axis.offsetUnit,
-        thickness: axisLineStyle.thickness,
-        thicknessUnit: axisLineStyle.thicknessUnit,
-        axisLineColor: axisLineStyle.color,
-        axisLineGradient: axisLineStyle.gradient,
-        axisLineCornerStyle: axisLineStyle.cornerStyle,
-        axisLineDashArray: axisLineStyle.dashArray,
-        gaugeTextStyle: axis.axisLabelStyle,
-        majorTickLength: majorTickStyle.length,
-        majorTickThickness: majorTickStyle.thickness,
-        majorTickLengthUnit: majorTickStyle.lengthUnit,
-        majorTickColor: majorTickStyle.color,
-        majorTickDashArray: majorTickStyle.dashArray,
-        minorTickLength: minorTickStyle.length,
-        minorTickThickness: minorTickStyle.thickness,
-        minorTickLengthUnit: minorTickStyle.lengthUnit,
-        minorTickColor: minorTickStyle.color,
-        minorTickDashArray: minorTickStyle.dashArray,
-        axisLineAnimation: radialGaugeScope.animation,
-        axisElementsAnimation: radialGaugeScope.animation1,
-        repaintNotifier: radialGaugeScope.repaintNotifier,
-        gaugeThemeData: gaugeTheme,
-        themeData: themeData,
-        colorScheme: colorScheme,
-        ranges: axis.ranges,
-        renderer: renderer,
-        backgroundImage: axis.backgroundImage,
-        imageStream: axis.backgroundImage
-            ?.resolve(createLocalImageConfiguration(context)));
+      startAngle: axis.startAngle,
+      endAngle: axis.endAngle,
+      radiusFactor: axis.radiusFactor,
+      centerX: axis.centerX,
+      centerY: axis.centerY,
+      canRotateLabels: axis.canRotateLabels,
+      canScaleToFit: axis.canScaleToFit,
+      showFirstLabel: axis.showFirstLabel,
+      showLastLabel: axis.showLastLabel,
+      onLabelCreated: axis.onLabelCreated,
+      onAxisTapped: axis.onAxisTapped,
+      minimum: axis.minimum,
+      maximum: axis.maximum,
+      interval: axis.interval,
+      isInversed: axis.isInversed,
+      minorTicksPerInterval: axis.minorTicksPerInterval,
+      showAxisLine: axis.showAxisLine,
+      showLabels: axis.showLabels,
+      showTicks: axis.showTicks,
+      tickOffset: axis.tickOffset,
+      numberFormat: axis.numberFormat,
+      labelFormat: axis.labelFormat,
+      maximumLabels: axis.maximumLabels,
+      labelOffset: axis.labelOffset,
+      useRangeColorForAxis: axis.useRangeColorForAxis,
+      labelPosition: axis.labelsPosition,
+      tickPosition: axis.ticksPosition,
+      offsetUnit: axis.offsetUnit,
+      thickness: axisLineStyle.thickness,
+      thicknessUnit: axisLineStyle.thicknessUnit,
+      axisLineColor: axisLineStyle.color,
+      axisLineGradient: axisLineStyle.gradient,
+      axisLineCornerStyle: axisLineStyle.cornerStyle,
+      axisLineDashArray: axisLineStyle.dashArray,
+      gaugeTextStyle: axis.axisLabelStyle,
+      majorTickLength: majorTickStyle.length,
+      majorTickThickness: majorTickStyle.thickness,
+      majorTickLengthUnit: majorTickStyle.lengthUnit,
+      majorTickColor: majorTickStyle.color,
+      majorTickDashArray: majorTickStyle.dashArray,
+      minorTickLength: minorTickStyle.length,
+      minorTickThickness: minorTickStyle.thickness,
+      minorTickLengthUnit: minorTickStyle.lengthUnit,
+      minorTickColor: minorTickStyle.color,
+      minorTickDashArray: minorTickStyle.dashArray,
+      axisLineAnimation: radialGaugeScope.animation,
+      axisElementsAnimation: radialGaugeScope.animation1,
+      repaintNotifier: radialGaugeScope.repaintNotifier,
+      gaugeThemeData: gaugeTheme,
+      themeData: themeData,
+      colorScheme: colorScheme,
+      ranges: axis.ranges,
+      renderer: renderer,
+      backgroundImage: axis.backgroundImage,
+      imageStream: axis.backgroundImage?.resolve(
+        createLocalImageConfiguration(context),
+      ),
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderRadialAxisWidget renderObject) {
+    BuildContext context,
+    RenderRadialAxisWidget renderObject,
+  ) {
     final RadialAxisScope radialGaugeScope = RadialAxisScope.of(context);
     final AxisLineStyle axisLineStyle = axis.axisLineStyle;
     final MajorTickStyle majorTickStyle = axis.majorTickStyle;
@@ -172,8 +176,9 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
       ..themeData = themeData
       ..colorScheme = colorScheme
       ..renderer = renderer
-      ..imageStream =
-          axis.backgroundImage?.resolve(createLocalImageConfiguration(context))
+      ..imageStream = axis.backgroundImage?.resolve(
+        createLocalImageConfiguration(context),
+      )
       ..backgroundImage = axis.backgroundImage;
     super.updateRenderObject(context, renderObject);
   }
@@ -182,117 +187,117 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
 //// Represents the renderer of radial gauge axis element.
 class RenderRadialAxisWidget extends RenderBox {
   /// Creates a object for [RenderRadialAxis].
-  RenderRadialAxisWidget(
-      {required double startAngle,
-      required double endAngle,
-      required double radiusFactor,
-      required double centerX,
-      required double centerY,
-      required bool canRotateLabels,
-      required bool canScaleToFit,
-      required bool showFirstLabel,
-      required bool showLastLabel,
-      ValueChanged<AxisLabelCreatedArgs>? onLabelCreated,
-      ValueChanged<double>? onAxisTapped,
-      required double minimum,
-      required double maximum,
-      double? interval,
-      required bool isInversed,
-      required double minorTicksPerInterval,
-      required bool showAxisLine,
-      required bool showLabels,
-      required bool showTicks,
-      required double tickOffset,
-      init.NumberFormat? numberFormat,
-      String? labelFormat,
-      required int maximumLabels,
-      required double labelOffset,
-      required bool useRangeColorForAxis,
-      required ElementsPosition labelPosition,
-      required ElementsPosition tickPosition,
-      required GaugeSizeUnit offsetUnit,
-      required double thickness,
-      required GaugeSizeUnit thicknessUnit,
-      Color? axisLineColor,
-      Gradient? axisLineGradient,
-      required CornerStyle axisLineCornerStyle,
-      List<double>? axisLineDashArray,
-      required GaugeTextStyle gaugeTextStyle,
-      required double majorTickLength,
-      required double majorTickThickness,
-      required GaugeSizeUnit majorTickLengthUnit,
-      Color? majorTickColor,
-      List<double>? majorTickDashArray,
-      required double minorTickLength,
-      required double minorTickThickness,
-      required GaugeSizeUnit minorTickLengthUnit,
-      Color? minorTickColor,
-      List<double>? minorTickDashArray,
-      required SfGaugeThemeData gaugeThemeData,
-      required ThemeData themeData,
-      required SfColorScheme colorScheme,
-      RadialAxisRenderer? renderer,
-      List<GaugeRange>? ranges,
-      Animation<double>? axisElementsAnimation,
-      Animation<double>? axisLineAnimation,
-      ImageStream? imageStream,
-      required ValueNotifier<int> repaintNotifier,
-      ImageProvider? backgroundImage})
-      : _startAngle = startAngle,
-        _endAngle = endAngle,
-        _radiusFactor = radiusFactor,
-        _centerX = centerX,
-        _centerY = centerY,
-        _canRotateLabels = canRotateLabels,
-        _canScaleToFit = canScaleToFit,
-        _showFirstLabel = showFirstLabel,
-        _showLastLabel = showLastLabel,
-        _onLabelCreated = onLabelCreated,
-        _onAxisTapped = onAxisTapped,
-        _minimum = minimum,
-        _maximum = maximum,
-        _interval = interval,
-        _isInversed = isInversed,
-        _minorTicksPerInterval = minorTicksPerInterval,
-        _showAxisLine = showAxisLine,
-        _showLabels = showLabels,
-        _showTicks = showTicks,
-        _tickOffset = tickOffset,
-        _numberFormat = numberFormat,
-        _labelFormat = labelFormat,
-        _maximumLabels = maximumLabels,
-        _labelOffset = labelOffset,
-        _useRangeColorForAxis = useRangeColorForAxis,
-        _labelPosition = labelPosition,
-        _tickPosition = tickPosition,
-        _offsetUnit = offsetUnit,
-        _thickness = thickness,
-        _thicknessUnit = thicknessUnit,
-        _axisLineColor = axisLineColor,
-        _axisLineGradient = axisLineGradient,
-        _axisLineCornerStyle = axisLineCornerStyle,
-        _axisLineDashArray = axisLineDashArray,
-        _gaugeTextStyle = gaugeTextStyle,
-        _majorTickLength = majorTickLength,
-        _majorTickThickness = majorTickThickness,
-        _majorTickLengthUnit = majorTickLengthUnit,
-        _majorTickColor = majorTickColor,
-        _majorTickDashArray = majorTickDashArray,
-        _minorTickLength = minorTickLength,
-        _minorTickThickness = minorTickThickness,
-        _minorTickLengthUnit = minorTickLengthUnit,
-        _minorTickColor = minorTickColor,
-        _minorTickDashArray = minorTickDashArray,
-        _axisLineAnimation = axisLineAnimation,
-        _axisElementsAnimation = axisElementsAnimation,
-        _gaugeThemeData = gaugeThemeData,
-        _imageStream = imageStream,
-        _ranges = ranges,
-        _renderer = renderer,
-        _repaintNotifier = repaintNotifier,
-        _themeData = themeData,
-        _colorScheme = colorScheme,
-        _backgroundImage = backgroundImage {
+  RenderRadialAxisWidget({
+    required double startAngle,
+    required double endAngle,
+    required double radiusFactor,
+    required double centerX,
+    required double centerY,
+    required bool canRotateLabels,
+    required bool canScaleToFit,
+    required bool showFirstLabel,
+    required bool showLastLabel,
+    ValueChanged<AxisLabelCreatedArgs>? onLabelCreated,
+    ValueChanged<double>? onAxisTapped,
+    required double minimum,
+    required double maximum,
+    double? interval,
+    required bool isInversed,
+    required double minorTicksPerInterval,
+    required bool showAxisLine,
+    required bool showLabels,
+    required bool showTicks,
+    required double tickOffset,
+    init.NumberFormat? numberFormat,
+    String? labelFormat,
+    required int maximumLabels,
+    required double labelOffset,
+    required bool useRangeColorForAxis,
+    required ElementsPosition labelPosition,
+    required ElementsPosition tickPosition,
+    required GaugeSizeUnit offsetUnit,
+    required double thickness,
+    required GaugeSizeUnit thicknessUnit,
+    Color? axisLineColor,
+    Gradient? axisLineGradient,
+    required CornerStyle axisLineCornerStyle,
+    List<double>? axisLineDashArray,
+    required GaugeTextStyle gaugeTextStyle,
+    required double majorTickLength,
+    required double majorTickThickness,
+    required GaugeSizeUnit majorTickLengthUnit,
+    Color? majorTickColor,
+    List<double>? majorTickDashArray,
+    required double minorTickLength,
+    required double minorTickThickness,
+    required GaugeSizeUnit minorTickLengthUnit,
+    Color? minorTickColor,
+    List<double>? minorTickDashArray,
+    required SfGaugeThemeData gaugeThemeData,
+    required ThemeData themeData,
+    required SfColorScheme colorScheme,
+    RadialAxisRenderer? renderer,
+    List<GaugeRange>? ranges,
+    Animation<double>? axisElementsAnimation,
+    Animation<double>? axisLineAnimation,
+    ImageStream? imageStream,
+    required ValueNotifier<int> repaintNotifier,
+    ImageProvider? backgroundImage,
+  }) : _startAngle = startAngle,
+       _endAngle = endAngle,
+       _radiusFactor = radiusFactor,
+       _centerX = centerX,
+       _centerY = centerY,
+       _canRotateLabels = canRotateLabels,
+       _canScaleToFit = canScaleToFit,
+       _showFirstLabel = showFirstLabel,
+       _showLastLabel = showLastLabel,
+       _onLabelCreated = onLabelCreated,
+       _onAxisTapped = onAxisTapped,
+       _minimum = minimum,
+       _maximum = maximum,
+       _interval = interval,
+       _isInversed = isInversed,
+       _minorTicksPerInterval = minorTicksPerInterval,
+       _showAxisLine = showAxisLine,
+       _showLabels = showLabels,
+       _showTicks = showTicks,
+       _tickOffset = tickOffset,
+       _numberFormat = numberFormat,
+       _labelFormat = labelFormat,
+       _maximumLabels = maximumLabels,
+       _labelOffset = labelOffset,
+       _useRangeColorForAxis = useRangeColorForAxis,
+       _labelPosition = labelPosition,
+       _tickPosition = tickPosition,
+       _offsetUnit = offsetUnit,
+       _thickness = thickness,
+       _thicknessUnit = thicknessUnit,
+       _axisLineColor = axisLineColor,
+       _axisLineGradient = axisLineGradient,
+       _axisLineCornerStyle = axisLineCornerStyle,
+       _axisLineDashArray = axisLineDashArray,
+       _gaugeTextStyle = gaugeTextStyle,
+       _majorTickLength = majorTickLength,
+       _majorTickThickness = majorTickThickness,
+       _majorTickLengthUnit = majorTickLengthUnit,
+       _majorTickColor = majorTickColor,
+       _majorTickDashArray = majorTickDashArray,
+       _minorTickLength = minorTickLength,
+       _minorTickThickness = minorTickThickness,
+       _minorTickLengthUnit = minorTickLengthUnit,
+       _minorTickColor = minorTickColor,
+       _minorTickDashArray = minorTickDashArray,
+       _axisLineAnimation = axisLineAnimation,
+       _axisElementsAnimation = axisElementsAnimation,
+       _gaugeThemeData = gaugeThemeData,
+       _imageStream = imageStream,
+       _ranges = ranges,
+       _renderer = renderer,
+       _repaintNotifier = repaintNotifier,
+       _themeData = themeData,
+       _colorScheme = colorScheme,
+       _backgroundImage = backgroundImage {
     _isLabelsOutside = labelPosition == ElementsPosition.outside;
     _isTicksOutside = tickPosition == ElementsPosition.outside;
     _imageStreamListener = ImageStreamListener(_updateBackgroundImage);
@@ -1167,7 +1172,11 @@ class RenderRadialAxisWidget extends RenderBox {
       }
 
       bounds = Rect.fromLTRB(
-          x - diff / 2, y, x + minScale + (diff / 2), y + minScale + diff);
+        x - diff / 2,
+        y,
+        x + minScale + (diff / 2),
+        y + minScale + diff,
+      );
     } else {
       diff = centerXDiff / 2;
       final double angleRadius = _axisSize.width / 2 + diff;
@@ -1177,14 +1186,20 @@ class RenderRadialAxisWidget extends RenderBox {
         diff = actualDiff * 0.7;
       }
 
-      bounds = Rect.fromLTRB(x - diff / 2, y - diff / 2,
-          x + minScale + (diff / 2), y + minScale + (diff / 2));
+      bounds = Rect.fromLTRB(
+        x - diff / 2,
+        y - diff / 2,
+        x + minScale + (diff / 2),
+        y + minScale + (diff / 2),
+      );
     }
 
     _diffInRadius = diff;
 
     return Offset(
-        bounds.left + (bounds.width / 2), bounds.top + (bounds.height / 2));
+      bounds.left + (bounds.width / 2),
+      bounds.top + (bounds.height / 2),
+    );
   }
 
   /// Get the RadialAxis radius.
@@ -1230,8 +1245,10 @@ class RenderRadialAxisWidget extends RenderBox {
     getCenterY();
 
     if (!canScaleToFit) {
-      _axisCenter = Offset(_axisSize.width / 2 - _centerXPoint,
-          _axisSize.height / 2 - _centerYPoint);
+      _axisCenter = Offset(
+        _axisSize.width / 2 - _centerXPoint,
+        _axisSize.height / 2 - _centerYPoint,
+      );
     } else {
       _axisCenter = Offset(_centerXPoint, _centerYPoint);
     }
@@ -1253,9 +1270,10 @@ class RenderRadialAxisWidget extends RenderBox {
 
     _actualMajorTickLength = _getTickLength(true);
     _actualMinorTickLength = _getTickLength(false);
-    _maximumTickLength = _actualMajorTickLength > _actualMinorTickLength
-        ? _actualMajorTickLength
-        : _actualMinorTickLength;
+    _maximumTickLength =
+        _actualMajorTickLength > _actualMinorTickLength
+            ? _actualMajorTickLength
+            : _actualMinorTickLength;
     _actualLabelOffset = getActualValue(labelOffset, offsetUnit, true);
     _actualTickOffset = getActualValue(tickOffset, offsetUnit, true);
   }
@@ -1296,8 +1314,11 @@ class RenderRadialAxisWidget extends RenderBox {
     _radius = _center;
     Offset actualCenter = Offset(x, y);
     final double actualStartAngle = _getWrapAngle(startAngle, -630, 630);
-    final double actualEndAngle =
-        _getWrapAngle(startAngle + _sweepAngle.abs(), -630, 630);
+    final double actualEndAngle = _getWrapAngle(
+      startAngle + _sweepAngle.abs(),
+      -630,
+      630,
+    );
     final List<double> regions = <double>[
       -630,
       -540,
@@ -1313,52 +1334,84 @@ class RenderRadialAxisWidget extends RenderBox {
       360,
       450,
       540,
-      630
+      630,
     ];
     final List<int> region = <int>[];
     if (actualStartAngle < actualEndAngle) {
       for (int i = 0; i < regions.length; i++) {
         if (regions[i] > actualStartAngle && regions[i] < actualEndAngle) {
-          region.add(((regions[i] % 360) < 0
-                  ? (regions[i] % 360) + 360
-                  : (regions[i] % 360))
-              .toInt());
+          region.add(
+            ((regions[i] % 360) < 0
+                    ? (regions[i] % 360) + 360
+                    : (regions[i] % 360))
+                .toInt(),
+          );
         }
       }
     } else {
       for (int i = 0; i < regions.length; i++) {
         if (regions[i] < actualStartAngle && regions[i] > actualEndAngle) {
-          region.add(((regions[i] % 360) < 0
-                  ? (regions[i] % 360) + 360
-                  : (regions[i] % 360))
-              .toInt());
+          region.add(
+            ((regions[i] % 360) < 0
+                    ? (regions[i] % 360) + 360
+                    : (regions[i] % 360))
+                .toInt(),
+          );
         }
       }
     }
 
     final double startRadian = 2 * math.pi * (actualStartAngle / 360);
     final double endRadian = 2 * math.pi * (actualEndAngle / 360);
-    final Offset startPoint = Offset(x + (_radius * math.cos(startRadian)),
-        y + (_radius * math.sin(startRadian)));
-    final Offset endPoint = Offset(x + (_radius * math.cos(endRadian)),
-        y + (_radius * math.sin(endRadian)));
+    final Offset startPoint = Offset(
+      x + (_radius * math.cos(startRadian)),
+      y + (_radius * math.sin(startRadian)),
+    );
+    final Offset endPoint = Offset(
+      x + (_radius * math.cos(endRadian)),
+      y + (_radius * math.sin(endRadian)),
+    );
 
     switch (region.length) {
       case 0:
         actualCenter = _getCenterForLengthZero(
-            startPoint, endPoint, x, y, _radius, region);
+          startPoint,
+          endPoint,
+          x,
+          y,
+          _radius,
+          region,
+        );
         break;
       case 1:
-        actualCenter =
-            _getCenterLengthOne(startPoint, endPoint, x, y, _radius, region);
+        actualCenter = _getCenterLengthOne(
+          startPoint,
+          endPoint,
+          x,
+          y,
+          _radius,
+          region,
+        );
         break;
       case 2:
-        actualCenter =
-            _getCenterForLengthTwo(startPoint, endPoint, x, y, _radius, region);
+        actualCenter = _getCenterForLengthTwo(
+          startPoint,
+          endPoint,
+          x,
+          y,
+          _radius,
+          region,
+        );
         break;
       case 3:
         actualCenter = _getCenterForLengthThree(
-            startPoint, endPoint, x, y, _radius, region);
+          startPoint,
+          endPoint,
+          x,
+          y,
+          _radius,
+          region,
+        );
         break;
     }
 
@@ -1374,9 +1427,10 @@ class RenderRadialAxisWidget extends RenderBox {
       late double begin, end;
       if (pointer is RenderRangePointer) {
         animationStartValue = pointer.animationStartValue ?? 0;
-        animationEndValue = isInversed
-            ? _getSweepAngle(pointer.getSweepAngle())
-            : pointer.getSweepAngle();
+        animationEndValue =
+            isInversed
+                ? _getSweepAngle(pointer.getSweepAngle())
+                : pointer.getSweepAngle();
         pointer.animationStartValue = animationEndValue;
       } else {
         animationStartValue = _getSweepAngle(pointer.oldValue ?? minimum);
@@ -1386,40 +1440,66 @@ class RenderRadialAxisWidget extends RenderBox {
       begin = enableAnimation ? 0 : pointer.pointerInterval![0]! as double;
       end = enableAnimation ? 1 : pointer.pointerInterval![1]! as double;
 
-      return Tween<double>(begin: animationStartValue, end: animationEndValue)
-          .animate(CurvedAnimation(
-              parent: pointer.pointerAnimationController!,
-              curve: Interval(begin, end,
-                  curve: getCurveAnimation(pointer.animationType))));
+      return Tween<double>(
+        begin: animationStartValue,
+        end: animationEndValue,
+      ).animate(
+        CurvedAnimation(
+          parent: pointer.pointerAnimationController!,
+          curve: Interval(
+            begin,
+            end,
+            curve: getCurveAnimation(pointer.animationType),
+          ),
+        ),
+      );
     } else {
       return null;
     }
   }
 
   /// Calculate the center point when the region length is zero.
-  Offset _getCenterForLengthZero(Offset startPoint, Offset endPoint, double x,
-      double y, double radius, List<int> region) {
-    final double longX = (x - startPoint.dx).abs() > (x - endPoint.dx).abs()
-        ? startPoint.dx
-        : endPoint.dx;
-    final double longY = (y - startPoint.dy).abs() > (y - endPoint.dy).abs()
-        ? startPoint.dy
-        : endPoint.dy;
-    final Offset midPoint =
-        Offset((x + longX).abs() / 2, (y + longY).abs() / 2);
+  Offset _getCenterForLengthZero(
+    Offset startPoint,
+    Offset endPoint,
+    double x,
+    double y,
+    double radius,
+    List<int> region,
+  ) {
+    final double longX =
+        (x - startPoint.dx).abs() > (x - endPoint.dx).abs()
+            ? startPoint.dx
+            : endPoint.dx;
+    final double longY =
+        (y - startPoint.dy).abs() > (y - endPoint.dy).abs()
+            ? startPoint.dy
+            : endPoint.dy;
+    final Offset midPoint = Offset(
+      (x + longX).abs() / 2,
+      (y + longY).abs() / 2,
+    );
     final double xValue = x + (x - midPoint.dx);
     final double yValue = y + (y - midPoint.dy);
     return Offset(xValue, yValue);
   }
 
   ///Calculates the center when the region length is two.
-  Offset _getCenterLengthOne(Offset startPoint, Offset endPoint, double x,
-      double y, double radius, List<int> region) {
+  Offset _getCenterLengthOne(
+    Offset startPoint,
+    Offset endPoint,
+    double x,
+    double y,
+    double radius,
+    List<int> region,
+  ) {
     Offset point1 = Offset.zero;
     Offset point2 = Offset.zero;
     final double maxRadian = 2 * math.pi * region[0] / 360;
     final Offset maxPoint = Offset(
-        x + (radius * math.cos(maxRadian)), y + (radius * math.sin(maxRadian)));
+      x + (radius * math.cos(maxRadian)),
+      y + (radius * math.sin(maxRadian)),
+    );
 
     switch (region[0]) {
       case 270:
@@ -1441,8 +1521,10 @@ class RenderRadialAxisWidget extends RenderBox {
         break;
     }
 
-    final Offset midPoint =
-        Offset((point1.dx + point2.dx) / 2, (point1.dy + point2.dy) / 2);
+    final Offset midPoint = Offset(
+      (point1.dx + point2.dx) / 2,
+      (point1.dy + point2.dy) / 2,
+    );
     final double xValue =
         x + ((x - midPoint.dx) >= radius ? 0 : (x - midPoint.dx));
     final double yValue =
@@ -1451,16 +1533,26 @@ class RenderRadialAxisWidget extends RenderBox {
   }
 
   ///Calculates the center when the region length is two.
-  Offset _getCenterForLengthTwo(Offset startPoint, Offset endPoint, double x,
-      double y, double radius, List<int> region) {
+  Offset _getCenterForLengthTwo(
+    Offset startPoint,
+    Offset endPoint,
+    double x,
+    double y,
+    double radius,
+    List<int> region,
+  ) {
     Offset point1;
     Offset point2;
     final double minRadian = 2 * math.pi * region[0] / 360;
     final double maxRadian = 2 * math.pi * region[1] / 360;
     final Offset maxPoint = Offset(
-        x + (radius * math.cos(maxRadian)), y + (radius * math.sin(maxRadian)));
+      x + (radius * math.cos(maxRadian)),
+      y + (radius * math.sin(maxRadian)),
+    );
     final Offset minPoint = Offset(
-        x + (radius * math.cos(minRadian)), y + (radius * math.sin(minRadian)));
+      x + (radius * math.cos(minRadian)),
+      y + (radius * math.sin(minRadian)),
+    );
 
     if ((region[0] == 0 && region[1] == 90) ||
         (region[0] == 180 && region[1] == 270)) {
@@ -1470,92 +1562,122 @@ class RenderRadialAxisWidget extends RenderBox {
     }
 
     if (region[0] == 0 || region[0] == 180) {
-      point2 = Offset(_getMinMaxValue(startPoint, endPoint, region[0]),
-          _getMinMaxValue(startPoint, endPoint, region[1]));
+      point2 = Offset(
+        _getMinMaxValue(startPoint, endPoint, region[0]),
+        _getMinMaxValue(startPoint, endPoint, region[1]),
+      );
     } else {
-      point2 = Offset(_getMinMaxValue(startPoint, endPoint, region[1]),
-          _getMinMaxValue(startPoint, endPoint, region[0]));
+      point2 = Offset(
+        _getMinMaxValue(startPoint, endPoint, region[1]),
+        _getMinMaxValue(startPoint, endPoint, region[0]),
+      );
     }
 
     final Offset midPoint = Offset(
-        (point1.dx - point2.dx).abs() / 2 >= radius
-            ? 0
-            : (point1.dx + point2.dx) / 2,
-        (point1.dy - point2.dy).abs() / 2 >= radius
-            ? 0
-            : (point1.dy + point2.dy) / 2);
-    final double xValue = x +
+      (point1.dx - point2.dx).abs() / 2 >= radius
+          ? 0
+          : (point1.dx + point2.dx) / 2,
+      (point1.dy - point2.dy).abs() / 2 >= radius
+          ? 0
+          : (point1.dy + point2.dy) / 2,
+    );
+    final double xValue =
+        x +
         (midPoint.dx == 0
             ? 0
             : (x - midPoint.dx) >= radius
-                ? 0
-                : (x - midPoint.dx));
-    final double yValue = y +
+            ? 0
+            : (x - midPoint.dx));
+    final double yValue =
+        y +
         (midPoint.dy == 0
             ? 0
             : (y - midPoint.dy) >= radius
-                ? 0
-                : (y - midPoint.dy));
+            ? 0
+            : (y - midPoint.dy));
     return Offset(xValue, yValue);
   }
 
   ///Calculates the center when the region length is three.
-  Offset _getCenterForLengthThree(Offset startPoint, Offset endPoint, double x,
-      double y, double radius, List<int> region) {
+  Offset _getCenterForLengthThree(
+    Offset startPoint,
+    Offset endPoint,
+    double x,
+    double y,
+    double radius,
+    List<int> region,
+  ) {
     final double region0Radian = 2 * math.pi * region[0] / 360;
     final double region1Radian = 2 * math.pi * region[1] / 360;
     final double region2Radian = 2 * math.pi * region[2] / 360;
-    final Offset region0Point = Offset(x + (radius * math.cos(region0Radian)),
-        y + (radius * math.sin(region0Radian)));
-    final Offset region1Point = Offset(x + (radius * math.cos(region1Radian)),
-        y + (radius * math.sin(region1Radian)));
-    final Offset region2Point = Offset(x + (radius * math.cos(region2Radian)),
-        y + (radius * math.sin(region2Radian)));
+    final Offset region0Point = Offset(
+      x + (radius * math.cos(region0Radian)),
+      y + (radius * math.sin(region0Radian)),
+    );
+    final Offset region1Point = Offset(
+      x + (radius * math.cos(region1Radian)),
+      y + (radius * math.sin(region1Radian)),
+    );
+    final Offset region2Point = Offset(
+      x + (radius * math.cos(region2Radian)),
+      y + (radius * math.sin(region2Radian)),
+    );
     Offset regionStartPoint = Offset.zero;
     Offset regionEndPoint = Offset.zero;
     switch (region[2]) {
       case 0:
       case 360:
         regionStartPoint = Offset(region0Point.dx, region1Point.dy);
-        regionEndPoint =
-            Offset(region2Point.dx, math.max(startPoint.dy, endPoint.dy));
+        regionEndPoint = Offset(
+          region2Point.dx,
+          math.max(startPoint.dy, endPoint.dy),
+        );
         break;
       case 90:
-        regionStartPoint =
-            Offset(math.min(startPoint.dx, endPoint.dx), region0Point.dy);
+        regionStartPoint = Offset(
+          math.min(startPoint.dx, endPoint.dx),
+          region0Point.dy,
+        );
         regionEndPoint = Offset(region1Point.dx, region2Point.dy);
         break;
       case 180:
-        regionStartPoint =
-            Offset(region2Point.dx, math.min(startPoint.dy, endPoint.dy));
+        regionStartPoint = Offset(
+          region2Point.dx,
+          math.min(startPoint.dy, endPoint.dy),
+        );
         regionEndPoint = Offset(region0Point.dx, region1Point.dy);
         break;
       case 270:
         regionStartPoint = Offset(region1Point.dx, region2Point.dy);
-        regionEndPoint =
-            Offset(math.max(startPoint.dx, endPoint.dx), region0Point.dy);
+        regionEndPoint = Offset(
+          math.max(startPoint.dx, endPoint.dx),
+          region0Point.dy,
+        );
         break;
     }
 
     final Offset midRegionPoint = Offset(
-        (regionStartPoint.dx - regionEndPoint.dx).abs() / 2 >= radius
-            ? 0
-            : (regionStartPoint.dx + regionEndPoint.dx) / 2,
-        (regionStartPoint.dy - regionEndPoint.dy).abs() / 2 >= radius
-            ? 0
-            : (regionStartPoint.dy + regionEndPoint.dy) / 2);
-    final double xValue = x +
+      (regionStartPoint.dx - regionEndPoint.dx).abs() / 2 >= radius
+          ? 0
+          : (regionStartPoint.dx + regionEndPoint.dx) / 2,
+      (regionStartPoint.dy - regionEndPoint.dy).abs() / 2 >= radius
+          ? 0
+          : (regionStartPoint.dy + regionEndPoint.dy) / 2,
+    );
+    final double xValue =
+        x +
         (midRegionPoint.dx == 0
             ? 0
             : (x - midRegionPoint.dx) >= radius
-                ? 0
-                : (x - midRegionPoint.dx));
-    final double yValue = y +
+            ? 0
+            : (x - midRegionPoint.dx));
+    final double yValue =
+        y +
         (midRegionPoint.dy == 0
             ? 0
             : (y - midRegionPoint.dy) >= radius
-                ? 0
-                : (y - midRegionPoint.dy));
+            ? 0
+            : (y - midRegionPoint.dy));
     return Offset(xValue, yValue);
   }
 
@@ -1602,38 +1724,45 @@ class RenderRadialAxisWidget extends RenderBox {
     switch (axisLineCornerStyle) {
       case CornerStyle.startCurve:
         {
-          _startCornerRadian = isInversed
-              ? getDegreeToRadian(-_cornerAngle)
-              : getDegreeToRadian(_cornerAngle);
-          _sweepCornerRadian = isInversed
-              ? getDegreeToRadian((-_sweepAngle) + _cornerAngle)
-              : getDegreeToRadian(_sweepAngle - _cornerAngle);
+          _startCornerRadian =
+              isInversed
+                  ? getDegreeToRadian(-_cornerAngle)
+                  : getDegreeToRadian(_cornerAngle);
+          _sweepCornerRadian =
+              isInversed
+                  ? getDegreeToRadian((-_sweepAngle) + _cornerAngle)
+                  : getDegreeToRadian(_sweepAngle - _cornerAngle);
         }
         break;
       case CornerStyle.endCurve:
         {
           _startCornerRadian = getDegreeToRadian(0);
-          _sweepCornerRadian = isInversed
-              ? getDegreeToRadian((-_sweepAngle) + _cornerAngle)
-              : getDegreeToRadian(_sweepAngle - _cornerAngle);
+          _sweepCornerRadian =
+              isInversed
+                  ? getDegreeToRadian((-_sweepAngle) + _cornerAngle)
+                  : getDegreeToRadian(_sweepAngle - _cornerAngle);
         }
         break;
       case CornerStyle.bothCurve:
         {
-          _startCornerRadian = isInversed
-              ? getDegreeToRadian(-_cornerAngle)
-              : getDegreeToRadian(_cornerAngle);
-          _sweepCornerRadian = isInversed
-              ? getDegreeToRadian((-_sweepAngle) + (2 * _cornerAngle))
-              : getDegreeToRadian(_sweepAngle - (2 * _cornerAngle));
+          _startCornerRadian =
+              isInversed
+                  ? getDegreeToRadian(-_cornerAngle)
+                  : getDegreeToRadian(_cornerAngle);
+          _sweepCornerRadian =
+              isInversed
+                  ? getDegreeToRadian((-_sweepAngle) + (2 * _cornerAngle))
+                  : getDegreeToRadian(_sweepAngle - (2 * _cornerAngle));
         }
         break;
       case CornerStyle.bothFlat:
-        _startCornerRadian = !isInversed
-            ? getDegreeToRadian(0)
-            : getDegreeToRadian(startAngle + _sweepAngle);
-        _sweepCornerRadian =
-            getDegreeToRadian(_sweepAngle * (isInversed ? -1 : 1));
+        _startCornerRadian =
+            !isInversed
+                ? getDegreeToRadian(0)
+                : getDegreeToRadian(startAngle + _sweepAngle);
+        _sweepCornerRadian = getDegreeToRadian(
+          _sweepAngle * (isInversed ? -1 : 1),
+        );
         break;
     }
   }
@@ -1664,8 +1793,8 @@ class RenderRadialAxisWidget extends RenderBox {
         canScaleToFit ? _axisCenter.dy : size.height * centerY;
     double angle =
         math.atan2(offset.dy - actualCenterY, offset.dx - actualCenterX) *
-                (180 / math.pi) +
-            360;
+            (180 / math.pi) +
+        360;
     final double actualEndAngle = startAngle + _sweepAngle;
     if (angle < 360 && angle > 180) {
       angle += 360;
@@ -1678,10 +1807,11 @@ class RenderRadialAxisWidget extends RenderBox {
     if (angle >= startAngle && angle <= actualEndAngle) {
       final double angleFactor = (angle - startAngle) / _sweepAngle;
 
-      final double value = (renderer != null &&
-              renderer!.factorToValue(angleFactor) != null)
-          ? renderer!.factorToValue(angleFactor) ?? factorToValue(angleFactor)
-          : factorToValue(angleFactor);
+      final double value =
+          (renderer != null && renderer!.factorToValue(angleFactor) != null)
+              ? renderer!.factorToValue(angleFactor) ??
+                  factorToValue(angleFactor)
+              : factorToValue(angleFactor);
       if (value >= minimum && value <= maximum) {
         final double tappedValue = _angleToValue(angle);
         onAxisTapped!(tappedValue);
@@ -1692,17 +1822,20 @@ class RenderRadialAxisWidget extends RenderBox {
   /// Calculate the offset for axis line based on ticks and labels
   double getAxisOffset() {
     double offset = 0;
-    offset = _isTicksOutside
-        ? showTicks
-            ? (_maximumTickLength + _actualTickOffset)
-            : 0
-        : 0;
-    offset += _isLabelsOutside
-        ? showLabels
-            ? (math.max(_maximumLabelSize.height, _maximumLabelSize.width) / 2 +
-                _actualLabelOffset)
-            : 0
-        : 0;
+    offset =
+        _isTicksOutside
+            ? showTicks
+                ? (_maximumTickLength + _actualTickOffset)
+                : 0
+            : 0;
+    offset +=
+        _isLabelsOutside
+            ? showLabels
+                ? (math.max(_maximumLabelSize.height, _maximumLabelSize.width) /
+                        2 +
+                    _actualLabelOffset)
+                : 0
+            : 0;
     return offset;
   }
 
@@ -1714,7 +1847,8 @@ class RenderRadialAxisWidget extends RenderBox {
       angle =
           (_sweepAngle / (maximum - minimum).abs()) * (minimum - value).abs();
     } else {
-      angle = _sweepAngle -
+      angle =
+          _sweepAngle -
           ((_sweepAngle / (maximum - minimum).abs()) * (minimum - value).abs());
     }
 
@@ -1725,10 +1859,12 @@ class RenderRadialAxisWidget extends RenderBox {
   double _angleToValue(double angle) {
     double value = 0;
     if (!isInversed) {
-      value = (((angle - startAngle) / _sweepAngle) * (maximum - minimum)) +
+      value =
+          (((angle - startAngle) / _sweepAngle) * (maximum - minimum)) +
           minimum;
     } else {
-      value = maximum -
+      value =
+          maximum -
           (((angle - startAngle) / _sweepAngle) * (maximum - minimum));
     }
 
@@ -1741,12 +1877,14 @@ class RenderRadialAxisWidget extends RenderBox {
       double angularSpaceForTicks;
       if (_actualInterval != null) {
         _majorTicksCount = (maximum - minimum) / _actualInterval!;
-        angularSpaceForTicks =
-            getDegreeToRadian(_sweepAngle / _majorTicksCount);
+        angularSpaceForTicks = getDegreeToRadian(
+          _sweepAngle / _majorTicksCount,
+        );
       } else {
         _majorTicksCount = _axisLabels!.length;
-        angularSpaceForTicks =
-            getDegreeToRadian(_sweepAngle / (_majorTicksCount - 1));
+        angularSpaceForTicks = getDegreeToRadian(
+          _sweepAngle / (_majorTicksCount - 1),
+        );
       }
 
       final double axisLineWidth = showAxisLine ? _actualAxisWidth : 0;
@@ -1754,20 +1892,26 @@ class RenderRadialAxisWidget extends RenderBox {
       double tickStartOffset = 0;
       double tickEndOffset = 0;
       _majorTickOffsets = <TickOffset>[];
-      angleForTicks = isInversed
-          ? getDegreeToRadian(startAngle + _sweepAngle - 90)
-          : getDegreeToRadian(startAngle - 90);
-      final double offset = _isLabelsOutside
-          ? showLabels
-              ? (math.max(_maximumLabelSize.height, _maximumLabelSize.width) /
-                      2 +
-                  _actualLabelOffset)
-              : 0
-          : 0;
+      angleForTicks =
+          isInversed
+              ? getDegreeToRadian(startAngle + _sweepAngle - 90)
+              : getDegreeToRadian(startAngle - 90);
+      final double offset =
+          _isLabelsOutside
+              ? showLabels
+                  ? (math.max(
+                            _maximumLabelSize.height,
+                            _maximumLabelSize.width,
+                          ) /
+                          2 +
+                      _actualLabelOffset)
+                  : 0
+              : 0;
       if (!_isTicksOutside) {
         tickStartOffset =
             _radius - (axisLineWidth + _actualTickOffset + offset);
-        tickEndOffset = _radius -
+        tickEndOffset =
+            _radius -
             (axisLineWidth +
                 _actualMajorTickLength +
                 _actualTickOffset +
@@ -1781,22 +1925,31 @@ class RenderRadialAxisWidget extends RenderBox {
           tickStartOffset = _radius + _actualTickOffset;
           tickEndOffset = _radius + _actualMajorTickLength + _actualTickOffset;
         } else {
-          tickStartOffset = isGreater
-              ? _radius - offset
-              : _radius -
-                  (_maximumTickLength - _actualMajorTickLength + offset);
+          tickStartOffset =
+              isGreater
+                  ? _radius - offset
+                  : _radius -
+                      (_maximumTickLength - _actualMajorTickLength + offset);
           tickEndOffset = _radius - (offset + _maximumTickLength);
         }
       }
 
       _calculateOffsetForMajorTicks(
-          tickStartOffset, tickEndOffset, angularSpaceForTicks, angleForTicks);
+        tickStartOffset,
+        tickEndOffset,
+        angularSpaceForTicks,
+        angleForTicks,
+      );
     }
   }
 
   /// Calculates the offset for major ticks
-  void _calculateOffsetForMajorTicks(double tickStartOffset,
-      double tickEndOffset, double angularSpaceForTicks, double angleForTicks) {
+  void _calculateOffsetForMajorTicks(
+    double tickStartOffset,
+    double tickEndOffset,
+    double angularSpaceForTicks,
+    double angleForTicks,
+  ) {
     final num length =
         _actualInterval != null ? _majorTicksCount : _majorTicksCount - 1;
     for (num i = 0; i <= length; i++) {
@@ -1804,17 +1957,25 @@ class RenderRadialAxisWidget extends RenderBox {
       final num count =
           _actualInterval != null ? _majorTicksCount : _majorTicksCount - 1;
       if (i == 0 || i == count) {
-        tickAngle =
-            _getTickPositionInCorner(i, angleForTicks, tickStartOffset, true);
+        tickAngle = _getTickPositionInCorner(
+          i,
+          angleForTicks,
+          tickStartOffset,
+          true,
+        );
       } else {
         tickAngle = angleForTicks;
       }
-      final List<Offset> tickPosition =
-          _getTickPosition(tickStartOffset, tickEndOffset, tickAngle);
+      final List<Offset> tickPosition = _getTickPosition(
+        tickStartOffset,
+        tickEndOffset,
+        tickAngle,
+      );
       final TickOffset tickOffset = TickOffset();
       tickOffset.startPoint = tickPosition[0];
       tickOffset.endPoint = tickPosition[1];
-      final double degree = (isInversed
+      final double degree =
+          (isInversed
               ? getRadianToDegree(tickAngle) + 90 - (startAngle + _sweepAngle)
               : (getRadianToDegree(tickAngle) + 90 - startAngle)) /
           _sweepAngle;
@@ -1824,10 +1985,14 @@ class RenderRadialAxisWidget extends RenderBox {
               : factorToValue(degree);
       final Offset centerPoint =
           !canScaleToFit ? Offset(_centerXPoint, _centerYPoint) : Offset.zero;
-      tickOffset.startPoint = Offset(tickOffset.startPoint.dx - centerPoint.dx,
-          tickOffset.startPoint.dy - centerPoint.dy);
-      tickOffset.endPoint = Offset(tickOffset.endPoint.dx - centerPoint.dx,
-          tickOffset.endPoint.dy - centerPoint.dy);
+      tickOffset.startPoint = Offset(
+        tickOffset.startPoint.dx - centerPoint.dx,
+        tickOffset.startPoint.dy - centerPoint.dy,
+      );
+      tickOffset.endPoint = Offset(
+        tickOffset.endPoint.dx - centerPoint.dx,
+        tickOffset.endPoint.dy - centerPoint.dy,
+      );
       _majorTickOffsets.add(tickOffset);
       if (isInversed) {
         angleForTicks -= angularSpaceForTicks;
@@ -1839,19 +2004,27 @@ class RenderRadialAxisWidget extends RenderBox {
 
   /// Calculates the angle to adjust the start and end tick
   double _getTickPositionInCorner(
-      num num, double angleForTicks, double startOffset, bool isMajor) {
+    num num,
+    double angleForTicks,
+    double startOffset,
+    bool isMajor,
+  ) {
     final double thickness = isMajor ? majorTickThickness : minorTickThickness;
-    final double angle =
-        cornerRadiusAngle(startOffset + _actualAxisWidth / 2, thickness / 2);
+    final double angle = cornerRadiusAngle(
+      startOffset + _actualAxisWidth / 2,
+      thickness / 2,
+    );
     if (num == 0) {
-      final double ticksAngle = !isInversed
-          ? getRadianToDegree(angleForTicks) + angle
-          : getRadianToDegree(angleForTicks) - angle;
+      final double ticksAngle =
+          !isInversed
+              ? getRadianToDegree(angleForTicks) + angle
+              : getRadianToDegree(angleForTicks) - angle;
       return getDegreeToRadian(ticksAngle);
     } else {
-      final double ticksAngle = !isInversed
-          ? getRadianToDegree(angleForTicks) - angle
-          : getRadianToDegree(angleForTicks) + angle;
+      final double ticksAngle =
+          !isInversed
+              ? getRadianToDegree(angleForTicks) - angle
+              : getRadianToDegree(angleForTicks) + angle;
       return getDegreeToRadian(ticksAngle);
     }
   }
@@ -1862,17 +2035,22 @@ class RenderRadialAxisWidget extends RenderBox {
       final double axisLineWidth = showAxisLine ? _actualAxisWidth : 0;
       double tickStartOffset = 0;
       double tickEndOffset = 0;
-      final double offset = _isLabelsOutside
-          ? showLabels
-              ? (_actualLabelOffset +
-                  math.max(_maximumLabelSize.height, _maximumLabelSize.width) /
-                      2)
-              : 0
-          : 0;
+      final double offset =
+          _isLabelsOutside
+              ? showLabels
+                  ? (_actualLabelOffset +
+                      math.max(
+                            _maximumLabelSize.height,
+                            _maximumLabelSize.width,
+                          ) /
+                          2)
+                  : 0
+              : 0;
       if (!_isTicksOutside) {
         tickStartOffset =
             _radius - (axisLineWidth + _actualTickOffset + offset);
-        tickEndOffset = _radius -
+        tickEndOffset =
+            _radius -
             (axisLineWidth +
                 _actualMinorTickLength +
                 _actualTickOffset +
@@ -1883,10 +2061,11 @@ class RenderRadialAxisWidget extends RenderBox {
           tickStartOffset = _radius + _actualTickOffset;
           tickEndOffset = _radius + _actualMinorTickLength + _actualTickOffset;
         } else {
-          tickStartOffset = isGreater
-              ? _radius - offset
-              : _radius -
-                  (_maximumTickLength - _actualMinorTickLength + offset);
+          tickStartOffset =
+              isGreater
+                  ? _radius - offset
+                  : _radius -
+                      (_maximumTickLength - _actualMinorTickLength + offset);
           tickEndOffset = _radius - (_maximumTickLength + offset);
         }
       }
@@ -1901,14 +2080,17 @@ class RenderRadialAxisWidget extends RenderBox {
   /// the smaller method but it leads to passing more number of parameter and
   /// which degrades the performance
   void _calculateOffsetForMinorTicks(
-      double tickStartOffset, double tickEndOffset) {
+    double tickStartOffset,
+    double tickEndOffset,
+  ) {
     _minorTickOffsets = <TickOffset>[];
     double angularSpaceForTicks;
     double totalMinorTicks;
     if (_actualInterval != null) {
       final double majorTicksInterval = (maximum - minimum) / _actualInterval!;
-      angularSpaceForTicks =
-          getDegreeToRadian(_sweepAngle / majorTicksInterval);
+      angularSpaceForTicks = getDegreeToRadian(
+        _sweepAngle / majorTicksInterval,
+      );
       final double maximumLabelValue =
           _axisLabels![_axisLabels!.length - 2].value.toDouble();
       int remainingTicks;
@@ -1921,19 +2103,22 @@ class RenderRadialAxisWidget extends RenderBox {
         remainingTicks = difference ~/ minorTickInterval;
       }
 
-      final int labelLength = difference == _actualInterval
-          ? _axisLabels!.length - 1
-          : _axisLabels!.length - 2;
+      final int labelLength =
+          difference == _actualInterval
+              ? _axisLabels!.length - 1
+              : _axisLabels!.length - 2;
       totalMinorTicks = (labelLength * minorTicksPerInterval) + remainingTicks;
     } else {
-      angularSpaceForTicks =
-          getDegreeToRadian(_sweepAngle / (_majorTicksCount - 1));
+      angularSpaceForTicks = getDegreeToRadian(
+        _sweepAngle / (_majorTicksCount - 1),
+      );
       totalMinorTicks = (_axisLabels!.length - 1) * minorTicksPerInterval;
     }
 
-    double angleForTicks = isInversed
-        ? getDegreeToRadian(startAngle + _sweepAngle - 90)
-        : getDegreeToRadian(startAngle - 90);
+    double angleForTicks =
+        isInversed
+            ? getDegreeToRadian(startAngle + _sweepAngle - 90)
+            : getDegreeToRadian(startAngle - 90);
 
     const num minorTickIndex = 1; // Since the minor tick rendering
     // needs to be start in the index one
@@ -1947,24 +2132,33 @@ class RenderRadialAxisWidget extends RenderBox {
         angleForTicks += minorTickAngle;
       }
 
-      final double factor = (isInversed
+      final double factor =
+          (isInversed
               ? getRadianToDegree(angleForTicks) +
                   90 -
                   (startAngle + _sweepAngle)
               : (getRadianToDegree(angleForTicks) + 90 - startAngle)) /
           _sweepAngle;
 
-      final double tickFactor = (renderer != null)
-          ? renderer!.factorToValue(factor) ?? factorToValue(factor)
-          : factorToValue(factor);
+      final double tickFactor =
+          (renderer != null)
+              ? renderer!.factorToValue(factor) ?? factorToValue(factor)
+              : factorToValue(factor);
       final double tickValue = double.parse(tickFactor.toStringAsFixed(5));
       if (tickValue <= maximum && tickValue >= minimum) {
         if (tickValue == maximum) {
           angleForTicks = _getTickPositionInCorner(
-              i, angleForTicks, tickStartOffset, false);
+            i,
+            angleForTicks,
+            tickStartOffset,
+            false,
+          );
         }
-        final List<Offset> tickPosition =
-            _getTickPosition(tickStartOffset, tickEndOffset, angleForTicks);
+        final List<Offset> tickPosition = _getTickPosition(
+          tickStartOffset,
+          tickEndOffset,
+          angleForTicks,
+        );
         final TickOffset tickOffset = TickOffset();
         tickOffset.startPoint = tickPosition[0];
         tickOffset.endPoint = tickPosition[1];
@@ -1973,10 +2167,13 @@ class RenderRadialAxisWidget extends RenderBox {
         final Offset centerPoint =
             !canScaleToFit ? Offset(_centerXPoint, _centerYPoint) : Offset.zero;
         tickOffset.startPoint = Offset(
-            tickOffset.startPoint.dx - centerPoint.dx,
-            tickOffset.startPoint.dy - centerPoint.dy);
-        tickOffset.endPoint = Offset(tickOffset.endPoint.dx - centerPoint.dx,
-            tickOffset.endPoint.dy - centerPoint.dy);
+          tickOffset.startPoint.dx - centerPoint.dx,
+          tickOffset.startPoint.dy - centerPoint.dy,
+        );
+        tickOffset.endPoint = Offset(
+          tickOffset.endPoint.dx - centerPoint.dx,
+          tickOffset.endPoint.dy - centerPoint.dy,
+        );
         _minorTickOffsets.add(tickOffset);
         if (i % minorTicksPerInterval == 0) {
           if (isInversed) {
@@ -2001,9 +2198,10 @@ class RenderRadialAxisWidget extends RenderBox {
       }
       final double labelSpaceInAngle = _sweepAngle / labelsInterval;
       final double labelSpaceInRadian = getDegreeToRadian(labelSpaceInAngle);
-      final double tickLength = _actualMajorTickLength > _actualMinorTickLength
-          ? _actualMajorTickLength
-          : _actualMinorTickLength;
+      final double tickLength =
+          _actualMajorTickLength > _actualMinorTickLength
+              ? _actualMajorTickLength
+              : _actualMinorTickLength;
       final double tickPadding = showTicks ? tickLength + _actualTickOffset : 0;
       double labelRadian = 0;
       double labelAngle = 0;
@@ -2020,22 +2218,33 @@ class RenderRadialAxisWidget extends RenderBox {
           math.max(_maximumLabelSize.height, _maximumLabelSize.width) / 2;
       if (_isLabelsOutside) {
         final double featureOffset = labelSize;
-        labelPosition = _useAxisElementsInsideRadius
-            ? _radius - featureOffset
-            : _radius + tickPadding + _actualLabelOffset;
+        labelPosition =
+            _useAxisElementsInsideRadius
+                ? _radius - featureOffset
+                : _radius + tickPadding + _actualLabelOffset;
       } else {
         labelPosition =
             _radius - (_actualAxisWidth + tickPadding + _actualLabelOffset);
       }
 
-      _calculateLabelPosition(labelPosition, labelRadian, labelAngle,
-          labelSpaceInRadian, labelSpaceInAngle);
+      _calculateLabelPosition(
+        labelPosition,
+        labelRadian,
+        labelAngle,
+        labelSpaceInRadian,
+        labelSpaceInAngle,
+      );
     }
   }
 
   // Method to calculate label position
-  void _calculateLabelPosition(double labelPosition, double labelRadian,
-      double labelAngle, double labelSpaceInRadian, double labelSpaceInAngle) {
+  void _calculateLabelPosition(
+    double labelPosition,
+    double labelRadian,
+    double labelAngle,
+    double labelSpaceInRadian,
+    double labelSpaceInAngle,
+  ) {
     for (int i = 0; i < _axisLabels!.length; i++) {
       final CircularAxisLabel label = _axisLabels![i];
       label.angle = labelAngle;
@@ -2046,24 +2255,26 @@ class RenderRadialAxisWidget extends RenderBox {
         label.angle = labelAngle;
         labelRadian = getDegreeToRadian(labelAngle);
       } else {
-        final double coordinateValue = (isInversed
+        final double coordinateValue =
+            (isInversed
                 ? labelAngle + 90 - (startAngle + _sweepAngle)
                 : (labelAngle + 90 - startAngle)) /
             _sweepAngle;
-        label.value = (renderer != null &&
-                renderer!.factorToValue(coordinateValue) != null)
-            ? renderer!.factorToValue(coordinateValue) ??
-                factorToValue(coordinateValue)
-            : factorToValue(coordinateValue);
+        label.value =
+            (renderer != null &&
+                    renderer!.factorToValue(coordinateValue) != null)
+                ? renderer!.factorToValue(coordinateValue) ??
+                    factorToValue(coordinateValue)
+                : factorToValue(coordinateValue);
       }
 
       if (!canScaleToFit) {
         final double x =
             ((size.width / 2) - (labelPosition * math.sin(labelRadian))) -
-                _centerXPoint;
+            _centerXPoint;
         final double y =
             ((size.height / 2) + (labelPosition * math.cos(labelRadian))) -
-                _centerYPoint;
+            _centerYPoint;
         label.position = Offset(x, y);
       } else {
         final double x =
@@ -2089,14 +2300,16 @@ class RenderRadialAxisWidget extends RenderBox {
     for (int i = 0; i < _axisLabels!.length; i++) {
       final CircularAxisLabel label = _axisLabels![i];
       label.labelSize = getTextSize(label.text, label.labelStyle);
-      final double maxWidth = _maximumLabelSize.width < label.labelSize.width
-          ? label.needsRotateLabel
+      final double maxWidth =
+          _maximumLabelSize.width < label.labelSize.width
+              ? label.needsRotateLabel
+                  ? label.labelSize.height
+                  : label.labelSize.width
+              : _maximumLabelSize.width;
+      final double maxHeight =
+          _maximumLabelSize.height < label.labelSize.height
               ? label.labelSize.height
-              : label.labelSize.width
-          : _maximumLabelSize.width;
-      final double maxHeight = _maximumLabelSize.height < label.labelSize.height
-          ? label.labelSize.height
-          : _maximumLabelSize.height;
+              : _maximumLabelSize.height;
 
       _maximumLabelSize = Size(maxWidth, maxHeight);
     }
@@ -2104,7 +2317,10 @@ class RenderRadialAxisWidget extends RenderBox {
 
   /// Gets the start and end offset of tick
   List<Offset> _getTickPosition(
-      double tickStartOffset, double tickEndOffset, double angleForTicks) {
+    double tickStartOffset,
+    double tickEndOffset,
+    double angleForTicks,
+  ) {
     final Offset centerPoint =
         !canScaleToFit ? Offset(size.width / 2, size.height / 2) : _axisCenter;
     final double tickStartX =
@@ -2179,11 +2395,15 @@ class RenderRadialAxisWidget extends RenderBox {
   num calculateAxisInterval(int actualMaximumValue) {
     final num delta = _getAxisRange();
     final num circumference = 2 * math.pi * _center * (_sweepAngle / 360);
-    final num desiredIntervalCount =
-        math.max(circumference * ((0.533 * actualMaximumValue) / 100), 1);
+    final num desiredIntervalCount = math.max(
+      circumference * ((0.533 * actualMaximumValue) / 100),
+      1,
+    );
     num niceInterval = delta / desiredIntervalCount;
-    final num minimumInterval =
-        math.pow(10, (math.log(niceInterval) / math.log(10)).floor());
+    final num minimumInterval = math.pow(
+      10,
+      (math.log(niceInterval) / math.log(10)).floor(),
+    );
     final List<double> intervalDivisions = <double>[10, 5, 2, 1];
     for (int i = 0; i < intervalDivisions.length; i++) {
       final num currentInterval = minimumInterval * intervalDivisions[i];
@@ -2238,12 +2458,13 @@ class RenderRadialAxisWidget extends RenderBox {
 
     final GaugeTextStyle labelStyle = argsLabelStyle ?? gaugeTextStyle;
     final CircularAxisLabel label = CircularAxisLabel(
-        labelStyle,
-        labelText,
-        i,
-        labelCreatedArgs != null &&
-            labelCreatedArgs.canRotate != null &&
-            labelCreatedArgs.canRotate!);
+      labelStyle,
+      labelText,
+      i,
+      labelCreatedArgs != null &&
+          labelCreatedArgs.canRotate != null &&
+          labelCreatedArgs.canRotate!,
+    );
     label.value = value;
     return label;
   }
@@ -2281,9 +2502,10 @@ class RenderRadialAxisWidget extends RenderBox {
 
   /// Converts the factor value to axis value.
   double factorToValue(double factor) {
-    final double angle = isInversed
-        ? (factor * _sweepAngle) + startAngle + _sweepAngle
-        : (factor * _sweepAngle) + startAngle;
+    final double angle =
+        isInversed
+            ? (factor * _sweepAngle) + startAngle + _sweepAngle
+            : (factor * _sweepAngle) + startAngle;
 
     return _angleToValue(angle);
   }
@@ -2295,18 +2517,33 @@ class RenderRadialAxisWidget extends RenderBox {
     SweepGradient? gradient;
     if (axisLineGradient != null && axisLineGradient!.colors.isNotEmpty) {
       gradient = SweepGradient(
-          stops: calculateGradientStops(
-              _getGradientOffset(), isInversed, _sweepAngle),
-          colors: isInversed
-              ? axisLineGradient!.colors.reversed.toList()
-              : axisLineGradient!.colors);
+        stops: calculateGradientStops(
+          _getGradientOffset(),
+          isInversed,
+          _sweepAngle,
+        ),
+        colors:
+            isInversed
+                ? axisLineGradient!.colors.reversed.toList()
+                : axisLineGradient!.colors,
+      );
     }
     if (axisLineCornerStyle == CornerStyle.bothFlat || isDashedAxisLine) {
       _drawAxisPath(
-          canvas, _startRadian, _endRadian, gradient, isDashedAxisLine);
+        canvas,
+        _startRadian,
+        _endRadian,
+        gradient,
+        isDashedAxisLine,
+      );
     } else {
-      _drawAxisPath(canvas, _startCornerRadian, _sweepCornerRadian, gradient,
-          isDashedAxisLine);
+      _drawAxisPath(
+        canvas,
+        _startCornerRadian,
+        _sweepCornerRadian,
+        gradient,
+        isDashedAxisLine,
+      );
     }
   }
 
@@ -2318,8 +2555,10 @@ class RenderRadialAxisWidget extends RenderBox {
     } else {
       // Calculates the gradient stop values based on the provided color
       final double difference = 1 / axisLineGradient!.colors.length;
-      final List<double?> offsets =
-          List<double?>.filled(axisLineGradient!.colors.length, null);
+      final List<double?> offsets = List<double?>.filled(
+        axisLineGradient!.colors.length,
+        null,
+      );
       for (int i = 0; i < axisLineGradient!.colors.length; i++) {
         offsets[i] = i * difference;
       }
@@ -2329,17 +2568,24 @@ class RenderRadialAxisWidget extends RenderBox {
   }
 
   /// Method to draw axis line.
-  void _drawAxisPath(Canvas canvas, double startRadian, double endRadian,
-      SweepGradient? gradient, bool isDashedAxisLine) {
+  void _drawAxisPath(
+    Canvas canvas,
+    double startRadian,
+    double endRadian,
+    SweepGradient? gradient,
+    bool isDashedAxisLine,
+  ) {
     if (_axisLineAnimation != null) {
       endRadian = endRadian * _axisLineAnimation!.value;
     }
 
     canvas.save();
     canvas.translate(_axisCenter.dx, _axisCenter.dy);
-    canvas.rotate(isInversed
-        ? getDegreeToRadian(startAngle + _sweepAngle)
-        : getDegreeToRadian(startAngle));
+    canvas.rotate(
+      isInversed
+          ? getDegreeToRadian(startAngle + _sweepAngle)
+          : getDegreeToRadian(startAngle),
+    );
 
     Path path = Path();
     //whether the style of paint is fill.
@@ -2358,16 +2604,23 @@ class RenderRadialAxisWidget extends RenderBox {
           _drawStartCurve(path, endRadian, innerRadius, outerRadius);
         }
 
-        path.addArc(Rect.fromCircle(center: Offset.zero, radius: outerRadius),
-            _startCornerRadian, endRadian);
+        path.addArc(
+          Rect.fromCircle(center: Offset.zero, radius: outerRadius),
+          _startCornerRadian,
+          endRadian,
+        );
 
         // Adds the rounded corner at end of axis line.
         if (axisLineCornerStyle == CornerStyle.endCurve ||
             axisLineCornerStyle == CornerStyle.bothCurve) {
           _drawEndCurve(path, endRadian, innerRadius, outerRadius);
         }
-        path.arcTo(Rect.fromCircle(center: Offset.zero, radius: innerRadius),
-            endRadian + _startCornerRadian, -endRadian, false);
+        path.arcTo(
+          Rect.fromCircle(center: Offset.zero, radius: innerRadius),
+          endRadian + _startCornerRadian,
+          -endRadian,
+          false,
+        );
       }
     } else {
       path = _getPath(endRadian, isFill);
@@ -2377,17 +2630,25 @@ class RenderRadialAxisWidget extends RenderBox {
   }
 
   // Method to render the path.
-  void _renderPath(bool isDashedAxisLine, Path path, Canvas canvas,
-      SweepGradient? gradient, bool isFill) {
+  void _renderPath(
+    bool isDashedAxisLine,
+    Path path,
+    Canvas canvas,
+    SweepGradient? gradient,
+    bool isFill,
+  ) {
     final Paint paint = _getPaint(gradient, isFill);
     if (!isDashedAxisLine) {
       canvas.drawPath(path, paint);
     } else {
       if (axisLineDashArray != null) {
         canvas.drawPath(
-            dashPath(path,
-                dashArray: CircularIntervalList<double>(axisLineDashArray!)),
-            paint);
+          dashPath(
+            path,
+            dashArray: CircularIntervalList<double>(axisLineDashArray!),
+          ),
+          paint,
+        );
       }
     }
 
@@ -2406,16 +2667,15 @@ class RenderRadialAxisWidget extends RenderBox {
     return path;
   }
 
-  Paint _getPaint(
-    SweepGradient? gradient,
-    bool isFill,
-  ) {
-    final Paint paint = Paint()
-      ..color = axisLineColor ??
-          _gaugeThemeData.axisLineColor ??
-          colorScheme.onSurface[35]!
-      ..style = !isFill ? PaintingStyle.stroke : PaintingStyle.fill
-      ..strokeWidth = _actualAxisWidth;
+  Paint _getPaint(SweepGradient? gradient, bool isFill) {
+    final Paint paint =
+        Paint()
+          ..color =
+              axisLineColor ??
+              _gaugeThemeData.axisLineColor ??
+              colorScheme.onSurface[35]!
+          ..style = !isFill ? PaintingStyle.stroke : PaintingStyle.fill
+          ..strokeWidth = _actualAxisWidth;
     if (gradient != null) {
       paint.shader = gradient.createShader(_axisRect);
     }
@@ -2425,45 +2685,65 @@ class RenderRadialAxisWidget extends RenderBox {
 
   /// Draws the start corner style
   void _drawStartCurve(
-      Path path, double endRadian, double innerRadius, double outerRadius) {
+    Path path,
+    double endRadian,
+    double innerRadius,
+    double outerRadius,
+  ) {
     final Offset midPoint = getDegreeToPoint(
-        isInversed ? -_cornerAngle : _cornerAngle,
-        (innerRadius + outerRadius) / 2,
-        Offset.zero);
+      isInversed ? -_cornerAngle : _cornerAngle,
+      (innerRadius + outerRadius) / 2,
+      Offset.zero,
+    );
     final double midStartAngle = getDegreeToRadian(180);
 
     double midEndAngle = midStartAngle + getDegreeToRadian(180);
     midEndAngle = isInversed ? -midEndAngle : midEndAngle;
     path.addArc(
-        Rect.fromCircle(
-            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
-        midStartAngle,
-        midEndAngle);
+      Rect.fromCircle(
+        center: midPoint,
+        radius: (innerRadius - outerRadius).abs() / 2,
+      ),
+      midStartAngle,
+      midEndAngle,
+    );
   }
 
   ///Draws the end corner curve
   void _drawEndCurve(
-      Path path, double sweepRadian, double innerRadius, double outerRadius) {
+    Path path,
+    double sweepRadian,
+    double innerRadius,
+    double outerRadius,
+  ) {
     final double curveCornerAngle =
         axisLineCornerStyle == CornerStyle.bothCurve ? _cornerAngle : 0;
-    final double angle = isInversed
-        ? getRadianToDegree(sweepRadian) - curveCornerAngle
-        : getRadianToDegree(sweepRadian) + curveCornerAngle;
-    final Offset midPoint =
-        getDegreeToPoint(angle, (innerRadius + outerRadius) / 2, Offset.zero);
+    final double angle =
+        isInversed
+            ? getRadianToDegree(sweepRadian) - curveCornerAngle
+            : getRadianToDegree(sweepRadian) + curveCornerAngle;
+    final Offset midPoint = getDegreeToPoint(
+      angle,
+      (innerRadius + outerRadius) / 2,
+      Offset.zero,
+    );
 
     final double midStartAngle = sweepRadian / 2;
 
-    final double midEndAngle = isInversed
-        ? midStartAngle - getDegreeToRadian(180)
-        : midStartAngle + getDegreeToRadian(180);
+    final double midEndAngle =
+        isInversed
+            ? midStartAngle - getDegreeToRadian(180)
+            : midStartAngle + getDegreeToRadian(180);
 
     path.arcTo(
-        Rect.fromCircle(
-            center: midPoint, radius: (innerRadius - outerRadius).abs() / 2),
-        midStartAngle,
-        midEndAngle,
-        false);
+      Rect.fromCircle(
+        center: midPoint,
+        radius: (innerRadius - outerRadius).abs() / 2,
+      ),
+      midStartAngle,
+      midEndAngle,
+      false,
+    );
   }
 
   /// Checks whether the axis line is dashed line
@@ -2482,7 +2762,8 @@ class RenderRadialAxisWidget extends RenderBox {
       for (int i = 0; i < ranges!.length; i++) {
         if (ranges![i].startValue <= value.roundToDouble() &&
             ranges![i].endValue >= value.roundToDouble()) {
-          color = ranges![i].color ??
+          color =
+              ranges![i].color ??
               gaugeThemeData.rangeColor ??
               const Color(0xFFF67280);
           break;
@@ -2501,49 +2782,61 @@ class RenderRadialAxisWidget extends RenderBox {
     }
 
     if (_actualMajorTickLength > 0 && majorTickThickness > 0) {
-      final Paint tickPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = majorTickThickness;
+      final Paint tickPaint =
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = majorTickThickness;
       for (int i = 0; i < length; i++) {
         final TickOffset tickOffset = _majorTickOffsets[i];
         if (!(i == 0 && _sweepAngle == 360)) {
-          tickPaint.color = useRangeColorForAxis
-              ? _getRangeColor(tickOffset.value, _gaugeThemeData) ??
-                  majorTickColor ??
-                  _gaugeThemeData.majorTickColor ??
-                  colorSchemeMajorTickColor
-              : majorTickColor ??
-                  _gaugeThemeData.majorTickColor ??
-                  colorSchemeMajorTickColor;
+          tickPaint.color =
+              useRangeColorForAxis
+                  ? _getRangeColor(tickOffset.value, _gaugeThemeData) ??
+                      majorTickColor ??
+                      _gaugeThemeData.majorTickColor ??
+                      colorSchemeMajorTickColor
+                  : majorTickColor ??
+                      _gaugeThemeData.majorTickColor ??
+                      colorSchemeMajorTickColor;
 
           if (majorTickDashArray != null && majorTickDashArray!.isNotEmpty) {
-            final Path path = Path()
-              ..moveTo(tickOffset.startPoint.dx, tickOffset.startPoint.dy)
-              ..lineTo(tickOffset.endPoint.dx, tickOffset.endPoint.dy);
+            final Path path =
+                Path()
+                  ..moveTo(tickOffset.startPoint.dx, tickOffset.startPoint.dy)
+                  ..lineTo(tickOffset.endPoint.dx, tickOffset.endPoint.dy);
             canvas.drawPath(
-                dashPath(path,
-                    dashArray:
-                        CircularIntervalList<double>(majorTickDashArray!)),
-                tickPaint);
+              dashPath(
+                path,
+                dashArray: CircularIntervalList<double>(majorTickDashArray!),
+              ),
+              tickPaint,
+            );
           } else {
             if ((i == _majorTickOffsets.length - 1) && _sweepAngle == 360) {
               // Reposition the last tick when its sweep angle is 360
-              final double x1 = (_majorTickOffsets[0].startPoint.dx +
+              final double x1 =
+                  (_majorTickOffsets[0].startPoint.dx +
                       _majorTickOffsets[i].startPoint.dx) /
                   2;
-              final double y1 = (_majorTickOffsets[0].startPoint.dy +
+              final double y1 =
+                  (_majorTickOffsets[0].startPoint.dy +
                       _majorTickOffsets[i].startPoint.dy) /
                   2;
-              final double x2 = (_majorTickOffsets[0].endPoint.dx +
+              final double x2 =
+                  (_majorTickOffsets[0].endPoint.dx +
                       _majorTickOffsets[i].endPoint.dx) /
                   2;
-              final double y2 = (_majorTickOffsets[0].endPoint.dy +
+              final double y2 =
+                  (_majorTickOffsets[0].endPoint.dy +
                       _majorTickOffsets[i].endPoint.dy) /
                   2;
               canvas.drawLine(Offset(x1, y1), Offset(x2, y2), tickPaint);
             } else {
               canvas.drawLine(
-                  tickOffset.startPoint, tickOffset.endPoint, tickPaint);
+                tickOffset.startPoint,
+                tickOffset.endPoint,
+                tickPaint,
+              );
             }
           }
         }
@@ -2559,30 +2852,39 @@ class RenderRadialAxisWidget extends RenderBox {
       length = _minorTickOffsets.length * _axisElementsAnimation!.value;
     }
     if (_actualMinorTickLength > 0 && minorTickThickness > 0) {
-      final Paint tickPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = minorTickThickness;
+      final Paint tickPaint =
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = minorTickThickness;
       for (int i = 0; i < length; i++) {
         final TickOffset tickOffset = _minorTickOffsets[i];
-        tickPaint.color = useRangeColorForAxis
-            ? _getRangeColor(tickOffset.value, _gaugeThemeData) ??
-                minorTickColor ??
-                _gaugeThemeData.minorTickColor ??
-                colorSchemeMinorTickColor
-            : minorTickColor ??
-                _gaugeThemeData.minorTickColor ??
-                colorSchemeMinorTickColor;
+        tickPaint.color =
+            useRangeColorForAxis
+                ? _getRangeColor(tickOffset.value, _gaugeThemeData) ??
+                    minorTickColor ??
+                    _gaugeThemeData.minorTickColor ??
+                    colorSchemeMinorTickColor
+                : minorTickColor ??
+                    _gaugeThemeData.minorTickColor ??
+                    colorSchemeMinorTickColor;
         if (minorTickDashArray != null && minorTickDashArray!.isNotEmpty) {
-          final Path path = Path()
-            ..moveTo(tickOffset.startPoint.dx, tickOffset.startPoint.dy)
-            ..lineTo(tickOffset.endPoint.dx, tickOffset.endPoint.dy);
+          final Path path =
+              Path()
+                ..moveTo(tickOffset.startPoint.dx, tickOffset.startPoint.dy)
+                ..lineTo(tickOffset.endPoint.dx, tickOffset.endPoint.dy);
           canvas.drawPath(
-              dashPath(path,
-                  dashArray: CircularIntervalList<double>(minorTickDashArray!)),
-              tickPaint);
+            dashPath(
+              path,
+              dashArray: CircularIntervalList<double>(minorTickDashArray!),
+            ),
+            tickPaint,
+          );
         } else {
           canvas.drawLine(
-              tickOffset.startPoint, tickOffset.endPoint, tickPaint);
+            tickOffset.startPoint,
+            tickOffset.endPoint,
+            tickPaint,
+          );
         }
       }
     }
@@ -2598,32 +2900,42 @@ class RenderRadialAxisWidget extends RenderBox {
       if (!((i == 0 && !showFirstLabel) ||
           (i == _axisLabels!.length - 1 && !showLastLabel))) {
         final CircularAxisLabel label = _axisLabels![i];
-        final Color labelColor = label.labelStyle.color ??
+        final Color labelColor =
+            label.labelStyle.color ??
             _gaugeThemeData.axisLabelTextStyle?.color ??
             _gaugeThemeData.axisLabelColor ??
             colorScheme.onSurface[184]!;
-        final TextStyle axisLabelTextStyle =
-            _themeData.textTheme.bodySmall!.copyWith(
-          color: ranges != null && ranges!.isNotEmpty && useRangeColorForAxis
-              ? _getRangeColor(label.value, _gaugeThemeData) ?? labelColor
-              : labelColor,
-          fontSize: label.labelStyle.fontSize ??
-              _gaugeThemeData.axisLabelTextStyle?.fontSize,
-          fontFamily: label.labelStyle.fontFamily ??
-              _gaugeThemeData.axisLabelTextStyle?.fontFamily,
-          fontStyle: label.labelStyle.fontStyle ??
-              _gaugeThemeData.axisLabelTextStyle?.fontStyle,
-          fontWeight: label.labelStyle.fontWeight ??
-              _gaugeThemeData.axisLabelTextStyle?.fontWeight,
+        final TextStyle axisLabelTextStyle = _themeData.textTheme.bodySmall!
+            .copyWith(
+              color:
+                  ranges != null && ranges!.isNotEmpty && useRangeColorForAxis
+                      ? _getRangeColor(label.value, _gaugeThemeData) ??
+                          labelColor
+                      : labelColor,
+              fontSize:
+                  label.labelStyle.fontSize ??
+                  _gaugeThemeData.axisLabelTextStyle?.fontSize,
+              fontFamily:
+                  label.labelStyle.fontFamily ??
+                  _gaugeThemeData.axisLabelTextStyle?.fontFamily,
+              fontStyle:
+                  label.labelStyle.fontStyle ??
+                  _gaugeThemeData.axisLabelTextStyle?.fontStyle,
+              fontWeight:
+                  label.labelStyle.fontWeight ??
+                  _gaugeThemeData.axisLabelTextStyle?.fontWeight,
+            );
+
+        final TextSpan span = TextSpan(
+          text: label.text,
+          style: axisLabelTextStyle,
         );
 
-        final TextSpan span =
-            TextSpan(text: label.text, style: axisLabelTextStyle);
-
         final TextPainter textPainter = TextPainter(
-            text: span,
-            textDirection: TextDirection.ltr,
-            textAlign: TextAlign.center);
+          text: span,
+          textDirection: TextDirection.ltr,
+          textAlign: TextAlign.center,
+        );
 
         textPainter.layout();
         _renderText(canvas, textPainter, label);
@@ -2633,21 +2945,29 @@ class RenderRadialAxisWidget extends RenderBox {
 
   // Methods to render the range label.
   void _renderText(
-      Canvas canvas, TextPainter textPainter, CircularAxisLabel label) {
+    Canvas canvas,
+    TextPainter textPainter,
+    CircularAxisLabel label,
+  ) {
     if (canRotateLabels || label.needsRotateLabel) {
       canvas.save();
       canvas.translate(label.position.dx, label.position.dy);
       // Rotates the labels to its calculated angle.
       canvas.rotate(getDegreeToRadian(label.angle));
       canvas.scale(-1);
-      textPainter.paint(canvas,
-          Offset(-label.labelSize.width / 2, -label.labelSize.height / 2));
+      textPainter.paint(
+        canvas,
+        Offset(-label.labelSize.width / 2, -label.labelSize.height / 2),
+      );
       canvas.restore();
     } else {
       textPainter.paint(
-          canvas,
-          Offset(label.position.dx - label.labelSize.width / 2,
-              label.position.dy - label.labelSize.height / 2));
+        canvas,
+        Offset(
+          label.position.dx - label.labelSize.width / 2,
+          label.position.dy - label.labelSize.height / 2,
+        ),
+      );
     }
   }
 
@@ -2661,13 +2981,18 @@ class RenderRadialAxisWidget extends RenderBox {
       if (!canScaleToFit) {
         final double radius = math.min(size.width, size.height) / 2;
         rect = Rect.fromLTRB(
-            size.width / 2 - radius - _centerXPoint,
-            size.height / 2 - radius - _centerYPoint,
-            size.width / 2 + radius - _centerXPoint,
-            size.height / 2 + radius - _centerYPoint);
+          size.width / 2 - radius - _centerXPoint,
+          size.height / 2 - radius - _centerYPoint,
+          size.width / 2 + radius - _centerXPoint,
+          size.height / 2 + radius - _centerYPoint,
+        );
       } else {
-        rect = Rect.fromLTRB(_axisCenter.dx - _radius, _axisCenter.dy - _radius,
-            _axisCenter.dx + _radius, _axisCenter.dx + _radius);
+        rect = Rect.fromLTRB(
+          _axisCenter.dx - _radius,
+          _axisCenter.dy - _radius,
+          _axisCenter.dx + _radius,
+          _axisCenter.dx + _radius,
+        );
       }
 
       // Draws the background image of axis

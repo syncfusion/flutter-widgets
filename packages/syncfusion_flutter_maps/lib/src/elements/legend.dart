@@ -19,8 +19,8 @@ enum _LegendType {
 }
 
 /// Signature to return a [Widget] for the given value.
-typedef MapLegendPointerBuilder = Widget Function(
-    BuildContext context, dynamic value);
+typedef MapLegendPointerBuilder =
+    Widget Function(BuildContext context, dynamic value);
 
 /// Shows legend for the bubbles or shapes.
 ///
@@ -319,19 +319,19 @@ class MapLegend extends DiagnosticableTree {
     this.toggledItemStrokeColor,
     this.toggledItemStrokeWidth = 1.0,
     this.toggledItemOpacity = 0.5,
-  })  : _type = _LegendType.vector,
-        segmentSize = null,
-        labelsPlacement = null,
-        edgeLabelsPlacement = MapLegendEdgeLabelsPlacement.inside,
-        labelOverflow = MapLabelOverflow.visible,
-        segmentPaintingStyle = MapLegendPaintingStyle.solid,
-        showPointerOnHover = false,
-        pointerBuilder = null,
-        pointerColor = null,
-        pointerSize = Size.zero,
-        assert(spacing >= 0),
-        assert(toggledItemStrokeWidth >= 0),
-        assert(toggledItemOpacity >= 0 && toggledItemOpacity <= 1);
+  }) : _type = _LegendType.vector,
+       segmentSize = null,
+       labelsPlacement = null,
+       edgeLabelsPlacement = MapLegendEdgeLabelsPlacement.inside,
+       labelOverflow = MapLabelOverflow.visible,
+       segmentPaintingStyle = MapLegendPaintingStyle.solid,
+       showPointerOnHover = false,
+       pointerBuilder = null,
+       pointerColor = null,
+       pointerSize = Size.zero,
+       assert(spacing >= 0),
+       assert(toggledItemStrokeWidth >= 0),
+       assert(toggledItemOpacity >= 0 && toggledItemOpacity <= 1);
 
   /// Creates a bar type legend for the bubbles or shapes.
   ///
@@ -481,15 +481,15 @@ class MapLegend extends DiagnosticableTree {
     this.pointerBuilder,
     this.pointerColor,
     this.pointerSize = const Size(16, 12),
-  })  : _type = _LegendType.bar,
-        enableToggleInteraction = false,
-        toggledItemColor = null,
-        toggledItemStrokeColor = null,
-        toggledItemStrokeWidth = 0.0,
-        toggledItemOpacity = 0.0,
-        iconType = MapIconType.circle,
-        iconSize = const Size(8.0, 8.0),
-        assert(spacing >= 0);
+  }) : _type = _LegendType.bar,
+       enableToggleInteraction = false,
+       toggledItemColor = null,
+       toggledItemStrokeColor = null,
+       toggledItemStrokeWidth = 0.0,
+       toggledItemOpacity = 0.0,
+       iconType = MapIconType.circle,
+       iconSize = const Size(8.0, 8.0),
+       assert(spacing >= 0);
 
   /// Shows legend for the bubbles or shapes.
   ///
@@ -2027,24 +2027,24 @@ class MapLegend extends DiagnosticableTree {
 
   @override
   int get hashCode => Object.hash(
-        padding,
-        offset,
-        spacing,
-        direction,
-        overflowMode,
-        position,
-        textStyle,
-        enableToggleInteraction,
-        toggledItemColor,
-        toggledItemStrokeColor,
-        toggledItemStrokeWidth,
-        toggledItemOpacity,
-        source,
-        showPointerOnHover,
-        pointerBuilder,
-        pointerColor,
-        pointerSize,
-      );
+    padding,
+    offset,
+    spacing,
+    direction,
+    overflowMode,
+    position,
+    textStyle,
+    enableToggleInteraction,
+    toggledItemColor,
+    toggledItemStrokeColor,
+    toggledItemStrokeWidth,
+    toggledItemOpacity,
+    source,
+    showPointerOnHover,
+    pointerBuilder,
+    pointerColor,
+    pointerSize,
+  );
 
   /// Creates a copy of this class but with the given fields
   /// replaced with the new values.
@@ -2134,8 +2134,9 @@ class MapLegend extends DiagnosticableTree {
       properties.add(EnumProperty<Axis>('direction', direction));
     }
 
-    properties
-        .add(EnumProperty<MapLegendOverflowMode>('overflowMode', overflowMode));
+    properties.add(
+      EnumProperty<MapLegendOverflowMode>('overflowMode', overflowMode),
+    );
     properties.add(EnumProperty<MapLegendPosition>('position', position));
     if (textStyle != null) {
       properties.add(textStyle!.toDiagnosticsNode(name: 'textStyle'));
@@ -2144,32 +2145,51 @@ class MapLegend extends DiagnosticableTree {
     if (_type == _LegendType.vector) {
       properties.add(DiagnosticsProperty<Size>('iconSize', iconSize));
       properties.add(EnumProperty<MapIconType>('iconType', iconType));
-      properties.add(FlagProperty('enableToggleInteraction',
+      properties.add(
+        FlagProperty(
+          'enableToggleInteraction',
           value: enableToggleInteraction,
           ifTrue: 'Toggle is enabled',
-          ifFalse: 'Toggle is disabled'));
+          ifFalse: 'Toggle is disabled',
+        ),
+      );
       if (toggledItemColor != null) {
         properties.add(ColorProperty('toggledItemColor', toggledItemColor));
       }
 
       if (toggledItemStrokeColor != null) {
         properties.add(
-            ColorProperty('toggledItemStrokeColor', toggledItemStrokeColor));
+          ColorProperty('toggledItemStrokeColor', toggledItemStrokeColor),
+        );
       }
 
       properties.add(
-          DoubleProperty('toggledItemStrokeWidth', toggledItemStrokeWidth));
+        DoubleProperty('toggledItemStrokeWidth', toggledItemStrokeWidth),
+      );
       properties.add(DoubleProperty('toggledItemOpacity', toggledItemOpacity));
     } else {
       properties.add(DiagnosticsProperty<Size>('segmentSize', segmentSize));
-      properties.add(EnumProperty<MapLegendLabelsPlacement>(
-          'labelsPlacement', labelsPlacement));
-      properties.add(EnumProperty<MapLegendEdgeLabelsPlacement>(
-          'edgeLabelsPlacement', edgeLabelsPlacement));
       properties.add(
-          EnumProperty<MapLabelOverflow>('labelOverflowMode', labelOverflow));
-      properties.add(EnumProperty<MapLegendPaintingStyle>(
-          'segmentPaintingStyle', segmentPaintingStyle));
+        EnumProperty<MapLegendLabelsPlacement>(
+          'labelsPlacement',
+          labelsPlacement,
+        ),
+      );
+      properties.add(
+        EnumProperty<MapLegendEdgeLabelsPlacement>(
+          'edgeLabelsPlacement',
+          edgeLabelsPlacement,
+        ),
+      );
+      properties.add(
+        EnumProperty<MapLabelOverflow>('labelOverflowMode', labelOverflow),
+      );
+      properties.add(
+        EnumProperty<MapLegendPaintingStyle>(
+          'segmentPaintingStyle',
+          segmentPaintingStyle,
+        ),
+      );
     }
   }
 }
@@ -2186,8 +2206,8 @@ class Legend extends StatefulWidget {
     required this.child,
     required this.themeData,
     this.controller,
-  })  : assert(colorMappers != null || dataSource != null),
-        super(key: key);
+  }) : assert(colorMappers != null || dataSource != null),
+       super(key: key);
 
   // Collection of [MapColorMapper] which specifies map color based
   /// on the data.
@@ -2234,16 +2254,19 @@ class _LegendState extends State<Legend> {
                 MapLegendLabelsPlacement.betweenItems) {
           if (index == 0) {
             final String startValue = _getStartSegmentLabel(colorMapper);
-            legendItems
-                .add(LegendItem(text: startValue, color: colorMapper.color));
+            legendItems.add(
+              LegendItem(text: startValue, color: colorMapper.color),
+            );
           } else {
-            final String text = colorMapper.text ??
+            final String text =
+                colorMapper.text ??
                 colorMapper.value ??
                 colorMapper.to.toString();
             legendItems.add(LegendItem(text: text, color: colorMapper.color));
           }
         } else {
-          final String text = colorMapper.text ??
+          final String text =
+              colorMapper.text ??
               colorMapper.value ??
               '${colorMapper.from} - ${colorMapper.to}';
           legendItems.add(LegendItem(text: text, color: colorMapper.color));
@@ -2254,9 +2277,10 @@ class _LegendState extends State<Legend> {
         legendItems.add(
           LegendItem(
             text: mapModel.primaryKey,
-            color: isLegendForBubbles
-                ? mapModel.bubbleColor ?? widget.themeData.bubbleColor
-                : mapModel.shapeColor ?? widget.themeData.layerColor,
+            color:
+                isLegendForBubbles
+                    ? mapModel.bubbleColor ?? widget.themeData.bubbleColor
+                    : mapModel.shapeColor ?? widget.themeData.layerColor,
           ),
         );
       });
@@ -2301,7 +2325,8 @@ class _LegendState extends State<Legend> {
   }
 
   LegendPaintingStyle _getEffectiveSegmentPaintingStyle(
-      MapLegendPaintingStyle paintingStyle) {
+    MapLegendPaintingStyle paintingStyle,
+  ) {
     switch (paintingStyle) {
       case MapLegendPaintingStyle.solid:
         return LegendPaintingStyle.solid;
@@ -2311,7 +2336,8 @@ class _LegendState extends State<Legend> {
   }
 
   LegendLabelOverflow _getEffectiveLabelOverflow(
-      MapLabelOverflow labelOverflow) {
+    MapLabelOverflow labelOverflow,
+  ) {
     switch (labelOverflow) {
       case MapLabelOverflow.visible:
         return LegendLabelOverflow.visible;
@@ -2323,7 +2349,8 @@ class _LegendState extends State<Legend> {
   }
 
   LegendEdgeLabelsPlacement _getEffectiveEdgeLabelsPlacement(
-      MapLegendEdgeLabelsPlacement edgeLabelsPlacement) {
+    MapLegendEdgeLabelsPlacement edgeLabelsPlacement,
+  ) {
     switch (edgeLabelsPlacement) {
       case MapLegendEdgeLabelsPlacement.center:
         return LegendEdgeLabelsPlacement.center;
@@ -2333,7 +2360,8 @@ class _LegendState extends State<Legend> {
   }
 
   LegendLabelsPlacement _getEffectiveLabelPlacement(
-      MapLegendLabelsPlacement labelsPlacement) {
+    MapLegendLabelsPlacement labelsPlacement,
+  ) {
     switch (labelsPlacement) {
       case MapLegendLabelsPlacement.betweenItems:
         return LegendLabelsPlacement.betweenItems;
@@ -2356,7 +2384,8 @@ class _LegendState extends State<Legend> {
   }
 
   LegendOverflowMode _getEffectiveOverflowMode(
-      MapLegendOverflowMode overflowMode) {
+    MapLegendOverflowMode overflowMode,
+  ) {
     switch (overflowMode) {
       case MapLegendOverflowMode.scroll:
         return LegendOverflowMode.scroll;
@@ -2406,8 +2435,9 @@ class _LegendState extends State<Legend> {
 
   Color? _getEffectiveToggledItemColor() {
     if (widget.themeData.toggledItemColor != Colors.transparent) {
-      return widget.themeData.toggledItemColor!
-          .withValues(alpha: widget.legend.toggledItemOpacity);
+      return widget.themeData.toggledItemColor!.withValues(
+        alpha: widget.legend.toggledItemOpacity,
+      );
     }
     return widget.themeData.toggledItemColor;
   }
@@ -2430,16 +2460,17 @@ class _LegendState extends State<Legend> {
           iconType: _getEffectiveLegendIconType(widget.legend.iconType),
           iconSize: widget.legend.iconSize,
           toggledIndices: _toggledIndices,
-          onToggledIndicesChanged: widget.legend.enableToggleInteraction
-              ? (List<int> indices, int currentIndex) {
-                  setState(() {
-                    widget.controller!.toggledIndices.clear();
-                    widget.controller!.toggledIndices.addAll(indices);
-                    widget.controller!.currentToggledItemIndex = currentIndex;
-                    _toggledIndices = indices;
-                  });
-                }
-              : null,
+          onToggledIndicesChanged:
+              widget.legend.enableToggleInteraction
+                  ? (List<int> indices, int currentIndex) {
+                    setState(() {
+                      widget.controller!.toggledIndices.clear();
+                      widget.controller!.toggledIndices.addAll(indices);
+                      widget.controller!.currentToggledItemIndex = currentIndex;
+                      _toggledIndices = indices;
+                    });
+                  }
+                  : null,
           toggledIconColor: _getEffectiveToggledItemColor(),
           toggledTextOpacity: widget.legend.toggledItemOpacity,
           child: widget.child,
@@ -2456,20 +2487,25 @@ class _LegendState extends State<Legend> {
           offset: widget.legend.offset,
           padding: widget.legend.padding,
           textStyle: widget.themeData.legendTextStyle,
-          labelsPlacement:
-              _getEffectiveLabelPlacement(_getActualLabelsPlacement()),
+          labelsPlacement: _getEffectiveLabelPlacement(
+            _getActualLabelsPlacement(),
+          ),
           edgeLabelsPlacement: _getEffectiveEdgeLabelsPlacement(
-              widget.legend.edgeLabelsPlacement),
-          labelOverflow:
-              _getEffectiveLabelOverflow(widget.legend.labelOverflow),
+            widget.legend.edgeLabelsPlacement,
+          ),
+          labelOverflow: _getEffectiveLabelOverflow(
+            widget.legend.labelOverflow,
+          ),
           segmentSize: widget.legend.segmentSize,
           segmentPaintingStyle: _getEffectiveSegmentPaintingStyle(
-              widget.legend.segmentPaintingStyle),
+            widget.legend.segmentPaintingStyle,
+          ),
           pointerBuilder: widget.legend.pointerBuilder,
           pointerColor: widget.legend.pointerColor,
-          pointerSize: widget.legend.showPointerOnHover
-              ? widget.legend.pointerSize
-              : Size.zero,
+          pointerSize:
+              widget.legend.showPointerOnHover
+                  ? widget.legend.pointerSize
+                  : Size.zero,
           pointerController: widget.pointerController,
           child: widget.child,
         );

@@ -54,7 +54,6 @@ class CombinationFilter implements Filter {
   }
 
   @override
-
   ///Set filter type
   set filterType(ExcelFilterType filterType) {}
 

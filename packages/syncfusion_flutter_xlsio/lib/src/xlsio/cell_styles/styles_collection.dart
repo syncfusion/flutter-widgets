@@ -48,7 +48,7 @@ class StylesCollection {
     'nl-BE': r'_(€* #,##0.00_)',
     'pl-PL': r'_(#,##0.00_*zł',
     'pt-PT': r'_(#,##0.00_*€',
-    'ru-RU': r'_(#,##0.00_*₽'
+    'ru-RU': r'_(#,##0.00_*₽',
   };
 
   /// Dictionary. Key - Culture, value - Symbols.
@@ -62,7 +62,7 @@ class StylesCollection {
     'nl-BE': '€',
     'pl-PL': 'zł',
     'pt-PT': '€',
-    'ru-RU': '₽'
+    'ru-RU': '₽',
   };
 
   /// Default styles names.
@@ -128,7 +128,8 @@ class StylesCollection {
     if (index is String) {
       if (!_dictStyles.containsKey(index)) {
         throw Exception(
-            'Style with specified name does not exist. Name: $index, value');
+          'Style with specified name does not exist. Name: $index, value',
+        );
       }
       return _dictStyles[index];
     } else {

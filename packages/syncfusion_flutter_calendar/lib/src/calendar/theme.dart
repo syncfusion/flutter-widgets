@@ -9,9 +9,7 @@ import 'package:syncfusion_flutter_core/theme.dart';
 class SfCalendarThemeColors extends SfCalendarThemeData {
   /// This a constructor that takes a [BuildContext] as a parameter.This context
   /// is used for obtaining the color scheme of the current theme.
-  SfCalendarThemeColors(
-    this.context,
-  );
+  SfCalendarThemeColors(this.context);
 
   /// Property that stores the provided [BuildContext]
   /// context is later used to obtain the color scheme.
@@ -24,11 +22,12 @@ class SfCalendarThemeColors extends SfCalendarThemeData {
   Color? get backgroundColor => Colors.transparent;
 
   @override
-  Color? get headerBackgroundColor => Theme.of(context).useMaterial3
-      ? (Theme.of(context).brightness == Brightness.light
-          ? const Color.fromRGBO(247, 242, 251, 1)
-          : const Color.fromRGBO(37, 35, 42, 1))
-      : Colors.transparent;
+  Color? get headerBackgroundColor =>
+      Theme.of(context).useMaterial3
+          ? (Theme.of(context).brightness == Brightness.light
+              ? const Color.fromRGBO(247, 242, 251, 1)
+              : const Color.fromRGBO(37, 35, 42, 1))
+          : Colors.transparent;
 
   @override
   Color? get agendaBackgroundColor => Colors.transparent;

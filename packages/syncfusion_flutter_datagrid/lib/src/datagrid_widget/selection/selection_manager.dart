@@ -103,9 +103,13 @@ class RowSelectionManager extends SelectionManagerBase {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     final int recordIndex = grid_helper.resolveToRecordIndex(
-        dataGridConfiguration, rowColumnIndex.rowIndex);
-    DataGridRow? record =
-        selection_helper.getRecord(dataGridConfiguration, recordIndex);
+      dataGridConfiguration,
+      rowColumnIndex.rowIndex,
+    );
+    DataGridRow? record = selection_helper.getRecord(
+      dataGridConfiguration,
+      recordIndex,
+    );
     final List<DataGridRow> addedItems = <DataGridRow>[];
     final List<DataGridRow> removeItems = <DataGridRow>[];
 
@@ -123,11 +127,16 @@ class RowSelectionManager extends SelectionManagerBase {
       }
 
       if (_raiseSelectionChanging(
-          newItems: addedItems, oldItems: removeItems)) {
+        newItems: addedItems,
+        oldItems: removeItems,
+      )) {
         _clearSelectedRow(dataGridConfiguration);
         _addSelection(record, dataGridConfiguration);
         _raiseCheckboxValueChanged(
-            value: true, row: record, rowType: RowType.dataRow);
+          value: true,
+          row: record,
+          rowType: RowType.dataRow,
+        );
         notifyListeners();
         _raiseSelectionChanged(newItems: addedItems, oldItems: removeItems);
       }
@@ -151,19 +160,27 @@ class RowSelectionManager extends SelectionManagerBase {
       }
 
       if (_raiseSelectionChanging(
-          newItems: addedItems, oldItems: removeItems)) {
+        newItems: addedItems,
+        oldItems: removeItems,
+      )) {
         if (record != null && !_selectedRows.contains(record)) {
           _clearSelectedRow(dataGridConfiguration);
           _addSelection(record, dataGridConfiguration);
           _raiseCheckboxValueChanged(
-              value: true, row: record, rowType: RowType.dataRow);
+            value: true,
+            row: record,
+            rowType: RowType.dataRow,
+          );
         } else {
           _clearSelectedRow(dataGridConfiguration);
           if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
             _clearCurrentCell(dataGridConfiguration);
           }
           _raiseCheckboxValueChanged(
-              value: false, row: record, rowType: RowType.dataRow);
+            value: false,
+            row: record,
+            rowType: RowType.dataRow,
+          );
         }
 
         notifyListeners();
@@ -188,16 +205,24 @@ class RowSelectionManager extends SelectionManagerBase {
       }
 
       if (_raiseSelectionChanging(
-              newItems: addedItems, oldItems: removeItems) &&
+            newItems: addedItems,
+            oldItems: removeItems,
+          ) &&
           record != null) {
         if (!_selectedRows.contains(record)) {
           _addSelection(record, dataGridConfiguration);
           _raiseCheckboxValueChanged(
-              value: true, row: record, rowType: RowType.dataRow);
+            value: true,
+            row: record,
+            rowType: RowType.dataRow,
+          );
         } else {
           _removeSelection(record, dataGridConfiguration);
           _raiseCheckboxValueChanged(
-              value: false, row: record, rowType: RowType.dataRow);
+            value: false,
+            row: record,
+            rowType: RowType.dataRow,
+          );
         }
         notifyListeners();
         _raiseSelectionChanged(newItems: addedItems, oldItems: removeItems);
@@ -214,7 +239,10 @@ class RowSelectionManager extends SelectionManagerBase {
 
   /// Check whether the index is outside the shift selected rows range.
   bool isIndexOutsideRange(
-      int pressedRowIndex, int currentRecordIndex, int index) {
+    int pressedRowIndex,
+    int currentRecordIndex,
+    int index,
+  ) {
     if (pressedRowIndex < currentRecordIndex) {
       return index < pressedRowIndex || index > currentRecordIndex;
     } else {
@@ -223,42 +251,62 @@ class RowSelectionManager extends SelectionManagerBase {
   }
 
   void _processShiftKeySelection(
-      RowColumnIndex rowColumnIndex, int currentRecordIndex) {
+    RowColumnIndex rowColumnIndex,
+    int currentRecordIndex,
+  ) {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     List<DataGridRow> addedItems = <DataGridRow>[];
     List<DataGridRow> removedItems = <DataGridRow>[];
     removedItems = _shiftSelectedRows.toList();
 
-    for (final DataGridRow selectedRow
-        in List<DataGridRow>.from(_selectedRows)) {
-      final int selectedIndex =
-          dataGridConfiguration.source.effectiveRows.indexOf(selectedRow);
+    for (final DataGridRow selectedRow in List<DataGridRow>.from(
+      _selectedRows,
+    )) {
+      final int selectedIndex = dataGridConfiguration.source.effectiveRows
+          .indexOf(selectedRow);
       if (isIndexOutsideRange(
-          _pressedRowIndex, currentRecordIndex, selectedIndex)) {
+        _pressedRowIndex,
+        currentRecordIndex,
+        selectedIndex,
+      )) {
         _removeSelection(selectedRow, dataGridConfiguration);
         _raiseCheckboxValueChanged(
-            value: false, row: selectedRow, rowType: RowType.dataRow);
+          value: false,
+          row: selectedRow,
+          rowType: RowType.dataRow,
+        );
       }
     }
     if (dataGridConfiguration.onSelectionChanging != null ||
         dataGridConfiguration.onSelectionChanged != null) {
       addedItems = _getAddedItems(
-          _pressedRowIndex, currentRecordIndex, dataGridConfiguration);
-      final List<DataGridRow> commonItemsList = addedItems
-          .toSet()
-          .where((DataGridRow record) => removedItems.toSet().contains(record))
-          .toList();
-      addedItems = addedItems
-          .toSet()
-          .where(
-              (DataGridRow record) => !_selectedRows.toSet().contains(record))
-          .toList();
-      removedItems = removedItems
-          .toSet()
-          .where(
-              (DataGridRow record) => !commonItemsList.toSet().contains(record))
-          .toList();
+        _pressedRowIndex,
+        currentRecordIndex,
+        dataGridConfiguration,
+      );
+      final List<DataGridRow> commonItemsList =
+          addedItems
+              .toSet()
+              .where(
+                (DataGridRow record) => removedItems.toSet().contains(record),
+              )
+              .toList();
+      addedItems =
+          addedItems
+              .toSet()
+              .where(
+                (DataGridRow record) => !_selectedRows.toSet().contains(record),
+              )
+              .toList();
+      removedItems =
+          removedItems
+              .toSet()
+              .where(
+                (DataGridRow record) =>
+                    !commonItemsList.toSet().contains(record),
+              )
+              .toList();
     }
     if (_raiseSelectionChanging(newItems: addedItems, oldItems: removedItems)) {
       _addSelectionForShiftKey(currentRecordIndex, removedItems);
@@ -268,16 +316,23 @@ class RowSelectionManager extends SelectionManagerBase {
   }
 
   void _addSelectionForShiftKey(
-      int currentRecordIndex, List<DataGridRow> removedItems) {
+    int currentRecordIndex,
+    List<DataGridRow> removedItems,
+  ) {
     late DataGridRow? record;
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
-    final DataGridRow? pressedRecord =
-        selection_helper.getRecord(dataGridConfiguration, _pressedRowIndex);
+    final DataGridRow? pressedRecord = selection_helper.getRecord(
+      dataGridConfiguration,
+      _pressedRowIndex,
+    );
     if (!_selectedRows.contains(pressedRecord)) {
       _addSelection(pressedRecord, dataGridConfiguration);
       _raiseCheckboxValueChanged(
-          value: true, row: pressedRecord, rowType: RowType.dataRow);
+        value: true,
+        row: pressedRecord,
+        rowType: RowType.dataRow,
+      );
     }
 
     if (removedItems.isNotEmpty) {
@@ -285,40 +340,56 @@ class RowSelectionManager extends SelectionManagerBase {
         if (_selectedRows.contains(items)) {
           _removeSelection(items, dataGridConfiguration);
           _raiseCheckboxValueChanged(
-              value: false, row: items, rowType: RowType.dataRow);
+            value: false,
+            row: items,
+            rowType: RowType.dataRow,
+          );
         }
       }
     }
 
     if (_pressedRowIndex < currentRecordIndex) {
-      for (int rowIndex = _pressedRowIndex + 1;
-          rowIndex <= currentRecordIndex;
-          rowIndex++) {
+      for (
+        int rowIndex = _pressedRowIndex + 1;
+        rowIndex <= currentRecordIndex;
+        rowIndex++
+      ) {
         record = selection_helper.getRecord(dataGridConfiguration, rowIndex);
         if (record != null) {
           _shiftSelectedRows.add(record);
           _addSelection(record, dataGridConfiguration);
           _raiseCheckboxValueChanged(
-              value: true, row: record, rowType: RowType.dataRow);
+            value: true,
+            row: record,
+            rowType: RowType.dataRow,
+          );
         }
       }
     } else if (_pressedRowIndex > currentRecordIndex) {
-      for (int rowIndex = _pressedRowIndex - 1;
-          rowIndex >= currentRecordIndex;
-          rowIndex--) {
+      for (
+        int rowIndex = _pressedRowIndex - 1;
+        rowIndex >= currentRecordIndex;
+        rowIndex--
+      ) {
         record = selection_helper.getRecord(dataGridConfiguration, rowIndex);
         if (record != null) {
           _shiftSelectedRows.add(record);
           _addSelection(record, dataGridConfiguration);
           _raiseCheckboxValueChanged(
-              value: true, row: record, rowType: RowType.dataRow);
+            value: true,
+            row: record,
+            rowType: RowType.dataRow,
+          );
         }
       }
     }
   }
 
   List<DataGridRow> _getAddedItems(
-      int startIndex, int endIndex, DataGridConfiguration configuration) {
+    int startIndex,
+    int endIndex,
+    DataGridConfiguration configuration,
+  ) {
     final List<DataGridRow> addedItems = <DataGridRow>[];
     if (startIndex > endIndex) {
       final int tempIndex = startIndex;
@@ -332,10 +403,14 @@ class RowSelectionManager extends SelectionManagerBase {
   }
 
   void _addSelection(
-      DataGridRow? record, DataGridConfiguration dataGridConfiguration) {
+    DataGridRow? record,
+    DataGridConfiguration dataGridConfiguration,
+  ) {
     if (record != null && !_selectedRows.contains(record)) {
-      final int rowIndex =
-          selection_helper.resolveToRowIndex(dataGridConfiguration, record);
+      final int rowIndex = selection_helper.resolveToRowIndex(
+        dataGridConfiguration,
+        record,
+      );
       if (!_selectedRows.contains(record)) {
         _selectedRows.add(record);
         dataGridConfiguration.controller.selectedRows.add(record);
@@ -349,10 +424,14 @@ class RowSelectionManager extends SelectionManagerBase {
   }
 
   void _removeSelection(
-      DataGridRow? record, DataGridConfiguration dataGridConfiguration) {
+    DataGridRow? record,
+    DataGridConfiguration dataGridConfiguration,
+  ) {
     if (record != null && _selectedRows.contains(record)) {
-      final int rowIndex =
-          selection_helper.resolveToRowIndex(dataGridConfiguration, record);
+      final int rowIndex = selection_helper.resolveToRowIndex(
+        dataGridConfiguration,
+        record,
+      );
       _selectedRows.remove(record);
       dataGridConfiguration.controller.selectedRows.remove(record);
       _refreshSelection();
@@ -373,7 +452,8 @@ class RowSelectionManager extends SelectionManagerBase {
   void _clearSelectedRows(DataGridConfiguration dataGridConfiguration) {
     if (_selectedRows.isNotEmpty) {
       _selectedRows.removeWhere(
-          (row) => dataGridConfiguration.source.effectiveRows.contains(row));
+        (row) => dataGridConfiguration.source.effectiveRows.contains(row),
+      );
       dataGridConfiguration.controller.selectedRows.clear();
       _refreshSelection();
       dataGridConfiguration.container.isDirty = true;
@@ -390,8 +470,11 @@ class RowSelectionManager extends SelectionManagerBase {
     _clearSelection(dataGridConfiguration);
   }
 
-  void _setRowSelection(int rowIndex,
-      DataGridConfiguration dataGridConfiguration, bool isRowSelected) {
+  void _setRowSelection(
+    int rowIndex,
+    DataGridConfiguration dataGridConfiguration,
+    bool isRowSelected,
+  ) {
     if (dataGridConfiguration.rowGenerator.items.isEmpty) {
       return;
     }
@@ -402,7 +485,9 @@ class RowSelectionManager extends SelectionManagerBase {
       row
         ..isDirty = true
         ..dataGridRowAdapter = grid_helper.getDataGridRowAdapter(
-            dataGridConfiguration, row.dataGridRow!)
+          dataGridConfiguration,
+          row.dataGridRow!,
+        )
         ..isSelectedRow = isRowSelected;
     }
 
@@ -411,7 +496,8 @@ class RowSelectionManager extends SelectionManagerBase {
 
   void _clearSelection(DataGridConfiguration dataGridConfiguration) {
     _selectedRows.removeWhere(
-        (row) => dataGridConfiguration.source.effectiveRows.contains(row));
+      (row) => dataGridConfiguration.source.effectiveRows.contains(row),
+    );
     dataGridConfiguration.controller.selectedRows.clear();
     updateSelectedRow(dataGridConfiguration.controller, null);
     updateSelectedIndex(dataGridConfiguration.controller, -1);
@@ -435,21 +521,27 @@ class RowSelectionManager extends SelectionManagerBase {
     final DataGridRow? selectedRow = _selectedRows.reversed.firstWhereOrNull(
       (row) => effectiveRows(dataGridConfiguration.source).contains(row),
     );
-    final int recordIndex = selectedRow == null
-        ? -1
-        : dataGridConfiguration.source.groupedColumns.isNotEmpty
-            ? dataGridConfiguration.group!.displayElements!.grouped
-                .indexOf(selectedRow)
+    final int recordIndex =
+        selectedRow == null
+            ? -1
+            : dataGridConfiguration.source.groupedColumns.isNotEmpty
+            ? dataGridConfiguration.group!.displayElements!.grouped.indexOf(
+              selectedRow,
+            )
             : effectiveRows(dataGridConfiguration.source).indexOf(selectedRow);
     updateSelectedRow(dataGridConfiguration.controller, selectedRow);
     updateSelectedIndex(dataGridConfiguration.controller, recordIndex);
   }
 
   void _addCurrentCell(
-      DataGridRow record, DataGridConfiguration dataGridConfiguration,
-      {bool isSelectionChanging = false}) {
-    final int rowIndex =
-        selection_helper.resolveToRowIndex(dataGridConfiguration, record);
+    DataGridRow record,
+    DataGridConfiguration dataGridConfiguration, {
+    bool isSelectionChanging = false,
+  }) {
+    final int rowIndex = selection_helper.resolveToRowIndex(
+      dataGridConfiguration,
+      record,
+    );
 
     if (rowIndex <= grid_helper.getHeaderIndex(dataGridConfiguration)) {
       return;
@@ -457,17 +549,19 @@ class RowSelectionManager extends SelectionManagerBase {
 
     if (dataGridConfiguration.currentCell.columnIndex > 0) {
       dataGridConfiguration.currentCell._moveCurrentCellTo(
-          dataGridConfiguration,
-          RowColumnIndex(
-              rowIndex, dataGridConfiguration.currentCell.columnIndex),
-          isSelectionChanged: isSelectionChanging);
+        dataGridConfiguration,
+        RowColumnIndex(rowIndex, dataGridConfiguration.currentCell.columnIndex),
+        isSelectionChanged: isSelectionChanging,
+      );
     } else {
-      final int firstVisibleColumnIndex =
-          grid_helper.resolveToStartColumnIndex(dataGridConfiguration);
+      final int firstVisibleColumnIndex = grid_helper.resolveToStartColumnIndex(
+        dataGridConfiguration,
+      );
       dataGridConfiguration.currentCell._moveCurrentCellTo(
-          dataGridConfiguration,
-          RowColumnIndex(rowIndex, firstVisibleColumnIndex),
-          isSelectionChanged: isSelectionChanging);
+        dataGridConfiguration,
+        RowColumnIndex(rowIndex, firstVisibleColumnIndex),
+        isSelectionChanged: isSelectionChanging,
+      );
     }
   }
 
@@ -476,12 +570,14 @@ class RowSelectionManager extends SelectionManagerBase {
         _dataGridStateDetails!();
     if (dataGridConfiguration.navigationMode == GridNavigationMode.row) {
       final RowColumnIndex currentRowColumnIndex = RowColumnIndex(
-          dataGridConfiguration.currentCell.rowIndex,
-          dataGridConfiguration.currentCell.columnIndex);
+        dataGridConfiguration.currentCell.rowIndex,
+        dataGridConfiguration.currentCell.columnIndex,
+      );
       _clearCurrentCell(dataGridConfiguration);
       dataGridConfiguration.currentCell._updateBorderForMultipleSelection(
-          dataGridConfiguration,
-          nextRowColumnIndex: currentRowColumnIndex);
+        dataGridConfiguration,
+        nextRowColumnIndex: currentRowColumnIndex,
+      );
     } else {
       if (dataGridConfiguration.selectionMode != SelectionMode.none) {
         final DataGridRow? lastRecord =
@@ -512,26 +608,34 @@ class RowSelectionManager extends SelectionManagerBase {
           );
         } else {
           currentCell._moveCurrentCellTo(
-              dataGridConfiguration,
-              RowColumnIndex(currentRowColumnIndex.rowIndex,
-                  currentRowColumnIndex.columnIndex),
-              isSelectionChanged: true);
+            dataGridConfiguration,
+            RowColumnIndex(
+              currentRowColumnIndex.rowIndex,
+              currentRowColumnIndex.columnIndex,
+            ),
+            isSelectionChanged: true,
+          );
         }
       }
     }
   }
 
   RowColumnIndex _getRowColumnIndexOnModeChanged(
-      DataGridConfiguration dataGridConfiguration, DataGridRow? lastRecord) {
+    DataGridConfiguration dataGridConfiguration,
+    DataGridRow? lastRecord,
+  ) {
     final int rowIndex =
         lastRecord == null && _pressedRowColumnIndex.rowIndex > 0
             ? _pressedRowColumnIndex.rowIndex
             : selection_helper.resolveToRowIndex(
-                dataGridConfiguration, lastRecord!);
+              dataGridConfiguration,
+              lastRecord!,
+            );
 
-    final int columnIndex = _pressedRowColumnIndex.columnIndex != -1
-        ? _pressedRowColumnIndex.columnIndex
-        : grid_helper.resolveToStartColumnIndex(dataGridConfiguration);
+    final int columnIndex =
+        _pressedRowColumnIndex.columnIndex != -1
+            ? _pressedRowColumnIndex.columnIndex
+            : grid_helper.resolveToStartColumnIndex(dataGridConfiguration);
 
     return RowColumnIndex(rowIndex, columnIndex);
   }
@@ -544,7 +648,8 @@ class RowSelectionManager extends SelectionManagerBase {
 
   /// When the selection is applied to a row, we should update the state of the check box also.
   void _updateCheckboxStateOnHeader(
-      DataGridConfiguration dataGridConfiguration) {
+    DataGridConfiguration dataGridConfiguration,
+  ) {
     if (!dataGridConfiguration.showCheckboxColumn ||
         !dataGridConfiguration.checkboxColumnSettings.showCheckboxOnHeader ||
         dataGridConfiguration.selectionMode == SelectionMode.none) {
@@ -553,10 +658,12 @@ class RowSelectionManager extends SelectionManagerBase {
 
     final DataRowBase? headerDataRow = dataGridConfiguration.rowGenerator.items
         .firstWhereOrNull(
-            (DataRowBase dataRow) => dataRow.rowType == RowType.headerRow);
+          (DataRowBase dataRow) => dataRow.rowType == RowType.headerRow,
+        );
 
     final bool isRowInEffectiveList = _selectedRows.any(
-        (row) => effectiveRows(dataGridConfiguration.source).contains(row));
+      (row) => effectiveRows(dataGridConfiguration.source).contains(row),
+    );
 
     if (headerDataRow == null) {
       if (dataGridConfiguration.controller.selectedRows.length ==
@@ -569,9 +676,11 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     final DataCellBase? headerDataCell = headerDataRow.visibleColumns
-        .firstWhereOrNull((DataCellBase cell) =>
-            cell.columnIndex ==
-            dataGridConfiguration.source.groupedColumns.length);
+        .firstWhereOrNull(
+          (DataCellBase cell) =>
+              cell.columnIndex ==
+              dataGridConfiguration.source.groupedColumns.length,
+        );
 
     // Issue:
     // FLUT-6617-The null check operator used on the null value exception occurred
@@ -606,13 +715,18 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
     final int recordIndex = grid_helper.resolveToRecordIndex(
-        dataGridConfiguration, rowColumnIndex.rowIndex);
+      dataGridConfiguration,
+      rowColumnIndex.rowIndex,
+    );
 
     final RowColumnIndex previousRowColumnIndex = RowColumnIndex(
-        dataGridConfiguration.currentCell.rowIndex,
-        dataGridConfiguration.currentCell.columnIndex);
-    if (!dataGridConfiguration.currentCell
-        ._handlePointerOperation(dataGridConfiguration, rowColumnIndex)) {
+      dataGridConfiguration.currentCell.rowIndex,
+      dataGridConfiguration.currentCell.columnIndex,
+    );
+    if (!dataGridConfiguration.currentCell._handlePointerOperation(
+      dataGridConfiguration,
+      rowColumnIndex,
+    )) {
       return;
     }
     final bool isShiftPressed = dataGridConfiguration.isShiftKeyPressed;
@@ -633,16 +747,20 @@ class RowSelectionManager extends SelectionManagerBase {
     if (!isShiftPressed && _raiseSelectionChanging()) {
       _shiftSelectedRows.clear();
       _processSelection(
-          dataGridConfiguration, rowColumnIndex, previousRowColumnIndex);
+        dataGridConfiguration,
+        rowColumnIndex,
+        previousRowColumnIndex,
+      );
     } else if (dataGridConfiguration.selectionMode == SelectionMode.multiple) {
       _processShiftKeySelection(rowColumnIndex, recordIndex);
     }
   }
 
   void _processSelection(
-      DataGridConfiguration dataGridConfiguration,
-      RowColumnIndex nextRowColumnIndex,
-      RowColumnIndex previousRowColumnIndex) {
+    DataGridConfiguration dataGridConfiguration,
+    RowColumnIndex nextRowColumnIndex,
+    RowColumnIndex previousRowColumnIndex,
+  ) {
     // If selectionMode is single. next current cell is going to present in the
     // same selected row.
     // In this case, we don't update the whole data row. Instead of that
@@ -697,10 +815,13 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    final int recordIndex =
-        effectiveRows(dataGridConfiguration.source).indexOf(newValue!);
-    final int rowIndex =
-        grid_helper.resolveToRowIndex(dataGridConfiguration, recordIndex);
+    final int recordIndex = effectiveRows(
+      dataGridConfiguration.source,
+    ).indexOf(newValue!);
+    final int rowIndex = grid_helper.resolveToRowIndex(
+      dataGridConfiguration,
+      recordIndex,
+    );
 
     if (rowIndex < grid_helper.getHeaderIndex(dataGridConfiguration)) {
       return;
@@ -714,15 +835,23 @@ class RowSelectionManager extends SelectionManagerBase {
       }
 
       if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
-        _addCurrentCell(newValue, dataGridConfiguration,
-            isSelectionChanging: true);
+        _addCurrentCell(
+          newValue,
+          dataGridConfiguration,
+          isSelectionChanging: true,
+        );
       } else {
-        final int columnIndex =
-            grid_helper.resolveToStartColumnIndex(dataGridConfiguration);
-        final int rowIndex =
-            selection_helper.resolveToRowIndex(dataGridConfiguration, newValue);
-        dataGridConfiguration.currentCell
-            ._updateCurrentRowColumnIndex(rowIndex, columnIndex);
+        final int columnIndex = grid_helper.resolveToStartColumnIndex(
+          dataGridConfiguration,
+        );
+        final int rowIndex = selection_helper.resolveToRowIndex(
+          dataGridConfiguration,
+          newValue,
+        );
+        dataGridConfiguration.currentCell._updateCurrentRowColumnIndex(
+          rowIndex,
+          columnIndex,
+        );
       }
 
       _addSelection(newValue, dataGridConfiguration);
@@ -769,8 +898,10 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    final DataGridRow? record =
-        selection_helper.getRecord(dataGridConfiguration, newValue);
+    final DataGridRow? record = selection_helper.getRecord(
+      dataGridConfiguration,
+      newValue,
+    );
     if (record != null && !_selectedRows.contains(record)) {
       //In multiple case we shouldn't to clear the collection as
       // well source properties.
@@ -779,15 +910,23 @@ class RowSelectionManager extends SelectionManagerBase {
       }
 
       if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
-        _addCurrentCell(record, dataGridConfiguration,
-            isSelectionChanging: true);
+        _addCurrentCell(
+          record,
+          dataGridConfiguration,
+          isSelectionChanging: true,
+        );
       } else {
-        final int rowIndex =
-            selection_helper.resolveToRowIndex(dataGridConfiguration, record);
-        final int columnIndex =
-            grid_helper.resolveToStartColumnIndex(dataGridConfiguration);
-        dataGridConfiguration.currentCell
-            ._updateCurrentRowColumnIndex(rowIndex, columnIndex);
+        final int rowIndex = selection_helper.resolveToRowIndex(
+          dataGridConfiguration,
+          record,
+        );
+        final int columnIndex = grid_helper.resolveToStartColumnIndex(
+          dataGridConfiguration,
+        );
+        dataGridConfiguration.currentCell._updateCurrentRowColumnIndex(
+          rowIndex,
+          columnIndex,
+        );
       }
 
       _addSelection(record, dataGridConfiguration);
@@ -805,8 +944,10 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    final List<DataGridRow> newValue =
-        dataGridConfiguration.controller.selectedRows.toList(growable: false);
+    final List<DataGridRow> newValue = dataGridConfiguration
+        .controller
+        .selectedRows
+        .toList(growable: false);
 
     if (newValue.isEmpty) {
       _clearSelectedRows(dataGridConfiguration);
@@ -815,10 +956,13 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     _clearSelectedRows(dataGridConfiguration);
-    final List<DataGridRow> visibleRows = newValue
-        .where(
-            (row) => effectiveRows(dataGridConfiguration.source).contains(row))
-        .toList();
+    final List<DataGridRow> visibleRows =
+        newValue
+            .where(
+              (row) =>
+                  effectiveRows(dataGridConfiguration.source).contains(row),
+            )
+            .toList();
     _selectedRows.addAll(visibleRows);
     dataGridConfiguration.controller.selectedRows.addAll(visibleRows);
     _refreshSelection();
@@ -830,16 +974,22 @@ class RowSelectionManager extends SelectionManagerBase {
     if (dataGridConfiguration.navigationMode == GridNavigationMode.cell &&
         _selectedRows.isNotEmpty) {
       final DataGridRow lastRecord = _selectedRows.last;
-      _addCurrentCell(lastRecord, dataGridConfiguration,
-          isSelectionChanging: true);
+      _addCurrentCell(
+        lastRecord,
+        dataGridConfiguration,
+        isSelectionChanging: true,
+      );
     } else if (dataGridConfiguration.isDesktop &&
         dataGridConfiguration.navigationMode == GridNavigationMode.row) {
       final DataGridRow lastRecord = _selectedRows.last;
-      final int rowIndex =
-          selection_helper.resolveToRowIndex(dataGridConfiguration, lastRecord);
+      final int rowIndex = selection_helper.resolveToRowIndex(
+        dataGridConfiguration,
+        lastRecord,
+      );
       dataGridConfiguration.currentCell._updateBorderForMultipleSelection(
-          dataGridConfiguration,
-          nextRowColumnIndex: RowColumnIndex(rowIndex, -1));
+        dataGridConfiguration,
+        nextRowColumnIndex: RowColumnIndex(rowIndex, -1),
+      );
     }
 
     notifyListeners();
@@ -866,18 +1016,25 @@ class RowSelectionManager extends SelectionManagerBase {
           return;
         }
 
-        lastRecord = dataGridConfiguration.selectionMode == SelectionMode.single
-            ? selection_helper.getRecord(
-                dataGridConfiguration,
-                grid_helper.resolveToRecordIndex(
-                    dataGridConfiguration, currentRowColumnIndex.rowIndex))
-            : lastRecord;
+        lastRecord =
+            dataGridConfiguration.selectionMode == SelectionMode.single
+                ? selection_helper.getRecord(
+                  dataGridConfiguration,
+                  grid_helper.resolveToRecordIndex(
+                    dataGridConfiguration,
+                    currentRowColumnIndex.rowIndex,
+                  ),
+                )
+                : lastRecord;
 
         dataGridConfiguration.currentCell._moveCurrentCellTo(
-            dataGridConfiguration,
-            RowColumnIndex(currentRowColumnIndex.rowIndex,
-                currentRowColumnIndex.columnIndex),
-            isSelectionChanged: true);
+          dataGridConfiguration,
+          RowColumnIndex(
+            currentRowColumnIndex.rowIndex,
+            currentRowColumnIndex.columnIndex,
+          ),
+          isSelectionChanged: true,
+        );
       }
 
       if (lastRecord != null) {
@@ -885,11 +1042,14 @@ class RowSelectionManager extends SelectionManagerBase {
       }
     } else if (dataGridConfiguration.isDesktop &&
         dataGridConfiguration.selectionMode == SelectionMode.multiple) {
-      final RowColumnIndex currentRowColumnIndex =
-          RowColumnIndex(dataGridConfiguration.currentCell.rowIndex, -1);
+      final RowColumnIndex currentRowColumnIndex = RowColumnIndex(
+        dataGridConfiguration.currentCell.rowIndex,
+        -1,
+      );
       dataGridConfiguration.currentCell._updateBorderForMultipleSelection(
-          dataGridConfiguration,
-          nextRowColumnIndex: currentRowColumnIndex);
+        dataGridConfiguration,
+        nextRowColumnIndex: currentRowColumnIndex,
+      );
     }
   }
 
@@ -903,35 +1063,48 @@ class RowSelectionManager extends SelectionManagerBase {
     }
 
     final int rowIndex = grid_helper.resolveToRecordIndex(
-        dataGridConfiguration, currentCell.rowIndex);
+      dataGridConfiguration,
+      currentCell.rowIndex,
+    );
     if (recordLength > 0 &&
         rowIndex >= recordLength &&
         currentCell.rowIndex != -1) {
       final int startRowIndex = selection_helper.getPreviousRowIndex(
-          dataGridConfiguration, currentCell.rowIndex);
-      currentCell._moveCurrentCellTo(dataGridConfiguration,
-          RowColumnIndex(startRowIndex, currentCell.columnIndex),
-          needToUpdateColumn: false);
+        dataGridConfiguration,
+        currentCell.rowIndex,
+      );
+      currentCell._moveCurrentCellTo(
+        dataGridConfiguration,
+        RowColumnIndex(startRowIndex, currentCell.columnIndex),
+        needToUpdateColumn: false,
+      );
       _refreshSelection();
     }
 
     final int columnIndex = grid_helper.resolveToGridVisibleColumnIndex(
-        dataGridConfiguration, currentCell.columnIndex);
+      dataGridConfiguration,
+      currentCell.columnIndex,
+    );
     if (columnLength > 0 &&
         columnIndex >= columnLength &&
         currentCell.columnIndex != -1) {
       final int startColumnIndex = selection_helper.getPreviousColumnIndex(
-          dataGridConfiguration, currentCell.columnIndex);
-      currentCell._moveCurrentCellTo(dataGridConfiguration,
-          RowColumnIndex(currentCell.rowIndex, startColumnIndex),
-          needToUpdateColumn: false);
+        dataGridConfiguration,
+        currentCell.columnIndex,
+      );
+      currentCell._moveCurrentCellTo(
+        dataGridConfiguration,
+        RowColumnIndex(currentCell.rowIndex, startColumnIndex),
+        needToUpdateColumn: false,
+      );
     }
   }
 
-  void _updateSelectionController(
-      {bool isSelectionModeChanged = false,
-      bool isNavigationModeChanged = false,
-      bool isDataSourceChanged = false}) {
+  void _updateSelectionController({
+    bool isSelectionModeChanged = false,
+    bool isNavigationModeChanged = false,
+    bool isDataSourceChanged = false,
+  }) {
     if (isDataSourceChanged) {
       _onDataSourceChanged();
     }
@@ -945,10 +1118,11 @@ class RowSelectionManager extends SelectionManagerBase {
     }
   }
 
-  void _handleSelectionPropertyChanged(
-      {RowColumnIndex? rowColumnIndex,
-      String? propertyName,
-      bool recalculateRowHeight = false}) {
+  void _handleSelectionPropertyChanged({
+    RowColumnIndex? rowColumnIndex,
+    String? propertyName,
+    bool recalculateRowHeight = false,
+  }) {
     switch (propertyName) {
       case 'selectedIndex':
         onSelectedIndexChanged();
@@ -971,13 +1145,16 @@ class RowSelectionManager extends SelectionManagerBase {
         _dataGridStateDetails!();
     if (dataGridConfiguration.currentCell.isEditing &&
         keyEvent.logicalKey != LogicalKeyboardKey.escape) {
-      if (!await dataGridConfiguration.currentCell
-          .canSubmitCell(dataGridConfiguration)) {
+      if (!await dataGridConfiguration.currentCell.canSubmitCell(
+        dataGridConfiguration,
+      )) {
         return;
       }
 
-      await dataGridConfiguration.currentCell
-          .onCellSubmit(dataGridConfiguration, cancelCanSubmitCell: true);
+      await dataGridConfiguration.currentCell.onCellSubmit(
+        dataGridConfiguration,
+        cancelCanSubmitCell: true,
+      );
     }
 
     if (keyEvent.logicalKey == LogicalKeyboardKey.tab) {
@@ -1042,12 +1219,14 @@ class RowSelectionManager extends SelectionManagerBase {
       if (dataGridConfiguration.allowEditing &&
           dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
         final RowColumnIndex rowColumnIndex = RowColumnIndex(
-            dataGridConfiguration.currentCell.rowIndex,
-            dataGridConfiguration.currentCell.columnIndex);
+          dataGridConfiguration.currentCell.rowIndex,
+          dataGridConfiguration.currentCell.columnIndex,
+        );
         dataGridConfiguration.currentCell.onCellBeginEdit(
-            editingRowColumnIndex: rowColumnIndex,
-            isProgrammatic: true,
-            needToResolveIndex: false);
+          editingRowColumnIndex: rowColumnIndex,
+          isProgrammatic: true,
+          needToResolveIndex: false,
+        );
       }
     }
 
@@ -1055,69 +1234,95 @@ class RowSelectionManager extends SelectionManagerBase {
       if (dataGridConfiguration.allowEditing &&
           dataGridConfiguration.navigationMode == GridNavigationMode.cell &&
           dataGridConfiguration.currentCell.isEditing) {
-        await dataGridConfiguration.currentCell
-            .onCellSubmit(dataGridConfiguration, isCellCancelEdit: true);
+        await dataGridConfiguration.currentCell.onCellSubmit(
+          dataGridConfiguration,
+          isCellCancelEdit: true,
+        );
       }
     }
   }
 
   void _processEndKey(
-      DataGridConfiguration dataGridConfiguration, KeyEvent keyEvent) {
+    DataGridConfiguration dataGridConfiguration,
+    KeyEvent keyEvent,
+  ) {
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
-    final int lastCellIndex =
-        selection_helper.getLastCellIndex(dataGridConfiguration);
+    final int lastCellIndex = selection_helper.getLastCellIndex(
+      dataGridConfiguration,
+    );
     final bool needToScrollToMinOrMaxExtent =
         dataGridConfiguration.container.extentWidth >
-            dataGridConfiguration.viewWidth;
+        dataGridConfiguration.viewWidth;
 
     if (needToScrollToMinOrMaxExtent) {
-      selection_helper.scrollInViewFromLeft(dataGridConfiguration,
-          needToScrollMaxExtent: true);
+      selection_helper.scrollInViewFromLeft(
+        dataGridConfiguration,
+        needToScrollMaxExtent: true,
+      );
     }
 
     if ((dataGridConfiguration.isMacPlatform
             ? HardwareKeyboard.instance.isMetaPressed
             : HardwareKeyboard.instance.isControlPressed) &&
         keyEvent.logicalKey != LogicalKeyboardKey.arrowRight) {
-      final int lastRowIndex =
-          selection_helper.getLastNavigatingRowIndex(dataGridConfiguration);
-      selection_helper.scrollInViewFromTop(dataGridConfiguration,
-          needToScrollToMaxExtent: true);
+      final int lastRowIndex = selection_helper.getLastNavigatingRowIndex(
+        dataGridConfiguration,
+      );
+      selection_helper.scrollInViewFromTop(
+        dataGridConfiguration,
+        needToScrollToMaxExtent: true,
+      );
       _processSelectionAndCurrentCell(
-          dataGridConfiguration, RowColumnIndex(lastRowIndex, lastCellIndex));
+        dataGridConfiguration,
+        RowColumnIndex(lastRowIndex, lastCellIndex),
+      );
     } else {
-      _processSelectionAndCurrentCell(dataGridConfiguration,
-          RowColumnIndex(currentCell.rowIndex, lastCellIndex));
+      _processSelectionAndCurrentCell(
+        dataGridConfiguration,
+        RowColumnIndex(currentCell.rowIndex, lastCellIndex),
+      );
     }
   }
 
   void _processHomeKey(
-      DataGridConfiguration dataGridConfiguration, KeyEvent keyEvent) {
+    DataGridConfiguration dataGridConfiguration,
+    KeyEvent keyEvent,
+  ) {
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
-    final int firstCellIndex =
-        selection_helper.getFirstCellIndex(dataGridConfiguration);
+    final int firstCellIndex = selection_helper.getFirstCellIndex(
+      dataGridConfiguration,
+    );
     final bool needToScrollToMinOrMaxExtend =
         dataGridConfiguration.container.extentWidth >
-            dataGridConfiguration.viewWidth;
+        dataGridConfiguration.viewWidth;
 
     if (needToScrollToMinOrMaxExtend) {
-      selection_helper.scrollInViewFromRight(dataGridConfiguration,
-          needToScrollToMinExtent: true);
+      selection_helper.scrollInViewFromRight(
+        dataGridConfiguration,
+        needToScrollToMinExtent: true,
+      );
     }
 
     if ((dataGridConfiguration.isMacPlatform
             ? HardwareKeyboard.instance.isMetaPressed
             : HardwareKeyboard.instance.isControlPressed) &&
         keyEvent.logicalKey != LogicalKeyboardKey.arrowLeft) {
-      final int firstRowIndex =
-          selection_helper.getFirstNavigatingRowIndex(dataGridConfiguration);
-      selection_helper.scrollInViewFromDown(dataGridConfiguration,
-          needToScrollToMinExtent: true);
+      final int firstRowIndex = selection_helper.getFirstNavigatingRowIndex(
+        dataGridConfiguration,
+      );
+      selection_helper.scrollInViewFromDown(
+        dataGridConfiguration,
+        needToScrollToMinExtent: true,
+      );
       _processSelectionAndCurrentCell(
-          dataGridConfiguration, RowColumnIndex(firstRowIndex, firstCellIndex));
+        dataGridConfiguration,
+        RowColumnIndex(firstRowIndex, firstCellIndex),
+      );
     } else {
-      _processSelectionAndCurrentCell(dataGridConfiguration,
-          RowColumnIndex(currentCell.rowIndex, firstCellIndex));
+      _processSelectionAndCurrentCell(
+        dataGridConfiguration,
+        RowColumnIndex(currentCell.rowIndex, firstCellIndex),
+      );
     }
   }
 
@@ -1127,8 +1332,10 @@ class RowSelectionManager extends SelectionManagerBase {
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
     final int index = selection_helper.getNextPageIndex(dataGridConfiguration);
     if (currentCell.rowIndex != index && index != -1) {
-      _processSelectionAndCurrentCell(dataGridConfiguration,
-          RowColumnIndex(index, currentCell.columnIndex));
+      _processSelectionAndCurrentCell(
+        dataGridConfiguration,
+        RowColumnIndex(index, currentCell.columnIndex),
+      );
     }
   }
 
@@ -1136,11 +1343,14 @@ class RowSelectionManager extends SelectionManagerBase {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
-    final int index =
-        selection_helper.getPreviousPageIndex(dataGridConfiguration);
+    final int index = selection_helper.getPreviousPageIndex(
+      dataGridConfiguration,
+    );
     if (currentCell.rowIndex != index) {
-      _processSelectionAndCurrentCell(dataGridConfiguration,
-          RowColumnIndex(index, currentCell.columnIndex));
+      _processSelectionAndCurrentCell(
+        dataGridConfiguration,
+        RowColumnIndex(index, currentCell.columnIndex),
+      );
     }
   }
 
@@ -1149,14 +1359,20 @@ class RowSelectionManager extends SelectionManagerBase {
         _dataGridStateDetails!();
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
     final int nextRowIndex = selection_helper.getNextRowIndex(
-        dataGridConfiguration, currentCell.rowIndex);
-    final int lastRowIndex =
-        selection_helper.getLastNavigatingRowIndex(dataGridConfiguration);
+      dataGridConfiguration,
+      currentCell.rowIndex,
+    );
+    final int lastRowIndex = selection_helper.getLastNavigatingRowIndex(
+      dataGridConfiguration,
+    );
     int nextColumnIndex = selection_helper.getDownKeyColumnIndex(
-        dataGridConfiguration, currentCell);
+      dataGridConfiguration,
+      currentCell,
+    );
     if (nextColumnIndex <= 0) {
-      nextColumnIndex =
-          selection_helper.getFirstCellIndex(dataGridConfiguration);
+      nextColumnIndex = selection_helper.getFirstCellIndex(
+        dataGridConfiguration,
+      );
     }
 
     if (nextRowIndex > lastRowIndex || currentCell.rowIndex == nextRowIndex) {
@@ -1166,15 +1382,21 @@ class RowSelectionManager extends SelectionManagerBase {
     if (dataGridConfiguration.isMacPlatform
         ? HardwareKeyboard.instance.isMetaPressed
         : HardwareKeyboard.instance.isControlPressed) {
-      selection_helper.scrollInViewFromTop(dataGridConfiguration,
-          needToScrollToMaxExtent: true);
+      selection_helper.scrollInViewFromTop(
+        dataGridConfiguration,
+        needToScrollToMaxExtent: true,
+      );
       _processSelectionAndCurrentCell(
-          dataGridConfiguration, RowColumnIndex(lastRowIndex, nextColumnIndex),
-          isShiftKeyPressed: HardwareKeyboard.instance.isShiftPressed);
+        dataGridConfiguration,
+        RowColumnIndex(lastRowIndex, nextColumnIndex),
+        isShiftKeyPressed: HardwareKeyboard.instance.isShiftPressed,
+      );
     } else {
       _processSelectionAndCurrentCell(
-          dataGridConfiguration, RowColumnIndex(nextRowIndex, nextColumnIndex),
-          isShiftKeyPressed: HardwareKeyboard.instance.isShiftPressed);
+        dataGridConfiguration,
+        RowColumnIndex(nextRowIndex, nextColumnIndex),
+        isShiftKeyPressed: HardwareKeyboard.instance.isShiftPressed,
+      );
     }
   }
 
@@ -1183,9 +1405,13 @@ class RowSelectionManager extends SelectionManagerBase {
         _dataGridStateDetails!();
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
     final int previousRowIndex = selection_helper.getPreviousRowIndex(
-        dataGridConfiguration, currentCell.rowIndex);
+      dataGridConfiguration,
+      currentCell.rowIndex,
+    );
     final int columnIndex = selection_helper.getUpKeyColumnIndex(
-        dataGridConfiguration, currentCell);
+      dataGridConfiguration,
+      currentCell,
+    );
 
     if (previousRowIndex == currentCell.rowIndex) {
       return;
@@ -1194,22 +1420,31 @@ class RowSelectionManager extends SelectionManagerBase {
     if (dataGridConfiguration.isMacPlatform
         ? HardwareKeyboard.instance.isMetaPressed
         : HardwareKeyboard.instance.isControlPressed) {
-      final int firstRowIndex =
-          selection_helper.getFirstRowIndex(dataGridConfiguration);
-      selection_helper.scrollInViewFromDown(dataGridConfiguration,
-          needToScrollToMinExtent: true);
+      final int firstRowIndex = selection_helper.getFirstRowIndex(
+        dataGridConfiguration,
+      );
+      selection_helper.scrollInViewFromDown(
+        dataGridConfiguration,
+        needToScrollToMinExtent: true,
+      );
       _processSelectionAndCurrentCell(
-          dataGridConfiguration, RowColumnIndex(firstRowIndex, columnIndex),
-          isShiftKeyPressed: HardwareKeyboard.instance.isShiftPressed);
+        dataGridConfiguration,
+        RowColumnIndex(firstRowIndex, columnIndex),
+        isShiftKeyPressed: HardwareKeyboard.instance.isShiftPressed,
+      );
     } else {
       _processSelectionAndCurrentCell(
-          dataGridConfiguration, RowColumnIndex(previousRowIndex, columnIndex),
-          isShiftKeyPressed: HardwareKeyboard.instance.isShiftPressed);
+        dataGridConfiguration,
+        RowColumnIndex(previousRowIndex, columnIndex),
+        isShiftKeyPressed: HardwareKeyboard.instance.isShiftPressed,
+      );
     }
   }
 
   void _processKeyRight(
-      DataGridConfiguration dataGridConfiguration, KeyEvent keyEvent) {
+    DataGridConfiguration dataGridConfiguration,
+    KeyEvent keyEvent,
+  ) {
     if (dataGridConfiguration.navigationMode == GridNavigationMode.row) {
       return;
     }
@@ -1223,8 +1458,9 @@ class RowSelectionManager extends SelectionManagerBase {
       return;
     }
 
-    final int lastCellIndex =
-        selection_helper.getLastCellIndex(dataGridConfiguration);
+    final int lastCellIndex = selection_helper.getLastCellIndex(
+      dataGridConfiguration,
+    );
     int nextCellIndex;
     // Need to get previous column index only if the control key is
     // pressed in RTL mode since it will perform the home key event.
@@ -1233,10 +1469,14 @@ class RowSelectionManager extends SelectionManagerBase {
             : HardwareKeyboard.instance.isControlPressed) &&
         dataGridConfiguration.textDirection == TextDirection.rtl) {
       nextCellIndex = selection_helper.getPreviousColumnIndex(
-          dataGridConfiguration, currentCell.columnIndex);
+        dataGridConfiguration,
+        currentCell.columnIndex,
+      );
     } else {
       nextCellIndex = selection_helper.getNextColumnIndex(
-          dataGridConfiguration, currentCell.columnIndex);
+        dataGridConfiguration,
+        currentCell.columnIndex,
+      );
     }
 
     if (currentCell.rowIndex <=
@@ -1255,9 +1495,11 @@ class RowSelectionManager extends SelectionManagerBase {
         _processEndKey(dataGridConfiguration, keyEvent);
       }
     } else {
-      currentCell._processCurrentCell(dataGridConfiguration,
-          RowColumnIndex(currentCell.rowIndex, nextCellIndex),
-          isSelectionChanged: true);
+      currentCell._processCurrentCell(
+        dataGridConfiguration,
+        RowColumnIndex(currentCell.rowIndex, nextCellIndex),
+        isSelectionChanged: true,
+      );
       if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
         notifyListeners();
       }
@@ -1265,7 +1507,9 @@ class RowSelectionManager extends SelectionManagerBase {
   }
 
   void _processKeyLeft(
-      DataGridConfiguration dataGridConfiguration, KeyEvent keyEvent) {
+    DataGridConfiguration dataGridConfiguration,
+    KeyEvent keyEvent,
+  ) {
     if (dataGridConfiguration.navigationMode == GridNavigationMode.row) {
       return;
     }
@@ -1287,10 +1531,14 @@ class RowSelectionManager extends SelectionManagerBase {
             : HardwareKeyboard.instance.isControlPressed) &&
         dataGridConfiguration.textDirection == TextDirection.rtl) {
       previousCellIndex = selection_helper.getNextColumnIndex(
-          dataGridConfiguration, currentCell.columnIndex);
+        dataGridConfiguration,
+        currentCell.columnIndex,
+      );
     } else {
       previousCellIndex = selection_helper.getPreviousColumnIndex(
-          dataGridConfiguration, currentCell.columnIndex);
+        dataGridConfiguration,
+        currentCell.columnIndex,
+      );
     }
 
     if (currentCell.rowIndex <=
@@ -1309,9 +1557,11 @@ class RowSelectionManager extends SelectionManagerBase {
         _processHomeKey(dataGridConfiguration, keyEvent);
       }
     } else {
-      currentCell._processCurrentCell(dataGridConfiguration,
-          RowColumnIndex(currentCell.rowIndex, previousCellIndex),
-          isSelectionChanged: true);
+      currentCell._processCurrentCell(
+        dataGridConfiguration,
+        RowColumnIndex(currentCell.rowIndex, previousCellIndex),
+        isSelectionChanged: true,
+      );
       if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
         notifyListeners();
       }
@@ -1322,30 +1572,35 @@ class RowSelectionManager extends SelectionManagerBase {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
-    final int lastCellIndex =
-        selection_helper.getLastCellIndex(dataGridConfiguration);
-    int firstCellIndex =
-        selection_helper.getFirstCellIndex(dataGridConfiguration);
+    final int lastCellIndex = selection_helper.getLastCellIndex(
+      dataGridConfiguration,
+    );
+    int firstCellIndex = selection_helper.getFirstCellIndex(
+      dataGridConfiguration,
+    );
 
-    final int firstRowIndex =
-        selection_helper.getFirstRowIndex(dataGridConfiguration);
+    final int firstRowIndex = selection_helper.getFirstRowIndex(
+      dataGridConfiguration,
+    );
 
     final bool isCaptionSummaryCoveredRow =
         currentCell.dataCell?.dataRow != null &&
-            currentCell.dataCell!.dataRow!.rowType ==
-                RowType.captionSummaryCoveredRow;
+        currentCell.dataCell!.dataRow!.rowType ==
+            RowType.captionSummaryCoveredRow;
 
     if (dataGridConfiguration.navigationMode == GridNavigationMode.row ||
         (currentCell.rowIndex < 0 && currentCell.columnIndex < 0)) {
       _processSelectionAndCurrentCell(
-          dataGridConfiguration, RowColumnIndex(firstRowIndex, firstCellIndex));
+        dataGridConfiguration,
+        RowColumnIndex(firstRowIndex, firstCellIndex),
+      );
       notifyListeners();
       return;
     }
 
     final bool needToScrollToMinOrMaxExtend =
         dataGridConfiguration.container.extentWidth >
-            dataGridConfiguration.viewWidth;
+        dataGridConfiguration.viewWidth;
 
     if (HardwareKeyboard.instance.isShiftPressed) {
       if (currentCell.columnIndex == firstCellIndex &&
@@ -1356,13 +1611,19 @@ class RowSelectionManager extends SelectionManagerBase {
       if (currentCell.columnIndex == firstCellIndex ||
           isCaptionSummaryCoveredRow) {
         final int previousRowIndex = selection_helper.getPreviousRowIndex(
-            dataGridConfiguration, currentCell.rowIndex);
+          dataGridConfiguration,
+          currentCell.rowIndex,
+        );
         if (needToScrollToMinOrMaxExtend) {
-          selection_helper.scrollInViewFromLeft(dataGridConfiguration,
-              needToScrollMaxExtent: needToScrollToMinOrMaxExtend);
+          selection_helper.scrollInViewFromLeft(
+            dataGridConfiguration,
+            needToScrollMaxExtent: needToScrollToMinOrMaxExtend,
+          );
         }
-        _processSelectionAndCurrentCell(dataGridConfiguration,
-            RowColumnIndex(previousRowIndex, lastCellIndex));
+        _processSelectionAndCurrentCell(
+          dataGridConfiguration,
+          RowColumnIndex(previousRowIndex, lastCellIndex),
+        );
       } else {
         _processKeyLeft(dataGridConfiguration, keyEvent);
       }
@@ -1371,20 +1632,27 @@ class RowSelectionManager extends SelectionManagerBase {
           (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
               isCaptionSummaryCoveredRow)) {
         final int nextRowIndex = selection_helper.getNextRowIndex(
-            dataGridConfiguration, currentCell.rowIndex);
+          dataGridConfiguration,
+          currentCell.rowIndex,
+        );
         if (needToScrollToMinOrMaxExtend) {
-          selection_helper.scrollInViewFromRight(dataGridConfiguration,
-              needToScrollToMinExtent: needToScrollToMinOrMaxExtend);
+          selection_helper.scrollInViewFromRight(
+            dataGridConfiguration,
+            needToScrollToMinExtent: needToScrollToMinOrMaxExtend,
+          );
         }
         if (dataGridConfiguration.source.groupedColumns.isEmpty) {
-          firstCellIndex = (nextRowIndex == currentCell.rowIndex &&
-                  lastCellIndex == currentCell.columnIndex)
-              ? currentCell.columnIndex
-              : firstCellIndex;
+          firstCellIndex =
+              (nextRowIndex == currentCell.rowIndex &&
+                      lastCellIndex == currentCell.columnIndex)
+                  ? currentCell.columnIndex
+                  : firstCellIndex;
         }
 
-        _processSelectionAndCurrentCell(dataGridConfiguration,
-            RowColumnIndex(nextRowIndex, firstCellIndex));
+        _processSelectionAndCurrentCell(
+          dataGridConfiguration,
+          RowColumnIndex(nextRowIndex, firstCellIndex),
+        );
       } else {
         _processKeyRight(dataGridConfiguration, keyEvent);
       }
@@ -1408,14 +1676,19 @@ class RowSelectionManager extends SelectionManagerBase {
     if (_raiseSelectionChanging(oldItems: removeItems, newItems: addedItems)) {
       dataGridConfiguration.controller.selectedRows.clear();
       _selectedRows.addAll(
-        effectiveRows(dataGridConfiguration.source)
-            .where((row) => !_selectedRows.contains(row)),
+        effectiveRows(
+          dataGridConfiguration.source,
+        ).where((row) => !_selectedRows.contains(row)),
       );
-      dataGridConfiguration.controller.selectedRows
-          .addAll(effectiveRows(dataGridConfiguration.source));
+      dataGridConfiguration.controller.selectedRows.addAll(
+        effectiveRows(dataGridConfiguration.source),
+      );
 
       _raiseCheckboxValueChanged(
-          value: true, row: null, rowType: RowType.headerRow);
+        value: true,
+        row: null,
+        rowType: RowType.headerRow,
+      );
 
       _refreshSelection();
       dataGridConfiguration.container
@@ -1437,39 +1710,52 @@ class RowSelectionManager extends SelectionManagerBase {
 
     final CurrentCellManager currentCell = dataGridConfiguration.currentCell;
     final int recordIndex = grid_helper.resolveToRecordIndex(
-        dataGridConfiguration, currentCell.rowIndex);
+      dataGridConfiguration,
+      currentCell.rowIndex,
+    );
     _shiftSelectedRows.clear();
     _pressedRowIndex = recordIndex;
     _applySelection(
-        RowColumnIndex(currentCell.rowIndex, currentCell.columnIndex));
+      RowColumnIndex(currentCell.rowIndex, currentCell.columnIndex),
+    );
   }
 
   void _processSelectionAndCurrentCell(
-      DataGridConfiguration dataGridConfiguration,
-      RowColumnIndex rowColumnIndex,
-      {bool isShiftKeyPressed = false,
-      bool isProgrammatic = false}) {
+    DataGridConfiguration dataGridConfiguration,
+    RowColumnIndex rowColumnIndex, {
+    bool isShiftKeyPressed = false,
+    bool isProgrammatic = false,
+  }) {
     final RowColumnIndex previousRowColumnIndex = RowColumnIndex(
-        dataGridConfiguration.currentCell.rowIndex,
-        dataGridConfiguration.currentCell.columnIndex);
+      dataGridConfiguration.currentCell.rowIndex,
+      dataGridConfiguration.currentCell.columnIndex,
+    );
     if (isProgrammatic) {
-      dataGridConfiguration.currentCell
-          ._moveCurrentCellTo(dataGridConfiguration, rowColumnIndex);
+      dataGridConfiguration.currentCell._moveCurrentCellTo(
+        dataGridConfiguration,
+        rowColumnIndex,
+      );
     } else {
-      dataGridConfiguration.currentCell
-          ._processCurrentCell(dataGridConfiguration, rowColumnIndex);
+      dataGridConfiguration.currentCell._processCurrentCell(
+        dataGridConfiguration,
+        rowColumnIndex,
+      );
     }
 
     if (dataGridConfiguration.selectionMode == SelectionMode.multiple) {
       dataGridConfiguration.currentCell._updateBorderForMultipleSelection(
-          dataGridConfiguration,
-          nextRowColumnIndex: rowColumnIndex,
-          previousRowColumnIndex: previousRowColumnIndex);
+        dataGridConfiguration,
+        nextRowColumnIndex: rowColumnIndex,
+        previousRowColumnIndex: previousRowColumnIndex,
+      );
       if (isShiftKeyPressed) {
         _processShiftKeySelection(
-            rowColumnIndex,
-            grid_helper.resolveToRecordIndex(
-                dataGridConfiguration, rowColumnIndex.rowIndex));
+          rowColumnIndex,
+          grid_helper.resolveToRecordIndex(
+            dataGridConfiguration,
+            rowColumnIndex.rowIndex,
+          ),
+        );
       } else {
         notifyListeners();
       }
@@ -1478,9 +1764,10 @@ class RowSelectionManager extends SelectionManagerBase {
     _pressedRowColumnIndex = rowColumnIndex;
   }
 
-  bool _raiseSelectionChanging(
-      {List<DataGridRow> oldItems = const <DataGridRow>[],
-      List<DataGridRow> newItems = const <DataGridRow>[]}) {
+  bool _raiseSelectionChanging({
+    List<DataGridRow> oldItems = const <DataGridRow>[],
+    List<DataGridRow> newItems = const <DataGridRow>[],
+  }) {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     if (dataGridConfiguration.onSelectionChanging == null) {
@@ -1490,9 +1777,10 @@ class RowSelectionManager extends SelectionManagerBase {
     return dataGridConfiguration.onSelectionChanging!(newItems, oldItems);
   }
 
-  void _raiseSelectionChanged(
-      {List<DataGridRow> oldItems = const <DataGridRow>[],
-      List<DataGridRow> newItems = const <DataGridRow>[]}) {
+  void _raiseSelectionChanged({
+    List<DataGridRow> oldItems = const <DataGridRow>[],
+    List<DataGridRow> newItems = const <DataGridRow>[],
+  }) {
     final DataGridConfiguration dataGridConfiguration =
         _dataGridStateDetails!();
     if (dataGridConfiguration.onSelectionChanged == null) {
@@ -1553,28 +1841,39 @@ class CurrentCellManager {
   /// Indicate the any [DataGridCell] is in editing state.
   bool isEditing = false;
 
-  bool _handlePointerOperation(DataGridConfiguration dataGridConfiguration,
-      RowColumnIndex rowColumnIndex) {
+  bool _handlePointerOperation(
+    DataGridConfiguration dataGridConfiguration,
+    RowColumnIndex rowColumnIndex,
+  ) {
     if (dataGridConfiguration.allowSwiping) {
       dataGridConfiguration.container.resetSwipeOffset();
     }
-    final RowColumnIndex previousRowColumnIndex =
-        RowColumnIndex(rowIndex, columnIndex);
+    final RowColumnIndex previousRowColumnIndex = RowColumnIndex(
+      rowIndex,
+      columnIndex,
+    );
     if (!rowColumnIndex.equals(previousRowColumnIndex) &&
         dataGridConfiguration.navigationMode != GridNavigationMode.row) {
       if (!_raiseCurrentCellActivating(rowColumnIndex)) {
         return false;
       }
-      _setCurrentCell(dataGridConfiguration, rowColumnIndex.rowIndex,
-          rowColumnIndex.columnIndex);
+      _setCurrentCell(
+        dataGridConfiguration,
+        rowColumnIndex.rowIndex,
+        rowColumnIndex.columnIndex,
+      );
       _raiseCurrentCellActivated(previousRowColumnIndex);
     } else if (dataGridConfiguration.navigationMode == GridNavigationMode.row &&
         rowIndex != rowColumnIndex.rowIndex) {
       _updateCurrentRowColumnIndex(
-          rowColumnIndex.rowIndex, rowColumnIndex.columnIndex);
-      _updateBorderForMultipleSelection(dataGridConfiguration,
-          previousRowColumnIndex: previousRowColumnIndex,
-          nextRowColumnIndex: rowColumnIndex);
+        rowColumnIndex.rowIndex,
+        rowColumnIndex.columnIndex,
+      );
+      _updateBorderForMultipleSelection(
+        dataGridConfiguration,
+        previousRowColumnIndex: previousRowColumnIndex,
+        nextRowColumnIndex: rowColumnIndex,
+      );
     } else if (dataGridConfiguration.navigationMode == GridNavigationMode.row &&
         dataGridConfiguration.selectionMode == SelectionMode.singleDeselect) {
       // Issue: FLUT-858176-The current row gets removed while selecting a row and then deselecting it.
@@ -1587,9 +1886,12 @@ class CurrentCellManager {
     return true;
   }
 
-  void _setCurrentCell(DataGridConfiguration dataGridConfiguration,
-      int rowIndex, int columnIndex,
-      [bool needToUpdateColumn = true]) {
+  void _setCurrentCell(
+    DataGridConfiguration dataGridConfiguration,
+    int rowIndex,
+    int columnIndex, [
+    bool needToUpdateColumn = true,
+  ]) {
     if (this.rowIndex == rowIndex && this.columnIndex == columnIndex) {
       return;
     }
@@ -1597,14 +1899,23 @@ class CurrentCellManager {
     _removeCurrentCell(dataGridConfiguration, needToUpdateColumn);
     _updateCurrentRowColumnIndex(rowIndex, columnIndex);
     _updateCurrentCell(
-        dataGridConfiguration, rowIndex, columnIndex, needToUpdateColumn);
+      dataGridConfiguration,
+      rowIndex,
+      columnIndex,
+      needToUpdateColumn,
+    );
   }
 
-  void _updateCurrentCell(DataGridConfiguration dataGridConfiguration,
-      int rowIndex, int columnIndex,
-      [bool needToUpdateColumn = true]) {
-    final DataRowBase? dataRowBase =
-        _getDataRow(dataGridConfiguration, rowIndex);
+  void _updateCurrentCell(
+    DataGridConfiguration dataGridConfiguration,
+    int rowIndex,
+    int columnIndex, [
+    bool needToUpdateColumn = true,
+  ]) {
+    final DataRowBase? dataRowBase = _getDataRow(
+      dataGridConfiguration,
+      rowIndex,
+    );
     if (dataRowBase != null && needToUpdateColumn) {
       final DataCellBase? dataCellBase = _getDataCell(dataRowBase, columnIndex);
       if (dataCellBase != null) {
@@ -1615,8 +1926,10 @@ class CurrentCellManager {
     }
   }
 
-  void _removeCurrentCell(DataGridConfiguration dataGridConfiguration,
-      [bool needToUpdateColumn = true]) {
+  void _removeCurrentCell(
+    DataGridConfiguration dataGridConfiguration, [
+    bool needToUpdateColumn = true,
+  ]) {
     if (rowIndex == -1 && columnIndex == -1) {
       return;
     }
@@ -1639,7 +1952,9 @@ class CurrentCellManager {
   }
 
   DataRowBase? _getDataRow(
-      DataGridConfiguration dataGridConfiguration, int rowIndex) {
+    DataGridConfiguration dataGridConfiguration,
+    int rowIndex,
+  ) {
     final List<DataRowBase> dataRows = dataGridConfiguration.rowGenerator.items;
     if (dataRows.isEmpty) {
       return null;
@@ -1649,7 +1964,8 @@ class CurrentCellManager {
     // all the row indexes will be -1 in the `items` collection. So, need to
     // consider the `isCurrentRow` property additionally to get the current row.
     return dataRows.firstWhereOrNull(
-        (DataRowBase row) => row.rowIndex == rowIndex || row.isCurrentRow);
+      (DataRowBase row) => row.rowIndex == rowIndex || row.isCurrentRow,
+    );
   }
 
   DataCellBase? _getDataCell(DataRowBase dataRow, int columnIndex) {
@@ -1658,13 +1974,16 @@ class CurrentCellManager {
     }
 
     if (dataRow.rowType == RowType.captionSummaryCoveredRow) {
-      return dataRow.visibleColumns.firstWhereOrNull((DataCellBase dataCell) =>
-          columnIndex >= dataCell.columnIndex &&
-          dataCell.columnIndex + dataCell.columnSpan <= columnIndex);
+      return dataRow.visibleColumns.firstWhereOrNull(
+        (DataCellBase dataCell) =>
+            columnIndex >= dataCell.columnIndex &&
+            dataCell.columnIndex + dataCell.columnSpan <= columnIndex,
+      );
     }
 
     return dataRow.visibleColumns.firstWhereOrNull(
-        (DataCellBase dataCell) => dataCell.columnIndex == columnIndex);
+      (DataCellBase dataCell) => dataCell.columnIndex == columnIndex,
+    );
   }
 
   void _updateCurrentRowColumnIndex(int rowIndex, int columnIndex) {
@@ -1674,7 +1993,10 @@ class CurrentCellManager {
 
   /// Sets the current data cell as dirty to refresh the cell.
   void setCurrentCellDirty(
-      DataRowBase? dataRow, DataCellBase? dataCell, bool enableCurrentCell) {
+    DataRowBase? dataRow,
+    DataCellBase? dataCell,
+    bool enableCurrentCell,
+  ) {
     dataCell?.isCurrentCell = enableCurrentCell;
     dataCell?.isDirty = true;
     dataRow?.isCurrentRow = enableCurrentCell;
@@ -1689,11 +2011,15 @@ class CurrentCellManager {
 
     final RowColumnIndex newRowColumnIndex = grid_helper
         .resolveToRecordRowColumnIndex(dataGridConfiguration, rowColumnIndex);
-    final RowColumnIndex oldRowColumnIndex =
-        grid_helper.resolveToRecordRowColumnIndex(
-            dataGridConfiguration, RowColumnIndex(rowIndex, columnIndex));
+    final RowColumnIndex oldRowColumnIndex = grid_helper
+        .resolveToRecordRowColumnIndex(
+          dataGridConfiguration,
+          RowColumnIndex(rowIndex, columnIndex),
+        );
     return dataGridConfiguration.onCurrentCellActivating!(
-        newRowColumnIndex, oldRowColumnIndex);
+      newRowColumnIndex,
+      oldRowColumnIndex,
+    );
   }
 
   void _raiseCurrentCellActivated(RowColumnIndex previousRowColumnIndex) {
@@ -1702,32 +2028,48 @@ class CurrentCellManager {
       return;
     }
 
-    final RowColumnIndex newRowColumnIndex =
-        grid_helper.resolveToRecordRowColumnIndex(
-            dataGridConfiguration, RowColumnIndex(rowIndex, columnIndex));
-    final RowColumnIndex oldRowColumnIndex =
-        grid_helper.resolveToRecordRowColumnIndex(
-            dataGridConfiguration, previousRowColumnIndex);
+    final RowColumnIndex newRowColumnIndex = grid_helper
+        .resolveToRecordRowColumnIndex(
+          dataGridConfiguration,
+          RowColumnIndex(rowIndex, columnIndex),
+        );
+    final RowColumnIndex oldRowColumnIndex = grid_helper
+        .resolveToRecordRowColumnIndex(
+          dataGridConfiguration,
+          previousRowColumnIndex,
+        );
     dataGridConfiguration.onCurrentCellActivated!(
-        newRowColumnIndex, oldRowColumnIndex);
+      newRowColumnIndex,
+      oldRowColumnIndex,
+    );
   }
 
-  void _moveCurrentCellTo(DataGridConfiguration dataGridConfiguration,
-      RowColumnIndex nextRowColumnIndex,
-      {bool isSelectionChanged = false, bool needToUpdateColumn = true}) {
+  void _moveCurrentCellTo(
+    DataGridConfiguration dataGridConfiguration,
+    RowColumnIndex nextRowColumnIndex, {
+    bool isSelectionChanged = false,
+    bool needToUpdateColumn = true,
+  }) {
     final RowColumnIndex previousRowColumnIndex = RowColumnIndex(
-        dataGridConfiguration.currentCell.rowIndex,
-        dataGridConfiguration.currentCell.columnIndex);
+      dataGridConfiguration.currentCell.rowIndex,
+      dataGridConfiguration.currentCell.columnIndex,
+    );
 
     _scrollVertical(dataGridConfiguration, nextRowColumnIndex);
     _scrollHorizontal(dataGridConfiguration, nextRowColumnIndex);
 
     if (dataGridConfiguration.navigationMode == GridNavigationMode.cell) {
-      _setCurrentCell(dataGridConfiguration, nextRowColumnIndex.rowIndex,
-          nextRowColumnIndex.columnIndex, needToUpdateColumn);
+      _setCurrentCell(
+        dataGridConfiguration,
+        nextRowColumnIndex.rowIndex,
+        nextRowColumnIndex.columnIndex,
+        needToUpdateColumn,
+      );
     } else {
       _updateCurrentRowColumnIndex(
-          nextRowColumnIndex.rowIndex, nextRowColumnIndex.columnIndex);
+        nextRowColumnIndex.rowIndex,
+        nextRowColumnIndex.columnIndex,
+      );
     }
 
     if (dataGridConfiguration.selectionMode != SelectionMode.none &&
@@ -1738,95 +2080,131 @@ class CurrentCellManager {
       if (rowSelectionController is RowSelectionManager) {
         rowSelectionController
           .._processSelection(
-              dataGridConfiguration, nextRowColumnIndex, previousRowColumnIndex)
+            dataGridConfiguration,
+            nextRowColumnIndex,
+            previousRowColumnIndex,
+          )
           .._pressedRowColumnIndex = nextRowColumnIndex;
       }
     }
   }
 
-  void _processCurrentCell(DataGridConfiguration dataGridConfiguration,
-      RowColumnIndex rowColumnIndex,
-      {bool isSelectionChanged = false}) {
+  void _processCurrentCell(
+    DataGridConfiguration dataGridConfiguration,
+    RowColumnIndex rowColumnIndex, {
+    bool isSelectionChanged = false,
+  }) {
     if (dataGridConfiguration.navigationMode == GridNavigationMode.row) {
-      _moveCurrentCellTo(dataGridConfiguration, rowColumnIndex,
-          isSelectionChanged: isSelectionChanged);
+      _moveCurrentCellTo(
+        dataGridConfiguration,
+        rowColumnIndex,
+        isSelectionChanged: isSelectionChanged,
+      );
       return;
     }
 
     if (_raiseCurrentCellActivating(rowColumnIndex)) {
-      _moveCurrentCellTo(dataGridConfiguration, rowColumnIndex,
-          isSelectionChanged: isSelectionChanged);
+      _moveCurrentCellTo(
+        dataGridConfiguration,
+        rowColumnIndex,
+        isSelectionChanged: isSelectionChanged,
+      );
       _raiseCurrentCellActivated(rowColumnIndex);
     }
   }
 
-  void _scrollHorizontal(DataGridConfiguration dataGridConfiguration,
-      RowColumnIndex rowColumnIndex) {
+  void _scrollHorizontal(
+    DataGridConfiguration dataGridConfiguration,
+    RowColumnIndex rowColumnIndex,
+  ) {
     if (rowColumnIndex.columnIndex < columnIndex) {
       if (selection_helper.needToScrollLeft(
-          dataGridConfiguration, rowColumnIndex)) {
-        selection_helper.scrollInViewFromRight(dataGridConfiguration,
-            previousCellIndex: rowColumnIndex.columnIndex);
+        dataGridConfiguration,
+        rowColumnIndex,
+      )) {
+        selection_helper.scrollInViewFromRight(
+          dataGridConfiguration,
+          previousCellIndex: rowColumnIndex.columnIndex,
+        );
       }
     }
 
     if (rowColumnIndex.columnIndex > columnIndex) {
       if (selection_helper.needToScrollRight(
-          dataGridConfiguration, rowColumnIndex)) {
-        selection_helper.scrollInViewFromLeft(dataGridConfiguration,
-            nextCellIndex: rowColumnIndex.columnIndex);
+        dataGridConfiguration,
+        rowColumnIndex,
+      )) {
+        selection_helper.scrollInViewFromLeft(
+          dataGridConfiguration,
+          nextCellIndex: rowColumnIndex.columnIndex,
+        );
       }
     }
   }
 
-  void _scrollVertical(DataGridConfiguration dataGridConfiguration,
-      RowColumnIndex rowColumnIndex) {
+  void _scrollVertical(
+    DataGridConfiguration dataGridConfiguration,
+    RowColumnIndex rowColumnIndex,
+  ) {
     if (rowColumnIndex.rowIndex < rowIndex) {
       if (selection_helper.needToScrollUp(
-          dataGridConfiguration, rowColumnIndex.rowIndex)) {
-        selection_helper.scrollInViewFromDown(dataGridConfiguration,
-            previousRowIndex: rowColumnIndex.rowIndex);
+        dataGridConfiguration,
+        rowColumnIndex.rowIndex,
+      )) {
+        selection_helper.scrollInViewFromDown(
+          dataGridConfiguration,
+          previousRowIndex: rowColumnIndex.rowIndex,
+        );
       }
     }
 
     if (rowColumnIndex.rowIndex > rowIndex) {
       if (selection_helper.needToScrollDown(
-          dataGridConfiguration, rowColumnIndex.rowIndex)) {
-        selection_helper.scrollInViewFromTop(dataGridConfiguration,
-            nextRowIndex: rowColumnIndex.rowIndex);
+        dataGridConfiguration,
+        rowColumnIndex.rowIndex,
+      )) {
+        selection_helper.scrollInViewFromTop(
+          dataGridConfiguration,
+          nextRowIndex: rowColumnIndex.rowIndex,
+        );
       }
     }
   }
 
   void _updateBorderForMultipleSelection(
-      DataGridConfiguration dataGridConfiguration,
-      {RowColumnIndex? previousRowColumnIndex,
-      RowColumnIndex? nextRowColumnIndex}) {
+    DataGridConfiguration dataGridConfiguration, {
+    RowColumnIndex? previousRowColumnIndex,
+    RowColumnIndex? nextRowColumnIndex,
+  }) {
     if (dataGridConfiguration.isDesktop &&
         dataGridConfiguration.navigationMode == GridNavigationMode.row &&
         dataGridConfiguration.selectionMode == SelectionMode.multiple) {
       if (previousRowColumnIndex != null) {
-        dataGridConfiguration.currentCell
+        dataGridConfiguration
+            .currentCell
             ._getDataRow(dataGridConfiguration, previousRowColumnIndex.rowIndex)
             ?.isDirty = true;
       }
 
       if (nextRowColumnIndex != null) {
-        final int firstVisibleColumnIndex =
-            grid_helper.resolveToStartColumnIndex(dataGridConfiguration);
+        final int firstVisibleColumnIndex = grid_helper
+            .resolveToStartColumnIndex(dataGridConfiguration);
         _updateCurrentRowColumnIndex(
-            nextRowColumnIndex.rowIndex >= 0
-                ? nextRowColumnIndex.rowIndex
-                : rowIndex,
-            nextRowColumnIndex.columnIndex >= 0
-                ? nextRowColumnIndex.columnIndex
-                : firstVisibleColumnIndex);
-        dataGridConfiguration.currentCell
+          nextRowColumnIndex.rowIndex >= 0
+              ? nextRowColumnIndex.rowIndex
+              : rowIndex,
+          nextRowColumnIndex.columnIndex >= 0
+              ? nextRowColumnIndex.columnIndex
+              : firstVisibleColumnIndex,
+        );
+        dataGridConfiguration
+            .currentCell
             ._getDataRow(
-                dataGridConfiguration,
-                nextRowColumnIndex.rowIndex >= 0
-                    ? nextRowColumnIndex.rowIndex
-                    : rowIndex)
+              dataGridConfiguration,
+              nextRowColumnIndex.rowIndex >= 0
+                  ? nextRowColumnIndex.rowIndex
+                  : rowIndex,
+            )
             ?.isDirty = true;
       }
     }
@@ -1834,14 +2212,16 @@ class CurrentCellManager {
 
   // ------------------------------Editing-------------------------------------
   /// Called when the editing is begin to the data cell.
-  void onCellBeginEdit(
-      {DataCellBase? editingDataCell,
-      RowColumnIndex? editingRowColumnIndex,
-      bool isProgrammatic = false,
-      bool needToResolveIndex = true}) {
+  void onCellBeginEdit({
+    DataCellBase? editingDataCell,
+    RowColumnIndex? editingRowColumnIndex,
+    bool isProgrammatic = false,
+    bool needToResolveIndex = true,
+  }) {
     final DataGridConfiguration dataGridConfiguration = dataGridStateDetails();
 
-    final bool checkEditingIsEnabled = dataGridConfiguration.allowEditing &&
+    final bool checkEditingIsEnabled =
+        dataGridConfiguration.allowEditing &&
         dataGridConfiguration.selectionMode != SelectionMode.none &&
         dataGridConfiguration.navigationMode != GridNavigationMode.row;
 
@@ -1872,10 +2252,13 @@ class CurrentCellManager {
       // When editing is initiate from the f2 key, we need not to to resolve
       // the editing row column index because its already resolved based on the
       // SfDataGrid.
-      editingRowColumnIndex = needToResolveIndex
-          ? grid_helper.resolveToRowColumnIndex(
-              dataGridConfiguration, editingRowColumnIndex)
-          : editingRowColumnIndex;
+      editingRowColumnIndex =
+          needToResolveIndex
+              ? grid_helper.resolveToRowColumnIndex(
+                dataGridConfiguration,
+                editingRowColumnIndex,
+              )
+              : editingRowColumnIndex;
 
       if (editingRowColumnIndex.rowIndex.isNegative ||
           editingRowColumnIndex.columnIndex.isNegative ||
@@ -1891,13 +2274,18 @@ class CurrentCellManager {
       // update the current cell here for programmatic and F2 key to begin edit
       // the cell.
       void setCurrentCell() {
-        final DataRowBase? dataRow =
-            _getDataRow(dataGridConfiguration, editingRowColumnIndex!.rowIndex);
+        final DataRowBase? dataRow = _getDataRow(
+          dataGridConfiguration,
+          editingRowColumnIndex!.rowIndex,
+        );
         if (dataRow != null) {
           dataCell = _getDataCell(
-              dataRow,
-              grid_helper.resolveToScrollColumnIndex(
-                  dataGridConfiguration, editingRowColumnIndex.columnIndex));
+            dataRow,
+            grid_helper.resolveToScrollColumnIndex(
+              dataGridConfiguration,
+              editingRowColumnIndex.columnIndex,
+            ),
+          );
         } else {
           return;
         }
@@ -1907,12 +2295,15 @@ class CurrentCellManager {
       // handleTap.
       if (needToResolveIndex) {
         if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
-          editingRowColumnIndex.columnIndex =
-              grid_helper.resolveToScrollColumnIndex(
-                  dataGridConfiguration, editingRowColumnIndex.columnIndex);
+          editingRowColumnIndex.columnIndex = grid_helper
+              .resolveToScrollColumnIndex(
+                dataGridConfiguration,
+                editingRowColumnIndex.columnIndex,
+              );
         }
-        dataGridConfiguration.rowSelectionManager
-            .handleTap(editingRowColumnIndex);
+        dataGridConfiguration.rowSelectionManager.handleTap(
+          editingRowColumnIndex,
+        );
 
         // In programmatic begin edit, if the `editingRowColumnIndex` has valid
         // row and column index and the current cell has a previous current cell
@@ -1920,7 +2311,8 @@ class CurrentCellManager {
         // `editingRowColumnIndex` property.
         if (dataCell != null &&
             !editingRowColumnIndex.equals(
-                RowColumnIndex(dataCell!.rowIndex, dataCell!.columnIndex))) {
+              RowColumnIndex(dataCell!.rowIndex, dataCell!.columnIndex),
+            )) {
           setCurrentCell();
         }
       } else {
@@ -1937,8 +2329,9 @@ class CurrentCellManager {
     }
 
     editingRowColumnIndex = grid_helper.resolveToRecordRowColumnIndex(
-        dataGridConfiguration,
-        RowColumnIndex(editingDataCell!.rowIndex, editingDataCell.columnIndex));
+      dataGridConfiguration,
+      RowColumnIndex(editingDataCell!.rowIndex, editingDataCell.columnIndex),
+    );
 
     if (editingRowColumnIndex.rowIndex.isNegative ||
         editingRowColumnIndex.columnIndex.isNegative) {
@@ -1946,7 +2339,10 @@ class CurrentCellManager {
     }
 
     final bool beginEdit = _raiseCellBeginEdit(
-        dataGridConfiguration, editingRowColumnIndex, editingDataCell);
+      dataGridConfiguration,
+      editingRowColumnIndex,
+      editingDataCell,
+    );
 
     if (beginEdit) {
       Future<void> submitCell() async {
@@ -1954,10 +2350,11 @@ class CurrentCellManager {
       }
 
       final Widget? child = dataGridConfiguration.source.buildEditWidget(
-          editingDataCell.dataRow!.dataGridRow!,
-          editingRowColumnIndex,
-          editingDataCell.gridColumn!,
-          submitCell);
+        editingDataCell.dataRow!.dataGridRow!,
+        editingRowColumnIndex,
+        editingDataCell.gridColumn!,
+        submitCell,
+      );
 
       /// If child is null, we will not initiate the editing
       if (child != null) {
@@ -1966,39 +2363,49 @@ class CurrentCellManager {
         /// canRequestFocus need to set true to auto detect the focus
         /// User need to set the autoFocus to true in their editable widget.
         editingDataCell.editingWidget = FocusScope(
-            canRequestFocus: true,
-            node: _focusScopeNode,
-            onFocusChange: (bool details) async {
-              /// We should not allow the focus to the other widgets
-              /// when the cell is in the edit mode and return false from the canSubmitCell
-              /// So, we need to request the focus here.
-              /// Also, if we return false from the canSubmitCell method and tap other cells
-              /// We need to retain the focus on the text field instead of losing focus.
-              ///
-              // Issue:
-              // FLUT-7120-The focus did not go to the other widgets when DataGrid's current cell is in edit mode.
-              // We have checked whether the current cell is editing or not based on the `isCurrentCellInEditing` property.
-              // In this case, it is true. So we fixed it by checking the value of the `canCellSubmit` method.
-              if (!_focusScopeNode.hasFocus &&
-                  !dataGridConfiguration.dataGridFocusNode!.hasFocus &&
-                  !await canSubmitCell(dataGridConfiguration)) {
-                _focusScopeNode.requestFocus();
-              }
-            },
-            child: child);
+          canRequestFocus: true,
+          node: _focusScopeNode,
+          onFocusChange: (bool details) async {
+            /// We should not allow the focus to the other widgets
+            /// when the cell is in the edit mode and return false from the canSubmitCell
+            /// So, we need to request the focus here.
+            /// Also, if we return false from the canSubmitCell method and tap other cells
+            /// We need to retain the focus on the text field instead of losing focus.
+            ///
+            // Issue:
+            // FLUT-7120-The focus did not go to the other widgets when DataGrid's current cell is in edit mode.
+            // We have checked whether the current cell is editing or not based on the `isCurrentCellInEditing` property.
+            // In this case, it is true. So we fixed it by checking the value of the `canCellSubmit` method.
+            if (!_focusScopeNode.hasFocus &&
+                !dataGridConfiguration.dataGridFocusNode!.hasFocus &&
+                !await canSubmitCell(dataGridConfiguration)) {
+              _focusScopeNode.requestFocus();
+            }
+          },
+          child: child,
+        );
         editingDataCell.isEditing =
             editingDataCell.dataRow!.isEditing = isEditing = true;
 
-        notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
-            rowColumnIndex: editingRowColumnIndex, propertyName: 'editing');
+        notifyDataGridPropertyChangeListeners(
+          dataGridConfiguration.source,
+          rowColumnIndex: editingRowColumnIndex,
+          propertyName: 'editing',
+        );
       }
     }
   }
 
-  bool _raiseCellBeginEdit(DataGridConfiguration dataGridConfiguration,
-      RowColumnIndex rowColumnIndex, DataCellBase dataCell) {
+  bool _raiseCellBeginEdit(
+    DataGridConfiguration dataGridConfiguration,
+    RowColumnIndex rowColumnIndex,
+    DataCellBase dataCell,
+  ) {
     return dataGridConfiguration.source.onCellBeginEdit(
-        dataCell.dataRow!.dataGridRow!, rowColumnIndex, dataCell.gridColumn!);
+      dataCell.dataRow!.dataGridRow!,
+      rowColumnIndex,
+      dataCell.gridColumn!,
+    );
   }
 
   /// Help to end-edit editable widget and refresh the [DataGridCell].
@@ -2022,10 +2429,12 @@ class CurrentCellManager {
   /// 1) _onCellSubmit is call from handleDataGridSource we no need to call the
   /// _notifyDataGridPropertyChangeListeners to refresh twice.By, set value false
   /// it will skip the refreshing.
-  Future<void> onCellSubmit(DataGridConfiguration dataGridConfiguration,
-      {bool isCellCancelEdit = false,
-      bool cancelCanSubmitCell = false,
-      bool canRefresh = true}) async {
+  Future<void> onCellSubmit(
+    DataGridConfiguration dataGridConfiguration, {
+    bool isCellCancelEdit = false,
+    bool cancelCanSubmitCell = false,
+    bool canRefresh = true,
+  }) async {
     if (!isEditing) {
       return;
     }
@@ -2044,8 +2453,9 @@ class CurrentCellManager {
 
     if (isEditing) {
       RowColumnIndex rowColumnIndex = grid_helper.resolveToRecordRowColumnIndex(
-          dataGridConfiguration,
-          RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex));
+        dataGridConfiguration,
+        RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
+      );
 
       if (rowColumnIndex.rowIndex.isNegative ||
           rowColumnIndex.columnIndex.isNegative) {
@@ -2067,28 +2477,42 @@ class CurrentCellManager {
         /// moving to other cell or another row. so we need to skip the
         /// canCellSubmit method calling once again
         if (!cancelCanSubmitCell) {
-          canSubmitCell = await dataGridConfiguration.source
-              .canSubmitCell(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
+          canSubmitCell = await dataGridConfiguration.source.canSubmitCell(
+            dataGridRow,
+            rowColumnIndex,
+            dataCell.gridColumn!,
+          );
         } else {
           canSubmitCell = true;
         }
         if (canSubmitCell) {
           resetEditing();
-          await dataGridConfiguration.source
-              .onCellSubmit(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
+          await dataGridConfiguration.source.onCellSubmit(
+            dataGridRow,
+            rowColumnIndex,
+            dataCell.gridColumn!,
+          );
 
-          notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
-              rowColumnIndex: rowColumnIndex, propertyName: 'editing');
+          notifyDataGridPropertyChangeListeners(
+            dataGridConfiguration.source,
+            rowColumnIndex: rowColumnIndex,
+            propertyName: 'editing',
+          );
           if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
             updateDataSource(dataGridConfiguration.source, true);
-            notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
-                propertyName: 'grouping');
+            notifyDataGridPropertyChangeListeners(
+              dataGridConfiguration.source,
+              propertyName: 'grouping',
+            );
           }
         }
       } else {
         resetEditing();
         dataGridConfiguration.source.onCellCancelEdit(
-            dataGridRow, rowColumnIndex, dataCell.gridColumn!);
+          dataGridRow,
+          rowColumnIndex,
+          dataCell.gridColumn!,
+        );
       }
 
       if (canRefresh) {
@@ -2097,13 +2521,16 @@ class CurrentCellManager {
         if (dataGridConfiguration.allowSorting ||
             dataGridConfiguration.allowFiltering) {
           final DataGridRow? row = grid_helper.getDataRow(
-              dataGridConfiguration, rowColumnIndex.rowIndex);
+            dataGridConfiguration,
+            rowColumnIndex.rowIndex,
+          );
           if (row == null) {
             return;
           }
           updateDataSource(dataGridConfiguration.source);
-          final int rowIndex =
-              effectiveRows(dataGridConfiguration.source).indexOf(row);
+          final int rowIndex = effectiveRows(
+            dataGridConfiguration.source,
+          ).indexOf(row);
           rowColumnIndex = RowColumnIndex(rowIndex, rowColumnIndex.columnIndex);
           if (dataGridConfiguration.source.filterConditions.isNotEmpty) {
             dataGridConfiguration.container.updateRowAndColumnCount();
@@ -2113,8 +2540,11 @@ class CurrentCellManager {
             ..isDirty = true;
         }
 
-        notifyDataGridPropertyChangeListeners(dataGridConfiguration.source,
-            rowColumnIndex: rowColumnIndex, propertyName: 'editing');
+        notifyDataGridPropertyChangeListeners(
+          dataGridConfiguration.source,
+          rowColumnIndex: rowColumnIndex,
+          propertyName: 'editing',
+        );
       }
 
       // Allow focus only if any data cell is in editing state and the
@@ -2128,18 +2558,21 @@ class CurrentCellManager {
   }
 
   DataRowBase? _getEditingRow(DataGridConfiguration dataGridConfiguration) {
-    return dataGridConfiguration.rowGenerator.items
-        .firstWhereOrNull((DataRowBase dataRow) => dataRow.isEditing);
+    return dataGridConfiguration.rowGenerator.items.firstWhereOrNull(
+      (DataRowBase dataRow) => dataRow.isEditing,
+    );
   }
 
   DataCellBase? _getEditingCell(DataRowBase dataRow) {
-    return dataRow.visibleColumns
-        .firstWhereOrNull((DataCellBase dataCell) => dataCell.isEditing);
+    return dataRow.visibleColumns.firstWhereOrNull(
+      (DataCellBase dataCell) => dataCell.isEditing,
+    );
   }
 
   /// Called when the editing is submitted in the data cell.
   Future<bool> canSubmitCell(
-      DataGridConfiguration dataGridConfiguration) async {
+    DataGridConfiguration dataGridConfiguration,
+  ) async {
     final DataRowBase? dataRow = _getEditingRow(dataGridConfiguration);
 
     if (dataRow == null) {
@@ -2152,9 +2585,11 @@ class CurrentCellManager {
       return false;
     }
 
-    final RowColumnIndex rowColumnIndex =
-        grid_helper.resolveToRecordRowColumnIndex(dataGridConfiguration,
-            RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex));
+    final RowColumnIndex rowColumnIndex = grid_helper
+        .resolveToRecordRowColumnIndex(
+          dataGridConfiguration,
+          RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
+        );
 
     if (rowColumnIndex.rowIndex.isNegative ||
         rowColumnIndex.columnIndex.isNegative) {
@@ -2163,14 +2598,20 @@ class CurrentCellManager {
 
     final DataGridRow dataGridRow = dataCell.dataRow!.dataGridRow!;
 
-    return dataGridConfiguration.source
-        .canSubmitCell(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
+    return dataGridConfiguration.source.canSubmitCell(
+      dataGridRow,
+      rowColumnIndex,
+      dataCell.gridColumn!,
+    );
   }
 }
 
 ///
-void onRowColumnChanged(DataGridConfiguration dataGridConfiguration,
-    int recordLength, int columnLength) {
+void onRowColumnChanged(
+  DataGridConfiguration dataGridConfiguration,
+  int recordLength,
+  int columnLength,
+) {
   if (dataGridConfiguration.rowSelectionManager is RowSelectionManager) {
     final RowSelectionManager rowSelectionManager =
         dataGridConfiguration.rowSelectionManager as RowSelectionManager;
@@ -2185,8 +2626,9 @@ void removeUnWantedDataGridRows(DataGridConfiguration dataGridConfiguration) {
   final List<DataGridRow> duplicateSelectedRows =
       rowSelectionManager._selectedRows.toList();
   for (final DataGridRow selectedRow in duplicateSelectedRows) {
-    final int rowIndex =
-        effectiveRows(dataGridConfiguration.source).indexOf(selectedRow);
+    final int rowIndex = effectiveRows(
+      dataGridConfiguration.source,
+    ).indexOf(selectedRow);
     if (rowIndex.isNegative) {
       rowSelectionManager._selectedRows.remove(selectedRow);
       dataGridConfiguration.controller.selectedRows.remove(selectedRow);
@@ -2195,53 +2637,65 @@ void removeUnWantedDataGridRows(DataGridConfiguration dataGridConfiguration) {
 }
 
 ///
-void handleSelectionPropertyChanged(
-    {required DataGridConfiguration dataGridConfiguration,
-    RowColumnIndex? rowColumnIndex,
-    String? propertyName,
-    bool recalculateRowHeight = false}) {
+void handleSelectionPropertyChanged({
+  required DataGridConfiguration dataGridConfiguration,
+  RowColumnIndex? rowColumnIndex,
+  String? propertyName,
+  bool recalculateRowHeight = false,
+}) {
   if (dataGridConfiguration.rowSelectionManager is RowSelectionManager) {
     final RowSelectionManager rowSelectionManager =
         dataGridConfiguration.rowSelectionManager as RowSelectionManager;
     rowSelectionManager._handleSelectionPropertyChanged(
-        propertyName: propertyName,
-        rowColumnIndex: rowColumnIndex,
-        recalculateRowHeight: recalculateRowHeight);
+      propertyName: propertyName,
+      rowColumnIndex: rowColumnIndex,
+      recalculateRowHeight: recalculateRowHeight,
+    );
   }
 }
 
 ///
-void updateSelectionController(
-    {required DataGridConfiguration dataGridConfiguration,
-    bool isSelectionModeChanged = false,
-    bool isNavigationModeChanged = false,
-    bool isDataSourceChanged = false}) {
+void updateSelectionController({
+  required DataGridConfiguration dataGridConfiguration,
+  bool isSelectionModeChanged = false,
+  bool isNavigationModeChanged = false,
+  bool isDataSourceChanged = false,
+}) {
   if (dataGridConfiguration.rowSelectionManager is RowSelectionManager) {
     final RowSelectionManager rowSelectionManager =
         dataGridConfiguration.rowSelectionManager as RowSelectionManager;
     rowSelectionManager._updateSelectionController(
-        isDataSourceChanged: isDataSourceChanged,
-        isNavigationModeChanged: isNavigationModeChanged,
-        isSelectionModeChanged: isSelectionModeChanged);
+      isDataSourceChanged: isDataSourceChanged,
+      isNavigationModeChanged: isNavigationModeChanged,
+      isSelectionModeChanged: isSelectionModeChanged,
+    );
   }
 }
 
 /// Ensures the selection and current cell update in the [RowSelectionManager].
 void processSelectionAndCurrentCell(
-    DataGridConfiguration dataGridConfiguration, RowColumnIndex rowColumnIndex,
-    {bool isShiftKeyPressed = false, bool isProgrammatic = false}) {
+  DataGridConfiguration dataGridConfiguration,
+  RowColumnIndex rowColumnIndex, {
+  bool isShiftKeyPressed = false,
+  bool isProgrammatic = false,
+}) {
   if (dataGridConfiguration.rowSelectionManager is RowSelectionManager) {
     final RowSelectionManager rowSelectionManager =
         dataGridConfiguration.rowSelectionManager as RowSelectionManager;
     rowSelectionManager._processSelectionAndCurrentCell(
-        dataGridConfiguration, rowColumnIndex,
-        isShiftKeyPressed: isShiftKeyPressed, isProgrammatic: isProgrammatic);
+      dataGridConfiguration,
+      rowColumnIndex,
+      isShiftKeyPressed: isShiftKeyPressed,
+      isProgrammatic: isProgrammatic,
+    );
   }
 }
 
 /// Need to clarify
 bool isSelectedRow(
-    DataGridConfiguration dataGridConfiguration, DataGridRow dataGridRow) {
+  DataGridConfiguration dataGridConfiguration,
+  DataGridRow dataGridRow,
+) {
   if (dataGridConfiguration.rowSelectionManager is RowSelectionManager) {
     final RowSelectionManager rowSelectionManager =
         dataGridConfiguration.rowSelectionManager as RowSelectionManager;
@@ -2253,15 +2707,20 @@ bool isSelectedRow(
 
 /// Set the DataGridStateDetails in SelectionManagerBase
 void setStateDetailsInSelectionManagerBase(
-    SelectionManagerBase selectionManagerBase,
-    DataGridStateDetails dataGridStateDetails) {
+  SelectionManagerBase selectionManagerBase,
+  DataGridStateDetails dataGridStateDetails,
+) {
   selectionManagerBase._dataGridStateDetails = dataGridStateDetails;
 }
 
 /// Helps to handle the selection from header and grid cell check box
 /// interaction.
-void handleSelectionFromCheckbox(DataGridConfiguration dataGridConfiguration,
-    DataCellBase dataCell, bool? oldValue, bool? newValue) {
+void handleSelectionFromCheckbox(
+  DataGridConfiguration dataGridConfiguration,
+  DataCellBase dataCell,
+  bool? oldValue,
+  bool? newValue,
+) {
   if (dataGridConfiguration.rowSelectionManager is RowSelectionManager &&
       dataGridConfiguration.selectionMode != SelectionMode.none) {
     final RowSelectionManager rowSelectionManager =
@@ -2294,7 +2753,9 @@ void handleSelectionFromCheckbox(DataGridConfiguration dataGridConfiguration,
           final List<DataGridRow> oldSelectedItems =
               rowSelectionManager._selectedRows.toList();
           if (rowSelectionManager._raiseSelectionChanging(
-              newItems: <DataGridRow>[], oldItems: oldSelectedItems)) {
+            newItems: <DataGridRow>[],
+            oldItems: oldSelectedItems,
+          )) {
             rowSelectionManager._shiftSelectedRows.clear();
             rowSelectionManager._pressedRowIndex = -1;
             rowSelectionManager._clearSelectedRows(dataGridConfiguration);
@@ -2305,7 +2766,9 @@ void handleSelectionFromCheckbox(DataGridConfiguration dataGridConfiguration,
             );
             rowSelectionManager._refreshCheckboxSelection();
             rowSelectionManager._raiseSelectionChanged(
-                oldItems: oldSelectedItems, newItems: <DataGridRow>[]);
+              oldItems: oldSelectedItems,
+              newItems: <DataGridRow>[],
+            );
           }
           // Cleared the oldSelectedItems list after the callback is called.
           oldSelectedItems.clear();
@@ -2324,9 +2787,10 @@ void refreshSelectedRows(DataGridConfiguration dataGridConfiguration) {
   if (dataGridConfiguration.selectionMode != SelectionMode.none &&
       rowSelectionManager._selectedRows.isNotEmpty) {
     // Filter selected rows to include only those that exist in effectiveRows.
-    List<DataGridRow> selectedRows = rowSelectionManager._selectedRows
-        .where(dataGridConfiguration.source.effectiveRows.contains)
-        .toList();
+    List<DataGridRow> selectedRows =
+        rowSelectionManager._selectedRows
+            .where(dataGridConfiguration.source.effectiveRows.contains)
+            .toList();
 
     /// When changing the selection mode to single-row selection after filtering,
     /// we need to retain only the last selected row.

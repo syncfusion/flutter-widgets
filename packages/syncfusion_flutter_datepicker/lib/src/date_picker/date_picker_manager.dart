@@ -48,8 +48,11 @@ import 'picker_helper.dart';
 @immutable
 class DateRangePickerHeaderStyle with Diagnosticable {
   /// Creates a header style for date range picker.
-  const DateRangePickerHeaderStyle(
-      {this.textAlign = TextAlign.left, this.backgroundColor, this.textStyle});
+  const DateRangePickerHeaderStyle({
+    this.textAlign = TextAlign.left,
+    this.backgroundColor,
+    this.textStyle,
+  });
 
   /// The text style for the text in the [SfDateRangePicker] header view.
   ///
@@ -191,11 +194,7 @@ class DateRangePickerHeaderStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return Object.hash(
-      textStyle,
-      textAlign,
-      backgroundColor,
-    );
+    return Object.hash(textStyle, textAlign, backgroundColor);
   }
 }
 
@@ -346,10 +345,7 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return Object.hash(
-      backgroundColor,
-      textStyle,
-    );
+    return Object.hash(backgroundColor, textStyle);
   }
 }
 
@@ -473,10 +469,7 @@ class DateRangePickerWeekNumberStyle with Diagnosticable {
 
   @override
   int get hashCode {
-    return Object.hash(
-      textStyle,
-      backgroundColor,
-    );
+    return Object.hash(textStyle, backgroundColor);
   }
 }
 
@@ -558,25 +551,25 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// Creates a date range picker month view settings for date range picker.
   ///
   /// The properties allows to customize the month view of [SfDateRangePicker].
-  const DateRangePickerMonthViewSettings(
-      {this.numberOfWeeksInView = 6,
-      this.firstDayOfWeek = 7,
-      this.dayFormat = 'EE',
-      this.viewHeaderHeight = 30,
-      @Deprecated('Use selectionRadius property in SfDateRangePicker')
-      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-      this.selectionRadius = -1,
-      this.showTrailingAndLeadingDates = false,
-      this.viewHeaderStyle = const DateRangePickerViewHeaderStyle(),
-      this.enableSwipeSelection = true,
-      this.blackoutDates,
-      this.specialDates,
-      this.weekendDays = const <int>[6, 7],
-      this.showWeekNumber = false,
-      this.weekNumberStyle = const DateRangePickerWeekNumberStyle()})
-      : assert(numberOfWeeksInView >= 1 && numberOfWeeksInView <= 6),
-        assert(firstDayOfWeek >= 1 && firstDayOfWeek <= 7),
-        assert(viewHeaderHeight >= -1);
+  const DateRangePickerMonthViewSettings({
+    this.numberOfWeeksInView = 6,
+    this.firstDayOfWeek = 7,
+    this.dayFormat = 'EE',
+    this.viewHeaderHeight = 30,
+    @Deprecated('Use selectionRadius property in SfDateRangePicker')
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+    this.selectionRadius = -1,
+    this.showTrailingAndLeadingDates = false,
+    this.viewHeaderStyle = const DateRangePickerViewHeaderStyle(),
+    this.enableSwipeSelection = true,
+    this.blackoutDates,
+    this.specialDates,
+    this.weekendDays = const <int>[6, 7],
+    this.showWeekNumber = false,
+    this.weekNumberStyle = const DateRangePickerWeekNumberStyle(),
+  }) : assert(numberOfWeeksInView >= 1 && numberOfWeeksInView <= 6),
+       assert(firstDayOfWeek >= 1 && firstDayOfWeek <= 7),
+       assert(viewHeaderHeight >= -1);
 
   /// Formats a text in the [SfDateRangePicker] month view view header.
   ///
@@ -1099,18 +1092,29 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(IterableDiagnostics<DateTime>(blackoutDates)
-        .toDiagnosticsNode(name: 'blackoutDates'));
-    properties.add(IterableDiagnostics<DateTime>(specialDates)
-        .toDiagnosticsNode(name: 'specialDates'));
+    properties.add(
+      IterableDiagnostics<DateTime>(
+        blackoutDates,
+      ).toDiagnosticsNode(name: 'blackoutDates'),
+    );
+    properties.add(
+      IterableDiagnostics<DateTime>(
+        specialDates,
+      ).toDiagnosticsNode(name: 'specialDates'),
+    );
     properties.add(IntProperty('numberOfWeeksInView', numberOfWeeksInView));
     properties.add(IntProperty('firstDayOfWeek', firstDayOfWeek));
     properties.add(DoubleProperty('viewHeaderHeight', viewHeaderHeight));
     properties.add(StringProperty('dayFormat', dayFormat));
-    properties.add(DiagnosticsProperty<bool>(
-        'showTrailingAndLeadingDates', showTrailingAndLeadingDates));
-    properties.add(DiagnosticsProperty<bool>(
-        'enableSwipeSelection', enableSwipeSelection));
+    properties.add(
+      DiagnosticsProperty<bool>(
+        'showTrailingAndLeadingDates',
+        showTrailingAndLeadingDates,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<bool>('enableSwipeSelection', enableSwipeSelection),
+    );
     properties.add(viewHeaderStyle.toDiagnosticsNode(name: 'viewHeaderStyle'));
     properties.add(IterableProperty<int>('weekendDays', weekendDays));
     properties.add(DiagnosticsProperty<bool>('showWeekNumber', showWeekNumber));
@@ -1120,21 +1124,22 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   @override
   int get hashCode {
     return Object.hash(
-        dayFormat,
-        firstDayOfWeek,
-        viewHeaderStyle,
-        enableSwipeSelection,
-        viewHeaderHeight,
-        showTrailingAndLeadingDates,
-        numberOfWeeksInView,
-        showWeekNumber,
-        weekNumberStyle,
+      dayFormat,
+      firstDayOfWeek,
+      viewHeaderStyle,
+      enableSwipeSelection,
+      viewHeaderHeight,
+      showTrailingAndLeadingDates,
+      numberOfWeeksInView,
+      showWeekNumber,
+      weekNumberStyle,
 
-        /// Below condition is referred from text style class
-        /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
-        specialDates == null ? null : Object.hashAll(specialDates!),
-        blackoutDates == null ? null : Object.hashAll(blackoutDates!),
-        Object.hashAll(weekendDays));
+      /// Below condition is referred from text style class
+      /// https://api.flutter.dev/flutter/painting/TextStyle/hashCode.html
+      specialDates == null ? null : Object.hashAll(specialDates!),
+      blackoutDates == null ? null : Object.hashAll(blackoutDates!),
+      Object.hashAll(weekendDays),
+    );
   }
 }
 
@@ -1214,15 +1219,16 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   ///
   /// The properties allows to customize the year cells in year view of
   /// [SfDateRangePicker].
-  const DateRangePickerYearCellStyle(
-      {this.textStyle,
-      this.todayTextStyle,
-      this.leadingDatesTextStyle,
-      this.disabledDatesTextStyle,
-      this.cellDecoration,
-      this.todayCellDecoration,
-      this.disabledDatesDecoration,
-      this.leadingDatesDecoration});
+  const DateRangePickerYearCellStyle({
+    this.textStyle,
+    this.todayTextStyle,
+    this.leadingDatesTextStyle,
+    this.disabledDatesTextStyle,
+    this.cellDecoration,
+    this.todayCellDecoration,
+    this.disabledDatesDecoration,
+    this.leadingDatesDecoration,
+  });
 
   /// The text style for the text in the [SfDateRangePicker] year, decade and
   /// century view cells.
@@ -1657,33 +1663,56 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
-    properties
-        .add(DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'leadingDatesTextStyle', leadingDatesTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'disabledDatesTextStyle', disabledDatesTextStyle));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'disabledDatesDecoration', disabledDatesDecoration));
-    properties
-        .add(DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'todayCellDecoration', todayCellDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'leadingDatesDecoration', leadingDatesDecoration));
+    properties.add(
+      DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'leadingDatesTextStyle',
+        leadingDatesTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'disabledDatesTextStyle',
+        disabledDatesTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'disabledDatesDecoration',
+        disabledDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'todayCellDecoration',
+        todayCellDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'leadingDatesDecoration',
+        leadingDatesDecoration,
+      ),
+    );
   }
 
   @override
   int get hashCode {
     return Object.hash(
-        textStyle,
-        todayTextStyle,
-        leadingDatesTextStyle,
-        disabledDatesTextStyle,
-        disabledDatesDecoration,
-        cellDecoration,
-        todayCellDecoration,
-        leadingDatesDecoration);
+      textStyle,
+      todayTextStyle,
+      leadingDatesTextStyle,
+      disabledDatesTextStyle,
+      disabledDatesDecoration,
+      cellDecoration,
+      todayCellDecoration,
+      leadingDatesDecoration,
+    );
   }
 }
 
@@ -1767,41 +1796,42 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   ///
   /// The properties allows to customize the month cells in month view of
   /// [SfDateRangePicker].
-  const DateRangePickerMonthCellStyle(
-      {@Deprecated('Use selectionColor property in SfDateRangePicker')
-      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-      this.selectionColor,
-      @Deprecated('Use startRangeSelectionColor property in SfDateRangePicker')
-      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-      this.startRangeSelectionColor,
-      @Deprecated('Use endRangeSelectionColor property in SfDateRangePicker')
-      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-      this.endRangeSelectionColor,
-      @Deprecated('Use rangeSelectionColor property in SfDateRangePicker')
-      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-      this.rangeSelectionColor,
-      this.textStyle,
-      this.todayTextStyle,
-      this.trailingDatesTextStyle,
-      this.leadingDatesTextStyle,
-      @Deprecated('Use selectionTextStyle property in SfDateRangePicker')
-      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-      this.selectionTextStyle,
-      this.disabledDatesTextStyle,
-      this.blackoutDateTextStyle,
-      this.weekendTextStyle,
-      this.specialDatesTextStyle,
-      this.specialDatesDecoration,
-      this.blackoutDatesDecoration,
-      this.cellDecoration,
-      this.todayCellDecoration,
-      this.disabledDatesDecoration,
-      this.trailingDatesDecoration,
-      this.leadingDatesDecoration,
-      @Deprecated('Use rangeTextStyle property in SfDateRangePicker')
-      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-      this.rangeTextStyle,
-      this.weekendDatesDecoration});
+  const DateRangePickerMonthCellStyle({
+    @Deprecated('Use selectionColor property in SfDateRangePicker')
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+    this.selectionColor,
+    @Deprecated('Use startRangeSelectionColor property in SfDateRangePicker')
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+    this.startRangeSelectionColor,
+    @Deprecated('Use endRangeSelectionColor property in SfDateRangePicker')
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+    this.endRangeSelectionColor,
+    @Deprecated('Use rangeSelectionColor property in SfDateRangePicker')
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+    this.rangeSelectionColor,
+    this.textStyle,
+    this.todayTextStyle,
+    this.trailingDatesTextStyle,
+    this.leadingDatesTextStyle,
+    @Deprecated('Use selectionTextStyle property in SfDateRangePicker')
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+    this.selectionTextStyle,
+    this.disabledDatesTextStyle,
+    this.blackoutDateTextStyle,
+    this.weekendTextStyle,
+    this.specialDatesTextStyle,
+    this.specialDatesDecoration,
+    this.blackoutDatesDecoration,
+    this.cellDecoration,
+    this.todayCellDecoration,
+    this.disabledDatesDecoration,
+    this.trailingDatesDecoration,
+    this.leadingDatesDecoration,
+    @Deprecated('Use rangeTextStyle property in SfDateRangePicker')
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+    this.rangeTextStyle,
+    this.weekendDatesDecoration,
+  });
 
   /// The text style for the text in the [SfDateRangePicker] month cells.
   ///
@@ -3089,36 +3119,87 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
-    properties
-        .add(DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'trailingDatesTextStyle', trailingDatesTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'leadingDatesTextStyle', leadingDatesTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'blackoutDateTextStyle', blackoutDateTextStyle));
     properties.add(
-        DiagnosticsProperty<TextStyle>('weekendTextStyle', weekendTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'specialDatesTextStyle', specialDatesTextStyle));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'disabledDatesTextStyle', disabledDatesTextStyle));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'disabledDatesDecoration', disabledDatesDecoration));
-    properties
-        .add(DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'todayCellDecoration', todayCellDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'trailingDatesDecoration', trailingDatesDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'leadingDatesDecoration', leadingDatesDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'blackoutDatesDecoration', blackoutDatesDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'weekendDatesDecoration', weekendDatesDecoration));
-    properties.add(DiagnosticsProperty<Decoration>(
-        'specialDatesDecoration', specialDatesDecoration));
+      DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'trailingDatesTextStyle',
+        trailingDatesTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'leadingDatesTextStyle',
+        leadingDatesTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'blackoutDateTextStyle',
+        blackoutDateTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>('weekendTextStyle', weekendTextStyle),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'specialDatesTextStyle',
+        specialDatesTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'disabledDatesTextStyle',
+        disabledDatesTextStyle,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'disabledDatesDecoration',
+        disabledDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'todayCellDecoration',
+        todayCellDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'trailingDatesDecoration',
+        trailingDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'leadingDatesDecoration',
+        leadingDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'blackoutDatesDecoration',
+        blackoutDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'weekendDatesDecoration',
+        weekendDatesDecoration,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<Decoration>(
+        'specialDatesDecoration',
+        specialDatesDecoration,
+      ),
+    );
   }
 
   @override
@@ -3156,7 +3237,8 @@ class DateRangePickerValueChangeNotifier with Diagnosticable {
   ///
   /// Listeners can be removed with [removePropertyChangedListener].
   void addPropertyChangedListener(
-      DateRangePickerValueChangedCallback listener) {
+    DateRangePickerValueChangedCallback listener,
+  ) {
     _listeners ??= <DateRangePickerValueChangedCallback>[];
     _listeners?.add(listener);
   }
@@ -3170,7 +3252,8 @@ class DateRangePickerValueChangeNotifier with Diagnosticable {
   ///
   /// Listeners can be added with [addPropertyChangedListener].
   void removePropertyChangedListener(
-      DateRangePickerValueChangedCallback listener) {
+    DateRangePickerValueChangedCallback listener,
+  ) {
     if (_listeners == null) {
       return;
     }
@@ -3925,12 +4008,19 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<DateTime>('displayDate', displayDate));
     properties.add(DiagnosticsProperty<DateTime>('selectedDate', selectedDate));
-    properties.add(IterableDiagnostics<DateTime>(selectedDates)
-        .toDiagnosticsNode(name: 'selectedDates'));
     properties.add(
-        DiagnosticsProperty<PickerDateRange>('selectedRange', selectedRange));
-    properties.add(IterableDiagnostics<PickerDateRange>(selectedRanges)
-        .toDiagnosticsNode(name: 'selectedRanges'));
+      IterableDiagnostics<DateTime>(
+        selectedDates,
+      ).toDiagnosticsNode(name: 'selectedDates'),
+    );
+    properties.add(
+      DiagnosticsProperty<PickerDateRange>('selectedRange', selectedRange),
+    );
+    properties.add(
+      IterableDiagnostics<PickerDateRange>(
+        selectedRanges,
+      ).toDiagnosticsNode(name: 'selectedRanges'),
+    );
     properties.add(EnumProperty<DateRangePickerView>('view', view));
   }
 }
@@ -4006,7 +4096,7 @@ enum DateRangePickerView {
   ///
   /// _Note:_ This property not applicable when the
   /// [SfDateRangePicker.pickerMode] set as [DateRangePickerMode.hijri].
-  century
+  century,
 }
 
 /// The shape for the selection view in [SfDateRangePicker].
@@ -4021,7 +4111,7 @@ enum DateRangePickerSelectionShape {
 
   /// - DateRangePickerSelectionShape.rectangle, Draws the date selection in
   /// rectangle shape.
-  rectangle
+  rectangle,
 }
 
 /// A direction in which the [SfDateRangePicker] navigates.
@@ -4036,7 +4126,7 @@ enum DateRangePickerNavigationDirection {
 
   /// - DateRangePickerNavigationDirection.horizontal, Navigates in right and
   /// left direction.
-  horizontal
+  horizontal,
 }
 
 /// A type specifies how the date picker navigation interaction works.
@@ -4073,7 +4163,7 @@ enum DateRangePickerNavigationMode {
   /// 6. header view background color changed to white on light theme or
   /// grey[850] on dark theme when [backgroundColor] in
   /// [DateRangePickerHeaderStyle] is transparent.
-  scroll
+  scroll,
 }
 
 /// The direction for extendable range selection in [SfDateRangePicker].
@@ -4092,7 +4182,7 @@ enum ExtendableRangeSelectionDirection {
 
   /// Allows to extend the selection only in backward direction.
   /// The end date will not be changed here.
-  backward
+  backward,
 }
 
 /// The dates that visible on the view changes in [SfDateRangePicker].
@@ -4193,8 +4283,11 @@ class PickerDateRange with Diagnosticable {
 /// See also:
 /// * [SfDateRangePicker.cellBuilder], which matches this signature.
 /// * [SfDateRangePicker], which uses this signature in one of it's callback.
-typedef DateRangePickerCellBuilder = Widget Function(
-    BuildContext context, DateRangePickerCellDetails cellDetails);
+typedef DateRangePickerCellBuilder =
+    Widget Function(
+      BuildContext context,
+      DateRangePickerCellDetails cellDetails,
+    );
 
 /// Signature for predicating dates for enabled date selections.
 ///
@@ -4209,8 +4302,11 @@ typedef DateRangePickerSelectableDayPredicate = bool Function(DateTime date);
 /// * [SfDateRangePicker], which uses this signature in one of it's callback.
 class DateRangePickerCellDetails {
   /// Constructor to store the details that needed on calendar cell builder.
-  DateRangePickerCellDetails(
-      {required this.date, required this.bounds, required this.visibleDates});
+  DateRangePickerCellDetails({
+    required this.date,
+    required this.bounds,
+    required this.visibleDates,
+  });
 
   /// Date value associated with the picker cell in month, year, decade and
   /// century views.
@@ -4252,7 +4348,7 @@ class IterableDiagnostics<T> extends DiagnosticableTree {
     return collection == null
         ? 'null'
         : collection!.isNotEmpty
-            ? '<$T>'
-            : '<none>';
+        ? '<$T>'
+        : '<none>';
   }
 }

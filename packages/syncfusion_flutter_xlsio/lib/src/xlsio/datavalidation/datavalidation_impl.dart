@@ -94,7 +94,6 @@ class DataValidationImpl implements DataValidation {
   late String cellRange;
 
   @override
-
   /// gets or sets the dataRange for DataValidation
   set dataRange(Range value) {
     dataRangeVal = value;
@@ -102,70 +101,60 @@ class DataValidationImpl implements DataValidation {
   }
 
   @override
-
   /// gets or sets the dataRange for DataValidation
   Range get dataRange {
     return dataRangeVal;
   }
 
   @override
-
   /// gets or sets the type of allowType for DataValidation
   ExcelDataValidationType get allowType {
     return _allowTypeVal;
   }
 
   @override
-
   /// gets or sets the type of allowType for DataValidation
   set allowType(ExcelDataValidationType value) {
     _allowTypeVal = value;
   }
 
   @override
-
   /// gets or sets the isListInFormula for DataValidation
   bool get isListInFormula {
     return _isListInformulaVal;
   }
 
   @override
-
   /// gets or sets the isListInFormula for DataValidation
   set isListInFormula(bool value) {
     _isListInformulaVal = value;
   }
 
   @override
-
   /// gets or sets the comparisonOperator value for DataValidation
   set comparisonOperator(ExcelDataValidationComparisonOperator value) {
     _comparisonOperatorVal = value;
   }
 
   @override
-
   /// gets or sets the comparisonOperator value for DataValidation
   ExcelDataValidationComparisonOperator get comparisonOperator {
     return _comparisonOperatorVal;
   }
 
   @override
-
   /// gets or sets the firstDateTime for DataValidation
   DateTime get firstDateTime {
     return firstDateTimeVal;
   }
 
   @override
-
   /// gets or sets the firstDateTime for DataValidation
   set firstDateTime(DateTime value) {
     firstDateTimeVal = value;
   }
 
   @override
-
   /// gets or sets the firstFormula for DataValidation
   set firstFormula(String value) {
     if (firstFormula != value) {
@@ -174,14 +163,12 @@ class DataValidationImpl implements DataValidation {
   }
 
   @override
-
   /// gets or sets the firstFormula for DataValidation
   String get firstFormula {
     return _firstFormulaVal;
   }
 
   @override
-
   /// gets or sets the secondFormula for DataValidation
   set secondFormula(String value) {
     if (secondFormula != value) {
@@ -190,42 +177,36 @@ class DataValidationImpl implements DataValidation {
   }
 
   @override
-
   /// gets or sets the secondFormula for DataValidation
   String get secondFormula {
     return _secondFormulaVal;
   }
 
   @override
-
   /// gets or sets the showErrorBox for DataValidation
   set showErrorBox(bool value) {
     _showErrorBoxVal = value;
   }
 
   @override
-
   /// gets or sets the showErrorBox for DataValidation
   bool get showErrorBox {
     return _showErrorBoxVal;
   }
 
   @override
-
   /// gets or sets the secondDateTime for DataValidation
   set secondDateTime(DateTime value) {
     _secondDateTimeVal = value;
   }
 
   @override
-
   /// gets or sets the secondDateTime for DataValidation
   DateTime get secondDateTime {
     return _secondDateTimeVal;
   }
 
   @override
-
   /// gets or sets the errorBoxText for DataValidation
   set errorBoxText(String value) {
     _checkLimit('ErrorBoxText', value, _textLimit);
@@ -233,14 +214,12 @@ class DataValidationImpl implements DataValidation {
   }
 
   @override
-
   /// gets or sets the errorBoxText for DataValidation
   String get errorBoxText {
     return _errorBoxTextVal;
   }
 
   @override
-
   /// gets or sets the errorBoxTitle for DataValidation
   set errorBoxTitle(String value) {
     _checkLimit('ErrorBoxTitle', value, _textLimit);
@@ -248,14 +227,12 @@ class DataValidationImpl implements DataValidation {
   }
 
   @override
-
   /// gets or sets the errorBoxTitle for DataValidation
   String get errorBoxTitle {
     return _errorBoxTitleVal;
   }
 
   @override
-
   /// gets or sets the promptBoxText for DataValidation
   set promptBoxText(String value) {
     _checkLimit('PromptBoxText', value, _textLimit);
@@ -263,28 +240,24 @@ class DataValidationImpl implements DataValidation {
   }
 
   @override
-
   /// gets or sets the promptBoxText for DataValidation
   String get promptBoxText {
     return _promptBoxTextVal;
   }
 
   @override
-
   /// gets or sets the showPromptBox for DataValidation
   set showPromptBox(bool value) {
     _showPromptBoxVal = value;
   }
 
   @override
-
   /// gets or sets the showPromptBox for DataValidation
   bool get showPromptBox {
     return _showPromptBoxVal;
   }
 
   @override
-
   /// gets or sets the promptBoxTitle for DataValidation
   set promptBoxTitle(String value) {
     _checkLimit('PromptBoxTitle', value, _textLimit);
@@ -292,98 +265,84 @@ class DataValidationImpl implements DataValidation {
   }
 
   @override
-
   /// gets or sets the promptBoxTitle for DataValidation
   String get promptBoxTitle {
     return _promptBoxTitleVal;
   }
 
   @override
-
   /// gets or sets the promptBoxVposition for DataValidation
   set promptBoxVPosition(int value) {
     _dataValidationCollection.promptBoxVPositionVal = value;
   }
 
   @override
-
   /// gets or sets the promptBoxVposition for DataValidation
   int get promptBoxVPosition {
     return _dataValidationCollection.promptBoxVPositionVal;
   }
 
   @override
-
   /// gets or sets the promptBoxHposition for DataValidation
   set promptBoxHPosition(int value) {
     _dataValidationCollection.promptBoxHPositionVal = value;
   }
 
   @override
-
   /// gets or sets the promptBoxHposition for DataValidation
   int get promptBoxHPosition {
     return _dataValidationCollection.promptBoxHPositionVal;
   }
 
   @override
-
   /// gets or sets the isPromptBoxPositionFixed for DataValidation
   set isPromptBoxPositionFixed(bool value) {
     _dataValidationCollection.isPromptBoxPositionFixedVal = value;
   }
 
   @override
-
   /// gets or sets the isPromptBoxPositionFixed for DataValidation
   bool get isPromptBoxPositionFixed {
     return _dataValidationCollection.isPromptBoxPositionFixedVal;
   }
 
   @override
-
   ///gets or sets the isSuppressDropDownArrow for DataValidation
   set isSuppressDropDownArrow(bool value) {
     _isSuppressDropDownArrowVal = value;
   }
 
   @override
-
   /// gets or sets the isSuppressDropDownArrow for DataValidation
   bool get isSuppressDropDownArrow {
     return _isSuppressDropDownArrowVal;
   }
 
   @override
-
   /// gets or sets the isEmptyCellAllowed for DataValidation
   set isEmptyCellAllowed(bool value) {
     _isEmptyCellAllowedVal = value;
   }
 
   @override
-
   /// gets or sets the isEmptyCellAllowed for DataValidation
   bool get isEmptyCellAllowed {
     return _isEmptyCellAllowedVal;
   }
 
   @override
-
   /// gets or sets the errorStyle for DataValidation
   set errorStyle(ExcelDataValidationErrorStyle value) {
     _errorStyleVal = value;
   }
 
   @override
-
   /// gets or sets the errorStyle for DataValidation
   ExcelDataValidationErrorStyle get errorStyle {
     return _errorStyleVal;
   }
 
   @override
-
   /// gets or sets the listOfValues for DataValidation
   set listOfValues(List<String> value) {
     _listOfValuesVal = value;
@@ -392,7 +351,6 @@ class DataValidationImpl implements DataValidation {
   }
 
   @override
-
   /// gets or sets the listOfValues for DataValidation
   List<String> get listOfValues {
     return _listOfValuesVal;

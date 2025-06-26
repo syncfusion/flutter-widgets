@@ -11,7 +11,7 @@ enum PdfGridImagePosition {
   stretch,
 
   /// The image is rendered by tile mode.
-  tile
+  tile,
 }
 
 /// internal enumerator
@@ -31,7 +31,7 @@ enum PdfGridStretchOption {
   uniformToFill,
 
   /// The content preserves its original size.
-  none
+  none,
 }
 
 /// Describe the possible values of [PdfHorizontalOverflowType].
@@ -42,7 +42,7 @@ enum PdfHorizontalOverflowType {
   nextPage,
 
   /// Draws the overflowing grid as last page
-  lastPage
+  lastPage,
 }
 
 /// Specifies the values of the border overlap style.
@@ -369,5 +369,5 @@ enum PdfGridBuiltInStyle {
   tableGridLight,
 
   /// Specifies the grid to render Table Grid style.
-  tableGrid
+  tableGrid,
 }

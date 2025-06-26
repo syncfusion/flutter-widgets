@@ -10,23 +10,23 @@ import '../../linear_gauge/utils/enum.dart';
 class LinearWidgetPointer extends SingleChildRenderObjectWidget
     implements LinearMarkerPointer {
   /// Creates a widget marker pointer.
-  const LinearWidgetPointer(
-      {Key? key,
-      required this.value,
-      this.onChanged,
-      this.onChangeStart,
-      this.onChangeEnd,
-      this.enableAnimation = true,
-      this.animationDuration = 1000,
-      this.animationType = LinearAnimationType.ease,
-      this.onAnimationCompleted,
-      double offset = 0.0,
-      this.position = LinearElementPosition.cross,
-      this.markerAlignment = LinearMarkerAlignment.center,
-      this.dragBehavior = LinearMarkerDragBehavior.free,
-      required Widget child})
-      : offset = offset > 0 ? offset : 0,
-        super(key: key, child: child);
+  const LinearWidgetPointer({
+    Key? key,
+    required this.value,
+    this.onChanged,
+    this.onChangeStart,
+    this.onChangeEnd,
+    this.enableAnimation = true,
+    this.animationDuration = 1000,
+    this.animationType = LinearAnimationType.ease,
+    this.onAnimationCompleted,
+    double offset = 0.0,
+    this.position = LinearElementPosition.cross,
+    this.markerAlignment = LinearMarkerAlignment.center,
+    this.dragBehavior = LinearMarkerDragBehavior.free,
+    required Widget child,
+  }) : offset = offset > 0 ? offset : 0,
+       super(key: key, child: child);
 
   /// Specifies the pointer value for [LinearWidgetPointer].
   /// This value must be between the min and max value of an axis track.
@@ -320,24 +320,27 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   RenderObject createRenderObject(BuildContext context) {
     final LinearGaugeScope scope = LinearGaugeScope.of(context);
     return RenderLinearWidgetPointer(
-        value: value,
-        onChanged: onChanged,
-        onChangeStart: onChangeStart,
-        onChangeEnd: onChangeEnd,
-        offset: offset,
-        position: position,
-        markerAlignment: markerAlignment,
-        animationController: scope.animationController,
-        onAnimationCompleted: onAnimationCompleted,
-        pointerAnimation: scope.animation,
-        isAxisInversed: scope.isAxisInversed,
-        isMirrored: scope.isMirrored,
-        dragBehavior: dragBehavior);
+      value: value,
+      onChanged: onChanged,
+      onChangeStart: onChangeStart,
+      onChangeEnd: onChangeEnd,
+      offset: offset,
+      position: position,
+      markerAlignment: markerAlignment,
+      animationController: scope.animationController,
+      onAnimationCompleted: onAnimationCompleted,
+      pointerAnimation: scope.animation,
+      isAxisInversed: scope.isAxisInversed,
+      isMirrored: scope.isMirrored,
+      dragBehavior: dragBehavior,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderLinearWidgetPointer renderObject) {
+    BuildContext context,
+    RenderLinearWidgetPointer renderObject,
+  ) {
     final LinearGaugeScope scope = LinearGaugeScope.of(context);
 
     renderObject

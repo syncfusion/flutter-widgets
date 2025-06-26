@@ -245,7 +245,9 @@ class ColumnSeries<T, D> extends XyDataSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, ColumnSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    ColumnSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..isTrackVisible = isTrackVisible
@@ -352,20 +354,29 @@ class ColumnSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   void customizeSegment(ChartSegment segment) {
     final ColumnSegment<T, D> columnSegment = segment as ColumnSegment<T, D>;
     updateSegmentTrackerStyle(
-        columnSegment, trackColor, trackBorderColor, trackBorderWidth);
+      columnSegment,
+      trackColor,
+      trackBorderColor,
+      trackBorderWidth,
+    );
     updateSegmentColor(columnSegment, borderColor, borderWidth);
-    updateSegmentGradient(columnSegment,
-        gradientBounds: columnSegment.segmentRect?.outerRect,
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      columnSegment,
+      gradientBounds: columnSegment.segmentRect?.outerRect,
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
   void handleLegendItemTapped(LegendItem item, bool isToggled) {
     if (parent != null && parent!.onLegendTapped != null) {
-      final ChartLegendItem legendItem = item as ChartLegendItem;
+      final CartesianLegendItem legendItem = item as CartesianLegendItem;
       final LegendTapArgs args = LegendTapArgs(
-          legendItem.series, legendItem.seriesIndex, legendItem.pointIndex);
+        legendItem.series,
+        legendItem.seriesIndex,
+        legendItem.pointIndex,
+      );
       parent!.onLegendTapped!(args);
     }
     parent!.behaviorArea?.hideInteractiveTooltip();
@@ -410,7 +421,9 @@ class ColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldSegmentRect = null;
@@ -484,24 +497,29 @@ class ColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       final TooltipPosition? tooltipPosition =
           series.parent?.tooltipBehavior?.tooltipPosition;
-      final Offset posFromRect = y.isNegative && bottom == 0
-          ? segmentRect!.outerRect.bottomCenter
-          : segmentRect!.outerRect.topCenter;
-      final Offset preferredPos = tooltipPosition == TooltipPosition.pointer
-          ? position ?? posFromRect
-          : posFromRect;
+      final Offset posFromRect =
+          y.isNegative && bottom == 0
+              ? segmentRect!.outerRect.bottomCenter
+              : segmentRect!.outerRect.topCenter;
+      final Offset preferredPos =
+          tooltipPosition == TooltipPosition.pointer
+              ? position ?? posFromRect
+              : posFromRect;
       final ChartMarker marker = series.markerAt(pointIndex);
       final double markerHeight =
           series.markerSettings.isVisible ? marker.height / 2 : 0;
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -521,8 +539,10 @@ class ColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
     if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
       return ChartTrackballInfo<T, D>(
-        position:
-            Offset(series.pointToPixelX(x, y), series.pointToPixelY(x, y)),
+        position: Offset(
+          series.pointToPixelX(x, y),
+          series.pointToPixelY(x, y),
+        ),
         point: chartPoint,
         series: series,
         seriesIndex: series.index,
@@ -564,7 +584,11 @@ class ColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
         _oldSegmentRect != null &&
         series.animationType != AnimationType.loading) {
       paintRRect = performLegendToggleAnimation(
-          series, segmentRect!, _oldSegmentRect!, series.borderRadius);
+        series,
+        segmentRect!,
+        _oldSegmentRect!,
+        series.borderRadius,
+      );
     } else {
       paintRRect = RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
     }

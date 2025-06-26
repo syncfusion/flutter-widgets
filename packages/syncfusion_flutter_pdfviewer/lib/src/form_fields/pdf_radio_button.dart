@@ -55,13 +55,15 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
     for (int index = 0; index < pdfRadioField.items.count; index++) {
       items.add(pdfRadioField.items[index].value);
     }
-    final String selectedValue = pdfRadioField.selectedIndex != -1
-        ? items[pdfRadioField.selectedIndex]
-        : '';
+    final String selectedValue =
+        pdfRadioField.selectedIndex != -1
+            ? items[pdfRadioField.selectedIndex]
+            : '';
     canReset = selectedValue == '';
-    radioFormField = PdfRadioFormField._()
-      .._items = items
-      .._selectedItem = selectedValue;
+    radioFormField =
+        PdfRadioFormField._()
+          .._items = items
+          .._selectedItem = selectedValue;
     super.load(radioFormField);
 
     return radioFormField;
@@ -101,9 +103,8 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
 
     for (int j = 0; j < item.count; j++) {
       final Rect bounds = item[j].bounds;
-      final double selectionPadding = kIsDesktop
-          ? 0
-          : kFormFieldSelectionPadding;
+      final double selectionPadding =
+          kIsDesktop ? 0 : kFormFieldSelectionPadding;
       final Rect adjustedBounds = bounds.inflate(selectionPadding);
 
       widgets.add(
@@ -119,22 +120,26 @@ class PdfRadioFormFieldHelper extends PdfFormFieldHelper {
             onChanged: invokeValueChanged,
             heightPercentage: heightPercentage,
             selectionPadding: selectionPadding,
-            fillColor: pdfRadioField.items[j].backColor.isEmpty
-                ? const Color.fromARGB(255, 221, 228, 255)
-                : Color.fromRGBO(
-                    pdfRadioField.items[j].backColor.r,
-                    pdfRadioField.items[j].backColor.g,
-                    pdfRadioField.items[j].backColor.b,
-                    1,
-                  ),
-            borderColor: pdfRadioField.items[j].borderColor.isEmpty
-                ? Colors.transparent
-                : Color.fromRGBO(
-                    pdfRadioField.items[j].borderColor.r,
-                    pdfRadioField.items[j].borderColor.g,
-                    pdfRadioField.items[j].borderColor.b,
-                    1,
-                  ),
+            fillColor:
+                pdfRadioField.items[j].backColor.isEmpty
+                    ? pdfRadioField.readOnly
+                        ? Colors.transparent
+                        : const Color.fromARGB(255, 221, 228, 255)
+                    : Color.fromRGBO(
+                      pdfRadioField.items[j].backColor.r,
+                      pdfRadioField.items[j].backColor.g,
+                      pdfRadioField.items[j].backColor.b,
+                      1,
+                    ),
+            borderColor:
+                pdfRadioField.items[j].borderColor.isEmpty
+                    ? Colors.transparent
+                    : Color.fromRGBO(
+                      pdfRadioField.items[j].borderColor.r,
+                      pdfRadioField.items[j].borderColor.g,
+                      pdfRadioField.items[j].borderColor.b,
+                      1,
+                    ),
             borderWidth: pdfRadioField.items[j].borderWidth / heightPercentage,
             size: bounds.height / heightPercentage,
           ),
@@ -227,9 +232,14 @@ class _PdfRadioButtonState extends State<PdfRadioButton> {
               width: widget.borderWidth,
             ),
           ),
-          child: widget.groupValue == widget.value
-              ? Icon(Icons.circle, size: widget.size / 2.0, color: Colors.black)
-              : Container(),
+          child:
+              widget.groupValue == widget.value
+                  ? Icon(
+                    Icons.circle,
+                    size: widget.size / 2.0,
+                    color: Colors.black,
+                  )
+                  : Container(),
         ),
       ),
     );

@@ -452,7 +452,7 @@ class InteractiveTooltip {
       connectorLineDashArray,
       decimalPlaces,
       canShowMarker,
-      textStyle
+      textStyle,
     ];
     return Object.hashAll(values);
   }

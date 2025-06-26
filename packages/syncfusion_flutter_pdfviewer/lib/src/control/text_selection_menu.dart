@@ -48,13 +48,14 @@ class _TextSelectionMenuState extends State<TextSelectionMenu> {
     return Container(
       height: kTextSelectionMenuHeight,
       decoration: ShapeDecoration(
-        color: widget.themeData!.useMaterial3
-            ? (widget.themeData!.colorScheme.brightness == Brightness.light)
-                  ? const Color.fromRGBO(238, 232, 244, 1)
-                  : const Color.fromRGBO(48, 45, 56, 1)
-            : (widget.themeData!.colorScheme.brightness == Brightness.light)
-            ? Colors.white
-            : const Color(0xFF303030),
+        color:
+            widget.themeData!.useMaterial3
+                ? (widget.themeData!.colorScheme.brightness == Brightness.light)
+                    ? const Color.fromRGBO(238, 232, 244, 1)
+                    : const Color.fromRGBO(48, 45, 56, 1)
+                : (widget.themeData!.colorScheme.brightness == Brightness.light)
+                ? Colors.white
+                : const Color(0xFF303030),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         shadows: const <BoxShadow>[
           BoxShadow(
@@ -105,9 +106,10 @@ class _TextSelectionMenuState extends State<TextSelectionMenu> {
                   themeData: widget.themeData,
                 ),
                 TextSelectionMenuItem(
-                  title: widget
-                      .localizations!
-                      .pdfTextSelectionMenuStrikethroughLabel,
+                  title:
+                      widget
+                          .localizations!
+                          .pdfTextSelectionMenuStrikethroughLabel,
                   mode: 'Strikethrough',
                   onSelected: widget.onSelected,
                   textDirection: widget.textDirection,
@@ -170,11 +172,12 @@ class _TextSelectionMenuItemState extends State<TextSelectionMenuItem> {
         onTap: () {
           widget.onSelected?.call(widget.mode);
         },
-        highlightColor: widget.themeData!.useMaterial3
-            ? widget.themeData!.colorScheme.primaryContainer
-            : (widget.themeData!.colorScheme.brightness == Brightness.light)
-            ? Colors.grey.withValues(alpha: 0.2)
-            : Colors.grey.withValues(alpha: 0.5),
+        highlightColor:
+            widget.themeData!.useMaterial3
+                ? widget.themeData!.colorScheme.primaryContainer
+                : (widget.themeData!.colorScheme.brightness == Brightness.light)
+                ? Colors.grey.withValues(alpha: 0.2)
+                : Colors.grey.withValues(alpha: 0.5),
         child: Directionality(
           textDirection: widget.textDirection ?? TextDirection.ltr,
           child: Container(
@@ -189,11 +192,12 @@ class _TextSelectionMenuItemState extends State<TextSelectionMenuItem> {
                   overflow: TextOverflow.ellipsis,
                   style: widget.themeData!.textTheme.bodyMedium!.copyWith(
                     fontSize: 14,
-                    color: widget.themeData!.useMaterial3
-                        ? widget.themeData!.colorScheme.onSurface
-                        : widget.themeData!.brightness == Brightness.light
-                        ? Colors.black.withValues(alpha: 0.87)
-                        : Colors.white.withValues(alpha: 0.87),
+                    color:
+                        widget.themeData!.useMaterial3
+                            ? widget.themeData!.colorScheme.onSurface
+                            : widget.themeData!.brightness == Brightness.light
+                            ? Colors.black.withValues(alpha: 0.87)
+                            : Colors.white.withValues(alpha: 0.87),
                   ),
                 ),
               ],
@@ -209,9 +213,10 @@ class _TextSelectionMenuItemState extends State<TextSelectionMenuItem> {
       return Icon(
         Icons.copy,
         size: 16,
-        color: (widget.themeData!.colorScheme.brightness == Brightness.light)
-            ? Colors.black.withValues(alpha: 0.87)
-            : Colors.white.withValues(alpha: 0.87),
+        color:
+            (widget.themeData!.colorScheme.brightness == Brightness.light)
+                ? Colors.black.withValues(alpha: 0.87)
+                : Colors.white.withValues(alpha: 0.87),
       );
     }
     mode = mode.toLowerCase().replaceAll(RegExp(r' '), '');

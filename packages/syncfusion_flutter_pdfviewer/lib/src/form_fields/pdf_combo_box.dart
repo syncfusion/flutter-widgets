@@ -52,13 +52,15 @@ class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
       items.add(pdfComboBoxField.items[index].text);
     }
 
-    final String selectedValue = pdfComboBoxField.selectedIndex != -1
-        ? pdfComboBoxField.items[pdfComboBoxField.selectedIndex].text
-        : '';
+    final String selectedValue =
+        pdfComboBoxField.selectedIndex != -1
+            ? pdfComboBoxField.items[pdfComboBoxField.selectedIndex].text
+            : '';
 
-    comboBoxFormField = PdfComboBoxFormField._()
-      .._items = items
-      .._selectedItem = selectedValue;
+    comboBoxFormField =
+        PdfComboBoxFormField._()
+          .._items = items
+          .._selectedItem = selectedValue;
     super.load(comboBoxFormField);
 
     return comboBoxFormField;
@@ -111,22 +113,26 @@ class PdfComboBoxFormFieldHelper extends PdfFormFieldHelper {
         font: pdfComboBoxField.font?.name,
         textAlign: pdfComboBoxField.textAlignment.textAlign,
         alignment: pdfComboBoxField.textAlignment.alignmentGeometry,
-        fillColor: pdfComboBoxField.backColor.isEmpty
-            ? const Color.fromARGB(255, 221, 228, 255)
-            : Color.fromRGBO(
-                pdfComboBoxField.backColor.r,
-                pdfComboBoxField.backColor.g,
-                pdfComboBoxField.backColor.b,
-                1,
-              ),
-        borderColor: pdfComboBoxField.borderColor.isEmpty
-            ? Colors.transparent
-            : Color.fromRGBO(
-                pdfComboBoxField.borderColor.r,
-                pdfComboBoxField.borderColor.g,
-                pdfComboBoxField.borderColor.b,
-                1,
-              ),
+        fillColor:
+            pdfComboBoxField.backColor.isEmpty
+                ? pdfComboBoxField.readOnly
+                    ? Colors.transparent
+                    : const Color.fromARGB(255, 221, 228, 255)
+                : Color.fromRGBO(
+                  pdfComboBoxField.backColor.r,
+                  pdfComboBoxField.backColor.g,
+                  pdfComboBoxField.backColor.b,
+                  1,
+                ),
+        borderColor:
+            pdfComboBoxField.borderColor.isEmpty
+                ? Colors.transparent
+                : Color.fromRGBO(
+                  pdfComboBoxField.borderColor.r,
+                  pdfComboBoxField.borderColor.g,
+                  pdfComboBoxField.borderColor.b,
+                  1,
+                ),
         borderWidth: pdfComboBoxField.borderWidth / heightPercentage,
         fontSize: (pdfComboBoxField.font?.size ?? 14.0) / heightPercentage,
         onValueChanged: invokeValueChanged,
@@ -214,30 +220,32 @@ class _PdfComboBoxState extends State<PdfComboBox> {
         child: DropdownButton<String>(
           alignment: widget.alignment,
           value: widget.selectedItem.isNotEmpty ? widget.selectedItem : null,
-          items: widget.items.map((String value) {
-            return DropdownMenuItem<String>(
-              alignment: widget.alignment,
-              value: value,
-              child: Tooltip(
-                excludeFromSemantics: true,
-                message: value,
-                child: Text(
-                  textAlign: widget.textAlign,
-                  value,
-                  style: const TextStyle(fontSize: 16.0),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            );
-          }).toList(),
+          items:
+              widget.items.map((String value) {
+                return DropdownMenuItem<String>(
+                  alignment: widget.alignment,
+                  value: value,
+                  child: Tooltip(
+                    excludeFromSemantics: true,
+                    message: value,
+                    child: Text(
+                      textAlign: widget.textAlign,
+                      value,
+                      style: const TextStyle(fontSize: 16.0),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                );
+              }).toList(),
           isExpanded: true,
-          onChanged: widget.readOnly
-              ? null
-              : (String? newValue) {
-                  if (widget.onValueChanged != null && newValue != null) {
-                    widget.onValueChanged!(newValue);
-                  }
-                },
+          onChanged:
+              widget.readOnly
+                  ? null
+                  : (String? newValue) {
+                    if (widget.onValueChanged != null && newValue != null) {
+                      widget.onValueChanged!(newValue);
+                    }
+                  },
           style: Theme.of(context).textTheme.bodyMedium,
           selectedItemBuilder: (BuildContext context) {
             return widget.items.map((String value) {

@@ -8,17 +8,14 @@ class TopBottomImpl implements TopBottom {
   // ExcelCFTopBottomType _type = ExcelCFTopBottomType.top;
 
   @override
-
   /// Specifies whether the ranking is evaluated from the top or bottom.
   ExcelCFTopBottomType type = ExcelCFTopBottomType.top;
 
   @override
-
   /// Specifies whether the rank is determined by a percentage value.
   bool percent = false;
 
   @override
-
   /// Specifies the maximum number or percentage of cells to be highlighted for this conditional formatting rule.
   int get rank => _rank;
 

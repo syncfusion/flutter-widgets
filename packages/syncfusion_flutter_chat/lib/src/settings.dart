@@ -1,37 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-typedef BaseWidgetBuilder<T> = Widget Function(
-  BuildContext context,
-  int index,
-  T message,
-);
+typedef BaseWidgetBuilder<T> =
+    Widget Function(BuildContext context, int index, T message);
 
-enum PlaceholderBehavior {
-  hideOnMessage,
+enum PlaceholderBehavior { hideOnMessage, scrollWithMessage }
 
-  scrollWithMessage,
-}
+enum BubbleAlignment { start, end, auto }
 
-enum BubbleAlignment {
-  start,
+enum SuggestionOverflow { scroll, wrap }
 
-  end,
-
-  auto,
-}
-
-enum SuggestionOverflow {
-  scroll,
-
-  wrap,
-}
-
-enum SuggestionSelectionType {
-  single,
-
-  multiple,
-}
+enum SuggestionSelectionType { single, multiple }
 
 /// Represents a message.
 abstract class Message {

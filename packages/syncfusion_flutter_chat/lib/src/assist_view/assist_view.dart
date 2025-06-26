@@ -593,18 +593,18 @@ class SfAIAssistView extends StatefulWidget {
 class _SfAIAssistViewState extends State<SfAIAssistView> {
   final AssistMessageSettings _requestMessageSettings =
       const AssistMessageSettings(
-    avatarPadding: EdgeInsetsDirectional.only(start: 16.0),
-    padding: EdgeInsets.all(8.0),
-    margin: EdgeInsetsDirectional.only(top: 24.0),
-    showAuthorAvatar: true,
-  );
+        avatarPadding: EdgeInsetsDirectional.only(start: 16.0),
+        padding: EdgeInsets.all(8.0),
+        margin: EdgeInsetsDirectional.only(top: 24.0),
+        showAuthorAvatar: true,
+      );
   final AssistMessageSettings _responseMessageSettings =
       const AssistMessageSettings(
-    avatarPadding: EdgeInsetsDirectional.only(end: 16.0),
-    padding: EdgeInsetsDirectional.symmetric(vertical: 8.0),
-    margin: EdgeInsetsDirectional.only(top: 24.0),
-    showAuthorAvatar: true,
-  );
+        avatarPadding: EdgeInsetsDirectional.only(end: 16.0),
+        padding: EdgeInsetsDirectional.symmetric(vertical: 8.0),
+        margin: EdgeInsetsDirectional.only(top: 24.0),
+        showAuthorAvatar: true,
+      );
   final InputBorder _defaultInputDecorBorder = const OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(42.0)),
   );
@@ -621,69 +621,83 @@ class _SfAIAssistViewState extends State<SfAIAssistView> {
 
   void _updateThemeData(BuildContext context) {
     _themeData = Theme.of(context);
-    _defaultThemeData = _themeData.useMaterial3
-        ? AIAssistViewM3ThemeData(context)
-        : AIAssistViewM2ThemeData(context);
+    _defaultThemeData =
+        _themeData.useMaterial3
+            ? AIAssistViewM3ThemeData(context)
+            : AIAssistViewM2ThemeData(context);
     _userDefinedThemeData = SfAIAssistViewTheme.of(context);
     final TextStyle contentBaseTextStyle = _themeData.textTheme.bodyMedium!
         .copyWith(color: _themeData.colorScheme.onSurface);
     final TextStyle primaryHeaderBaseTextStyle = _themeData
-        .textTheme.labelMedium!
+        .textTheme
+        .labelMedium!
         .copyWith(color: _themeData.colorScheme.primary);
     final TextStyle secondaryHeaderBaseTextStyle = _themeData
-        .textTheme.labelSmall!
+        .textTheme
+        .labelSmall!
         .copyWith(color: _themeData.colorScheme.onSurfaceVariant);
 
     _effectiveAssistThemeData = _userDefinedThemeData.copyWith(
-      actionButtonForegroundColor: widget.actionButton?.foregroundColor ??
+      actionButtonForegroundColor:
+          widget.actionButton?.foregroundColor ??
           _userDefinedThemeData.actionButtonForegroundColor ??
           _defaultThemeData.actionButtonForegroundColor,
-      actionButtonBackgroundColor: widget.actionButton?.backgroundColor ??
+      actionButtonBackgroundColor:
+          widget.actionButton?.backgroundColor ??
           _userDefinedThemeData.actionButtonBackgroundColor ??
           _defaultThemeData.actionButtonBackgroundColor,
       actionButtonDisabledForegroundColor:
           _userDefinedThemeData.actionButtonDisabledForegroundColor ??
-              _defaultThemeData.actionButtonDisabledForegroundColor,
+          _defaultThemeData.actionButtonDisabledForegroundColor,
       actionButtonDisabledBackgroundColor:
           _userDefinedThemeData.actionButtonDisabledBackgroundColor ??
-              _defaultThemeData.actionButtonDisabledBackgroundColor,
-      actionButtonFocusColor: widget.actionButton?.focusColor ??
+          _defaultThemeData.actionButtonDisabledBackgroundColor,
+      actionButtonFocusColor:
+          widget.actionButton?.focusColor ??
           _userDefinedThemeData.actionButtonFocusColor ??
           _defaultThemeData.actionButtonFocusColor,
-      actionButtonHoverColor: widget.actionButton?.hoverColor ??
+      actionButtonHoverColor:
+          widget.actionButton?.hoverColor ??
           _userDefinedThemeData.actionButtonHoverColor ??
           _defaultThemeData.actionButtonHoverColor,
-      actionButtonSplashColor: widget.actionButton?.splashColor ??
+      actionButtonSplashColor:
+          widget.actionButton?.splashColor ??
           _userDefinedThemeData.actionButtonSplashColor ??
           _defaultThemeData.actionButtonSplashColor,
-      actionButtonElevation: widget.actionButton?.elevation ??
+      actionButtonElevation:
+          widget.actionButton?.elevation ??
           _userDefinedThemeData.actionButtonElevation,
-      actionButtonFocusElevation: widget.actionButton?.focusElevation ??
+      actionButtonFocusElevation:
+          widget.actionButton?.focusElevation ??
           _userDefinedThemeData.actionButtonFocusElevation,
-      actionButtonHoverElevation: widget.actionButton?.hoverElevation ??
+      actionButtonHoverElevation:
+          widget.actionButton?.hoverElevation ??
           _userDefinedThemeData.actionButtonHoverElevation,
-      actionButtonHighlightElevation: widget.actionButton?.highlightElevation ??
+      actionButtonHighlightElevation:
+          widget.actionButton?.highlightElevation ??
           _userDefinedThemeData.actionButtonHighlightElevation,
-      actionButtonMouseCursor: widget.actionButton?.mouseCursor ??
+      actionButtonMouseCursor:
+          widget.actionButton?.mouseCursor ??
           _userDefinedThemeData.actionButtonMouseCursor ??
           _defaultThemeData.actionButtonMouseCursor,
-      actionButtonShape: widget.actionButton?.shape ??
+      actionButtonShape:
+          widget.actionButton?.shape ??
           _userDefinedThemeData.actionButtonShape ??
           _defaultThemeData.actionButtonShape,
       requestAvatarBackgroundColor:
           _userDefinedThemeData.requestAvatarBackgroundColor ??
-              _defaultThemeData.requestAvatarBackgroundColor,
+          _defaultThemeData.requestAvatarBackgroundColor,
       responseAvatarBackgroundColor:
           _userDefinedThemeData.responseAvatarBackgroundColor ??
-              _defaultThemeData.responseAvatarBackgroundColor,
+          _defaultThemeData.responseAvatarBackgroundColor,
       requestMessageBackgroundColor:
           widget.requestMessageSettings.backgroundColor ??
-              _userDefinedThemeData.requestMessageBackgroundColor ??
-              _defaultThemeData.requestMessageBackgroundColor,
+          _userDefinedThemeData.requestMessageBackgroundColor ??
+          _defaultThemeData.requestMessageBackgroundColor,
       responseMessageBackgroundColor:
           widget.responseMessageSettings.backgroundColor ??
-              _userDefinedThemeData.responseMessageBackgroundColor ??
-              _defaultThemeData.responseMessageBackgroundColor,
+          _userDefinedThemeData.responseMessageBackgroundColor ??
+          _defaultThemeData.responseMessageBackgroundColor,
       editorTextStyle: contentBaseTextStyle
           .merge(_userDefinedThemeData.editorTextStyle)
           .merge(widget.composer?.textStyle),
@@ -705,35 +719,40 @@ class _SfAIAssistViewState extends State<SfAIAssistView> {
       responseSecondaryHeaderTextStyle: secondaryHeaderBaseTextStyle
           .merge(_userDefinedThemeData.responseSecondaryHeaderTextStyle)
           .merge(widget.responseMessageSettings.headerTextStyle),
-      requestMessageShape: widget.requestMessageSettings.shape ??
+      requestMessageShape:
+          widget.requestMessageSettings.shape ??
           _userDefinedThemeData.requestMessageShape ??
           _defaultThemeData.requestMessageShape,
-      responseMessageShape: widget.responseMessageSettings.shape ??
+      responseMessageShape:
+          widget.responseMessageSettings.shape ??
           _userDefinedThemeData.responseMessageShape ??
           _defaultThemeData.responseMessageShape,
       suggestionItemBackgroundColor:
           _userDefinedThemeData.suggestionItemBackgroundColor ??
-              _defaultThemeData.suggestionItemBackgroundColor,
-      suggestionItemShape: _userDefinedThemeData.suggestionItemShape ??
+          _defaultThemeData.suggestionItemBackgroundColor,
+      suggestionItemShape:
+          _userDefinedThemeData.suggestionItemShape ??
           _defaultThemeData.suggestionItemShape,
       responseToolbarItemBackgroundColor:
           _userDefinedThemeData.responseToolbarItemBackgroundColor ??
-              _defaultThemeData.responseToolbarItemBackgroundColor,
+          _defaultThemeData.responseToolbarItemBackgroundColor,
       responseToolbarItemShape:
           _userDefinedThemeData.responseToolbarItemShape ??
-              _defaultThemeData.responseToolbarItemShape,
+          _defaultThemeData.responseToolbarItemShape,
     );
   }
 
   TextStyle _suggestionTextStyle(Set<WidgetState> states) {
     TextStyle? userTextStyle;
-    final TextStyle baseTextStyle = _themeData.textTheme.bodyMedium!
-        .copyWith(color: _themeData.colorScheme.onSurface);
+    final TextStyle baseTextStyle = _themeData.textTheme.bodyMedium!.copyWith(
+      color: _themeData.colorScheme.onSurface,
+    );
     final TextStyle defaultTextStyle =
         _defaultThemeData.suggestionItemTextStyle!.resolve(states)!;
     if (_userDefinedThemeData.suggestionItemTextStyle != null) {
-      userTextStyle =
-          _userDefinedThemeData.suggestionItemTextStyle?.resolve(states);
+      userTextStyle = _userDefinedThemeData.suggestionItemTextStyle?.resolve(
+        states,
+      );
     }
 
     return baseTextStyle.merge(userTextStyle).merge(defaultTextStyle);
@@ -859,13 +878,16 @@ class _SfAIAssistViewState extends State<SfAIAssistView> {
       children: <Widget>[
         AssistConversationArea(
           messages: widget.messages,
-          outgoingBubbleSettings:
-              _requestMessageSettings.mergeWith(widget.requestMessageSettings),
-          incomingBubbleSettings: _responseMessageSettings
-              .mergeWith(widget.responseMessageSettings),
+          outgoingBubbleSettings: _requestMessageSettings.mergeWith(
+            widget.requestMessageSettings,
+          ),
+          incomingBubbleSettings: _responseMessageSettings.mergeWith(
+            widget.responseMessageSettings,
+          ),
           bubbleAlignment: _toBubbleAlignment(widget.messageAlignment),
-          placeholderBehavior:
-              _toPlaceholderBehavior(widget.placeholderBehavior),
+          placeholderBehavior: _toPlaceholderBehavior(
+            widget.placeholderBehavior,
+          ),
           placeholderBuilder: widget.placeholderBuilder,
           bubbleHeaderBuilder: widget.messageHeaderBuilder,
           bubbleAvatarBuilder: widget.messageAvatarBuilder,

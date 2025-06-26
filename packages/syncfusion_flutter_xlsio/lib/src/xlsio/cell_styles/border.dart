@@ -74,8 +74,9 @@ class CellBorder implements Border {
   @override
   set color(String value) {
     _color = value;
-    _colorRgb =
-        Color(int.parse(_color.substring(1, 7), radix: 16) + 0xFF000000);
+    _colorRgb = Color(
+      int.parse(_color.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   late Color _colorRgb;

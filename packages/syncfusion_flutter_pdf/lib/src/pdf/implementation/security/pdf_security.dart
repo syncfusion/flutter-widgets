@@ -110,7 +110,8 @@ class PdfSecurity {
   set ownerPassword(String value) {
     if (_helper.conformance) {
       throw ArgumentError(
-          'Document encryption is not allowed with Conformance documents.');
+        'Document encryption is not allowed with Conformance documents.',
+      );
     }
     _helper.encryptor.ownerPassword = value;
     _helper.encryptor.encrypt = true;
@@ -156,7 +157,8 @@ class PdfSecurity {
   set userPassword(String value) {
     if (_helper.conformance) {
       throw ArgumentError(
-          'Document encryption is not allowed with Conformance documents.');
+        'Document encryption is not allowed with Conformance documents.',
+      );
     }
     _helper.encryptor.userPassword = value;
     _helper.encryptor.encrypt = true;
@@ -183,8 +185,10 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   PdfPermissions get permissions {
-    _permissions ??=
-        PdfPermissions._(_helper.encryptor, _helper.encryptor.permissions);
+    _permissions ??= PdfPermissions._(
+      _helper.encryptor,
+      _helper.encryptor.permissions,
+    );
     return _permissions!;
   }
 
@@ -216,7 +220,8 @@ class PdfSecurity {
   set encryptionOptions(PdfEncryptionOptions value) {
     if (_helper.conformance) {
       throw ArgumentError(
-          'Document encryption is not allowed with Conformance documents.');
+        'Document encryption is not allowed with Conformance documents.',
+      );
     }
     if (_helper.encryptor.encryptionOptions != value) {
       _helper.encryptor.encryptionOptions = value;
@@ -311,7 +316,9 @@ class PdfSecurityHelper {
 class PdfPermissions {
   //constructor
   PdfPermissions._(
-      PdfEncryptor encryptor, List<PdfPermissionsFlags> permissions) {
+    PdfEncryptor encryptor,
+    List<PdfPermissionsFlags> permissions,
+  ) {
     _encryptor = encryptor;
     _permissions = permissions;
   }

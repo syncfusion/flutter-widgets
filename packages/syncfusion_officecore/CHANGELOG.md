@@ -1,4 +1,16 @@
-## [Unreleased]
+## Unreleased
+
+**General**
+
+* The compatible version of our Flutter OfficeCore widget has been updated to Flutter SDK 3.32.0.
+
+## [29.1.39] - 22/04/2025
+
+**General**
+
+* The minimum Dart version has been updated to 3.7.
+
+## [29.1.33] - 25/03/2025
 
 **General**
 
@@ -29,7 +41,7 @@
 
 **General**
 
-* The compatible version of our Flutter OfficeCore widget has been updated to Flutter SDK 3.24.0.
+* The compatible version of our Flutter OfficeCore widget has been updated to Flutter SDK 3.24.0. 
 
 ## [18.3.35-beta] - 10/01/2020
 

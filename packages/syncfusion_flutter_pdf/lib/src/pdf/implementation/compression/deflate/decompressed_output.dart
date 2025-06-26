@@ -41,7 +41,12 @@ class DecompressedOutput {
     if (copyStart <= border && _end < border) {
       if (length <= distance) {
         List.copyRange(
-            _dOutput!, _end, _dOutput!, copyStart, copyStart + length);
+          _dOutput!,
+          _end,
+          _dOutput!,
+          copyStart,
+          copyStart + length,
+        );
         _end += length;
       } else {
         while (length-- > 0) {
@@ -88,16 +93,23 @@ class DecompressedOutput {
     final int tailLen = length - end;
     int sourceStart = _dOutSize - tailLen;
     if (tailLen > 0) {
-      for (int i = 0;
-          i < tailLen &&
-              i + sourceStart < _dOutput!.length &&
-              i + offset < output.length;
-          i++) {
+      for (
+        int i = 0;
+        i < tailLen &&
+            i + sourceStart < _dOutput!.length &&
+            i + offset < output.length;
+        i++
+      ) {
         output[offset + i] = _dOutput![sourceStart + i];
       }
       final int sourceStartIndex = _dOutSize - tailLen;
-      List.copyRange(output, offset, _dOutput!, sourceStartIndex,
-          sourceStartIndex + tailLen);
+      List.copyRange(
+        output,
+        offset,
+        _dOutput!,
+        sourceStartIndex,
+        sourceStartIndex + tailLen,
+      );
       offset += tailLen;
       length = end;
     }

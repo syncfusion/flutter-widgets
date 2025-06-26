@@ -24,7 +24,8 @@ class PdfReferenceHolder implements IPdfPrimitive {
       object = obj;
     } else {
       throw ArgumentError.value(
-          'argument is not set to an instance of an object');
+        'argument is not set to an instance of an object',
+      );
     }
   }
 

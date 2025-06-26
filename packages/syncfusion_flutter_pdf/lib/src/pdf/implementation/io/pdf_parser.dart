@@ -87,7 +87,7 @@ class PdfParser {
       ' ',
       '¡',
       '¢',
-      '£'
+      '£',
     ];
     return _windows1252MapTable;
   }
@@ -168,8 +168,10 @@ class PdfParser {
     if (_next == PdfTokenType.number) {
       final PdfNumber? integer2 = _parseInteger();
       if (_next == PdfTokenType.reference) {
-        final PdfReference reference =
-            PdfReference(integer!.value!.toInt(), integer2!.value!.toInt());
+        final PdfReference reference = PdfReference(
+          integer!.value!.toInt(),
+          integer2!.value!.toInt(),
+        );
         obj = PdfReferenceHolder.fromReference(reference, _crossTable);
         advance();
       } else {
@@ -200,7 +202,9 @@ class PdfParser {
 
   /// internal method
   Map<String, dynamic> parseCrossReferenceTable(
-      Map<int, ObjectInformation>? objects, CrossTable cTable) {
+    Map<int, ObjectInformation>? objects,
+    CrossTable cTable,
+  ) {
     IPdfPrimitive? obj;
     advance();
     if (_next == PdfTokenType.xRef) {
@@ -241,14 +245,16 @@ class PdfParser {
       try {
         int xrefStreamPosition = 0;
         final PdfDictionary trailerDictionary = obj;
-        final IPdfPrimitive? pdfNumber =
-            PdfCrossTable.dereference(trailerDictionary['XRefStm']);
+        final IPdfPrimitive? pdfNumber = PdfCrossTable.dereference(
+          trailerDictionary['XRefStm'],
+        );
         if (pdfNumber != null && pdfNumber is PdfNumber) {
           xrefStreamPosition = pdfNumber.value!.toInt();
         }
         cTable.parser.setOffset(xrefStreamPosition);
-        final IPdfPrimitive? xrefStream =
-            cTable.parser.parseOffset(xrefStreamPosition);
+        final IPdfPrimitive? xrefStream = cTable.parser.parseOffset(
+          xrefStreamPosition,
+        );
         if (xrefStream != null && xrefStream is PdfStream) {
           objects = cTable.parseNewTable(xrefStream, objects);
         }
@@ -369,7 +375,9 @@ class PdfParser {
 
   /// internal method
   void rebuildXrefTable(
-      Map<int, ObjectInformation?> newObjects, CrossTable? crosstable) {
+    Map<int, ObjectInformation?> newObjects,
+    CrossTable? crosstable,
+  ) {
     final PdfReader reader = PdfReader(_reader.streamReader.data);
     reader.position = 0;
     newObjects.clear();
@@ -389,10 +397,10 @@ class PdfParser {
       final List<String> tokens = str.split('');
       final bool previousObject =
           previoursToken[0].codeUnitAt(0) >= '0'.codeUnitAt(0) &&
-              previoursToken[0].codeUnitAt(0) <= '9'.codeUnitAt(0) &&
-              tokens.length > 1 &&
-              tokens[1].codeUnitAt(0) >= '0'.codeUnitAt(0) &&
-              tokens[1].codeUnitAt(0) <= '9'.codeUnitAt(0);
+          previoursToken[0].codeUnitAt(0) <= '9'.codeUnitAt(0) &&
+          tokens.length > 1 &&
+          tokens[1].codeUnitAt(0) >= '0'.codeUnitAt(0) &&
+          tokens[1].codeUnitAt(0) <= '9'.codeUnitAt(0);
       if (tokens[0].codeUnitAt(0) >= '0'.codeUnitAt(0) &&
               tokens[0].codeUnitAt(0) <= '9'.codeUnitAt(0) ||
           previousObject) {
@@ -409,8 +417,11 @@ class PdfParser {
             marker = int.tryParse(words[1]);
             if (marker != null) {
               if (marker == 0 && words[2] == PdfDictionaryProperties.obj) {
-                final ObjectInformation objectInfo =
-                    ObjectInformation(previousPosition, null, crosstable);
+                final ObjectInformation objectInfo = ObjectInformation(
+                  previousPosition,
+                  null,
+                  crosstable,
+                );
                 if (!newObjects.containsKey(objNumber)) {
                   newObjects[objNumber] = objectInfo;
                 }
@@ -544,26 +555,20 @@ class PdfParser {
             result.add(next);
             break;
           default:
-            if (next < 48 || next > 55) {
+            if (next >= 48 && next <= 55) {
+              int octal = next - 48;
+              for (int j = 0; j < 2 && i + 1 < data.length; j++) {
+                next = data[i + 1];
+                if (next < 48 || next > 55) {
+                  break;
+                }
+                i++;
+                octal = (octal << 3) + (next - 48);
+              }
+              result.add(octal & 0xFF);
+            } else {
               result.add(next);
-              break;
             }
-            int octal = next - 48;
-            next = data[++i];
-            if (next < 48 || next > 55) {
-              --i;
-              result.add(octal);
-              break;
-            }
-            octal = (octal << 3) + next - 48;
-            next = data[++i];
-            if (next < 48 || next > 55) {
-              --i;
-              result.add(octal);
-              break;
-            }
-            octal = (octal << 3) + next - 48;
-            result.add(octal & 0xff);
             break;
         }
       } else {
@@ -796,7 +801,8 @@ class PdfParser {
       _error(_ErrorType.badlyFormedDictionary, 'next should be a name.');
     }
     if (name!.name == PdfDictionaryProperties.u ||
-        name.name == PdfDictionaryProperties.o) {
+        name.name == PdfDictionaryProperties.o ||
+        name.name == PdfDictionaryProperties.id) {
       _isPassword = true;
     }
     obj = simple();

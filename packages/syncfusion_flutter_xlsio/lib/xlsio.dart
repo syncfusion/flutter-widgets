@@ -61,8 +61,7 @@ export 'src/xlsio/conditional_format/condition_value.dart'
 export 'src/xlsio/conditional_format/conditionalformat.dart'
     show ConditionalFormat;
 export 'src/xlsio/conditional_format/conditionalformat_collections.dart'
-    show ConditionalFormats
-    hide ConditionalFormatsImpl;
+    show ConditionalFormats;
 export 'src/xlsio/conditional_format/conditionalformat_impl.dart'
     hide ConditionalFormatImpl;
 export 'src/xlsio/conditional_format/data_bar/data_bar.dart' show DataBar;

@@ -10,9 +10,13 @@ class PdfBezierCurve extends PdfShapeElement {
   // constructor
   /// Initializes a new instance of the [PdfBezierCurve] class
   /// with the specified [PdfPen] and [Offset] structure.
-  PdfBezierCurve(Offset startPoint, Offset firstControlPoint,
-      Offset secondControlPoint, Offset endPoint,
-      {PdfPen? pen}) {
+  PdfBezierCurve(
+    Offset startPoint,
+    Offset firstControlPoint,
+    Offset secondControlPoint,
+    Offset endPoint, {
+    PdfPen? pen,
+  }) {
     _helper = PdfBezierCurveHelper(this);
     if (pen != null) {
       super.pen = pen;
@@ -79,9 +83,13 @@ class PdfBezierCurveHelper {
 
   /// internal method
   void drawInternal(PdfGraphics graphics, PdfRectangle bounds) {
-    graphics.drawBezier(base.startPoint, base.firstControlPoint,
-        base.secondControlPoint, base.endPoint,
-        pen: PdfShapeElementHelper.obtainPen(base));
+    graphics.drawBezier(
+      base.startPoint,
+      base.firstControlPoint,
+      base.secondControlPoint,
+      base.endPoint,
+      pen: PdfShapeElementHelper.obtainPen(base),
+    );
   }
 
   /// internal method

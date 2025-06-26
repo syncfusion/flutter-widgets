@@ -499,17 +499,14 @@ class Trendline {
       legendIconType,
       markerSettings,
       polynomialOrder,
-      period
+      period,
     ];
     return Object.hashAll(values);
   }
 }
 
 class TrendlineContainer extends StatefulWidget {
-  const TrendlineContainer({
-    super.key,
-    required this.trendlines,
-  });
+  const TrendlineContainer({super.key, required this.trendlines});
 
   final List<Trendline> trendlines;
 
@@ -521,33 +518,30 @@ class _TrendlineContainerState extends State<TrendlineContainer> {
   @override
   Widget build(BuildContext context) {
     return TrendlineStack(
-      children: List<Widget>.generate(
-        widget.trendlines.length,
-        (int index) {
-          final Trendline trendline = widget.trendlines[index];
-          return TrendlineWidget(
-            index: index,
-            isVisible: trendline.isVisible,
-            enableTooltip: trendline.enableTooltip,
-            name: trendline.name,
-            color: trendline.color,
-            dashArray: trendline.dashArray,
-            opacity: trendline.opacity,
-            width: trendline.width,
-            type: trendline.type,
-            valueField: trendline.valueField,
-            period: trendline.period,
-            intercept: trendline.intercept,
-            polynomialOrder: trendline.polynomialOrder,
-            backwardForecast: trendline.backwardForecast,
-            forwardForecast: trendline.forwardForecast,
-            isVisibleInLegend: trendline.isVisibleInLegend,
-            legendIconType: trendline.legendIconType,
-            markerSettings: trendline.markerSettings,
-            onRenderDetailsUpdate: trendline.onRenderDetailsUpdate,
-          );
-        },
-      ),
+      children: List<Widget>.generate(widget.trendlines.length, (int index) {
+        final Trendline trendline = widget.trendlines[index];
+        return TrendlineWidget(
+          index: index,
+          isVisible: trendline.isVisible,
+          enableTooltip: trendline.enableTooltip,
+          name: trendline.name,
+          color: trendline.color,
+          dashArray: trendline.dashArray,
+          opacity: trendline.opacity,
+          width: trendline.width,
+          type: trendline.type,
+          valueField: trendline.valueField,
+          period: trendline.period,
+          intercept: trendline.intercept,
+          polynomialOrder: trendline.polynomialOrder,
+          backwardForecast: trendline.backwardForecast,
+          forwardForecast: trendline.forwardForecast,
+          isVisibleInLegend: trendline.isVisibleInLegend,
+          legendIconType: trendline.legendIconType,
+          markerSettings: trendline.markerSettings,
+          onRenderDetailsUpdate: trendline.onRenderDetailsUpdate,
+        );
+      }),
     );
   }
 }
@@ -566,8 +560,10 @@ class TrendlineParentData extends ContainerBoxParentData<TrendlineRenderer> {}
 class RenderTrendlineStack extends RenderBox
     with
         ContainerRenderObjectMixin<TrendlineRenderer, TrendlineParentData>,
-        RenderBoxContainerDefaultsMixin<TrendlineRenderer,
-            TrendlineParentData> {
+        RenderBoxContainerDefaultsMixin<
+          TrendlineRenderer,
+          TrendlineParentData
+        > {
   CartesianSeriesRenderer? renderer;
 
   bool get _isTooltipEnabled =>
@@ -600,7 +596,8 @@ class RenderTrendlineStack extends RenderBox
   void handlePointerHover(Offset localPosition) {
     TrendlineRenderer? child = lastChild;
     while (child != null) {
-      final bool hasTooltip = _isTooltipEnabled &&
+      final bool hasTooltip =
+          _isTooltipEnabled &&
           renderer!.parent!.tooltipBehavior!.activationMode ==
               ActivationMode.singleTap;
       if (child.enableTooltip && hasTooltip) {
@@ -613,7 +610,8 @@ class RenderTrendlineStack extends RenderBox
   void handleDoubleTap(Offset localPosition) {
     TrendlineRenderer? child = lastChild;
     while (child != null) {
-      final bool hasTooltip = _isTooltipEnabled &&
+      final bool hasTooltip =
+          _isTooltipEnabled &&
           renderer!.parent!.tooltipBehavior!.activationMode ==
               ActivationMode.doubleTap;
       if (child.enableTooltip && hasTooltip) {
@@ -626,7 +624,8 @@ class RenderTrendlineStack extends RenderBox
   void handleLongPress(Offset localPosition) {
     TrendlineRenderer? child = lastChild;
     while (child != null) {
-      final bool hasTooltip = _isTooltipEnabled &&
+      final bool hasTooltip =
+          _isTooltipEnabled &&
           renderer!.parent!.tooltipBehavior!.activationMode ==
               ActivationMode.longPress;
       if (child.enableTooltip && hasTooltip) {
@@ -683,14 +682,18 @@ class RenderTrendlineStack extends RenderBox
     return DoubleRange(minimum, maximum);
   }
 
-  List<LegendItem>? buildLegendItems(
-      int seriesIndex, LegendItemProviderMixin provider) {
-    final List<LegendItem> legendItems = <LegendItem>[];
+  List<CartesianLegendItem>? buildLegendItems(
+    int seriesIndex,
+    LegendItemProviderMixin provider,
+  ) {
+    final List<CartesianLegendItem> legendItems = <CartesianLegendItem>[];
     const int trendlineIndex = 0;
     TrendlineRenderer? child = firstChild;
     while (child != null) {
-      final List<LegendItem>? items =
-          child.buildLegendItems(trendlineIndex, provider);
+      final List<CartesianLegendItem>? items = child.buildLegendItems(
+        trendlineIndex,
+        provider,
+      );
       if (items != null) {
         legendItems.addAll(items);
       }
@@ -823,7 +826,9 @@ class TrendlineWidget extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, TrendlineRenderer renderObject) {
+    BuildContext context,
+    TrendlineRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..isVisible = isVisible
@@ -852,7 +857,7 @@ class TrendlineWidget extends LeafRenderObjectWidget {
 class TrendlineRenderer extends RenderBox {
   TrendlineRenderer();
 
-  ChartLegendItem? _legendItem;
+  CartesianLegendItem? _legendItem;
 
   int get index => _index;
   int _index = -1;
@@ -1095,8 +1100,10 @@ class TrendlineRenderer extends RenderBox {
       for (final int segmentIndex in trendSegmentIndexes) {
         final ChartMarker marker = series!.markerAt(segmentIndex);
         if (tooltipTouchBounds(
-                _points[segmentIndex], marker.width, marker.height)
-            .contains(position)) {
+          _points[segmentIndex],
+          marker.width,
+          marker.height,
+        ).contains(position)) {
           return segmentIndex;
         }
       }
@@ -1114,14 +1121,17 @@ class TrendlineRenderer extends RenderBox {
           markerSettings.isVisible ? marker.height / 2 : 0;
       final Offset preferredPos = _points[pointIndex];
       return TrendlineTooltipInfo(
-        primaryPosition:
-            localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series!.tooltipText(chartPoint),
-        header: series!.parent!.tooltipBehavior!.shared
-            ? series!.tooltipHeaderText(chartPoint)
-            : series!.name,
+        header:
+            series!.parent!.tooltipBehavior!.shared
+                ? series!.tooltipHeaderText(chartPoint)
+                : series!.name,
         data: series!.dataSource![pointIndex],
         point: chartPoint,
         series: series!.widget,
@@ -1187,13 +1197,19 @@ class TrendlineRenderer extends RenderBox {
     }
 
     slopeIntercept = _computeSlopeInterceptValues(
-        seriesXValues, linearYValues, length, slopeIntercept);
+      seriesXValues,
+      linearYValues,
+      length,
+      slopeIntercept,
+    );
     if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       final double intercept = slopeIntercept.intercept!;
       final double slope = slopeIntercept.slope!;
       final double x1 = forecastValue(sortedXValues[0], -backwardForecast);
-      final double x2 =
-          forecastValue(sortedXValues[length - 1], forwardForecast);
+      final double x2 = forecastValue(
+        sortedXValues[length - 1],
+        forwardForecast,
+      );
       final double y1 = slope * x1 + intercept;
       final double y2 = slope * x2 + intercept;
 
@@ -1228,7 +1244,11 @@ class TrendlineRenderer extends RenderBox {
     }
 
     slopeIntercept = _computeSlopeInterceptValues(
-        sortedXValues, exponentialYValues, length, slopeIntercept);
+      sortedXValues,
+      exponentialYValues,
+      length,
+      slopeIntercept,
+    );
 
     if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       final double intercept = slopeIntercept.intercept!;
@@ -1237,8 +1257,10 @@ class TrendlineRenderer extends RenderBox {
 
       final double x1 = forecastValue(sortedXValues[0], -backwardForecast);
       final double x2 = sortedXValues[midPoint - 1].toDouble();
-      final double x3 =
-          forecastValue(sortedXValues[length - 1], forwardForecast);
+      final double x3 = forecastValue(
+        sortedXValues[length - 1],
+        forwardForecast,
+      );
       double y1 = intercept * exp(slope * x1);
       double y2 = intercept * exp(slope * x2);
       double y3 = intercept * exp(slope * x3);
@@ -1287,7 +1309,11 @@ class TrendlineRenderer extends RenderBox {
     }
 
     slopeIntercept = _computeSlopeInterceptValues(
-        powerXValues, powerYValues, length, slopeIntercept);
+      powerXValues,
+      powerYValues,
+      length,
+      slopeIntercept,
+    );
     if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       final double intercept = slopeIntercept.intercept!;
       final double slope = slopeIntercept.slope!;
@@ -1298,8 +1324,10 @@ class TrendlineRenderer extends RenderBox {
         x1 = x1 > -1 ? x1 : 0;
       }
       final double x2 = sortedXValues[midPoint - 1].toDouble();
-      final double x3 =
-          forecastValue(sortedXValues[length - 1], forwardForecast);
+      final double x3 = forecastValue(
+        sortedXValues[length - 1],
+        forwardForecast,
+      );
       double y1 = x1 == 0 ? 0 : intercept * pow(x1, slope);
       double y2 = intercept * pow(x2, slope);
       double y3 = intercept * pow(x3, slope);
@@ -1349,7 +1377,11 @@ class TrendlineRenderer extends RenderBox {
     }
 
     slopeIntercept = _computeSlopeInterceptValues(
-        logXValues, logYValues, length, slopeIntercept);
+      logXValues,
+      logYValues,
+      length,
+      slopeIntercept,
+    );
     if (!slopeIntercept.slope!.isNaN && !slopeIntercept.intercept!.isNaN) {
       final double intercept = slopeIntercept.intercept!;
       final double slope = slopeIntercept.slope!;
@@ -1357,8 +1389,10 @@ class TrendlineRenderer extends RenderBox {
 
       final double x1 = forecastValue(sortedXValues[0], -backwardForecast);
       final double x2 = sortedXValues[midPoint - 1].toDouble();
-      final double x3 =
-          forecastValue(sortedXValues[length - 1], forwardForecast);
+      final double x3 = forecastValue(
+        sortedXValues[length - 1],
+        forwardForecast,
+      );
       final double y1 = intercept + (slope * (log(x1).isFinite ? log(x1) : x1));
       final double y2 = intercept + (slope * (log(x2).isFinite ? log(x2) : x2));
       final double y3 = intercept + (slope * (log(x3).isFinite ? log(x3) : x3));
@@ -1379,7 +1413,9 @@ class TrendlineRenderer extends RenderBox {
   }
 
   void _calculateMovingAveragePoints(
-      List<num> sortedXValues, List<num> seriesYValues) {
+    List<num> sortedXValues,
+    List<num> seriesYValues,
+  ) {
     final int xLength = sortedXValues.length;
     final int yLength = seriesYValues.length;
     final int trendPeriod = period;
@@ -1432,16 +1468,23 @@ class TrendlineRenderer extends RenderBox {
       }
     }
 
-    final List<List<double>> matrix =
-        _computeMatrix(sortedXValues, trendPolynomialOrder);
+    final List<List<double>> matrix = _computeMatrix(
+      sortedXValues,
+      trendPolynomialOrder,
+    );
     // The trendline will not be generated if there is just one data point or
     // if the x and y values are the same. For example (1,1), (1,1).
     // So, the line was commented and now marker alone will be rendered
     // in this case.
     // _polynomialSlopes = null;
     _gaussJordanElimination(matrix, polynomialSlopes);
-    _computePoints(sortedXValues, seriesYValues, length, polynomialSlopes,
-        polynomialForeCastValue);
+    _computePoints(
+      sortedXValues,
+      seriesYValues,
+      length,
+      polynomialSlopes,
+      polynomialForeCastValue,
+    );
     List<double>? polynomialSlopeValues;
 
     if (onRenderDetailsUpdate != null) {
@@ -1459,8 +1502,10 @@ class TrendlineRenderer extends RenderBox {
         slopeValues.add(slopeValue(k, sortedXValues[k]));
       }
 
-      final List<List<double>> matrix =
-          _computeMatrix(slopeValues, trendPolynomialOrder);
+      final List<List<double>> matrix = _computeMatrix(
+        slopeValues,
+        trendPolynomialOrder,
+      );
       // To find the prompt polynomial slopes for the trendline equation,
       // gaussJordanElimination method is used here.
       _gaussJordanElimination(matrix, polynomialSlopeValues);
@@ -1471,11 +1516,14 @@ class TrendlineRenderer extends RenderBox {
 
   List<List<double>> _computeMatrix(List<num> xValues, int polynomialOrder) {
     final int length = xValues.length;
-    final List<double> numArray =
-        List<double>.filled(2 * polynomialOrder + 1, 0);
+    final List<double> numArray = List<double>.filled(
+      2 * polynomialOrder + 1,
+      0,
+    );
     final List<List<double>> matrix = List<List<double>>.generate(
-        polynomialOrder + 1,
-        (int _) => List<double>.filled(polynomialOrder + 1, 0));
+      polynomialOrder + 1,
+      (int _) => List<double>.filled(polynomialOrder + 1, 0),
+    );
     for (int i = 0; i <= polynomialOrder; i++) {
       matrix[i] = List<double>.filled(polynomialOrder + 1, 0);
     }
@@ -1507,10 +1555,14 @@ class TrendlineRenderer extends RenderBox {
   ) {
     final List<num?> polynomialSlopesList = polynomialSlopes!;
     final int polynomialSlopesLength = polynomialSlopesList.length;
-    final double trendBackwardForecast =
-        polynomialForeCastValue(backwardForecast, false);
-    final double trendForwardForecast =
-        polynomialForeCastValue(forwardForecast, true);
+    final double trendBackwardForecast = polynomialForeCastValue(
+      backwardForecast,
+      false,
+    );
+    final double trendForwardForecast = polynomialForeCastValue(
+      forwardForecast,
+      true,
+    );
 
     num xMin = double.infinity;
     num xMax = double.negativeInfinity;
@@ -1555,7 +1607,9 @@ class TrendlineRenderer extends RenderBox {
   }
 
   bool _gaussJordanElimination(
-      List<List<double>> matrix, List<num?> polynomialSlopes) {
+    List<List<double>> matrix,
+    List<num?> polynomialSlopes,
+  ) {
     final int length = matrix.length;
     final List<int> list1 = List<int>.filled(length, 0);
     final List<int> list2 = List<int>.filled(length, 0);
@@ -1683,7 +1737,8 @@ class TrendlineRenderer extends RenderBox {
           break;
       }
     } else {
-      slope = ((length * xyAvg) - (xAvg * yAvg)) /
+      slope =
+          ((length * xyAvg) - (xAvg * yAvg)) /
           ((length * xxAvg) - (xAvg * xAvg));
 
       trendIntercept =
@@ -1715,14 +1770,24 @@ class TrendlineRenderer extends RenderBox {
     final DateTimeIntervalType visibleIntervalType = _visibleIntervalType();
     switch (visibleIntervalType) {
       case DateTimeIntervalType.years:
-        return DateTime(date.year + effectiveInterval, date.month, date.day,
-                date.hour, date.minute, date.second)
-            .millisecondsSinceEpoch;
+        return DateTime(
+          date.year + effectiveInterval,
+          date.month,
+          date.day,
+          date.hour,
+          date.minute,
+          date.second,
+        ).millisecondsSinceEpoch;
 
       case DateTimeIntervalType.months:
-        return DateTime(date.year, date.month + effectiveInterval, date.day,
-                date.hour, date.minute, date.second)
-            .millisecondsSinceEpoch;
+        return DateTime(
+          date.year,
+          date.month + effectiveInterval,
+          date.day,
+          date.hour,
+          date.minute,
+          date.second,
+        ).millisecondsSinceEpoch;
 
       case DateTimeIntervalType.days:
         return date
@@ -1890,13 +1955,29 @@ class TrendlineRenderer extends RenderBox {
     final int length = xValues.length;
     List<num?> yCoefficient = List<num?>.filled(length, 0);
     yCoefficient = _computeNaturalSpline(
-        xValues, yValues, yCoefficient, xValues.length, SplineType.natural);
-    return _controlPoints(xValues, yValues, yCoefficient[index]!.toDouble(),
-        yCoefficient[index + 1]!.toDouble(), index, controlPoints);
+      xValues,
+      yValues,
+      yCoefficient,
+      xValues.length,
+      SplineType.natural,
+    );
+    return _controlPoints(
+      xValues,
+      yValues,
+      yCoefficient[index]!.toDouble(),
+      yCoefficient[index + 1]!.toDouble(),
+      index,
+      controlPoints,
+    );
   }
 
-  List<num?> _computeNaturalSpline(List<num> xValues, List<num> yValues,
-      List<num?> yCoefficient, int length, SplineType splineType) {
+  List<num?> _computeNaturalSpline(
+    List<num> xValues,
+    List<num> yValues,
+    List<num?> yCoefficient,
+    int length,
+    SplineType splineType,
+  ) {
     const double a = 6;
     num d1, d2, d3, dy1, dy2, p;
 
@@ -1991,10 +2072,12 @@ class TrendlineRenderer extends RenderBox {
     final num dx2 = x + (2 * nextX);
     final num dy1 = (2 * y) + nextY;
     final num dy2 = y + (2 * nextY);
-    final double y1 = oneThird *
+    final double y1 =
+        oneThird *
         (dy1 -
             (oneThird * deltaX2 * (yCoefficient + (0.5 * nextYCoefficient))));
-    final double y2 = oneThird *
+    final double y2 =
+        oneThird *
         (dy2 -
             (oneThird * deltaX2 * ((0.5 * yCoefficient) + nextYCoefficient)));
     values[0] = dx1 * oneThird;
@@ -2034,29 +2117,37 @@ class TrendlineRenderer extends RenderBox {
     switch (type) {
       case TrendlineType.linear:
         for (int k = 0; k < yLength; k++) {
-          sumOfSquareDueToRegression +=
-              pow(((slope![0] * xValue[k]) + intercept!) - yMean, power);
+          sumOfSquareDueToRegression += pow(
+            ((slope![0] * xValue[k]) + intercept!) - yMean,
+            power,
+          );
         }
         break;
 
       case TrendlineType.exponential:
         for (int k = 0; k < yLength; k++) {
-          sumOfSquareDueToRegression +=
-              pow((intercept! * exp(slope![0] * xValue[k])) - yMean, power);
+          sumOfSquareDueToRegression += pow(
+            (intercept! * exp(slope![0] * xValue[k])) - yMean,
+            power,
+          );
         }
         break;
 
       case TrendlineType.power:
         for (int k = 0; k < yLength; k++) {
-          sumOfSquareDueToRegression +=
-              pow((intercept! * pow(xValue[k], slope![0])) - yMean, power);
+          sumOfSquareDueToRegression += pow(
+            (intercept! * pow(xValue[k], slope![0])) - yMean,
+            power,
+          );
         }
         break;
 
       case TrendlineType.logarithmic:
         for (int k = 0; k < yLength; k++) {
-          sumOfSquareDueToRegression +=
-              pow(((slope![0] * log(xValue[k])) + intercept!) - yMean, power);
+          sumOfSquareDueToRegression += pow(
+            ((slope![0] * log(xValue[k])) + intercept!) - yMean,
+            power,
+          );
         }
         break;
 
@@ -2091,14 +2182,16 @@ class TrendlineRenderer extends RenderBox {
   }
 
   num _slopeDateTimeXValue(int index, num value) {
-    final DateTime dateTime =
-        DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
+      value.toInt(),
+    );
     return dateTime.difference(DateTime(1900)).inDays;
   }
 
   double _forecastDateTimeValue(num value, double forecast) {
-    final DateTime dateTime =
-        DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
+      value.toInt(),
+    );
     return _computeDateTimeForeCast(dateTime, forecast).toDouble();
   }
 
@@ -2106,8 +2199,10 @@ class TrendlineRenderer extends RenderBox {
     return forecast;
   }
 
-  double _polynomialForeCastDateTimeAxisValue(num forecast,
-      [bool? isForeCast]) {
+  double _polynomialForeCastDateTimeAxisValue(
+    num forecast, [
+    bool? isForeCast,
+  ]) {
     return _computeDateTimeDuration(isForeCast!).toDouble();
   }
 
@@ -2128,7 +2223,8 @@ class TrendlineRenderer extends RenderBox {
   }
 
   void populateDataSource(List<num> seriesXValues, List<num> seriesYValues) {
-    final bool trendIsVisible = !isToggled &&
+    final bool trendIsVisible =
+        !isToggled &&
         (type == TrendlineType.polynomial
             ? (polynomialOrder >= 2 && polynomialOrder <= 6)
             : !(type == TrendlineType.movingAverage) ||
@@ -2183,59 +2279,68 @@ class TrendlineRenderer extends RenderBox {
     switch (type) {
       case TrendlineType.linear:
         _calculateLinearPoints(
-            seriesXValues,
-            seriesYValues,
-            sortedXValues,
-            _slopeIntercept,
-            slopeInterceptData,
-            slopeValue,
-            forecastValue,
-            slopeInterceptXValues,
-            yValues);
+          seriesXValues,
+          seriesYValues,
+          sortedXValues,
+          _slopeIntercept,
+          slopeInterceptData,
+          slopeValue,
+          forecastValue,
+          slopeInterceptXValues,
+          yValues,
+        );
         break;
 
       case TrendlineType.exponential:
         _calculateExponentialPoints(
-            seriesXValues,
-            seriesYValues,
-            sortedXValues,
-            _slopeIntercept,
-            slopeInterceptData,
-            slopeValue,
-            forecastValue,
-            slopeInterceptXValues,
-            yValues);
+          seriesXValues,
+          seriesYValues,
+          sortedXValues,
+          _slopeIntercept,
+          slopeInterceptData,
+          slopeValue,
+          forecastValue,
+          slopeInterceptXValues,
+          yValues,
+        );
         break;
 
       case TrendlineType.power:
         _calculatePowerPoints(
-            seriesXValues,
-            seriesYValues,
-            sortedXValues,
-            _slopeIntercept,
-            slopeInterceptData,
-            slopeValue,
-            forecastValue,
-            slopeInterceptXValues,
-            yValues);
+          seriesXValues,
+          seriesYValues,
+          sortedXValues,
+          _slopeIntercept,
+          slopeInterceptData,
+          slopeValue,
+          forecastValue,
+          slopeInterceptXValues,
+          yValues,
+        );
         break;
 
       case TrendlineType.logarithmic:
         _calculateLogarithmicPoints(
-            seriesXValues,
-            seriesYValues,
-            sortedXValues,
-            _slopeIntercept,
-            slopeInterceptData,
-            slopeValue,
-            forecastValue,
-            slopeInterceptXValues,
-            yValues);
+          seriesXValues,
+          seriesYValues,
+          sortedXValues,
+          _slopeIntercept,
+          slopeInterceptData,
+          slopeValue,
+          forecastValue,
+          slopeInterceptXValues,
+          yValues,
+        );
         break;
 
       case TrendlineType.polynomial:
-        _slope = _calculatePolynomialPoints(sortedXValues, seriesYValues,
-            polynomialSlopes, slopeValue, polynomialForeCastValue);
+        _slope = _calculatePolynomialPoints(
+          sortedXValues,
+          seriesYValues,
+          polynomialSlopes,
+          slopeValue,
+          polynomialForeCastValue,
+        );
         break;
 
       case TrendlineType.movingAverage:
@@ -2247,14 +2352,23 @@ class TrendlineRenderer extends RenderBox {
     // Calculate slope and intercept values after calculated trendline points.
     if (!(type == TrendlineType.movingAverage ||
         type == TrendlineType.polynomial)) {
-      slopeInterceptData = _computeSlopeInterceptValues(slopeInterceptXValues,
-          yValues, seriesXValues.length, _slopeIntercept);
+      slopeInterceptData = _computeSlopeInterceptValues(
+        slopeInterceptXValues,
+        yValues,
+        seriesXValues.length,
+        _slopeIntercept,
+      );
       _slope = <double>[slopeInterceptData.slope!];
     }
 
     if (onRenderDetailsUpdate != null) {
-      _rSquaredValue = _computeRSquaredValue(seriesXValues, seriesYValues,
-          _slope, _slopeIntercept.intercept, slopeValue);
+      _rSquaredValue = _computeRSquaredValue(
+        seriesXValues,
+        seriesYValues,
+        _slope,
+        _slopeIntercept.intercept,
+        slopeValue,
+      );
     }
 
     // Calculate segment index based on the trendXValues.
@@ -2265,13 +2379,17 @@ class TrendlineRenderer extends RenderBox {
     }
   }
 
-  List<LegendItem>? buildLegendItems(
-      int index, LegendItemProviderMixin provider) {
+  List<CartesianLegendItem>? buildLegendItems(
+    int index,
+    LegendItemProviderMixin provider,
+  ) {
     if (isVisibleInLegend) {
-      _legendItem = ChartLegendItem(
+      _legendItem = CartesianLegendItem(
         text: name ?? _defaultTrendlineName(),
-        iconType:
-            _toShapeMarkerType(legendIconType, legendItemProvider: provider),
+        iconType: _toShapeMarkerType(
+          legendIconType,
+          legendItemProvider: provider,
+        ),
         iconColor: color!,
         iconBorderWidth: 2,
         series: series,
@@ -2281,7 +2399,7 @@ class TrendlineRenderer extends RenderBox {
         onTap: _handleLegendItemTapped,
         onRender: _handleLegendItemCreated,
       );
-      return <LegendItem>[_legendItem!];
+      return <CartesianLegendItem>[_legendItem!];
     } else {
       _legendItem = null;
       return null;
@@ -2299,8 +2417,10 @@ class TrendlineRenderer extends RenderBox {
   void _handleLegendItemTapped(LegendItem item, bool wasToggled) {
     if (_legendItem != null && series != null && series!.controller.isVisible) {
       if (series!.parent != null && series!.parent!.onLegendTapped != null) {
-        final LegendTapArgs args =
-            LegendTapArgs(_legendItem!.series, _legendItem!.seriesIndex);
+        final LegendTapArgs args = LegendTapArgs(
+          _legendItem!.series,
+          _legendItem!.seriesIndex,
+        );
         series!.parent!.onLegendTapped!(args);
       }
       isToggled = wasToggled;
@@ -2312,7 +2432,7 @@ class TrendlineRenderer extends RenderBox {
     if (series != null &&
         series!.parent != null &&
         series!.parent!.onLegendItemRender != null) {
-      final ChartLegendItem item = details.item as ChartLegendItem;
+      final CartesianLegendItem item = details.item as CartesianLegendItem;
       final LegendIconType iconType = toLegendIconType(details.iconType);
       final LegendRenderArgs args =
           LegendRenderArgs(item.seriesIndex, item.pointIndex)
@@ -2322,7 +2442,8 @@ class TrendlineRenderer extends RenderBox {
       series!.parent!.onLegendItemRender!(args);
       if (args.legendIconType != iconType) {
         details.iconType = _toShapeMarkerType(
-            args.legendIconType ?? LegendIconType.seriesType);
+          args.legendIconType ?? LegendIconType.seriesType,
+        );
       }
 
       details
@@ -2331,8 +2452,10 @@ class TrendlineRenderer extends RenderBox {
     }
   }
 
-  ShapeMarkerType _toShapeMarkerType(LegendIconType iconType,
-      {LegendItemProviderMixin? legendItemProvider}) {
+  ShapeMarkerType _toShapeMarkerType(
+    LegendIconType iconType, {
+    LegendItemProviderMixin? legendItemProvider,
+  }) {
     switch (iconType) {
       case LegendIconType.seriesType:
         if (legendItemProvider != null) {
@@ -2465,10 +2588,11 @@ class TrendlineRenderer extends RenderBox {
     final Color themeFillColor = series!.parent!.themeData!.colorScheme.surface;
     final int length = trendlineXValues.length;
     for (int i = 0; i < length; i++) {
-      final ChartMarker marker = ChartMarker()
-        ..x = trendlineXValues[i]
-        ..y = trendlineYValues[i]
-        ..index = i;
+      final ChartMarker marker =
+          ChartMarker()
+            ..x = trendlineXValues[i]
+            ..y = trendlineYValues[i]
+            ..index = i;
       marker.merge(
         borderColor: markerSettings.borderColor ?? color,
         borderWidth: markerSettings.borderWidth,
@@ -2493,10 +2617,11 @@ class TrendlineRenderer extends RenderBox {
       return;
     }
 
-    final Paint trendlinePaint = Paint()
-      ..color = color!.withValues(alpha: opacity)
-      ..strokeWidth = width
-      ..style = PaintingStyle.stroke;
+    final Paint trendlinePaint =
+        Paint()
+          ..color = color!.withValues(alpha: opacity)
+          ..strokeWidth = width
+          ..style = PaintingStyle.stroke;
 
     if (trendlinePaint.color != Colors.transparent &&
         trendlinePaint.strokeWidth > 0) {
@@ -2505,9 +2630,10 @@ class TrendlineRenderer extends RenderBox {
 
     if (_markers.isNotEmpty) {
       final Paint fillPaint = Paint()..isAntiAlias = true;
-      final Paint strokePaint = Paint()
-        ..isAntiAlias = true
-        ..style = PaintingStyle.stroke;
+      final Paint strokePaint =
+          Paint()
+            ..isAntiAlias = true
+            ..style = PaintingStyle.stroke;
       for (final ChartMarker marker in _markers) {
         fillPaint.color = marker.color!;
         strokePaint

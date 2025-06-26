@@ -1,32 +1,33 @@
 part of interactive_scroll_viewer_internal;
 
 /// Triggers when double tap zoom invoked.
-typedef _DoubleTapZoomInvokedCallback = Offset Function(
-    Offset value, Offset tapPosition);
+typedef _DoubleTapZoomInvokedCallback =
+    Offset Function(Offset value, Offset tapPosition);
 
 /// [InteractiveScrollViewer] enables pan and zoom interactions with its child.
 @immutable
 class InteractiveScrollViewer extends StatefulWidget {
   /// Constructor for InteractiveScrollable.
-  const InteractiveScrollViewer(this.child,
-      {Key? key,
-      this.clipBehavior = Clip.hardEdge,
-      this.onDoubleTapZoomInvoked,
-      this.panAxis = PanAxis.free,
-      this.boundaryMargin = EdgeInsets.zero,
-      // These default scale values were eyeballed as reasonable
-      //limits for common use cases.
-      this.maxScale = 3,
-      this.minScale = 1,
-      this.onInteractionStart,
-      this.onInteractionUpdate,
-      this.onInteractionEnd,
-      this.panEnabled = true,
-      this.scaleEnabled = true,
-      this.constrained = true,
-      this.enableDoubleTapZooming = true,
-      this.transformationController})
-      : super(key: key);
+  const InteractiveScrollViewer(
+    this.child, {
+    Key? key,
+    this.clipBehavior = Clip.hardEdge,
+    this.onDoubleTapZoomInvoked,
+    this.panAxis = PanAxis.free,
+    this.boundaryMargin = EdgeInsets.zero,
+    // These default scale values were eyeballed as reasonable
+    //limits for common use cases.
+    this.maxScale = 3,
+    this.minScale = 1,
+    this.onInteractionStart,
+    this.onInteractionUpdate,
+    this.onInteractionEnd,
+    this.panEnabled = true,
+    this.scaleEnabled = true,
+    this.constrained = true,
+    this.enableDoubleTapZooming = true,
+    this.transformationController,
+  }) : super(key: key);
 
   /// Whether the normal size constraints at this point in the widget tree are
   /// applied to the child.
@@ -184,12 +185,14 @@ class InteractiveScrollViewerState extends State<InteractiveScrollViewer> {
   /// ```
   void scrollTo(Offset offset) {
     if (widget.transformationController != null) {
-      final Offset previousOffset =
-          widget.transformationController!.toScene(Offset.zero);
+      final Offset previousOffset = widget.transformationController!.toScene(
+        Offset.zero,
+      );
       widget.transformationController?.value =
-          widget.transformationController!.value.clone()
-            ..translate(
-                previousOffset.dx - offset.dx, previousOffset.dy - offset.dy);
+          widget.transformationController!.value.clone()..translate(
+            previousOffset.dx - offset.dx,
+            previousOffset.dy - offset.dy,
+          );
     }
   }
 
@@ -228,8 +231,9 @@ class InteractiveScrollViewerState extends State<InteractiveScrollViewer> {
       scale = scale.clamp(widget.minScale, widget.maxScale);
       final double zoomLevel =
           widget.transformationController!.value.getMaxScaleOnAxis();
-      final Offset previousOffset =
-          widget.transformationController!.toScene(Offset.zero);
+      final Offset previousOffset = widget.transformationController!.toScene(
+        Offset.zero,
+      );
       widget.transformationController?.value =
           widget.transformationController!.value.clone()
             ..scale(scale / zoomLevel, scale / zoomLevel);
@@ -252,12 +256,14 @@ class InteractiveScrollViewerState extends State<InteractiveScrollViewer> {
       Offset normalizedOffset;
       Offset offset;
       if (zoomLevel <= minimumZoomLevel) {
-        normalizedOffset = (-_tapPosition -
+        normalizedOffset =
+            (-_tapPosition -
                 widget.transformationController!.toScene(Offset.zero) *
                     zoomLevel) /
             zoomLevel;
         scaleTo(maximumZoomLevel);
-        offset = (-_tapPosition - normalizedOffset * maximumZoomLevel) /
+        offset =
+            (-_tapPosition - normalizedOffset * maximumZoomLevel) /
             maximumZoomLevel;
         // Triggered when double tap
         if (widget.onDoubleTapZoomInvoked != null) {
@@ -265,12 +271,14 @@ class InteractiveScrollViewerState extends State<InteractiveScrollViewer> {
         }
         scrollTo(offset);
       } else {
-        normalizedOffset = (-_tapPosition -
+        normalizedOffset =
+            (-_tapPosition -
                 widget.transformationController!.toScene(Offset.zero) *
                     zoomLevel) /
             zoomLevel;
         scaleTo(minimumZoomLevel);
-        offset = (-_tapPosition - normalizedOffset * minimumZoomLevel) /
+        offset =
+            (-_tapPosition - normalizedOffset * minimumZoomLevel) /
             minimumZoomLevel;
         // Triggered when double tap
         if (widget.onDoubleTapZoomInvoked != null) {

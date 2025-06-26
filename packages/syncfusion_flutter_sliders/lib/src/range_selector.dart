@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -113,56 +114,61 @@ import 'theme.dart';
 /// * [SfChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/charts-library.html) and [RangeController](https://pub.dev/documentation/syncfusion_flutter_core/latest/core/RangeController-class.html), for selection and zooming.
 class SfRangeSelector extends StatefulWidget {
   /// Creates a [SfRangeSelector].
-  const SfRangeSelector(
-      {Key? key,
-      this.min = 0.0,
-      this.max = 1.0,
-      this.initialValues,
-      this.onChanged,
-      this.onChangeStart,
-      this.onChangeEnd,
-      this.controller,
-      this.enabled = true,
-      this.interval,
-      this.stepSize,
-      this.stepDuration,
-      this.deferredUpdateDelay = 500,
-      this.minorTicksPerInterval = 0,
-      this.showTicks = false,
-      this.showLabels = false,
-      this.showDividers = false,
-      this.enableTooltip = false,
-      this.shouldAlwaysShowTooltip = false,
-      this.enableIntervalSelection = false,
-      this.enableDeferredUpdate = false,
-      this.dragMode = SliderDragMode.onThumb,
-      this.inactiveColor,
-      this.activeColor,
-      this.labelPlacement = LabelPlacement.onTicks,
-      this.edgeLabelPlacement = EdgeLabelPlacement.auto,
-      this.numberFormat,
-      this.dateFormat,
-      this.dateIntervalType,
-      this.labelFormatterCallback,
-      this.tooltipTextFormatterCallback,
-      this.semanticFormatterCallback,
-      this.trackShape = const SfTrackShape(),
-      this.dividerShape = const SfDividerShape(),
-      this.overlayShape = const SfOverlayShape(),
-      this.thumbShape = const SfThumbShape(),
-      this.tickShape = const SfTickShape(),
-      this.minorTickShape = const SfMinorTickShape(),
-      this.tooltipShape = const SfRectangularTooltipShape(),
-      this.startThumbIcon,
-      this.endThumbIcon,
-      required this.child})
-      : assert(min != max),
-        assert(interval == null || interval > 0),
-        assert(stepSize == null || stepSize > 0),
-        assert(!enableIntervalSelection ||
-            (enableIntervalSelection && (interval != null && interval > 0))),
-        assert(controller != null || initialValues != null),
-        super(key: key);
+  const SfRangeSelector({
+    Key? key,
+    this.min = 0.0,
+    this.max = 1.0,
+    this.initialValues,
+    this.onChanged,
+    this.onChangeStart,
+    this.onChangeEnd,
+    this.controller,
+    this.enabled = true,
+    this.interval,
+    this.stepSize,
+    this.stepDuration,
+    this.deferredUpdateDelay = 500,
+    this.minorTicksPerInterval = 0,
+    this.showTicks = false,
+    this.showLabels = false,
+    this.showDividers = false,
+    this.enableTooltip = false,
+    this.shouldAlwaysShowTooltip = false,
+    this.enableIntervalSelection = false,
+    this.enableDeferredUpdate = false,
+    this.dragMode = SliderDragMode.onThumb,
+    this.inactiveColor,
+    this.activeColor,
+    this.labelPlacement = LabelPlacement.onTicks,
+    this.edgeLabelPlacement = EdgeLabelPlacement.auto,
+    this.numberFormat,
+    this.dateFormat,
+    this.dateIntervalType,
+    // ignore: deprecated_consistency
+    this.labelFormatterCallback,
+    this.onLabelCreated,
+    this.tooltipTextFormatterCallback,
+    this.semanticFormatterCallback,
+    this.trackShape = const SfTrackShape(),
+    this.dividerShape = const SfDividerShape(),
+    this.overlayShape = const SfOverlayShape(),
+    this.thumbShape = const SfThumbShape(),
+    this.tickShape = const SfTickShape(),
+    this.minorTickShape = const SfMinorTickShape(),
+    this.tooltipShape = const SfRectangularTooltipShape(),
+    this.startThumbIcon,
+    this.endThumbIcon,
+
+    required this.child,
+  }) : assert(min != max),
+       assert(interval == null || interval > 0),
+       assert(stepSize == null || stepSize > 0),
+       assert(
+         !enableIntervalSelection ||
+             (enableIntervalSelection && (interval != null && interval > 0)),
+       ),
+       assert(controller != null || initialValues != null),
+       super(key: key);
 
   /// The minimum value the user can select.
   ///
@@ -1110,7 +1116,9 @@ class SfRangeSelector extends StatefulWidget {
   /// ```
   /// See also:
   ///
+  // ignore: deprecated_member_use_from_same_package
   /// * [labelFormatterCallback], for formatting the numeric and date labels.
+  /// * [onLabelCreated], for formatting and styling numeric and date labels.
   final NumberFormat? numberFormat;
 
   /// Formats the date labels. It is mandatory for date [SfRangeSelector].
@@ -1148,7 +1156,9 @@ class SfRangeSelector extends StatefulWidget {
   ///
   /// * [interval], for setting the interval.
   /// * [numberFormat], for formatting the numeric labels.
-  /// * [labelFormatterCallback], for formatting the numeric and date label.
+  // ignore: deprecated_member_use_from_same_package
+  /// * [labelFormatterCallback], for formatting the numeric and date labels.
+  /// * [onLabelCreated], for formatting and styling numeric and date label.
   /// * [dateIntervalType], for changing the interval type.
   final DateFormat? dateFormat;
 
@@ -1213,7 +1223,63 @@ class SfRangeSelector extends StatefulWidget {
   ///   ),
   /// )
   /// ```
+  @Deprecated('Use `onLabelCreated` instead')
   final LabelFormatterCallback? labelFormatterCallback;
+
+  /// Signature for customizing the text and style of numeric or date labels.
+  ///
+  /// * The actual value without formatting is given by `actualValue`.
+  /// It is either [DateTime] or [double] based on given [initialValues] or
+  /// controller start and end values.
+  /// * The formatted value based on the numeric or date format
+  /// is given by `formattedText`.
+  /// * Text styles can be applied to individual labels using the `textStyle`
+  /// property.
+  ///
+  /// This snippet shows how to format and style labels in [SfRangeSelector].
+  ///
+  /// ```dart
+  /// SfRangeValues _initialValues = const SfRangeValues(3.0, 7.0);
+  ///
+  /// SfRangeSelector(
+  ///   min: 3.0,
+  ///   max: 8.0,
+  ///   initialValues: _initialValues,
+  ///   interval: 1,
+  ///   showLabels: true,
+  ///   onChanged: (SfRangeValues newValues) {
+  ///     setState(() {
+  ///       _initialValues = newValues;
+  ///     });
+  ///   },
+  ///   onLabelCreated: (
+  ///     dynamic actualValue,
+  ///     String formattedText,
+  ///     TextStyle textStyle,
+  ///   ) {
+  ///     final int value = actualValue.toInt();
+  ///     final int startIndex = _initialValues.start.toInt();
+  ///     final int endIndex = _initialValues.end.toInt();
+  ///     return RangeSelectorLabel(
+  ///       text: value == startIndex || value == endIndex
+  ///           ? '$formattedText'
+  ///           : '$actualValue',
+  ///       textStyle: value == startIndex || value == endIndex
+  ///           ? const TextStyle(
+  ///               color: Colors.purple,
+  ///               fontSize: 18,
+  ///               fontWeight: FontWeight.bold,
+  ///             )
+  ///           : textStyle,
+  ///     );
+  ///   },
+  ///   child: Container(
+  ///     height: 200,
+  ///     color: Colors.green[100],
+  ///   ),
+  /// )
+  /// ```
+  final RangeSelectorLabelCreatedCallback? onLabelCreated;
 
   /// Signature for formatting or changing the whole tooltip label text.
   ///
@@ -1420,21 +1486,21 @@ class SfRangeSelector extends StatefulWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     if (initialValues != null) {
-      properties.add(
-        initialValues!.toDiagnosticsNode(name: 'initialValues'),
-      );
+      properties.add(initialValues!.toDiagnosticsNode(name: 'initialValues'));
     }
     properties.add(DiagnosticsProperty<dynamic>('min', min));
     properties.add(DiagnosticsProperty<dynamic>('max', max));
     if (controller != null) {
-      properties.add(
-        controller!.toDiagnosticsNode(name: 'controller'),
-      );
+      properties.add(controller!.toDiagnosticsNode(name: 'controller'));
     }
-    properties.add(FlagProperty('enabled',
+    properties.add(
+      FlagProperty(
+        'enabled',
         value: enabled,
         ifTrue: 'Range selector is enabled',
-        ifFalse: 'Range selector is disabled'));
+        ifFalse: 'Range selector is disabled',
+      ),
+    );
     properties.add(DoubleProperty('interval', interval));
     properties.add(DoubleProperty('stepSize', stepSize));
     if (stepDuration != null) {
@@ -1442,66 +1508,137 @@ class SfRangeSelector extends StatefulWidget {
     }
 
     properties.add(IntProperty('minorTicksPerInterval', minorTicksPerInterval));
-    properties.add(FlagProperty('showTicks',
+    properties.add(
+      FlagProperty(
+        'showTicks',
         value: showTicks,
         ifTrue: 'Ticks are showing',
-        ifFalse: 'Ticks are not showing'));
-    properties.add(FlagProperty('showLabels',
+        ifFalse: 'Ticks are not showing',
+      ),
+    );
+    properties.add(
+      FlagProperty(
+        'showLabels',
         value: showLabels,
         ifTrue: 'Labels are showing',
-        ifFalse: 'Labels are not showing'));
-    properties.add(FlagProperty('showDividers',
+        ifFalse: 'Labels are not showing',
+      ),
+    );
+    properties.add(
+      FlagProperty(
+        'showDividers',
         value: showDividers,
         ifTrue: 'Dividers are  showing',
-        ifFalse: 'Dividers are not showing'));
+        ifFalse: 'Dividers are not showing',
+      ),
+    );
     if (shouldAlwaysShowTooltip) {
-      properties.add(FlagProperty('shouldAlwaysShowTooltip',
-          value: shouldAlwaysShowTooltip, ifTrue: 'Tooltip is always visible'));
+      properties.add(
+        FlagProperty(
+          'shouldAlwaysShowTooltip',
+          value: shouldAlwaysShowTooltip,
+          ifTrue: 'Tooltip is always visible',
+        ),
+      );
     } else {
-      properties.add(FlagProperty('enableTooltip',
+      properties.add(
+        FlagProperty(
+          'enableTooltip',
           value: enableTooltip,
           ifTrue: 'Tooltip is enabled',
-          ifFalse: 'Tooltip is disabled'));
+          ifFalse: 'Tooltip is disabled',
+        ),
+      );
     }
-    properties.add(FlagProperty('enableIntervalSelection',
+    properties.add(
+      FlagProperty(
+        'enableIntervalSelection',
         value: enableIntervalSelection,
         ifTrue: 'Interval selection is enabled',
-        ifFalse: 'Interval selection is disabled'));
-    properties.add(FlagProperty('enableDeferredUpdate',
+        ifFalse: 'Interval selection is disabled',
+      ),
+    );
+    properties.add(
+      FlagProperty(
+        'enableDeferredUpdate',
         value: enableDeferredUpdate,
         ifTrue: 'Deferred update is enabled',
-        ifFalse: 'Deferred update is disabled'));
+        ifFalse: 'Deferred update is disabled',
+      ),
+    );
     properties.add(EnumProperty<SliderDragMode>('dragMode', dragMode));
     properties.add(ColorProperty('activeColor', activeColor));
     properties.add(ColorProperty('inactiveColor', inactiveColor));
-    properties
-        .add(EnumProperty<LabelPlacement>('labelPlacement', labelPlacement));
-    properties.add(EnumProperty<EdgeLabelPlacement>(
-        'edgeLabelPlacement', edgeLabelPlacement));
-    properties
-        .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
+    properties.add(
+      EnumProperty<LabelPlacement>('labelPlacement', labelPlacement),
+    );
+    properties.add(
+      EnumProperty<EdgeLabelPlacement>(
+        'edgeLabelPlacement',
+        edgeLabelPlacement,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat),
+    );
     if (initialValues != null &&
         initialValues!.start.runtimeType == DateTime &&
         dateFormat != null) {
-      properties.add(StringProperty('dateFormat',
-          'Formatted value is ${dateFormat!.format(initialValues!.start)}'));
+      properties.add(
+        StringProperty(
+          'dateFormat',
+          'Formatted value is ${dateFormat!.format(initialValues!.start)}',
+        ),
+      );
     }
 
-    properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
-        'onChanged', onChanged));
-    properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
-        'onChangeStart', onChangeStart));
-    properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
-        'onChangeEnd', onChangeEnd));
     properties.add(
-        EnumProperty<DateIntervalType>('dateIntervalType', dateIntervalType));
-    properties.add(ObjectFlagProperty<TooltipTextFormatterCallback>.has(
-        'tooltipTextFormatterCallback', tooltipTextFormatterCallback));
-    properties.add(ObjectFlagProperty<LabelFormatterCallback>.has(
-        'labelFormatterCallback', labelFormatterCallback));
+      ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
+        'onChanged',
+        onChanged,
+      ),
+    );
     properties.add(
-        ObjectFlagProperty<RangeSelectorSemanticFormatterCallback>.has(
-            'semanticFormatterCallback', semanticFormatterCallback));
+      ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
+        'onChangeStart',
+        onChangeStart,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
+        'onChangeEnd',
+        onChangeEnd,
+      ),
+    );
+    properties.add(
+      EnumProperty<DateIntervalType>('dateIntervalType', dateIntervalType),
+    );
+    properties.add(
+      ObjectFlagProperty<TooltipTextFormatterCallback>.has(
+        'tooltipTextFormatterCallback',
+        tooltipTextFormatterCallback,
+      ),
+    );
+    properties.add(
+      // ignore: deprecated_member_use_from_same_package
+      ObjectFlagProperty<LabelFormatterCallback>.has(
+        'labelFormatterCallback',
+        // ignore: deprecated_member_use_from_same_package
+        labelFormatterCallback,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<RangeSelectorLabelCreatedCallback>.has(
+        'onLabelCreated',
+        onLabelCreated,
+      ),
+    );
+    properties.add(
+      ObjectFlagProperty<RangeSelectorSemanticFormatterCallback>.has(
+        'semanticFormatterCallback',
+        semanticFormatterCallback,
+      ),
+    );
   }
 }
 
@@ -1514,11 +1651,84 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
   late AnimationController stateController;
   late AnimationController tooltipAnimationStartController;
   late AnimationController tooltipAnimationEndController;
-  final Duration duration = const Duration(milliseconds: 100);
+  late Map<Type, Action<Intent>> _keyboardActionMap;
+  late FocusNode _focusNode;
+  bool _focused = false;
+  SfThumb _focusedThumb = SfThumb.start;
+
   SfRangeValues? _values;
+  final Duration duration = const Duration(milliseconds: 100);
+  final GlobalKey _renderObjectKey = GlobalKey();
+  FocusNode get rangeSelectorFocusNode => _focusNode;
+
+  void _handleNextFocus(NextFocusIntent intent) {
+    if (_focusedThumb == SfThumb.start) {
+      setState(() {
+        _focusedThumb = SfThumb.end;
+      });
+    } else {
+      // Reset the _focusedThumb to start position when the focus is
+      // moved to the next widget.
+      setState(() {
+        _focusedThumb = SfThumb.start;
+      });
+      FocusScope.of(context).nextFocus();
+    }
+  }
+
+  void _handlePreviousFocus(PreviousFocusIntent intent) {
+    if (_focusedThumb == SfThumb.end) {
+      setState(() {
+        _focusedThumb = SfThumb.start;
+      });
+    } else {
+      FocusScope.of(context).previousFocus();
+    }
+  }
+
+  void _handleRangeSelectorFocusChanged(bool newFocused) {
+    if (newFocused != _focused) {
+      setState(() {
+        _focused = newFocused;
+      });
+    }
+  }
+
+  void _keyboardActionHandler(SliderKeyIntent intent) {
+    final TextDirection directionality = Directionality.of(
+      _renderObjectKey.currentContext!,
+    );
+    final bool shouldIncrease = switch (intent.type) {
+      SliderKeyType.up => true,
+      SliderKeyType.down => false,
+      SliderKeyType.left => directionality == TextDirection.rtl,
+      SliderKeyType.right => directionality == TextDirection.ltr,
+    };
+
+    final _RenderRangeSelector rangeSelector =
+        _renderObjectKey.currentContext!.findRenderObject()!
+            as _RenderRangeSelector;
+    if (_focusedThumb == SfThumb.start) {
+      return shouldIncrease
+          ? rangeSelector._increaseStartAction()
+          : rangeSelector._decreaseStartAction();
+    } else {
+      return shouldIncrease
+          ? rangeSelector._increaseEndAction()
+          : rangeSelector._decreaseEndAction();
+    }
+  }
 
   String _getFormattedLabelText(dynamic actualText, String formattedText) {
     return formattedText;
+  }
+
+  RangeSelectorLabel _handleLabelCreated(
+    dynamic actualValue,
+    String formattedText,
+    TextStyle textStyle,
+  ) {
+    return RangeSelectorLabel(text: formattedText, textStyle: textStyle);
   }
 
   String _getFormattedTooltipText(dynamic actualText, String formattedText) {
@@ -1529,26 +1739,31 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
     SfRangeSelectorThemeData rangeSelectorThemeData =
         SfRangeSelectorTheme.of(context)!;
     final bool isMaterial3 = themeData.useMaterial3;
-    final SfRangeSelectorThemeData effectiveThemeData =
-        RangeSelectorThemeData(context);
-    final Color labelColor = isMaterial3
-        ? themeData.colorScheme.onSurfaceVariant
-        : widget.enabled
+    final SfRangeSelectorThemeData effectiveThemeData = RangeSelectorThemeData(
+      context,
+    );
+    final Color labelColor =
+        isMaterial3
+            ? themeData.colorScheme.onSurfaceVariant
+            : widget.enabled
             ? themeData.textTheme.bodyLarge!.color!.withValues(alpha: 0.87)
             : themeData.colorScheme.onSurface.withValues(alpha: 0.32);
     final double minTrackHeight = math.min(
-        rangeSelectorThemeData.activeTrackHeight,
-        rangeSelectorThemeData.inactiveTrackHeight);
+      rangeSelectorThemeData.activeTrackHeight,
+      rangeSelectorThemeData.inactiveTrackHeight,
+    );
     final double maxTrackHeight = math.max(
-        rangeSelectorThemeData.activeTrackHeight,
-        rangeSelectorThemeData.inactiveTrackHeight);
+      rangeSelectorThemeData.activeTrackHeight,
+      rangeSelectorThemeData.inactiveTrackHeight,
+    );
     rangeSelectorThemeData = rangeSelectorThemeData.copyWith(
       activeTrackHeight: rangeSelectorThemeData.activeTrackHeight,
       inactiveTrackHeight: rangeSelectorThemeData.inactiveTrackHeight,
       tickSize: rangeSelectorThemeData.tickSize,
       minorTickSize: rangeSelectorThemeData.minorTickSize,
       tickOffset: rangeSelectorThemeData.tickOffset,
-      labelOffset: rangeSelectorThemeData.labelOffset ??
+      labelOffset:
+          rangeSelectorThemeData.labelOffset ??
           (widget.showTicks ? const Offset(0.0, 5.0) : const Offset(0.0, 13.0)),
       inactiveLabelStyle: themeData.textTheme.bodyLarge!
           .copyWith(color: labelColor, fontSize: isMaterial3 ? 12 : 14)
@@ -1558,79 +1773,96 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
           .merge(rangeSelectorThemeData.activeLabelStyle),
       tooltipTextStyle: themeData.textTheme.bodyLarge!
           .copyWith(
-              fontSize: isMaterial3 ? 12 : 14,
-              color: isMaterial3
-                  ? themeData.colorScheme.onPrimary
-                  : themeData.colorScheme.surface)
+            fontSize: isMaterial3 ? 12 : 14,
+            color:
+                isMaterial3
+                    ? themeData.colorScheme.onPrimary
+                    : themeData.colorScheme.surface,
+          )
           .merge(rangeSelectorThemeData.tooltipTextStyle),
-      inactiveTrackColor: widget.inactiveColor ??
+      inactiveTrackColor:
+          widget.inactiveColor ??
           rangeSelectorThemeData.inactiveTrackColor ??
           effectiveThemeData.inactiveTrackColor,
-      activeTrackColor: widget.activeColor ??
+      activeTrackColor:
+          widget.activeColor ??
           rangeSelectorThemeData.activeTrackColor ??
           effectiveThemeData.activeTrackColor,
-      thumbColor: widget.activeColor ??
+      thumbColor:
+          widget.activeColor ??
           rangeSelectorThemeData.thumbColor ??
           effectiveThemeData.thumbColor,
-      activeTickColor: rangeSelectorThemeData.activeTickColor ??
+      activeTickColor:
+          rangeSelectorThemeData.activeTickColor ??
           effectiveThemeData.activeTickColor,
-      inactiveTickColor: rangeSelectorThemeData.inactiveTickColor ??
+      inactiveTickColor:
+          rangeSelectorThemeData.inactiveTickColor ??
           effectiveThemeData.inactiveTickColor,
-      disabledActiveTickColor: rangeSelectorThemeData.disabledActiveTickColor ??
+      disabledActiveTickColor:
+          rangeSelectorThemeData.disabledActiveTickColor ??
           effectiveThemeData.disabledActiveTickColor,
       disabledInactiveTickColor:
           rangeSelectorThemeData.disabledInactiveTickColor ??
-              effectiveThemeData.disabledInactiveTickColor,
-      activeMinorTickColor: rangeSelectorThemeData.activeMinorTickColor ??
+          effectiveThemeData.disabledInactiveTickColor,
+      activeMinorTickColor:
+          rangeSelectorThemeData.activeMinorTickColor ??
           effectiveThemeData.activeMinorTickColor,
-      inactiveMinorTickColor: rangeSelectorThemeData.inactiveMinorTickColor ??
+      inactiveMinorTickColor:
+          rangeSelectorThemeData.inactiveMinorTickColor ??
           effectiveThemeData.inactiveMinorTickColor,
       disabledActiveMinorTickColor:
           rangeSelectorThemeData.disabledActiveMinorTickColor ??
-              effectiveThemeData.disabledActiveMinorTickColor,
+          effectiveThemeData.disabledActiveMinorTickColor,
       // ignore: lines_longer_than_80_chars
       disabledInactiveMinorTickColor:
           rangeSelectorThemeData.disabledInactiveMinorTickColor ??
-              effectiveThemeData.disabledInactiveMinorTickColor,
-      overlayColor: widget.activeColor?.withValues(alpha: 0.12) ??
+          effectiveThemeData.disabledInactiveMinorTickColor,
+      overlayColor:
+          widget.activeColor?.withValues(alpha: 0.12) ??
           rangeSelectorThemeData.overlayColor ??
           effectiveThemeData.overlayColor,
-      inactiveDividerColor: widget.activeColor ??
+      inactiveDividerColor:
+          widget.activeColor ??
           rangeSelectorThemeData.inactiveDividerColor ??
           effectiveThemeData.inactiveDividerColor,
-      activeDividerColor: widget.inactiveColor ??
+      activeDividerColor:
+          widget.inactiveColor ??
           rangeSelectorThemeData.activeDividerColor ??
           effectiveThemeData.activeDividerColor,
       disabledInactiveDividerColor:
           rangeSelectorThemeData.disabledInactiveDividerColor ??
-              effectiveThemeData.disabledInactiveDividerColor,
+          effectiveThemeData.disabledInactiveDividerColor,
       disabledActiveDividerColor:
           rangeSelectorThemeData.disabledActiveDividerColor ??
-              effectiveThemeData.disabledActiveDividerColor,
+          effectiveThemeData.disabledActiveDividerColor,
       disabledActiveTrackColor:
           rangeSelectorThemeData.disabledActiveTrackColor ??
-              effectiveThemeData.disabledActiveTrackColor,
+          effectiveThemeData.disabledActiveTrackColor,
       disabledInactiveTrackColor:
           rangeSelectorThemeData.disabledInactiveTrackColor ??
-              effectiveThemeData.disabledInactiveTrackColor,
-      disabledThumbColor: rangeSelectorThemeData.disabledThumbColor ??
+          effectiveThemeData.disabledInactiveTrackColor,
+      disabledThumbColor:
+          rangeSelectorThemeData.disabledThumbColor ??
           effectiveThemeData.disabledThumbColor,
       thumbStrokeColor: rangeSelectorThemeData.thumbStrokeColor,
       overlappingThumbStrokeColor:
           rangeSelectorThemeData.overlappingThumbStrokeColor ??
-              themeData.colorScheme.surface,
+          themeData.colorScheme.surface,
       activeDividerStrokeColor: rangeSelectorThemeData.activeDividerStrokeColor,
       inactiveDividerStrokeColor:
           rangeSelectorThemeData.inactiveDividerStrokeColor,
       overlappingTooltipStrokeColor:
           rangeSelectorThemeData.overlappingTooltipStrokeColor ??
-              themeData.colorScheme.surface,
-      activeRegionColor: rangeSelectorThemeData.activeRegionColor ??
+          themeData.colorScheme.surface,
+      activeRegionColor:
+          rangeSelectorThemeData.activeRegionColor ??
           effectiveThemeData.activeRegionColor,
-      inactiveRegionColor: widget.inactiveColor ??
+      inactiveRegionColor:
+          widget.inactiveColor ??
           rangeSelectorThemeData.inactiveRegionColor ??
           effectiveThemeData.inactiveRegionColor,
-      tooltipBackgroundColor: rangeSelectorThemeData.tooltipBackgroundColor ??
+      tooltipBackgroundColor:
+          rangeSelectorThemeData.tooltipBackgroundColor ??
           effectiveThemeData.tooltipBackgroundColor,
       trackCornerRadius:
           rangeSelectorThemeData.trackCornerRadius ?? maxTrackHeight / 2,
@@ -1669,25 +1901,57 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       _values = SfRangeValues(widget.controller!.start, widget.controller!.end);
     }
 
-    overlayStartController =
-        AnimationController(vsync: this, duration: duration);
+    overlayStartController = AnimationController(
+      vsync: this,
+      duration: duration,
+    );
     overlayEndController = AnimationController(vsync: this, duration: duration);
     stateController = AnimationController(vsync: this, duration: duration);
-    startPositionController =
-        AnimationController(duration: Duration.zero, vsync: this);
-    endPositionController =
-        AnimationController(duration: Duration.zero, vsync: this);
-    tooltipAnimationStartController =
-        AnimationController(vsync: this, duration: duration);
-    tooltipAnimationEndController =
-        AnimationController(vsync: this, duration: duration);
+    startPositionController = AnimationController(
+      duration: Duration.zero,
+      vsync: this,
+    );
+    endPositionController = AnimationController(
+      duration: Duration.zero,
+      vsync: this,
+    );
+    tooltipAnimationStartController = AnimationController(
+      vsync: this,
+      duration: duration,
+    );
+    tooltipAnimationEndController = AnimationController(
+      vsync: this,
+      duration: duration,
+    );
     stateController.value =
         widget.enabled && (widget.min != widget.max) ? 1.0 : 0.0;
+
+    _keyboardActionMap = <Type, Action<Intent>>{
+      SliderKeyIntent: CallbackAction<SliderKeyIntent>(
+        onInvoke: _keyboardActionHandler,
+      ),
+      NextFocusIntent: CallbackAction<NextFocusIntent>(
+        onInvoke: _handleNextFocus,
+      ),
+      PreviousFocusIntent: CallbackAction<PreviousFocusIntent>(
+        onInvoke: _handlePreviousFocus,
+      ),
+    };
+    _focusNode = FocusNode(
+      skipTraversal: widget.dragMode == SliderDragMode.betweenThumbs,
+      canRequestFocus: widget.dragMode != SliderDragMode.betweenThumbs,
+    );
     super.initState();
   }
 
   @override
   void didUpdateWidget(SfRangeSelector oldWidget) {
+    if (oldWidget.dragMode != widget.dragMode) {
+      _focusNode.skipTraversal =
+          widget.dragMode == SliderDragMode.betweenThumbs;
+      _focusNode.canRequestFocus =
+          widget.dragMode != SliderDragMode.betweenThumbs;
+    }
     if (oldWidget.shouldAlwaysShowTooltip != widget.shouldAlwaysShowTooltip) {
       if (widget.shouldAlwaysShowTooltip) {
         tooltipAnimationStartController.value = 1;
@@ -1709,6 +1973,7 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
     tooltipAnimationStartController.dispose();
     tooltipAnimationEndController.dispose();
     stateController.dispose();
+    _focusNode.dispose();
 
     super.dispose();
   }
@@ -1717,8 +1982,35 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
 
-    return _RangeSelectorRenderObjectWidget(
-      key: widget.key,
+    VoidCallback? handleRangeSelectorAccessibilityFocus;
+    switch (themeData.platform) {
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.iOS:
+      case TargetPlatform.linux:
+      case TargetPlatform.macOS:
+        break;
+      case TargetPlatform.windows:
+        handleRangeSelectorAccessibilityFocus = () {
+          // Automatically activate the slider when it receives a11y focus.
+          if (!rangeSelectorFocusNode.hasFocus &&
+              rangeSelectorFocusNode.canRequestFocus) {
+            rangeSelectorFocusNode.requestFocus();
+          }
+        };
+    }
+    final Map<ShortcutActivator, Intent> keyboardShortcutMap = {
+      ...switch (MediaQuery.navigationModeOf(context)) {
+        NavigationMode.directional => KeyboardDirectionalNavShortcutMap,
+        NavigationMode.traditional => KeyboardNavShortcutMap,
+      },
+      const SingleActivator(LogicalKeyboardKey.tab): const NextFocusIntent(),
+      const SingleActivator(LogicalKeyboardKey.tab, shift: true):
+          const PreviousFocusIntent(),
+    };
+
+    final Widget result = _RangeSelectorRenderObjectWidget(
+      key: _renderObjectKey,
       min: widget.min,
       max: widget.max,
       values: _values ?? widget.initialValues,
@@ -1738,7 +2030,8 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       enableIntervalSelection: widget.enableIntervalSelection,
       deferUpdate: widget.enableDeferredUpdate,
       dragMode: widget.dragMode,
-      inactiveColor: widget.inactiveColor ??
+      inactiveColor:
+          widget.inactiveColor ??
           themeData.primaryColor.withValues(alpha: 0.24),
       activeColor: widget.activeColor ?? themeData.primaryColor,
       labelPlacement: widget.labelPlacement,
@@ -1747,7 +2040,9 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       dateFormat: widget.dateFormat,
       dateIntervalType: widget.dateIntervalType,
       labelFormatterCallback:
+          // ignore: deprecated_member_use_from_same_package
           widget.labelFormatterCallback ?? _getFormattedLabelText,
+      onLabelCreated: widget.onLabelCreated ?? _handleLabelCreated,
       tooltipTextFormatterCallback:
           widget.tooltipTextFormatterCallback ?? _getFormattedTooltipText,
       semanticFormatterCallback: widget.semanticFormatterCallback,
@@ -1761,8 +2056,21 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       rangeSelectorThemeData: _getRangeSelectorThemeData(themeData),
       startThumbIcon: widget.startThumbIcon,
       endThumbIcon: widget.endThumbIcon,
+      hasFocus: _focused,
+      focusedThumb: _focusedThumb,
       state: this,
       child: widget.child,
+    );
+
+    return Semantics(
+      onDidGainAccessibilityFocus: handleRangeSelectorAccessibilityFocus,
+      child: FocusableActionDetector(
+        actions: _keyboardActionMap,
+        shortcuts: keyboardShortcutMap,
+        focusNode: rangeSelectorFocusNode,
+        onShowFocusHighlight: _handleRangeSelectorFocusChanged,
+        child: result,
+      ),
     );
   }
 }
@@ -1797,6 +2105,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
     required this.dateFormat,
     required this.dateIntervalType,
     required this.labelFormatterCallback,
+    required this.onLabelCreated,
     required this.tooltipTextFormatterCallback,
     required this.semanticFormatterCallback,
     required this.trackShape,
@@ -1811,6 +2120,8 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
     required this.startThumbIcon,
     required this.endThumbIcon,
     required this.state,
+    required this.hasFocus,
+    required this.focusedThumb,
   }) : super(key: key);
 
   final dynamic min;
@@ -1843,7 +2154,9 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
   final DateFormat? dateFormat;
   final DateIntervalType? dateIntervalType;
   final SfRangeSelectorThemeData rangeSelectorThemeData;
+  // ignore: deprecated_member_use_from_same_package
   final LabelFormatterCallback labelFormatterCallback;
+  final RangeSelectorLabelCreatedCallback onLabelCreated;
   final TooltipTextFormatterCallback tooltipTextFormatterCallback;
   final RangeSelectorSemanticFormatterCallback? semanticFormatterCallback;
   final SfTrackShape trackShape;
@@ -1857,6 +2170,8 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
   final Widget? startThumbIcon;
   final Widget? endThumbIcon;
   final _SfRangeSelectorState state;
+  final bool hasFocus;
+  final SfThumb focusedThumb;
 
   @override
   _RenderRangeSelectorElement createElement() =>
@@ -1891,6 +2206,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       dateFormat: dateFormat,
       dateIntervalType: dateIntervalType,
       labelFormatterCallback: labelFormatterCallback,
+      onLabelCreated: onLabelCreated,
       tooltipTextFormatterCallback: tooltipTextFormatterCallback,
       semanticFormatterCallback: semanticFormatterCallback,
       trackShape: trackShape,
@@ -1910,7 +2226,9 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderRangeSelector renderObject) {
+    BuildContext context,
+    _RenderRangeSelector renderObject,
+  ) {
     renderObject
       ..min = min
       ..max = max
@@ -1937,6 +2255,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       ..dateFormat = dateFormat
       ..dateIntervalType = dateIntervalType
       ..labelFormatterCallback = labelFormatterCallback
+      ..onLabelCreated = onLabelCreated
       ..tooltipTextFormatterCallback = tooltipTextFormatterCallback
       ..semanticFormatterCallback = semanticFormatterCallback
       ..trackShape = trackShape
@@ -1948,13 +2267,15 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       ..tooltipShape = tooltipShape
       ..sliderThemeData = rangeSelectorThemeData
       ..textDirection = Directionality.of(context)
-      ..mediaQueryData = MediaQuery.of(context);
+      ..mediaQueryData = MediaQuery.of(context)
+      ..hasFocus = hasFocus
+      ..focusedThumb = focusedThumb;
   }
 }
 
 class _RenderRangeSelectorElement extends RenderObjectElement {
   _RenderRangeSelectorElement(_RangeSelectorRenderObjectWidget rangeSelector)
-      : super(rangeSelector);
+    : super(rangeSelector);
 
   final Map<ChildElements, Element> _slotToChild = <ChildElements, Element>{};
   final Map<Element, ChildElements> _childToSlot = <Element, ChildElements>{};
@@ -2043,7 +2364,10 @@ class _RenderRangeSelectorElement extends RenderObjectElement {
 
   @override
   void moveRenderObjectChild(
-      RenderObject child, dynamic oldSlot, dynamic newSlot) {
+    RenderObject child,
+    dynamic oldSlot,
+    dynamic newSlot,
+  ) {
     assert(false, 'not reachable');
   }
 }
@@ -2075,7 +2399,9 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
     required DateIntervalType? dateIntervalType,
+    // ignore: deprecated_member_use_from_same_package
     required LabelFormatterCallback labelFormatterCallback,
+    required RangeSelectorLabelCreatedCallback onLabelCreated,
     required TooltipTextFormatterCallback tooltipTextFormatterCallback,
     required RangeSelectorSemanticFormatterCallback? semanticFormatterCallback,
     required SfTrackShape trackShape,
@@ -2090,49 +2416,52 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     required MediaQueryData mediaQueryData,
     required _SfRangeSelectorState state,
     required DeviceGestureSettings gestureSettings,
-  })  : _state = state,
-        _isEnabled = enabled,
-        _deferUpdateDelay = deferUpdateDelay,
-        _deferUpdate = deferUpdate,
-        _semanticFormatterCallback = semanticFormatterCallback,
-        super(
-            min: min,
-            max: max,
-            values: values,
-            onChangeStart: onChangeStart,
-            onChangeEnd: onChangeEnd,
-            interval: interval,
-            stepSize: stepSize,
-            stepDuration: stepDuration,
-            minorTicksPerInterval: minorTicksPerInterval,
-            showTicks: showTicks,
-            showLabels: showLabels,
-            showDividers: showDividers,
-            enableTooltip: enableTooltip,
-            shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
-            isInversed: isInversed,
-            enableIntervalSelection: enableIntervalSelection,
-            dragMode: dragMode,
-            labelPlacement: labelPlacement,
-            edgeLabelPlacement: edgeLabelPlacement,
-            numberFormat: numberFormat,
-            dateFormat: dateFormat,
-            dateIntervalType: dateIntervalType,
-            labelFormatterCallback: labelFormatterCallback,
-            tooltipTextFormatterCallback: tooltipTextFormatterCallback,
-            trackShape: trackShape,
-            dividerShape: dividerShape,
-            overlayShape: overlayShape,
-            thumbShape: thumbShape,
-            tickShape: tickShape,
-            minorTickShape: minorTickShape,
-            tooltipShape: tooltipShape,
-            sliderThemeData: rangeSelectorThemeData,
-            sliderType: SliderType.horizontal,
-            tooltipPosition: null,
-            textDirection: textDirection,
-            mediaQueryData: mediaQueryData,
-            gestureSettings: gestureSettings) {
+  }) : _state = state,
+       _isEnabled = enabled,
+       _deferUpdateDelay = deferUpdateDelay,
+       _deferUpdate = deferUpdate,
+
+       _semanticFormatterCallback = semanticFormatterCallback,
+       super(
+         min: min,
+         max: max,
+         values: values,
+         onChangeStart: onChangeStart,
+         onChangeEnd: onChangeEnd,
+         interval: interval,
+         stepSize: stepSize,
+         stepDuration: stepDuration,
+         minorTicksPerInterval: minorTicksPerInterval,
+         showTicks: showTicks,
+         showLabels: showLabels,
+         showDividers: showDividers,
+         enableTooltip: enableTooltip,
+         shouldAlwaysShowTooltip: shouldAlwaysShowTooltip,
+         isInversed: isInversed,
+         enableIntervalSelection: enableIntervalSelection,
+         dragMode: dragMode,
+         labelPlacement: labelPlacement,
+         edgeLabelPlacement: edgeLabelPlacement,
+         numberFormat: numberFormat,
+         dateFormat: dateFormat,
+         dateIntervalType: dateIntervalType,
+         labelFormatterCallback: labelFormatterCallback,
+         onLabelCreated: onLabelCreated,
+         tooltipTextFormatterCallback: tooltipTextFormatterCallback,
+         trackShape: trackShape,
+         dividerShape: dividerShape,
+         overlayShape: overlayShape,
+         thumbShape: thumbShape,
+         tickShape: tickShape,
+         minorTickShape: minorTickShape,
+         tooltipShape: tooltipShape,
+         sliderThemeData: rangeSelectorThemeData,
+         sliderType: SliderType.horizontal,
+         tooltipPosition: null,
+         textDirection: textDirection,
+         mediaQueryData: mediaQueryData,
+         gestureSettings: gestureSettings,
+       ) {
     _inactiveRegionColor = rangeSelectorThemeData.inactiveRegionColor!;
     _activeRegionColor = rangeSelectorThemeData.activeRegionColor!;
   }
@@ -2209,6 +2538,9 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
   bool get mounted => _state.mounted;
 
   @override
+  bool get hasLabelCreated => _state.widget.onLabelCreated != null;
+
+  @override
   AnimationController get overlayStartController =>
       _state.overlayStartController;
 
@@ -2255,19 +2587,22 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
   }
 
   double get elementsActualHeight => math.max(
-      2 * trackOffset.dy,
-      trackOffset.dy +
-          maxTrackHeight / 2 +
-          math.max(actualTickHeight, actualMinorTickHeight) +
-          actualLabelHeight);
+    2 * trackOffset.dy,
+    trackOffset.dy +
+        maxTrackHeight / 2 +
+        math.max(actualTickHeight, actualMinorTickHeight) +
+        actualLabelHeight,
+  );
 
   // When the active track height and inactive track height are different,
   // a small gap is happens between min track height and child
   // So we adjust track offset to ignore that gap.
-  double get adjustTrackY => sliderThemeData.activeTrackHeight >
-          sliderThemeData.inactiveTrackHeight
-      ? sliderThemeData.activeTrackHeight - sliderThemeData.inactiveTrackHeight
-      : sliderThemeData.inactiveTrackHeight - sliderThemeData.activeTrackHeight;
+  double get adjustTrackY =>
+      sliderThemeData.activeTrackHeight > sliderThemeData.inactiveTrackHeight
+          ? sliderThemeData.activeTrackHeight -
+              sliderThemeData.inactiveTrackHeight
+          : sliderThemeData.inactiveTrackHeight -
+              sliderThemeData.activeTrackHeight;
 
   void _updateNewValues(SfRangeValues newValues) {
     if (_state.widget.onChanged != null) {
@@ -2288,8 +2623,9 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
         (values.start != _state.widget.controller!.start ||
             values.end != _state.widget.controller!.end)) {
       values = SfRangeValues(
-          getActualValue(value: _state.widget.controller!.start),
-          getActualValue(value: _state.widget.controller!.end));
+        getActualValue(value: _state.widget.controller!.start),
+        getActualValue(value: _state.widget.controller!.end),
+      );
 
       markNeedsPaint();
     }
@@ -2301,10 +2637,12 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
       if (newValues.start != values.start || newValues.end != values.end) {
         if (_deferUpdate) {
           _deferUpdateTimer?.cancel();
-          _deferUpdateTimer =
-              Timer(Duration(milliseconds: _deferUpdateDelay), () {
-            _updateNewValues(newValues);
-          });
+          _deferUpdateTimer = Timer(
+            Duration(milliseconds: _deferUpdateDelay),
+            () {
+              _updateNewValues(newValues);
+            },
+          );
           values = newValues;
           markNeedsPaint();
         } else {
@@ -2313,6 +2651,12 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
       }
     }
     super.updateValues(newValues);
+  }
+
+  @override
+  bool generateLabelsAndTicks() {
+    return _state.widget.onLabelCreated != null &&
+        _state.widget.controller == null;
   }
 
   @override
@@ -2332,17 +2676,24 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     }
   }
 
-  void _drawRegions(PaintingContext context, Rect trackRect, Offset offset,
-      Offset startThumbCenter, Offset endThumbCenter) {
-    final Paint inactivePaint = Paint()
-      ..isAntiAlias = true
-      ..color = _inactiveRegionColor;
+  void _drawRegions(
+    PaintingContext context,
+    Rect trackRect,
+    Offset offset,
+    Offset startThumbCenter,
+    Offset endThumbCenter,
+  ) {
+    final Paint inactivePaint =
+        Paint()
+          ..isAntiAlias = true
+          ..color = _inactiveRegionColor;
     if (child != null && child!.size.height > 1 && child!.size.width > 1) {
       final double halfActiveTrackHeight =
           sliderThemeData.activeTrackHeight / 2;
       final double halfInactiveTrackHeight =
           sliderThemeData.inactiveTrackHeight / 2;
-      final bool isMaxActive = sliderThemeData.activeTrackHeight >
+      final bool isMaxActive =
+          sliderThemeData.activeTrackHeight >
           sliderThemeData.inactiveTrackHeight;
       Offset leftThumbCenter;
       Offset rightThumbCenter;
@@ -2360,27 +2711,45 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
       final double activeRegionAdj =
           !isMaxActive ? halfInactiveTrackHeight - halfActiveTrackHeight : 0;
       context.canvas.drawRect(
-          Rect.fromLTRB(trackRect.left, offset.dy, leftThumbCenter.dx,
-              trackRect.top + inactiveRegionAdj),
-          inactivePaint);
-      final Paint activePaint = Paint()
-        ..isAntiAlias = true
-        ..color = _activeRegionColor;
+        Rect.fromLTRB(
+          trackRect.left,
+          offset.dy,
+          leftThumbCenter.dx,
+          trackRect.top + inactiveRegionAdj,
+        ),
+        inactivePaint,
+      );
+      final Paint activePaint =
+          Paint()
+            ..isAntiAlias = true
+            ..color = _activeRegionColor;
       context.canvas.drawRect(
-          Rect.fromLTRB(leftThumbCenter.dx, offset.dy, rightThumbCenter.dx,
-              trackRect.top + activeRegionAdj),
-          activePaint);
+        Rect.fromLTRB(
+          leftThumbCenter.dx,
+          offset.dy,
+          rightThumbCenter.dx,
+          trackRect.top + activeRegionAdj,
+        ),
+        activePaint,
+      );
       context.canvas.drawRect(
-          Rect.fromLTRB(rightThumbCenter.dx, offset.dy, trackRect.right,
-              trackRect.top + inactiveRegionAdj),
-          inactivePaint);
+        Rect.fromLTRB(
+          rightThumbCenter.dx,
+          offset.dy,
+          trackRect.right,
+          trackRect.top + inactiveRegionAdj,
+        ),
+        inactivePaint,
+      );
     }
   }
 
   void _increaseStartAction() {
     if (isInteractive) {
-      final SfRangeValues newValues =
-          SfRangeValues(increasedStartValue, values.end);
+      final SfRangeValues newValues = SfRangeValues(
+        increasedStartValue,
+        values.end,
+      );
       if (getNumerizedValue(newValues.start) <=
           getNumerizedValue(newValues.end)) {
         _updateNewValues(newValues);
@@ -2402,8 +2771,10 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
 
   void _decreaseEndAction() {
     if (isInteractive) {
-      final SfRangeValues newValues =
-          SfRangeValues(values.start, decreasedEndValue);
+      final SfRangeValues newValues = SfRangeValues(
+        values.start,
+        decreasedEndValue,
+      );
       if (getNumerizedValue(newValues.start) <=
           (getNumerizedValue(newValues.end))) {
         _updateNewValues(newValues);
@@ -2444,16 +2815,19 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     double childHeight = 0.0;
     double childWidth = 0.0;
     final double minTrackHeight = math.min(
-        sliderThemeData.activeTrackHeight, sliderThemeData.inactiveTrackHeight);
+      sliderThemeData.activeTrackHeight,
+      sliderThemeData.inactiveTrackHeight,
+    );
     final Offset trackCenterLeft = trackOffset;
     final double elementsHeightWithoutChild = elementsActualHeight;
 
     double elementsHeightAfterRenderedChild = math.max(
-        trackCenterLeft.dy + minTrackHeight / 2,
-        maxTrackHeight / 2 +
-            minTrackHeight / 2 +
-            math.max(actualTickHeight, actualMinorTickHeight) +
-            actualLabelHeight);
+      trackCenterLeft.dy + minTrackHeight / 2,
+      maxTrackHeight / 2 +
+          minTrackHeight / 2 +
+          math.max(actualTickHeight, actualMinorTickHeight) +
+          actualLabelHeight,
+    );
 
     if (constraints.maxHeight < elementsHeightWithoutChild) {
       final double actualChildHeight =
@@ -2463,7 +2837,8 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
       // Reduce the [elementsHeightAfterRenderedChild] from the
       // actual child height and remaining space in actual layout height to
       // match the given constraints height.
-      elementsHeightAfterRenderedChild = elementsHeightAfterRenderedChild -
+      elementsHeightAfterRenderedChild =
+          elementsHeightAfterRenderedChild -
           spaceLeftInActualLayoutHeight -
           actualChildHeight;
     }
@@ -2471,10 +2846,12 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     if (child != null) {
       final double maxRadius = trackOffset.dx;
       final BoxConstraints childConstraints = constraints.deflate(
-          EdgeInsets.only(
-              left: maxRadius,
-              right: maxRadius,
-              bottom: elementsHeightAfterRenderedChild));
+        EdgeInsets.only(
+          left: maxRadius,
+          right: maxRadius,
+          bottom: elementsHeightAfterRenderedChild,
+        ),
+      );
       child!.layout(childConstraints, parentUsesSize: true);
       // ignore: avoid_as
       final BoxParentData childParentData = child!.parentData! as BoxParentData;
@@ -2484,30 +2861,39 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     }
 
     final BoxConstraints contentConstraints = BoxConstraints.tightFor(
-        width: actualThumbSize.width, height: actualThumbSize.height);
+      width: actualThumbSize.width,
+      height: actualThumbSize.height,
+    );
     startThumbIcon?.layout(contentConstraints, parentUsesSize: true);
     endThumbIcon?.layout(contentConstraints, parentUsesSize: true);
 
-    final double actualWidth = childWidth > 0.0
-        ? (childWidth + 2 * trackOffset.dx)
-        : minTrackWidth + 2 * trackOffset.dx;
+    final double actualWidth =
+        childWidth > 0.0
+            ? (childWidth + 2 * trackOffset.dx)
+            : minTrackWidth + 2 * trackOffset.dx;
 
     final double actualHeight = childHeight + elementsHeightAfterRenderedChild;
     size = Size(
-        constraints.hasBoundedWidth && (constraints.maxWidth < actualWidth)
-            ? constraints.maxWidth
-            : actualWidth,
-        constraints.hasBoundedHeight && (constraints.maxHeight < actualHeight)
-            ? constraints.maxHeight
-            : actualHeight);
+      constraints.hasBoundedWidth && (constraints.maxWidth < actualWidth)
+          ? constraints.maxWidth
+          : actualWidth,
+      constraints.hasBoundedHeight && (constraints.maxHeight < actualHeight)
+          ? constraints.maxHeight
+          : actualHeight,
+    );
 
     generateLabelsAndMajorTicks();
     generateMinorTicks();
   }
 
   @override
-  void drawRegions(PaintingContext context, Rect trackRect, Offset offset,
-      Offset startThumbCenter, Offset endThumbCenter) {
+  void drawRegions(
+    PaintingContext context,
+    Rect trackRect,
+    Offset offset,
+    Offset startThumbCenter,
+    Offset endThumbCenter,
+  ) {
     _drawRegions(context, trackRect, offset, startThumbCenter, endThumbCenter);
   }
 
@@ -2520,16 +2906,20 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
       context.paintChild(child!, childParentData.offset + offset);
       childHeight = child!.size.height;
       if (childHeight >= constraints.maxHeight) {
-        childHeight -= elementsActualHeight -
+        childHeight -=
+            elementsActualHeight -
             math.max(actualOverlaySize.height, actualThumbSize.height) / 2;
       }
     }
 
     final Offset actualTrackOffset = Offset(
-        offset.dx,
-        offset.dy +
-            math.max(childHeight - adjustTrackY / 2,
-                trackOffset.dy - maxTrackHeight / 2));
+      offset.dx,
+      offset.dy +
+          math.max(
+            childHeight - adjustTrackY / 2,
+            trackOffset.dy - maxTrackHeight / 2,
+          ),
+    );
 
     drawRangeSliderElements(context, offset, actualTrackOffset);
   }
@@ -2573,27 +2963,31 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     assert(children.isEmpty);
     final SemanticsConfiguration startSemanticsConfiguration =
         _createSemanticsConfiguration(
-      values.start,
-      increasedStartValue,
-      decreasedStartValue,
-      SfThumb.start,
-      _increaseStartAction,
-      _decreaseStartAction,
-    );
+          values.start,
+          increasedStartValue,
+          decreasedStartValue,
+          SfThumb.start,
+          _increaseStartAction,
+          _decreaseStartAction,
+        );
     final SemanticsConfiguration endSemanticsConfiguration =
         _createSemanticsConfiguration(
-      values.end,
-      increasedEndValue,
-      decreasedEndValue,
-      SfThumb.end,
-      _increaseEndAction,
-      _decreaseEndAction,
-    );
+          values.end,
+          increasedEndValue,
+          decreasedEndValue,
+          SfThumb.end,
+          _increaseEndAction,
+          _decreaseEndAction,
+        );
     // Split the semantics node area between the start and end nodes.
-    final Rect leftRect =
-        Rect.fromPoints(node.rect.topLeft, node.rect.bottomCenter);
-    final Rect rightRect =
-        Rect.fromPoints(node.rect.topCenter, node.rect.bottomRight);
+    final Rect leftRect = Rect.fromPoints(
+      node.rect.topLeft,
+      node.rect.bottomCenter,
+    );
+    final Rect rightRect = Rect.fromPoints(
+      node.rect.topCenter,
+      node.rect.bottomRight,
+    );
     startSemanticsNode ??= SemanticsNode();
     endSemanticsNode ??= SemanticsNode();
     switch (textDirection) {
@@ -2634,8 +3028,9 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties
-        .add(StringProperty('deferredUpdateDelay', '$_deferUpdateDelay ms'));
+    properties.add(
+      StringProperty('deferredUpdateDelay', '$_deferUpdateDelay ms'),
+    );
     debugRangeSliderFillProperties(properties);
   }
 }

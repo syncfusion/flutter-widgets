@@ -29,7 +29,7 @@ enum TooltipAlignment {
   center,
 
   ///- TooltipAlignment.far, will align the tooltip content far from center.
-  far
+  far,
 }
 
 /// Data marker shapes.
@@ -73,16 +73,17 @@ enum DataMarkerType {
 /// Draw the circle shape marker
 void drawCircle(Path path, double x, double y, double width, double height) {
   path.addArc(
-      Rect.fromLTRB(
-          x - width / 2, y - height / 2, x + width / 2, y + height / 2),
-      0.0,
-      2 * math.pi);
+    Rect.fromLTRB(x - width / 2, y - height / 2, x + width / 2, y + height / 2),
+    0.0,
+    2 * math.pi,
+  );
 }
 
 /// Draw the Rectangle shape marker
 void drawRectangle(Path path, double x, double y, double width, double height) {
-  path.addRect(Rect.fromLTRB(
-      x - width / 2, y - height / 2, x + width / 2, y + height / 2));
+  path.addRect(
+    Rect.fromLTRB(x - width / 2, y - height / 2, x + width / 2, y + height / 2),
+  );
 }
 
 ///Draw the Pentagon shape marker
@@ -102,14 +103,24 @@ void drawPentagon(Path path, double x, double y, double width, double height) {
 
 ///Draw the Vertical line shape marker
 void drawVerticalLine(
-    Path path, double x, double y, double width, double height) {
+  Path path,
+  double x,
+  double y,
+  double width,
+  double height,
+) {
   path.moveTo(x, y + height / 2);
   path.lineTo(x, y - height / 2);
 }
 
 ///Draw the Inverted Triangle shape marker
 void drawInvertedTriangle(
-    Path path, double x, double y, double width, double height) {
+  Path path,
+  double x,
+  double y,
+  double width,
+  double height,
+) {
   path.moveTo(x + width / 2, y - height / 2);
 
   path.lineTo(x, y + height / 2);
@@ -120,7 +131,12 @@ void drawInvertedTriangle(
 
 ///Draw the Horizontal line shape marker
 void drawHorizontalLine(
-    Path path, double x, double y, double width, double height) {
+  Path path,
+  double x,
+  double y,
+  double width,
+  double height,
+) {
   path.moveTo(x - width / 2, y);
   path.lineTo(x + width / 2, y);
 }
@@ -148,9 +164,10 @@ void drawTriangle(Path path, double x, double y, double width, double height) {
 Size measureText(String textValue, TextStyle textStyle, [int? angle]) {
   Size size;
   final TextPainter textPainter = TextPainter(
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-      text: TextSpan(text: textValue, style: textStyle));
+    textAlign: TextAlign.center,
+    textDirection: TextDirection.ltr,
+    text: TextSpan(text: textValue, style: textStyle),
+  );
   textPainter.layout();
 
   if (angle != null) {
@@ -165,8 +182,9 @@ Size measureText(String textValue, TextStyle textStyle, [int? angle]) {
 /// This method returns the rect for given size and angle
 Rect rotatedTextSize(Size size, int angle) {
   final Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
-  final vector.Matrix2 rotatorMatrix =
-      vector.Matrix2.rotation(degreeToRadian(angle));
+  final vector.Matrix2 rotatorMatrix = vector.Matrix2.rotation(
+    degreeToRadian(angle),
+  );
 
   final Rect movedToCenterAsOrigin = rect.shift(-rect.center);
 
@@ -184,17 +202,21 @@ Rect rotatedTextSize(Size size, int angle) {
     topLeft,
     topRight,
     bottomLeft,
-    bottomRight
+    bottomRight,
   ];
 
-  final double minX =
-      rotOffsets.map((Offset offset) => offset.dx).reduce(math.min);
-  final double maxX =
-      rotOffsets.map((Offset offset) => offset.dx).reduce(math.max);
-  final double minY =
-      rotOffsets.map((Offset offset) => offset.dy).reduce(math.min);
-  final double maxY =
-      rotOffsets.map((Offset offset) => offset.dy).reduce(math.max);
+  final double minX = rotOffsets
+      .map((Offset offset) => offset.dx)
+      .reduce(math.min);
+  final double maxX = rotOffsets
+      .map((Offset offset) => offset.dx)
+      .reduce(math.max);
+  final double minY = rotOffsets
+      .map((Offset offset) => offset.dy)
+      .reduce(math.min);
+  final double maxY = rotOffsets
+      .map((Offset offset) => offset.dy)
+      .reduce(math.max);
 
   final Rect rotateRect = Rect.fromPoints(
     Offset(minX, minY),
@@ -214,10 +236,7 @@ vector.Vector2 offsetToVector2(Offset offset) =>
 Offset vector2ToOffset(vector.Vector2 vector) => Offset(vector.x, vector.y);
 
 /// This method transforms the given offset with respect ot the given matrix
-Offset transform(
-  vector.Matrix2 matrix,
-  Offset offset,
-) {
+Offset transform(vector.Matrix2 matrix, Offset offset) {
   return vector2ToOffset(matrix * offsetToVector2(offset));
 }
 

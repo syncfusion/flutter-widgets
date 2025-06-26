@@ -838,7 +838,9 @@ class TreeTable extends TreeTableBase {
   ///
   /// Returns the instance for the tree
   TreeTableEntryBase? addIfNotExists(
-      Comparable<dynamic>? key, TreeTableEntryBase? value) {
+    Comparable<dynamic>? key,
+    TreeTableEntryBase? value,
+  ) {
     if (!sorted) {
       throw Exception('This tree is not sorted.');
     }
@@ -1024,7 +1026,10 @@ class TreeTable extends TreeTableBase {
 
   ///
   TreeTableEntryBase? cacheLastFoundEntry(
-      TreeTableEntryBase? entry, Object? key, bool highestSmallerValue) {
+    TreeTableEntryBase? entry,
+    Object? key,
+    bool highestSmallerValue,
+  ) {
     lastIndex = -1;
     _lastFoundEntry = entry;
     _lastFoundEntryKey = key;
@@ -1256,7 +1261,10 @@ class TreeTable extends TreeTableBase {
           }
 
           return cacheLastFoundEntry(
-              current as TreeTableEntryBase, key, highestSmallerValue);
+            current as TreeTableEntryBase,
+            key,
+            highestSmallerValue,
+          );
         } else if (cmp < 0) {
           current = branch.left!;
           lastLeft = branch.left;
@@ -1293,7 +1301,10 @@ class TreeTable extends TreeTableBase {
           }
 
           return cacheLastFoundEntry(
-              current as TreeTableEntryBase, key, highestSmallerValue);
+            current as TreeTableEntryBase,
+            key,
+            highestSmallerValue,
+          );
         }
       }
 
@@ -1510,7 +1521,8 @@ class TreeTable extends TreeTableBase {
     final int treeCount = getCount();
     if (index < 0 || index >= treeCount) {
       throw ArgumentError(
-          'index $index  must be between 0 and ${treeCount - 1}');
+        'index $index  must be between 0 and ${treeCount - 1}',
+      );
     }
 
     if (_root == null) {
@@ -1569,7 +1581,9 @@ class TreeTable extends TreeTableBase {
   }
 
   TreeTableNodeBase _getSisterNode(
-      TreeTableBranchBase leafsParent, TreeTableNodeBase node) {
+    TreeTableBranchBase leafsParent,
+    TreeTableNodeBase node,
+  ) {
     final TreeTableNodeBase? sisterNode =
         referenceEquals(leafsParent.left, node)
             ? leafsParent.right
@@ -1684,8 +1698,12 @@ class TreeTable extends TreeTableBase {
     _lastIndexLeaf = null;
   }
 
-  void _replaceNode(TreeTableBranchBase? branch, TreeTableNodeBase? oldNode,
-      TreeTableNodeBase? newNode, bool inAddMode) {
+  void _replaceNode(
+    TreeTableBranchBase? branch,
+    TreeTableNodeBase? oldNode,
+    TreeTableNodeBase? newNode,
+    bool inAddMode,
+  ) {
     // also updates node count.
     if (referenceEquals(branch?.left, oldNode)) {
       branch?.setLeft(newNode, inAddMode, sorted);
@@ -2334,7 +2352,8 @@ class TreeTableEntrySourceCollectionEnumerator implements EnumeratorBase {
   ///
   /// * collection - _required_ - Collection value
   TreeTableEntrySourceCollectionEnumerator(
-      TreeTableEntrySourceCollection collection) {
+    TreeTableEntrySourceCollection collection,
+  ) {
     inner = TreeTableEnumerator(collection.inner);
   }
 
@@ -2503,7 +2522,9 @@ class TreeTableWithCounterBranch extends TreeTableWithSummaryBranch
 
     if (referenceEquals(node, right)) {
       return pos.combine(
-          getLeftNode()?.getCounterTotal(), TreeTableCounterCookies.countAll);
+        getLeftNode()?.getCounterTotal(),
+        TreeTableCounterCookies.countAll,
+      );
     } else if (referenceEquals(node, left)) {
       return pos;
     }
@@ -2768,7 +2789,7 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   /// * startPosition - _required_ - Sorting position
   /// * sorted - _required_ - Boolean value
   TreeTableWithCounter(TreeTableCounterBase startPosition, bool sorted)
-      : super(sorted) {
+    : super(sorted) {
     _startPos = startPosition;
   }
 
@@ -2813,9 +2834,14 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   ///
   /// Returns an entry at the specified counter position.
   TreeTableWithCounterEntry? getEntryAtCounterPosition(
-          TreeTableCounterBase searchPosition, int cookie) =>
-      getEntryAtCounterPositionWithForParameter(
-          getStartCounterPosition(), searchPosition, cookie, false);
+    TreeTableCounterBase searchPosition,
+    int cookie,
+  ) => getEntryAtCounterPositionWithForParameter(
+    getStartCounterPosition(),
+    searchPosition,
+    cookie,
+    false,
+  );
 
   /// Gets an entry at the specified counter position. A cookie defines the
   /// type of counter.
@@ -2827,11 +2853,15 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   ///
   /// Returns an entry at the specified counter position.
   TreeTableWithCounterEntry? getEntryAtCounterPositionwithThreeParameter(
-          TreeTableCounterBase searchPosition,
-          int cookie,
-          bool preferLeftMost) =>
-      getEntryAtCounterPositionWithForParameter(
-          getStartCounterPosition(), searchPosition, cookie, preferLeftMost);
+    TreeTableCounterBase searchPosition,
+    int cookie,
+    bool preferLeftMost,
+  ) => getEntryAtCounterPositionWithForParameter(
+    getStartCounterPosition(),
+    searchPosition,
+    cookie,
+    preferLeftMost,
+  );
 
   /// Gets the entry at counter position.
   ///
@@ -2842,10 +2872,11 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   ///
   /// Returns an entry at the specified counter position.
   TreeTableWithCounterEntry? getEntryAtCounterPositionWithForParameter(
-      TreeTableCounterBase start,
-      TreeTableCounterBase searchPosition,
-      int cookie,
-      bool preferLeftMost) {
+    TreeTableCounterBase start,
+    TreeTableCounterBase searchPosition,
+    int cookie,
+    bool preferLeftMost,
+  ) {
     if (searchPosition.compare(getStartCounterPosition(), cookie) < 0) {
       throw Exception('SearchPosition');
     }
@@ -2860,8 +2891,14 @@ class TreeTableWithCounter extends TreeTableWithSummary {
       // find node
       final TreeTableNodeBase? currentNode = root;
       final TreeTableCounterBase currentNodePosition = start;
-      return getEntryAtCounterPositionWithSixParameter(currentNode!, start,
-          searchPosition, cookie, preferLeftMost, currentNodePosition);
+      return getEntryAtCounterPositionWithSixParameter(
+        currentNode!,
+        start,
+        searchPosition,
+        cookie,
+        preferLeftMost,
+        currentNodePosition,
+      );
     }
   }
 
@@ -2878,12 +2915,13 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   ///
   /// Returns the current node.
   TreeTableWithCounterEntry getEntryAtCounterPositionWithSixParameter(
-      TreeTableNodeBase currentNode,
-      TreeTableCounterBase start,
-      TreeTableCounterBase searchPosition,
-      int cookie,
-      bool preferLeftMost,
-      TreeTableCounterBase? currentNodePosition) {
+    TreeTableNodeBase currentNode,
+    TreeTableCounterBase start,
+    TreeTableCounterBase searchPosition,
+    int cookie,
+    bool preferLeftMost,
+    TreeTableCounterBase? currentNodePosition,
+  ) {
     TreeTableWithCounterBranch? savedBranch;
     currentNodePosition = start;
     while (!currentNode.isEntry()) {
@@ -2891,8 +2929,8 @@ class TreeTableWithCounter extends TreeTableWithSummary {
           currentNode as TreeTableWithCounterBranch;
       final TreeTableCounterNodeBase leftB =
           branch.left! as TreeTableCounterNodeBase;
-      final TreeTableCounterBase rightNodePosition =
-          currentNodePosition!.combine(leftB.getCounterTotal(), cookie);
+      final TreeTableCounterBase rightNodePosition = currentNodePosition!
+          .combine(leftB.getCounterTotal(), cookie);
 
       if (searchPosition.compare(rightNodePosition, cookie) < 0) {
         currentNode = branch.left!;
@@ -2909,12 +2947,13 @@ class TreeTableWithCounter extends TreeTableWithSummary {
           TreeTableCounterBase? currentNode2Position;
           final TreeTableNodeBase currentNode2 =
               getEntryAtCounterPositionWithSixParameter(
-                  branch.left!,
-                  currentNodePosition,
-                  searchPosition,
-                  cookie,
-                  preferLeftMost,
-                  currentNode2Position);
+                branch.left!,
+                currentNodePosition,
+                searchPosition,
+                cookie,
+                preferLeftMost,
+                currentNode2Position,
+              );
           if (rightNodePosition.compare(currentNode2Position, cookie) == 0) {
             currentNode = currentNode2;
             currentNodePosition = currentNode2Position;
@@ -2942,7 +2981,9 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   /// Returns the subsequent entry in the collection for which the
   /// specific counter is not empty.
   TreeTableEntryBase? getNextNotEmptyCounterEntry(
-      TreeTableEntryBase current, int cookie) {
+    TreeTableEntryBase current,
+    int cookie,
+  ) {
     TreeTableBranchBase? parent = current.parent;
     TreeTableNodeBase? next;
 
@@ -2988,9 +3029,10 @@ class TreeTableWithCounter extends TreeTableWithSummary {
         final TreeTableBranchBase branch = next as TreeTableBranchBase;
         final TreeTableCounterNodeBase left =
             branch.left! as TreeTableCounterNodeBase;
-        next = !left.getCounterTotal()!.isEmpty(cookie)
-            ? branch.left
-            : branch.right;
+        next =
+            !left.getCounterTotal()!.isEmpty(cookie)
+                ? branch.left
+                : branch.right;
       }
     }
 
@@ -3006,7 +3048,9 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   /// Returns the previous entry in the collection for which the specific
   /// counter is not empty.
   TreeTableEntryBase? getPreviousNotEmptyCounterEntry(
-      TreeTableEntryBase current, int cookie) {
+    TreeTableEntryBase current,
+    int cookie,
+  ) {
     TreeTableBranchBase? parent = current.parent;
     TreeTableNodeBase? next;
 
@@ -3051,9 +3095,10 @@ class TreeTableWithCounter extends TreeTableWithSummary {
         final TreeTableBranchBase branch = next as TreeTableBranchBase;
         final TreeTableCounterNodeBase right =
             branch.right! as TreeTableCounterNodeBase;
-        next = !right.getCounterTotal()!.isEmpty(cookie)
-            ? branch.right
-            : branch.left;
+        next =
+            !right.getCounterTotal()!.isEmpty(cookie)
+                ? branch.right
+                : branch.left;
       }
     }
 
@@ -3068,9 +3113,12 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   /// Returns the next entry in the collection for which CountVisible counter
   /// is not empty.
   TreeTableWithCounterEntry? getNextVisibleEntry(
-      TreeTableWithCounterEntry current) {
+    TreeTableWithCounterEntry current,
+  ) {
     final TreeTableEntryBase? nextCounterEntry = getNextNotEmptyCounterEntry(
-        current, TreeTableCounterCookies.countVisible);
+      current,
+      TreeTableCounterCookies.countVisible,
+    );
     if (nextCounterEntry != null) {
       return nextCounterEntry as TreeTableWithCounterEntry;
     }
@@ -3086,10 +3134,13 @@ class TreeTableWithCounter extends TreeTableWithSummary {
   /// Returns the previous entry in the collection for which CountVisible
   /// counter is not empty.
   TreeTableWithCounterEntry? getPreviousVisibleEntry(
-      TreeTableWithCounterEntry current) {
+    TreeTableWithCounterEntry current,
+  ) {
     final TreeTableEntryBase? previousCounterEntry =
         getPreviousNotEmptyCounterEntry(
-            current, TreeTableCounterCookies.countVisible);
+          current,
+          TreeTableCounterCookies.countVisible,
+        );
     if (previousCounterEntry != null) {
       return previousCounterEntry as TreeTableWithCounterEntry;
     }
@@ -3225,7 +3276,8 @@ mixin TreeTableSummaryNodeBase on TreeTableNodeBase {
   ///
   /// Returns an array of summary objects.
   List<TreeTableSummaryBase>? getSummaries(
-      TreeTableEmptySummaryArraySourceBase emptySummaries);
+    TreeTableEmptySummaryArraySourceBase emptySummaries,
+  );
 
   /// Marks all summaries dirty in this node and child nodes.
   ///
@@ -3251,7 +3303,9 @@ abstract class TreeTableSummaryArraySourceBase {
   ///
   /// Returns An array of summary objects.
   List<TreeTableSummaryBase> getSummaries(
-      TreeTableEmptySummaryArraySourceBase emptySummaries, bool changed);
+    TreeTableEmptySummaryArraySourceBase emptySummaries,
+    bool changed,
+  );
 
   /// Marks all summaries dirty in this object and parent nodes.
   void invalidateSummariesBottomUp();
@@ -3322,14 +3376,17 @@ class TreeTableWithSummaryBranch extends TreeTableBranch
   /// Returns an array of summary objects.
   @override
   List<TreeTableSummaryBase>? getSummaries(
-      TreeTableEmptySummaryArraySourceBase emptySummaries) {
+    TreeTableEmptySummaryArraySourceBase emptySummaries,
+  ) {
     if (tree!.isInitializing) {
       return null;
     } else if (_summaries == null) {
-      final List<TreeTableSummaryBase>? left =
-          getLeftNode()?.getSummaries(emptySummaries);
-      final List<TreeTableSummaryBase>? right =
-          getRightNode()?.getSummaries(emptySummaries);
+      final List<TreeTableSummaryBase>? left = getLeftNode()?.getSummaries(
+        emptySummaries,
+      );
+      final List<TreeTableSummaryBase>? right = getRightNode()?.getSummaries(
+        emptySummaries,
+      );
       if (left != null && right != null) {
         int reuseLeft = 0;
         int reuseRight = 0;
@@ -3446,14 +3503,17 @@ class TreeTableWithSummaryEntryBase extends TreeTableEntry
   ///
   /// Returns an array of summary objects.
   List<TreeTableSummaryBase>? onGetSummaries(
-      TreeTableEmptySummaryArraySourceBase emptySummaries) {
+    TreeTableEmptySummaryArraySourceBase emptySummaries,
+  ) {
     List<TreeTableSummaryBase>? summaries;
     final TreeTableSummaryArraySourceBase? summaryArraySource =
         getSummaryArraySource();
     if (summaryArraySource != null) {
       const bool summaryChanged = false;
-      summaries =
-          summaryArraySource.getSummaries(emptySummaries, summaryChanged);
+      summaries = summaryArraySource.getSummaries(
+        emptySummaries,
+        summaryChanged,
+      );
     }
 
     return summaries;
@@ -3482,8 +3542,8 @@ class TreeTableWithSummaryEntryBase extends TreeTableEntry
   /// Returns an array of summary objects.
   @override
   List<TreeTableSummaryBase> getSummaries(
-          TreeTableEmptySummaryArraySourceBase emptySummaries) =>
-      _summaries ??= onGetSummaries(emptySummaries) ?? emptySummaryArray;
+    TreeTableEmptySummaryArraySourceBase emptySummaries,
+  ) => _summaries ??= onGetSummaries(emptySummaries) ?? emptySummaryArray;
 
   /// Walks up parent branches and reset summaries.
   ///
@@ -3554,7 +3614,8 @@ class TreeTableWithSummary extends TreeTable {
   ///
   /// Returns an array of summary objects.
   List<TreeTableSummaryBase>? getSummaries(
-      TreeTableEmptySummaryArraySourceBase emptySummaries) {
+    TreeTableEmptySummaryArraySourceBase emptySummaries,
+  ) {
     if (root == null) {
       return emptySummaries.getEmptySummaries();
     }

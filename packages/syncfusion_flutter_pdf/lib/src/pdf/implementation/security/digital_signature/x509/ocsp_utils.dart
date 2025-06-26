@@ -19,10 +19,14 @@ import 'x509_name.dart';
 /// internal class
 class Ocsp {
   /// internal method
-  Future<List<int>?> getEncodedOcspResponse(X509Certificate? checkCertificate,
-      X509Certificate? rootCertificate) async {
-    final OcspResponseHelper? helper =
-        await getOcspResponse(checkCertificate, rootCertificate);
+  Future<List<int>?> getEncodedOcspResponse(
+    X509Certificate? checkCertificate,
+    X509Certificate? rootCertificate,
+  ) async {
+    final OcspResponseHelper? helper = await getOcspResponse(
+      checkCertificate,
+      rootCertificate,
+    );
     if (helper != null) {
       return helper.getResponseBytes();
     }
@@ -30,8 +34,10 @@ class Ocsp {
   }
 
   /// internal method
-  Future<OcspResponseHelper?> getOcspResponse(X509Certificate? checkCertificate,
-      X509Certificate? rootCertificate) async {
+  Future<OcspResponseHelper?> getOcspResponse(
+    X509Certificate? checkCertificate,
+    X509Certificate? rootCertificate,
+  ) async {
     if (checkCertificate == null || rootCertificate == null) {
       return null;
     }
@@ -40,14 +46,19 @@ class Ocsp {
     if (url == null) {
       return null;
     }
-    final OcspRequestHelper request =
-        generateOcspRequest(rootCertificate, checkCertificate.c!.serialNumber!);
+    final OcspRequestHelper request = generateOcspRequest(
+      rootCertificate,
+      checkCertificate.c!.serialNumber!,
+    );
     final List<int>? requestBody = request.getEncoded();
     if (requestBody != null) {
-      final List<int>? data = await fetchData(url, 'POST',
-          data: requestBody,
-          contentType: 'application/ocsp-request',
-          timeOutDuration: const Duration(milliseconds: 5000));
+      final List<int>? data = await fetchData(
+        url,
+        'POST',
+        data: requestBody,
+        contentType: 'application/ocsp-request',
+        timeOutDuration: const Duration(milliseconds: 5000),
+      );
       if (data != null) {
         return OcspResponseHelper(data);
       }
@@ -57,15 +68,22 @@ class Ocsp {
 
   /// internal method
   OcspRequestHelper generateOcspRequest(
-      X509Certificate issuerCertificate, DerInteger serialNumber) {
+    X509Certificate issuerCertificate,
+    DerInteger serialNumber,
+  ) {
     final CertificateIdentity id = CertificateIdentity(
-        CertificateIdentity.sha1, issuerCertificate, serialNumber);
+      CertificateIdentity.sha1,
+      issuerCertificate,
+      serialNumber,
+    );
     final OcspRequestCreator requestCreator = OcspRequestCreator();
     requestCreator.addRequest(id);
     final Map<DerObjectID, X509Extension> extensions =
         <DerObjectID, X509Extension>{};
     extensions[OcspConstants.ocspNonce] = X509Extension(
-        false, DerOctet(DerOctet(createDocumentId()).getEncoded()!));
+      false,
+      DerOctet(DerOctet(createDocumentId()).getEncoded()!),
+    );
     requestCreator.requestExtensions = X509Extensions(extensions);
     return requestCreator.createRequest();
   }
@@ -101,8 +119,11 @@ class RevocationList {
       List<int>? data;
       for (final String entry in urls) {
         try {
-          data = await fetchData(entry, 'GET',
-              timeOutDuration: const Duration(milliseconds: 5000));
+          data = await fetchData(
+            entry,
+            'GET',
+            timeOutDuration: const Duration(milliseconds: 5000),
+          );
         } catch (e) {
           //
         }
@@ -235,7 +256,9 @@ class RevocationDistributionType extends Asn1Encode {
 
   /// Internal method
   RevocationDistributionType? getDistributionType(
-      Asn1Tag tag, bool isExplicit) {
+    Asn1Tag tag,
+    bool isExplicit,
+  ) {
     return getDistributionTypeFromObj(Asn1Tag.getTag(tag, true));
   }
 
@@ -326,10 +349,14 @@ class OcspTag extends Asn1Encode {
             return OcspTag(tagNumber, Asn1Sequence.getSequence(tag, false));
           case 1:
             return OcspTag(
-                tagNumber, DerAsciiString.getAsciiString(tag, false));
+              tagNumber,
+              DerAsciiString.getAsciiString(tag, false),
+            );
           case 2:
             return OcspTag(
-                tagNumber, DerAsciiString.getAsciiString(tag, false));
+              tagNumber,
+              DerAsciiString.getAsciiString(tag, false),
+            );
           case 3:
             throw Exception('Invalid tag number specified: $tagNumber');
           case 4:
@@ -338,7 +365,9 @@ class OcspTag extends Asn1Encode {
             return OcspTag(tagNumber, Asn1Sequence.getSequence(tag, false));
           case 6:
             return OcspTag(
-                tagNumber, DerAsciiString.getAsciiString(tag, false));
+              tagNumber,
+              DerAsciiString.getAsciiString(tag, false),
+            );
           case 7:
             return OcspTag(tagNumber, Asn1Octet.getOctetString(tag, false));
           case 8:
@@ -369,7 +398,9 @@ class CertificateUtililty {
     final List<String> urls = <String>[];
     try {
       final Asn1? obj = getExtensionValue(
-          certificate, X509Extensions.crlDistributionPoints.id!);
+        certificate,
+        X509Extensions.crlDistributionPoints.id!,
+      );
       if (obj == null) {
         return null;
       }
@@ -397,7 +428,9 @@ class CertificateUtililty {
                 }
                 final DerAsciiString? asciiString =
                     DerAsciiString.getAsciiString(
-                        name.getAsn1() as Asn1Tag, false);
+                      name.getAsn1() as Asn1Tag,
+                      false,
+                    );
                 if (asciiString != null) {
                   final String? url = asciiString.getString();
                   if (url != null && url.toLowerCase().endsWith('.crl') ||
@@ -420,7 +453,9 @@ class CertificateUtililty {
   String? getOcspUrl(X509Certificate certificate) {
     try {
       final Asn1? asn1 = getExtensionValue(
-          certificate, X509Extensions.authorityInfoAccess.id!);
+        certificate,
+        X509Extensions.authorityInfoAccess.id!,
+      );
       if (asn1 == null) {
         return null;
       }
@@ -518,7 +553,10 @@ class OcspRequestCreator {
       }
     }
     final OcspRequestCollection requestList = OcspRequestCollection(
-        _requestorName, DerSequence(collection: requests), requestExtensions!);
+      _requestorName,
+      DerSequence(collection: requests),
+      requestExtensions!,
+    );
     return OcspRequestHelper(RevocationListRequest(requestList));
   }
 }
@@ -546,7 +584,10 @@ class OcspRequestHelper extends X509ExtensionBase {
 class OcspRequestCollection extends Asn1Encode {
   /// Internal constructor
   OcspRequestCollection(
-      this._requestorName, this._requestList, this._requestExtensions) {
+    this._requestorName,
+    this._requestList,
+    this._requestExtensions,
+  ) {
     _version = DerInteger(<int>[0]);
     versionSet = false;
   }
@@ -587,7 +628,8 @@ class RevocationListRequest extends Asn1Encode {
   @override
   Asn1 getAsn1() {
     return DerSequence(
-        collection: Asn1EncodeCollection(<Asn1Encode>[_requests]));
+      collection: Asn1EncodeCollection(<Asn1Encode>[_requests]),
+    );
   }
 }
 
@@ -596,7 +638,8 @@ class OcspResponseHelper {
   /// Internal constructor
   OcspResponseHelper(List<int> data) {
     _response = OcspResponse(
-        Asn1Stream(PdfStreamReader(data)).readAsn1()! as Asn1Sequence);
+      Asn1Stream(PdfStreamReader(data)).readAsn1()! as Asn1Sequence,
+    );
   }
 
   /// Internal field
@@ -624,8 +667,10 @@ class OcspResponse extends Asn1Encode {
   /// Internal constructor
   OcspResponse(Asn1Sequence sequence) {
     if (sequence.count == 2) {
-      responseBytes = RevocationResponseBytes()
-          .getResponseBytes(sequence[1]! as Asn1Tag, true);
+      responseBytes = RevocationResponseBytes().getResponseBytes(
+        sequence[1]! as Asn1Tag,
+        true,
+      );
     }
   }
 
@@ -635,7 +680,7 @@ class OcspResponse extends Asn1Encode {
   @override
   Asn1 getAsn1() {
     final Asn1EncodeCollection collection = Asn1EncodeCollection(<Asn1Encode>[
-      DerCatalogue(<int>[0])
+      DerCatalogue(<int>[0]),
     ]);
     if (responseBytes != null) {
       collection.add(<dynamic>[DerTag(0, responseBytes, true)]);
@@ -666,7 +711,8 @@ class RevocationResponseBytes extends Asn1Encode {
   /// Internal method
   RevocationResponseBytes? getResponseBytes(Asn1Tag tag, bool isExplicit) {
     return getResponseBytesFromObject(
-        Asn1Sequence.getSequence(tag, isExplicit));
+      Asn1Sequence.getSequence(tag, isExplicit),
+    );
   }
 
   /// Internal method
@@ -712,8 +758,9 @@ class RevocationRequest extends Asn1Encode {
 
   @override
   Asn1 getAsn1() {
-    final Asn1EncodeCollection collection =
-        Asn1EncodeCollection(<Asn1Encode>[_certificateID]);
+    final Asn1EncodeCollection collection = Asn1EncodeCollection(<Asn1Encode>[
+      _certificateID,
+    ]);
     if (_singleRequestExtensions != null) {
       collection.add(<dynamic>[DerTag(0, _singleRequestExtensions, true)]);
     }
@@ -729,8 +776,10 @@ class TimeStampRequestCreator extends Asn1 {
   /// Internal method
   List<int> getAsnEncodedTimestampRequest(List<int> hash) {
     final Asn1Identifier digestAlgOid = Asn1Identifier(_idSHA256);
-    final Algorithms algID =
-        Algorithms.fromAsn1Sequence(digestAlgOid, DerNull.value);
+    final Algorithms algID = Algorithms.fromAsn1Sequence(
+      digestAlgOid,
+      DerNull.value,
+    );
     final Asn1Sequence seq = Asn1Sequence();
     seq.objects!.add(algID);
     seq.objects!.add(Asn1Octet(hash));
@@ -777,12 +826,15 @@ class OcspConstants {
 }
 
 /// Send the data to the server and get the response.
-Future<List<int>?> fetchData(dynamic uri, String method,
-    {String? contentType,
-    String? userName,
-    String? password,
-    List<int>? data,
-    Duration? timeOutDuration}) async {
+Future<List<int>?> fetchData(
+  dynamic uri,
+  String method, {
+  String? contentType,
+  String? userName,
+  String? password,
+  List<int>? data,
+  Duration? timeOutDuration,
+}) async {
   final http.Client client = http.Client();
   try {
     if (uri is String) {
@@ -795,15 +847,16 @@ Future<List<int>?> fetchData(dynamic uri, String method,
     if (password != null && userName != null) {
       request.headers.addAll(<String, String>{
         'Authorization':
-            'Basic ${base64Encode(utf8.encode('$userName:$password'))}'
+            'Basic ${base64Encode(utf8.encode('$userName:$password'))}',
       });
     }
     if (data != null) {
       request.bodyBytes = data;
     }
-    final http.StreamedResponse response = await ((timeOutDuration != null)
-        ? client.send(request).timeout(timeOutDuration)
-        : client.send(request));
+    final http.StreamedResponse response =
+        await ((timeOutDuration != null)
+            ? client.send(request).timeout(timeOutDuration)
+            : client.send(request));
     final List<int> responseBytes = await response.stream.toBytes();
     return (response.statusCode == 200) ? responseBytes : null;
   } catch (e) {

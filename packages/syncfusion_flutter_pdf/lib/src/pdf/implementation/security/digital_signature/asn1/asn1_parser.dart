@@ -39,17 +39,26 @@ class Asn1Parser {
     } else {
       switch (tagNumber) {
         case Asn1Tags.setTag:
-          throw ArgumentError.value(tagNumber, 'tagNumber',
-              'Constructed encoding is not used in the set');
+          throw ArgumentError.value(
+            tagNumber,
+            'tagNumber',
+            'Constructed encoding is not used in the set',
+          );
         case Asn1Tags.sequence:
-          throw ArgumentError.value(tagNumber, 'tagNumber',
-              'Constructed encoding is not used in the sequence');
+          throw ArgumentError.value(
+            tagNumber,
+            'tagNumber',
+            'Constructed encoding is not used in the sequence',
+          );
         case Asn1Tags.octetString:
           return DerOctetHelper(_stream as Asn1StreamHelper?);
       }
     }
     throw ArgumentError.value(
-        tagNumber, 'tagNumber', 'Implicit tagging is not supported');
+      tagNumber,
+      'tagNumber',
+      'Implicit tagging is not supported',
+    );
   }
 
   /// internal method
@@ -78,7 +87,10 @@ class Asn1Parser {
         return BerSequenceHelper(this);
       default:
         throw ArgumentError.value(
-            tagValue, 'tagValue', 'Invalid entry in sequence');
+          tagValue,
+          'tagValue',
+          'Invalid entry in sequence',
+        );
     }
   }
 
@@ -122,20 +134,26 @@ class Asn1Parser {
     } else {
       final Asn1StreamHelper stream = Asn1StreamHelper(_stream, length);
       if ((tag & Asn1Tags.tagged) != 0) {
-        return BerTagHelper(isConstructed, tagNumber,
-            Asn1Parser(stream, Asn1Stream.getLimit(stream)));
+        return BerTagHelper(
+          isConstructed,
+          tagNumber,
+          Asn1Parser(stream, Asn1Stream.getLimit(stream)),
+        );
       }
       if (isConstructed) {
         switch (tagNumber) {
           case Asn1Tags.octetString:
             return BerOctetHelper(
-                Asn1Parser(stream, Asn1Stream.getLimit(stream)));
+              Asn1Parser(stream, Asn1Stream.getLimit(stream)),
+            );
           case Asn1Tags.sequence:
             return DerSequenceHelper(
-                Asn1Parser(stream, Asn1Stream.getLimit(stream)));
+              Asn1Parser(stream, Asn1Stream.getLimit(stream)),
+            );
           case Asn1Tags.setTag:
             return DerSetHelper(
-                Asn1Parser(stream, Asn1Stream.getLimit(stream)));
+              Asn1Parser(stream, Asn1Stream.getLimit(stream)),
+            );
           default:
             return null;
         }

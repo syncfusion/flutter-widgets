@@ -47,22 +47,27 @@ class EmaIndicator<T, D> extends TechnicalIndicator<T, D> {
     this.valueField = 'close',
     super.onRenderDetailsUpdate,
   }) : super(
-          xValueMapper: xValueMapper != null && dataSource != null
-              ? (int index) => xValueMapper(dataSource[index], index)
-              : null,
-          highValueMapper: highValueMapper != null && dataSource != null
-              ? (int index) => highValueMapper(dataSource[index], index)
-              : null,
-          lowValueMapper: lowValueMapper != null && dataSource != null
-              ? (int index) => lowValueMapper(dataSource[index], index)
-              : null,
-          openValueMapper: openValueMapper != null && dataSource != null
-              ? (int index) => openValueMapper(dataSource[index], index)
-              : null,
-          closeValueMapper: closeValueMapper != null && dataSource != null
-              ? (int index) => closeValueMapper(dataSource[index], index)
-              : null,
-        );
+         xValueMapper:
+             xValueMapper != null && dataSource != null
+                 ? (int index) => xValueMapper(dataSource[index], index)
+                 : null,
+         highValueMapper:
+             highValueMapper != null && dataSource != null
+                 ? (int index) => highValueMapper(dataSource[index], index)
+                 : null,
+         lowValueMapper:
+             lowValueMapper != null && dataSource != null
+                 ? (int index) => lowValueMapper(dataSource[index], index)
+                 : null,
+         openValueMapper:
+             openValueMapper != null && dataSource != null
+                 ? (int index) => openValueMapper(dataSource[index], index)
+                 : null,
+         closeValueMapper:
+             closeValueMapper != null && dataSource != null
+                 ? (int index) => closeValueMapper(dataSource[index], index)
+                 : null,
+       );
 
   /// Value field property for EMA indicator.
   ///
@@ -165,7 +170,7 @@ class EmaIndicator<T, D> extends TechnicalIndicator<T, D> {
       signalLineColor,
       signalLineWidth,
       valueField,
-      period
+      period,
     ];
     return Object.hashAll(values);
   }
@@ -209,7 +214,9 @@ class EmaIndicatorWidget extends IndicatorWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, EmaIndicatorRenderer renderObject) {
+    BuildContext context,
+    EmaIndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final EmaIndicator ema = indicator as EmaIndicator;
 
@@ -266,17 +273,17 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   ]) {
     if (dataSource != null) {
       super.populateDataSource(
-          dataSource, xValueMapper, xValues, <ChartIndexedValueMapper<num?>?>[
-        highValueMapper,
-        lowValueMapper,
-        openValueMapper,
-        closeValueMapper
-      ], <List<num>>[
-        _highValues,
-        _lowValues,
-        _openValues,
-        _closeValues
-      ]);
+        dataSource,
+        xValueMapper,
+        xValues,
+        <ChartIndexedValueMapper<num?>?>[
+          highValueMapper,
+          lowValueMapper,
+          openValueMapper,
+          closeValueMapper,
+        ],
+        <List<num>>[_highValues, _lowValues, _openValues, _closeValues],
+      );
     } else {
       if (seriesName != null) {
         if (dependent is FinancialSeriesRendererBase<T, D>) {
@@ -328,7 +335,7 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       final num previousAverage = _signalLineActualValues[index - period].dy;
       final num yValue =
           (_fieldValue(index, valueField) - previousAverage) * value +
-              previousAverage;
+          previousAverage;
       _yValues.add(yValue);
 
       final double x = xValues[index].toDouble();
@@ -425,7 +432,7 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           header: tooltipHeaderText(chartPoint),
           text: trackballText(chartPoint, text),
           color: signalLineColor,
-        )
+        ),
       ];
     }
     return null;
@@ -488,8 +495,9 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         signalLineColor,
         dashArray,
       );
-      final TechnicalIndicatorRenderDetails details =
-          onRenderDetailsUpdate!(params);
+      final TechnicalIndicatorRenderDetails details = onRenderDetailsUpdate!(
+        params,
+      );
       strokePaint
         ..color = details.signalLineColor
         ..strokeWidth = details.signalLineWidth;
@@ -506,8 +514,12 @@ class EmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   void onPaint(PaintingContext context, Offset offset) {
     if (signalLinePoints.isNotEmpty) {
       context.canvas.save();
-      final Rect clip = clipRect(paintBounds, animationFactor,
-          isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+      final Rect clip = clipRect(
+        paintBounds,
+        animationFactor,
+        isInversed: xAxis!.isInversed,
+        isTransposed: isTransposed,
+      );
       context.canvas.clipRect(clip);
       final int length = signalLinePoints.length - 1;
       if (strokePaint.color != Colors.transparent &&

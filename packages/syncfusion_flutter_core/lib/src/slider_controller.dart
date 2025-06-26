@@ -190,12 +190,12 @@ class RangeController extends DiagnosticableTree with ChangeNotifier {
   ///
   /// [start] and [end]
   RangeController({@required dynamic start, @required dynamic end})
-      : assert(start != null),
-        assert(end != null),
-        _previousStart = start,
-        _previousEnd = end,
-        _start = start,
-        _end = end;
+    : assert(start != null),
+      assert(end != null),
+      _previousStart = start,
+      _previousEnd = end,
+      _start = start,
+      _end = end;
 
   /// The current selected start value.
   ///

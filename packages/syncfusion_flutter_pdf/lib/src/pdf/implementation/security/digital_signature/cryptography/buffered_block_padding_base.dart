@@ -1,10 +1,9 @@
-import 'dart:math';
+import 'dart:typed_data';
 
 import '../asn1/asn1.dart';
 import 'ipadding.dart';
 
-/// internal class
-abstract class BufferedBlockPaddingBase implements IBufferedCipher {
+abstract class BufferedBlockPaddingBase extends IBufferedCipher {
   /// internal constructor
   BufferedBlockPaddingBase();
   //Fields
@@ -52,13 +51,21 @@ abstract class BufferedBlockPaddingBase implements IBufferedCipher {
   List<int>? readBytes(List<int> input, int inOff, int length);
   @override
   Map<String, dynamic> processByteFromValues(
-      List<int> input, List<int> output, int outOff) {
+    List<int> input,
+    List<int> output,
+    int outOff,
+  ) {
     return processBytes(input, 0, input.length, output, outOff);
   }
 
   @override
   Map<String, dynamic> processBytes(
-      List<int> input, int inOff, int length, List<int>? output, int outOff) {
+    List<int> input,
+    int inOff,
+    int length,
+    List<int>? output,
+    int outOff,
+  ) {
     final List<int>? outBytes = readBytes(input, inOff, length);
     if (outBytes == null) {
       return <String, dynamic>{'length': 0, 'output': output};
@@ -99,15 +106,28 @@ abstract class BufferedBlockPaddingBase implements IBufferedCipher {
 
   @override
   Map<String, dynamic> copyFinal(
-      List<int> input, List<int> output, int outOff) {
+    List<int> input,
+    List<int> output,
+    int outOff,
+  ) {
     return readFinalValues(input, 0, input.length, output, outOff);
   }
 
   @override
   Map<String, dynamic> readFinalValues(
-      List<int> input, int inOff, int length, List<int>? output, int outOff) {
-    Map<String, dynamic> result =
-        processBytes(input, inOff, length, output, outOff);
+    List<int> input,
+    int inOff,
+    int length,
+    List<int>? output,
+    int outOff,
+  ) {
+    Map<String, dynamic> result = processBytes(
+      input,
+      inOff,
+      length,
+      output,
+      outOff,
+    );
     int len = result['length'] as int;
     output = result['output'] as List<int>?;
     result = writeFinal(output!, outOff + len);
@@ -205,8 +225,13 @@ class BufferedCipher extends BufferedBlockPaddingBase {
     final int outLength = getUpdateOutputSize(length);
     List<int>? outBytes =
         outLength > 0 ? List<int>.generate(outLength, (int i) => 0) : null;
-    final Map<String, dynamic> result =
-        processBytes(input, inOff, length, outBytes, 0);
+    final Map<String, dynamic> result = processBytes(
+      input,
+      inOff,
+      length,
+      outBytes,
+      0,
+    );
     final int? position = result['length'] as int?;
     outBytes = result['output'] as List<int>?;
     if (outLength > 0 && position! < outLength) {
@@ -219,8 +244,13 @@ class BufferedCipher extends BufferedBlockPaddingBase {
 
   /// internal method
   @override
-  Map<String, dynamic> processBytes(List<int>? input, int inOffset, int length,
-      List<int>? output, int outOffset) {
+  Map<String, dynamic> processBytes(
+    List<int>? input,
+    int inOffset,
+    int length,
+    List<int>? output,
+    int outOffset,
+  ) {
     Map<String, dynamic>? result;
     if (length < 1) {
       return <String, dynamic>{'length': 0, 'output': output};
@@ -239,7 +269,11 @@ class BufferedCipher extends BufferedBlockPaddingBase {
       inOffset += gapLength;
       while (length > _bytes!.length) {
         result = _cipher.processBlock(
-            input, inOffset, output, outOffset + resultLength);
+          input,
+          inOffset,
+          output,
+          outOffset + resultLength,
+        );
         resultLength = resultLength + result!['length']! as int;
         output = result['output'] as List<int>?;
         length -= blockSize!;
@@ -249,8 +283,12 @@ class BufferedCipher extends BufferedBlockPaddingBase {
     List.copyRange(_bytes!, _offset!, input!, inOffset, inOffset + length);
     _offset = _offset! + length;
     if (_offset == _bytes!.length) {
-      result =
-          _cipher.processBlock(_bytes, 0, output, outOffset + resultLength);
+      result = _cipher.processBlock(
+        _bytes,
+        0,
+        output,
+        outOffset + resultLength,
+      );
       resultLength = resultLength + result!['length']! as int;
       output = result['output'] as List<int>?;
       _offset = 0;
@@ -299,8 +337,10 @@ class BufferedCipher extends BufferedBlockPaddingBase {
         position = position! + result['length']! as int;
         outBytes = result['output'] as List<int>?;
         if (position < outBytes!.length) {
-          final List<int> tempBytes =
-              List<int>.generate(position, (int i) => 0);
+          final List<int> tempBytes = List<int>.generate(
+            position,
+            (int i) => 0,
+          );
           List.copyRange(tempBytes, 0, outBytes, 0, position);
           outBytes = tempBytes;
         }
@@ -327,7 +367,6 @@ class BufferedCipher extends BufferedBlockPaddingBase {
   }
 }
 
-/// internal class
 class BufferedBlockPadding extends BufferedCipher {
   /// internal constructor
   BufferedBlockPadding(ICipher cipher, [IPadding? padding]) : super(cipher) {
@@ -342,10 +381,9 @@ class BufferedBlockPadding extends BufferedCipher {
   @override
   void initialize(bool isEncryption, ICipherParameter? parameters) {
     _isEncryption = isEncryption;
-    Random? initRandom;
     reset();
-    _padding.initialize(initRandom);
     _cipher.initialize(isEncryption, parameters);
+    _padding.initialize(parameters);
   }
 
   @override
@@ -387,8 +425,13 @@ class BufferedBlockPadding extends BufferedCipher {
   }
 
   @override
-  Map<String, dynamic> processBytes(List<int>? input, int inOffset, int length,
-      List<int>? output, int outOffset) {
+  Map<String, dynamic> processBytes(
+    List<int>? input,
+    int inOffset,
+    int length,
+    List<int>? output,
+    int outOffset,
+  ) {
     if (length < 0) {
       throw ArgumentError.value(length, 'length', 'Invalid length');
     }
@@ -412,7 +455,11 @@ class BufferedBlockPadding extends BufferedCipher {
       inOffset += gapLength;
       while (length > _bytes!.length) {
         result = _cipher.processBlock(
-            input, inOffset, output, outOffset + resultLength);
+          input,
+          inOffset,
+          output,
+          outOffset + resultLength,
+        );
         resultLength += result!['length']! as int;
         output = result['output'] as List<int>?;
         length -= blockSize!;
@@ -434,14 +481,17 @@ class BufferedBlockPadding extends BufferedCipher {
         if ((outOff! + 2 * blockSize!) > output!.length) {
           reset();
           throw ArgumentError.value(
-              output, 'output', 'output buffer too short');
+            output,
+            'output',
+            'output buffer too short',
+          );
         }
         result = _cipher.processBlock(_bytes, 0, output, outOff);
         resultLen = result!['length'] as int;
         output = result['output'] as List<int>?;
         _offset = 0;
       }
-      _padding.addPadding(_bytes, _offset);
+      _padding.addPadding(Uint8List.fromList(_bytes!), _offset!);
       result = _cipher.processBlock(_bytes, 0, output, outOff! + resultLen);
       resultLen += result!['length'] as int;
       output = result['output'] as List<int>?;
@@ -457,13 +507,126 @@ class BufferedBlockPadding extends BufferedCipher {
         throw ArgumentError.value(output, 'output', 'incomplete in decryption');
       }
       try {
-        resultLen -= _padding.count(_bytes)!;
+        resultLen -= _padding.count(Uint8List.fromList(_bytes!));
         List.copyRange(output!, outOff!, _bytes!, 0, resultLen);
       } finally {
         reset();
       }
     }
     return <String, dynamic>{'length': resultLen, 'output': output};
+  }
+}
+
+class PaddedCipherMode extends IBufferedCipher {
+  /// internal constructor
+  PaddedCipherMode(this.padding, this.cipher);
+  @override
+  final IPadding padding;
+  @override
+  final ICipher cipher;
+
+  @override
+  String get algorithmName => '${cipher.algorithmName}/${padding.paddingName}';
+
+  @override
+  int get blockSize => cipher.blockSize!;
+
+  bool? _isEncryption;
+
+  @override
+  void reset() {
+    _isEncryption = null;
+    cipher.reset();
+  }
+
+  //Implemntation
+  @override
+  void initialize(
+    bool forEncryption,
+    covariant BlockCipherPaddedParameters parameters,
+  ) {
+    _isEncryption = forEncryption;
+    cipher.initialize(forEncryption, parameters.underlyingKeyParameters);
+    padding.initialize(parameters.paddingCipherParameters);
+  }
+
+  @override
+  Uint8List process(Uint8List data) {
+    final inputBlocks = (data.length + blockSize - 1) ~/ blockSize;
+    int outputBlocks;
+    if (_isEncryption ?? false) {
+      outputBlocks = (data.length + blockSize) ~/ blockSize;
+    } else {
+      if ((data.length % blockSize) != 0) {
+        throw ArgumentError(
+          'Input data length is not a multiple of the size of cipher block',
+        );
+      }
+      outputBlocks = inputBlocks;
+    }
+    final out = Uint8List(outputBlocks * blockSize);
+    for (var i = 0; i < (inputBlocks - 1); i++) {
+      final offset = i * blockSize;
+      processingBlock(data, offset, out, offset);
+    }
+    final lastBlockOffset = (inputBlocks - 1) * blockSize;
+    final lastBlockSize = doFinalProcess(
+      data,
+      lastBlockOffset,
+      out,
+      lastBlockOffset,
+    );
+    return out.sublist(0, lastBlockOffset + lastBlockSize);
+  }
+
+  @override
+  int? processingBlock(
+    Uint8List inputBytes,
+    int inputOffset,
+    Uint8List outputBytes,
+    int outputOffset,
+  ) {
+    return cipher.processingBlock(
+      inputBytes,
+      inputOffset,
+      outputBytes,
+      outputOffset,
+    );
+  }
+
+  @override
+  int doFinalProcess(
+    Uint8List inputBytes,
+    int inputOffset,
+    Uint8List outputBytes,
+    int outputOffset,
+  ) {
+    if (_isEncryption ?? false) {
+      final lastBlock = Uint8List(blockSize)
+        ..setAll(0, inputBytes.sublist(inputOffset));
+      final remainderBlock = inputBytes.length - inputOffset;
+
+      if (remainderBlock < blockSize) {
+        padding.addPadding(lastBlock, inputBytes.length - inputOffset);
+        processingBlock(lastBlock, 0, outputBytes, outputOffset);
+        return blockSize;
+      } else {
+        processingBlock(inputBytes, inputOffset, outputBytes, outputOffset);
+        padding.addPadding(lastBlock, 0);
+        processingBlock(lastBlock, 0, outputBytes, outputOffset + blockSize);
+        return 2 * blockSize;
+      }
+    } else {
+      processingBlock(inputBytes, inputOffset, outputBytes, outputOffset);
+      final padCount = padding.count(outputBytes.sublist(outputOffset));
+      final padOffsetInBlock = blockSize - padCount;
+      outputBytes.fillRange(
+        outputOffset + padOffsetInBlock,
+        outputBytes.length,
+        0,
+      );
+      return padOffsetInBlock;
+    }
   }
 }
 
@@ -476,11 +639,11 @@ class Pkcs7Padding implements IPadding {
   String get paddingName => Asn1.pkcs7;
   //Implementation
   @override
-  void initialize(Random? random) {}
+  void initialize([ICipherParameter? params]) {}
   @override
-  int addPadding(List<int>? bytes, int? offset) {
-    final int code = (bytes!.length - offset!).toUnsigned(8);
-    while (offset! < bytes.length) {
+  int addPadding(Uint8List bytes, int offset) {
+    final int code = bytes.length - offset;
+    while (offset < bytes.length) {
       bytes[offset] = code;
       offset++;
     }
@@ -488,8 +651,8 @@ class Pkcs7Padding implements IPadding {
   }
 
   @override
-  int count(List<int>? input) {
-    final int count = input![input.length - 1].toSigned(32);
+  int count(Uint8List input) {
+    final int count = _clipByte(input[input.length - 1]);
     if (count < 1 || count > input.length) {
       throw ArgumentError.value(input, 'input', 'Invalid pad');
     }
@@ -500,4 +663,20 @@ class Pkcs7Padding implements IPadding {
     }
     return count;
   }
+}
+
+int _clipByte(int x) => x & _mask_8;
+const _mask_8 = 0xFF;
+
+class BlockCipherPaddedParameters<
+  KeyCipherParameters extends ICipherParameter?,
+  PaddingCipherParameters extends ICipherParameter?
+>
+    implements ICipherParameter {
+  BlockCipherPaddedParameters(
+    this.underlyingKeyParameters,
+    this.paddingCipherParameters,
+  );
+  final KeyCipherParameters? underlyingKeyParameters;
+  final PaddingCipherParameters? paddingCipherParameters;
 }

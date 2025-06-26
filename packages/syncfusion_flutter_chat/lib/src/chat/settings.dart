@@ -14,12 +14,13 @@ typedef ChatWidgetBuilder = BaseWidgetBuilder<ChatMessage>;
 /// It takes a [selected] flag, the [messageIndex] for the message,
 /// the [suggestion] being interacted with, and the [suggestionIndex]
 /// indicating the position of the suggestion.
-typedef ChatSuggestionItemSelectedCallback = void Function(
-  bool selected,
-  int messageIndex,
-  ChatMessageSuggestion suggestion,
-  int suggestionIndex,
-);
+typedef ChatSuggestionItemSelectedCallback =
+    void Function(
+      bool selected,
+      int messageIndex,
+      ChatMessageSuggestion suggestion,
+      int suggestionIndex,
+    );
 
 /// Mode to handle the chat Suggestion items overflow.
 enum ChatSuggestionOverflow {
@@ -293,11 +294,7 @@ class ChatMessage extends Message {
 class ChatAuthor extends MessageAuthor {
   /// Creates a new [ChatAuthor] with the specified [id], [name], and optional
   /// [avatar].
-  const ChatAuthor({
-    required this.id,
-    required this.name,
-    this.avatar,
-  });
+  const ChatAuthor({required this.id, required this.name, this.avatar});
 
   /// Unique identifier for the author which contains information about
   /// user name and user ID.
@@ -411,10 +408,8 @@ class ChatAuthor extends MessageAuthor {
 class ChatMessageSuggestion extends MessageSuggestion {
   /// Creates a [ChatMessageSuggestion] with the given [data] and
   /// optional [selected].
-  const ChatMessageSuggestion({
-    required this.data,
-    this.selected = false,
-  }) : builder = null;
+  const ChatMessageSuggestion({required this.data, this.selected = false})
+    : builder = null;
 
   const ChatMessageSuggestion.builder({
     required this.builder,
@@ -571,20 +566,24 @@ class ChatSuggestionSettings extends SuggestionSettings {
     this.itemShape,
     this.textStyle,
     this.margin = const EdgeInsetsDirectional.symmetric(vertical: 5.0),
-    this.itemPadding =
-        const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+    this.itemPadding = const EdgeInsets.symmetric(
+      horizontal: 12.0,
+      vertical: 8.0,
+    ),
     this.orientation = Axis.horizontal,
     ChatSuggestionOverflow itemOverflow = ChatSuggestionOverflow.wrap,
     ChatSuggestionSelectionType selectionType =
         ChatSuggestionSelectionType.single,
     this.runSpacing = 12.0,
     this.spacing = 16.0,
-  })  : itemOverflow = itemOverflow == ChatSuggestionOverflow.scroll
-            ? SuggestionOverflow.scroll
-            : SuggestionOverflow.wrap,
-        selectionType = selectionType == ChatSuggestionSelectionType.multiple
-            ? SuggestionSelectionType.multiple
-            : SuggestionSelectionType.single;
+  }) : itemOverflow =
+           itemOverflow == ChatSuggestionOverflow.scroll
+               ? SuggestionOverflow.scroll
+               : SuggestionOverflow.wrap,
+       selectionType =
+           selectionType == ChatSuggestionSelectionType.multiple
+               ? SuggestionSelectionType.multiple
+               : SuggestionSelectionType.single;
 
   /// Background color of the suggestion area.
   ///
@@ -1283,10 +1282,10 @@ class ChatComposer extends Composer {
   const ChatComposer.builder({
     required this.builder,
     this.margin = const EdgeInsets.only(top: 16.0),
-  })  : textStyle = null,
-        decoration = null,
-        minLines = 0,
-        maxLines = 0;
+  }) : textStyle = null,
+       decoration = null,
+       minLines = 0,
+       maxLines = 0;
 
   /// Maximum number of lines the text input field can contain.
   ///

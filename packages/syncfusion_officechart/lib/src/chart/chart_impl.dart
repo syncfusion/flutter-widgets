@@ -54,7 +54,7 @@ class Chart {
     ExcelChartType.bar,
     ExcelChartType.column,
     ExcelChartType.columnClustered3D,
-    ExcelChartType.barClustered3D
+    ExcelChartType.barClustered3D,
   ];
 
   /// Represent the stacked chart collection.
@@ -65,7 +65,7 @@ class Chart {
     ExcelChartType.lineMarkersStacked,
     ExcelChartType.areaStacked,
     ExcelChartType.columnStacked3D,
-    ExcelChartType.barStacked3D
+    ExcelChartType.barStacked3D,
   ];
 
   /// Represent 100% charts.Here each value in a series is shown as a portion of 100%.
@@ -561,7 +561,8 @@ class Chart {
 
     if (dataRange == null && iCount != 0) {
       final Error error = ArgumentError(
-          'This property supported only in chart where can detect data range.');
+        'This property supported only in chart where can detect data range.',
+      );
       throw error;
     }
 
@@ -984,7 +985,11 @@ class Chart {
   /// Finds the category range in the specified chart range.
   // ignore: unused_element
   Range _getCategoryRange(
-      Range chartValues, Range values, double count, bool bIsInRow) {
+    Range chartValues,
+    Range values,
+    double count,
+    bool bIsInRow,
+  ) {
     final int firstRow = chartValues.row;
     final int lastRow = chartValues.lastRow;
     final int firstColumn = chartValues.column;
@@ -994,28 +999,57 @@ class Chart {
       values = chartValues;
       return chartValues;
     }
-    result = bIsInRow
-        ? chartValues.worksheet
-            .getRangeByIndex(firstRow, firstColumn, lastRow, firstColumn)
-        : chartValues.worksheet
-            .getRangeByIndex(firstRow, firstColumn, firstRow, lastColumn);
+    result =
+        bIsInRow
+            ? chartValues.worksheet.getRangeByIndex(
+              firstRow,
+              firstColumn,
+              lastRow,
+              firstColumn,
+            )
+            : chartValues.worksheet.getRangeByIndex(
+              firstRow,
+              firstColumn,
+              firstRow,
+              lastColumn,
+            );
     if (firstRow == lastRow && firstColumn == lastColumn) {
       values = result;
     } else if (firstRow == lastRow) {
-      values = bIsInRow
-          ? chartValues.worksheet
-              .getRangeByIndex(firstRow, firstColumn, lastRow, lastColumn)
-          : chartValues
-        ..worksheet.getRangeByIndex(firstRow, firstColumn, lastRow, lastColumn);
+      values =
+          bIsInRow
+                ? chartValues.worksheet.getRangeByIndex(
+                  firstRow,
+                  firstColumn,
+                  lastRow,
+                  lastColumn,
+                )
+                : chartValues
+            ..worksheet.getRangeByIndex(
+              firstRow,
+              firstColumn,
+              lastRow,
+              lastColumn,
+            );
     } else {
-      final int add = bIsInRow
-          ? (firstColumn == lastColumn ? 0 : 1)
-          : (firstRow == lastRow ? 0 : 1);
-      values = bIsInRow
-          ? chartValues.worksheet
-              .getRangeByIndex(firstRow, firstColumn + add, lastRow, lastColumn)
-          : chartValues.worksheet.getRangeByIndex(
-              firstRow + add, firstColumn, lastRow, lastColumn);
+      final int add =
+          bIsInRow
+              ? (firstColumn == lastColumn ? 0 : 1)
+              : (firstRow == lastRow ? 0 : 1);
+      values =
+          bIsInRow
+              ? chartValues.worksheet.getRangeByIndex(
+                firstRow,
+                firstColumn + add,
+                lastRow,
+                lastColumn,
+              )
+              : chartValues.worksheet.getRangeByIndex(
+                firstRow + add,
+                firstColumn,
+                lastRow,
+                lastColumn,
+              );
     }
     return result;
   }
@@ -1029,8 +1063,11 @@ class Chart {
 
     Range? serieValue, serieNameRange, axisRange;
 
-    serieNameRange =
-        _getSerieOrAxisRange(_dataRange, _bSeriesInRows, serieValue);
+    serieNameRange = _getSerieOrAxisRange(
+      _dataRange,
+      _bSeriesInRows,
+      serieValue,
+    );
     axisRange = _getSerieOrAxisRange(_serieValue, !_bSeriesInRows, _serieValue);
     // }
     if (!_validateSerieRangeForChartType(_serieValue, type, _bSeriesInRows)) {
@@ -1042,13 +1079,19 @@ class Chart {
     int iIndex = 0;
 
     if (serieNameRange != null && axisRange != null) {
-      iIndex = _bSeriesInRows
-          ? axisRange.lastRow - axisRange.row + 1
-          : axisRange.lastColumn - axisRange.column + 1;
+      iIndex =
+          _bSeriesInRows
+              ? axisRange.lastRow - axisRange.row + 1
+              : axisRange.lastColumn - axisRange.column + 1;
     }
 
     _updateSeriesByDataRange(
-        _serieValue, serieNameRange, axisRange, iIndex, _bSeriesInRows);
+      _serieValue,
+      serieNameRange,
+      axisRange,
+      iIndex,
+      _bSeriesInRows,
+    );
   }
 
   /// Gets data range that represents series name or category axis.
@@ -1069,11 +1112,13 @@ class Chart {
     bool bIsName = false;
 
     for (int i = iFirsCount; i < iLastCount && !bIsName; i++) {
-      final Range curRange = bIsInRow
-          ? range.worksheet.getRangeByIndex(iRowColumn, i)
-          : range.worksheet.getRangeByIndex(i, iRowColumn);
+      final Range curRange =
+          bIsInRow
+              ? range.worksheet.getRangeByIndex(iRowColumn, i)
+              : range.worksheet.getRangeByIndex(i, iRowColumn);
 
-      bIsName = (curRange.number != null &&
+      bIsName =
+          (curRange.number != null &&
               curRange.dateTime == null &&
               curRange.text == null) ||
           (curRange.dateTime == null &&
@@ -1092,24 +1137,47 @@ class Chart {
       return null;
     }
 
-    final Range result = bIsInRow
-        ? range.worksheet
-            .getRangeByIndex(iFirstLen, iFirsCount, iRowColumn, iIndex)
-        : range.worksheet
-            .getRangeByIndex(iFirsCount, iFirstLen, iIndex, iRowColumn);
+    final Range result =
+        bIsInRow
+            ? range.worksheet.getRangeByIndex(
+              iFirstLen,
+              iFirsCount,
+              iRowColumn,
+              iIndex,
+            )
+            : range.worksheet.getRangeByIndex(
+              iFirsCount,
+              iFirstLen,
+              iIndex,
+              iRowColumn,
+            );
 
-    serieRange = bIsInRow
-        ? range.worksheet.getRangeByIndex(
-            range.row, result.lastColumn + 1, range.lastRow, range.lastColumn)
-        : range.worksheet.getRangeByIndex(
-            result.lastRow + 1, range.column, range.lastRow, range.lastColumn);
+    serieRange =
+        bIsInRow
+            ? range.worksheet.getRangeByIndex(
+              range.row,
+              result.lastColumn + 1,
+              range.lastRow,
+              range.lastColumn,
+            )
+            : range.worksheet.getRangeByIndex(
+              result.lastRow + 1,
+              range.column,
+              range.lastRow,
+              range.lastColumn,
+            );
     _serieValue = serieRange;
     return result;
   }
 
   /// Updates series value by data range.
-  void _updateSeriesByDataRange(Range? serieValue, Range? serieNameRange,
-      Range? axisRange, int iIndex, bool isSeriesInRows) {
+  void _updateSeriesByDataRange(
+    Range? serieValue,
+    Range? serieNameRange,
+    Range? axisRange,
+    int iIndex,
+    bool isSeriesInRows,
+  ) {
     Worksheet? sheet;
     if (serieValue != null) {
       sheet = serieValue.worksheet;
@@ -1120,11 +1188,20 @@ class Chart {
     sheet ??= _worksheet;
     final int iLen = _series.count;
     for (int i = 0; i < iLen; i++) {
-      final Range value = isSeriesInRows
-          ? sheet.getRangeByIndex(serieValue!.row + i, serieValue.column,
-              serieValue.row + i, serieValue.lastColumn)
-          : sheet.getRangeByIndex(serieValue!.row, serieValue.column + i,
-              serieValue.lastRow, serieValue.column + i);
+      final Range value =
+          isSeriesInRows
+              ? sheet.getRangeByIndex(
+                serieValue!.row + i,
+                serieValue.column,
+                serieValue.row + i,
+                serieValue.lastColumn,
+              )
+              : sheet.getRangeByIndex(
+                serieValue!.row,
+                serieValue.column + i,
+                serieValue.lastRow,
+                serieValue.column + i,
+              );
 
       final ChartSerie serie = series[i];
       serie.name = 'Serie${i + 1}';
@@ -1136,25 +1213,43 @@ class Chart {
         iAddIndex +=
             isSeriesInRows ? serieNameRange.row : serieNameRange.column;
 
-        String? formula = isSeriesInRows
-            ? sheet
-                .getRangeByIndex(iAddIndex + i, serieNameRange.column,
-                    iAddIndex + i, serieNameRange.lastColumn)
-                .addressGlobal
-            : sheet
-                .getRangeByIndex(serieNameRange.row, iAddIndex + i,
-                    serieNameRange.lastRow, iAddIndex + i)
-                .addressGlobal;
+        String? formula =
+            isSeriesInRows
+                ? sheet
+                    .getRangeByIndex(
+                      iAddIndex + i,
+                      serieNameRange.column,
+                      iAddIndex + i,
+                      serieNameRange.lastColumn,
+                    )
+                    .addressGlobal
+                : sheet
+                    .getRangeByIndex(
+                      serieNameRange.row,
+                      iAddIndex + i,
+                      serieNameRange.lastRow,
+                      iAddIndex + i,
+                    )
+                    .addressGlobal;
         serie.nameOrFormula = formula;
-        formula = isSeriesInRows
-            ? sheet
-                .getRangeByIndex(iAddIndex + i, serieNameRange.column,
-                    iAddIndex + i, serieNameRange.lastColumn)
-                .text
-            : sheet
-                .getRangeByIndex(serieNameRange.row, iAddIndex + i,
-                    serieNameRange.lastRow, iAddIndex + i)
-                .text;
+        formula =
+            isSeriesInRows
+                ? sheet
+                    .getRangeByIndex(
+                      iAddIndex + i,
+                      serieNameRange.column,
+                      iAddIndex + i,
+                      serieNameRange.lastColumn,
+                    )
+                    .text
+                : sheet
+                    .getRangeByIndex(
+                      serieNameRange.row,
+                      iAddIndex + i,
+                      serieNameRange.lastRow,
+                      iAddIndex + i,
+                    )
+                    .text;
         serie.name = formula;
       }
     }
@@ -1162,15 +1257,19 @@ class Chart {
 
   /// Validates Series range for min Series count of custom chart type.
   bool _validateSerieRangeForChartType(
-      Range? serieValue, ExcelChartType type, bool isSeriesInRows) {
+    Range? serieValue,
+    ExcelChartType type,
+    bool isSeriesInRows,
+  ) {
     if (serieValue == null) {
       final Error error = ArgumentError('serieValue - Value cannot be null');
       throw error;
     }
 
-    final int iSeriesInRangeCount = isSeriesInRows
-        ? serieValue.lastRow - serieValue.row + 1
-        : serieValue.lastColumn - serieValue.column + 1;
+    final int iSeriesInRangeCount =
+        isSeriesInRows
+            ? serieValue.lastRow - serieValue.row + 1
+            : serieValue.lastColumn - serieValue.column + 1;
     final int iSeriesCount = _series.count;
     final bool bRemove = iSeriesCount > iSeriesInRangeCount;
     final int iStart = bRemove ? iSeriesInRangeCount : iSeriesCount;

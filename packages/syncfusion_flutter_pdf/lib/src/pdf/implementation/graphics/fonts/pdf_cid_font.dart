@@ -12,18 +12,27 @@ import 'pdf_font_metrics.dart';
 /// internal class
 class PdfCidFont extends PdfDictionary {
   /// Initializes a new instance of the [PdfCidFont] class.
-  PdfCidFont(PdfCjkFontFamily? fontFamily, int? fontStyle,
-      PdfFontMetrics fontMetrics) {
+  PdfCidFont(
+    PdfCjkFontFamily? fontFamily,
+    int? fontStyle,
+    PdfFontMetrics fontMetrics,
+  ) {
     this[PdfDictionaryProperties.type] = PdfName(PdfDictionaryProperties.font);
-    this[PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.cidFontType2);
-    this[PdfDictionaryProperties.baseFont] =
-        PdfName(fontMetrics.postScriptName);
-    this[PdfDictionaryProperties.dw] =
-        PdfNumber((fontMetrics.widthTable! as CjkWidthTable).defaultWidth);
+    this[PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.cidFontType2,
+    );
+    this[PdfDictionaryProperties.baseFont] = PdfName(
+      fontMetrics.postScriptName,
+    );
+    this[PdfDictionaryProperties.dw] = PdfNumber(
+      (fontMetrics.widthTable! as CjkWidthTable).defaultWidth,
+    );
     this[PdfDictionaryProperties.w] = fontMetrics.widthTable!.toArray();
-    this[PdfDictionaryProperties.fontDescriptor] =
-        _getFontDescryptor(fontFamily, fontStyle, fontMetrics);
+    this[PdfDictionaryProperties.fontDescriptor] = _getFontDescryptor(
+      fontFamily,
+      fontStyle,
+      fontMetrics,
+    );
     this[PdfDictionaryProperties.cidSystemInfo] = _getSystemInfo(fontFamily);
   }
 
@@ -59,21 +68,34 @@ class PdfCidFont extends PdfDictionary {
   }
 
   /// internal method
-  PdfDictionary _getFontDescryptor(PdfCjkFontFamily? fontFamily, int? fontStyle,
-      PdfFontMetrics fontMetrics) {
+  PdfDictionary _getFontDescryptor(
+    PdfCjkFontFamily? fontFamily,
+    int? fontStyle,
+    PdfFontMetrics fontMetrics,
+  ) {
     final PdfDictionary fontDescryptor = PdfDictionary();
     switch (fontFamily) {
       case PdfCjkFontFamily.hanyangSystemsGothicMedium:
         _fillHanyangSystemsGothicMedium(
-            fontDescryptor, fontFamily, fontMetrics);
+          fontDescryptor,
+          fontFamily,
+          fontMetrics,
+        );
         break;
       case PdfCjkFontFamily.hanyangSystemsShinMyeongJoMedium:
         _fillHanyangSystemsShinMyeongJoMedium(
-            fontDescryptor, fontFamily, fontMetrics);
+          fontDescryptor,
+          fontFamily,
+          fontMetrics,
+        );
         break;
       case PdfCjkFontFamily.heiseiKakuGothicW5:
         _fillHanyangSystemsGothicMediumWithStyle(
-            fontDescryptor, fontStyle!, fontFamily, fontMetrics);
+          fontDescryptor,
+          fontStyle!,
+          fontFamily,
+          fontMetrics,
+        );
         break;
       case PdfCjkFontFamily.heiseiMinchoW3:
         _fillHeiseiMinchoW3(fontDescryptor, fontFamily, fontMetrics);
@@ -95,8 +117,11 @@ class PdfCidFont extends PdfDictionary {
   }
 
   /// Fills the monotype sung light font descryptor.
-  void _fillMonotypeSungLight(PdfDictionary fontDescryptor,
-      PdfCjkFontFamily? fontFamily, PdfFontMetrics fontMetrics) {
+  void _fillMonotypeSungLight(
+    PdfDictionary fontDescryptor,
+    PdfCjkFontFamily? fontFamily,
+    PdfFontMetrics fontMetrics,
+  ) {
     final PdfRectangle fontBBox = PdfRectangle(-160, -249, 1175, 1137);
     _fillFontBBox(fontDescryptor, fontBBox);
     _fillKnownInfo(fontDescryptor, fontFamily, fontMetrics);
@@ -112,8 +137,11 @@ class PdfCidFont extends PdfDictionary {
   }
 
   /// Fills the hanyang systems shin myeong jo medium font descryptor.
-  void _fillHanyangSystemsShinMyeongJoMedium(PdfDictionary fontDescryptor,
-      PdfCjkFontFamily? fontFamily, PdfFontMetrics fontMetrics) {
+  void _fillHanyangSystemsShinMyeongJoMedium(
+    PdfDictionary fontDescryptor,
+    PdfCjkFontFamily? fontFamily,
+    PdfFontMetrics fontMetrics,
+  ) {
     final PdfRectangle fontBBox = PdfRectangle(0, -148, 1001, 1028);
     _fillFontBBox(fontDescryptor, fontBBox);
     _fillKnownInfo(fontDescryptor, fontFamily, fontMetrics);
@@ -129,8 +157,11 @@ class PdfCidFont extends PdfDictionary {
   }
 
   /// Fills the heisei mincho w3 font descryptor.
-  void _fillHeiseiMinchoW3(PdfDictionary fontDescryptor,
-      PdfCjkFontFamily? fontFamily, PdfFontMetrics fontMetrics) {
+  void _fillHeiseiMinchoW3(
+    PdfDictionary fontDescryptor,
+    PdfCjkFontFamily? fontFamily,
+    PdfFontMetrics fontMetrics,
+  ) {
     final PdfRectangle fontBBox = PdfRectangle(-123, -257, 1124, 1167);
     _fillFontBBox(fontDescryptor, fontBBox);
     _fillKnownInfo(fontDescryptor, fontFamily, fontMetrics);
@@ -146,8 +177,11 @@ class PdfCidFont extends PdfDictionary {
   }
 
   /// Fills the sino type song light font descryptor.
-  void _fillSinoTypeSongLight(PdfDictionary fontDescryptor,
-      PdfCjkFontFamily? fontFamily, PdfFontMetrics fontMetrics) {
+  void _fillSinoTypeSongLight(
+    PdfDictionary fontDescryptor,
+    PdfCjkFontFamily? fontFamily,
+    PdfFontMetrics fontMetrics,
+  ) {
     final PdfRectangle fontBBox = PdfRectangle(-25, -254, 1025, 1134);
     _fillFontBBox(fontDescryptor, fontBBox);
     _fillKnownInfo(fontDescryptor, fontFamily, fontMetrics);
@@ -163,8 +197,11 @@ class PdfCidFont extends PdfDictionary {
   }
 
   /// Fills the monotype hei medium font descryptor.
-  void _fillMonotypeHeiMedium(PdfDictionary fontDescryptor,
-      PdfCjkFontFamily? fontFamily, PdfFontMetrics fontMetrics) {
+  void _fillMonotypeHeiMedium(
+    PdfDictionary fontDescryptor,
+    PdfCjkFontFamily? fontFamily,
+    PdfFontMetrics fontMetrics,
+  ) {
     final PdfRectangle fontBBox = PdfRectangle(-45, -250, 1060, 1137);
     _fillFontBBox(fontDescryptor, fontBBox);
     _fillKnownInfo(fontDescryptor, fontFamily, fontMetrics);
@@ -180,8 +217,11 @@ class PdfCidFont extends PdfDictionary {
   }
 
   /// Fills the hanyang systems gothic medium font descryptor.
-  void _fillHanyangSystemsGothicMedium(PdfDictionary fontDescryptor,
-      PdfCjkFontFamily? fontFamily, PdfFontMetrics fontMetrics) {
+  void _fillHanyangSystemsGothicMedium(
+    PdfDictionary fontDescryptor,
+    PdfCjkFontFamily? fontFamily,
+    PdfFontMetrics fontMetrics,
+  ) {
     final PdfRectangle fontBBox = PdfRectangle(-6, -145, 1009, 1025);
     _fillFontBBox(fontDescryptor, fontBBox);
     _fillKnownInfo(fontDescryptor, fontFamily, fontMetrics);
@@ -198,8 +238,12 @@ class PdfCidFont extends PdfDictionary {
   }
 
   /// Fills the heisei kaku gothic w5 font descryptor.
-  void _fillHanyangSystemsGothicMediumWithStyle(PdfDictionary fontDescryptor,
-      int fontStyle, PdfCjkFontFamily? fontFamily, PdfFontMetrics fontMetrics) {
+  void _fillHanyangSystemsGothicMediumWithStyle(
+    PdfDictionary fontDescryptor,
+    int fontStyle,
+    PdfCjkFontFamily? fontFamily,
+    PdfFontMetrics fontMetrics,
+  ) {
     final PdfRectangle fontBBox = PdfRectangle(-92, -250, 1102, 1175);
     final PdfRectangle fontBBoxI = PdfRectangle(-92, -250, 1102, 1932);
     if ((fontStyle &
@@ -223,19 +267,27 @@ class PdfCidFont extends PdfDictionary {
   }
 
   /// Fills the known info.
-  void _fillKnownInfo(PdfDictionary fontDescryptor,
-      PdfCjkFontFamily? fontFamily, PdfFontMetrics fontMetrics) {
-    fontDescryptor[PdfDictionaryProperties.fontName] =
-        PdfName(fontMetrics.postScriptName);
-    fontDescryptor[PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.fontDescriptor);
+  void _fillKnownInfo(
+    PdfDictionary fontDescryptor,
+    PdfCjkFontFamily? fontFamily,
+    PdfFontMetrics fontMetrics,
+  ) {
+    fontDescryptor[PdfDictionaryProperties.fontName] = PdfName(
+      fontMetrics.postScriptName,
+    );
+    fontDescryptor[PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.fontDescriptor,
+    );
     fontDescryptor[PdfDictionaryProperties.italicAngle] = PdfNumber(0);
-    fontDescryptor[PdfDictionaryProperties.missingWidth] =
-        PdfNumber((fontMetrics.widthTable! as CjkWidthTable).defaultWidth);
-    fontDescryptor[PdfDictionaryProperties.ascent] =
-        PdfNumber(fontMetrics.ascent);
-    fontDescryptor[PdfDictionaryProperties.descent] =
-        PdfNumber(fontMetrics.descent);
+    fontDescryptor[PdfDictionaryProperties.missingWidth] = PdfNumber(
+      (fontMetrics.widthTable! as CjkWidthTable).defaultWidth,
+    );
+    fontDescryptor[PdfDictionaryProperties.ascent] = PdfNumber(
+      fontMetrics.ascent,
+    );
+    fontDescryptor[PdfDictionaryProperties.descent] = PdfNumber(
+      fontMetrics.descent,
+    );
     _fillFlags(fontDescryptor, fontFamily);
   }
 
@@ -261,7 +313,8 @@ class PdfCidFont extends PdfDictionary {
 
   /// Fills the font BBox.
   void _fillFontBBox(PdfDictionary fontDescryptor, PdfRectangle fontBBox) {
-    fontDescryptor[PdfDictionaryProperties.fontBBox] =
-        PdfArray.fromRectangle(fontBBox);
+    fontDescryptor[PdfDictionaryProperties.fontBBox] = PdfArray.fromRectangle(
+      fontBBox,
+    );
   }
 }

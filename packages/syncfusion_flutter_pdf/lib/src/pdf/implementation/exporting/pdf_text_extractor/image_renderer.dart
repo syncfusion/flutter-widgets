@@ -14,30 +14,44 @@ import 'xobject_element.dart';
 /// internal class
 class ImageRenderer {
   /// internal constructor
-  ImageRenderer(PdfRecordCollection? contentElements,
-      PdfPageResources resources, this.currentPageHeight,
-      [GraphicsObject? g]) {
+  ImageRenderer(
+    PdfRecordCollection? contentElements,
+    PdfPageResources resources,
+    this.currentPageHeight, [
+    GraphicsObject? g,
+  ]) {
     const int dpiX = 96;
     _graphicsObject = GraphicsObject();
     _graphicsState = GraphicStateCollection();
     graphicsObjects = GraphicObjectDataCollection();
     final GraphicObjectData newObject = GraphicObjectData();
-    newObject.currentTransformationMatrix =
-        MatrixHelper(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+    newObject.currentTransformationMatrix = MatrixHelper(
+      1.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+    );
     final MatrixHelper transformMatrix =
         g != null ? g.transformMatrix! : _graphicsObject!.transformMatrix!;
     newObject.currentTransformationMatrix!.translate(
-        transformMatrix.offsetX / 1.333, transformMatrix.offsetY / 1.333);
+      transformMatrix.offsetX / 1.333,
+      transformMatrix.offsetY / 1.333,
+    );
     newObject.drawing2dMatrixCTM = MatrixHelper(1, 0, 0, 1, 0, 0);
     newObject.drawing2dMatrixCTM!.translate(
-        transformMatrix.offsetX / 1.333, transformMatrix.offsetY / 1.333);
+      transformMatrix.offsetX / 1.333,
+      transformMatrix.offsetY / 1.333,
+    );
     newObject.documentMatrix = MatrixHelper(
-        1.33333333333333 * (dpiX / 96) * transformMatrix.m11,
-        0,
-        0,
-        -1.33333333333333 * (dpiX / 96) * transformMatrix.m22,
-        0,
-        currentPageHeight! * transformMatrix.m22);
+      1.33333333333333 * (dpiX / 96) * transformMatrix.m11,
+      0,
+      0,
+      -1.33333333333333 * (dpiX / 96) * transformMatrix.m22,
+      0,
+      currentPageHeight! * transformMatrix.m22,
+    );
     graphicsObjects!.push(newObject);
     graphicsObjects!.push(newObject);
     _contentElements = contentElements;
@@ -238,8 +252,9 @@ class ImageRenderer {
                 if (elements[1].contains('ActualText') &&
                     elements[1].contains('(')) {
                   _actualText = elements[1].substring(
-                      elements[1].indexOf('(') + 1,
-                      elements[1].lastIndexOf(')'));
+                    elements[1].indexOf('(') + 1,
+                    elements[1].lastIndexOf(')'),
+                  );
                   const String bigEndianPreambleString = 'þÿ';
                   if (_actualText != null &&
                       _actualText!.startsWith(bigEndianPreambleString)) {
@@ -318,8 +333,9 @@ class ImageRenderer {
               }
               final GraphicsState? state = _graphicsObject!.save();
               _graphicsState!.push(state);
-              _graphicsObject!
-                  .multiplyTransform(MatrixHelper(a, -b, -c, d, e, -f));
+              _graphicsObject!.multiplyTransform(
+                MatrixHelper(a, -b, -c, d, e, -f),
+              );
               currentLocation = Offset.zero;
               _textMatrix = true;
               break;
@@ -390,8 +406,9 @@ class ImageRenderer {
           case "'":
             {
               _moveToNextLineWithCurrentTextLeading();
-              final MatrixHelper transformMatrix =
-                  _getTextRenderingMatrix(false);
+              final MatrixHelper transformMatrix = _getTextRenderingMatrix(
+                false,
+              );
               objects.textMatrixUpdate = transformMatrix;
               if (_textScaling != 100) {
                 final GraphicsState? state = _graphicsObject!.save();
@@ -399,8 +416,9 @@ class ImageRenderer {
                 _graphicsObject!.scaleTransform(_textScaling! / 100, 1);
                 isScaledText = true;
                 currentLocation = Offset(
-                    currentLocation!.dx / (_textScaling! / 100),
-                    currentLocation!.dy);
+                  currentLocation!.dx / (_textScaling! / 100),
+                  currentLocation!.dy,
+                );
               }
               _renderTextElementWithLeading(elements!, token);
               break;
@@ -414,8 +432,9 @@ class ImageRenderer {
           case 'TD':
             {
               currentLocation = Offset(
-                  currentLocation!.dx + double.tryParse(elements![0])!,
-                  currentLocation!.dy - double.tryParse(elements[1])!);
+                currentLocation!.dx + double.tryParse(elements![0])!,
+                currentLocation!.dy - double.tryParse(elements[1])!,
+              );
               _moveToNextLineWithLeading(elements);
               break;
             }
@@ -423,8 +442,10 @@ class ImageRenderer {
             {
               final double dx = double.tryParse(elements![0])!;
               final double dy = double.tryParse(elements[1])!;
-              currentLocation =
-                  Offset(currentLocation!.dx + dx, currentLocation!.dy - dy);
+              currentLocation = Offset(
+                currentLocation!.dx + dx,
+                currentLocation!.dy - dy,
+              );
               _moveToNextLine(dx, dy);
               break;
             }
@@ -481,22 +502,30 @@ class ImageRenderer {
               }
               final MatrixHelper initialmatrix = documentMatrix!;
               final MatrixHelper currentCTM = MatrixHelper(
-                  drawing2dMatrixCTM!.m11,
-                  drawing2dMatrixCTM!.m12,
-                  drawing2dMatrixCTM!.m21,
-                  drawing2dMatrixCTM!.m22,
-                  drawing2dMatrixCTM!.offsetX,
-                  drawing2dMatrixCTM!.offsetY);
+                drawing2dMatrixCTM!.m11,
+                drawing2dMatrixCTM!.m12,
+                drawing2dMatrixCTM!.m21,
+                drawing2dMatrixCTM!.m22,
+                drawing2dMatrixCTM!.offsetX,
+                drawing2dMatrixCTM!.offsetY,
+              );
               final MatrixHelper result = currentCTM * initialmatrix;
               final MatrixHelper transformMatrix = MatrixHelper(
-                  result.m11,
-                  result.m12,
-                  result.m21,
-                  result.m22,
-                  result.offsetX,
-                  result.offsetY);
-              MatrixHelper graphicsTransformMatrix =
-                  MatrixHelper(1, 0, 0, 1, 0, 0);
+                result.m11,
+                result.m12,
+                result.m21,
+                result.m22,
+                result.offsetX,
+                result.offsetY,
+              );
+              MatrixHelper graphicsTransformMatrix = MatrixHelper(
+                1,
+                0,
+                0,
+                1,
+                0,
+                0,
+              );
               graphicsTransformMatrix =
                   graphicsTransformMatrix * transformMatrix;
               _graphicsObject!.transformMatrix =
@@ -516,12 +545,13 @@ class ImageRenderer {
 
   MatrixHelper _getTextRenderingMatrix(bool isPath) {
     MatrixHelper mat = MatrixHelper(
-        fontSize! * (objects.horizontalScaling! / 100),
-        0,
-        0,
-        isPath ? fontSize! : (-fontSize!),
-        0,
-        (isPath ? objects.rise! : (fontSize! + objects.rise!)) as double);
+      fontSize! * (objects.horizontalScaling! / 100),
+      0,
+      0,
+      isPath ? fontSize! : (-fontSize!),
+      0,
+      (isPath ? objects.rise! : (fontSize! + objects.rise!)) as double,
+    );
     mat *= textLineMatrix! * currentTransformationMatrix!;
     return mat;
   }
@@ -572,13 +602,16 @@ class ImageRenderer {
     _isCurrentPositionChanged = true;
     if ((-textLeading!) != 0) {
       _currentLocation = Offset(
-          _currentLocation!.dx,
-          (-textLeading!) < 0
-              ? _currentLocation!.dy - (-textLeading!)
-              : _currentLocation!.dy + (-textLeading!));
+        _currentLocation!.dx,
+        (-textLeading!) < 0
+            ? _currentLocation!.dy - (-textLeading!)
+            : _currentLocation!.dy + (-textLeading!),
+      );
     } else {
-      _currentLocation =
-          Offset(_currentLocation!.dx, _currentLocation!.dy + fontSize!);
+      _currentLocation = Offset(
+        _currentLocation!.dx,
+        _currentLocation!.dy + fontSize!,
+      );
     }
   }
 
@@ -600,12 +633,13 @@ class ImageRenderer {
           xObjectElement.pageHeight = pageHeight;
         }
         final Map<String, dynamic> result = xObjectElement.renderTextElement(
-            _graphicsObject,
-            _resources,
-            _graphicsState,
-            graphicsObjects,
-            currentPageHeight,
-            xObjectGlyphs);
+          _graphicsObject,
+          _resources,
+          _graphicsState,
+          graphicsObjects,
+          currentPageHeight,
+          xObjectGlyphs,
+        );
         _graphicsState = result['graphicStates'] as GraphicStateCollection?;
         graphicsObjects = result['objects'] as GraphicObjectDataCollection?;
         xObjectGlyphs = result['glyphList'] as List<Glyph>?;
@@ -622,7 +656,9 @@ class ImageRenderer {
   }
 
   void _renderTextElementWithLeading(
-      List<String> textElements, String tokenType) {
+    List<String> textElements,
+    String tokenType,
+  ) {
     String text = textElements.join();
     final List<dynamic> retrievedCharCodes = <dynamic>[];
     if (_resources!.containsKey(currentFont)) {
@@ -640,7 +676,10 @@ class ImageRenderer {
         text = structure.getEncodedText(text, true);
       } else {
         text = structure.decodeTextExtraction(
-            text, _resources!.isSameFont(), retrievedCharCodes);
+          text,
+          _resources!.isSameFont(),
+          retrievedCharCodes,
+        );
       }
       if (_actualText != null && _actualText!.isNotEmpty) {
         text = _actualText!;
@@ -684,33 +723,41 @@ class ImageRenderer {
         _isCurrentPositionChanged = false;
         _endTextPosition = currentLocation!;
         final Map<String, dynamic> renderedResult = element.renderTextElement(
-            _graphicsObject,
-            Offset(_endTextPosition.dx,
-                _endTextPosition.dy + ((-textLeading!) / 4)),
-            _textScaling,
-            glyphWidths,
-            structure.type1GlyphHeight,
-            structure.differenceTable,
-            structure.differencesDictionary,
-            structure.differenceEncoding,
-            tempTextMatrix,
-            retrievedCharCodes);
+          _graphicsObject,
+          Offset(
+            _endTextPosition.dx,
+            _endTextPosition.dy + ((-textLeading!) / 4),
+          ),
+          _textScaling,
+          glyphWidths,
+          structure.type1GlyphHeight,
+          structure.differenceTable,
+          structure.differencesDictionary,
+          structure.differenceEncoding,
+          tempTextMatrix,
+          retrievedCharCodes,
+        );
         _textElementWidth = renderedResult['textElementWidth'] as double;
         textMatrix = renderedResult['tempTextMatrix'] as MatrixHelper;
       } else {
         _endTextPosition = Offset(
-            _endTextPosition.dx + _textElementWidth, _endTextPosition.dy);
+          _endTextPosition.dx + _textElementWidth,
+          _endTextPosition.dy,
+        );
         final Map<String, dynamic> renderedResult = element.renderTextElement(
-            _graphicsObject,
-            Offset(
-                _endTextPosition.dx, _endTextPosition.dy + (-textLeading! / 4)),
-            _textScaling,
-            glyphWidths,
-            structure.type1GlyphHeight,
-            structure.differenceTable,
-            structure.differencesDictionary,
-            structure.differenceEncoding,
-            tempTextMatrix);
+          _graphicsObject,
+          Offset(
+            _endTextPosition.dx,
+            _endTextPosition.dy + (-textLeading! / 4),
+          ),
+          _textScaling,
+          glyphWidths,
+          structure.type1GlyphHeight,
+          structure.differenceTable,
+          structure.differencesDictionary,
+          structure.differenceEncoding,
+          tempTextMatrix,
+        );
         _textElementWidth = renderedResult['textElementWidth'] as double;
         textMatrix = renderedResult['tempTextMatrix'] as MatrixHelper;
       }
@@ -725,8 +772,10 @@ class ImageRenderer {
               _whiteSpace[0].textLineMatrix!.offsetY ==
                   element.textLineMatrix!.offsetY) {
             if (_whiteSpace[0].text.isNotEmpty) {
-              element.textElementGlyphList
-                  .insert(0, _whiteSpace[0].textElementGlyphList[0]);
+              element.textElementGlyphList.insert(
+                0,
+                _whiteSpace[0].textElementGlyphList[0],
+              );
             }
             extractTextElement.add(_whiteSpace[0]);
           }
@@ -744,7 +793,9 @@ class ImageRenderer {
   }
 
   void _renderTextElementWithSpacing(
-      List<String> textElements, String tokenType) {
+    List<String> textElements,
+    String tokenType,
+  ) {
     List<String> decodedList = <String>[];
     Map<List<dynamic>, String> decodedListCollection =
         <List<dynamic>, String>{};
@@ -758,17 +809,22 @@ class ImageRenderer {
       if (!structure.isEmbedded &&
           structure.isStandardCJKFont &&
           structure.font != null) {
-        decodedList =
-            structure.decodeCjkTextExtractionTJ(text, _resources!.isSameFont());
+        decodedList = structure.decodeCjkTextExtractionTJ(
+          text,
+          _resources!.isSameFont(),
+        );
         for (final String decodedString in decodedList) {
           decodedListCollection[<dynamic>[]] = decodedString;
         }
       } else {
-        decodedListCollection =
-            structure.decodeTextExtractionTJ(text, _resources!.isSameFont());
+        decodedListCollection = structure.decodeTextExtractionTJ(
+          text,
+          _resources!.isSameFont(),
+        );
       }
-      final List<int> bytes =
-          utf8.encode(structure.getEncodedText(text, _resources!.isSameFont()));
+      final List<int> bytes = utf8.encode(
+        structure.getEncodedText(text, _resources!.isSameFont()),
+      );
       final Map<int, int> encodedTextBytes = <int, int>{};
       int z = 0;
       for (int j = 0; j < bytes.length; j = j + 2) {
@@ -820,20 +876,23 @@ class ImageRenderer {
         _endTextPosition = currentLocation!;
       } else {
         _endTextPosition = Offset(
-            _endTextPosition.dx + _textElementWidth, _endTextPosition.dy);
+          _endTextPosition.dx + _textElementWidth,
+          _endTextPosition.dy,
+        );
       }
       final Map<String, dynamic> renderedResult = element.renderWithSpacing(
-          _graphicsObject,
-          Offset(_endTextPosition.dx, _endTextPosition.dy - fontSize!),
-          decodedListCollection,
-          characterSpacings,
-          _textScaling,
-          glyphWidths,
-          structure.type1GlyphHeight,
-          structure.differenceTable,
-          structure.differencesDictionary,
-          structure.differenceEncoding,
-          tempTextMatrix);
+        _graphicsObject,
+        Offset(_endTextPosition.dx, _endTextPosition.dy - fontSize!),
+        decodedListCollection,
+        characterSpacings,
+        _textScaling,
+        glyphWidths,
+        structure.type1GlyphHeight,
+        structure.differenceTable,
+        structure.differencesDictionary,
+        structure.differenceEncoding,
+        tempTextMatrix,
+      );
       _textElementWidth = renderedResult['textElementWidth'] as double;
       textMatrix = renderedResult['tempTextMatrix'] as MatrixHelper;
       if (!structure.isWhiteSpace) {
@@ -847,8 +906,10 @@ class ImageRenderer {
               _whiteSpace[0].textLineMatrix!.offsetY ==
                   element.textLineMatrix!.offsetY &&
               _whiteSpace[0].textElementGlyphList.isNotEmpty) {
-            element.textElementGlyphList
-                .insert(0, _whiteSpace[0].textElementGlyphList[0]);
+            element.textElementGlyphList.insert(
+              0,
+              _whiteSpace[0].textElementGlyphList[0],
+            );
             extractTextElement.add(_whiteSpace[0]);
           }
           _whiteSpace = <TextElement>[];
@@ -881,21 +942,35 @@ class ImageRenderer {
   }
 
   void _setTextMatrix(
-      double a, double b, double c, double d, double e, double f) {
+    double a,
+    double b,
+    double c,
+    double d,
+    double e,
+    double f,
+  ) {
     textMatrix = MatrixHelper(a, b, c, d, e, f);
     textLineMatrix = textMatrix!.clone();
   }
 
   MatrixHelper _setMatrix(
-      double a, double b, double c, double d, double e, double f) {
-    currentTransformationMatrix = MatrixHelper(a, b, c, d, e, f) *
+    double a,
+    double b,
+    double c,
+    double d,
+    double e,
+    double f,
+  ) {
+    currentTransformationMatrix =
+        MatrixHelper(a, b, c, d, e, f) *
         graphicsObjects!.last.currentTransformationMatrix!;
     return MatrixHelper(
-        currentTransformationMatrix!.m11,
-        currentTransformationMatrix!.m12,
-        currentTransformationMatrix!.m21,
-        currentTransformationMatrix!.m22,
-        currentTransformationMatrix!.offsetX,
-        currentTransformationMatrix!.offsetY);
+      currentTransformationMatrix!.m11,
+      currentTransformationMatrix!.m12,
+      currentTransformationMatrix!.m21,
+      currentTransformationMatrix!.m22,
+      currentTransformationMatrix!.offsetX,
+      currentTransformationMatrix!.offsetY,
+    );
   }
 }

@@ -14,11 +14,13 @@ import 'utility_helper.dart';
 /// the scrollbars value and the rows or columns associated with that value.
 abstract class DistanceCounterCollectionBase {
   /// Create the DistanceCounterCollection Base
-  DistanceCounterCollectionBase(
-      {int count = 0, double defaultDistance = 0.0, double totalDistance = 0.0})
-      : _count = count,
-        _defaultDistance = defaultDistance,
-        _totalDistance = totalDistance;
+  DistanceCounterCollectionBase({
+    int count = 0,
+    double defaultDistance = 0.0,
+    double totalDistance = 0.0,
+  }) : _count = count,
+       _defaultDistance = defaultDistance,
+       _totalDistance = totalDistance;
 
   /// Gets the raw number of entities (lines, rows or columns).
   ///
@@ -169,7 +171,9 @@ abstract class DistanceCounterCollectionBase {
   /// * index - _required_ - The index.
   /// * nestedCollection - _required_ - The nested collection.
   void setNestedDistances(
-      int index, DistanceCounterCollectionBase? nestedCollection);
+    int index,
+    DistanceCounterCollectionBase? nestedCollection,
+  );
 
   /// Hides a specified range of entities (lines, rows or columns).
   ///
@@ -206,7 +210,7 @@ class DistanceCounterSubset extends DistanceCounterCollectionBase
   /// * trackedParentCollection - _required_ - The parent collection for which
   /// a subset is "tracked".
   DistanceCounterSubset(DistanceCounterCollectionBase trackedParentCollection)
-      : super(count: 0) {
+    : super(count: 0) {
     _trackDCC = trackedParentCollection;
   }
 
@@ -284,7 +288,8 @@ class DistanceCounterSubset extends DistanceCounterCollectionBase
   /// * treeTableCounterSource - _required_ - The nested tree
   /// table visible counter source.
   void connectWithParentBase(
-      TreeTableCounterSourceBase treeTableCounterSource) {
+    TreeTableCounterSourceBase treeTableCounterSource,
+  ) {
     throw Exception('Do not use DistanceCounterSubset as nested collection!');
   }
 
@@ -429,7 +434,8 @@ class DistanceCounterSubset extends DistanceCounterCollectionBase
     }
 
     final int n = _trackDCC.indexOfCumulatedDistance(
-        cumulatedDistance + _trackDCC.getCumulatedDistanceAt(start));
+      cumulatedDistance + _trackDCC.getCumulatedDistanceAt(start),
+    );
     if (n > end || n < start) {
       return -1;
     }
@@ -472,7 +478,9 @@ class DistanceCounterSubset extends DistanceCounterCollectionBase
   /// * nestedCollection - _required_ - The nested collection.
   @override
   void setNestedDistances(
-      int index, DistanceCounterCollectionBase? nestedCollection) {
+    int index,
+    DistanceCounterCollectionBase? nestedCollection,
+  ) {
     _trackDCC.setNestedDistances(index + start, nestedCollection);
   }
 
@@ -520,7 +528,7 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
   ///
   /// * paddingDistance - _required_ - The padding distance.
   DistanceRangeCounterCollection.fromPaddingDistance(this.paddingDistance)
-      : super(defaultDistance: 1.0, count: 0) {
+    : super(defaultDistance: 1.0, count: 0) {
     final DistanceLineCounter startPos = DistanceLineCounter(0, 0);
     _rbTree = DistanceLineCounterTree(startPos, false);
   }
@@ -584,9 +592,10 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
 
   ///
   DistanceLineCounterEntry createTreeTableEntry(double distance, int count) {
-    final DistanceLineCounterEntry entry = DistanceLineCounterEntry()
-      ..value = DistanceLineCounterSource(distance, count)
-      ..tree = _rbTree;
+    final DistanceLineCounterEntry entry =
+        DistanceLineCounterEntry()
+          ..value = DistanceLineCounterSource(distance, count)
+          ..tree = _rbTree;
     return entry;
   }
 
@@ -595,8 +604,10 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
     final int treeCount = internalCount;
     final int insert = count - treeCount;
     if (insert > 0) {
-      final DistanceLineCounterEntry entry =
-          createTreeTableEntry(defaultDistance, insert);
+      final DistanceLineCounterEntry entry = createTreeTableEntry(
+        defaultDistance,
+        insert,
+      );
       _rbTree.add(entry);
     }
   }
@@ -646,11 +657,16 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
       return internalCount + delta;
     }
 
-    final DistanceLineCounter searchPosition =
-        DistanceLineCounter(cumulatedDistance, 0);
-    final DistanceLineCounterEntry? rbEntry =
-        _rbTree.getEntryAtCounterPositionWithThreeArgs(
-            searchPosition, DistanceLineCounterKind.distance, false);
+    final DistanceLineCounter searchPosition = DistanceLineCounter(
+      cumulatedDistance,
+      0,
+    );
+    final DistanceLineCounterEntry? rbEntry = _rbTree
+        .getEntryAtCounterPositionWithThreeArgs(
+          searchPosition,
+          DistanceLineCounterKind.distance,
+          false,
+        );
     final DistanceLineCounterSource? rbValue = rbEntry!.value;
     final DistanceLineCounter? rbEntryPosition = rbEntry.getCounterPosition;
     if (rbValue != null &&
@@ -658,7 +674,7 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
         rbValue.singleLineDistance > 0) {
       final double totalDistance =
           (cumulatedDistance - rbEntryPosition.distance) /
-              rbValue.singleLineDistance;
+          rbValue.singleLineDistance;
       delta = totalDistance.isFinite ? totalDistance.floor() : 0;
     }
 
@@ -667,17 +683,23 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
 
   ///
   LineIndexEntryAt initDistanceLine(
-      int lineIndex, bool determineEntryPosition) {
-    final LineIndexEntryAt e = LineIndexEntryAt()
-      ..searchPosition = DistanceLineCounter(0, lineIndex);
+    int lineIndex,
+    bool determineEntryPosition,
+  ) {
+    final LineIndexEntryAt e =
+        LineIndexEntryAt()..searchPosition = DistanceLineCounter(0, lineIndex);
     e.rbEntry = _rbTree.getEntryAtCounterPositionWithThreeArgs(
-        e.searchPosition!, DistanceLineCounterKind.lines, false);
+      e.searchPosition!,
+      DistanceLineCounterKind.lines,
+      false,
+    );
     e.rbValue = e.rbEntry!.value;
     e.rbEntryPosition = null;
     if (determineEntryPosition) {
-      e.rbEntryPosition = e.rbValue!.lineCount > 1
-          ? e.rbEntry!.getCounterPosition
-          : e.searchPosition;
+      e.rbEntryPosition =
+          e.rbValue!.lineCount > 1
+              ? e.rbEntry!.getCounterPosition
+              : e.searchPosition;
     }
 
     return e;
@@ -703,8 +725,10 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
       e.rbEntry!.invalidateCounterBottomUp(true);
     } else {
       final DistanceLineCounterEntry? rbEntry0 = split(insertAt);
-      final DistanceLineCounterEntry entry =
-          createTreeTableEntry(distance, count);
+      final DistanceLineCounterEntry entry = createTreeTableEntry(
+        distance,
+        count,
+      );
       if (rbEntry0 == null) {
         _rbTree.add(entry);
       } else {
@@ -803,8 +827,10 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
 
       e.rbValue!.lineCount = count1;
 
-      final DistanceLineCounterEntry rbEntry2 =
-          createTreeTableEntry(e.rbValue!.singleLineDistance, count2);
+      final DistanceLineCounterEntry rbEntry2 = createTreeTableEntry(
+        e.rbValue!.singleLineDistance,
+        count2,
+      );
       _rbTree.insert(_rbTree.indexOf(e.rbEntry!) + 1, rbEntry2);
       e.rbEntry!.invalidateCounterBottomUp(true);
       return rbEntry2;
@@ -842,8 +868,9 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
     final double delta = point - nestedStart;
 
     if (delta > 0) {
-      final DistanceCounterCollectionBase? nestedDcc =
-          getNestedDistances(index);
+      final DistanceCounterCollectionBase? nestedDcc = getNestedDistances(
+        index,
+      );
       if (nestedDcc != null) {
         final double r = nestedDcc.getAlignedScrollValue(delta);
         if (!r.isNaN && r >= 0 && r < nestedDcc.totalDistance) {
@@ -966,8 +993,9 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
     double delta = point - nestedStart;
 
     if (delta > 0) {
-      final DistanceCounterCollectionBase? nestedDcc =
-          getNestedDistances(index);
+      final DistanceCounterCollectionBase? nestedDcc = getNestedDistances(
+        index,
+      );
       if (nestedDcc != null) {
         final double r = nestedDcc.getPreviousScrollValue(delta);
         if (!r.isNaN && r >= 0 && r < nestedDcc.totalDistance) {
@@ -983,8 +1011,9 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
     if (index >= 0 && index < count) {
       nestedStart = getCumulatedDistanceAt(index);
 
-      final DistanceCounterCollectionBase? nestedDcc =
-          getNestedDistances(index);
+      final DistanceCounterCollectionBase? nestedDcc = getNestedDistances(
+        index,
+      );
       if (nestedDcc != null) {
         delta = nestedDcc.totalDistance;
         final double r = nestedDcc.getPreviousScrollValue(delta);
@@ -1130,7 +1159,9 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
   /// * nestedCollection - _required_ - The nested collection.
   @override
   void setNestedDistances(
-      int index, DistanceCounterCollectionBase? nestedCollection) {
+    int index,
+    DistanceCounterCollectionBase? nestedCollection,
+  ) {
     checkRange('index', 0, count - 1, index);
 
     if (getNestedDistances(index) != nestedCollection) {
@@ -1144,7 +1175,10 @@ class DistanceRangeCounterCollection extends DistanceCounterCollectionBase {
       if (nestedCollection != null) {
         final NestedDistanceCounterCollectionSource vcs =
             NestedDistanceCounterCollectionSource(
-                this, nestedCollection, entry);
+              this,
+              nestedCollection,
+              entry,
+            );
         entry.value = vcs;
       } else {
         entry.value = DistanceLineCounterSource(0, 1);
@@ -1220,10 +1254,10 @@ class NestedDistanceCounterCollectionSource extends DistanceLineCounterSource {
   /// * nestedDistances - _required_ - The nested distances.
   /// * entry - _required_ - The entry.
   NestedDistanceCounterCollectionSource(
-      DistanceCounterCollectionBase parentDistances,
-      DistanceCounterCollectionBase nestedDistances,
-      this.entry)
-      : super(0, 1) {
+    DistanceCounterCollectionBase parentDistances,
+    DistanceCounterCollectionBase nestedDistances,
+    this.entry,
+  ) : super(0, 1) {
     _parentDistances = parentDistances;
     _nestedDistances = nestedDistances;
 
@@ -1262,7 +1296,9 @@ class NestedDistanceCounterCollectionSource extends DistanceLineCounterSource {
   /// Returns the `_TreeTableVisibleCounter` object with counters.
   @override
   TreeTableCounterBase getCounter() => DistanceLineCounter(
-      _nestedDistances == null ? 0 : _nestedDistances!.totalDistance, 1);
+    _nestedDistances == null ? 0 : _nestedDistances!.totalDistance,
+    1,
+  );
 
   /// Marks all counters dirty in this object and parent nodes.
   @override
@@ -1491,7 +1527,7 @@ class DistanceLineCounterTree extends TreeTableWithCounter {
   /// * startPos - _required_ - The start position.
   /// * sorted - _required_ - A boolean value indicating whether sorted.
   DistanceLineCounterTree(DistanceLineCounter startPos, bool sorted)
-      : super(startPos, sorted);
+    : super(startPos, sorted);
 
   /// Appends the given object.
   ///
@@ -1530,7 +1566,9 @@ class DistanceLineCounterTree extends TreeTableWithCounter {
   /// Returns an entry at the specified counter position.
   @override
   DistanceLineCounterEntry? getEntryAtCounterPosition(
-      Object searchPosition, int cookie) {
+    Object searchPosition,
+    int cookie,
+  ) {
     if (searchPosition is TreeTableCounterBase &&
         super.getEntryAtCounterPosition(searchPosition, cookie)
             is DistanceLineCounterEntry) {
@@ -1552,13 +1590,23 @@ class DistanceLineCounterTree extends TreeTableWithCounter {
   ///
   /// Returns an entry at the specified counter position.
   DistanceLineCounterEntry? getEntryAtCounterPositionWithThreeArgs(
-      Object searchPosition, int cookie, bool preferLeftMost) {
+    Object searchPosition,
+    int cookie,
+    bool preferLeftMost,
+  ) {
     if (searchPosition is TreeTableCounterBase &&
         super.getEntryAtCounterPositionwithThreeParameter(
-                searchPosition, cookie, preferLeftMost)
+              searchPosition,
+              cookie,
+              preferLeftMost,
+            )
             is DistanceLineCounterEntry) {
       return super.getEntryAtCounterPositionwithThreeParameter(
-          searchPosition, cookie, preferLeftMost)! as DistanceLineCounterEntry;
+            searchPosition,
+            cookie,
+            preferLeftMost,
+          )!
+          as DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1589,7 +1637,9 @@ class DistanceLineCounterTree extends TreeTableWithCounter {
   /// the specific counter is not empty.
   @override
   DistanceLineCounterEntry? getNextNotEmptyCounterEntry(
-      Object current, int cookie) {
+    Object current,
+    int cookie,
+  ) {
     if (current is TreeTableEntryBase &&
         super.getNextNotEmptyCounterEntry(current, cookie)
             is DistanceLineCounterEntry) {
@@ -1642,7 +1692,9 @@ class DistanceLineCounterTree extends TreeTableWithCounter {
   /// specific counter is not empty.
   @override
   DistanceLineCounterEntry? getPreviousNotEmptyCounterEntry(
-      Object current, int cookie) {
+    Object current,
+    int cookie,
+  ) {
     if (current is TreeTableEntryBase &&
         super.getPreviousNotEmptyCounterEntry(current, cookie)
             is DistanceLineCounterEntry) {

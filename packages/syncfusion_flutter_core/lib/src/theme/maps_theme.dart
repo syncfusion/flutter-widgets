@@ -24,7 +24,7 @@ class SfMapsTheme extends InheritedTheme {
   ///
   /// The [data] and [child] arguments must not be null.
   const SfMapsTheme({Key? key, required this.data, required this.child})
-      : super(key: key, child: child);
+    : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant maps widgets.
   ///
@@ -902,7 +902,10 @@ class SfMapsThemeData with Diagnosticable {
   ///
   /// The arguments must not be null.
   static SfMapsThemeData? lerp(
-      SfMapsThemeData? a, SfMapsThemeData? b, double t) {
+    SfMapsThemeData? a,
+    SfMapsThemeData? b,
+    double t,
+  ) {
     if (a == null && b == null) {
       return null;
     }
@@ -911,45 +914,82 @@ class SfMapsThemeData with Diagnosticable {
       layerStrokeColor: Color.lerp(a.layerStrokeColor, b.layerStrokeColor, t),
       layerStrokeWidth: lerpDouble(a.layerStrokeWidth, b.layerStrokeWidth, t)!,
       shapeHoverColor: Color.lerp(a.shapeHoverColor, b.shapeHoverColor, t),
-      shapeHoverStrokeColor:
-          Color.lerp(a.shapeHoverStrokeColor, b.shapeHoverStrokeColor, t),
-      shapeHoverStrokeWidth:
-          lerpDouble(a.shapeHoverStrokeWidth, b.shapeHoverStrokeWidth, t),
+      shapeHoverStrokeColor: Color.lerp(
+        a.shapeHoverStrokeColor,
+        b.shapeHoverStrokeColor,
+        t,
+      ),
+      shapeHoverStrokeWidth: lerpDouble(
+        a.shapeHoverStrokeWidth,
+        b.shapeHoverStrokeWidth,
+        t,
+      ),
       legendTextStyle: TextStyle.lerp(a.legendTextStyle, b.legendTextStyle, t),
       markerIconColor: Color.lerp(a.markerIconColor, b.markerIconColor, t),
-      markerIconStrokeColor:
-          Color.lerp(a.markerIconStrokeColor, b.markerIconStrokeColor, t),
+      markerIconStrokeColor: Color.lerp(
+        a.markerIconStrokeColor,
+        b.markerIconStrokeColor,
+        t,
+      ),
       markerIconStrokeWidth:
           lerpDouble(a.markerIconStrokeWidth, b.markerIconStrokeWidth, t)!,
-      dataLabelTextStyle:
-          TextStyle.lerp(a.dataLabelTextStyle, b.dataLabelTextStyle, t),
+      dataLabelTextStyle: TextStyle.lerp(
+        a.dataLabelTextStyle,
+        b.dataLabelTextStyle,
+        t,
+      ),
       bubbleColor: Color.lerp(a.bubbleColor, b.bubbleColor, t),
-      bubbleStrokeColor:
-          Color.lerp(a.bubbleStrokeColor, b.bubbleStrokeColor, t),
+      bubbleStrokeColor: Color.lerp(
+        a.bubbleStrokeColor,
+        b.bubbleStrokeColor,
+        t,
+      ),
       bubbleStrokeWidth:
           lerpDouble(a.bubbleStrokeWidth, b.bubbleStrokeWidth, t)!,
       bubbleHoverColor: Color.lerp(a.bubbleHoverColor, b.bubbleHoverColor, t),
-      bubbleHoverStrokeColor:
-          Color.lerp(a.bubbleHoverStrokeColor, b.bubbleHoverStrokeColor, t),
-      bubbleHoverStrokeWidth:
-          lerpDouble(a.bubbleHoverStrokeWidth, b.bubbleHoverStrokeWidth, t),
+      bubbleHoverStrokeColor: Color.lerp(
+        a.bubbleHoverStrokeColor,
+        b.bubbleHoverStrokeColor,
+        t,
+      ),
+      bubbleHoverStrokeWidth: lerpDouble(
+        a.bubbleHoverStrokeWidth,
+        b.bubbleHoverStrokeWidth,
+        t,
+      ),
       selectionColor: Color.lerp(a.selectionColor, b.selectionColor, t),
-      selectionStrokeColor:
-          Color.lerp(a.selectionStrokeColor, b.selectionStrokeColor, t),
+      selectionStrokeColor: Color.lerp(
+        a.selectionStrokeColor,
+        b.selectionStrokeColor,
+        t,
+      ),
       selectionStrokeWidth:
           lerpDouble(a.selectionStrokeWidth, b.selectionStrokeWidth, t)!,
       tooltipColor: Color.lerp(a.tooltipColor, b.tooltipColor, t),
-      tooltipStrokeColor:
-          Color.lerp(a.tooltipStrokeColor, b.tooltipStrokeColor, t),
+      tooltipStrokeColor: Color.lerp(
+        a.tooltipStrokeColor,
+        b.tooltipStrokeColor,
+        t,
+      ),
       tooltipStrokeWidth:
           lerpDouble(a.tooltipStrokeWidth, b.tooltipStrokeWidth, t)!,
-      tooltipBorderRadius: BorderRadiusGeometry.lerp(
-          a.tooltipBorderRadius, b.tooltipBorderRadius, t)!,
+      tooltipBorderRadius:
+          BorderRadiusGeometry.lerp(
+            a.tooltipBorderRadius,
+            b.tooltipBorderRadius,
+            t,
+          )!,
       toggledItemColor: Color.lerp(a.toggledItemColor, b.toggledItemColor, t),
-      toggledItemStrokeColor:
-          Color.lerp(a.toggledItemStrokeColor, b.toggledItemStrokeColor, t),
-      toggledItemStrokeWidth:
-          lerpDouble(a.toggledItemStrokeWidth, b.toggledItemStrokeWidth, t),
+      toggledItemStrokeColor: Color.lerp(
+        a.toggledItemStrokeColor,
+        b.toggledItemStrokeColor,
+        t,
+      ),
+      toggledItemStrokeWidth: lerpDouble(
+        a.toggledItemStrokeWidth,
+        b.toggledItemStrokeWidth,
+        t,
+      ),
     );
   }
 
@@ -1029,68 +1069,194 @@ class SfMapsThemeData with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     const SfMapsThemeData defaultData = SfMapsThemeData();
-    properties.add(ColorProperty('layerColor', layerColor,
-        defaultValue: defaultData.layerColor));
-    properties.add(ColorProperty('layerStrokeColor', layerStrokeColor,
-        defaultValue: defaultData.layerStrokeColor));
-    properties.add(DoubleProperty('layerStrokeWidth', layerStrokeWidth,
-        defaultValue: defaultData.layerStrokeWidth));
-    properties.add(ColorProperty('shapeHoverColor', shapeHoverColor,
-        defaultValue: defaultData.shapeHoverColor));
-    properties.add(ColorProperty('shapeHoverStrokeColor', shapeHoverStrokeColor,
-        defaultValue: defaultData.shapeHoverStrokeColor));
-    properties.add(DoubleProperty(
-        'shapeHoverStrokeWidth', shapeHoverStrokeWidth,
-        defaultValue: defaultData.shapeHoverStrokeWidth));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'legendTextStyle', legendTextStyle,
-        defaultValue: defaultData.legendTextStyle));
-    properties.add(ColorProperty('markerIconColor', markerIconColor,
-        defaultValue: defaultData.markerIconColor));
-    properties.add(ColorProperty('markerIconStrokeColor', markerIconStrokeColor,
-        defaultValue: defaultData.markerIconStrokeColor));
-    properties.add(DoubleProperty(
-        'markerIconStrokeWidth', markerIconStrokeWidth,
-        defaultValue: defaultData.markerIconStrokeWidth));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'dataLabelTextStyle', dataLabelTextStyle,
-        defaultValue: defaultData.dataLabelTextStyle));
-    properties.add(ColorProperty('bubbleColor', bubbleColor,
-        defaultValue: defaultData.bubbleColor));
-    properties.add(ColorProperty('bubbleStrokeColor', bubbleStrokeColor,
-        defaultValue: defaultData.bubbleStrokeColor));
-    properties.add(DoubleProperty('bubbleStrokeWidth', bubbleStrokeWidth,
-        defaultValue: defaultData.bubbleStrokeWidth));
-    properties.add(ColorProperty('bubbleHoverColor', bubbleHoverColor,
-        defaultValue: defaultData.bubbleHoverColor));
-    properties.add(ColorProperty(
-        'bubbleHoverStrokeColor', bubbleHoverStrokeColor,
-        defaultValue: defaultData.bubbleHoverStrokeColor));
-    properties.add(DoubleProperty(
-        'bubbleHoverStrokeWidth', bubbleHoverStrokeWidth,
-        defaultValue: defaultData.bubbleHoverStrokeWidth));
-    properties.add(ColorProperty('selectionColor', selectionColor,
-        defaultValue: defaultData.selectionColor));
-    properties.add(ColorProperty('selectionStrokeColor', selectionStrokeColor,
-        defaultValue: defaultData.selectionStrokeColor));
-    properties.add(DoubleProperty('selectionStrokeWidth', selectionStrokeWidth,
-        defaultValue: defaultData.selectionStrokeWidth));
-    properties.add(ColorProperty('tooltipColor', tooltipColor,
-        defaultValue: defaultData.tooltipColor));
-    properties.add(ColorProperty('tooltipStrokeColor', tooltipStrokeColor,
-        defaultValue: defaultData.tooltipStrokeColor));
-    properties.add(DoubleProperty('tooltipStrokeWidth', tooltipStrokeWidth,
-        defaultValue: defaultData.tooltipStrokeWidth));
-    properties.add(DiagnosticsProperty<BorderRadiusGeometry>(
-        'tooltipBorderRadius', tooltipBorderRadius,
-        defaultValue: defaultData.tooltipBorderRadius));
-    properties.add(ColorProperty('toggledItemColor', toggledItemColor,
-        defaultValue: defaultData.toggledItemColor));
-    properties.add(ColorProperty(
-        'toggledItemStrokeColor', toggledItemStrokeColor,
-        defaultValue: defaultData.toggledItemStrokeColor));
-    properties.add(DoubleProperty(
-        'toggledItemStrokeWidth', toggledItemStrokeWidth,
-        defaultValue: defaultData.toggledItemStrokeWidth));
+    properties.add(
+      ColorProperty(
+        'layerColor',
+        layerColor,
+        defaultValue: defaultData.layerColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'layerStrokeColor',
+        layerStrokeColor,
+        defaultValue: defaultData.layerStrokeColor,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'layerStrokeWidth',
+        layerStrokeWidth,
+        defaultValue: defaultData.layerStrokeWidth,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'shapeHoverColor',
+        shapeHoverColor,
+        defaultValue: defaultData.shapeHoverColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'shapeHoverStrokeColor',
+        shapeHoverStrokeColor,
+        defaultValue: defaultData.shapeHoverStrokeColor,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'shapeHoverStrokeWidth',
+        shapeHoverStrokeWidth,
+        defaultValue: defaultData.shapeHoverStrokeWidth,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'legendTextStyle',
+        legendTextStyle,
+        defaultValue: defaultData.legendTextStyle,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'markerIconColor',
+        markerIconColor,
+        defaultValue: defaultData.markerIconColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'markerIconStrokeColor',
+        markerIconStrokeColor,
+        defaultValue: defaultData.markerIconStrokeColor,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'markerIconStrokeWidth',
+        markerIconStrokeWidth,
+        defaultValue: defaultData.markerIconStrokeWidth,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'dataLabelTextStyle',
+        dataLabelTextStyle,
+        defaultValue: defaultData.dataLabelTextStyle,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'bubbleColor',
+        bubbleColor,
+        defaultValue: defaultData.bubbleColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'bubbleStrokeColor',
+        bubbleStrokeColor,
+        defaultValue: defaultData.bubbleStrokeColor,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'bubbleStrokeWidth',
+        bubbleStrokeWidth,
+        defaultValue: defaultData.bubbleStrokeWidth,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'bubbleHoverColor',
+        bubbleHoverColor,
+        defaultValue: defaultData.bubbleHoverColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'bubbleHoverStrokeColor',
+        bubbleHoverStrokeColor,
+        defaultValue: defaultData.bubbleHoverStrokeColor,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'bubbleHoverStrokeWidth',
+        bubbleHoverStrokeWidth,
+        defaultValue: defaultData.bubbleHoverStrokeWidth,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'selectionColor',
+        selectionColor,
+        defaultValue: defaultData.selectionColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'selectionStrokeColor',
+        selectionStrokeColor,
+        defaultValue: defaultData.selectionStrokeColor,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'selectionStrokeWidth',
+        selectionStrokeWidth,
+        defaultValue: defaultData.selectionStrokeWidth,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tooltipColor',
+        tooltipColor,
+        defaultValue: defaultData.tooltipColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'tooltipStrokeColor',
+        tooltipStrokeColor,
+        defaultValue: defaultData.tooltipStrokeColor,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'tooltipStrokeWidth',
+        tooltipStrokeWidth,
+        defaultValue: defaultData.tooltipStrokeWidth,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<BorderRadiusGeometry>(
+        'tooltipBorderRadius',
+        tooltipBorderRadius,
+        defaultValue: defaultData.tooltipBorderRadius,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'toggledItemColor',
+        toggledItemColor,
+        defaultValue: defaultData.toggledItemColor,
+      ),
+    );
+    properties.add(
+      ColorProperty(
+        'toggledItemStrokeColor',
+        toggledItemStrokeColor,
+        defaultValue: defaultData.toggledItemStrokeColor,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'toggledItemStrokeWidth',
+        toggledItemStrokeWidth,
+        defaultValue: defaultData.toggledItemStrokeWidth,
+      ),
+    );
   }
 }

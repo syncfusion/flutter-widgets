@@ -177,65 +177,69 @@ enum ShapeMarkerType {
   pyramidSeries,
 
   /// ShapeMarkerType.funnelSeries which draws the funnel series marker.
-  funnelSeries
+  funnelSeries,
 }
 
 /// Draws the different marker shapes.
-void paint(
-    {required Canvas canvas,
-    required Rect rect,
-    required ShapeMarkerType shapeType,
-    required Paint paint,
-    ShapeMarkerType? overlayMarkerType,
-    Path? path,
-    double? elevation,
-    Color? elevationColor,
-    Paint? borderPaint,
-    double? degree,
-    double? startAngle,
-    double? endAngle}) {
+void paint({
+  required Canvas canvas,
+  required Rect rect,
+  required ShapeMarkerType shapeType,
+  required Paint paint,
+  ShapeMarkerType? overlayMarkerType,
+  Path? path,
+  double? elevation,
+  Color? elevationColor,
+  Paint? borderPaint,
+  double? degree,
+  double? startAngle,
+  double? endAngle,
+}) {
   _processShapes(
-      canvas: canvas,
-      rect: rect,
-      shapeType: shapeType,
-      paint: paint,
-      path: path ?? Path(),
-      borderPaint: borderPaint,
-      isNeedToReturnPath: false,
-      elevation: elevation,
-      elevationColor: elevationColor,
-      overlayMarkerType: overlayMarkerType,
-      degree: degree,
-      startAngle: startAngle,
-      endAngle: endAngle);
+    canvas: canvas,
+    rect: rect,
+    shapeType: shapeType,
+    paint: paint,
+    path: path ?? Path(),
+    borderPaint: borderPaint,
+    isNeedToReturnPath: false,
+    elevation: elevation,
+    elevationColor: elevationColor,
+    overlayMarkerType: overlayMarkerType,
+    degree: degree,
+    startAngle: startAngle,
+    endAngle: endAngle,
+  );
 }
 
 /// Get the various shape path
-Path getShapesPath(
-    {Canvas? canvas,
-    Paint? paint,
-    Paint? borderPaint,
-    required Rect rect,
-    required ShapeMarkerType shapeType,
-    Path? path,
-    double? pentagonRotation = -pi / 2,
-    double? radius,
-    double? degree,
-    double? startAngle,
-    double? endAngle}) {
+Path getShapesPath({
+  Canvas? canvas,
+  Paint? paint,
+  Paint? borderPaint,
+  required Rect rect,
+  required ShapeMarkerType shapeType,
+  Path? path,
+  double? pentagonRotation = -pi / 2,
+  double? radius,
+  double? degree,
+  double? startAngle,
+  double? endAngle,
+}) {
   return _processShapes(
-      canvas: canvas ?? Canvas(PictureRecorder()),
-      paint: paint ?? Paint(),
-      borderPaint: borderPaint,
-      rect: rect,
-      path: path ?? Path(),
-      shapeType: shapeType,
-      isNeedToReturnPath: true,
-      pentagonRotation: pentagonRotation,
-      radius: radius,
-      degree: degree,
-      startAngle: startAngle,
-      endAngle: endAngle);
+    canvas: canvas ?? Canvas(PictureRecorder()),
+    paint: paint ?? Paint(),
+    borderPaint: borderPaint,
+    rect: rect,
+    path: path ?? Path(),
+    shapeType: shapeType,
+    isNeedToReturnPath: true,
+    pentagonRotation: pentagonRotation,
+    radius: radius,
+    degree: degree,
+    startAngle: startAngle,
+    endAngle: endAngle,
+  );
 }
 
 Paint _lineTypePaint(Paint fillPaint, {Paint? strokePaint}) {
@@ -253,328 +257,360 @@ Paint _lineTypePaint(Paint fillPaint, {Paint? strokePaint}) {
   return paint;
 }
 
-Path _processShapes(
-    {required Canvas canvas,
-    required Rect rect,
-    required ShapeMarkerType shapeType,
-    required Paint paint,
-    required bool isNeedToReturnPath,
-    required Path path,
-    ShapeMarkerType? overlayMarkerType,
-    double? elevation,
-    Color? elevationColor,
-    Paint? borderPaint,
-    double? pentagonRotation = -pi / 2,
-    double? radius,
-    double? degree,
-    double? startAngle,
-    double? endAngle}) {
+Path _processShapes({
+  required Canvas canvas,
+  required Rect rect,
+  required ShapeMarkerType shapeType,
+  required Paint paint,
+  required bool isNeedToReturnPath,
+  required Path path,
+  ShapeMarkerType? overlayMarkerType,
+  double? elevation,
+  Color? elevationColor,
+  Paint? borderPaint,
+  double? pentagonRotation = -pi / 2,
+  double? radius,
+  double? degree,
+  double? startAngle,
+  double? endAngle,
+}) {
   switch (shapeType) {
     case ShapeMarkerType.circle:
       return _processCircleShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          elevation: elevation,
-          elevationColor: elevationColor,
-          paint: paint,
-          borderPaint: borderPaint);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        elevation: elevation,
+        elevationColor: elevationColor,
+        paint: paint,
+        borderPaint: borderPaint,
+      );
     case ShapeMarkerType.rectangle:
       return _processRectangleShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          elevation: elevation,
-          elevationColor: elevationColor,
-          paint: paint,
-          borderPaint: borderPaint);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        elevation: elevation,
+        elevationColor: elevationColor,
+        paint: paint,
+        borderPaint: borderPaint,
+      );
     case ShapeMarkerType.diamond:
       return _processDiamondShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          elevation: elevation,
-          elevationColor: elevationColor,
-          paint: paint,
-          borderPaint: borderPaint);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        elevation: elevation,
+        elevationColor: elevationColor,
+        paint: paint,
+        borderPaint: borderPaint,
+      );
     case ShapeMarkerType.triangle:
       return _processTriangleShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          elevation: elevation,
-          elevationColor: elevationColor,
-          paint: paint,
-          borderPaint: borderPaint);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        elevation: elevation,
+        elevationColor: elevationColor,
+        paint: paint,
+        borderPaint: borderPaint,
+      );
     case ShapeMarkerType.invertedTriangle:
       return _processInvertedTriangleShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          elevation: elevation,
-          elevationColor: elevationColor,
-          paint: paint,
-          borderPaint: borderPaint);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        elevation: elevation,
+        elevationColor: elevationColor,
+        paint: paint,
+        borderPaint: borderPaint,
+      );
     case ShapeMarkerType.verticalTriangle:
       return _processVerticalTriangleShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          elevation: elevation,
-          elevationColor: elevationColor,
-          paint: paint,
-          borderPaint: borderPaint);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        elevation: elevation,
+        elevationColor: elevationColor,
+        paint: paint,
+        borderPaint: borderPaint,
+      );
     case ShapeMarkerType.verticalInvertedTriangle:
       return _processVerticalInvertedTriangleShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          elevation: elevation,
-          elevationColor: elevationColor,
-          paint: paint,
-          borderPaint: borderPaint);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        elevation: elevation,
+        elevationColor: elevationColor,
+        paint: paint,
+        borderPaint: borderPaint,
+      );
     case ShapeMarkerType.pentagon:
       return _processPentagonShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          rotation: pentagonRotation,
-          elevation: elevation,
-          elevationColor: elevationColor,
-          paint: paint,
-          borderPaint: borderPaint);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        rotation: pentagonRotation,
+        elevation: elevation,
+        elevationColor: elevationColor,
+        paint: paint,
+        borderPaint: borderPaint,
+      );
     case ShapeMarkerType.verticalLine:
       return _processVerticalLineShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+      );
     case ShapeMarkerType.horizontalLine:
       return _processHorizontalLineShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          isNeedToReturnPath: isNeedToReturnPath,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        isNeedToReturnPath: isNeedToReturnPath,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+      );
     case ShapeMarkerType.lineSeries:
     case ShapeMarkerType.fastLineSeries:
     case ShapeMarkerType.stackedLineSeries:
     case ShapeMarkerType.stackedLine100Series:
       return _processLineShape(
-          canvas: canvas,
-          path: path,
-          rect: rect,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null,
-          isNeedToReturnPath: isNeedToReturnPath,
-          isNeedMarker: true,
-          overlayMarkerType: overlayMarkerType,
-          isDashArray: false);
+        canvas: canvas,
+        path: path,
+        rect: rect,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+        isNeedToReturnPath: isNeedToReturnPath,
+        isNeedMarker: true,
+        overlayMarkerType: overlayMarkerType,
+        isDashArray: false,
+      );
     case ShapeMarkerType.lineSeriesWithDashArray:
     case ShapeMarkerType.fastLineSeriesWithDashArray:
     case ShapeMarkerType.stackedLineSeriesWithDashArray:
     case ShapeMarkerType.stackedLine100SeriesWithDashArray:
       return _processLineShape(
-          canvas: canvas,
-          path: path,
-          rect: rect,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null,
-          isNeedToReturnPath: isNeedToReturnPath,
-          isNeedMarker: true,
-          overlayMarkerType: overlayMarkerType,
-          isDashArray: true);
+        canvas: canvas,
+        path: path,
+        rect: rect,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+        isNeedToReturnPath: isNeedToReturnPath,
+        isNeedMarker: true,
+        overlayMarkerType: overlayMarkerType,
+        isDashArray: true,
+      );
     case ShapeMarkerType.splineSeries:
       return _processSplineShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null,
-          isNeedToReturnPath: isNeedToReturnPath,
-          isDashArray: false);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+        isNeedToReturnPath: isNeedToReturnPath,
+        isDashArray: false,
+      );
     case ShapeMarkerType.splineSeriesWithDashArray:
       return _processSplineShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null,
-          isNeedToReturnPath: isNeedToReturnPath,
-          isDashArray: true);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+        isNeedToReturnPath: isNeedToReturnPath,
+        isDashArray: true,
+      );
     case ShapeMarkerType.splineAreaSeries:
     case ShapeMarkerType.splineRangeAreaSeries:
       return _processSplineAreaShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.areaSeries:
     case ShapeMarkerType.stackedAreaSeries:
     case ShapeMarkerType.rangeAreaSeries:
     case ShapeMarkerType.stackedArea100Series:
       return _processAreaShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.stepAreaSeries:
       return _processStepAreaShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.stepLineSeries:
       return _processStepLineShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null,
-          isNeedToReturnPath: isNeedToReturnPath,
-          isDashArray: false);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+        isNeedToReturnPath: isNeedToReturnPath,
+        isDashArray: false,
+      );
     case ShapeMarkerType.stepLineSeriesWithDashArray:
       return _processStepLineShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null,
-          isNeedToReturnPath: isNeedToReturnPath,
-          isDashArray: true);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+        isNeedToReturnPath: isNeedToReturnPath,
+        isDashArray: true,
+      );
     case ShapeMarkerType.bubbleSeries:
       return _processBubbleShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.columnSeries:
     case ShapeMarkerType.stackedColumnSeries:
     case ShapeMarkerType.stackedColumn100Series:
     case ShapeMarkerType.rangeColumnSeries:
     case ShapeMarkerType.histogramSeries:
       return _processColumnShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.barSeries:
     case ShapeMarkerType.stackedBarSeries:
     case ShapeMarkerType.stackedBar100Series:
       return _processBarShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.hiloSeries:
       return _processHiloShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.hiloOpenCloseSeries:
     case ShapeMarkerType.candleSeries:
       return _processHiloOpenCloseShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: _lineTypePaint(paint, strokePaint: borderPaint),
-          shaderPaint: paint.shader != null ? paint : null,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: _lineTypePaint(paint, strokePaint: borderPaint),
+        shaderPaint: paint.shader != null ? paint : null,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.waterfallSeries:
     case ShapeMarkerType.boxAndWhiskerSeries:
       return _processWaterfallShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.pieSeries:
       return _processPieShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.doughnutSeries:
       return _processDoughnutShape(
-          canvas: canvas,
-          rect: rect,
-          radius: radius,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        radius: radius,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.radialBarSeries:
       return _processRadialBarShape(
-          rect: rect,
-          canvas: canvas,
-          radius: radius,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          degree: degree,
-          startAngle: startAngle,
-          endAngle: endAngle,
-          isNeedToReturnPath: isNeedToReturnPath);
+        rect: rect,
+        canvas: canvas,
+        radius: radius,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        degree: degree,
+        startAngle: startAngle,
+        endAngle: endAngle,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.pyramidSeries:
       return _processPyramidShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.funnelSeries:
       return _processFunnelShape(
-          canvas: canvas,
-          rect: rect,
-          path: path,
-          paint: paint,
-          borderPaint: borderPaint,
-          isNeedToReturnPath: isNeedToReturnPath);
+        canvas: canvas,
+        rect: rect,
+        path: path,
+        paint: paint,
+        borderPaint: borderPaint,
+        isNeedToReturnPath: isNeedToReturnPath,
+      );
     case ShapeMarkerType.image:
       return Path();
   }
 }
 
 /// Draw the circle shape marker.
-Path _processCircleShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required Paint paint,
-    required bool isNeedToReturnPath,
-    required Path path,
-    double? elevation,
-    Color? elevationColor,
-    Paint? borderPaint}) {
+Path _processCircleShape({
+  required Canvas canvas,
+  required Rect rect,
+  required Paint paint,
+  required bool isNeedToReturnPath,
+  required Path path,
+  double? elevation,
+  Color? elevationColor,
+  Paint? borderPaint,
+}) {
   path.addOval(rect);
 
   if (isNeedToReturnPath) {
@@ -596,15 +632,16 @@ Path _processCircleShape(
 }
 
 /// Draw the rectangle shape marker.
-Path _processRectangleShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required Paint paint,
-    required bool isNeedToReturnPath,
-    required Path path,
-    double? elevation,
-    Color? elevationColor,
-    Paint? borderPaint}) {
+Path _processRectangleShape({
+  required Canvas canvas,
+  required Rect rect,
+  required Paint paint,
+  required bool isNeedToReturnPath,
+  required Path path,
+  double? elevation,
+  Color? elevationColor,
+  Paint? borderPaint,
+}) {
   path.addRect(rect);
 
   if (isNeedToReturnPath) {
@@ -626,15 +663,16 @@ Path _processRectangleShape(
 }
 
 /// Draw the inverted triangle shape marker.
-Path _processInvertedTriangleShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    double? elevation,
-    Color? elevationColor,
-    required Paint paint,
-    Paint? borderPaint}) {
+Path _processInvertedTriangleShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  double? elevation,
+  Color? elevationColor,
+  required Paint paint,
+  Paint? borderPaint,
+}) {
   path.moveTo(rect.left, rect.top);
   path.lineTo(rect.left + rect.width, rect.top);
   path.lineTo(rect.left + (rect.width / 2), rect.top + rect.height);
@@ -660,15 +698,16 @@ Path _processInvertedTriangleShape(
 }
 
 /// Draw the triangle shape marker.
-Path _processTriangleShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    double? elevation,
-    Color? elevationColor,
-    required Paint paint,
-    Paint? borderPaint}) {
+Path _processTriangleShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  double? elevation,
+  Color? elevationColor,
+  required Paint paint,
+  Paint? borderPaint,
+}) {
   path.moveTo(rect.left + (rect.width / 2), rect.top);
   path.lineTo(rect.left, rect.top + rect.height);
   path.lineTo(rect.left + rect.width, rect.top + rect.height);
@@ -693,15 +732,16 @@ Path _processTriangleShape(
 }
 
 ///Draw the triangle shape marker
-Path _processVerticalTriangleShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    double? elevation,
-    Color? elevationColor,
-    required Paint paint,
-    Paint? borderPaint}) {
+Path _processVerticalTriangleShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  double? elevation,
+  Color? elevationColor,
+  required Paint paint,
+  Paint? borderPaint,
+}) {
   path.moveTo(rect.left, rect.top + (rect.height / 2));
   path.lineTo(rect.left + rect.width, rect.top);
   path.lineTo(rect.left + rect.width, rect.top + rect.height);
@@ -726,15 +766,16 @@ Path _processVerticalTriangleShape(
 }
 
 ///Draw the vertical inverted triangle shape marker
-Path _processVerticalInvertedTriangleShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    double? elevation,
-    Color? elevationColor,
-    required Paint paint,
-    Paint? borderPaint}) {
+Path _processVerticalInvertedTriangleShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  double? elevation,
+  Color? elevationColor,
+  required Paint paint,
+  Paint? borderPaint,
+}) {
   path.moveTo(rect.left, rect.top);
   path.lineTo(rect.left + rect.width, rect.top + (rect.height / 2));
   path.lineTo(rect.left, rect.top + rect.height);
@@ -759,15 +800,16 @@ Path _processVerticalInvertedTriangleShape(
 }
 
 /// Draw the diamond shape marker.
-Path _processDiamondShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    double? elevation,
-    Color? elevationColor,
-    required Paint paint,
-    Paint? borderPaint}) {
+Path _processDiamondShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  double? elevation,
+  Color? elevationColor,
+  required Paint paint,
+  Paint? borderPaint,
+}) {
   path.moveTo(rect.left + rect.width / 2.0, rect.top);
   path.lineTo(rect.left, rect.top + rect.height / 2.0);
   path.lineTo(rect.left + rect.width / 2.0, rect.top + rect.height);
@@ -794,16 +836,17 @@ Path _processDiamondShape(
 }
 
 ///Draw the pentagon shape marker
-Path _processPentagonShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    double? elevation,
-    Color? elevationColor,
-    required Paint paint,
-    Paint? borderPaint,
-    double? rotation}) {
+Path _processPentagonShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  double? elevation,
+  Color? elevationColor,
+  required Paint paint,
+  Paint? borderPaint,
+  double? rotation,
+}) {
   const int numberOfSides = 5;
   final double left = rect.left + rect.width / 2;
   final double top = rect.top + rect.height / 2;
@@ -833,13 +876,14 @@ Path _processPentagonShape(
 }
 
 /// Draw the vertical line shape marker.
-Path _processVerticalLineShape(
-    {required Canvas canvas,
-    required bool isNeedToReturnPath,
-    required Path path,
-    required Rect rect,
-    required Paint? paint,
-    Paint? shaderPaint}) {
+Path _processVerticalLineShape({
+  required Canvas canvas,
+  required bool isNeedToReturnPath,
+  required Path path,
+  required Rect rect,
+  required Paint? paint,
+  Paint? shaderPaint,
+}) {
   final double left = rect.left + rect.width / 2;
   final double top = rect.top + rect.height / 2;
 
@@ -859,13 +903,14 @@ Path _processVerticalLineShape(
 }
 
 /// Draw the horizontal line shape marker.
-Path _processHorizontalLineShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    required Paint? paint,
-    Paint? shaderPaint}) {
+Path _processHorizontalLineShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  required Paint? paint,
+  Paint? shaderPaint,
+}) {
   final double left = rect.left + rect.width / 2;
   final double top = rect.top + rect.height / 2;
 
@@ -884,14 +929,15 @@ Path _processHorizontalLineShape(
 }
 
 /// Draw the step line series type.
-Path _processStepLineShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? shaderPaint,
-    bool? isDashArray}) {
+Path _processStepLineShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? shaderPaint,
+  bool? isDashArray,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -916,26 +962,34 @@ Path _processStepLineShape(
   if (paint != null) {
     paint.shader = shaderPaint != null ? shaderPaint.shader : paint.shader;
     canvas.drawPath(
-        isDashArray!
-            ? _processDashPath(path,
-                dashArray: _CircularIntervalList<double>(<double>[3, 2]))
-            : path,
-        paint..style = PaintingStyle.stroke);
+      isDashArray!
+          ? _processDashPath(
+            path,
+            dashArray: _CircularIntervalList<double>(<double>[3, 2]),
+          )
+          : path,
+      paint..style = PaintingStyle.stroke,
+    );
   }
 
   return path;
 }
 
 /// Draw the pie series type.
-Path _processPieShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
-  rect =
-      Rect.fromLTWH(rect.left, rect.top + 1, rect.width - 1, rect.height - 1);
+Path _processPieShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
+  rect = Rect.fromLTWH(
+    rect.left,
+    rect.top + 1,
+    rect.width - 1,
+    rect.height - 1,
+  );
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -944,13 +998,21 @@ Path _processPieShape(
   final double r = min(height, width) / 2;
   path.moveTo(x, y);
   path.lineTo(x + r, y);
-  path.arcTo(Rect.fromCircle(center: Offset(x, y), radius: r),
-      _degreesToRadians(0), _degreesToRadians(270), false);
+  path.arcTo(
+    Rect.fromCircle(center: Offset(x, y), radius: r),
+    _degreesToRadians(0),
+    _degreesToRadians(270),
+    false,
+  );
   path.close();
   path.moveTo(x + width / 10, y - height / 10);
   path.lineTo(x + r, y - height / 10);
-  path.arcTo(Rect.fromCircle(center: Offset(x + 1, y - 1), radius: r),
-      _degreesToRadians(0), _degreesToRadians(-90), false);
+  path.arcTo(
+    Rect.fromCircle(center: Offset(x + 1, y - 1), radius: r),
+    _degreesToRadians(0),
+    _degreesToRadians(-90),
+    false,
+  );
   path.close();
 
   if (isNeedToReturnPath) {
@@ -968,72 +1030,116 @@ Path _processPieShape(
 }
 
 /// Draw the doughnut series type.
-Path _processDoughnutShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required Path path,
-    required bool isNeedToReturnPath,
-    double? radius,
-    Paint? paint,
-    Paint? borderPaint}) {
-  rect =
-      Rect.fromLTWH(rect.left, rect.top + 1, rect.width - 1, rect.height - 1);
+Path _processDoughnutShape({
+  required Canvas canvas,
+  required Rect rect,
+  required Path path,
+  required bool isNeedToReturnPath,
+  double? radius,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
+  rect = Rect.fromLTWH(
+    rect.left,
+    rect.top + 1,
+    rect.width - 1,
+    rect.height - 1,
+  );
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   late Path path1, path2;
   radius ??= (rect.width + rect.height) / 2;
-  final bool hasBorder = borderPaint != null &&
+  final bool hasBorder =
+      borderPaint != null &&
       borderPaint.color != Colors.transparent &&
       borderPaint.strokeWidth > 0;
   if (isNeedToReturnPath) {
     if (hasBorder) {
       path1 = _getArcPath(
-          path, radius / 4, radius / 2, Offset(x, y), 0, 270, 270, true);
+        path,
+        radius / 4,
+        radius / 2,
+        Offset(x, y),
+        0,
+        270,
+        270,
+        true,
+      );
     } else {
-      path2 = _getArcPath(path, radius / 4, radius / 2, Offset(x + 1, y - 1), 0,
-          -90, -90, true);
+      path2 = _getArcPath(
+        path,
+        radius / 4,
+        radius / 2,
+        Offset(x + 1, y - 1),
+        0,
+        -90,
+        -90,
+        true,
+      );
     }
 
     return path;
   }
 
   path1 = _getArcPath(
-      path, radius / 4, radius / 2, Offset(x, y), 0, 270, 270, true);
+    path,
+    radius / 4,
+    radius / 2,
+    Offset(x, y),
+    0,
+    270,
+    270,
+    true,
+  );
 
   path2 = _getArcPath(
-      Path(), radius / 4, radius / 2, Offset(x + 1, y - 1), 0, -90, -90, true);
+    Path(),
+    radius / 4,
+    radius / 2,
+    Offset(x + 1, y - 1),
+    0,
+    -90,
+    -90,
+    true,
+  );
 
   canvas.drawPath(path1, paint!);
   if (hasBorder) {
-    canvas.drawPath(path1,
-        borderPaint..color = Colors.grey.shade300.withValues(alpha: 0.5));
+    canvas.drawPath(
+      path1,
+      borderPaint..color = Colors.grey.shade300.withValues(alpha: 0.5),
+    );
   }
   canvas.drawPath(path2, paint);
   if (hasBorder) {
-    canvas.drawPath(path2,
-        borderPaint..color = Colors.grey.shade300.withValues(alpha: 0.5));
+    canvas.drawPath(
+      path2,
+      borderPaint..color = Colors.grey.shade300.withValues(alpha: 0.5),
+    );
   }
 
   return path;
 }
 
 /// Draw the radial bar series type.
-Path _processRadialBarShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required Path path,
-    required bool isNeedToReturnPath,
-    double? degree,
-    double? startAngle,
-    double? endAngle,
-    double? radius,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processRadialBarShape({
+  required Canvas canvas,
+  required Rect rect,
+  required Path path,
+  required bool isNeedToReturnPath,
+  double? degree,
+  double? startAngle,
+  double? endAngle,
+  double? radius,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
 
   late Path path1, path2;
-  final bool hasBorder = borderPaint != null &&
+  final bool hasBorder =
+      borderPaint != null &&
       borderPaint.color != Colors.transparent &&
       borderPaint.strokeWidth > 0;
 
@@ -1041,30 +1147,65 @@ Path _processRadialBarShape(
 
   if (isNeedToReturnPath) {
     if (hasBorder) {
-      path1 = _getArcPath(path, (radius / 2) - 2, radius / 2, Offset(x, y), 0,
-          360 - 0.01, 360 - 0.01, true);
+      path1 = _getArcPath(
+        path,
+        (radius / 2) - 2,
+        radius / 2,
+        Offset(x, y),
+        0,
+        360 - 0.01,
+        360 - 0.01,
+        true,
+      );
     } else {
-      path2 = _getArcPath(path, (radius / 2) - 2, radius / 2, Offset(x, y),
-          startAngle!, endAngle!, degree!, true);
+      path2 = _getArcPath(
+        path,
+        (radius / 2) - 2,
+        radius / 2,
+        Offset(x, y),
+        startAngle!,
+        endAngle!,
+        degree!,
+        true,
+      );
     }
     return path;
   }
 
-  path1 = _getArcPath(path, (radius / 2) - 2, radius / 2, Offset(x, y), 0,
-      360 - 0.01, 360 - 0.01, true);
+  path1 = _getArcPath(
+    path,
+    (radius / 2) - 2,
+    radius / 2,
+    Offset(x, y),
+    0,
+    360 - 0.01,
+    360 - 0.01,
+    true,
+  );
 
-  path2 = _getArcPath(Path(), (radius / 2) - 2, radius / 2, Offset(x, y),
-      startAngle!, endAngle!, degree!, true);
+  path2 = _getArcPath(
+    Path(),
+    (radius / 2) - 2,
+    radius / 2,
+    Offset(x, y),
+    startAngle!,
+    endAngle!,
+    degree!,
+    true,
+  );
 
   if (hasBorder) {
     canvas.drawPath(
-        path1,
-        Paint()
-          ..color = Colors.grey.shade100
-          ..strokeWidth = borderPaint.strokeWidth);
+      path1,
+      Paint()
+        ..color = Colors.grey.shade100
+        ..strokeWidth = borderPaint.strokeWidth,
+    );
 
-    canvas.drawPath(path1,
-        borderPaint..color = Colors.grey.shade300.withValues(alpha: 0.5));
+    canvas.drawPath(
+      path1,
+      borderPaint..color = Colors.grey.shade300.withValues(alpha: 0.5),
+    );
   }
 
   canvas.drawPath(path2, paint!);
@@ -1077,22 +1218,33 @@ Path _processRadialBarShape(
 }
 
 /// Get the path of arc
-Path _getArcPath(Path path, double innerRadius, double radius, Offset center,
-    double startAngle, double endAngle, double degree, bool isAnimate) {
+Path _getArcPath(
+  Path path,
+  double innerRadius,
+  double radius,
+  Offset center,
+  double startAngle,
+  double endAngle,
+  double degree,
+  bool isAnimate,
+) {
   startAngle = _degreesToRadians(startAngle);
   endAngle = _degreesToRadians(endAngle);
   degree = _degreesToRadians(degree);
 
   final Point<double> innerRadiusStartPoint = Point<double>(
-      innerRadius * cos(startAngle) + center.dx,
-      innerRadius * sin(startAngle) + center.dy);
+    innerRadius * cos(startAngle) + center.dx,
+    innerRadius * sin(startAngle) + center.dy,
+  );
   final Point<double> innerRadiusEndPoint = Point<double>(
-      innerRadius * cos(endAngle) + center.dx,
-      innerRadius * sin(endAngle) + center.dy);
+    innerRadius * cos(endAngle) + center.dx,
+    innerRadius * sin(endAngle) + center.dy,
+  );
 
   final Point<double> radiusStartPoint = Point<double>(
-      radius * cos(startAngle) + center.dx,
-      radius * sin(startAngle) + center.dy);
+    radius * cos(startAngle) + center.dx,
+    radius * sin(startAngle) + center.dy,
+  );
 
   if (isAnimate) {
     path.moveTo(innerRadiusStartPoint.x, innerRadiusStartPoint.y);
@@ -1102,25 +1254,49 @@ Path _getArcPath(Path path, double innerRadius, double radius, Offset center,
   final num midpointAngle = (endAngle + startAngle) / 2;
 
   if (isFullCircle) {
-    path.arcTo(Rect.fromCircle(center: center, radius: radius), startAngle,
-        midpointAngle.toDouble() - startAngle, true);
-    path.arcTo(Rect.fromCircle(center: center, radius: radius),
-        midpointAngle.toDouble(), endAngle - midpointAngle.toDouble(), true);
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: radius),
+      startAngle,
+      midpointAngle.toDouble() - startAngle,
+      true,
+    );
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: radius),
+      midpointAngle.toDouble(),
+      endAngle - midpointAngle.toDouble(),
+      true,
+    );
   } else {
     path.lineTo(radiusStartPoint.x, radiusStartPoint.y);
-    path.arcTo(Rect.fromCircle(center: center, radius: radius), startAngle,
-        degree, true);
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: radius),
+      startAngle,
+      degree,
+      true,
+    );
   }
 
   if (isFullCircle) {
-    path.arcTo(Rect.fromCircle(center: center, radius: innerRadius), endAngle,
-        midpointAngle.toDouble() - endAngle, true);
-    path.arcTo(Rect.fromCircle(center: center, radius: innerRadius),
-        midpointAngle.toDouble(), startAngle - midpointAngle.toDouble(), true);
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: innerRadius),
+      endAngle,
+      midpointAngle.toDouble() - endAngle,
+      true,
+    );
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: innerRadius),
+      midpointAngle.toDouble(),
+      startAngle - midpointAngle.toDouble(),
+      true,
+    );
   } else {
     path.lineTo(innerRadiusEndPoint.x, innerRadiusEndPoint.y);
-    path.arcTo(Rect.fromCircle(center: center, radius: innerRadius), endAngle,
-        startAngle - endAngle, true);
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: innerRadius),
+      endAngle,
+      startAngle - endAngle,
+      true,
+    );
     path.lineTo(radiusStartPoint.x, radiusStartPoint.y);
   }
   return path;
@@ -1130,13 +1306,14 @@ Path _getArcPath(Path path, double innerRadius, double radius, Offset center,
 double _degreesToRadians(double deg) => deg * (pi / 180);
 
 /// Draw the hilo series type.
-Path _processHiloShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? shaderPaint}) {
+Path _processHiloShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? shaderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double height = rect.height;
@@ -1157,13 +1334,14 @@ Path _processHiloShape(
 }
 
 /// Draw the hilo open close series type.
-Path _processHiloOpenCloseShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? shaderPaint}) {
+Path _processHiloOpenCloseShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? shaderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -1184,19 +1362,21 @@ Path _processHiloOpenCloseShape(
 }
 
 /// Draw the waterfall series type.
-Path _processWaterfallShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processWaterfallShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
   final double height = rect.height;
-  path.addRect(Rect.fromLTRB(
-      x - width / 2, y - height / 2, x + width / 2, y + height / 2));
+  path.addRect(
+    Rect.fromLTRB(x - width / 2, y - height / 2, x + width / 2, y + height / 2),
+  );
 
   if (isNeedToReturnPath) {
     return path;
@@ -1213,13 +1393,14 @@ Path _processWaterfallShape(
 }
 
 /// Draw the pyramid series type.
-Path _processPyramidShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processPyramidShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -1245,13 +1426,14 @@ Path _processPyramidShape(
 }
 
 /// Draw the funnel series type.
-Path _processFunnelShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processFunnelShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -1278,20 +1460,24 @@ Path _processFunnelShape(
 }
 
 /// Draw the bubble series type.
-Path _processBubbleShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processBubbleShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
   final double height = rect.height;
 
   path.addArc(
-      Rect.fromLTWH(x - width / 2, y - height / 2, width, height), 0.0, 2 * pi);
+    Rect.fromLTWH(x - width / 2, y - height / 2, width, height),
+    0.0,
+    2 * pi,
+  );
 
   if (isNeedToReturnPath) {
     return path;
@@ -1308,13 +1494,14 @@ Path _processBubbleShape(
 }
 
 /// Draw the step are series type.
-Path _processStepAreaShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processStepAreaShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -1346,13 +1533,14 @@ Path _processStepAreaShape(
 }
 
 /// Draw the spline area series type.
-Path _processSplineAreaShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processSplineAreaShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -1361,7 +1549,11 @@ Path _processSplineAreaShape(
   path.moveTo(x - width / 2, y + height / 2);
   path.quadraticBezierTo(x, y - height, x, y + height / 5);
   path.quadraticBezierTo(
-      x + width / 2, y - height / 2, x + width / 2, y + height / 2);
+    x + width / 2,
+    y - height / 2,
+    x + width / 2,
+    y + height / 2,
+  );
 
   if (isNeedToReturnPath) {
     return path;
@@ -1378,23 +1570,27 @@ Path _processSplineAreaShape(
 }
 
 /// Draw the line series type.
-Path _processLineShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? shaderPaint,
-    bool? isNeedMarker,
-    ShapeMarkerType? overlayMarkerType,
-    bool? isDashArray}) {
+Path _processLineShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? shaderPaint,
+  bool? isNeedMarker,
+  ShapeMarkerType? overlayMarkerType,
+  bool? isDashArray,
+}) {
   if (isNeedMarker! && overlayMarkerType != null) {
     final Rect pathRect = Rect.fromCenter(
-        center: rect.center,
-        width: rect.width / 1.5,
-        height: rect.height / 1.5);
-    canvas.drawPath(getShapesPath(rect: pathRect, shapeType: overlayMarkerType),
-        Paint()..color = paint!.color);
+      center: rect.center,
+      width: rect.width / 1.5,
+      height: rect.height / 1.5,
+    );
+    canvas.drawPath(
+      getShapesPath(rect: pathRect, shapeType: overlayMarkerType),
+      Paint()..color = paint!.color,
+    );
   }
 
   final double left = rect.left + rect.width / 2;
@@ -1410,23 +1606,27 @@ Path _processLineShape(
     paint.shader = shaderPaint != null ? shaderPaint.shader : paint.shader;
 
     canvas.drawPath(
-        isDashArray!
-            ? _processDashPath(path,
-                dashArray: _CircularIntervalList<double>(<double>[3, 2]))
-            : path,
-        paint..style = PaintingStyle.stroke);
+      isDashArray!
+          ? _processDashPath(
+            path,
+            dashArray: _CircularIntervalList<double>(<double>[3, 2]),
+          )
+          : path,
+      paint..style = PaintingStyle.stroke,
+    );
   }
   return path;
 }
 
 /// Draw the column series type.
-Path _processColumnShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processColumnShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double left = rect.left + rect.width / 2;
   final double top = rect.top + rect.height / 2;
 
@@ -1436,19 +1636,29 @@ Path _processColumnShape(
 
   path.moveTo(left - space * (rect.width / temp), top - (rect.height / temp));
   path.lineTo(
-      left + space * (-rect.width / padding), top - (rect.height / temp));
+    left + space * (-rect.width / padding),
+    top - (rect.height / temp),
+  );
   path.lineTo(left + space * (-rect.width / padding), top + (rect.height / 2));
   path.lineTo(left - space * (rect.width / temp), top + (rect.height / 2));
   path.close();
 
-  path.moveTo(left - (rect.width / padding) - (rect.width / (padding * 2)),
-      top - (rect.height / 4) - (padding / 2));
-  path.lineTo(left + (rect.width / padding) + (rect.width / (padding * 2)),
-      top - (rect.height / 4) - (padding / 2));
-  path.lineTo(left + (rect.width / padding) + (rect.width / (padding * 2)),
-      top + (rect.height / 2));
-  path.lineTo(left - (rect.width / padding) - (rect.width / (padding * 2)),
-      top + (rect.height / 2));
+  path.moveTo(
+    left - (rect.width / padding) - (rect.width / (padding * 2)),
+    top - (rect.height / 4) - (padding / 2),
+  );
+  path.lineTo(
+    left + (rect.width / padding) + (rect.width / (padding * 2)),
+    top - (rect.height / 4) - (padding / 2),
+  );
+  path.lineTo(
+    left + (rect.width / padding) + (rect.width / (padding * 2)),
+    top + (rect.height / 2),
+  );
+  path.lineTo(
+    left - (rect.width / padding) - (rect.width / (padding * 2)),
+    top + (rect.height / 2),
+  );
   path.close();
 
   path.moveTo(left + space * (rect.width / padding), top);
@@ -1472,13 +1682,14 @@ Path _processColumnShape(
 }
 
 /// Draw the area series type.
-Path _processAreaShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processAreaShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -1508,13 +1719,14 @@ Path _processAreaShape(
 }
 
 /// Draw the bar series type.
-Path _processBarShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? borderPaint}) {
+Path _processBarShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? borderPaint,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -1528,20 +1740,32 @@ Path _processBarShape(
   path.lineTo(x - (width / 2) - padding / 4, y - 3 * (height / 10));
   path.close();
   path.moveTo(
-      x - (width / 2) - (padding / 4), y - (height / 5) + (padding / 20));
+    x - (width / 2) - (padding / 4),
+    y - (height / 5) + (padding / 20),
+  );
   path.lineTo(
-      x + (width / 2) + (padding / 4), y - (height / 5) + (padding / 20));
+    x + (width / 2) + (padding / 4),
+    y - (height / 5) + (padding / 20),
+  );
   path.lineTo(
-      x + (width / 2) + (padding / 4), y + (height / 10) + (padding / 20));
+    x + (width / 2) + (padding / 4),
+    y + (height / 10) + (padding / 20),
+  );
   path.lineTo(
-      x - (width / 2) - (padding / 4), y + (height / 10) + (padding / 20));
+    x - (width / 2) - (padding / 4),
+    y + (height / 10) + (padding / 20),
+  );
   path.close();
   path.moveTo(
-      x - (width / 2) - (padding / 4), y + (height / 5) + (padding / 10));
+    x - (width / 2) - (padding / 4),
+    y + (height / 5) + (padding / 10),
+  );
   path.lineTo(x - width / 4, y + (height / 5) + (padding / 10));
   path.lineTo(x - width / 4, y + (height / 2) + (padding / 10));
   path.lineTo(
-      x - (width / 2) - (padding / 4), y + (height / 2) + (padding / 10));
+    x - (width / 2) - (padding / 4),
+    y + (height / 2) + (padding / 10),
+  );
   path.close();
 
   if (isNeedToReturnPath) {
@@ -1560,14 +1784,15 @@ Path _processBarShape(
 }
 
 /// Draw the spline series type.
-Path _processSplineShape(
-    {required Canvas canvas,
-    required Rect rect,
-    required bool isNeedToReturnPath,
-    required Path path,
-    Paint? paint,
-    Paint? shaderPaint,
-    bool? isDashArray}) {
+Path _processSplineShape({
+  required Canvas canvas,
+  required Rect rect,
+  required bool isNeedToReturnPath,
+  required Path path,
+  Paint? paint,
+  Paint? shaderPaint,
+  bool? isDashArray,
+}) {
   final double x = rect.left + rect.width / 2;
   final double y = rect.top + rect.height / 2;
   final double width = rect.width;
@@ -1577,7 +1802,11 @@ Path _processSplineShape(
   path.quadraticBezierTo(x, y - height, x, y + height / 5);
   path.moveTo(x, y + height / 5);
   path.quadraticBezierTo(
-      x + width / 2, y + height / 2, x + width / 2, y - height / 2);
+    x + width / 2,
+    y + height / 2,
+    x + width / 2,
+    y - height / 2,
+  );
 
   if (isNeedToReturnPath) {
     return path;
@@ -1587,11 +1816,14 @@ Path _processSplineShape(
     paint.shader = shaderPaint != null ? shaderPaint.shader : paint.shader;
 
     canvas.drawPath(
-        isDashArray!
-            ? _processDashPath(path,
-                dashArray: _CircularIntervalList<double>(<double>[3, 2]))
-            : path,
-        paint..style = PaintingStyle.stroke);
+      isDashArray!
+          ? _processDashPath(
+            path,
+            dashArray: _CircularIntervalList<double>(<double>[3, 2]),
+          )
+          : path,
+      paint..style = PaintingStyle.stroke,
+    );
   }
 
   return path;
@@ -1610,7 +1842,9 @@ Path _processDashPath(
       final double length = dashArray.next;
       if (draw) {
         path.addPath(
-            measurePath.extractPath(distance, distance + length), Offset.zero);
+          measurePath.extractPath(distance, distance + length),
+          Offset.zero,
+        );
       }
       distance += length;
       draw = !draw;

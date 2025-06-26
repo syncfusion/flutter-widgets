@@ -12,8 +12,12 @@ class PdfAttachment extends PdfEmbeddedFileSpecification {
   //Constructor.
   /// Initializes a new instance of the [PdfAttachment] class with specified
   /// file name and byte data to be attached.
-  PdfAttachment(super.fileName, super.data,
-      {String? description, String? mimeType}) {
+  PdfAttachment(
+    super.fileName,
+    super.data, {
+    String? description,
+    String? mimeType,
+  }) {
     _embeddedFile =
         PdfEmbeddedFileSpecificationHelper.getHelper(this).embeddedFile;
     _updateValues(description, mimeType);
@@ -21,9 +25,12 @@ class PdfAttachment extends PdfEmbeddedFileSpecification {
 
   /// Initializes a new instance of the [PdfAttachment] class with specified
   /// file name and byte data as base64 String to be attached.
-  PdfAttachment.fromBase64String(String fileName, String base64String,
-      {String? description, String? mimeType})
-      : super(fileName, base64.decode(base64String)) {
+  PdfAttachment.fromBase64String(
+    String fileName,
+    String base64String, {
+    String? description,
+    String? mimeType,
+  }) : super(fileName, base64.decode(base64String)) {
     _embeddedFile =
         PdfEmbeddedFileSpecificationHelper.getHelper(this).embeddedFile;
     _updateValues(description, mimeType);
@@ -80,9 +87,13 @@ class PdfAttachment extends PdfEmbeddedFileSpecification {
   set relationship(PdfAttachmentRelationship value) {
     PdfEmbeddedFileSpecificationHelper.getHelper(this).relationship = value;
     PdfFileSpecificationBaseHelper.getHelper(this).dictionary!.setProperty(
-        PdfDictionaryProperties.afRelationship,
-        PdfName(PdfEmbeddedFileSpecificationHelper.getHelper(this).getEnumName(
-            PdfEmbeddedFileSpecificationHelper.getHelper(this).relationship)));
+      PdfDictionaryProperties.afRelationship,
+      PdfName(
+        PdfEmbeddedFileSpecificationHelper.getHelper(this).getEnumName(
+          PdfEmbeddedFileSpecificationHelper.getHelper(this).relationship,
+        ),
+      ),
+    );
   }
 
   void _updateValues(String? desc, String? mime) {

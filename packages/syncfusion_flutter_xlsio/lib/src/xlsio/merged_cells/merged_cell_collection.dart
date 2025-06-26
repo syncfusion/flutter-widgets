@@ -28,10 +28,14 @@ class MergedCellCollection {
         final MergeCell intersectingCell = MergeCell();
         intersectingCell.x = min(mCell.x, mergeCell.x);
         intersectingCell.y = min(mCell.y, mergeCell.y);
-        intersectingCell.width =
-            max(mCell.width + mCell.y, mergeCell.width + mergeCell.x);
-        intersectingCell.height =
-            max(mCell.height + mCell.y, mergeCell.height + mergeCell.y);
+        intersectingCell.width = max(
+          mCell.width + mCell.y,
+          mergeCell.width + mergeCell.x,
+        );
+        intersectingCell.height = max(
+          mCell.height + mCell.y,
+          mergeCell.height + mergeCell.y,
+        );
         intersectingCell.reference =
             '${this[count].reference.split(':')[0]}:${mergeCell.reference.split(':')[1]}';
         innerList[count] = intersectingCell;

@@ -14,40 +14,44 @@ class PdfSubmitAction extends PdfFormAction {
   //Constructor
   /// Initializes a new instance of the [PdfSubmitAction] class with
   /// URL to submit the form data
-  PdfSubmitAction(String url,
-      {HttpMethod httpMethod = HttpMethod.post,
-      SubmitDataFormat dataFormat = SubmitDataFormat.fdf,
-      bool canonicalDateTimeFormat = false,
-      bool submitCoordinates = false,
-      bool includeNoValueFields = false,
-      bool includeIncrementalUpdates = false,
-      bool includeAnnotations = false,
-      bool excludeNonUserAnnotations = false,
-      bool embedForm = false,
-      bool include = false,
-      List<PdfField>? fields})
-      : super._() {
+  PdfSubmitAction(
+    String url, {
+    HttpMethod httpMethod = HttpMethod.post,
+    SubmitDataFormat dataFormat = SubmitDataFormat.fdf,
+    bool canonicalDateTimeFormat = false,
+    bool submitCoordinates = false,
+    bool includeNoValueFields = false,
+    bool includeIncrementalUpdates = false,
+    bool includeAnnotations = false,
+    bool excludeNonUserAnnotations = false,
+    bool embedForm = false,
+    bool include = false,
+    List<PdfField>? fields,
+  }) : super._() {
     final PdfActionHelper helper = PdfActionHelper.getHelper(this);
     helper.dictionary.beginSave = _dictionaryBeginSave;
     helper.dictionary.setProperty(
-        PdfDictionaryProperties.s, PdfName(PdfDictionaryProperties.submitForm));
+      PdfDictionaryProperties.s,
+      PdfName(PdfDictionaryProperties.submitForm),
+    );
     if (url.isEmpty) {
       ArgumentError.value("The URL can't be an empty string.");
     }
     _url = url;
     helper.dictionary.setProperty(PdfDictionaryProperties.f, PdfString(_url));
     _initValues(
-        httpMethod = HttpMethod.post,
-        dataFormat,
-        canonicalDateTimeFormat,
-        submitCoordinates,
-        includeNoValueFields,
-        includeIncrementalUpdates,
-        includeAnnotations,
-        excludeNonUserAnnotations,
-        embedForm,
-        include,
-        fields);
+      httpMethod = HttpMethod.post,
+      dataFormat,
+      canonicalDateTimeFormat,
+      submitCoordinates,
+      includeNoValueFields,
+      includeIncrementalUpdates,
+      includeAnnotations,
+      excludeNonUserAnnotations,
+      embedForm,
+      include,
+      fields,
+    );
   }
 
   //Fields
@@ -216,21 +220,24 @@ class PdfSubmitAction extends PdfFormAction {
 
   void _dictionaryBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
     PdfActionHelper.getHelper(this).dictionary.setProperty(
-        PdfDictionaryProperties.flags, PdfNumber(_getFlagValue(_flags)));
+      PdfDictionaryProperties.flags,
+      PdfNumber(_getFlagValue(_flags)),
+    );
   }
 
   void _initValues(
-      HttpMethod http,
-      SubmitDataFormat format,
-      bool canonicalDateTime,
-      bool submit,
-      bool includeNoValue,
-      bool includeIncremental,
-      bool includeAnnot,
-      bool excludeNonUserAnnot,
-      bool embed,
-      bool initInclude,
-      List<PdfField>? field) {
+    HttpMethod http,
+    SubmitDataFormat format,
+    bool canonicalDateTime,
+    bool submit,
+    bool includeNoValue,
+    bool includeIncremental,
+    bool includeAnnot,
+    bool excludeNonUserAnnot,
+    bool embed,
+    bool initInclude,
+    List<PdfField>? field,
+  ) {
     httpMethod = http;
     dataFormat = format;
     canonicalDateTimeFormat = canonicalDateTime;
@@ -321,9 +328,9 @@ class PdfFormAction extends PdfAction {
   PdfFormFieldCollection get fields {
     if (_fields == null) {
       _fields = PdfFormFieldCollectionHelper.getCollection();
-      PdfActionHelper.getHelper(this)
-          .dictionary
-          .setProperty(PdfDictionaryProperties.fields, _fields);
+      PdfActionHelper.getHelper(
+        this,
+      ).dictionary.setProperty(PdfDictionaryProperties.fields, _fields);
     }
     PdfFormFieldCollectionHelper.getHelper(_fields!).isAction = true;
     return _fields!;
@@ -337,7 +344,9 @@ class PdfResetAction extends PdfFormAction {
   /// Initializes a new instance of the [PdfResetAction] class.
   PdfResetAction({bool? include, List<PdfField>? fields}) : super._() {
     PdfActionHelper.getHelper(this).dictionary.setProperty(
-        PdfDictionaryProperties.s, PdfName(PdfDictionaryProperties.resetForm));
+      PdfDictionaryProperties.s,
+      PdfName(PdfDictionaryProperties.resetForm),
+    );
     _initValues(include, fields);
   }
 
@@ -346,9 +355,10 @@ class PdfResetAction extends PdfFormAction {
   set include(bool value) {
     if (super.include != value) {
       super.include = value;
-      PdfActionHelper.getHelper(this)
-          .dictionary
-          .setNumber(PdfDictionaryProperties.flags, super.include ? 0 : 1);
+      PdfActionHelper.getHelper(this).dictionary.setNumber(
+        PdfDictionaryProperties.flags,
+        super.include ? 0 : 1,
+      );
     }
   }
 

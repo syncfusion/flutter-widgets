@@ -30,12 +30,13 @@ class SparkChartPlotBand {
   ///   );
   /// }
   /// ```
-  const SparkChartPlotBand(
-      {this.color = const Color.fromRGBO(191, 212, 252, 0.5),
-      this.start,
-      this.end,
-      this.borderColor,
-      this.borderWidth = 0});
+  const SparkChartPlotBand({
+    this.color = const Color.fromRGBO(191, 212, 252, 0.5),
+    this.start,
+    this.end,
+    this.borderColor,
+    this.borderWidth = 0,
+  });
 
   /// Customizes the color of the plot band. Since the plot band is rendered
   /// above the axis line, you can customize the color of the plot band for a
