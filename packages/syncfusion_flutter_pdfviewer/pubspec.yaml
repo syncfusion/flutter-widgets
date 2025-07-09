@@ -22,6 +22,8 @@ flutter:
         default_package: syncfusion_pdfviewer_macos
       windows:
         default_package: syncfusion_pdfviewer_windows
+      linux:
+        default_package: syncfusion_pdfviewer_linux
 
   assets:
     - assets/icons/dark/
@@ -53,6 +55,9 @@ dependencies:
 
   syncfusion_pdfviewer_windows:
     path: ../syncfusion_pdfviewer_windows
+  
+  syncfusion_pdfviewer_linux:
+    path: ../syncfusion_pdfviewer_linux
 
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
