@@ -2084,17 +2084,19 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       if (autoScrollingDelta != null &&
           autoScrollingDelta! > 0 &&
           !zoomingInProgress) {
-        final DoubleRange autoScrollRange = updateAutoScrollingDelta(
-          autoScrollingDelta!,
-          newActualRange,
-          newVisibleRange,
-        );
-        if ((autoScrollingMode == AutoScrollingMode.end &&
-                newActualRange.minimum < autoScrollRange.minimum) ||
-            (autoScrollingMode == AutoScrollingMode.start &&
-                newActualRange.maximum > autoScrollRange.maximum)) {
-          newVisibleRange = autoScrollRange;
-        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final DoubleRange autoScrollRange = updateAutoScrollingDelta(
+            autoScrollingDelta!,
+            newActualRange,
+            newVisibleRange,
+          );
+          if ((autoScrollingMode == AutoScrollingMode.end &&
+                  newActualRange.minimum < autoScrollRange.minimum) ||
+              (autoScrollingMode == AutoScrollingMode.start &&
+                  newActualRange.maximum > autoScrollRange.maximum)) {
+            newVisibleRange = autoScrollRange;
+          }
+        });
       }
     }
 
@@ -2150,17 +2152,19 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
         if (autoScrollingDelta != null &&
             autoScrollingDelta! > 0 &&
             !zoomingInProgress) {
-          final DoubleRange autoScrollRange = updateAutoScrollingDelta(
-            autoScrollingDelta!,
-            newActualRange,
-            newVisibleRange,
-          );
-          if ((autoScrollingMode == AutoScrollingMode.end &&
-                  newActualRange.minimum < autoScrollRange.minimum) ||
-              (autoScrollingMode == AutoScrollingMode.start &&
-                  newActualRange.maximum > autoScrollRange.maximum)) {
-            newVisibleRange = autoScrollRange;
-          }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final DoubleRange autoScrollRange = updateAutoScrollingDelta(
+              autoScrollingDelta!,
+              newActualRange,
+              newVisibleRange,
+            );
+            if ((autoScrollingMode == AutoScrollingMode.end &&
+                    newActualRange.minimum < autoScrollRange.minimum) ||
+                (autoScrollingMode == AutoScrollingMode.start &&
+                    newActualRange.maximum > autoScrollRange.maximum)) {
+              newVisibleRange = autoScrollRange;
+            }
+          });
         }
         newVisibleInterval = calculateVisibleInterval(
           newVisibleRange,
