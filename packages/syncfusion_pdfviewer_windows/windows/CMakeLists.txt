@@ -10,7 +10,12 @@ find_path(PDFium_INCLUDE_DIR
     PATH_SUFFIXES "include/pdfium"
 )
 
-set(PDFium_ARCH x64)
+# Determine the CPU architecture using Flutter's build configuration
+if(FLUTTER_TARGET_PLATFORM MATCHES "windows-arm64")
+  set(PDFium_ARCH "arm64")
+else()
+  set(PDFium_ARCH "x64")
+endif()
 
 find_file(PDFium_LIBRARY
     NAMES "pdfium.dll"
