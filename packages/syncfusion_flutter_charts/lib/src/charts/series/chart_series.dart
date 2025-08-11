@@ -5587,7 +5587,7 @@ mixin SbsSeriesMixin<T, D> on CartesianSeriesRenderer<T, D> {
       minYValue = (yAxis! as RenderLogarithmicAxis).toPow(minYValue);
     }
 
-    _bottom = xAxis!.crossesAt ?? minYValue;
+    _bottom = xAxis?.crossesAt ?? minYValue;
     markerContainer?.sbsInfo = sbsInfo;
     super.performLayout();
   }

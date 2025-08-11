@@ -3852,7 +3852,6 @@ mixin AxisDependent {
   RenderChartAxis? get xAxis => _xAxis;
   RenderChartAxis? _xAxis;
   set xAxis(RenderChartAxis? value) {
-    assert(value != null);
     if (_xAxis != value) {
       _xAxis?.removeDependent(this);
       _xAxis = value;

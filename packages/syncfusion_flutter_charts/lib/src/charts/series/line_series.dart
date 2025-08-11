@@ -145,7 +145,7 @@ class LineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     final Rect clip = clipRect(
       paintBounds,
       animationFactor,
-      isInversed: xAxis!.isInversed,
+      isInversed: xAxis?.isInversed ?? false,
       isTransposed: isTransposed,
     );
     context.canvas.clipRect(clip);
