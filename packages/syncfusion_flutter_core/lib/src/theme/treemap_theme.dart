@@ -28,8 +28,8 @@ import '../../theme.dart';
 ///
 class SfTreemapTheme extends InheritedTheme {
   ///Initialize the class of SfTreemapTheme
-  const SfTreemapTheme({Key? key, required this.data, required this.child})
-    : super(key: key, child: child);
+  const SfTreemapTheme({required this.data, required this.child, super.key})
+    : super(child: child);
 
   /// Specifies the color and typography values for descendant Treemap widgets.
   ///

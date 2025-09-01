@@ -23,7 +23,7 @@ class SfChatTheme extends InheritedTheme {
   /// Applies the given theme [data] to [child].
   ///
   /// The [data] and [child] arguments must not be null.
-  const SfChatTheme({super.key, required this.data, required super.child});
+  const SfChatTheme({required this.data, required super.child, super.key});
 
   /// Specifies the color and typography values for descendant Chat widgets.
   ///

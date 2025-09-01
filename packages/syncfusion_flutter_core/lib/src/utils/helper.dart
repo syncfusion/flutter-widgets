@@ -1,4 +1,4 @@
-part of core;
+part of '../../core.dart';
 
 /// Holds the arguments for the event onTooltipRender.
 ///

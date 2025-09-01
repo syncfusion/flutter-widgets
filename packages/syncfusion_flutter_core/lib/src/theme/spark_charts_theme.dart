@@ -27,8 +27,8 @@ import '../../theme.dart';
 ///
 class SfSparkChartTheme extends InheritedTheme {
   /// Initialize the class of SfSparkChartTheme
-  const SfSparkChartTheme({Key? key, required this.data, required this.child})
-    : super(key: key, child: child);
+  const SfSparkChartTheme({required this.data, required this.child, super.key})
+    : super(child: child);
 
   /// Specifies the color and typography values for descendant
   /// spark chart widgets.

@@ -214,11 +214,11 @@ void paint({
 
 /// Get the various shape path
 Path getShapesPath({
+  required Rect rect,
+  required ShapeMarkerType shapeType,
   Canvas? canvas,
   Paint? paint,
   Paint? borderPaint,
-  required Rect rect,
-  required ShapeMarkerType shapeType,
   Path? path,
   double? pentagonRotation = -pi / 2,
   double? radius,
@@ -668,9 +668,9 @@ Path _processInvertedTriangleShape({
   required Rect rect,
   required bool isNeedToReturnPath,
   required Path path,
+  required Paint paint,
   double? elevation,
   Color? elevationColor,
-  required Paint paint,
   Paint? borderPaint,
 }) {
   path.moveTo(rect.left, rect.top);
@@ -703,9 +703,9 @@ Path _processTriangleShape({
   required Rect rect,
   required bool isNeedToReturnPath,
   required Path path,
+  required Paint paint,
   double? elevation,
   Color? elevationColor,
-  required Paint paint,
   Paint? borderPaint,
 }) {
   path.moveTo(rect.left + (rect.width / 2), rect.top);
@@ -737,9 +737,9 @@ Path _processVerticalTriangleShape({
   required Rect rect,
   required bool isNeedToReturnPath,
   required Path path,
+  required Paint paint,
   double? elevation,
   Color? elevationColor,
-  required Paint paint,
   Paint? borderPaint,
 }) {
   path.moveTo(rect.left, rect.top + (rect.height / 2));
@@ -771,9 +771,9 @@ Path _processVerticalInvertedTriangleShape({
   required Rect rect,
   required bool isNeedToReturnPath,
   required Path path,
+  required Paint paint,
   double? elevation,
   Color? elevationColor,
-  required Paint paint,
   Paint? borderPaint,
 }) {
   path.moveTo(rect.left, rect.top);
@@ -805,9 +805,9 @@ Path _processDiamondShape({
   required Rect rect,
   required bool isNeedToReturnPath,
   required Path path,
+  required Paint paint,
   double? elevation,
   Color? elevationColor,
-  required Paint paint,
   Paint? borderPaint,
 }) {
   path.moveTo(rect.left + rect.width / 2.0, rect.top);
@@ -841,9 +841,9 @@ Path _processPentagonShape({
   required Rect rect,
   required bool isNeedToReturnPath,
   required Path path,
+  required Paint paint,
   double? elevation,
   Color? elevationColor,
-  required Paint paint,
   Paint? borderPaint,
   double? rotation,
 }) {

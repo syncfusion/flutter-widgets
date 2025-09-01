@@ -45,7 +45,7 @@ import 'treemap_theme.dart';
 /// ```
 class SfTheme extends StatelessWidget {
   /// Creating an argument constructor of [SfTheme] class.
-  const SfTheme({Key? key, this.data, required this.child}) : super(key: key);
+  const SfTheme({required this.child, super.key, this.data});
 
   /// Specifies a widget that can hold single child.
   ///
@@ -212,8 +212,7 @@ class SfTheme extends StatelessWidget {
 }
 
 class _SfInheritedTheme extends InheritedTheme {
-  const _SfInheritedTheme({Key? key, this.data, required Widget child})
-    : super(key: key, child: child);
+  const _SfInheritedTheme({required super.child, this.data});
   final SfThemeData? data;
   @override
   bool updateShouldNotify(_SfInheritedTheme oldWidget) =>
@@ -271,7 +270,7 @@ class SfThemeData with Diagnosticable {
     SfMapsThemeData? mapsThemeData,
     SfTreemapThemeData? treemapThemeData,
     SfChatThemeData? chatThemeData,
-    SfAIAssistViewThemeData? assistThemeData,
+    SfAIAssistViewThemeData? aiAssistViewThemeData,
   }) {
     brightness ??= Brightness.light;
     pdfViewerThemeData = pdfViewerThemeData ?? SfPdfViewerThemeData.raw();
@@ -306,7 +305,8 @@ class SfThemeData with Diagnosticable {
     dataPagerThemeData =
         dataPagerThemeData ?? SfDataPagerThemeData.raw(brightness: brightness);
     chatThemeData = chatThemeData ?? SfChatThemeData.raw();
-    assistThemeData = assistThemeData ?? SfAIAssistViewThemeData.raw();
+    aiAssistViewThemeData =
+        aiAssistViewThemeData ?? SfAIAssistViewThemeData.raw();
     return SfThemeData.raw(
       brightness: brightness,
       pdfViewerThemeData: pdfViewerThemeData,
@@ -324,7 +324,7 @@ class SfThemeData with Diagnosticable {
       mapsThemeData: mapsThemeData,
       treemapThemeData: treemapThemeData,
       chatThemeData: chatThemeData,
-      assistThemeData: assistThemeData,
+      aiAssistViewThemeData: aiAssistViewThemeData,
     );
   }
 
@@ -352,7 +352,7 @@ class SfThemeData with Diagnosticable {
     required this.dataPagerThemeData,
     required this.treemapThemeData,
     required this.chatThemeData,
-    required this.assistThemeData,
+    required this.aiAssistViewThemeData,
   });
 
   /// This method returns the light theme when no theme has been specified.
@@ -688,7 +688,7 @@ class SfThemeData with Diagnosticable {
   ///      body: Center(
   ///        child: SfTheme(
   ///          data: SfThemeData(
-  ///            assistThemeData: SfAIAssistViewThemeData()
+  ///            aiAssistViewThemeData: SfAIAssistViewThemeData()
   ///          ),
   ///          child: SfAIAssistView(),
   ///        ),
@@ -696,7 +696,7 @@ class SfThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final SfAIAssistViewThemeData assistThemeData;
+  final SfAIAssistViewThemeData aiAssistViewThemeData;
 
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
@@ -717,7 +717,7 @@ class SfThemeData with Diagnosticable {
     SfDataPagerThemeData? dataPagerThemeData,
     SfTreemapThemeData? treemapThemeData,
     SfChatThemeData? chatThemeData,
-    SfAIAssistViewThemeData? assistThemeData,
+    SfAIAssistViewThemeData? aiAssistViewThemeData,
   }) {
     return SfThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -738,7 +738,8 @@ class SfThemeData with Diagnosticable {
       mapsThemeData: mapsThemeData ?? this.mapsThemeData,
       treemapThemeData: treemapThemeData ?? this.treemapThemeData,
       chatThemeData: chatThemeData ?? this.chatThemeData,
-      assistThemeData: assistThemeData ?? this.assistThemeData,
+      aiAssistViewThemeData:
+          aiAssistViewThemeData ?? this.aiAssistViewThemeData,
     );
   }
 
@@ -808,10 +809,10 @@ class SfThemeData with Diagnosticable {
       treemapThemeData:
           SfTreemapThemeData.lerp(a.treemapThemeData, b.treemapThemeData, t)!,
       chatThemeData: SfChatThemeData.lerp(a.chatThemeData, b.chatThemeData, t)!,
-      assistThemeData:
+      aiAssistViewThemeData:
           SfAIAssistViewThemeData.lerp(
-            a.assistThemeData,
-            b.assistThemeData,
+            a.aiAssistViewThemeData,
+            b.aiAssistViewThemeData,
             t,
           )!,
     );
@@ -839,7 +840,7 @@ class SfThemeData with Diagnosticable {
         other.mapsThemeData == mapsThemeData &&
         other.treemapThemeData == treemapThemeData &&
         other.chatThemeData == chatThemeData &&
-        other.assistThemeData == assistThemeData;
+        other.aiAssistViewThemeData == aiAssistViewThemeData;
   }
 
   @override
@@ -861,7 +862,7 @@ class SfThemeData with Diagnosticable {
       mapsThemeData,
       treemapThemeData,
       chatThemeData,
-      assistThemeData,
+      aiAssistViewThemeData,
     ];
     return Object.hashAll(values);
   }
@@ -984,9 +985,9 @@ class SfThemeData with Diagnosticable {
     );
     properties.add(
       DiagnosticsProperty<SfAIAssistViewThemeData>(
-        'assistThemeData',
-        assistThemeData,
-        defaultValue: defaultData.assistThemeData,
+        'aiAssistViewThemeData',
+        aiAssistViewThemeData,
+        defaultValue: defaultData.aiAssistViewThemeData,
       ),
     );
   }

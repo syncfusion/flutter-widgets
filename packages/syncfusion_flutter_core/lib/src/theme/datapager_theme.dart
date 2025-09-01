@@ -8,8 +8,8 @@ import '../../theme.dart';
 /// Applies a theme to descendant [SfDataPager] widgets.
 class SfDataPagerTheme extends InheritedTheme {
   /// Applies the given theme [data] to [child].
-  const SfDataPagerTheme({Key? key, required this.data, required this.child})
-    : super(key: key, child: child);
+  const SfDataPagerTheme({required this.data, required this.child, super.key})
+    : super(child: child);
 
   /// Specifies the color and typography values for descendant [SfDataPager]
   /// widgets.

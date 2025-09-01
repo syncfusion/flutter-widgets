@@ -1,6 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
-part of core_internal;
+part of '../../core_internal.dart';
 
 /// Used to define the navigation direction of the widgets aligned in the
 /// [CustomScrollViewerLayout].

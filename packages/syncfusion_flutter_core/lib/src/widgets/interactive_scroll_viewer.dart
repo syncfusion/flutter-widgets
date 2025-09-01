@@ -1,4 +1,4 @@
-part of interactive_scroll_viewer_internal;
+part of '../../interactive_scroll_viewer_internal.dart';
 
 /// Triggers when double tap zoom invoked.
 typedef _DoubleTapZoomInvokedCallback =
@@ -10,7 +10,7 @@ class InteractiveScrollViewer extends StatefulWidget {
   /// Constructor for InteractiveScrollable.
   const InteractiveScrollViewer(
     this.child, {
-    Key? key,
+    super.key,
     this.clipBehavior = Clip.hardEdge,
     this.onDoubleTapZoomInvoked,
     this.panAxis = PanAxis.free,
@@ -27,7 +27,7 @@ class InteractiveScrollViewer extends StatefulWidget {
     this.constrained = true,
     this.enableDoubleTapZooming = true,
     this.transformationController,
-  }) : super(key: key);
+  });
 
   /// Whether the normal size constraints at this point in the widget tree are
   /// applied to the child.

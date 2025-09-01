@@ -21,10 +21,10 @@ class SfDateRangePickerTheme extends InheritedTheme {
   /// Constructor for teh calendar theme class, which applies a theme to
   /// descendant Syncfusion date range picker widgets.
   const SfDateRangePickerTheme({
-    Key? key,
     required this.data,
     required this.child,
-  }) : super(key: key, child: child);
+    super.key,
+  }) : super(child: child);
 
   /// Specifies the color and typography values for descendant chart widgets.
   ///

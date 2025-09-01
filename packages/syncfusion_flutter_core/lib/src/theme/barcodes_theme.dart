@@ -30,8 +30,8 @@ import '../../theme.dart';
 ///
 class SfBarcodeTheme extends InheritedTheme {
   /// Initialize the class of SfBarcodeTheme
-  const SfBarcodeTheme({Key? key, required this.data, required this.child})
-    : super(key: key, child: child);
+  const SfBarcodeTheme({required this.data, required this.child, super.key})
+    : super(child: child);
 
   /// Specifies the color and typography values for descendant barcode widgets.
   ///

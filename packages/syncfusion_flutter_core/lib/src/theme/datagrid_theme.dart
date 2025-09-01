@@ -20,8 +20,8 @@ import '../../theme.dart';
 /// ```
 class SfDataGridTheme extends InheritedTheme {
   /// Applies the given theme [data] to [child].
-  const SfDataGridTheme({Key? key, required this.data, required this.child})
-    : super(key: key, child: child);
+  const SfDataGridTheme({required this.data, required this.child, super.key})
+    : super(child: child);
 
   /// Specifies the color and typography values for descendant [SfDataGrid]
   /// widgets.

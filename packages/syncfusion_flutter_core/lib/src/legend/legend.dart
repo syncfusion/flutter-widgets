@@ -187,8 +187,9 @@ class LegendItem {
 class SfLegend extends StatefulWidget {
   /// Creates a [SfLegend].
   const SfLegend({
-    Key? key,
     required this.items,
+    required this.child,
+    super.key,
     this.shouldAlwaysShowScrollbar = false,
     this.title,
     this.color,
@@ -217,7 +218,6 @@ class SfLegend extends StatefulWidget {
     this.onItemRenderer,
     this.isComplex = false,
     this.toggledIndices,
-    required this.child,
   }) : _type = _LegendType.vector,
        segmentSize = null,
        labelsPlacement = null,
@@ -233,14 +233,14 @@ class SfLegend extends StatefulWidget {
        pointerController = null,
        assert(itemSpacing >= 0),
        assert(spacing >= 0),
-       assert(!isComplex || (isComplex && offset == null)),
-       super(key: key);
+       assert(!isComplex || (isComplex && offset == null));
 
   /// Creates a [SfLegend].
   const SfLegend.builder({
-    Key? key,
     required this.itemCount,
     required this.itemBuilder,
+    required this.child,
+    super.key,
     this.title,
     this.shouldAlwaysShowScrollbar = false,
     this.color,
@@ -262,7 +262,6 @@ class SfLegend extends StatefulWidget {
     this.onToggledIndicesChanged,
     this.isComplex = false,
     this.toggledIndices,
-    required this.child,
   }) : _type = _LegendType.vector,
        items = null,
        iconSize = Size.zero,
@@ -282,13 +281,13 @@ class SfLegend extends StatefulWidget {
        pointerSize = Size.zero,
        pointerColor = null,
        pointerController = null,
-       assert(!isComplex || (isComplex && offset == null)),
-       super(key: key);
+       assert(!isComplex || (isComplex && offset == null));
 
   /// Creates a [SfLegend].
   const SfLegend.bar({
-    Key? key,
     required this.items,
+    required this.child,
+    super.key,
     this.shouldAlwaysShowScrollbar = false,
     this.title,
     this.color,
@@ -313,7 +312,6 @@ class SfLegend extends StatefulWidget {
     this.pointerSize = const Size(16.0, 12.0),
     this.pointerColor,
     this.pointerController,
-    required this.child,
   }) : _type =
            segmentPaintingStyle == LegendPaintingStyle.solid
                ? _LegendType.solidBar
@@ -335,8 +333,7 @@ class SfLegend extends StatefulWidget {
        onToggledIndicesChanged = null,
        onItemRenderer = null,
        assert(itemSpacing >= 0),
-       assert(!isComplex || (isComplex && offset == null)),
-       super(key: key);
+       assert(!isComplex || (isComplex && offset == null));
 
   /// Specifies the legend items.
   final List<LegendItem>? items;
@@ -509,7 +506,6 @@ class _SfLegendState extends State<SfLegend> {
               _buildChild(baseConstraints),
             ],
           );
-          break;
         case LegendPosition.bottom:
           current = Column(
             children: <Widget>[
@@ -523,7 +519,6 @@ class _SfLegendState extends State<SfLegend> {
               ),
             ],
           );
-          break;
         case LegendPosition.left:
           current = Row(
             children: <Widget>[
@@ -537,7 +532,6 @@ class _SfLegendState extends State<SfLegend> {
               _buildChild(baseConstraints),
             ],
           );
-          break;
         case LegendPosition.right:
           current = Row(
             children: <Widget>[
@@ -551,7 +545,6 @@ class _SfLegendState extends State<SfLegend> {
               ),
             ],
           );
-          break;
       }
     } else {
       current = Stack(
@@ -630,7 +623,6 @@ class _SfLegendState extends State<SfLegend> {
           toggledItemColor: widget.toggledItemColor,
           toggledTextOpacity: widget.toggledTextOpacity,
         );
-        break;
       case _LegendType.solidBar:
         current = _SolidBarLegend(
           items: widget.items,
@@ -648,7 +640,6 @@ class _SfLegendState extends State<SfLegend> {
           pointerSize: widget.pointerSize,
           pointerController: widget.pointerController,
         );
-        break;
       case _LegendType.gradientBar:
         current = _GradientBarLegend(
           items: widget.items,
@@ -666,7 +657,6 @@ class _SfLegendState extends State<SfLegend> {
           pointerSize: widget.pointerSize,
           pointerController: widget.pointerController,
         );
-        break;
     }
 
     if (widget.padding != null) {
@@ -1172,6 +1162,8 @@ class _LegendItem extends StatefulWidget {
   /// Creates a [LegendItem].
   const _LegendItem({
     required this.index,
+    required this.toggledIndices,
+    required this.onToggledIndicesChanged,
     this.itemBuilder,
     this.text,
     this.textStyle,
@@ -1185,8 +1177,6 @@ class _LegendItem extends StatefulWidget {
     this.toggledColor,
     this.spacing,
     this.toggledTextOpacity,
-    required this.toggledIndices,
-    required this.onToggledIndicesChanged,
     this.onItemRenderer,
     this.overlayMarkerType,
     this.degree,
@@ -1905,7 +1895,6 @@ String _getTrimText(
 
 class _SolidBarLegendItem extends StatefulWidget {
   const _SolidBarLegendItem({
-    Key? key,
     this.labelsPlacement,
     this.labelOverflow,
     this.segmentSize,
@@ -1922,7 +1911,7 @@ class _SolidBarLegendItem extends StatefulWidget {
     this.pointerColor,
     this.pointerBuilder,
     this.pointerController,
-  }) : super(key: key);
+  });
 
   final LegendLabelsPlacement? labelsPlacement;
   final LegendLabelOverflow? labelOverflow;
@@ -2076,7 +2065,7 @@ class __SolidBarLegendItemState extends State<_SolidBarLegendItem> {
   Widget _getAlignedTextWidget(Offset offset, String text, bool isOverlapping) {
     if ((widget.labelOverflow == LegendLabelOverflow.hide && isOverlapping) ||
         text.isEmpty) {
-      return const SizedBox(width: 0.0, height: 0.0);
+      return const SizedBox.shrink();
     }
 
     return Directionality(
@@ -2804,7 +2793,7 @@ class _GradientBarLegendState extends State<_GradientBarLegend> {
         if ((widget.labelOverflow == LegendLabelOverflow.hide &&
                 _labels[index].isOverlapping) ||
             _labels[index].label.isEmpty) {
-          return const SizedBox(height: 0.0, width: 0.0);
+          return const SizedBox.shrink();
         }
 
         return Directionality(

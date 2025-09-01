@@ -22,8 +22,8 @@ import '../../theme.dart';
 /// ```
 class SfPdfViewerTheme extends InheritedTheme {
   /// Creates an argument constructor of [SfPdfViewerTheme] class.
-  const SfPdfViewerTheme({Key? key, required this.data, required this.child})
-    : super(key: key, child: child);
+  const SfPdfViewerTheme({required this.data, required this.child, super.key})
+    : super(child: child);
 
   /// Specifies the color and typography values for descendant
   /// [SfPdfViewer] widgets.

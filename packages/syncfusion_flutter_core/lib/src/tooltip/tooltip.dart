@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_setters_without_getters
 
-part of tooltip_internal;
+part of '../../tooltip_internal.dart';
 
 /// Renders the tooltip widget.
 ///
@@ -27,9 +27,9 @@ class SfTooltip extends StatefulWidget {
     this.header,
     this.format,
     this.shadowColor,
-    Key? key,
+    super.key,
     this.onTooltipRender,
-  }) : super(key: key);
+  });
 
   ///Toggles the visibility of the tooltip.
   ///
@@ -323,11 +323,11 @@ class TooltipRenderObject extends SingleChildRenderObjectWidget {
   /// Creating an argument constructor of TooltipRenderObject class.
   // ignore: prefer_const_constructors_in_immutables
   TooltipRenderObject({
-    super.key,
-    Widget? template,
     required SfTooltipState tooltipState,
     required Animation<double> tooltipAnimation,
     required AnimationController animationController,
+    super.key,
+    Widget? template,
   }) : _tooltipState = tooltipState,
        _tooltipAnimation = tooltipAnimation,
        _animationController = animationController,
@@ -1144,9 +1144,8 @@ class TooltipRenderBox extends RenderShiftedBox {
           ..strokeCap = StrokeCap.butt
           ..style = PaintingStyle.stroke
           ..strokeWidth = _tooltip.borderWidth;
-    _tooltip.borderWidth == 0
-        ? strokePaint.color = Colors.transparent
-        : strokePaint.color = strokePaint.color;
+    strokePaint.color =
+        _tooltip.borderWidth == 0 ? Colors.transparent : strokePaint.color;
 
     final Path tooltipPath = Path();
     tooltipPath.addRRect(tooltipRect);
@@ -1433,20 +1432,16 @@ Path _getMarkerShapesPath(
       {
         drawCircle(path, position.dx, position.dy, size.width, size.height);
       }
-      break;
     case DataMarkerType.rectangle:
       {
         drawRectangle(path, position.dx, position.dy, size.width, size.height);
       }
-      break;
     case DataMarkerType.image:
       {}
-      break;
     case DataMarkerType.pentagon:
       {
         drawPentagon(path, position.dx, position.dy, size.width, size.height);
       }
-      break;
     case DataMarkerType.verticalLine:
       {
         drawVerticalLine(
@@ -1457,7 +1452,6 @@ Path _getMarkerShapesPath(
           size.height,
         );
       }
-      break;
     case DataMarkerType.invertedTriangle:
       {
         drawInvertedTriangle(
@@ -1468,7 +1462,6 @@ Path _getMarkerShapesPath(
           size.height,
         );
       }
-      break;
     case DataMarkerType.horizontalLine:
       {
         drawHorizontalLine(
@@ -1479,17 +1472,14 @@ Path _getMarkerShapesPath(
           size.height,
         );
       }
-      break;
     case DataMarkerType.diamond:
       {
         drawDiamond(path, position.dx, position.dy, size.width, size.height);
       }
-      break;
     case DataMarkerType.triangle:
       {
         drawTriangle(path, position.dx, position.dy, size.width, size.height);
       }
-      break;
     case DataMarkerType.none:
       break;
   }

@@ -1,4 +1,4 @@
-part of core;
+part of '../../core.dart';
 
 /// Umm al-quara based array, to convert the date to hijri date time.
 const List<int> _kDateCollection = <int>[

@@ -1,76 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 void main() {
-  return runApp(const ChartApp());
+  return runApp(const ThemeSample());
 }
 
-class ChartApp extends StatelessWidget {
-  const ChartApp({super.key});
+class ThemeSample extends StatelessWidget {
+  const ThemeSample({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Chart Demo', home: _SalesAnalysisPage());
-  }
-}
-
-class _SalesAnalysisPage extends StatefulWidget {
-  @override
-  State createState() => _SalesAnalysisPageState();
-}
-
-class _SalesAnalysisPageState extends State<_SalesAnalysisPage> {
-  late List<_SalesData> _sales;
-
-  @override
-  void initState() {
-    _sales = <_SalesData>[
-      _SalesData('Jan', 35),
-      _SalesData('Feb', 28),
-      _SalesData('Mar', 34),
-      _SalesData('Apr', 32),
-      _SalesData('May', 40),
-      _SalesData('Jun', 47),
-    ];
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Syncfusion Flutter Chart')),
-      body: SfCartesianChart(
-        primaryXAxis: const CategoryAxis(),
-        // Chart title.
-        title: const ChartTitle(text: 'Half yearly sales analysis'),
-        // Enable legend.
-        legend: const Legend(isVisible: true),
-        // Enable tooltip.
-        tooltipBehavior: TooltipBehavior(enable: true),
-        series: <CartesianSeries<_SalesData, String>>[
-          LineSeries(
-            name: 'Sales',
-            dataSource: _sales,
-            xValueMapper: (_SalesData sales, int index) => sales.year,
-            yValueMapper: (_SalesData sales, int index) => sales.sales,
-            // Enable data label.
-            dataLabelSettings: const DataLabelSettings(isVisible: true),
+    return MaterialApp(
+      home: Scaffold(
+        body: SfTheme(
+          data: SfThemeData(
+            // Add the corresponding theme data here to customize the default appearance
+            // of the Syncfusion® Flutter widget, which you are using.
           ),
-        ],
+          child: Container(
+            // Replace this container with any Syncfusion® Flutter widgets according to your needs.
+          ),
+        ),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _sales.clear();
-    super.dispose();
-  }
-}
-
-class _SalesData {
-  _SalesData(this.year, this.sales);
-
-  final String year;
-  final double sales;
 }

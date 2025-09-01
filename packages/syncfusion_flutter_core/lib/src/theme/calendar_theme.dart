@@ -20,8 +20,8 @@ import '../../theme.dart';
 class SfCalendarTheme extends InheritedTheme {
   /// Constructor for the calendar theme class, which applies a theme to
   /// descendant Syncfusion calendar widgets.
-  const SfCalendarTheme({Key? key, required this.data, required this.child})
-    : super(key: key, child: child);
+  const SfCalendarTheme({required this.data, required this.child, super.key})
+    : super(child: child);
 
   /// Specifies the color and typography values for descendant calendar widgets.
   ///

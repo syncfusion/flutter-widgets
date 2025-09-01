@@ -1,4 +1,4 @@
-part of core;
+part of '../../core.dart';
 
 /// Add the date value with duration without daylight saving value
 ///

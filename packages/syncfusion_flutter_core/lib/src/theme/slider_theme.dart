@@ -10,8 +10,8 @@ class SfSliderTheme extends InheritedTheme {
   /// Applies the given theme [data] to [child].
   ///
   /// The [data] and [child] arguments must not be null.
-  const SfSliderTheme({Key? key, required this.data, required this.child})
-    : super(key: key, child: child);
+  const SfSliderTheme({required this.data, required this.child, super.key})
+    : super(child: child);
 
   /// Specifies the color and typography values for descendant slider widgets.
   final SfSliderThemeData data;

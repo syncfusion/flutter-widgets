@@ -24,9 +24,9 @@ class SfAIAssistViewTheme extends InheritedTheme {
   ///
   /// The [data] and [child] arguments must not be null.
   const SfAIAssistViewTheme({
-    super.key,
     required this.data,
     required super.child,
+    super.key,
   });
 
   /// Specifies the color and typography values for descendant assist widgets.
@@ -48,12 +48,12 @@ class SfAIAssistViewTheme extends InheritedTheme {
   /// The data from the closest [SfAIAssistViewTheme] instance
   /// that encloses the given context.
   ///
-  /// Defaults to [SfThemeData.assistThemeData] if there is no
+  /// Defaults to [SfThemeData.aiAssistViewThemeData] if there is no
   /// [SfAIAssistViewTheme] in the given build context.
   static SfAIAssistViewThemeData of(BuildContext context) {
     final SfAIAssistViewTheme? assistTheme =
         context.dependOnInheritedWidgetOfExactType<SfAIAssistViewTheme>();
-    return assistTheme?.data ?? SfTheme.of(context).assistThemeData;
+    return assistTheme?.data ?? SfTheme.of(context).aiAssistViewThemeData;
   }
 
   @override
@@ -72,7 +72,7 @@ class SfAIAssistViewTheme extends InheritedTheme {
 
 /// Holds the color and typography values for a [SfAIAssistViewTheme].
 /// Use this class to configure a [SfAIAssistViewTheme] widget, or to set the
-/// [SfThemeData.assistThemeData] for a [SfTheme] widget.
+/// [SfThemeData.aiAssistViewThemeData] for a [SfTheme] widget.
 ///
 /// To obtain the current theme, use [SfAIAssistViewTheme.of].
 @immutable
