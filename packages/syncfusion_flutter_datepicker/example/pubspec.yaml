@@ -1,22 +1,19 @@
-name: example
-description: Syncfusion date picker example project
+name: datepicker_example
+description: This project demonstrates how to use Syncfusion Flutter Datepicker widget.
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.0-0
+  sdk: ^3.7.0
+
+flutter:
+  uses-material-design: true
 
 dependencies:
   flutter:
     sdk: flutter
-
-  cupertino_icons: ^1.0.2
   syncfusion_flutter_datepicker:
     path: ../
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-flutter:
-
-  uses-material-design: true
