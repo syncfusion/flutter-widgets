@@ -461,11 +461,11 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
         child = childAfter(child);
 
         if (mouseHoverPosition != null) {
-          final Color resourceHoveringColor = (themeData.brightness ==
-                      Brightness.dark
-                  ? Colors.white
-                  : Colors.black87)
-              .withValues(alpha: 0.04);
+          final Color resourceHoveringColor =
+              (themeData.brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black87)
+                  .withValues(alpha: 0.04);
           _addHovering(context.canvas, size, yPosition, resourceHoveringColor);
         }
 
@@ -488,16 +488,16 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
     final double actualItemHeight = resourceItemHeight * 0.80;
     double yPosition = 0;
     _circlePainter.isAntiAlias = true;
-    final double radius =
-        actualItemHeight < actualItemWidth
-            ? actualItemHeight / 2
-            : actualItemWidth / 2;
+    final double radius = actualItemHeight < actualItemWidth
+        ? actualItemHeight / 2
+        : actualItemWidth / 2;
     final Color resourceCellBorderColor =
         cellBorderColor ?? calendarTheme.cellBorderColor!;
-    final Color resourceHoveringColor = (themeData.brightness == Brightness.dark
-            ? Colors.white
-            : Colors.black87)
-        .withValues(alpha: 0.04);
+    final Color resourceHoveringColor =
+        (themeData.brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black87)
+            .withValues(alpha: 0.04);
     final TextStyle displayNameTextStyle = calendarTheme.displayNameTextStyle!;
     _circlePainter.color = resourceCellBorderColor;
     _circlePainter.strokeWidth = 0.5;
@@ -661,13 +661,12 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
     _updateNamePainter(span);
     _namePainter.layout(maxWidth: size.width);
     final double startXPosition = (size.width - _namePainter.width) / 2;
-    final double startYPosition =
-        resourceViewSettings.showAvatar
-            ? (yPosition + (actualItemHeight / 2)) +
-                _borderThickness +
-                radius +
-                (_borderThickness / 2)
-            : yPosition + ((resourceItemHeight - _namePainter.height) / 2);
+    final double startYPosition = resourceViewSettings.showAvatar
+        ? (yPosition + (actualItemHeight / 2)) +
+              _borderThickness +
+              radius +
+              (_borderThickness / 2)
+        : yPosition + ((resourceItemHeight - _namePainter.height) / 2);
     _namePainter.paint(canvas, Offset(startXPosition, startYPosition));
   }
 
@@ -745,10 +744,9 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
         actualItemWidth - (_borderThickness * 2) - (padding * 2);
     final double innerCircleHeight =
         actualItemHeight - (_borderThickness * 2) - (padding * 2);
-    final double innerRadius =
-        innerCircleWidth > innerCircleHeight
-            ? innerCircleHeight / 2
-            : innerCircleWidth / 2;
+    final double innerRadius = innerCircleWidth > innerCircleHeight
+        ? innerCircleHeight / 2
+        : innerCircleWidth / 2;
     final double innerCircleXPosition =
         (size.width - actualItemWidth) / 2 + _borderThickness + padding;
     final double innerCircleYPosition =
@@ -774,10 +772,9 @@ class _ResourceViewRenderObject extends CustomCalendarRenderObject {
       _circlePainter,
     );
     final List<String> splitName = resource.displayName.split(' ');
-    final String shortName =
-        splitName.length > 1
-            ? splitName[0].substring(0, 1) + splitName[1].substring(0, 1)
-            : splitName[0].substring(0, 1);
+    final String shortName = splitName.length > 1
+        ? splitName[0].substring(0, 1) + splitName[1].substring(0, 1)
+        : splitName[0].substring(0, 1);
     final TextSpan span = TextSpan(
       text: shortName,
       style: themeData.textTheme.bodyLarge!.copyWith(

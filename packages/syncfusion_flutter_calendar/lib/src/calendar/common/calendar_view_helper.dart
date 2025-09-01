@@ -280,12 +280,12 @@ class CalendarViewHelper {
   ) {
     return monthViewSettings != null
         ? (monthViewSettings.agendaItemHeight == -1
-            ? 50
-            : monthViewSettings.agendaItemHeight)
+              ? 50
+              : monthViewSettings.agendaItemHeight)
         : (scheduleViewSettings == null ||
-                scheduleViewSettings.appointmentItemHeight == -1
-            ? 50
-            : scheduleViewSettings.appointmentItemHeight);
+                  scheduleViewSettings.appointmentItemHeight == -1
+              ? 50
+              : scheduleViewSettings.appointmentItemHeight);
   }
 
   /// Return schedule view all day appointment height and its value based on
@@ -296,12 +296,12 @@ class CalendarViewHelper {
   ) {
     return monthViewSettings != null
         ? (monthViewSettings.agendaItemHeight == -1
-            ? 25
-            : monthViewSettings.agendaItemHeight)
+              ? 25
+              : monthViewSettings.agendaItemHeight)
         : (scheduleViewSettings == null ||
-                scheduleViewSettings.appointmentItemHeight == -1
-            ? 25
-            : scheduleViewSettings.appointmentItemHeight);
+                  scheduleViewSettings.appointmentItemHeight == -1
+              ? 25
+              : scheduleViewSettings.appointmentItemHeight);
   }
 
   /// Returns the height for an resource item to render the resource within
@@ -754,8 +754,8 @@ class CalendarViewHelper {
   ) {
     if (appointment.recurrenceRule != null &&
         appointment.recurrenceRule!.isNotEmpty) {
-      final Appointment appointmentObject =
-          appointment.convertToCalendarAppointment();
+      final Appointment appointmentObject = appointment
+          .convertToCalendarAppointment();
       if (appointment.data is Appointment) {
         return appointmentObject;
       } else {

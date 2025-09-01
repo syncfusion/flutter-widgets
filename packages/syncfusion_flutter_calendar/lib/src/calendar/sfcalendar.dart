@@ -3067,8 +3067,8 @@ class _SfCalendarState extends State<SfCalendar>
       }
       _forwardWidgetHeights = <int, _ScheduleViewDetails>{};
       _backwardWidgetHeights = <int, _ScheduleViewDetails>{};
-      _agendaScrollController =
-          ScrollController()..addListener(_handleScheduleViewScrolled);
+      _agendaScrollController = ScrollController()
+        ..addListener(_handleScheduleViewScrolled);
       _scheduleMaxDate = null;
       _scheduleMinDate = null;
       _minDate = null;
@@ -3190,14 +3190,12 @@ class _SfCalendarState extends State<SfCalendar>
     );
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        _minWidth =
-            constraints.maxWidth == double.infinity
-                ? _minWidth
-                : constraints.maxWidth;
-        _minHeight =
-            constraints.maxHeight == double.infinity
-                ? _minHeight
-                : constraints.maxHeight;
+        _minWidth = constraints.maxWidth == double.infinity
+            ? _minWidth
+            : constraints.maxWidth;
+        _minHeight = constraints.maxHeight == double.infinity
+            ? _minHeight
+            : constraints.maxHeight;
 
         _isMobilePlatform = CalendarViewHelper.isMobileLayout(
           Theme.of(context).platform,
@@ -3242,20 +3240,19 @@ class _SfCalendarState extends State<SfCalendar>
         height -= widget.headerHeight;
         final double agendaHeight =
             _view == CalendarView.month && widget.monthViewSettings.showAgenda
-                ? _getMonthAgendaHeight()
-                : 0;
+            ? _getMonthAgendaHeight()
+            : 0;
 
         return GestureDetector(
           child: Container(
             width: _minWidth,
             height: _minHeight,
             color: widget.backgroundColor ?? _calendarTheme.backgroundColor,
-            child:
-                _view == CalendarView.schedule
-                    ? widget.loadMoreWidgetBuilder == null
-                        ? addAgenda(height, _isRTL)
-                        : addAgendaWithLoadMore(height, _isRTL)
-                    : _addChildren(agendaHeight, height, _minWidth, _isRTL),
+            child: _view == CalendarView.schedule
+                ? widget.loadMoreWidgetBuilder == null
+                      ? addAgenda(height, _isRTL)
+                      : addAgendaWithLoadMore(height, _isRTL)
+                : _addChildren(agendaHeight, height, _minWidth, _isRTL),
           ),
           onTap: () {
             _removeDatePicker();
@@ -3307,16 +3304,16 @@ class _SfCalendarState extends State<SfCalendar>
               if (_selectedDate != null) {
                 currentSelectedDate =
                     isDateWithInDateRange(
-                              widget.minDate,
-                              widget.maxDate,
-                              _selectedDate,
-                            ) &&
-                            !CalendarViewHelper.isDateInDateCollection(
-                              _blackoutDates,
-                              _selectedDate!,
-                            )
-                        ? _selectedDate
-                        : null;
+                          widget.minDate,
+                          widget.maxDate,
+                          _selectedDate,
+                        ) &&
+                        !CalendarViewHelper.isDateInDateCollection(
+                          _blackoutDates,
+                          _selectedDate!,
+                        )
+                    ? _selectedDate
+                    : null;
               }
 
               if (currentSelectedDate == null) {
@@ -3363,8 +3360,9 @@ class _SfCalendarState extends State<SfCalendar>
             widget.dataSource,
             _view,
           );
-          final double resourceViewSize =
-              isResourceEnabled ? widget.resourceViewSettings.size : 0;
+          final double resourceViewSize = isResourceEnabled
+              ? widget.resourceViewSettings.size
+              : 0;
           if ((!_isRTL && updatedPosition.dx < resourceViewSize) ||
               (_isRTL && updatedPosition.dx > _minWidth - resourceViewSize)) {
             final double viewHeaderHeight =
@@ -3475,27 +3473,27 @@ class _SfCalendarState extends State<SfCalendar>
       }
     }
 
-    final DateTime startDate =
-        yPosition >= 0 ? _nextDates[index] : _previousDates[index];
+    final DateTime startDate = yPosition >= 0
+        ? _nextDates[index]
+        : _previousDates[index];
 
     /// Set previous date form it date collection if index is first index of
     /// next dates collection then get the start date from previous dates.
     /// If the index as last index of previous dates collection then calculate
     /// by subtract the 7 days to get previous date.
-    final DateTime prevDate =
-        yPosition >= 0 && index == 0
-            ? _previousDates.isEmpty
-                ? DateTimeHelper.getDateTimeValue(
+    final DateTime prevDate = yPosition >= 0 && index == 0
+        ? _previousDates.isEmpty
+              ? DateTimeHelper.getDateTimeValue(
                   addDays(startDate, -DateTime.daysPerWeek),
                 )
-                : _previousDates[0]
-            : (yPosition >= 0 && index > 0
-                ? _nextDates[index - 1]
-                : index >= _previousDates.length - 1
-                ? DateTimeHelper.getDateTimeValue(
+              : _previousDates[0]
+        : (yPosition >= 0 && index > 0
+              ? _nextDates[index - 1]
+              : index >= _previousDates.length - 1
+              ? DateTimeHelper.getDateTimeValue(
                   addDays(startDate, -DateTime.daysPerWeek),
                 )
-                : _previousDates[index + 1]);
+              : _previousDates[index + 1]);
     final DateTime prevEndDate = DateTimeHelper.getDateTimeValue(
       addDays(prevDate, 6),
     );
@@ -3644,8 +3642,9 @@ class _SfCalendarState extends State<SfCalendar>
     /// assign the label maximum height as 60.
     double appointmentViewHeaderHeight = appointmentViewHeight + (2 * padding);
     if (_useMobilePlatformUI) {
-      appointmentViewHeaderHeight =
-          appointmentViewHeaderHeight > 60 ? 60 : appointmentViewHeaderHeight;
+      appointmentViewHeaderHeight = appointmentViewHeaderHeight > 60
+          ? 60
+          : appointmentViewHeaderHeight;
     }
 
     /// Check the week date needs month header at in between the appointment
@@ -3659,18 +3658,16 @@ class _SfCalendarState extends State<SfCalendar>
     /// Check the end date month have appointments or not.
     bool isNextMonthHasNoAppointment = false;
     if (isNeedInBetweenMonthBuilder) {
-      final DateTime? lastAppointmentDate =
-          dateAppointmentKeys.isNotEmpty
-              ? dateAppointmentKeys[dateAppointmentKeys.length - 1]
-              : null;
-      final DateTime? nextWeekDate =
-          index == -1
-              ? _nextDates[0]
-              : (index < 0
-                  ? _previousDates[-index - 2]
-                  : index >= _nextDates.length - 1
-                  ? null
-                  : _nextDates[index + 1]);
+      final DateTime? lastAppointmentDate = dateAppointmentKeys.isNotEmpty
+          ? dateAppointmentKeys[dateAppointmentKeys.length - 1]
+          : null;
+      final DateTime? nextWeekDate = index == -1
+          ? _nextDates[0]
+          : (index < 0
+                ? _previousDates[-index - 2]
+                : index >= _nextDates.length - 1
+                ? null
+                : _nextDates[index + 1]);
 
       /// Check the following scenarios for rendering month label at last when
       /// the week holds different month dates
@@ -3888,9 +3885,9 @@ class _SfCalendarState extends State<SfCalendar>
             widget.dataSource != null &&
                     !AppointmentHelper.isCalendarAppointment(widget.dataSource!)
                 ? CalendarViewHelper.getCustomAppointments(
-                  currentAppointments,
-                  widget.dataSource,
-                )
+                    currentAppointments,
+                    widget.dataSource,
+                  )
                 : currentAppointments,
             DateTime(currentDate.year, currentDate.month, currentDate.day),
             CalendarElement.viewHeader,
@@ -3919,9 +3916,9 @@ class _SfCalendarState extends State<SfCalendar>
                           widget.dataSource!,
                         )
                     ? CalendarViewHelper.getCustomAppointments(
-                      selectedAppointment,
-                      widget.dataSource,
-                    )
+                        selectedAppointment,
+                        widget.dataSource,
+                      )
                     : selectedAppointment,
                 DateTime(currentDate.year, currentDate.month, currentDate.day),
                 CalendarElement.appointment,
@@ -4122,12 +4119,11 @@ class _SfCalendarState extends State<SfCalendar>
       selectionBorderColor:
           calendarThemeData.selectionBorderColor ??
           effectiveThemeData.selectionBorderColor,
-      blackoutDatesTextStyle:
-          calendarThemeData.blackoutDatesTextStyle == null
-              ? widget.blackoutDatesTextStyle
-              : calendarThemeData.blackoutDatesTextStyle?.merge(
-                widget.blackoutDatesTextStyle,
-              ),
+      blackoutDatesTextStyle: calendarThemeData.blackoutDatesTextStyle == null
+          ? widget.blackoutDatesTextStyle
+          : calendarThemeData.blackoutDatesTextStyle?.merge(
+              widget.blackoutDatesTextStyle,
+            ),
       trailingDatesTextStyle: themeData.textTheme.bodyMedium!
           .copyWith(
             color: colorScheme.onSurface.withValues(alpha: 0.54),
@@ -4354,11 +4350,12 @@ class _SfCalendarState extends State<SfCalendar>
       for (int i = 0; i < _forwardWidgetHeights.length; i++) {
         final _ScheduleViewDetails? details =
             _forwardWidgetHeights.containsKey(i)
-                ? _forwardWidgetHeights[i]
-                : null;
+            ? _forwardWidgetHeights[i]
+            : null;
         final double widgetHeight = details == null ? 0 : details._height;
-        final double interSectionPoint =
-            details == null ? -1 : details._intersectPoint;
+        final double interSectionPoint = details == null
+            ? -1
+            : details._intersectPoint;
 
         /// Check the scrolled position in between the view position
         if (scrolledPosition >= widgetPosition &&
@@ -4394,11 +4391,12 @@ class _SfCalendarState extends State<SfCalendar>
       for (int i = 0; i < _backwardWidgetHeights.length; i++) {
         final _ScheduleViewDetails? details =
             _backwardWidgetHeights.containsKey(i)
-                ? _backwardWidgetHeights[i]
-                : null;
+            ? _backwardWidgetHeights[i]
+            : null;
         final double widgetHeight = details == null ? 0 : details._height;
-        final double interSectionPoint =
-            details == null ? -1 : details._intersectPoint;
+        final double interSectionPoint = details == null
+            ? -1
+            : details._intersectPoint;
 
         /// Check the scrolled position in between the view position
         if (-scrolledPosition > widgetPosition &&
@@ -4666,9 +4664,9 @@ class _SfCalendarState extends State<SfCalendar>
   void _updateCurrentVisibleDates() {
     final List<int>? nonWorkingDays =
         (_view == CalendarView.workWeek ||
-                _view == CalendarView.timelineWorkWeek)
-            ? widget.timeSlotViewSettings.nonWorkingDays
-            : null;
+            _view == CalendarView.timelineWorkWeek)
+        ? widget.timeSlotViewSettings.nonWorkingDays
+        : null;
     final int visibleDatesCount = DateTimeHelper.getViewDatesCount(
       _view,
       widget.monthViewSettings.numberOfWeeksInView,
@@ -4676,13 +4674,12 @@ class _SfCalendarState extends State<SfCalendar>
       nonWorkingDays,
     );
 
-    _currentViewVisibleDates =
-        getVisibleDates(
-          _currentDate,
-          nonWorkingDays,
-          widget.firstDayOfWeek,
-          visibleDatesCount,
-        ).cast();
+    _currentViewVisibleDates = getVisibleDates(
+      _currentDate,
+      nonWorkingDays,
+      widget.firstDayOfWeek,
+      visibleDatesCount,
+    ).cast();
 
     if (_view == CalendarView.timelineMonth) {
       _currentViewVisibleDates = DateTimeHelper.getCurrentMonthDates(
@@ -4846,8 +4843,9 @@ class _SfCalendarState extends State<SfCalendar>
     /// Calculate and add newly appointments dates into previous or next dates
     /// collection when hideEmptyScheduleWeek enabled in mobileUI and web UI and
     /// hideEmptyScheduleWeek disabled in web UI with schedule view.
-    final DateTime startDate =
-        _previousDates.isEmpty ? _nextDates[0] : _previousDates[0];
+    final DateTime startDate = _previousDates.isEmpty
+        ? _nextDates[0]
+        : _previousDates[0];
     final DateTime endDate =
         addDuration(
               _nextDates[_nextDates.length - 1],
@@ -5251,10 +5249,9 @@ class _SfCalendarState extends State<SfCalendar>
                   (
                     AppointmentView currentAppView,
                     AppointmentView nextAppView,
-                  ) =>
-                      currentAppView.position > nextAppView.position
-                          ? currentAppView
-                          : nextAppView,
+                  ) => currentAppView.position > nextAppView.position
+                      ? currentAppView
+                      : nextAppView,
                 )
                 .position +
             1;
@@ -5393,15 +5390,14 @@ class _SfCalendarState extends State<SfCalendar>
   void _updateAllDayPanelHeight() {
     int maxPosition = 0;
     if (_allDayAppointmentViewCollection.isNotEmpty) {
-      maxPosition =
-          _allDayAppointmentViewCollection
-              .reduce(
-                (AppointmentView currentAppView, AppointmentView nextAppView) =>
-                    currentAppView.maxPositions > nextAppView.maxPositions
-                        ? currentAppView
-                        : nextAppView,
-              )
-              .maxPositions;
+      maxPosition = _allDayAppointmentViewCollection
+          .reduce(
+            (AppointmentView currentAppView, AppointmentView nextAppView) =>
+                currentAppView.maxPositions > nextAppView.maxPositions
+                ? currentAppView
+                : nextAppView,
+          )
+          .maxPositions;
     }
 
     if (maxPosition == -1) {
@@ -5648,12 +5644,12 @@ class _SfCalendarState extends State<SfCalendar>
     /// web view enabled or [hideEmptyAgendaDays] property as enabled.
     for (int j = 0; j < appointments.length; j++) {
       final CalendarAppointment appointment = appointments[j];
-      appointment
-          .actualEndTime = AppointmentHelper.convertTimeToAppointmentTimeZone(
-        appointment.endTime,
-        appointment.endTimeZone,
-        timeZone,
-      );
+      appointment.actualEndTime =
+          AppointmentHelper.convertTimeToAppointmentTimeZone(
+            appointment.endTime,
+            appointment.endTimeZone,
+            timeZone,
+          );
 
       if (appointment.recurrenceRule == null ||
           appointment.recurrenceRule == '') {
@@ -5775,12 +5771,12 @@ class _SfCalendarState extends State<SfCalendar>
     /// web view enabled or [hideEmptyAgendaDays] property as enabled.
     for (int j = 0; j < appointments.length; j++) {
       final CalendarAppointment appointment = appointments[j];
-      appointment
-          .actualStartTime = AppointmentHelper.convertTimeToAppointmentTimeZone(
-        appointment.startTime,
-        appointment.startTimeZone,
-        timeZone,
-      );
+      appointment.actualStartTime =
+          AppointmentHelper.convertTimeToAppointmentTimeZone(
+            appointment.startTime,
+            appointment.startTimeZone,
+            timeZone,
+          );
 
       if (appointment.actualStartTime.isBefore(currentMinDate)) {
         currentMinDate = appointment.actualStartTime;
@@ -5808,18 +5804,18 @@ class _SfCalendarState extends State<SfCalendar>
 
     for (int j = 0; j < appointments.length; j++) {
       final CalendarAppointment appointment = appointments[j];
-      appointment
-          .actualStartTime = AppointmentHelper.convertTimeToAppointmentTimeZone(
-        appointment.startTime,
-        appointment.startTimeZone,
-        timeZone,
-      );
-      appointment
-          .actualEndTime = AppointmentHelper.convertTimeToAppointmentTimeZone(
-        appointment.endTime,
-        appointment.endTimeZone,
-        timeZone,
-      );
+      appointment.actualStartTime =
+          AppointmentHelper.convertTimeToAppointmentTimeZone(
+            appointment.startTime,
+            appointment.startTimeZone,
+            timeZone,
+          );
+      appointment.actualEndTime =
+          AppointmentHelper.convertTimeToAppointmentTimeZone(
+            appointment.endTime,
+            appointment.endTimeZone,
+            timeZone,
+          );
 
       if (appointment.recurrenceRule == null ||
           appointment.recurrenceRule == '') {
@@ -5996,10 +5992,9 @@ class _SfCalendarState extends State<SfCalendar>
 
       /// Assign minimum date value to schedule display date when the minimum
       /// date is after of schedule display date
-      _minDate =
-          _minDate!.isAfter(scheduleDisplayDate)
-              ? scheduleDisplayDate
-              : _minDate;
+      _minDate = _minDate!.isAfter(scheduleDisplayDate)
+          ? scheduleDisplayDate
+          : _minDate;
       _minDate = _minDate!.isBefore(widget.minDate) ? widget.minDate : _minDate;
 
       final DateTime viewMinDate = DateTimeHelper.getDateTimeValue(
@@ -6021,10 +6016,9 @@ class _SfCalendarState extends State<SfCalendar>
 
       /// Assign maximum date value to schedule current date when the maximum
       /// date is before of schedule current date
-      _maxDate =
-          _maxDate!.isBefore(scheduleCurrentDate)
-              ? scheduleCurrentDate
-              : _maxDate;
+      _maxDate = _maxDate!.isBefore(scheduleCurrentDate)
+          ? scheduleCurrentDate
+          : _maxDate;
       _maxDate = _maxDate!.isAfter(widget.maxDate) ? widget.maxDate : _maxDate;
 
       final bool hideEmptyAgendaDays =
@@ -6151,27 +6145,27 @@ class _SfCalendarState extends State<SfCalendar>
       return null;
     }
 
-    final DateTime startDate =
-        index >= 0 ? _nextDates[index] : _previousDates[-index - 1];
+    final DateTime startDate = index >= 0
+        ? _nextDates[index]
+        : _previousDates[-index - 1];
 
     /// Set previous date form it date collection if index is first index of
     /// next dates collection then get the start date from previous dates.
     /// If the index as last index of previous dates collection then calculate
     /// by subtract the 7 days to get previous date.
-    final DateTime prevDate =
-        index == 0
-            ? _previousDates.isEmpty
-                ? DateTimeHelper.getDateTimeValue(
+    final DateTime prevDate = index == 0
+        ? _previousDates.isEmpty
+              ? DateTimeHelper.getDateTimeValue(
                   addDays(startDate, -DateTime.daysPerWeek),
                 )
-                : _previousDates[0]
-            : (index > 0
-                ? _nextDates[index - 1]
-                : -index > _previousDates.length - 1
-                ? DateTimeHelper.getDateTimeValue(
+              : _previousDates[0]
+        : (index > 0
+              ? _nextDates[index - 1]
+              : -index > _previousDates.length - 1
+              ? DateTimeHelper.getDateTimeValue(
                   addDays(startDate, -DateTime.daysPerWeek),
                 )
-                : _previousDates[-index]);
+              : _previousDates[-index]);
     final DateTime prevEndDate = DateTimeHelper.getDateTimeValue(
       addDays(prevDate, 6),
     );
@@ -6258,10 +6252,9 @@ class _SfCalendarState extends State<SfCalendar>
 
     /// calculate the total height using height variable
     /// web view does not have week label.
-    double height =
-        _useMobilePlatformUI
-            ? widget.scheduleViewSettings.weekHeaderSettings.height
-            : 0;
+    double height = _useMobilePlatformUI
+        ? widget.scheduleViewSettings.weekHeaderSettings.height
+        : 0;
 
     /// It is used to current view top position inside the collection of views.
     double topHeight = 0;
@@ -6287,8 +6280,9 @@ class _SfCalendarState extends State<SfCalendar>
       /// 1. Check the start date month have display date view.
       /// 2. Check the start date month have today date view.
       /// 3. Check the start date month have appointment view.
-      final DateTime? firstAppointmentDate =
-          dateAppointmentKeys.isNotEmpty ? dateAppointmentKeys[0] : null;
+      final DateTime? firstAppointmentDate = dateAppointmentKeys.isNotEmpty
+          ? dateAppointmentKeys[0]
+          : null;
       if ((startDate.month != scheduleDisplayDate.month ||
               startDate.year != scheduleDisplayDate.year) &&
           (startDate.month != scheduleCurrentDate.month ||
@@ -6301,10 +6295,9 @@ class _SfCalendarState extends State<SfCalendar>
     }
 
     /// Web view does not have month label.
-    height +=
-        isNeedMonthBuilder
-            ? widget.scheduleViewSettings.monthHeaderSettings.height
-            : 0;
+    height += isNeedMonthBuilder
+        ? widget.scheduleViewSettings.monthHeaderSettings.height
+        : 0;
     final double appointmentViewHeight =
         CalendarViewHelper.getScheduleAppointmentHeight(
           null,
@@ -6340,10 +6333,9 @@ class _SfCalendarState extends State<SfCalendar>
       double panelHeight =
           ((eventsCount - allDayEventCount) * appointmentViewHeight) +
           (allDayEventCount * allDayAppointmentHeight);
-      panelHeight =
-          panelHeight > appointmentViewHeight
-              ? panelHeight
-              : appointmentViewHeight;
+      panelHeight = panelHeight > appointmentViewHeight
+          ? panelHeight
+          : appointmentViewHeight;
       appointmentHeight += panelHeight + dividerHeight;
       numberOfEvents += eventsCount;
     }
@@ -6369,15 +6361,13 @@ class _SfCalendarState extends State<SfCalendar>
     /// Get the previous view end position used to find the next view end
     /// position.
     if (currentIndex >= 0) {
-      previousHeight =
-          currentIndex == 0
-              ? 0
-              : _forwardWidgetHeights[currentIndex - 1]!._height;
+      previousHeight = currentIndex == 0
+          ? 0
+          : _forwardWidgetHeights[currentIndex - 1]!._height;
     } else {
-      previousHeight =
-          currentIndex == -1
-              ? 0
-              : _backwardWidgetHeights[-currentIndex - 2]!._height;
+      previousHeight = currentIndex == -1
+          ? 0
+          : _backwardWidgetHeights[-currentIndex - 2]!._height;
     }
 
     final List<Widget> widgets = <Widget>[];
@@ -6413,8 +6403,9 @@ class _SfCalendarState extends State<SfCalendar>
     /// assign the label maximum height as 60.
     double appointmentViewHeaderHeight = appointmentViewHeight + (2 * padding);
     if (_useMobilePlatformUI) {
-      appointmentViewHeaderHeight =
-          appointmentViewHeaderHeight > 60 ? 60 : appointmentViewHeaderHeight;
+      appointmentViewHeaderHeight = appointmentViewHeaderHeight > 60
+          ? 60
+          : appointmentViewHeaderHeight;
     }
     double interSectPoint = topHeight;
 
@@ -6429,18 +6420,16 @@ class _SfCalendarState extends State<SfCalendar>
     /// Check the end date month have appointments or not.
     bool isNextMonthHasNoAppointment = false;
     if (isNeedInBetweenMonthBuilder) {
-      final DateTime? lastAppointmentDate =
-          dateAppointmentKeys.isNotEmpty
-              ? dateAppointmentKeys[dateAppointmentKeys.length - 1]
-              : null;
-      final DateTime? nextWeekDate =
-          index == -1
-              ? _nextDates[0]
-              : (index < 0
-                  ? _previousDates[-index - 2]
-                  : index >= _nextDates.length - 1
-                  ? null
-                  : _nextDates[index + 1]);
+      final DateTime? lastAppointmentDate = dateAppointmentKeys.isNotEmpty
+          ? dateAppointmentKeys[dateAppointmentKeys.length - 1]
+          : null;
+      final DateTime? nextWeekDate = index == -1
+          ? _nextDates[0]
+          : (index < 0
+                ? _previousDates[-index - 2]
+                : index >= _nextDates.length - 1
+                ? null
+                : _nextDates[index + 1]);
 
       /// Check the following scenarios for rendering month label at last when
       /// the week holds different month dates
@@ -6481,18 +6470,16 @@ class _SfCalendarState extends State<SfCalendar>
 
     /// Add appointment height to height when the view have display date view.
     if (isNeedDisplayDateHighlight) {
-      height +=
-          _useMobilePlatformUI
-              ? appointmentViewHeaderHeight
-              : appointmentViewHeaderHeight + dividerHeight;
+      height += _useMobilePlatformUI
+          ? appointmentViewHeaderHeight
+          : appointmentViewHeaderHeight + dividerHeight;
     }
 
     /// Add appointment height to height when the view have current date view.
     if (isNeedCurrentDateHighlight) {
-      height +=
-          _useMobilePlatformUI
-              ? appointmentViewHeaderHeight
-              : appointmentViewHeaderHeight + dividerHeight;
+      height += _useMobilePlatformUI
+          ? appointmentViewHeaderHeight
+          : appointmentViewHeaderHeight + dividerHeight;
     }
 
     /// display date highlight added boolean variable used to identify the
@@ -6518,10 +6505,9 @@ class _SfCalendarState extends State<SfCalendar>
 
       void addMonthHeaderView() {
         /// Assign the intersection point based on previous view end position.
-        scheduleViewDetails._intersectPoint =
-            currentIndex >= 0
-                ? previousHeight + interSectPoint + viewTopPadding
-                : previousHeight + height - interSectPoint - viewTopPadding;
+        scheduleViewDetails._intersectPoint = currentIndex >= 0
+            ? previousHeight + interSectPoint + viewTopPadding
+            : previousHeight + height - interSectPoint - viewTopPadding;
 
         /// Web view does not have month label;
         if (_useMobilePlatformUI) {
@@ -6541,10 +6527,9 @@ class _SfCalendarState extends State<SfCalendar>
       }
 
       void addDisplayOrCurrentDateView({bool isDisplayDate = true}) {
-        final double highlightViewStartPosition =
-            currentIndex >= 0
-                ? previousHeight + interSectPoint
-                : -(previousHeight + height - interSectPoint);
+        final double highlightViewStartPosition = currentIndex >= 0
+            ? previousHeight + interSectPoint
+            : -(previousHeight + height - interSectPoint);
         widgets.add(
           _getDisplayDateView(
             isRTL,
@@ -6637,10 +6622,9 @@ class _SfCalendarState extends State<SfCalendar>
         appointmentViewTopPadding = appointmentViewPadding / 2;
       }
 
-      final double viewStartPosition =
-          currentIndex >= 0
-              ? previousHeight + interSectPoint
-              : -(previousHeight + height - interSectPoint);
+      final double viewStartPosition = currentIndex >= 0
+          ? previousHeight + interSectPoint
+          : -(previousHeight + height - interSectPoint);
 
       interSectPoint += appointmentViewPadding;
       currentAppointments.sort(
@@ -6807,10 +6791,9 @@ class _SfCalendarState extends State<SfCalendar>
     /// end date month value.
     if (!isDisplayDateHighlightAdded &&
         endDate.month != scheduleDisplayDate.month) {
-      final double highlightViewStartPosition =
-          currentIndex >= 0
-              ? previousHeight + topHeight + appointmentHeight
-              : previousHeight + height - topHeight - appointmentHeight;
+      final double highlightViewStartPosition = currentIndex >= 0
+          ? previousHeight + topHeight + appointmentHeight
+          : previousHeight + height - topHeight - appointmentHeight;
       widgets.add(
         _getDisplayDateView(
           isRTL,
@@ -6840,10 +6823,9 @@ class _SfCalendarState extends State<SfCalendar>
     /// end date month value.
     if (!isCurrentDateHighlightAdded &&
         endDate.month != scheduleCurrentDate.month) {
-      final double highlightViewStartPosition =
-          currentIndex >= 0
-              ? previousHeight + topHeight + appointmentHeight
-              : previousHeight + height - topHeight - appointmentHeight;
+      final double highlightViewStartPosition = currentIndex >= 0
+          ? previousHeight + topHeight + appointmentHeight
+          : previousHeight + height - topHeight - appointmentHeight;
       widgets.add(
         _getDisplayDateView(
           isRTL,
@@ -6881,14 +6863,13 @@ class _SfCalendarState extends State<SfCalendar>
       /// view holds next month label. if scrolling reaches this position
       /// then we update the header date so add the location to intersecting
       /// point.
-      scheduleViewDetails._intersectPoint =
-          currentIndex >= 0
-              ? previousHeight + topHeight + appointmentHeight + viewTopPadding
-              : previousHeight +
-                  height -
-                  topHeight -
-                  appointmentHeight -
-                  viewTopPadding;
+      scheduleViewDetails._intersectPoint = currentIndex >= 0
+          ? previousHeight + topHeight + appointmentHeight + viewTopPadding
+          : previousHeight +
+                height -
+                topHeight -
+                appointmentHeight -
+                viewTopPadding;
       topHeight +=
           widget.scheduleViewSettings.monthHeaderSettings.height +
           viewTopPadding;
@@ -6906,10 +6887,9 @@ class _SfCalendarState extends State<SfCalendar>
     /// Add the display date view at end of week view when
     /// it does not added to widget.
     if (!isDisplayDateHighlightAdded) {
-      final double highlightViewStartPosition =
-          currentIndex >= 0
-              ? previousHeight + topHeight + appointmentHeight
-              : previousHeight + height - topHeight - appointmentHeight;
+      final double highlightViewStartPosition = currentIndex >= 0
+          ? previousHeight + topHeight + appointmentHeight
+          : previousHeight + height - topHeight - appointmentHeight;
       widgets.add(
         _getDisplayDateView(
           isRTL,
@@ -6933,10 +6913,9 @@ class _SfCalendarState extends State<SfCalendar>
     /// Add the current date view at end of week view
     /// when it does not added to widget.
     if (!isCurrentDateHighlightAdded) {
-      final double highlightViewStartPosition =
-          currentIndex >= 0
-              ? previousHeight + topHeight + appointmentHeight
-              : previousHeight + height - topHeight - appointmentHeight;
+      final double highlightViewStartPosition = currentIndex >= 0
+          ? previousHeight + topHeight + appointmentHeight
+          : previousHeight + height - topHeight - appointmentHeight;
       widgets.add(
         _getDisplayDateView(
           isRTL,
@@ -6966,7 +6945,10 @@ class _SfCalendarState extends State<SfCalendar>
       _backwardWidgetHeights[-currentIndex - 1] = scheduleViewDetails;
     }
 
-    return SizedBox(height: height, child: Column(children: widgets));
+    return SizedBox(
+      height: height,
+      child: Column(children: widgets),
+    );
   }
 
   Widget _getMonthOrWeekHeader(
@@ -6995,56 +6977,50 @@ class _SfCalendarState extends State<SfCalendar>
 
     return GestureDetector(
       child: Container(
-        padding:
-            isMonthLabel
-                ? EdgeInsets.fromLTRB(0, isNeedTopPadding ? padding : 0, 0, 0)
-                : EdgeInsets.fromLTRB(
-                  isRTL ? 0 : viewPadding,
-                  isNeedTopPadding ? padding : 0,
-                  isRTL ? viewPadding : 0,
-                  0,
-                ),
+        padding: isMonthLabel
+            ? EdgeInsets.fromLTRB(0, isNeedTopPadding ? padding : 0, 0, 0)
+            : EdgeInsets.fromLTRB(
+                isRTL ? 0 : viewPadding,
+                isNeedTopPadding ? padding : 0,
+                isRTL ? viewPadding : 0,
+                0,
+              ),
         child: RepaintBoundary(
-          child:
-              headerWidget != null
-                  ? SizedBox(
-                    width: _minWidth,
-                    height:
-                        widget.scheduleViewSettings.monthHeaderSettings.height,
-                    child: headerWidget,
-                  )
-                  : CustomPaint(
-                    painter: _ScheduleLabelPainter(
-                      startDate,
-                      endDate,
-                      widget.scheduleViewSettings,
-                      isMonthLabel,
-                      isRTL,
-                      _locale,
-                      _useMobilePlatformUI,
-                      _agendaViewNotifier,
-                      _calendarTheme,
-                      _themeData,
-                      _localizations,
-                      _textScaleFactor,
-                    ),
-                    size:
-                        isMonthLabel
-                            ? Size(
-                              _minWidth,
-                              widget
-                                  .scheduleViewSettings
-                                  .monthHeaderSettings
-                                  .height,
-                            )
-                            : Size(
-                              _minWidth - viewPadding - (2 * padding),
-                              widget
-                                  .scheduleViewSettings
-                                  .weekHeaderSettings
-                                  .height,
-                            ),
+          child: headerWidget != null
+              ? SizedBox(
+                  width: _minWidth,
+                  height:
+                      widget.scheduleViewSettings.monthHeaderSettings.height,
+                  child: headerWidget,
+                )
+              : CustomPaint(
+                  painter: _ScheduleLabelPainter(
+                    startDate,
+                    endDate,
+                    widget.scheduleViewSettings,
+                    isMonthLabel,
+                    isRTL,
+                    _locale,
+                    _useMobilePlatformUI,
+                    _agendaViewNotifier,
+                    _calendarTheme,
+                    _themeData,
+                    _localizations,
+                    _textScaleFactor,
                   ),
+                  size: isMonthLabel
+                      ? Size(
+                          _minWidth,
+                          widget
+                              .scheduleViewSettings
+                              .monthHeaderSettings
+                              .height,
+                        )
+                      : Size(
+                          _minWidth - viewPadding - (2 * padding),
+                          widget.scheduleViewSettings.weekHeaderSettings.height,
+                        ),
+                ),
         ),
       ),
       onTapUp: (TapUpDetails details) {
@@ -7242,9 +7218,9 @@ class _SfCalendarState extends State<SfCalendar>
           widget.dataSource != null &&
                   !AppointmentHelper.isCalendarAppointment(widget.dataSource!)
               ? CalendarViewHelper.getCustomAppointments(
-                currentAppointments,
-                widget.dataSource,
-              )
+                  currentAppointments,
+                  widget.dataSource,
+                )
               : currentAppointments,
           CalendarElement.viewHeader,
           null,
@@ -7256,9 +7232,9 @@ class _SfCalendarState extends State<SfCalendar>
           widget.dataSource != null &&
                   !AppointmentHelper.isCalendarAppointment(widget.dataSource!)
               ? CalendarViewHelper.getCustomAppointments(
-                currentAppointments,
-                widget.dataSource,
-              )
+                  currentAppointments,
+                  widget.dataSource,
+                )
               : currentAppointments,
           CalendarElement.viewHeader,
           null,
@@ -7318,9 +7294,9 @@ class _SfCalendarState extends State<SfCalendar>
                         widget.dataSource!,
                       )
                   ? CalendarViewHelper.getCustomAppointments(
-                    selectedAppointment,
-                    widget.dataSource,
-                  )
+                      selectedAppointment,
+                      widget.dataSource,
+                    )
                   : selectedAppointment,
               CalendarElement.appointment,
               null,
@@ -7334,9 +7310,9 @@ class _SfCalendarState extends State<SfCalendar>
                         widget.dataSource!,
                       )
                   ? CalendarViewHelper.getCustomAppointments(
-                    selectedAppointment,
-                    widget.dataSource,
-                  )
+                      selectedAppointment,
+                      widget.dataSource,
+                    )
                   : selectedAppointment,
               CalendarElement.appointment,
               null,
@@ -7367,12 +7343,12 @@ class _SfCalendarState extends State<SfCalendar>
     final DateTime scheduleCurrentDate = DateTime.now();
     final DateTime currentMaxDate =
         scheduleDisplayDate.isAfter(scheduleCurrentDate)
-            ? scheduleDisplayDate
-            : scheduleCurrentDate;
+        ? scheduleDisplayDate
+        : scheduleCurrentDate;
     final DateTime currentMinDate =
         scheduleDisplayDate.isBefore(scheduleCurrentDate)
-            ? scheduleDisplayDate
-            : scheduleCurrentDate;
+        ? scheduleDisplayDate
+        : scheduleCurrentDate;
 
     /// Get the minimum date of schedule view when it value as null
     /// It return min date user assigned when the [hideEmptyAgendaDays]
@@ -7438,12 +7414,11 @@ class _SfCalendarState extends State<SfCalendar>
     if (_previousDates.isEmpty) {
       /// Calculate the start date from display date if next view dates
       /// collection as empty.
-      DateTime date =
-          _nextDates.isNotEmpty
-              ? _nextDates[0]
-              : DateTimeHelper.getDateTimeValue(
-                addDays(scheduleDisplayDate, value),
-              );
+      DateTime date = _nextDates.isNotEmpty
+          ? _nextDates[0]
+          : DateTimeHelper.getDateTimeValue(
+              addDays(scheduleDisplayDate, value),
+            );
       int count = 0;
 
       /// Using while for calculate dates because if [hideEmptyAgendaDays] as
@@ -7762,12 +7737,11 @@ class _SfCalendarState extends State<SfCalendar>
           );
           final DateTime appStartDate =
               isSameOrAfterDate(_minDate, visibleStartDate)
-                  ? visibleStartDate
-                  : _minDate!;
-          DateTime appEndDate =
-              isSameOrBeforeDate(_maxDate, viewEndDate)
-                  ? viewEndDate
-                  : _maxDate!;
+              ? visibleStartDate
+              : _minDate!;
+          DateTime appEndDate = isSameOrBeforeDate(_maxDate, viewEndDate)
+              ? viewEndDate
+              : _maxDate!;
           if (appEndDate.isAfter(scheduleDisplayDate) ||
               isSameDate(appEndDate, scheduleDisplayDate)) {
             appEndDate = DateTimeHelper.getDateTimeValue(
@@ -7962,10 +7936,9 @@ class _SfCalendarState extends State<SfCalendar>
         double panelHeight =
             ((eventsCount - allDayEventCount) * appointmentViewHeight) +
             (allDayEventCount * allDayAppointmentHeight);
-        panelHeight =
-            panelHeight > appointmentViewHeight
-                ? panelHeight
-                : appointmentViewHeight;
+        panelHeight = panelHeight > appointmentViewHeight
+            ? panelHeight
+            : appointmentViewHeight;
 
         /// event count + 1 denotes the appointment padding and end padding.
         totalAppointmentHeight += panelHeight + ((eventsCount + 1) * padding);
@@ -7990,9 +7963,9 @@ class _SfCalendarState extends State<SfCalendar>
                   viewStartDate.day != 1
               ? 0
               : (!_useMobilePlatformUI
-                  ? 0
-                  : widget.scheduleViewSettings.monthHeaderSettings.height +
-                      padding));
+                    ? 0
+                    : widget.scheduleViewSettings.monthHeaderSettings.height +
+                          padding));
     } else if ((viewStartDate.month != _scheduleDisplayDate.month &&
             _useMobilePlatformUI) ||
         todayNewEventHeight != 0) {
@@ -8000,7 +7973,7 @@ class _SfCalendarState extends State<SfCalendar>
           (!_useMobilePlatformUI
               ? 0
               : widget.scheduleViewSettings.weekHeaderSettings.height +
-                  padding) +
+                    padding) +
           todayNewEventHeight;
     }
 
@@ -8061,12 +8034,11 @@ class _SfCalendarState extends State<SfCalendar>
         !isSameDate(_previousDates[_previousDates.length - 1], viewMinDate)) {
       /// Calculate the start date from display date if next view dates
       /// collection as empty.
-      DateTime date =
-          _previousDates.isNotEmpty
-              ? _previousDates[_previousDates.length - 1]
-              : (_nextDates.isNotEmpty
-                  ? _nextDates[0]
-                  : DateTimeHelper.getDateTimeValue(
+      DateTime date = _previousDates.isNotEmpty
+          ? _previousDates[_previousDates.length - 1]
+          : (_nextDates.isNotEmpty
+                ? _nextDates[0]
+                : DateTimeHelper.getDateTimeValue(
                     addDays(scheduleDisplayDate, value),
                   ));
       int count = 0;
@@ -8149,17 +8121,11 @@ class _SfCalendarState extends State<SfCalendar>
     if (_nextDates.isEmpty ||
         !isSameDate(_nextDates[_nextDates.length - 1], viewMaxDate)) {
       /// Calculate the start date from display date
-      DateTime date =
-          _nextDates.isEmpty
-              ? DateTimeHelper.getDateTimeValue(
-                addDays(scheduleDisplayDate, value),
-              )
-              : DateTimeHelper.getDateTimeValue(
-                addDays(
-                  _nextDates[_nextDates.length - 1],
-                  DateTime.daysPerWeek,
-                ),
-              );
+      DateTime date = _nextDates.isEmpty
+          ? DateTimeHelper.getDateTimeValue(addDays(scheduleDisplayDate, value))
+          : DateTimeHelper.getDateTimeValue(
+              addDays(_nextDates[_nextDates.length - 1], DateTime.daysPerWeek),
+            );
       int count = 0;
 
       /// Using while for calculate dates because if [hideEmptyAgendaDays] as
@@ -8423,18 +8389,18 @@ class _SfCalendarState extends State<SfCalendar>
       double appointmentViewHeaderHeight =
           appointmentViewHeight + (2 * padding);
       if (_useMobilePlatformUI) {
-        appointmentViewHeaderHeight =
-            appointmentViewHeaderHeight > 60 ? 60 : appointmentViewHeaderHeight;
+        appointmentViewHeaderHeight = appointmentViewHeaderHeight > 60
+            ? 60
+            : appointmentViewHeaderHeight;
       }
 
       /// Calculate the divider height and color when it is web view.
       final double dividerHeight = _useMobilePlatformUI ? 0 : 1;
 
       /// Holds the height of 'No Events' label view.
-      final double displayEventHeight =
-          _useMobilePlatformUI
-              ? appointmentViewHeaderHeight
-              : appointmentViewHeaderHeight + dividerHeight;
+      final double displayEventHeight = _useMobilePlatformUI
+          ? appointmentViewHeaderHeight
+          : appointmentViewHeaderHeight + dividerHeight;
 
       /// Holds the heights of each weeks in month on initial loading.
       /// Eg., holds Feb 1, 2021 to Feb 28, 2021 month weeks height.
@@ -8450,32 +8416,32 @@ class _SfCalendarState extends State<SfCalendar>
         final DateTime viewEndDate = DateTimeHelper.getDateTimeValue(
           addDays(viewStartDate, DateTime.daysPerWeek - 1),
         );
-        final DateTime appStartDate =
-            isSameOrAfterDate(_minDate, viewStartDate)
-                ? viewStartDate
-                : _minDate!;
-        final DateTime appEndDate =
-            isSameOrBeforeDate(_maxDate, viewEndDate) ? viewEndDate : _maxDate!;
+        final DateTime appStartDate = isSameOrAfterDate(_minDate, viewStartDate)
+            ? viewStartDate
+            : _minDate!;
+        final DateTime appEndDate = isSameOrBeforeDate(_maxDate, viewEndDate)
+            ? viewEndDate
+            : _maxDate!;
 
         /// Today date view height.
         double todayNewEventHeight =
             isDateWithInDateRange(
-                  viewStartDate,
-                  viewEndDate,
-                  scheduleCurrentDate,
-                )
-                ? displayEventHeight
-                : 0;
+              viewStartDate,
+              viewEndDate,
+              scheduleCurrentDate,
+            )
+            ? displayEventHeight
+            : 0;
 
         /// Display date view height.
         double displayNewEventHeight =
             isDateWithInDateRange(
-                  viewStartDate,
-                  viewEndDate,
-                  scheduleDisplayDate,
-                )
-                ? displayEventHeight
-                : 0;
+              viewStartDate,
+              viewEndDate,
+              scheduleDisplayDate,
+            )
+            ? displayEventHeight
+            : 0;
 
         /// Current week appointments heights.
         final List<CalendarAppointment> appointmentCollection =
@@ -8496,17 +8462,15 @@ class _SfCalendarState extends State<SfCalendar>
                 viewStartDate.day == 1);
 
         /// Web view does not have month label.
-        double currentWeekHeight =
-            isNeedMonthBuilder
-                ? widget.scheduleViewSettings.monthHeaderSettings.height
-                : 0;
+        double currentWeekHeight = isNeedMonthBuilder
+            ? widget.scheduleViewSettings.monthHeaderSettings.height
+            : 0;
 
         /// Add the week header height to the current view height.
         /// web view does not have week label.
-        currentWeekHeight +=
-            _useMobilePlatformUI
-                ? widget.scheduleViewSettings.weekHeaderSettings.height
-                : 0;
+        currentWeekHeight += _useMobilePlatformUI
+            ? widget.scheduleViewSettings.weekHeaderSettings.height
+            : 0;
 
         if (appointmentCollection.isNotEmpty) {
           /// Get the collection of appointment collection listed by date.
@@ -8516,8 +8480,8 @@ class _SfCalendarState extends State<SfCalendar>
                 appStartDate,
                 appEndDate,
               );
-          final List<DateTime> dateAppointmentKeys =
-              dateAppointments.keys.toList();
+          final List<DateTime> dateAppointmentKeys = dateAppointments.keys
+              .toList();
 
           int numberOfEvents = 0;
 
@@ -8554,10 +8518,9 @@ class _SfCalendarState extends State<SfCalendar>
             double panelHeight =
                 ((eventsCount - allDayEventCount) * appointmentViewHeight) +
                 (allDayEventCount * allDayAppointmentHeight);
-            panelHeight =
-                panelHeight > appointmentViewHeight
-                    ? panelHeight
-                    : appointmentViewHeight;
+            panelHeight = panelHeight > appointmentViewHeight
+                ? panelHeight
+                : appointmentViewHeight;
             appointmentHeight += panelHeight + dividerHeight;
             numberOfEvents += eventsCount;
           }
@@ -8619,12 +8582,12 @@ class _SfCalendarState extends State<SfCalendar>
         final DateTime viewEndDate = DateTimeHelper.getDateTimeValue(
           addDays(viewStartDate, 6),
         );
-        final DateTime appStartDate =
-            isSameOrAfterDate(_minDate, viewStartDate)
-                ? viewStartDate
-                : _minDate!;
-        DateTime appEndDate =
-            isSameOrBeforeDate(_maxDate, viewEndDate) ? viewEndDate : _maxDate!;
+        final DateTime appStartDate = isSameOrAfterDate(_minDate, viewStartDate)
+            ? viewStartDate
+            : _minDate!;
+        DateTime appEndDate = isSameOrBeforeDate(_maxDate, viewEndDate)
+            ? viewEndDate
+            : _maxDate!;
         if (appEndDate.isAfter(scheduleDisplayDate) ||
             isSameDate(appEndDate, scheduleDisplayDate)) {
           appEndDate = DateTimeHelper.getDateTimeValue(
@@ -8635,13 +8598,13 @@ class _SfCalendarState extends State<SfCalendar>
         /// Today date view height.
         double todayNewEventHeight =
             !isSameDate(scheduleCurrentDate, scheduleDisplayDate) &&
-                    isDateWithInDateRange(
-                      appStartDate,
-                      appEndDate,
-                      scheduleCurrentDate,
-                    )
-                ? displayEventHeight
-                : 0;
+                isDateWithInDateRange(
+                  appStartDate,
+                  appEndDate,
+                  scheduleCurrentDate,
+                )
+            ? displayEventHeight
+            : 0;
         final List<CalendarAppointment> appointmentCollection =
             AppointmentHelper.getVisibleAppointments(
               appStartDate,
@@ -8667,22 +8630,19 @@ class _SfCalendarState extends State<SfCalendar>
                 appStartDate,
                 appEndDate,
               );
-          final List<DateTime> dateAppointmentKeys =
-              dateAppointments.keys.toList();
+          final List<DateTime> dateAppointmentKeys = dateAppointments.keys
+              .toList();
 
           /// calculate the scroll position by adding week header height.
           /// web view does not have week label.
-          initialScrolledPosition +=
-              _useMobilePlatformUI
-                  ? widget.scheduleViewSettings.weekHeaderSettings.height
-                  : 0;
+          initialScrolledPosition += _useMobilePlatformUI
+              ? widget.scheduleViewSettings.weekHeaderSettings.height
+              : 0;
 
           /// Web view does not have month label.
-          initialScrolledPosition +=
-              isNeedMonthBuilder
-                  ? widget.scheduleViewSettings.monthHeaderSettings.height +
-                      padding
-                  : 0;
+          initialScrolledPosition += isNeedMonthBuilder
+              ? widget.scheduleViewSettings.monthHeaderSettings.height + padding
+              : 0;
 
           int numberOfEvents = 0;
 
@@ -8708,10 +8668,9 @@ class _SfCalendarState extends State<SfCalendar>
             double panelHeight =
                 ((eventsCount - allDayEventCount) * appointmentViewHeight) +
                 (allDayEventCount * allDayAppointmentHeight);
-            panelHeight =
-                panelHeight > appointmentViewHeight
-                    ? panelHeight
-                    : appointmentViewHeight;
+            panelHeight = panelHeight > appointmentViewHeight
+                ? panelHeight
+                : appointmentViewHeight;
             appointmentHeight += panelHeight + dividerHeight;
             numberOfEvents += eventsCount;
           }
@@ -8734,7 +8693,7 @@ class _SfCalendarState extends State<SfCalendar>
               (!_useMobilePlatformUI
                   ? 0
                   : widget.scheduleViewSettings.weekHeaderSettings.height +
-                      padding) +
+                        padding) +
               todayNewEventHeight;
         }
 
@@ -8750,8 +8709,9 @@ class _SfCalendarState extends State<SfCalendar>
         /// than view port height then reduce the scroll position.
         if (belowSpace < height) {
           initialScrolledPosition -= height - belowSpace;
-          initialScrolledPosition =
-              initialScrolledPosition > 0 ? initialScrolledPosition : 0;
+          initialScrolledPosition = initialScrolledPosition > 0
+              ? initialScrolledPosition
+              : 0;
         }
 
         _agendaScrollController?.removeListener(_handleScheduleViewScrolled);
@@ -8935,19 +8895,17 @@ class _SfCalendarState extends State<SfCalendar>
         widget.loadMoreWidgetBuilder != null) {
       final Alignment loadMoreAlignment =
           _agendaScrollController!.hasClients &&
-                  _agendaScrollController!.position.pixels <=
-                      _agendaScrollController!.position.minScrollExtent &&
-                  _isScheduleStartLoadMore
-              ? Alignment.topCenter
-              : Alignment.bottomCenter;
-      final DateTime visibleStartDate =
-          _isNeedLoadMore
-              ? AppointmentHelper.getMonthStartDate(_scheduleMaxDate!)
-              : _scheduleMinDate!;
-      final DateTime visibleEndDate =
-          _isNeedLoadMore
-              ? _scheduleMaxDate!
-              : AppointmentHelper.getMonthEndDate(_scheduleMinDate!);
+              _agendaScrollController!.position.pixels <=
+                  _agendaScrollController!.position.minScrollExtent &&
+              _isScheduleStartLoadMore
+          ? Alignment.topCenter
+          : Alignment.bottomCenter;
+      final DateTime visibleStartDate = _isNeedLoadMore
+          ? AppointmentHelper.getMonthStartDate(_scheduleMaxDate!)
+          : _scheduleMinDate!;
+      final DateTime visibleEndDate = _isNeedLoadMore
+          ? _scheduleMaxDate!
+          : AppointmentHelper.getMonthEndDate(_scheduleMinDate!);
       children.add(
         Positioned(
           top: widget.headerHeight,
@@ -9035,22 +8993,22 @@ class _SfCalendarState extends State<SfCalendar>
       _localizations,
     );
 
-    final Alignment alignment =
-        _isRTL ? Alignment.centerRight : Alignment.centerLeft;
+    final Alignment alignment = _isRTL
+        ? Alignment.centerRight
+        : Alignment.centerLeft;
     final int allowedViewLength = widget.allowedViews!.length;
 
     /// Generate the calendar view pop up content views.
     for (int i = 0; i < allowedViewLength; i++) {
       final CalendarView view = widget.allowedViews![i];
       final String text = calendarViews[view]!;
-      final double textWidth =
-          _getTextWidgetWidth(
-            text,
-            calendarViewTextHeight,
-            _minWidth,
-            context,
-            style: style,
-          ).width;
+      final double textWidth = _getTextWidgetWidth(
+        text,
+        calendarViewTextHeight,
+        _minWidth,
+        context,
+        style: style,
+      ).width;
       width = width < textWidth ? textWidth : width;
       final bool isSelected = view == _view;
       if (isSelected) {
@@ -9106,34 +9064,32 @@ class _SfCalendarState extends State<SfCalendar>
             widget.headerStyle.textAlign == TextAlign.justify);
 
     /// Calculate the calendar view button width that placed on header view
-    final double calendarViewWidth =
-        _useMobilePlatformUI
-            ? iconWidth
-            : _getTextWidgetWidth(
-                  calendarViews[_view]!,
-                  widget.headerHeight,
-                  _minWidth - totalArrowWidth,
-                  context,
-                  style: style,
-                ).width +
-                padding +
-                headerIconTextWidth;
+    final double calendarViewWidth = _useMobilePlatformUI
+        ? iconWidth
+        : _getTextWidgetWidth(
+                calendarViews[_view]!,
+                widget.headerHeight,
+                _minWidth - totalArrowWidth,
+                context,
+                style: style,
+              ).width +
+              padding +
+              headerIconTextWidth;
     double dividerWidth = 0;
     double todayWidth = 0;
 
     /// Today button shown only the date picker enabled.
     if (widget.showTodayButton) {
-      todayWidth =
-          _useMobilePlatformUI
-              ? iconWidth
-              : _getTextWidgetWidth(
-                    _localizations.todayLabel,
-                    widget.headerHeight,
-                    _minWidth - totalArrowWidth,
-                    context,
-                    style: style,
-                  ).width +
-                  padding;
+      todayWidth = _useMobilePlatformUI
+          ? iconWidth
+          : _getTextWidgetWidth(
+                  _localizations.todayLabel,
+                  widget.headerHeight,
+                  _minWidth - totalArrowWidth,
+                  context,
+                  style: style,
+                ).width +
+                padding;
 
       /// Divider shown when the view holds calendar views and today button.
       dividerWidth = _useMobilePlatformUI ? 0 : 5;
@@ -9156,39 +9112,34 @@ class _SfCalendarState extends State<SfCalendar>
     Alignment popupAlignment;
     if (_isMobilePlatform) {
       /// icon width specifies the today button width and calendar view width.
-      left =
-          _isRTL
-              ? totalArrowWidth
-              : headerWidth + todayWidth + iconWidth - width;
+      left = _isRTL
+          ? totalArrowWidth
+          : headerWidth + todayWidth + iconWidth - width;
       popupAlignment = _isRTL ? Alignment.topLeft : Alignment.topRight;
       if (widget.headerStyle.textAlign == TextAlign.right ||
           widget.headerStyle.textAlign == TextAlign.end) {
         popupAlignment = _isRTL ? Alignment.topRight : Alignment.topLeft;
-        left =
-            _isRTL
-                ? headerWidth + iconWidth + todayWidth - width
-                : totalArrowWidth;
+        left = _isRTL
+            ? headerWidth + iconWidth + todayWidth - width
+            : totalArrowWidth;
       } else if (widget.headerStyle.textAlign == TextAlign.center ||
           widget.headerStyle.textAlign == TextAlign.justify) {
         popupAlignment = _isRTL ? Alignment.topLeft : Alignment.topRight;
-        left =
-            _isRTL
-                ? arrowWidth
-                : headerWidth + arrowWidth + todayWidth + iconWidth - width;
+        left = _isRTL
+            ? arrowWidth
+            : headerWidth + arrowWidth + todayWidth + iconWidth - width;
       }
     } else {
-      left =
-          _isRTL
-              ? calendarViewWidth - width
-              : headerWidth + totalArrowWidth + todayWidth + dividerWidth - 1;
+      left = _isRTL
+          ? calendarViewWidth - width
+          : headerWidth + totalArrowWidth + todayWidth + dividerWidth - 1;
       popupAlignment = _isRTL ? Alignment.topLeft : Alignment.topRight;
       if (widget.headerStyle.textAlign == TextAlign.right ||
           widget.headerStyle.textAlign == TextAlign.end) {
         popupAlignment = _isRTL ? Alignment.topRight : Alignment.topLeft;
-        left =
-            _isRTL
-                ? headerWidth + totalArrowWidth + todayWidth + dividerWidth - 1
-                : calendarViewWidth - width;
+        left = _isRTL
+            ? headerWidth + totalArrowWidth + todayWidth + dividerWidth - 1
+            : calendarViewWidth - width;
       } else if (widget.headerStyle.textAlign == TextAlign.center ||
           widget.headerStyle.textAlign == TextAlign.justify) {
         popupAlignment = _isRTL ? Alignment.topRight : Alignment.topLeft;
@@ -9204,14 +9155,13 @@ class _SfCalendarState extends State<SfCalendar>
                 todayWidth -
                 headerWidth) /
             2;
-        left =
-            _isRTL
-                ? leftStartPosition + calendarViewWidth - width
-                : leftStartPosition +
-                    totalArrowWidth +
-                    headerWidth +
-                    todayWidth +
-                    dividerWidth;
+        left = _isRTL
+            ? leftStartPosition + calendarViewWidth - width
+            : leftStartPosition +
+                  totalArrowWidth +
+                  headerWidth +
+                  todayWidth +
+                  dividerWidth;
       }
     }
 
@@ -9226,10 +9176,9 @@ class _SfCalendarState extends State<SfCalendar>
       scrollPosition = selectedIndex * calendarViewTextHeight;
       final double maxScrollPosition =
           allowedViewLength * calendarViewTextHeight;
-      scrollPosition =
-          (maxScrollPosition - scrollPosition) > height
-              ? scrollPosition
-              : maxScrollPosition - height;
+      scrollPosition = (maxScrollPosition - scrollPosition) > height
+          ? scrollPosition
+          : maxScrollPosition - height;
     }
 
     final bool showScrollbar = totalHeight > height;
@@ -9246,10 +9195,9 @@ class _SfCalendarState extends State<SfCalendar>
         child: Container(
           padding: EdgeInsets.zero,
           decoration: BoxDecoration(
-            color:
-                _themeData.brightness == Brightness.dark
-                    ? Colors.grey[850]
-                    : Colors.white,
+            color: _themeData.brightness == Brightness.dark
+                ? Colors.grey[850]
+                : Colors.white,
             boxShadow: kElevationToShadow[6],
             borderRadius: BorderRadius.circular(2.0),
           ),
@@ -9321,14 +9269,12 @@ class _SfCalendarState extends State<SfCalendar>
           Positioned(
             left: _isRTL ? 0.5 : resourceViewSize - 0.5,
             width: 0.5,
-            top:
-                _controller.view == CalendarView.timelineMonth
-                    ? widget.headerHeight
-                    : widget.headerHeight + viewHeaderHeight,
-            height:
-                _controller.view == CalendarView.timelineMonth
-                    ? viewHeaderHeight
-                    : timeLabelSize,
+            top: _controller.view == CalendarView.timelineMonth
+                ? widget.headerHeight
+                : widget.headerHeight + viewHeaderHeight,
+            height: _controller.view == CalendarView.timelineMonth
+                ? viewHeaderHeight
+                : timeLabelSize,
             child: verticalDivider,
           ),
           Positioned(
@@ -9551,8 +9497,9 @@ class _SfCalendarState extends State<SfCalendar>
       widget.dataSource,
       _view,
     );
-    final double resourceViewSize =
-        isResourceEnabled ? widget.resourceViewSettings.size : 0;
+    final double resourceViewSize = isResourceEnabled
+        ? widget.resourceViewSettings.size
+        : 0;
     final DateTime currentViewDate =
         _currentViewVisibleDates[(_currentViewVisibleDates.length / 2)
             .truncate()];
@@ -9708,14 +9655,12 @@ class _SfCalendarState extends State<SfCalendar>
       final double totalArrowWidth = 2 * arrowWidth;
       final double totalWidth = _minWidth - totalArrowWidth;
       final double totalHeight = _minHeight - widget.headerHeight;
-      maxHeight =
-          maxHeight < 250
-              ? (totalHeight < 250 ? totalHeight - 10 : 250)
-              : maxHeight;
-      maxWidth =
-          maxWidth < 250
-              ? (totalWidth < 250 ? totalWidth - 10 : 250)
-              : maxWidth;
+      maxHeight = maxHeight < 250
+          ? (totalHeight < 250 ? totalHeight - 10 : 250)
+          : maxHeight;
+      maxWidth = maxWidth < 250
+          ? (totalWidth < 250 ? totalWidth - 10 : 250)
+          : maxWidth;
       double containerSize = maxHeight > maxWidth ? maxWidth : maxHeight;
       if (containerSize > 300) {
         containerSize = 300;
@@ -9723,8 +9668,9 @@ class _SfCalendarState extends State<SfCalendar>
 
       pickerWidth = containerSize;
       pickerHeight = containerSize;
-      left =
-          isRTL ? _minWidth - containerSize - totalArrowWidth : totalArrowWidth;
+      left = isRTL
+          ? _minWidth - containerSize - totalArrowWidth
+          : totalArrowWidth;
       if (widget.headerStyle.textAlign == TextAlign.right ||
           widget.headerStyle.textAlign == TextAlign.end) {
         left = isRTL ? padding : _minWidth - containerSize - totalArrowWidth;
@@ -9746,14 +9692,13 @@ class _SfCalendarState extends State<SfCalendar>
               2;
           double headerPadding = (headerViewWidth - containerSize) / 2;
           headerPadding = headerPadding > 0 ? headerPadding : 0;
-          left =
-              _isRTL
-                  ? leftPadding +
-                      arrowWidth +
-                      calendarViewWidth +
-                      headerViewWidth -
-                      containerSize
-                  : leftPadding + arrowWidth + headerPadding;
+          left = _isRTL
+              ? leftPadding +
+                    arrowWidth +
+                    calendarViewWidth +
+                    headerViewWidth -
+                    containerSize
+              : leftPadding + arrowWidth + headerPadding;
         }
       }
     }
@@ -9767,29 +9712,26 @@ class _SfCalendarState extends State<SfCalendar>
         child: Container(
           margin: EdgeInsets.zero,
           padding: const EdgeInsets.all(5),
-          decoration:
-              _isMobilePlatform
-                  ? BoxDecoration(
-                    color:
-                        _themeData.brightness == Brightness.dark
-                            ? Colors.grey[850]
-                            : Colors.white,
-                    boxShadow: const <BoxShadow>[
-                      BoxShadow(
-                        offset: Offset(0.0, 3.0),
-                        blurRadius: 2.0,
-                        color: Color(0x24000000),
-                      ),
-                    ],
-                  )
-                  : BoxDecoration(
-                    color:
-                        _themeData.brightness == Brightness.dark
-                            ? Colors.grey[850]
-                            : Colors.white,
-                    boxShadow: kElevationToShadow[6],
-                    borderRadius: BorderRadius.circular(2.0),
-                  ),
+          decoration: _isMobilePlatform
+              ? BoxDecoration(
+                  color: _themeData.brightness == Brightness.dark
+                      ? Colors.grey[850]
+                      : Colors.white,
+                  boxShadow: const <BoxShadow>[
+                    BoxShadow(
+                      offset: Offset(0.0, 3.0),
+                      blurRadius: 2.0,
+                      color: Color(0x24000000),
+                    ),
+                  ],
+                )
+              : BoxDecoration(
+                  color: _themeData.brightness == Brightness.dark
+                      ? Colors.grey[850]
+                      : Colors.white,
+                  boxShadow: kElevationToShadow[6],
+                  borderRadius: BorderRadius.circular(2.0),
+                ),
           child: SfDateRangePicker(
             showNavigationArrow: true,
             initialSelectedDate: _currentDate,
@@ -9801,21 +9743,21 @@ class _SfCalendarState extends State<SfCalendar>
             //// For disabling the picker dates based on the calendar non working days.
             selectableDayPredicate:
                 _view != CalendarView.workWeek &&
-                        _view != CalendarView.timelineWorkWeek
-                    ? null
-                    : (DateTime dateTime) {
-                      for (
-                        int i = 0;
-                        i < widget.timeSlotViewSettings.nonWorkingDays.length;
-                        i++
-                      ) {
-                        if (dateTime.weekday ==
-                            widget.timeSlotViewSettings.nonWorkingDays[i]) {
-                          return false;
-                        }
+                    _view != CalendarView.timelineWorkWeek
+                ? null
+                : (DateTime dateTime) {
+                    for (
+                      int i = 0;
+                      i < widget.timeSlotViewSettings.nonWorkingDays.length;
+                      i++
+                    ) {
+                      if (dateTime.weekday ==
+                          widget.timeSlotViewSettings.nonWorkingDays[i]) {
+                        return false;
                       }
-                      return true;
-                    },
+                    }
+                    return true;
+                  },
             headerStyle: DateRangePickerHeaderStyle(
               textAlign: _isMobilePlatform ? TextAlign.center : TextAlign.left,
             ),
@@ -9834,9 +9776,9 @@ class _SfCalendarState extends State<SfCalendar>
             ),
             view:
                 _view == CalendarView.month ||
-                        _view == CalendarView.timelineMonth
-                    ? DateRangePickerView.year
-                    : DateRangePickerView.month,
+                    _view == CalendarView.timelineMonth
+                ? DateRangePickerView.year
+                : DateRangePickerView.month,
             onViewChanged: (DateRangePickerViewChangedArgs details) {
               if ((_view != CalendarView.month &&
                       _view != CalendarView.timelineMonth) ||
@@ -10124,10 +10066,9 @@ class _SfCalendarState extends State<SfCalendar>
         );
     for (int i = 0; i < agendaAppointments.length; i++) {
       final CalendarAppointment appointment = agendaAppointments[i];
-      final double appointmentHeight =
-          _isAllDayAppointmentView(appointment)
-              ? allDayAppointmentHeight
-              : actualAppointmentHeight;
+      final double appointmentHeight = _isAllDayAppointmentView(appointment)
+          ? allDayAppointmentHeight
+          : actualAppointmentHeight;
       if (tappedYPosition >= xPosition &&
           tappedYPosition < xPosition + appointmentHeight + padding) {
         index = i;
@@ -10178,16 +10119,16 @@ class _SfCalendarState extends State<SfCalendar>
     if (_selectedDate != null) {
       currentSelectedDate =
           isDateWithInDateRange(
-                    widget.minDate,
-                    widget.maxDate,
-                    _selectedDate,
-                  ) &&
-                  !CalendarViewHelper.isDateInDateCollection(
-                    _blackoutDates,
-                    _selectedDate!,
-                  )
-              ? _selectedDate
-              : null;
+                widget.minDate,
+                widget.maxDate,
+                _selectedDate,
+              ) &&
+              !CalendarViewHelper.isDateInDateCollection(
+                _blackoutDates,
+                _selectedDate!,
+              )
+          ? _selectedDate
+          : null;
     }
 
     if (currentSelectedDate == null) {
@@ -10704,10 +10645,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           headerTextSize.width +
           padding +
           (widget.showDatePickerButton ? headerIconTextWidth : 0);
-      maxHeaderHeight =
-          maxHeaderHeight > headerTextSize.height
-              ? maxHeaderHeight
-              : headerTextSize.height;
+      maxHeaderHeight = maxHeaderHeight > headerTextSize.height
+          ? maxHeaderHeight
+          : headerTextSize.height;
     }
 
     if (weekNumberEnabled) {
@@ -10734,8 +10674,8 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       if (useMobilePlatformUI) {
         maxHeaderHeight =
             maxHeaderHeight != 0 && maxHeaderHeight <= widget.height
-                ? maxHeaderHeight
-                : widget.height;
+            ? maxHeaderHeight
+            : widget.height;
 
         /// Render allowed views icon on mobile view.
         calendarViewIcon = _getCalendarViewWidget(
@@ -10787,8 +10727,8 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
               calendarViewSize.width + allowedViewsPadding;
           maxCalendarViewHeight =
               maxCalendarViewHeight > calendarViewSize.height
-                  ? maxCalendarViewHeight
-                  : calendarViewSize.height + allowedViewsPadding;
+              ? maxCalendarViewHeight
+              : calendarViewSize.height + allowedViewsPadding;
           calendarViewsWidth[currentView] = currentViewTextWidth;
           allowedViewsWidth += currentViewTextWidth;
         }
@@ -10797,12 +10737,12 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         /// render the allowed views as children.
         if (allowedViewsWidth < totalWidth) {
           calendarViewWidth = allowedViewsWidth;
-          maxHeaderHeight =
-              maxCalendarViewHeight > maxHeaderHeight
-                  ? maxCalendarViewHeight
-                  : maxHeaderHeight;
-          maxHeaderHeight =
-              maxHeaderHeight > widget.height ? widget.height : maxHeaderHeight;
+          maxHeaderHeight = maxCalendarViewHeight > maxHeaderHeight
+              ? maxCalendarViewHeight
+              : maxHeaderHeight;
+          maxHeaderHeight = maxHeaderHeight > widget.height
+              ? widget.height
+              : maxHeaderHeight;
           for (int i = 0; i < allowedViewsLength; i++) {
             final CalendarView currentView = widget.allowedViews![i];
             children.add(
@@ -10833,12 +10773,12 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
             style: const TextStyle(fontSize: defaultCalendarViewTextSize),
           );
           maxCalendarViewHeight = calendarViewSize.height + allowedViewsPadding;
-          maxHeaderHeight =
-              maxCalendarViewHeight > maxHeaderHeight
-                  ? maxCalendarViewHeight
-                  : maxHeaderHeight;
-          maxHeaderHeight =
-              maxHeaderHeight > widget.height ? widget.height : maxHeaderHeight;
+          maxHeaderHeight = maxCalendarViewHeight > maxHeaderHeight
+              ? maxCalendarViewHeight
+              : maxHeaderHeight;
+          maxHeaderHeight = maxHeaderHeight > widget.height
+              ? widget.height
+              : maxHeaderHeight;
           calendarViewWidth =
               calendarViewSize.width +
               allowedViewsPadding +
@@ -10866,8 +10806,8 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
 
     final double headerHeight =
         maxHeaderHeight != 0 && maxHeaderHeight <= widget.height
-            ? maxHeaderHeight
-            : widget.height;
+        ? maxHeaderHeight
+        : widget.height;
 
     if (weekNumberEnabled) {
       /// Header will render based on its text width while week number enabled.
@@ -10940,8 +10880,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       return MainAxisAlignment.center;
     }
 
-    double arrowSize =
-        headerHeight == widget.height ? headerHeight * 0.6 : headerHeight * 0.8;
+    double arrowSize = headerHeight == widget.height
+        ? headerHeight * 0.6
+        : headerHeight * 0.8;
     arrowSize = arrowSize > 25 ? 25 : arrowSize;
     arrowSize = arrowSize * widget.textScaleFactor;
     final bool isCenterAlignment =
@@ -10964,419 +10905,403 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
 
     final Color? splashColor =
         !widget.showDatePickerButton || !widget.enableInteraction
-            ? Colors.transparent
-            : null;
+        ? Colors.transparent
+        : null;
     final TextStyle headerTextStyle = widget.calendarTheme.headerTextStyle!;
-    final Widget headerText =
-        widget.isMobilePlatform
-            ? Container(
+    final Widget headerText = widget.isMobilePlatform
+        ? Container(
+            alignment: Alignment.center,
+            color: headerBackgroundColor,
+            width: isCenterAlignment && headerWidth > 200 ? 200 : headerWidth,
+            height: headerHeight,
+            padding: const EdgeInsets.all(2),
+            child: Material(
+              color: headerBackgroundColor,
+              child: InkWell(
+                //// set splash color as transparent when header does not have
+                // date piker.
+                splashColor: splashColor,
+                highlightColor: splashColor,
+                hoverColor: splashColor,
+                splashFactory: _CustomSplashFactory(),
+                onTap: () {
+                  if (!widget.enableInteraction) {
+                    return;
+                  }
+                  widget.headerTapCallback(
+                    calendarViewWidth + dividerWidth + todayIconWidth,
+                  );
+                },
+                onLongPress: () {
+                  if (!widget.enableInteraction) {
+                    return;
+                  }
+                  widget.headerLongPressCallback(
+                    calendarViewWidth + dividerWidth + todayIconWidth,
+                  );
+                },
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: const BoxDecoration(color: Colors.transparent),
+                  width: isCenterAlignment && headerWidth > 200
+                      ? 200
+                      : headerWidth,
+                  height: headerHeight,
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: Row(
+                    mainAxisAlignment: getAlignmentFromTextAlign(),
+                    children: widget.showDatePickerButton
+                        ? <Widget>[
+                            Flexible(
+                              child: Text(
+                                headerString,
+                                style: headerTextStyle,
+                                maxLines: 1,
+                                semanticsLabel:
+                                    // ignore: lines_longer_than_80_chars
+                                    '$headerString ${widget.isPickerShown ? 'hide date picker' : 'show date picker'}',
+                                overflow: TextOverflow.clip,
+                                softWrap: false,
+                                textDirection:
+                                    CalendarViewHelper.getTextDirectionBasedOnLocale(
+                                      widget.locale,
+                                    ),
+                              ),
+                            ),
+                            Icon(
+                              widget.isPickerShown
+                                  ? Icons.arrow_drop_up
+                                  : Icons.arrow_drop_down,
+                              color: arrowColor,
+                              size: headerTextStyle.fontSize ?? 14,
+                            ),
+                          ]
+                        : <Widget>[
+                            Flexible(
+                              child: Text(
+                                headerString,
+                                style: headerTextStyle,
+                                maxLines: 1,
+                                overflow: TextOverflow.clip,
+                                softWrap: false,
+                                textDirection:
+                                    CalendarViewHelper.getTextDirectionBasedOnLocale(
+                                      widget.locale,
+                                    ),
+                              ),
+                            ),
+                          ],
+                  ),
+                ),
+              ),
+            ),
+          )
+        : Container(
+            alignment: getHeaderAlignment(),
+            color: headerBackgroundColor,
+            width: isCenterAlignment && headerWidth > 200 ? 200 : headerWidth,
+            height: headerHeight,
+            padding: const EdgeInsets.all(2),
+            child: Material(
+              color: headerBackgroundColor,
+              child: InkWell(
+                //// set splash color as transparent when header does not have
+                // date piker.
+                splashColor: splashColor,
+                highlightColor: splashColor,
+                splashFactory: _CustomSplashFactory(),
+                onTap: () {
+                  if (!widget.enableInteraction) {
+                    return;
+                  }
+                  widget.headerTapCallback(
+                    calendarViewWidth + dividerWidth + todayIconWidth,
+                  );
+                },
+                onLongPress: () {
+                  if (!widget.enableInteraction) {
+                    return;
+                  }
+                  widget.headerLongPressCallback(
+                    calendarViewWidth + dividerWidth + todayIconWidth,
+                  );
+                },
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: widget.showDatePickerButton && widget.isPickerShown
+                        ? Colors.grey.withValues(alpha: 0.3)
+                        : headerBackgroundColor,
+                  ),
+
+                  /// Padding value is from parent container padding
+                  /// value const EdgeInsets.all(2).
+                  width:
+                      (isCenterAlignment && headerTextWidth > 200
+                          ? 200
+                          : headerTextWidth) -
+                      padding,
+                  height: headerHeight,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: widget.showDatePickerButton
+                        ? <Widget>[
+                            Flexible(
+                              child: Text(
+                                headerString,
+                                style: headerTextStyle,
+                                maxLines: 1,
+                                semanticsLabel:
+                                    // ignore: lines_longer_than_80_chars
+                                    '$headerString ${widget.isPickerShown ? 'hide date picker' : 'show date picker'}',
+                                overflow: TextOverflow.clip,
+                                softWrap: false,
+                                textDirection:
+                                    CalendarViewHelper.getTextDirectionBasedOnLocale(
+                                      widget.locale,
+                                    ),
+                              ),
+                            ),
+                            Icon(
+                              widget.isPickerShown
+                                  ? Icons.arrow_drop_up
+                                  : Icons.arrow_drop_down,
+                              color: arrowColor,
+                              size: headerTextStyle.fontSize ?? 14,
+                            ),
+                          ]
+                        : <Widget>[
+                            Flexible(
+                              child: Text(
+                                headerString,
+                                style: headerTextStyle,
+                                maxLines: 1,
+                                overflow: TextOverflow.clip,
+                                softWrap: false,
+                                textDirection:
+                                    CalendarViewHelper.getTextDirectionBasedOnLocale(
+                                      widget.locale,
+                                    ),
+                              ),
+                            ),
+                          ],
+                  ),
+                ),
+              ),
+            ),
+          );
+
+    final Widget weekNumberWidget = weekNumberEnabled
+        ? Container(
+            width: isCenterAlignment
+                ? weekNumberTextWidth
+                : weekNumberPanelWidth,
+            height: weekNumberPanelHeight,
+            alignment: getHeaderAlignment(),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(padding)),
+                color: weekNumberBackgroundColor,
+              ),
               alignment: Alignment.center,
-              color: headerBackgroundColor,
-              width: isCenterAlignment && headerWidth > 200 ? 200 : headerWidth,
-              height: headerHeight,
-              padding: const EdgeInsets.all(2),
-              child: Material(
-                color: headerBackgroundColor,
-                child: InkWell(
-                  //// set splash color as transparent when header does not have
-                  // date piker.
-                  splashColor: splashColor,
-                  highlightColor: splashColor,
-                  hoverColor: splashColor,
-                  splashFactory: _CustomSplashFactory(),
-                  onTap: () {
-                    if (!widget.enableInteraction) {
-                      return;
-                    }
-                    widget.headerTapCallback(
-                      calendarViewWidth + dividerWidth + todayIconWidth,
-                    );
-                  },
-                  onLongPress: () {
-                    if (!widget.enableInteraction) {
-                      return;
-                    }
-                    widget.headerLongPressCallback(
-                      calendarViewWidth + dividerWidth + todayIconWidth,
-                    );
-                  },
-                  child: Container(
-                    clipBehavior: Clip.antiAlias,
-                    decoration: const BoxDecoration(color: Colors.transparent),
-                    width:
-                        isCenterAlignment && headerWidth > 200
-                            ? 200
-                            : headerWidth,
-                    height: headerHeight,
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Row(
-                      mainAxisAlignment: getAlignmentFromTextAlign(),
-                      children:
-                          widget.showDatePickerButton
-                              ? <Widget>[
-                                Flexible(
-                                  child: Text(
-                                    headerString,
-                                    style: headerTextStyle,
-                                    maxLines: 1,
-                                    semanticsLabel:
-                                        // ignore: lines_longer_than_80_chars
-                                        '$headerString ${widget.isPickerShown ? 'hide date picker' : 'show date picker'}',
-                                    overflow: TextOverflow.clip,
-                                    softWrap: false,
-                                    textDirection:
-                                        CalendarViewHelper.getTextDirectionBasedOnLocale(
-                                          widget.locale,
-                                        ),
-                                  ),
-                                ),
-                                Icon(
-                                  widget.isPickerShown
-                                      ? Icons.arrow_drop_up
-                                      : Icons.arrow_drop_down,
-                                  color: arrowColor,
-                                  size: headerTextStyle.fontSize ?? 14,
-                                ),
-                              ]
-                              : <Widget>[
-                                Flexible(
-                                  child: Text(
-                                    headerString,
-                                    style: headerTextStyle,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.clip,
-                                    softWrap: false,
-                                    textDirection:
-                                        CalendarViewHelper.getTextDirectionBasedOnLocale(
-                                          widget.locale,
-                                        ),
-                                  ),
-                                ),
-                              ],
+              width: weekNumberTextWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Flexible(
+                    child: Text(
+                      widget.localizations.weeknumberLabel,
+                      textAlign: TextAlign.center,
+                      textScaler: TextScaler.linear(widget.textScaleFactor),
+                      style: weekNumberTextStyle,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   ),
-                ),
-              ),
-            )
-            : Container(
-              alignment: getHeaderAlignment(),
-              color: headerBackgroundColor,
-              width: isCenterAlignment && headerWidth > 200 ? 200 : headerWidth,
-              height: headerHeight,
-              padding: const EdgeInsets.all(2),
-              child: Material(
-                color: headerBackgroundColor,
-                child: InkWell(
-                  //// set splash color as transparent when header does not have
-                  // date piker.
-                  splashColor: splashColor,
-                  highlightColor: splashColor,
-                  splashFactory: _CustomSplashFactory(),
-                  onTap: () {
-                    if (!widget.enableInteraction) {
-                      return;
-                    }
-                    widget.headerTapCallback(
-                      calendarViewWidth + dividerWidth + todayIconWidth,
-                    );
-                  },
-                  onLongPress: () {
-                    if (!widget.enableInteraction) {
-                      return;
-                    }
-                    widget.headerLongPressCallback(
-                      calendarViewWidth + dividerWidth + todayIconWidth,
-                    );
-                  },
-                  child: Container(
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      color:
-                          widget.showDatePickerButton && widget.isPickerShown
-                              ? Colors.grey.withValues(alpha: 0.3)
-                              : headerBackgroundColor,
-                    ),
-
-                    /// Padding value is from parent container padding
-                    /// value const EdgeInsets.all(2).
-                    width:
-                        (isCenterAlignment && headerTextWidth > 200
-                            ? 200
-                            : headerTextWidth) -
-                        padding,
-                    height: headerHeight,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children:
-                          widget.showDatePickerButton
-                              ? <Widget>[
-                                Flexible(
-                                  child: Text(
-                                    headerString,
-                                    style: headerTextStyle,
-                                    maxLines: 1,
-                                    semanticsLabel:
-                                        // ignore: lines_longer_than_80_chars
-                                        '$headerString ${widget.isPickerShown ? 'hide date picker' : 'show date picker'}',
-                                    overflow: TextOverflow.clip,
-                                    softWrap: false,
-                                    textDirection:
-                                        CalendarViewHelper.getTextDirectionBasedOnLocale(
-                                          widget.locale,
-                                        ),
-                                  ),
-                                ),
-                                Icon(
-                                  widget.isPickerShown
-                                      ? Icons.arrow_drop_up
-                                      : Icons.arrow_drop_down,
-                                  color: arrowColor,
-                                  size: headerTextStyle.fontSize ?? 14,
-                                ),
-                              ]
-                              : <Widget>[
-                                Flexible(
-                                  child: Text(
-                                    headerString,
-                                    style: headerTextStyle,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.clip,
-                                    softWrap: false,
-                                    textDirection:
-                                        CalendarViewHelper.getTextDirectionBasedOnLocale(
-                                          widget.locale,
-                                        ),
-                                  ),
-                                ),
-                              ],
+                  Flexible(
+                    child: Text(
+                      ' $weekNumberString',
+                      textAlign: TextAlign.center,
+                      style: weekNumberTextStyle,
+                      textScaler: TextScaler.linear(widget.textScaleFactor),
+                      maxLines: 1,
                     ),
                   ),
-                ),
+                ],
               ),
-            );
-
-    final Widget weekNumberWidget =
-        weekNumberEnabled
-            ? Container(
-              width:
-                  isCenterAlignment
-                      ? weekNumberTextWidth
-                      : weekNumberPanelWidth,
-              height: weekNumberPanelHeight,
-              alignment: getHeaderAlignment(),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(padding),
-                  ),
-                  color: weekNumberBackgroundColor,
-                ),
-                alignment: Alignment.center,
-                width: weekNumberTextWidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Flexible(
-                      child: Text(
-                        widget.localizations.weeknumberLabel,
-                        textAlign: TextAlign.center,
-                        textScaler: TextScaler.linear(widget.textScaleFactor),
-                        style: weekNumberTextStyle,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                    Flexible(
-                      child: Text(
-                        ' $weekNumberString',
-                        textAlign: TextAlign.center,
-                        style: weekNumberTextStyle,
-                        textScaler: TextScaler.linear(widget.textScaleFactor),
-                        maxLines: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-            : Container();
+            ),
+          )
+        : Container();
 
     final Color? leftArrowSplashColor =
         prevArrowColor != arrowColor || !widget.enableInteraction
-            ? Colors.transparent
-            : null;
-    final Container leftArrow =
-        navigationArrowEnabled
-            ? Container(
-              alignment: Alignment.center,
+        ? Colors.transparent
+        : null;
+    final Container leftArrow = navigationArrowEnabled
+        ? Container(
+            alignment: Alignment.center,
+            color: headerBackgroundColor,
+            width: arrowWidth,
+            height: headerHeight,
+            padding: const EdgeInsets.all(2),
+            child: Material(
               color: headerBackgroundColor,
-              width: arrowWidth,
-              height: headerHeight,
-              padding: const EdgeInsets.all(2),
-              child: Material(
-                color: headerBackgroundColor,
-                child: InkWell(
-                  //// set splash color as transparent when arrow reaches min date(disabled)
-                  splashColor: leftArrowSplashColor,
-                  highlightColor: leftArrowSplashColor,
-                  hoverColor: leftArrowSplashColor,
-                  splashFactory: _CustomSplashFactory(),
-                  onTap: _backward,
-                  child: Semantics(
-                    label: 'Backward',
-                    child: Container(
-                      width: arrowWidth,
-                      height: headerHeight,
-                      alignment: Alignment.center,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(
-                        color: Colors.transparent,
-                      ),
-                      child: Icon(
-                        widget.navigationDirection ==
-                                MonthNavigationDirection.horizontal
-                            ? Icons.chevron_left
-                            : Icons.keyboard_arrow_up,
-                        color: prevArrowColor,
-                        size: arrowSize,
-                      ),
+              child: InkWell(
+                //// set splash color as transparent when arrow reaches min date(disabled)
+                splashColor: leftArrowSplashColor,
+                highlightColor: leftArrowSplashColor,
+                hoverColor: leftArrowSplashColor,
+                splashFactory: _CustomSplashFactory(),
+                onTap: _backward,
+                child: Semantics(
+                  label: 'Backward',
+                  child: Container(
+                    width: arrowWidth,
+                    height: headerHeight,
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(color: Colors.transparent),
+                    child: Icon(
+                      widget.navigationDirection ==
+                              MonthNavigationDirection.horizontal
+                          ? Icons.chevron_left
+                          : Icons.keyboard_arrow_up,
+                      color: prevArrowColor,
+                      size: arrowSize,
                     ),
                   ),
                 ),
               ),
-            )
-            : Container();
+            ),
+          )
+        : Container();
 
     final Color? rightArrowSplashColor =
         nextArrowColor != arrowColor || !widget.enableInteraction
-            ? Colors.transparent
-            : null;
-    final Container rightArrow =
-        navigationArrowEnabled
-            ? Container(
-              alignment: Alignment.center,
+        ? Colors.transparent
+        : null;
+    final Container rightArrow = navigationArrowEnabled
+        ? Container(
+            alignment: Alignment.center,
+            color: headerBackgroundColor,
+            width: arrowWidth,
+            height: headerHeight,
+            padding: const EdgeInsets.all(2),
+            child: Material(
               color: headerBackgroundColor,
-              width: arrowWidth,
-              height: headerHeight,
-              padding: const EdgeInsets.all(2),
-              child: Material(
-                color: headerBackgroundColor,
-                child: InkWell(
-                  //// set splash color as transparent when arrow reaches max date(disabled)
-                  splashColor: rightArrowSplashColor,
-                  highlightColor: rightArrowSplashColor,
-                  hoverColor: rightArrowSplashColor,
-                  splashFactory: _CustomSplashFactory(),
-                  onTap: _forward,
-                  child: Semantics(
-                    label: 'Forward',
-                    child: Container(
-                      width: arrowWidth,
-                      height: headerHeight,
-                      alignment: Alignment.center,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(
-                        color: Colors.transparent,
-                      ),
-                      child: Icon(
-                        widget.navigationDirection ==
-                                MonthNavigationDirection.horizontal
-                            ? Icons.chevron_right
-                            : Icons.keyboard_arrow_down,
-                        color: nextArrowColor,
-                        size: arrowSize,
-                      ),
+              child: InkWell(
+                //// set splash color as transparent when arrow reaches max date(disabled)
+                splashColor: rightArrowSplashColor,
+                highlightColor: rightArrowSplashColor,
+                hoverColor: rightArrowSplashColor,
+                splashFactory: _CustomSplashFactory(),
+                onTap: _forward,
+                child: Semantics(
+                  label: 'Forward',
+                  child: Container(
+                    width: arrowWidth,
+                    height: headerHeight,
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(color: Colors.transparent),
+                    child: Icon(
+                      widget.navigationDirection ==
+                              MonthNavigationDirection.horizontal
+                          ? Icons.chevron_right
+                          : Icons.keyboard_arrow_down,
+                      color: nextArrowColor,
+                      size: arrowSize,
                     ),
                   ),
                 ),
               ),
-            )
-            : Container();
+            ),
+          )
+        : Container();
 
-    final Color? todaySplashColor =
-        !widget.enableInteraction ? Colors.transparent : null;
-    final Widget todayIcon =
-        widget.showTodayButton
-            ? Container(
-              alignment: Alignment.center,
+    final Color? todaySplashColor = !widget.enableInteraction
+        ? Colors.transparent
+        : null;
+    final Widget todayIcon = widget.showTodayButton
+        ? Container(
+            alignment: Alignment.center,
+            color: headerBackgroundColor,
+            width: todayIconWidth,
+            height: headerHeight,
+            padding: EdgeInsets.all(useMobilePlatformUI ? 2 : 4),
+            child: Material(
               color: headerBackgroundColor,
-              width: todayIconWidth,
-              height: headerHeight,
-              padding: EdgeInsets.all(useMobilePlatformUI ? 2 : 4),
-              child: Material(
-                color: headerBackgroundColor,
-                child: InkWell(
-                  splashColor: todaySplashColor,
-                  highlightColor: todaySplashColor,
-                  hoverColor: todaySplashColor,
-                  splashFactory: _CustomSplashFactory(),
-                  onTap: () {
-                    if (!widget.enableInteraction) {
-                      return;
-                    }
+              child: InkWell(
+                splashColor: todaySplashColor,
+                highlightColor: todaySplashColor,
+                hoverColor: todaySplashColor,
+                splashFactory: _CustomSplashFactory(),
+                onTap: () {
+                  if (!widget.enableInteraction) {
+                    return;
+                  }
 
-                    widget.removePicker();
-                    widget.controller.displayDate = DateTime.now();
-                  },
-                  child: Semantics(
-                    label: todayText,
-                    child:
-                        useMobilePlatformUI
-                            ? Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.transparent,
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              width: todayIconWidth,
-                              height: headerHeight,
-                              alignment: Alignment.center,
-                              child: Icon(
-                                Icons.today,
-                                color: style.color,
-                                size: style.fontSize,
-                              ),
-                            )
-                            : Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color:
-                                      widget.cellBorderColor ??
-                                      widget.calendarTheme.cellBorderColor!,
-                                ),
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              width: todayIconWidth,
-                              alignment: Alignment.center,
-                              child: Text(
-                                todayText,
-                                style: TextStyle(
-                                  color: headerTextColor,
-                                  fontSize: defaultCalendarViewTextSize,
-                                ),
-                                maxLines: 1,
-                                textDirection: TextDirection.ltr,
-                              ),
+                  widget.removePicker();
+                  widget.controller.displayDate = DateTime.now();
+                },
+                child: Semantics(
+                  label: todayText,
+                  child: useMobilePlatformUI
+                      ? Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.transparent,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          width: todayIconWidth,
+                          height: headerHeight,
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.today,
+                            color: style.color,
+                            size: style.fontSize,
+                          ),
+                        )
+                      : Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color:
+                                  widget.cellBorderColor ??
+                                  widget.calendarTheme.cellBorderColor!,
                             ),
-                  ),
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          width: todayIconWidth,
+                          alignment: Alignment.center,
+                          child: Text(
+                            todayText,
+                            style: TextStyle(
+                              color: headerTextColor,
+                              fontSize: defaultCalendarViewTextSize,
+                            ),
+                            maxLines: 1,
+                            textDirection: TextDirection.ltr,
+                          ),
+                        ),
                 ),
               ),
-            )
-            : Container();
+            ),
+          )
+        : Container();
 
     final Widget dividerWidget =
         widget.showTodayButton && isNeedViewSwitchOption && !useMobilePlatformUI
-            ? Container(
-              alignment: Alignment.center,
-              color: headerBackgroundColor,
-              width: dividerWidth,
-              height: headerHeight,
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: const VerticalDivider(color: Colors.grey, thickness: 0.5),
-            )
-            : const SizedBox(width: 0, height: 0);
+        ? Container(
+            alignment: Alignment.center,
+            color: headerBackgroundColor,
+            width: dividerWidth,
+            height: headerHeight,
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: const VerticalDivider(color: Colors.grey, thickness: 0.5),
+          )
+        : const SizedBox(width: 0, height: 0);
 
     List<Widget> rowChildren = <Widget>[];
 
@@ -11526,12 +11451,12 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
   }) {
     final String text = _calendarViews[view]!;
 
-    final Color? calendarViewSplashColor =
-        !widget.enableInteraction ? Colors.transparent : null;
-    final Color? allowedViewsColor =
-        isHighlighted
-            ? highlightColor
-            : widget.cellBorderColor ?? widget.calendarTheme.cellBorderColor;
+    final Color? calendarViewSplashColor = !widget.enableInteraction
+        ? Colors.transparent
+        : null;
+    final Color? allowedViewsColor = isHighlighted
+        ? highlightColor
+        : widget.cellBorderColor ?? widget.calendarTheme.cellBorderColor;
     return Container(
       alignment: Alignment.center,
       color: headerBackgroundColor,
@@ -11539,10 +11464,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       height: height,
       padding: EdgeInsets.all(useMobilePlatformUI ? 2 : 4),
       child: Material(
-        color:
-            isHighlighted && (isNeedIcon || useMobilePlatformUI)
-                ? Colors.grey.withValues(alpha: 0.3)
-                : headerBackgroundColor,
+        color: isHighlighted && (isNeedIcon || useMobilePlatformUI)
+            ? Colors.grey.withValues(alpha: 0.3)
+            : headerBackgroundColor,
         child: InkWell(
           splashColor: calendarViewSplashColor,
           highlightColor: calendarViewSplashColor,
@@ -11561,24 +11485,21 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           },
           child: Semantics(
             label: semanticLabel ?? text,
-            child:
-                useMobilePlatformUI
-                    ? Container(
-                      width: width,
-                      height: height,
-                      alignment: Alignment.center,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(
-                        color: Colors.transparent,
-                      ),
-                      child: Icon(
-                        Icons.more_vert,
-                        color: style.color,
-                        size: style.fontSize,
-                      ),
-                    )
-                    : (isNeedIcon
-                        ? Container(
+            child: useMobilePlatformUI
+                ? Container(
+                    width: width,
+                    height: height,
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(color: Colors.transparent),
+                    child: Icon(
+                      Icons.more_vert,
+                      color: style.color,
+                      size: style.fontSize,
+                    ),
+                  )
+                : (isNeedIcon
+                      ? Container(
                           width: width,
                           height: height,
                           alignment: Alignment.center,
@@ -11614,7 +11535,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                             ],
                           ),
                         )
-                        : Container(
+                      : Container(
                           decoration: BoxDecoration(
                             border: Border.all(color: allowedViewsColor!),
                             borderRadius: BorderRadius.circular(5.0),
@@ -11626,10 +11547,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
                             text,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color:
-                                  isHighlighted
-                                      ? highlightColor
-                                      : headerTextColor,
+                              color: isHighlighted
+                                  ? highlightColor
+                                  : headerTextColor,
                               fontSize: defaultCalendarViewTextSize,
                             ),
                             maxLines: 1,
@@ -11693,12 +11613,11 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
     String monthFormat = 'MMMM';
     final String? headerDateFormat =
         widget.headerDateFormat != null && widget.headerDateFormat!.isNotEmpty
-            ? widget.headerDateFormat
-            : null;
-    final List<String> headerFormatString =
-        headerDateFormat == null
-            ? <String>[]
-            : CalendarViewHelper.getListFromString(headerDateFormat);
+        ? widget.headerDateFormat
+        : null;
+    final List<String> headerFormatString = headerDateFormat == null
+        ? <String>[]
+        : CalendarViewHelper.getListFromString(headerDateFormat);
     final int visibleDatesCount = DateTimeHelper.getViewDatesCount(
       widget.view,
       widget.numberOfDaysInView,
@@ -12220,8 +12139,9 @@ class _AppointmentViewHeaderRenderObject extends RenderStack {
     final double headerSize = headerView.size.height;
 
     /// Current view position on scroll view.
-    final double viewPosition =
-        _stackViewPort.getOffsetToReveal(this, 0).offset;
+    final double viewPosition = _stackViewPort
+        .getOffsetToReveal(this, 0)
+        .offset;
 
     /// Calculate the current view offset by view position on scroll view,
     /// scrolled position and scroll view view port.
@@ -12269,8 +12189,9 @@ class _AppointmentViewHeaderRenderObject extends RenderStack {
   /// Check current header offset exits content size, if exist then place the
   /// header at content size.
   double _getCurrentOffset(double currentOffset, double contentSize) {
-    final double currentHeaderPosition =
-        -currentOffset > contentSize ? contentSize : -currentOffset;
+    final double currentHeaderPosition = -currentOffset > contentSize
+        ? contentSize
+        : -currentOffset;
     return currentHeaderPosition > 0 ? currentHeaderPosition : 0;
   }
 
@@ -12421,10 +12342,9 @@ class _CustomSplash extends InteractiveInkFeature {
     /// Calculate the ripple animation duration from its radius value and start
     /// the animation.
     Duration duration = Duration(milliseconds: (_targetRadius * 10).floor());
-    duration =
-        duration > _kUnconfirmedRippleSplashDuration
-            ? _kUnconfirmedRippleSplashDuration
-            : duration;
+    duration = duration > _kUnconfirmedRippleSplashDuration
+        ? _kUnconfirmedRippleSplashDuration
+        : duration;
     _radiusController
       ..duration = duration
       ..forward();
@@ -12607,20 +12527,18 @@ class _AgendaDateTimePainter extends CustomPainter {
             todayTextStyle,
             calendarTheme,
           );
-      dayTextStyle =
-          todayTextStyle != null
-              ? calendarTheme.todayTextStyle!.copyWith(
-                fontSize: dayTextStyle.fontSize,
-                color: todayTextColor,
-              )
-              : dayTextStyle.copyWith(color: todayTextColor);
-      dateTextStyle =
-          todayTextStyle != null
-              ? calendarTheme.todayTextStyle!.copyWith(
-                fontSize: dateTextStyle.fontSize,
-                color: todayTextStyleColor,
-              )
-              : dateTextStyle.copyWith(color: todayTextStyleColor);
+      dayTextStyle = todayTextStyle != null
+          ? calendarTheme.todayTextStyle!.copyWith(
+              fontSize: dayTextStyle.fontSize,
+              color: todayTextColor,
+            )
+          : dayTextStyle.copyWith(color: todayTextColor);
+      dateTextStyle = todayTextStyle != null
+          ? calendarTheme.todayTextStyle!.copyWith(
+              fontSize: dateTextStyle.fontSize,
+              color: todayTextStyleColor,
+            )
+          : dateTextStyle.copyWith(color: todayTextStyleColor);
     }
 
     /// Draw day label other than web schedule view.
@@ -12665,13 +12583,14 @@ class _AgendaDateTimePainter extends CustomPainter {
     bool isMobile,
   ) {
     //// Draw Weekday
-    final String dayTextFormat =
-        scheduleViewSettings != null
-            ? scheduleViewSettings!.dayHeaderSettings.dayFormat
-            : 'EEE';
+    final String dayTextFormat = scheduleViewSettings != null
+        ? scheduleViewSettings!.dayHeaderSettings.dayFormat
+        : 'EEE';
     TextSpan span = TextSpan(
-      text:
-          DateFormat(dayTextFormat, locale).format(selectedDate!).toUpperCase(),
+      text: DateFormat(
+        dayTextFormat,
+        locale,
+      ).format(selectedDate!).toUpperCase(),
       style: dayTextStyle,
     );
     _updateTextPainter(span);
@@ -12716,13 +12635,12 @@ class _AgendaDateTimePainter extends CustomPainter {
           yPosition < agendaDateNotifier.value!.hoveringOffset.dy &&
           yPosition + _textPainter.height >
               agendaDateNotifier.value!.hoveringOffset.dy) {
-        _linePainter.color =
-            isToday
-                ? Colors.black.withValues(alpha: 0.1)
-                : (themeData.brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black87)
-                    .withValues(alpha: 0.04);
+        _linePainter.color = isToday
+            ? Colors.black.withValues(alpha: 0.1)
+            : (themeData.brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black87)
+                  .withValues(alpha: 0.04);
         _drawTodayCircle(canvas, xPosition, yPosition, padding);
       }
     }
@@ -12743,13 +12661,12 @@ class _AgendaDateTimePainter extends CustomPainter {
 
     /// Calculate the date text maximum width value.
     const String maxWidthDateText = '30';
-    final String dayText =
-        DateFormat(
-          isRTL
-              ? '${scheduleViewSettings!.dayHeaderSettings.dayFormat}, MMM'
-              : 'MMM, ${scheduleViewSettings!.dayHeaderSettings.dayFormat}',
-          locale,
-        ).format(selectedDate!).toUpperCase();
+    final String dayText = DateFormat(
+      isRTL
+          ? '${scheduleViewSettings!.dayHeaderSettings.dayFormat}, MMM'
+          : 'MMM, ${scheduleViewSettings!.dayHeaderSettings.dayFormat}',
+      locale,
+    ).format(selectedDate!).toUpperCase();
 
     //// Draw Weekday
     TextSpan span = TextSpan(text: maxWidthDateText, style: dateTextStyle);
@@ -12789,13 +12706,12 @@ class _AgendaDateTimePainter extends CustomPainter {
           yPosition < agendaDateNotifier.value!.hoveringOffset.dy &&
           (yPosition + _textPainter.height) >
               agendaDateNotifier.value!.hoveringOffset.dy) {
-        _linePainter.color =
-            isToday
-                ? Colors.black.withValues(alpha: 0.1)
-                : (themeData.brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black87)
-                    .withValues(alpha: 0.04);
+        _linePainter.color = isToday
+            ? Colors.black.withValues(alpha: 0.1)
+            : (themeData.brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black87)
+                  .withValues(alpha: 0.04);
         _drawTodayCircle(canvas, dateTextStartPosition, yPosition, padding);
       }
     }
@@ -12908,8 +12824,9 @@ double _getTargetRadius(
     return Material.defaultSplashRadius;
   }
 
-  final Size size =
-      rectCallback != null ? rectCallback().size : referenceBox.size;
+  final Size size = rectCallback != null
+      ? rectCallback().size
+      : referenceBox.size;
   final double d1 = (position - size.topLeft(Offset.zero)).distance;
   final double d2 = (position - size.topRight(Offset.zero)).distance;
   final double d3 = (position - size.bottomLeft(Offset.zero)).distance;

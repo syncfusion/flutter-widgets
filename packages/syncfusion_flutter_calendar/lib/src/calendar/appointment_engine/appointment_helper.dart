@@ -158,8 +158,9 @@ class AppointmentHelper {
     double textSize,
     bool isRecurrenceAppointment,
   ) {
-    final IconData recurrenceIconData =
-        isRecurrenceAppointment ? Icons.autorenew : Icons.sync_disabled;
+    final IconData recurrenceIconData = isRecurrenceAppointment
+        ? Icons.autorenew
+        : Icons.sync_disabled;
     return TextSpan(
       text: String.fromCharCode(recurrenceIconData.codePoint),
       style: TextStyle(
@@ -676,22 +677,18 @@ class AppointmentHelper {
     final bool isTimelineMonth = view == CalendarView.timelineMonth;
     int minimumAppointmentMinutes =
         calendar.timeSlotViewSettings.minimumAppointmentDuration != null
-            ? calendar
-                .timeSlotViewSettings
-                .minimumAppointmentDuration!
-                .inMinutes
-            : 0;
-    minimumAppointmentMinutes =
-        minimumAppointmentMinutes > timeIntervalMinutes
-            ? timeIntervalMinutes
-            : minimumAppointmentMinutes;
+        ? calendar.timeSlotViewSettings.minimumAppointmentDuration!.inMinutes
+        : 0;
+    minimumAppointmentMinutes = minimumAppointmentMinutes > timeIntervalMinutes
+        ? timeIntervalMinutes
+        : minimumAppointmentMinutes;
     if (minimumAppointmentMinutes > 0 && !isTimelineMonth) {
       final int timeIntervalMinutes =
           calendar.timeSlotViewSettings.timeInterval.inMinutes;
       minimumAppointmentMinutes =
           minimumAppointmentMinutes > timeIntervalMinutes
-              ? timeIntervalMinutes
-              : minimumAppointmentMinutes;
+          ? timeIntervalMinutes
+          : minimumAppointmentMinutes;
       if (getDifference(
             currentAppointmentStartTime,
             currentAppointmentEndTime,
@@ -848,13 +845,12 @@ class AppointmentHelper {
     int? resourceIndex,
   ]) {
     final bool isTimeline = CalendarViewHelper.isTimelineView(view);
-    final List<CalendarAppointment> normalAppointments =
-        visibleAppointments
-            .where(
-              (CalendarAppointment app) =>
-                  _iterateAppointment(app, isTimeline, isAllDay),
-            )
-            .toList();
+    final List<CalendarAppointment> normalAppointments = visibleAppointments
+        .where(
+          (CalendarAppointment app) =>
+              _iterateAppointment(app, isTimeline, isAllDay),
+        )
+        .toList();
     normalAppointments.sort(
       (CalendarAppointment app1, CalendarAppointment app2) =>
           app1.actualStartTime.compareTo(app2.actualStartTime),
@@ -956,18 +952,14 @@ class AppointmentHelper {
           intersectingApps = <AppointmentView>[];
           dict[dict.keys.length] = intersectingApps;
         } else if (intersectingApps.isNotEmpty) {
-          position =
-              intersectingApps
-                  .reduce(
-                    (
-                      AppointmentView currentAppview,
-                      AppointmentView nextAppview,
-                    ) =>
-                        currentAppview.maxPositions > nextAppview.maxPositions
-                            ? currentAppview
-                            : nextAppview,
-                  )
-                  .maxPositions;
+          position = intersectingApps
+              .reduce(
+                (AppointmentView currentAppview, AppointmentView nextAppview) =>
+                    currentAppview.maxPositions > nextAppview.maxPositions
+                    ? currentAppview
+                    : nextAppview,
+              )
+              .maxPositions;
         }
 
         intersectingApps.add(currentAppView);
@@ -985,18 +977,14 @@ class AppointmentHelper {
           intersectingApps = <AppointmentView>[];
           dict[dict.keys.length] = intersectingApps;
         } else if (intersectingApps.isNotEmpty) {
-          maxPosition =
-              intersectingApps
-                  .reduce(
-                    (
-                      AppointmentView currentAppview,
-                      AppointmentView nextAppview,
-                    ) =>
-                        currentAppview.maxPositions > nextAppview.maxPositions
-                            ? currentAppview
-                            : nextAppview,
-                  )
-                  .maxPositions;
+          maxPosition = intersectingApps
+              .reduce(
+                (AppointmentView currentAppview, AppointmentView nextAppview) =>
+                    currentAppview.maxPositions > nextAppview.maxPositions
+                    ? currentAppview
+                    : nextAppview,
+              )
+              .maxPositions;
 
           if (currentAppView.position == maxPosition) {
             maxPosition++;
@@ -1227,22 +1215,20 @@ class AppointmentHelper {
                 );
               }
 
-              spannedAppointment.startTime =
-                  spannedAppointment.isAllDay
-                      ? appointment.actualStartTime
-                      : convertTimeToAppointmentTimeZone(
-                        appointment.actualStartTime,
-                        calendarTimeZone,
-                        appointment.startTimeZone,
-                      );
-              spannedAppointment.endTime =
-                  spannedAppointment.isAllDay
-                      ? appointment.actualEndTime
-                      : convertTimeToAppointmentTimeZone(
-                        appointment.actualEndTime,
-                        calendarTimeZone,
-                        appointment.endTimeZone,
-                      );
+              spannedAppointment.startTime = spannedAppointment.isAllDay
+                  ? appointment.actualStartTime
+                  : convertTimeToAppointmentTimeZone(
+                      appointment.actualStartTime,
+                      calendarTimeZone,
+                      appointment.startTimeZone,
+                    );
+              spannedAppointment.endTime = spannedAppointment.isAllDay
+                  ? appointment.actualEndTime
+                  : convertTimeToAppointmentTimeZone(
+                      appointment.actualEndTime,
+                      calendarTimeZone,
+                      appointment.endTimeZone,
+                    );
 
               // Adding Spanned Appointment only when the Appointment range
               // within the VisibleDate
@@ -1299,22 +1285,20 @@ class AppointmentHelper {
                   );
                 }
 
-                spannedAppointment.startTime =
-                    spannedAppointment.isAllDay
-                        ? appointment.actualStartTime
-                        : convertTimeToAppointmentTimeZone(
-                          appointment.actualStartTime,
-                          calendarTimeZone,
-                          appointment.startTimeZone,
-                        );
-                spannedAppointment.endTime =
-                    spannedAppointment.isAllDay
-                        ? appointment.actualEndTime
-                        : convertTimeToAppointmentTimeZone(
-                          appointment.actualEndTime,
-                          calendarTimeZone,
-                          appointment.endTimeZone,
-                        );
+                spannedAppointment.startTime = spannedAppointment.isAllDay
+                    ? appointment.actualStartTime
+                    : convertTimeToAppointmentTimeZone(
+                        appointment.actualStartTime,
+                        calendarTimeZone,
+                        appointment.startTimeZone,
+                      );
+                spannedAppointment.endTime = spannedAppointment.isAllDay
+                    ? appointment.actualEndTime
+                    : convertTimeToAppointmentTimeZone(
+                        appointment.actualEndTime,
+                        calendarTimeZone,
+                        appointment.endTimeZone,
+                      );
 
                 // Adding Spanned Appointment only when the Appointment range
                 // within the VisibleDate
@@ -1360,22 +1344,20 @@ class AppointmentHelper {
                   );
                 }
 
-                spannedAppointment.startTime =
-                    spannedAppointment.isAllDay
-                        ? appointment.actualStartTime
-                        : convertTimeToAppointmentTimeZone(
-                          appointment.actualStartTime,
-                          calendarTimeZone,
-                          appointment.startTimeZone,
-                        );
-                spannedAppointment.endTime =
-                    spannedAppointment.isAllDay
-                        ? appointment.actualEndTime
-                        : convertTimeToAppointmentTimeZone(
-                          appointment.actualEndTime,
-                          calendarTimeZone,
-                          appointment.endTimeZone,
-                        );
+                spannedAppointment.startTime = spannedAppointment.isAllDay
+                    ? appointment.actualStartTime
+                    : convertTimeToAppointmentTimeZone(
+                        appointment.actualStartTime,
+                        calendarTimeZone,
+                        appointment.startTimeZone,
+                      );
+                spannedAppointment.endTime = spannedAppointment.isAllDay
+                    ? appointment.actualEndTime
+                    : convertTimeToAppointmentTimeZone(
+                        appointment.actualEndTime,
+                        calendarTimeZone,
+                        appointment.endTimeZone,
+                      );
 
                 // Adding Spanned Appointment only when the Appointment range
                 // within the VisibleDate
@@ -1441,22 +1423,20 @@ class AppointmentHelper {
                   );
                 }
 
-                spannedAppointment.startTime =
-                    spannedAppointment.isAllDay
-                        ? appointment.actualStartTime
-                        : convertTimeToAppointmentTimeZone(
-                          appointment.actualStartTime,
-                          calendarTimeZone,
-                          appointment.startTimeZone,
-                        );
-                spannedAppointment.endTime =
-                    spannedAppointment.isAllDay
-                        ? appointment.actualEndTime
-                        : convertTimeToAppointmentTimeZone(
-                          appointment.actualEndTime,
-                          calendarTimeZone,
-                          appointment.endTimeZone,
-                        );
+                spannedAppointment.startTime = spannedAppointment.isAllDay
+                    ? appointment.actualStartTime
+                    : convertTimeToAppointmentTimeZone(
+                        appointment.actualStartTime,
+                        calendarTimeZone,
+                        appointment.startTimeZone,
+                      );
+                spannedAppointment.endTime = spannedAppointment.isAllDay
+                    ? appointment.actualEndTime
+                    : convertTimeToAppointmentTimeZone(
+                        appointment.actualEndTime,
+                        calendarTimeZone,
+                        appointment.endTimeZone,
+                      );
 
                 // Adding Spanned Appointment only when the Appointment range
                 // within the VisibleDate
@@ -1490,34 +1470,31 @@ class AppointmentHelper {
   ) {
     final CalendarAppointment occurrenceAppointment = _copy(appointment);
     occurrenceAppointment.actualStartTime = recursiveDate;
-    occurrenceAppointment.startTime =
-        occurrenceAppointment.isAllDay
-            ? occurrenceAppointment.actualStartTime
-            : convertTimeToAppointmentTimeZone(
-              occurrenceAppointment.actualStartTime,
-              calendarTimeZone,
-              occurrenceAppointment.startTimeZone,
-            );
+    occurrenceAppointment.startTime = occurrenceAppointment.isAllDay
+        ? occurrenceAppointment.actualStartTime
+        : convertTimeToAppointmentTimeZone(
+            occurrenceAppointment.actualStartTime,
+            calendarTimeZone,
+            occurrenceAppointment.startTimeZone,
+          );
 
-    final int minutes =
-        getDifference(
-          appointment.actualStartTime,
-          appointment.actualEndTime,
-        ).inMinutes;
+    final int minutes = getDifference(
+      appointment.actualStartTime,
+      appointment.actualEndTime,
+    ).inMinutes;
     occurrenceAppointment.actualEndTime = DateTimeHelper.getDateTimeValue(
       addDuration(
         occurrenceAppointment.actualStartTime,
         Duration(minutes: minutes),
       ),
     );
-    occurrenceAppointment.endTime =
-        occurrenceAppointment.isAllDay
-            ? occurrenceAppointment.actualEndTime
-            : convertTimeToAppointmentTimeZone(
-              occurrenceAppointment.actualEndTime,
-              calendarTimeZone,
-              occurrenceAppointment.endTimeZone,
-            );
+    occurrenceAppointment.endTime = occurrenceAppointment.isAllDay
+        ? occurrenceAppointment.actualEndTime
+        : convertTimeToAppointmentTimeZone(
+            occurrenceAppointment.actualEndTime,
+            calendarTimeZone,
+            occurrenceAppointment.endTimeZone,
+          );
     occurrenceAppointment.isSpanned =
         _isSpanned(occurrenceAppointment) &&
         getDifference(
@@ -1560,22 +1537,20 @@ class AppointmentHelper {
         final DateTime appStartTime = item.startTime;
         final DateTime appEndTime = item.endTime;
         item.data = item;
-        item.actualStartTime =
-            !item.isAllDay
-                ? convertTimeToAppointmentTimeZone(
-                  item.startTime,
-                  item.startTimeZone,
-                  calendarTimeZone,
-                )
-                : item.startTime;
-        item.actualEndTime =
-            !item.isAllDay
-                ? convertTimeToAppointmentTimeZone(
-                  item.endTime,
-                  item.endTimeZone,
-                  calendarTimeZone,
-                )
-                : item.endTime;
+        item.actualStartTime = !item.isAllDay
+            ? convertTimeToAppointmentTimeZone(
+                item.startTime,
+                item.startTimeZone,
+                calendarTimeZone,
+              )
+            : item.startTime;
+        item.actualEndTime = !item.isAllDay
+            ? convertTimeToAppointmentTimeZone(
+                item.endTime,
+                item.endTimeZone,
+                calendarTimeZone,
+              )
+            : item.endTime;
         _updateTimeForInvalidEndTime(item, calendarTimeZone);
         calendarAppointmentCollection.add(item);
 
@@ -1650,22 +1625,20 @@ class AppointmentHelper {
     }
 
     app.data = appointmentObject;
-    app.actualStartTime =
-        !app.isAllDay
-            ? convertTimeToAppointmentTimeZone(
-              app.startTime,
-              app.startTimeZone,
-              calendarTimeZone,
-            )
-            : app.startTime;
-    app.actualEndTime =
-        !app.isAllDay
-            ? convertTimeToAppointmentTimeZone(
-              app.endTime,
-              app.endTimeZone,
-              calendarTimeZone,
-            )
-            : app.endTime;
+    app.actualStartTime = !app.isAllDay
+        ? convertTimeToAppointmentTimeZone(
+            app.startTime,
+            app.startTimeZone,
+            calendarTimeZone,
+          )
+        : app.startTime;
+    app.actualEndTime = !app.isAllDay
+        ? convertTimeToAppointmentTimeZone(
+            app.endTime,
+            app.endTimeZone,
+            calendarTimeZone,
+          )
+        : app.endTime;
     _updateTimeForInvalidEndTime(app, calendarTimeZone);
     return app;
   }
@@ -1681,14 +1654,13 @@ class AppointmentHelper {
         scheduleTimeZone,
         appointment.endTimeZone,
       );
-      appointment.actualEndTime =
-          !appointment.isAllDay
-              ? convertTimeToAppointmentTimeZone(
-                appointment.endTime,
-                appointment.endTimeZone,
-                scheduleTimeZone,
-              )
-              : appointment.endTime;
+      appointment.actualEndTime = !appointment.isAllDay
+          ? convertTimeToAppointmentTimeZone(
+              appointment.endTime,
+              appointment.endTimeZone,
+              scheduleTimeZone,
+            )
+          : appointment.endTime;
     }
   }
 
@@ -1779,11 +1751,11 @@ class AppointmentHelper {
       /// here we identify based on the string and removed the appended string.
       occurrenceAppointment.notes =
           recDates.isNotEmpty &&
-                  isSameDate(occurrenceAppointment.startTime, recDates[0])
-              ? appointment.notes
-              : appointment.notes == null
-              ? 'isOccurrenceAppointment'
-              : '${appointment.notes!}isOccurrenceAppointment';
+              isSameDate(occurrenceAppointment.startTime, recDates[0])
+          ? appointment.notes
+          : appointment.notes == null
+          ? 'isOccurrenceAppointment'
+          : '${appointment.notes!}isOccurrenceAppointment';
       appointments.add(occurrenceAppointment);
     }
   }

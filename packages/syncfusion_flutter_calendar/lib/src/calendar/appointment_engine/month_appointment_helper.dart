@@ -227,14 +227,12 @@ class MonthAppointmentHelper {
     final CalendarAppointment appointment2 = appointmentView2.appointment!;
 
     /// Calculate the both appointment start time based on isAllDay property.
-    final DateTime startTime1 =
-        appointment1.isAllDay
-            ? AppointmentHelper.convertToStartTime(appointment1.exactStartTime)
-            : appointment1.exactStartTime;
-    final DateTime startTime2 =
-        appointment2.isAllDay
-            ? AppointmentHelper.convertToStartTime(appointment2.exactStartTime)
-            : appointment2.exactStartTime;
+    final DateTime startTime1 = appointment1.isAllDay
+        ? AppointmentHelper.convertToStartTime(appointment1.exactStartTime)
+        : appointment1.exactStartTime;
+    final DateTime startTime2 = appointment2.isAllDay
+        ? AppointmentHelper.convertToStartTime(appointment2.exactStartTime)
+        : appointment2.exactStartTime;
 
     /// Check if both the appointments does not starts with same date then
     /// order the appointment based on its start time value.
@@ -247,14 +245,12 @@ class MonthAppointmentHelper {
       return startTime1.compareTo(startTime2);
     }
 
-    final DateTime endTime1 =
-        appointment1.isAllDay
-            ? AppointmentHelper.convertToEndTime(appointment1.exactEndTime)
-            : appointment1.exactEndTime;
-    final DateTime endTime2 =
-        appointment2.isAllDay
-            ? AppointmentHelper.convertToEndTime(appointment2.exactEndTime)
-            : appointment2.exactEndTime;
+    final DateTime endTime1 = appointment1.isAllDay
+        ? AppointmentHelper.convertToEndTime(appointment1.exactEndTime)
+        : appointment1.exactEndTime;
+    final DateTime endTime2 = appointment2.isAllDay
+        ? AppointmentHelper.convertToEndTime(appointment2.exactEndTime)
+        : appointment2.exactEndTime;
 
     /// Check both the appointments have same start and end time then sort the
     /// appointments based on start time value.

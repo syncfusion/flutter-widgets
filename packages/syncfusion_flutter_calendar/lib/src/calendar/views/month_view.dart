@@ -935,8 +935,9 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     double cellHeight,
     double yPosition,
   ) {
-    final String weekNumber =
-        DateTimeHelper.getWeekNumberOfYear(date).toString();
+    final String weekNumber = DateTimeHelper.getWeekNumberOfYear(
+      date,
+    ).toString();
     double xPosition = isRTL ? size.width - weekNumberPanelWidth : 0;
     final TextStyle weekNumberTextStyle = calendarTheme.weekNumberTextStyle!;
     final TextSpan textSpan = TextSpan(
@@ -1001,24 +1002,21 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     final double cellWidth =
         (size.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
     final double cellHeight = size.height / rowCount;
-    double xPosition =
-        isRTL
-            ? size.width - cellWidth - weekNumberPanelWidth
-            : weekNumberPanelWidth;
+    double xPosition = isRTL
+        ? size.width - cellWidth - weekNumberPanelWidth
+        : weekNumberPanelWidth;
     double yPosition = viewPadding;
     _textPainter.textDirection = TextDirection.ltr;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
     _textPainter.textScaler = TextScaler.linear(textScaleFactor);
     final int visibleDatesCount = visibleDates.length;
     final DateTime currentMonthDate = visibleDates[visibleDatesCount ~/ 2];
-    final int nextMonth =
-        DateTimeHelper.getDateTimeValue(
-          getNextMonthDate(currentMonthDate),
-        ).month;
-    final int previousMonth =
-        DateTimeHelper.getDateTimeValue(
-          getPreviousMonthDate(currentMonthDate),
-        ).month;
+    final int nextMonth = DateTimeHelper.getDateTimeValue(
+      getNextMonthDate(currentMonthDate),
+    ).month;
+    final int previousMonth = DateTimeHelper.getDateTimeValue(
+      getPreviousMonthDate(currentMonthDate),
+    ).month;
     final DateTime today = DateTime.now();
     bool isCurrentDate;
 
@@ -1030,12 +1028,11 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     final TextStyle nextMonthTextStyle = calendarTheme.leadingDatesTextStyle!;
     final TextStyle? blackoutDatesStyle = calendarTheme.blackoutDatesTextStyle;
     final TextStyle disabledTextStyle = currentMonthTextStyle.copyWith(
-      color:
-          currentMonthTextStyle.color != null
-              ? currentMonthTextStyle.color!.withValues(alpha: 0.38)
-              : themeData.brightness == Brightness.light
-              ? Colors.black26
-              : Colors.white38,
+      color: currentMonthTextStyle.color != null
+          ? currentMonthTextStyle.color!.withValues(alpha: 0.38)
+          : themeData.brightness == Brightness.light
+          ? Colors.black26
+          : Colors.white38,
     );
 
     final bool showTrailingLeadingDates =
@@ -1301,8 +1298,9 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     _linePainter.strokeWidth = linePadding;
     _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor!;
     xPosition = isRTL ? 0 : weekNumberPanelWidth;
-    final double finalXPosition =
-        isRTL ? size.width - weekNumberPanelWidth : size.width;
+    final double finalXPosition = isRTL
+        ? size.width - weekNumberPanelWidth
+        : size.width;
     canvas.drawLine(
       Offset(xPosition, linePadding),
       Offset(finalXPosition, linePadding),
@@ -1313,16 +1311,16 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
         Offset(
           isMobilePlatform
               ? isRTL
-                  ? 0
-                  : weekNumberPanelWidth
+                    ? 0
+                    : weekNumberPanelWidth
               : 0,
           yPosition,
         ),
         Offset(
           isMobilePlatform
               ? isRTL
-                  ? size.width - weekNumberPanelWidth
-                  : size.width
+                    ? size.width - weekNumberPanelWidth
+                    : size.width
               : size.width,
           yPosition,
         ),
@@ -1336,8 +1334,9 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
       Offset(size.width, size.height - linePadding),
       _linePainter,
     );
-    xPosition =
-        weekNumberPanelWidth != 0 && !isRTL ? weekNumberPanelWidth : cellWidth;
+    xPosition = weekNumberPanelWidth != 0 && !isRTL
+        ? weekNumberPanelWidth
+        : cellWidth;
     canvas.drawLine(
       const Offset(linePadding, 0),
       Offset(linePadding, size.height),
@@ -1380,10 +1379,9 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
 
     final double cellWidth =
         (size.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
-    double left =
-            isRTL
-                ? size.width - cellWidth - weekNumberPanelWidth
-                : weekNumberPanelWidth,
+    double left = isRTL
+            ? size.width - cellWidth - weekNumberPanelWidth
+            : weekNumberPanelWidth,
         top = 0;
     final double cellHeight = size.height / rowCount;
     final bool showTrailingLeadingDates =

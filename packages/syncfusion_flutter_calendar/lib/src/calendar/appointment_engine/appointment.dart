@@ -85,10 +85,9 @@ class Appointment with Diagnosticable {
     this.subject = '',
     this.color = Colors.lightBlue,
     this.recurrenceExceptionDates,
-  }) : notes =
-           notes != null && notes.contains('isOccurrenceAppointment')
-               ? notes.replaceAll('isOccurrenceAppointment', '')
-               : notes,
+  }) : notes = notes != null && notes.contains('isOccurrenceAppointment')
+           ? notes.replaceAll('isOccurrenceAppointment', '')
+           : notes,
        _notes = notes {
     recurrenceRule = recurrenceId != null ? null : recurrenceRule;
     _appointmentType = _getAppointmentType();

@@ -234,8 +234,8 @@ class _AgendaViewLayoutState extends State<AgendaViewLayout> {
           appointment.isSpanned;
       final double appointmentHeight =
           (appointment.isAllDay || isSpanned) && !isLargerScheduleUI
-              ? agendaAllDayItemHeight
-              : agendaItemHeight;
+          ? agendaAllDayItemHeight
+          : agendaItemHeight;
       final Rect rect = Rect.fromLTWH(
         padding,
         yPosition,
@@ -802,10 +802,9 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
     final List<SemanticsNode> semanticsNodes = <SemanticsNode>[];
     for (int i = 0; i < semantics.length; i++) {
       final CustomPainterSemantics currentSemantics = semantics[i];
-      final SemanticsNode newChild =
-          _cacheNodes!.isNotEmpty
-              ? _cacheNodes!.removeAt(0)
-              : SemanticsNode(key: currentSemantics.key);
+      final SemanticsNode newChild = _cacheNodes!.isNotEmpty
+          ? _cacheNodes!.removeAt(0)
+          : SemanticsNode(key: currentSemantics.key);
 
       final SemanticsProperties properties = currentSemantics.properties;
       final SemanticsConfiguration config = SemanticsConfiguration();
@@ -921,26 +920,25 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       return;
     }
 
-    final TextStyle appointmentTextStyle =
-        monthViewSettings != null
-            ? themeData.textTheme.bodyMedium!
-                .copyWith(color: Colors.white, fontSize: 13)
-                .merge(monthViewSettings!.agendaStyle.appointmentTextStyle)
-            : themeData.textTheme.bodyMedium!
-                .copyWith(
-                  color:
-                      isLargerScheduleUI &&
-                              themeData.brightness == Brightness.light
-                          ? Colors.black87
-                          : Colors.white,
-                  fontSize: 13,
-                )
-                .merge(scheduleViewSettings!.appointmentTextStyle);
+    final TextStyle appointmentTextStyle = monthViewSettings != null
+        ? themeData.textTheme.bodyMedium!
+              .copyWith(color: Colors.white, fontSize: 13)
+              .merge(monthViewSettings!.agendaStyle.appointmentTextStyle)
+        : themeData.textTheme.bodyMedium!
+              .copyWith(
+                color:
+                    isLargerScheduleUI &&
+                        themeData.brightness == Brightness.light
+                    ? Colors.black87
+                    : Colors.white,
+                fontSize: 13,
+              )
+              .merge(scheduleViewSettings!.appointmentTextStyle);
 
     final List<String> appointmentStringFormats =
         appointmentTimeTextFormat == null
-            ? <String>[]
-            : CalendarViewHelper.getListFromString(appointmentTimeTextFormat!);
+        ? <String>[]
+        : CalendarViewHelper.getListFromString(appointmentTimeTextFormat!);
     final List<String> sameDateAppointmentStringFormats =
         CalendarViewHelper.getListFromString('hh:mm a');
     final List<String> diffDateAppointmentStringFormats =
@@ -973,8 +971,9 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
         style: appointmentTextStyle,
       );
       _updateTextPainterProperties(span);
-      double timeWidth =
-          isLargerScheduleUI ? (size.width - (2 * padding)) * 0.3 : 0;
+      double timeWidth = isLargerScheduleUI
+          ? (size.width - (2 * padding)) * 0.3
+          : 0;
       timeWidth = timeWidth > 200 ? 200 : timeWidth;
       xPosition += timeWidth;
 
@@ -1127,12 +1126,11 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
     // The value taken from framework, for text style when there is no font
     // size given they have used 14 as the default font size.
     const double defaultFontSize = 14;
-    final double textSize =
-        isMobilePlatform
-            ? appointmentTextStyle.fontSize ?? defaultFontSize
-            : appointmentTextStyle.fontSize != null
-            ? appointmentTextStyle.fontSize! * 1.5
-            : defaultFontSize * 1.5;
+    final double textSize = isMobilePlatform
+        ? appointmentTextStyle.fontSize ?? defaultFontSize
+        : appointmentTextStyle.fontSize != null
+        ? appointmentTextStyle.fontSize! * 1.5
+        : defaultFontSize * 1.5;
     if (rect.width < textSize || rect.height < textSize) {
       return rect.width > rect.height ? rect.height : rect.width;
     }
@@ -1230,8 +1228,8 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
 
     /// Top and bottom padding 5
     const double verticalPadding = 10;
-    final int maxLines =
-        ((appointmentHeight - verticalPadding) / lineHeight).floor();
+    final int maxLines = ((appointmentHeight - verticalPadding) / lineHeight)
+        .floor();
     if (maxLines > 1) {
       _textPainter.maxLines = isSpanned || isAllDay ? maxLines : maxLines - 1;
     }
@@ -1274,15 +1272,11 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       Offset(xPosition + padding, yPosition + topPadding),
     );
 
-    final List<String> format =
-        appointmentFormatString.isEmpty
-            ? (isSameDate(
-                  appointment.actualStartTime,
-                  appointment.actualEndTime,
-                )
-                ? sameDateAppointmentFormatString
-                : diffDateAppointmentFormatString)
-            : appointmentFormatString;
+    final List<String> format = appointmentFormatString.isEmpty
+        ? (isSameDate(appointment.actualStartTime, appointment.actualEndTime)
+              ? sameDateAppointmentFormatString
+              : diffDateAppointmentFormatString)
+        : appointmentFormatString;
     final String startDateText = CalendarViewHelper.getLocalizedString(
       appointment.actualStartTime,
       format,
@@ -1339,8 +1333,10 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
 
     _updateTextPainterProperties(span);
     _updatePainterLinesCount(appointmentHeight, isSpanned: true);
-    final bool isNeedSpanIcon =
-        !isSameDate(appointment.exactEndTime, selectedDate);
+    final bool isNeedSpanIcon = !isSameDate(
+      appointment.exactEndTime,
+      selectedDate,
+    );
     final double textSize = _getTextSize(
       rect,
       appointmentTextStyle,
@@ -1399,10 +1395,9 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
     double padding,
   ) {
     final TextSpan span = TextSpan(
-      text:
-          selectedDate == null
-              ? localizations.noSelectedDateCalendarLabel
-              : localizations.noEventsCalendarLabel,
+      text: selectedDate == null
+          ? localizations.noSelectedDateCalendarLabel
+          : localizations.noEventsCalendarLabel,
       style: themeData.textTheme.bodyMedium!.merge(placeholderTextStyle),
     );
 
@@ -1443,8 +1438,9 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
   ) {
     _textPainter.textScaler = TextScaler.linear(textScaleFactor);
     final double centerYPosition = appointmentHeight / 2;
-    final double circleRadius =
-        centerYPosition > padding ? padding : centerYPosition - 2;
+    final double circleRadius = centerYPosition > padding
+        ? padding
+        : centerYPosition - 2;
     final double circleStartPosition = offset.dx + (3 * circleRadius);
     canvas.drawCircle(
       Offset(
@@ -1485,10 +1481,9 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       canvas,
       Offset(xPosition + padding, yPosition + topPadding),
     );
-    final List<String> format =
-        appointmentFormatString.isEmpty
-            ? sameDateAppointmentFormatString
-            : appointmentFormatString;
+    final List<String> format = appointmentFormatString.isEmpty
+        ? sameDateAppointmentFormatString
+        : appointmentFormatString;
     final String startDateText = CalendarViewHelper.getLocalizedString(
       appointment.actualStartTime,
       format,
@@ -1500,10 +1495,9 @@ class _AgendaViewRenderObject extends CustomCalendarRenderObject {
       locale,
     );
     final TextSpan span = TextSpan(
-      text:
-          appointment.isAllDay || appointment.isSpanned
-              ? _localizations.allDayLabel
-              : '$startDateText - $endDateText',
+      text: appointment.isAllDay || appointment.isSpanned
+          ? _localizations.allDayLabel
+          : '$startDateText - $endDateText',
       style: appointmentTextStyle,
     );
     _textPainter.text = span;
