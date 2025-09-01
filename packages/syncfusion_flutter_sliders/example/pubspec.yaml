@@ -1,25 +1,20 @@
 name: sliders_sample
-description: A new Flutter project.
-
+description: This project demonstrates how to use Syncfusion Flutter Sliders widget.
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.0-0
+  sdk: ^3.7.0
+
+flutter:
+  uses-material-design: true
 
 dependencies:
   flutter:
     sdk: flutter
-
-  intl: ^0.19.0
-  syncfusion_flutter_sliders: ^27.1.52
-  syncfusion_flutter_charts: ^27.1.52
-
-  cupertino_icons: '^1.0.8'
+  intl: ^0.20.2
+  syncfusion_flutter_sliders: ^30.1.41
+  syncfusion_flutter_charts: ^30.1.41
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-flutter:
-
-  uses-material-design: true

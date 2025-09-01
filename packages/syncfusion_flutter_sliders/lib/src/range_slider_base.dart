@@ -99,31 +99,28 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
        ) {
     final GestureArenaTeam team = GestureArenaTeam();
     if (sliderType == SliderType.horizontal) {
-      horizontalDragGestureRecognizer =
-          HorizontalDragGestureRecognizer()
-            ..team = team
-            ..onDown = _onDragDown
-            ..onStart = _onDragStart
-            ..onUpdate = _onDragUpdate
-            ..onEnd = _onDragEnd
-            ..onCancel = _onDragCancel
-            ..gestureSettings = gestureSettings;
+      horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
+        ..team = team
+        ..onDown = _onDragDown
+        ..onStart = _onDragStart
+        ..onUpdate = _onDragUpdate
+        ..onEnd = _onDragEnd
+        ..onCancel = _onDragCancel
+        ..gestureSettings = gestureSettings;
     }
     if (sliderType == SliderType.vertical) {
-      verticalDragGestureRecognizer =
-          VerticalDragGestureRecognizer()
-            ..team = team
-            ..onStart = _onVerticalDragStart
-            ..onUpdate = _onVerticalDragUpdate
-            ..onEnd = _onVerticalDragEnd
-            ..onCancel = _onVerticalDragCancel
-            ..gestureSettings = gestureSettings;
+      verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
+        ..team = team
+        ..onStart = _onVerticalDragStart
+        ..onUpdate = _onVerticalDragUpdate
+        ..onEnd = _onVerticalDragEnd
+        ..onCancel = _onVerticalDragCancel
+        ..gestureSettings = gestureSettings;
     }
-    tapGestureRecognizer =
-        TapGestureRecognizer()
-          ..team = team
-          ..onTapDown = _onTapDown
-          ..onTapUp = _onTapUp;
+    tapGestureRecognizer = TapGestureRecognizer()
+      ..team = team
+      ..onTapDown = _onTapDown
+      ..onTapUp = _onTapUp;
 
     _overlayStartAnimation = CurvedAnimation(
       parent: overlayStartController,
@@ -299,13 +296,12 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     if (_values == values) {
       return;
     }
-    _values =
-        isDateTime
-            ? values
-            : SfRangeValues(
-              (values.start as num).toDouble(),
-              (values.end as num).toDouble(),
-            );
+    _values = isDateTime
+        ? values
+        : SfRangeValues(
+            (values.start as num).toDouble(),
+            (values.end as num).toDouble(),
+          );
     if (isDateTime) {
       _valuesInMilliseconds = SfRangeValues(
         _values.start.millisecondsSinceEpoch.toDouble(),
@@ -394,14 +390,11 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     endPositionController.value = getFactorFromValue(actualValues.end);
   }
 
-  double get minThumbGap =>
-      isDiscrete
-          ? 0
-          : sliderType == SliderType.horizontal
-          ? (actualMax - actualMin) *
-              (8 / actualTrackRect.width).clamp(0.0, 1.0)
-          : (actualMax - actualMin) *
-              (8 / actualTrackRect.height).clamp(0.0, 1.0);
+  double get minThumbGap => isDiscrete
+      ? 0
+      : sliderType == SliderType.horizontal
+      ? (actualMax - actualMin) * (8 / actualTrackRect.width).clamp(0.0, 1.0)
+      : (actualMax - actualMin) * (8 / actualTrackRect.height).clamp(0.0, 1.0);
 
   SfRangeValues get actualValues =>
       isDateTime ? _valuesInMilliseconds : _values;
@@ -458,10 +451,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
 
   void _onTapDown(TapDownDetails details) {
     currentPointerType = PointerType.down;
-    _interactionStartOffset =
-        sliderType == SliderType.horizontal
-            ? globalToLocal(details.globalPosition).dx
-            : globalToLocal(details.globalPosition).dy;
+    _interactionStartOffset = sliderType == SliderType.horizontal
+        ? globalToLocal(details.globalPosition).dx
+        : globalToLocal(details.globalPosition).dy;
     mainAxisOffset = _interactionStartOffset;
     _beginInteraction();
   }
@@ -593,9 +585,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     return ((sliderType == SliderType.horizontal && !isInversed) ||
             (sliderType == SliderType.vertical && isInversed))
         ? mainAxisOffset > (startPosition + thumbRadius) &&
-            mainAxisOffset < (endPosition - thumbRadius)
+              mainAxisOffset < (endPosition - thumbRadius)
         : mainAxisOffset < (startPosition - thumbRadius) &&
-            mainAxisOffset > (endPosition + thumbRadius);
+              mainAxisOffset > (endPosition + thumbRadius);
   }
 
   void _forwardTooltipAnimation() {
@@ -689,8 +681,8 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     );
     final double lockedRangeWidth =
         (!isVertical && isInversed) || (isVertical && !isInversed)
-            ? startPosition - endPosition
-            : endPosition - startPosition;
+        ? startPosition - endPosition
+        : endPosition - startPosition;
     startPosition += delta ?? 0.0;
     endPosition += delta ?? 0.0;
     final double actualMinInPx = getPositionFromValue(actualMin);
@@ -804,10 +796,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
           break;
         }
       } else {
-        start =
-            isDateTime
-                ? DateTime.fromMillisecondsSinceEpoch(currentLabel.toInt())
-                : currentLabel;
+        start = isDateTime
+            ? DateTime.fromMillisecondsSinceEpoch(currentLabel.toInt())
+            : currentLabel;
         // ignore: unnecessary_this
         end = this.max;
         rangeValues = SfRangeValues(start, end);
@@ -839,14 +830,12 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
 
     final double endDistanceFactor =
         (endValueFactor - endPositionController.value).abs();
-    startPositionController.duration =
-        startDistanceFactor != 0.0
-            ? _positionAnimationDuration * (1.0 / startDistanceFactor)
-            : Duration.zero;
-    endPositionController.duration =
-        endDistanceFactor != 0.0
-            ? _positionAnimationDuration * (1.0 / endDistanceFactor)
-            : Duration.zero;
+    startPositionController.duration = startDistanceFactor != 0.0
+        ? _positionAnimationDuration * (1.0 / startDistanceFactor)
+        : Duration.zero;
+    endPositionController.duration = endDistanceFactor != 0.0
+        ? _positionAnimationDuration * (1.0 / endDistanceFactor)
+        : Duration.zero;
     startPositionController.animateTo(
       startValueFactor,
       curve: Curves.easeInOut,
@@ -937,12 +926,11 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     final double endThumbPosition = getPositionFromValue(
       actualValues.end.toDouble(),
     );
-    cursorPosition =
-        sliderType == SliderType.horizontal
-            ? details.localPosition.dx
-            : details.localPosition.dy;
-    final double startThumbDistance =
-        (cursorPosition - startThumbPosition).abs();
+    cursorPosition = sliderType == SliderType.horizontal
+        ? details.localPosition.dx
+        : details.localPosition.dy;
+    final double startThumbDistance = (cursorPosition - startThumbPosition)
+        .abs();
     final double endThumbDistance = (cursorPosition - endThumbPosition).abs();
     final double thumbRadius =
         (sliderType == SliderType.horizontal
@@ -1031,8 +1019,8 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         _valuesInMilliseconds.start == _valuesInMilliseconds.end) {
       activeThumb =
           _valuesInMilliseconds.start == min.millisecondsSinceEpoch.toDouble()
-              ? SfThumb.end
-              : SfThumb.start;
+          ? SfThumb.end
+          : SfThumb.start;
     } else if (_values.start == _values.end) {
       activeThumb = _values.start == min ? SfThumb.end : SfThumb.start;
     }
@@ -1066,8 +1054,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         parentBox: this,
         themeData: sliderThemeData,
         currentValues: _values,
-        animation:
-            isStartThumbActive ? _overlayEndAnimation : _overlayStartAnimation,
+        animation: isStartThumbActive
+            ? _overlayEndAnimation
+            : _overlayStartAnimation,
         thumb: isStartThumbActive ? SfThumb.end : SfThumb.start,
         paint: null,
       );
@@ -1106,8 +1095,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         parentBox: this,
         themeData: sliderThemeData,
         currentValues: _values,
-        animation:
-            isStartThumbActive ? _overlayStartAnimation : _overlayEndAnimation,
+        animation: isStartThumbActive
+            ? _overlayStartAnimation
+            : _overlayEndAnimation,
         thumb: activeThumb,
         paint: null,
       );
@@ -1146,19 +1136,18 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
     Rect trackRect,
   ) {
     if (willDrawTooltip || shouldAlwaysShowTooltip) {
-      final Paint paint =
-          Paint()
-            ..color = sliderThemeData.tooltipBackgroundColor!
-            ..style = PaintingStyle.fill
-            ..strokeWidth = 0;
+      final Paint paint = Paint()
+        ..color = sliderThemeData.tooltipBackgroundColor!
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 0;
 
       final bool isStartThumbActive = activeThumb == SfThumb.start;
-      Offset thumbCenter =
-          isStartThumbActive ? endThumbCenter : startThumbCenter;
-      dynamic actualText =
-          (sliderType == SliderType.horizontal)
-              ? getValueFromPosition(thumbCenter.dx - offset.dx)
-              : getValueFromPosition(trackRect.bottom - thumbCenter.dy);
+      Offset thumbCenter = isStartThumbActive
+          ? endThumbCenter
+          : startThumbCenter;
+      dynamic actualText = (sliderType == SliderType.horizontal)
+          ? getValueFromPosition(thumbCenter.dx - offset.dx)
+          : getValueFromPosition(trackRect.bottom - thumbCenter.dy);
 
       String tooltipText = tooltipTextFormatterCallback(
         actualText,
@@ -1201,16 +1190,16 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         parentBox: this,
         sliderThemeData: sliderThemeData,
         paint: paint,
-        animation:
-            isStartThumbActive ? _tooltipEndAnimation : _tooltipStartAnimation,
+        animation: isStartThumbActive
+            ? _tooltipEndAnimation
+            : _tooltipStartAnimation,
         trackRect: trackRect,
       );
 
       thumbCenter = isStartThumbActive ? startThumbCenter : endThumbCenter;
-      actualText =
-          (sliderType == SliderType.horizontal)
-              ? getValueFromPosition(thumbCenter.dx - offset.dx)
-              : getValueFromPosition(trackRect.bottom - thumbCenter.dy);
+      actualText = (sliderType == SliderType.horizontal)
+          ? getValueFromPosition(thumbCenter.dx - offset.dx)
+          : getValueFromPosition(trackRect.bottom - thumbCenter.dy);
 
       tooltipText = tooltipTextFormatterCallback(
         actualText,
@@ -1244,10 +1233,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
       }
       if (bottomTooltipRect != null && topTooltipRect != null) {
         final Rect overlapRect = topTooltipRect.intersect(bottomTooltipRect);
-        showOverlappingTooltipStroke =
-            sliderType == SliderType.horizontal
-                ? overlapRect.right > overlapRect.left
-                : overlapRect.top < overlapRect.bottom;
+        showOverlappingTooltipStroke = sliderType == SliderType.horizontal
+            ? overlapRect.right > overlapRect.left
+            : overlapRect.top < overlapRect.bottom;
       }
 
       tooltipShape.paint(
@@ -1258,8 +1246,9 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
         parentBox: this,
         sliderThemeData: sliderThemeData,
         paint: paint,
-        animation:
-            isStartThumbActive ? _tooltipStartAnimation : _tooltipEndAnimation,
+        animation: isStartThumbActive
+            ? _tooltipStartAnimation
+            : _tooltipEndAnimation,
         trackRect: trackRect,
       );
     }
@@ -1409,14 +1398,12 @@ abstract class RenderBaseRangeSlider extends RenderBaseSlider
       sliderThemeData,
       actualTrackOffset,
     );
-    double thumbStartPosition =
-        isIntervalTapped
-            ? startPositionController.value
-            : getFactorFromValue(actualValues.start);
-    double thumbEndPosition =
-        isIntervalTapped
-            ? endPositionController.value
-            : getFactorFromValue(actualValues.end);
+    double thumbStartPosition = isIntervalTapped
+        ? startPositionController.value
+        : getFactorFromValue(actualValues.start);
+    double thumbEndPosition = isIntervalTapped
+        ? endPositionController.value
+        : getFactorFromValue(actualValues.end);
 
     if (sliderType == SliderType.horizontal) {
       thumbStartPosition = thumbStartPosition * trackRect.width;

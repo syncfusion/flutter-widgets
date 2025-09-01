@@ -1,5 +1,9 @@
 ## Unreleased
 
+* No changes.
+
+## [30.1.37] - 06/25/2025
+
 **General**
 
 *  The compatible version of our Flutter sliders widget has been updated to Flutter SDK 3.32.0.
@@ -9,21 +13,18 @@
 **Features**
 
 * #FR49315 - Now, the Slider labels can be customized individually using the `onLabelCreated` property.
-* #FR66359 - Now, the Slider support keyboard navigation accessibility using the Left, Right, Up, Down arrow keys, and the Tab key.
 
 ## Range Slider
 
 **Features**
 
 * #FR49315 - Now, the Range Slider labels can be customized individually using the `onLabelCreated` property.
-* #FR66359 - Now, the Range Slider support keyboard navigation accessibility using the Left, Right, Up, Down arrow keys, and the Tab key.
 
 ## Range Selector
 
 **Features**
 
 * #FR49315 - Now, the Range Selector labels can be customized individually using the `onLabelCreated` property.
-* #FR66359 - Now, the Range Selector support keyboard navigation accessibility using the Left, Right, Up, Down arrow keys, and the Tab key.
 
 ### Breaking changes
 
