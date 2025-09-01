@@ -1,10 +1,13 @@
 name: chat_example
 description: "A Chat widget example project."
-version: 1.0.0
+version: 1.0.0+1
 publish_to: 'none'
 
 environment:
-  sdk: ^3.7.0-0
+  sdk: ^3.7.0
+
+flutter:
+  uses-material-design: true
 
 dependencies:
   flutter:
@@ -15,7 +18,4 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
-
-flutter:
-  uses-material-design: true
+  flutter_lints: ^6.0.0
