@@ -1,24 +1,19 @@
 name: signaturepad_example
-description: This project demonstrates how to use Syncfusion Flutter SignaturePad widget?
-
+description: This project demonstrates how to use Syncfusion Flutter SignaturePad widget.
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.0-0
+  sdk: ^3.7.0
+
+flutter:
+  uses-material-design: true
 
 dependencies:
   flutter:
     sdk: flutter
-
-  cupertino_icons: '>=0.1.3 <1.0.7'
   syncfusion_flutter_signaturepad:
     path: ../
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-flutter:
-
-  uses-material-design: true
-
