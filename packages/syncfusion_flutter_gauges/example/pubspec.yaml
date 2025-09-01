@@ -1,10 +1,12 @@
-name: example
-description: A new Flutter project.
-
+name: gauges_example
+description: This project demonstrates how to use Syncfusion Flutter Gauges widget.
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.0-0
+  sdk: ^3.7.0
+
+flutter:
+  uses-material-design: true
 
 dependencies:
   flutter:
@@ -12,12 +14,6 @@ dependencies:
   syncfusion_flutter_gauges:
     path: ../
 
-  cupertino_icons: '>=0.1.2 <1.0.7'
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-flutter:
-
-  uses-material-design: true
