@@ -241,16 +241,17 @@ class StackedLine100Segment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    final MarkerSettings marker = series.markerSettings;
-    final int length = points.length;
-    for (int i = 0; i < length; i++) {
-      if (tooltipTouchBounds(
-        points[i],
+    if (points.isNotEmpty) {
+      final ChartMarker marker = series.markerAt(currentSegmentIndex);
+      return tooltipTouchBounds(
+        // By default, line segments hold current and next point positions.
+        // In a loop, tapping on the 3rd segment might return the 2nd segment's
+        // pointIndex because the 2nd segment includes both the 2nd & 3rd points.
+        // Using points[0] stops this mix-up and gives the correct point index.
+        points[0],
         marker.width,
         marker.height,
-      ).contains(position)) {
-        return true;
-      }
+      ).contains(position);
     }
     return false;
   }

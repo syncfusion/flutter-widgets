@@ -1,4 +1,35 @@
-## [30.1.1] - 10/06/2025
+## [30.2.6+1] - 20/08/2025 
+
+**Bugs**
+
+* \#GH2400 - Now, the chart no longer throws a layout-phase mutation exception when [autoScrollingDelta](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/autoScrollingDelta.html) is set and the screen is resized.
+
+## [30.2.6] - 19/08/2025 
+
+**Bugs**
+
+* \#GH2371 - Resolved a panning speed inconsistency that occurred when switching between time intervals in chart axes. The panning logic now uses the updated scale value to ensure consistent interaction behavior across interval changes.
+
+## [30.2.5] - 13/08/2025
+
+**Bugs**
+
+* \#GH2404 - Resolved a layout crash by updating the logic to prevent negative height constraints when rendering [SfCartesianChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html) inside very small containers.
+* \#GH2380 - Resolved an issue were updating only one bound of the axis visible range caused fallback to the actual range. The controller now retains the previous visible range value to ensure correct axis rendering.
+
+## [30.1.41] - 22/07/2025 
+
+**Bugs**
+
+* \#BD746428 - Resolved an exception caused by layout-phase mutations in chart elements to ensure compatibility with Flutter SDK 3.32.6.
+
+## [30.1.38] - 02/07/2025
+
+**Bugs**
+
+* \#GH2377 - Now, the [onPointTap](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeries/onPointTap.html) callbacks returns the point index properly for visible data points.
+
+## [30.1.37] - 25/06/2025
 
 **General**
 

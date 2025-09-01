@@ -159,6 +159,31 @@ class RangeAreaSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
       .._highValues = highValues;
   }
 
+  @override
+  int segmentPointIndex(Offset position, ChartSegment segment) {
+    final RangeAreaSegment rangeAreaSegment = segment as RangeAreaSegment;
+    final int index = _computePointIndex(rangeAreaSegment._lowPoints, position);
+    if (index != -1) {
+      return index;
+    }
+    return _computePointIndex(rangeAreaSegment._highPoints, position);
+  }
+
+  int _computePointIndex(List<Offset> points, Offset position) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
+      final Rect bounds = Rect.fromCenter(
+        center: points[i],
+        width: tooltipPadding,
+        height: tooltipPadding,
+      );
+      if (bounds.contains(position)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   /// Creates a segment for a data point in the series.
   @override
   RangeAreaSegment<T, D> createSegment() => RangeAreaSegment<T, D>();

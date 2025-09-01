@@ -1,21 +1,20 @@
 name: charts_example
-description: This project demonstrates how to use Syncfusion Flutter Charts widget?
+description: This project demonstrates how to use Syncfusion Flutter Charts widget.
 version: 1.0.0+1
 publish_to: 'none'
 
 environment:
-  sdk: ^3.7.0-0
+  sdk: ^3.7.0
+
+flutter:
+  uses-material-design: true
 
 dependencies:
   flutter:
     sdk: flutter
   syncfusion_flutter_charts: 
     path: ../
-  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-flutter:
-  uses-material-design: true

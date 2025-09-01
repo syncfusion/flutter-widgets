@@ -591,7 +591,7 @@ class ZoomPanBehavior extends ChartBehavior {
         if (child is RenderChartAxis && child.controller.zoomFactor != 1) {
           if (_canZoom(child, effectiveZoomMode)) {
             child.zoomingInProgress = true;
-            _previousScale ??= _toScaleValue(child.controller.zoomFactor);
+            _previousScale = _toScaleValue(child.controller.zoomFactor);
             currentZoomPosition = child.controller.zoomPosition;
             calcZoomPosition = _toPanValue(
               child.paintBounds,

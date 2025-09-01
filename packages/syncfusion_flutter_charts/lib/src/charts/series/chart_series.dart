@@ -2407,6 +2407,9 @@ abstract class ChartSeriesRenderer<T, D> extends RenderBox
 
   @override
   void markNeedsLayout() {
+    if (!attached) {
+      return;
+    }
     super.markNeedsLayout();
     dataLabelContainer?.refresh();
     markerContainer?.refresh();
@@ -3392,6 +3395,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
 abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
     with AxisDependent {
   List<int> visibleIndexes = <int>[];
+  List<int> _viewPortIndexes = <int>[];
 
   ChartSeriesController<T, D> get controller => _controller;
   late final ChartSeriesController<T, D> _controller =
@@ -3884,11 +3888,22 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
   @protected
   void _findVisibleIndexes() {
     visibleIndexes.clear();
+    _viewPortIndexes.clear();
     if (xAxis == null ||
         xAxis!.visibleRange == null ||
         xAxis!.visibleInterval == 0) {
       return;
     }
+
+    final bool callbackEnabled =
+        parent != null && parent!.onDataLabelRender != null ||
+        parent!.onTooltipRender != null ||
+        parent!.onMarkerRender != null ||
+        parent!.onDataLabelTapped != null ||
+        parent!.onSelectionChanged != null ||
+        onPointLongPress != null ||
+        onPointTap != null ||
+        onPointDoubleTap != null;
 
     final DoubleRange baseRange = xAxis!.visibleRange!.copyWith();
     late DoubleRange range;
@@ -3922,12 +3937,34 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
           visibleIndexes.add(endIndex);
         }
       }
+
+      if (callbackEnabled) {
+        final int viewPortStartIndex = findIndex(
+          range.minimum.ceil(),
+          xValues,
+          end: end,
+        );
+        final int viewPortEndIndex = findIndex(
+          range.maximum.floor(),
+          xValues,
+          end: end,
+        );
+        if (viewPortStartIndex != -1) {
+          _viewPortIndexes.add(viewPortStartIndex);
+        }
+        if (viewPortEndIndex != -1) {
+          _viewPortIndexes.add(viewPortEndIndex);
+        }
+      }
     } else {
       for (int i = 0; i < dataCount; i++) {
         final num current = xValues[i];
         if (range.contains(current)) {
           visibleIndexes.add(i);
         }
+      }
+      if (callbackEnabled) {
+        _viewPortIndexes = visibleIndexes;
       }
 
       if (visibleIndexes.isNotEmpty) {
@@ -4162,7 +4199,7 @@ abstract class CartesianSeriesRenderer<T, D> extends ChartSeriesRenderer<T, D>
 
   @override
   int viewportIndex(int index, [List<int>? visibleIndexes]) {
-    return super.viewportIndex(index, visibleIndexes ?? this.visibleIndexes);
+    return super.viewportIndex(index, visibleIndexes ?? this._viewPortIndexes);
   }
 
   List<ChartSegment> contains(Offset position) {

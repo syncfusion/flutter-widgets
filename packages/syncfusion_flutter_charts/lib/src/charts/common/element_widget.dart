@@ -51,8 +51,13 @@ class RenderChartFadeTransition extends RenderAnimatedOpacity {
   }
 
   void refresh() {
+    if (!attached) {
+      return;
+    }
     markNeedsLayout();
-    (child as RenderChartElementStack?)?.refresh();
+    if (child != null && child is RenderChartElementStack && child!.attached) {
+      (child! as RenderChartElementStack).refresh();
+    }
   }
 
   void handlePointerHover(Offset localPosition) {
@@ -111,8 +116,15 @@ class RenderChartElementLayoutBuilder<T, D> extends RenderBox
   }
 
   void refresh() {
+    if (!attached) {
+      return;
+    }
     markNeedsBuild();
-    (child as RenderChartFadeTransition?)?.refresh();
+    if (child != null &&
+        child is RenderChartFadeTransition &&
+        child!.attached) {
+      (child! as RenderChartFadeTransition).refresh();
+    }
   }
 
   @override
@@ -195,6 +207,9 @@ class RenderChartElementStack extends RenderBox
   ChartMarker markerAt(int pointIndex) => ChartMarker();
 
   void refresh() {
+    if (!attached) {
+      return;
+    }
     markNeedsLayout();
   }
 

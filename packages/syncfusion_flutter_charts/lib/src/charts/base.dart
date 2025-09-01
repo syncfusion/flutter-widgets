@@ -2329,7 +2329,7 @@ class RenderCartesianAxes extends RenderBox
     measureVerticalAxes(verticalAxisConstraints);
 
     final BoxConstraints horizontalAxisConstraints = BoxConstraints(
-      maxWidth: constraints.maxWidth - verticalAxesWidth,
+      maxWidth: max(0, constraints.maxWidth - verticalAxesWidth),
       maxHeight: constraints.maxHeight,
     );
     measureHorizontalAxes(horizontalAxisConstraints);
@@ -2343,7 +2343,7 @@ class RenderCartesianAxes extends RenderBox
 
     verticalAxisConstraints = BoxConstraints(
       maxWidth: constraints.maxWidth,
-      maxHeight: constraints.maxHeight - horizontalAxesHeight,
+      maxHeight: max(0, constraints.maxHeight - horizontalAxesHeight),
     );
     measureVerticalAxes(verticalAxisConstraints);
 
