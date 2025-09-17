@@ -41,7 +41,7 @@ dependencies:
   async: ^2.5.0
   http: ^1.0.0
   uuid: ^4.1.0
-  device_info_plus: ^12.0.0
+  device_info_plus: ^12.1.0
   intl: '>=0.18.1 <0.21.0'
 
   syncfusion_pdfviewer_platform_interface:
