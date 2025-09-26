@@ -24,7 +24,7 @@ apply plugin: "com.android.library"
 android {
     namespace = "com.syncfusion.flutter.pdfviewer.android"
 
-    compileSdk = 35
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -32,7 +32,7 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
     }
 
     externalNativeBuild {
