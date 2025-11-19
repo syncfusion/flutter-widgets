@@ -1157,19 +1157,47 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
           int maxValue = 0;
           for (int i = 0; i < length; i++) {
             final int rawX = (xRawValues[i] as DateTime).millisecondsSinceEpoch;
-            if (!labels.contains(rawX)) {
+            final index = _binarySearch(labels, rawX);
+
+            final int indexValidated;
+            if (index < 0) {
               labels.add(rawX);
+              indexValidated = labels.length - 1;
+            } else {
+              indexValidated = index;
             }
 
-            final int index = labels.indexOf(rawX);
-            dependent.xValues[i] = index;
-            maxValue = max(maxValue, index);
+            dependent.xValues[i] = indexValidated;
+            maxValue = max(maxValue, indexValidated);
           }
           dependent.xMin = minValue;
           dependent.xMax = maxValue;
         }
       }
     }
+  }
+
+  int _binarySearch(List<int> sortedList, int target) {
+    int low = 0;
+    int high = sortedList.length - 1;
+
+    while (low <= high) {
+      final int mid =
+          low + ((high - low) ~/ 2); // Integer division for the midpoint
+      final midSample = sortedList.elementAt(mid);
+
+      final int comparison = midSample.compareTo(target);
+
+      if (comparison == 0) {
+        return mid; // Found the target
+      } else if (comparison < 0) {
+        low = mid + 1; // Target is in the right half
+      } else {
+        high = mid - 1; // Target is in the left half
+      }
+    }
+
+    return -1; // Target not found
   }
 
   @override
