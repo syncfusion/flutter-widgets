@@ -60,7 +60,7 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
   IPdfPrimitive? operator [](dynamic key) => returnValue(checkName(key));
 
   ///  Set the PdfDictionary items.
-  operator []=(dynamic key, dynamic value) => addItems(key, value);
+  void operator []=(dynamic key, dynamic value) => addItems(key, value);
 
   /// internal property
   bool get isSkip {

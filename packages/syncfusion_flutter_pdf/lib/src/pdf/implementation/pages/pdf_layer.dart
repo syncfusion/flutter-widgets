@@ -538,6 +538,9 @@ class PdfLayerHelper {
                 if (value is PdfReferenceHolder) {
                   final PdfDictionary? dictionary =
                       value.object as PdfDictionary?;
+                  if (base._isPresent != null && base._isPresent!) {
+                    return;
+                  }
                   _parsingDictionary(dictionary, value, page, key);
                 }
               });
@@ -580,43 +583,37 @@ class PdfLayerHelper {
     PdfPage? page,
     PdfName? layerID,
   ) {
-    if (base._isPresent == null || !base._isPresent!) {
-      base._isPresent = false;
-      if (!dictionary!.containsKey(PdfDictionaryProperties.name) &&
-          dictionary.containsKey(PdfDictionaryProperties.ocg)) {
-        if (dictionary.containsKey(PdfDictionaryProperties.ocg)) {
-          final PdfArray? pdfArray =
+    base._isPresent = false;
+    if (!dictionary!.containsKey(PdfDictionaryProperties.name) &&
+        dictionary.containsKey(PdfDictionaryProperties.ocg)) {
+      if (dictionary.containsKey(PdfDictionaryProperties.ocg)) {
+        final PdfArray? pdfArray =
+            PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.ocg])
+                as PdfArray?;
+        if (pdfArray == null) {
+          reference =
+              dictionary[PdfDictionaryProperties.ocg] as PdfReferenceHolder?;
+          dictionary =
               PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.ocg])
-                  as PdfArray?;
-          if (pdfArray == null) {
-            reference =
-                dictionary[PdfDictionaryProperties.ocg] as PdfReferenceHolder?;
-            dictionary =
-                PdfCrossTable.dereference(
-                      dictionary[PdfDictionaryProperties.ocg],
-                    )
-                    as PdfDictionary?;
-            if (dictionary != null &&
-                dictionary.containsKey(PdfDictionaryProperties.name)) {
+                  as PdfDictionary?;
+          if (dictionary != null &&
+              dictionary.containsKey(PdfDictionaryProperties.name)) {
+            base._isPresent = _setLayerPage(reference, page, layerID);
+          }
+        } else {
+          for (int a = 0; a < pdfArray.count; a++) {
+            if (pdfArray[a] is PdfReferenceHolder) {
+              reference = pdfArray[a]! as PdfReferenceHolder;
+              dictionary = reference.object as PdfDictionary?;
               base._isPresent = _setLayerPage(reference, page, layerID);
-            }
-          } else {
-            for (int a = 0; a < pdfArray.count; a++) {
-              if (pdfArray[a] is PdfReferenceHolder) {
-                reference = pdfArray[a]! as PdfReferenceHolder;
-                dictionary = reference.object as PdfDictionary?;
-                base._isPresent = _setLayerPage(reference, page, layerID);
-              }
             }
           }
         }
-      } else if (dictionary.containsKey(PdfDictionaryProperties.name)) {
-        base._isPresent = _setLayerPage(reference, page, layerID);
       }
-      return base._isPresent;
-    } else {
-      return false;
+    } else if (dictionary.containsKey(PdfDictionaryProperties.name)) {
+      base._isPresent = _setLayerPage(reference, page, layerID);
     }
+    return base._isPresent;
   }
 
   bool _setLayerPage(

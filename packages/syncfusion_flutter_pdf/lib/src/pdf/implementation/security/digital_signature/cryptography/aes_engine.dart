@@ -287,7 +287,7 @@ class AesEngine extends IBlockCipher {
 
   /// internal method
   void encryptBlock(
-    input,
+    Uint8List input,
     int inOff,
     Uint8List out,
     int outOff,
@@ -413,7 +413,7 @@ class AesEngine extends IBlockCipher {
 
   /// internal method
   void decryptBlock(
-    input,
+    Uint8List input,
     int inOff,
     Uint8List out,
     int outOff,

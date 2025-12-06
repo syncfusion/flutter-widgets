@@ -302,6 +302,9 @@ class ContentLexer {
       } else {
         ch = String.fromCharCode(int.parse(_consumeValue()));
       }
+      if (ch == '\uffff') {
+        break;
+      }
     }
     _isContentEnded = false;
     isContainsArtifacts = false;

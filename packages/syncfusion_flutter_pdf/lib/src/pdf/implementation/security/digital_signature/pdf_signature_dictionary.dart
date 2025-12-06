@@ -202,20 +202,17 @@ class PdfSignatureDictionary implements IPdfWrapper {
       dateTime = _sig!.signedDate!;
     }
     final DateFormat dateFormat = DateFormat('yyyyMMddHHmmss');
-    final int regionMinutes = dateTime.timeZoneOffset.inMinutes ~/ 11;
-    String offsetMinutes = regionMinutes.toString();
-    if (regionMinutes >= 0 && regionMinutes <= 9) {
-      offsetMinutes = '0$offsetMinutes';
-    }
-    final int regionHours = dateTime.timeZoneOffset.inHours;
-    String offsetHours = regionHours.toString();
-    if (regionHours >= 0 && regionHours <= 9) {
-      offsetHours = '0$offsetHours';
-    }
+    final Duration offset = dateTime.timeZoneOffset;
+    final String sign = offset.isNegative ? '-' : '+';
+    final String offsetHours = offset.inHours.abs().toString().padLeft(2, '0');
+    final String offsetMinutes = (offset.inMinutes.abs() % 60)
+        .toString()
+        .padLeft(2, '0');
+
     dictionary!.setProperty(
       PdfDictionaryProperties.m,
       PdfString(
-        "D:${dateFormat.format(dateTime)}+$offsetHours'$offsetMinutes'",
+        "D:${dateFormat.format(dateTime)}$sign$offsetHours'$offsetMinutes'",
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import '../../interfaces/pdf_interface.dart';
 import '../annotations/json_parser.dart';
@@ -378,7 +379,7 @@ class PdfString implements IPdfPrimitive {
     } else {
       data = PdfSecurityHelper.getHelper(security).encryptor.encryptData(
         PdfDocumentHelper.getHelper(document!).currentSavingObject!.objNum,
-        data,
+        Uint8List.fromList(data),
         true,
       );
     }
@@ -398,7 +399,7 @@ class PdfString implements IPdfPrimitive {
       value = byteToString(data!);
       final List<int> bytes = encryptor.encryptData(
         currentObjectNumber,
-        data!,
+        Uint8List.fromList(data!),
         false,
       );
       value = byteToString(bytes);

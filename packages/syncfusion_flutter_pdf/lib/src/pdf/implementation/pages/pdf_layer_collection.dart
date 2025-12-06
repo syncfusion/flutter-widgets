@@ -910,13 +910,18 @@ class PdfLayerCollectionHelper extends PdfObjectCollectionHelper {
           }
           if (xObject != null &&
               PdfLayerHelper.getHelper(layer).xobject.isNotEmpty) {
+            final keysToRemove = <PdfName>[];
             for (final PdfName? key in xObject.items!.keys) {
               if (PdfLayerHelper.getHelper(layer).xobject.contains(key!.name)) {
-                xObject.remove(key);
+                keysToRemove.add(key);
               }
               if (xObject.items!.isEmpty) {
                 break;
               }
+            }
+            // ignore: prefer_foreach
+            for (final PdfName key in keysToRemove) {
+              xObject.remove(key);
             }
           }
           final PdfArray content =
@@ -952,7 +957,9 @@ class PdfLayerCollectionHelper extends PdfObjectCollectionHelper {
               }
               if (mOperator == PdfOperators.paintXObject) {
                 if (PdfLayerHelper.getHelper(layer).xobject.contains(
-                  recordCollection.recordCollection[j].operands![0],
+                  recordCollection.recordCollection[j].operands![0]
+                      .trim()
+                      .replaceFirst('/', ''),
                 )) {
                   isSkip = true;
                 }

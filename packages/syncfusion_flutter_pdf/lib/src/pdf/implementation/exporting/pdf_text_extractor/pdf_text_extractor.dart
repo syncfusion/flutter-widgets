@@ -417,7 +417,7 @@ class PdfTextExtractor {
         bool hasRotation = false;
         if (i < renderer.imageRenderGlyphList.length) {
           final Glyph tempGlyph = renderer.imageRenderGlyphList[i];
-          if (tempGlyph.isRotated && rotation == 270) {
+          if (tempGlyph.isRotated && (rotation == 270 || rotation == 90)) {
             yPos = tempGlyph.boundingRect.left;
             hasRotation = true;
           } else {
@@ -494,6 +494,22 @@ class PdfTextExtractor {
                         .boundingRect
                         .bottom;
                 wordBound = Rect.fromLTWH(dx, dy, width, height - dy);
+              } else if (hasRotation && rotation == 90) {
+                final double startX =
+                    renderer.imageRenderGlyphList[i].boundingRect.left;
+                final double startY =
+                    renderer.imageRenderGlyphList[i].boundingRect.top;
+                final double endY =
+                    renderer.imageRenderGlyphList[lastIndex].boundingRect.top;
+                final double lineWidth =
+                    renderer.imageRenderGlyphList[i].boundingRect.width;
+                final double lineHeight =
+                    (startY - endY).abs() +
+                    renderer
+                        .imageRenderGlyphList[lastIndex]
+                        .boundingRect
+                        .height;
+                wordBound = Rect.fromLTWH(startX, endY, lineWidth, lineHeight);
               } else {
                 height = renderer.imageRenderGlyphList[i].boundingRect.height;
                 if (dx >
@@ -691,9 +707,14 @@ class PdfTextExtractor {
           }
           final Rect currentRect = textGlyph.boundingRect;
           if (previousRect != null) {
-            if ((previousRect.left + previousRect.width - currentRect.left)
-                    .abs() >
-                1.5) {
+            if (_currentPage!.rotation.name != 'rotateAngle90' &&
+                (previousRect.left + previousRect.width - currentRect.left)
+                        .abs() >
+                    1.5) {
+              isSplit = true;
+            } else if (_currentPage!.rotation.name == 'rotateAngle90' &&
+                textGlyph.isRotated &&
+                (previousRect.width - currentRect.width).abs() > 1.5) {
               isSplit = true;
             } else {
               tempString += text[j];
@@ -1413,6 +1434,20 @@ class PdfTextExtractor {
         renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.bottom -
             renderer.imageRenderGlyphList[lineStartIndex].boundingRect.top,
       );
+    } else if (rotation == 90 &&
+        renderer.imageRenderGlyphList[lineStartIndex].isRotated) {
+      final double startX =
+          renderer.imageRenderGlyphList[lineStartIndex].boundingRect.left;
+      final double startY =
+          renderer.imageRenderGlyphList[lineStartIndex].boundingRect.top;
+      final double endY =
+          renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.top;
+      final double lineWidth =
+          renderer.imageRenderGlyphList[lineStartIndex].boundingRect.width;
+      final double lineHeight =
+          (startY - endY).abs() +
+          renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.height;
+      textLine.bounds = Rect.fromLTWH(startX, endY, lineWidth, lineHeight);
     } else {
       textLine.bounds = Rect.fromLTWH(
         renderer.imageRenderGlyphList[lineStartIndex].boundingRect.left,

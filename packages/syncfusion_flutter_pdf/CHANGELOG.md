@@ -1,48 +1,144 @@
-## Unreleased
+﻿## [31.2.16] - 12/02/2025
+
+- No changes.
+
+## [31.2.15] - 11/25/2025
 
 **Bugs**
 
+- Resolved an issue where the time zone sign and the offset value were incorrect for negative offset time zones in the PdfSignature dictionary.
+
+## [31.2.12] - 11/18/2025
+
+- No changes.
+
+## [31.2.10] - 11/12/2025
+
+- No changes.
+
+## [31.2.5] - 11/04/2025
+
+- No changes.
+
+## [31.2.4] - 10/28/2025
+
+- No changes.
+
+## [31.2.3] - 10/22/2025
+
+- No changes.
+
+## [31.2.2] - 10/15/2025
+
+- No changes.
+
+## [31.1.23] - 10/07/2025
+
+**Bugs**
+
+- Resolved an issue where the application freezes when extracting text from a specific PDF document
+
+## [31.1.22] - 10/01/2025
+
+- No changes.
+
+## [31.1.21] - 09/23/2025
+
+- No changes.
+
+## [31.1.20] - 09/17/2025
+
+**Bugs**
+
+- Resolved a typecast error encountered while accessing a form in a specific PDF document.
+
+## [31.1.19] - 09/12/2025
+
+- No changes.
+
+## [31.1.18] - 09/10/2025
+
+- No changes.
+
+## [31.1.17] - 09/05/2025
+
+- No changes.
+
+## [30.2.7] - 08/26/2025
+
+**Bugs**
+
+- Resolved an issue related to incorrect glyph bounding in a specific PDF document.
+
+## [30.2.6] - 08/19/2025
+
+**Bugs**
+
+- Fixed performance lag during loading encrypted PDF document.
+
+## [30.2.5] - 08/13/2025
+
+**Bugs**
+
+- Resolved an issue where the application hangs when accessing the read-only value of a form field in a specific PDF document.
+
+## [30.2.4] - 08/07/2025
+
+**Bugs**
+
+* Resolved an issue while extracting text line bounds from 90-degree rotated pages in a specific PDF document.
+
+## [30.1.41] - 07/22/2025
+
+**Bugs**
+
+* Resolved an exception that occurred when removing document-level layers in a specific PDF document.
+
+## [30.1.37] - 06/25/2025
+
+**General**
+
 * The compatible version of our Flutter PDF library has been updated to Flutter SDK 3.32.0.
 
-## [29.2.11] - 17/06/2025
+## [29.2.11] - 06/17/2025
 
 **Bugs**
 
 * Resolved an exception that occurred when hiding document-level layers in a specific PDF document.
 
-## [29.2.9] - 05/06/2025 
+## [29.2.9] - 06/05/2025 
 
 **Bugs**
 
 * Resolved a mismatch error in the text word length and text glyph length from a specific PDF document.
 
-## [29.2.7] - 27/05/2025 
+## [29.2.7] - 05/27/2025 
 
 **Bugs**
 
 * Resolved a range error exception while extracting text lines from a specific PDF document.
 
-## [29.2.4] - 13/05/2025 
+## [29.2.4] - 05/14/2025 
 
 **Bugs**
 
 * Resolved an Out-Of-Memory crash that occurred during the decryption of PDF document.
 * Resolved a performance issue when decrypting password-protected PDF documents.
 
-## [29.1.41] - 06/05/2025
+## [29.1.41] - 05/06/2025
 
 **Bugs**
 
 * Resolved an issue where an exception occurred when flattening a signature field in a PDF document.
 
-## [29.1.40] - 29/04/2025
+## [29.1.40] - 04/29/2025
 
 **Bugs**
 
 * Resolved a content preservation issue that occurred when drawing multiple PDF grids on the same page of a PDF document.
 * Resolved an issue where PDF form is returned as null when acro form has no fields.
 
-## [29.1.39] - 22/04/2025
+## [29.1.39] - 04/22/2025
 
 **General**
 

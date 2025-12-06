@@ -548,7 +548,11 @@ class PdfStream extends PdfDictionary {
   void decrypt(PdfEncryptor encryptor, int? currentObjectNumber) {
     if (!decrypted!) {
       decrypted = true;
-      data = encryptor.encryptData(currentObjectNumber, dataStream!, false);
+      data = encryptor.encryptData(
+        currentObjectNumber,
+        Uint8List.fromList(dataStream!),
+        false,
+      );
       _modify();
     }
   }
@@ -560,7 +564,7 @@ class PdfStream extends PdfDictionary {
     if (encryptor.encrypt && !blockEncryption) {
       data = encryptor.encryptData(
         PdfDocumentHelper.getHelper(doc).currentSavingObject!.objNum,
-        data!,
+        Uint8List.fromList(data!),
         true,
       );
     }

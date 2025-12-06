@@ -286,10 +286,10 @@ class PdfForm implements IPdfWrapper {
           }
         }
         if (fieldKids == null) {
-          if (fieldDictionary != null) {
-            if (!_helper.terminalFields.contains(fieldDictionary)) {
-              _helper.terminalFields.add(fieldDictionary as PdfDictionary);
-            }
+          if (fieldDictionary != null &&
+              fieldDictionary is PdfDictionary &&
+              !_helper.terminalFields.contains(fieldDictionary)) {
+            _helper.terminalFields.add(fieldDictionary);
           }
         } else {
           if (!(fieldDictionary! as PdfDictionary).containsKey(

@@ -580,6 +580,9 @@ class TextElement {
     txtMatrix.type = MatrixTypes.identity;
     double changeInX = currentLocation.dx;
     Offset location = Offset(currentLocation.dx, currentLocation.dy);
+    final reverseMap = {
+      for (final entry in differenceMappedTable.entries) entry.value: entry.key,
+    };
     // ignore: avoid_function_literals_in_foreach_calls
     decodedList.forEach((List<dynamic>? keys, String word) {
       final double? space = double.tryParse(word);
@@ -809,6 +812,15 @@ class TextElement {
                             fontGlyphWidths![cidGidKey!]! * charSizeMultiplier;
                       }
                     }
+                  } else if (differenceMappedTable.containsValue(letter)) {
+                    final key = reverseMap[letter];
+                    final int? mappedValue = int.tryParse(key ?? '');
+                    if (mappedValue != null &&
+                        glyphWidths!.containsKey(mappedValue)) {
+                      currentGlyphWidth =
+                          glyphWidths[mappedValue]!.toDouble() *
+                          charSizeMultiplier;
+                    }
                   } else if (fontGlyphWidths != null) {
                     currentGlyphWidth =
                         (fontGlyphWidths!.containsKey(charCode)
@@ -941,7 +953,7 @@ class TextElement {
       } else if (matrix.m12 < 0 && matrix.m21 < 0) {
         glyph.rotationAngle = 180;
       }
-      final double x =
+      double x =
           ((matrix.offsetX +
                   ((tempFontSize + (glyph.ascent / 1000.0)) * matrix.m21)) /
               1.3333333333333333) /
@@ -956,7 +968,11 @@ class TextElement {
           zoomFactor!;
       double width = glyph.width * tempFontSize;
       double height = tempFontSize;
-      if (pageRotation == 270) {
+      if (pageRotation == 90 && glyph.rotationAngle == 270) {
+        height = glyph.width * tempFontSize;
+        width = tempFontSize;
+        x -= tempFontSize;
+      } else if (pageRotation == 270) {
         if (textElementGlyphList.isEmpty || renderWithSpace) {
           y += width;
         } else {

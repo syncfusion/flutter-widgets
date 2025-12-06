@@ -298,13 +298,17 @@ class PdfFormFieldCollectionHelper extends PdfObjectCollectionHelper {
               );
             }
             dic!.remove(PdfDictionaryProperties.parent);
-            if (isLoaded) {
-              dic.setProperty(
-                PdfDictionaryProperties.parent,
-                PdfReferenceHolder(oldFieldDic),
-              );
+            if (fieldHelper.dictionary!.containsKey(
+              PdfDictionaryProperties.kids,
+            )) {
+              if (isLoaded) {
+                dic.setProperty(
+                  PdfDictionaryProperties.parent,
+                  PdfReferenceHolder(oldFieldDic),
+                );
+              }
+              fieldHelper.widget!.parent = oldField;
             }
-            fieldHelper.widget!.parent = oldField;
             if (!isLoaded && fieldHelper.page != null) {
               fieldHelper.page!.annotations.add(fieldHelper.widget!);
             }

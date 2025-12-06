@@ -10,7 +10,7 @@ See an interactive demo here: https://flutter.syncfusion.com/#/pdf/invoice
 
 The PDF package is a non-UI, reusable Flutter library for creating PDF reports programmatically with formatted text, images, shapes, tables, links, lists, headers, footers, and more. The library can be used to create, read, edit, and secure PDF documents in Flutter mobile and web platforms without dependency on Adobe Acrobat. The creation of a PDF follows the most popular PDF 1.7 (ISO 32000-1) and latest PDF 2.0 (ISO 32000-2) specifications.
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion<sup>&reg;</sup> commercial license or [Free Syncfusion<sup>&reg;</sup> Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ![PDF Overview](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Flutter-PDF-Overview.png)
 
@@ -37,11 +37,11 @@ The PDF package is a non-UI, reusable Flutter library for creating PDF reports p
   - [PDF form](#pdf-form)
   - [Digital signature](#digital-signature)
 - [Support and feedback](#support-and-feedback)
-- [About Syncfusion](#about-syncfusion)
+- [About Syncfusion<sup>&reg;</sup>](#about-syncfusion)
 
 ## Key features
 
-The following are the key features of Syncfusion Flutter PDF:
+The following are the key features of Syncfusion<sup>&reg;</sup> Flutter PDF:
 
 * Create multipage PDF files from scratch.
 * Add Unicode and RTL text.
@@ -67,16 +67,15 @@ Explore the full capability of our Flutter widgets on your device by installing 
   <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
 </p>
 <p align="center">
-  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
   <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
   <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Other useful links
 
-Take a look at the following to learn more about Syncfusion Flutter PDF:
+Take a look at the following to learn more about Syncfusion<sup>&reg;</sup> Flutter PDF:
 
-* [Syncfusion Flutter PDF product page](https://www.syncfusion.com/flutter-widgets/pdf-library)
+* [Syncfusion<sup>&reg;</sup> Flutter PDF product page](https://www.syncfusion.com/flutter-widgets/pdf-library)
 * [User guide documentation](https://help.syncfusion.com/flutter/pdf/overview)
 * [Knowledge base](https://www.syncfusion.com/kb)
 
@@ -132,7 +131,7 @@ document.dispose();
 
 ### Add images to a PDF document
 
-The PdfBitmap class is used to draw images in a PDF document. Syncfusion Flutter PDF supports PNG and JPEG images. Refer to the following code to draw images in a PDF document. 
+The PdfBitmap class is used to draw images in a PDF document. Syncfusion<sup>&reg;</sup> Flutter PDF supports PNG and JPEG images. Refer to the following code to draw images in a PDF document. 
 
 ```dart
 //Create a new PDF document.
@@ -651,11 +650,11 @@ Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/working-wit
 
 ## Support and feedback
 
-* For any questions, please post them in our [community forums](https://www.syncfusion.com/forums) or contact our [Syncfusion support team](https://support.syncfusion.com/support/tickets/create). You can also submit a feature request or a bug alert through our [feedback portal](https://www.syncfusion.com/feedback/flutter).
+* For any questions, please post them in our [community forums](https://www.syncfusion.com/forums) or contact our [Syncfusion<sup>&reg;</sup> support team](https://support.syncfusion.com/support/tickets/create). You can also submit a feature request or a bug alert through our [feedback portal](https://www.syncfusion.com/feedback/flutter).
 * To renew your subscription, click [renew](https://www.syncfusion.com/sales/products) or contact our sales team at salessupport@syncfusion.com | Toll free: 1-888-9 DOTNET.
 
-## About Syncfusion
+## About Syncfusion<sup>&reg;</sup>
 
-Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 22,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
+Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion<sup>&reg;</sup> has more than 22,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
 
 Today we provide 1,600+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components),  [Flutter](https://www.syncfusion.com/flutter-widgets), and [Blazor](https://www.syncfusion.com/blazor-components)), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([Flutter](https://www.syncfusion.com/flutter-widgets), [WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls), [.NET MAUI](https://www.syncfusion.com/maui-controls), and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software in our Bold line of products for dashboarding and reporting. Many customers have saved millions in licensing fees by deploying our software.

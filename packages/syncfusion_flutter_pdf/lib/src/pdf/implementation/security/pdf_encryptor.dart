@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -34,8 +35,7 @@ class PdfEncryptor {
   int? _ownerLoopNum2;
   int? _ownerLoopNum;
 
-  /// internal field
-  List<int>? paddingBytes;
+  Uint8List? _paddingBytes;
   int? _bytesAmount;
   int? _permissionSet;
   int? _permissionCleared;
@@ -43,7 +43,7 @@ class PdfEncryptor {
   int? _revisionNumberOut;
   int? _versionNumberOut;
   int? _permissionValue;
-  List<int>? _randomBytes;
+  Uint8List? _randomBytes;
   int? _key40;
   int? _key128;
   int? _key256;
@@ -65,22 +65,22 @@ class PdfEncryptor {
   int? _revision;
   String? _userPassword;
   String? _ownerPassword;
-  List<int>? _ownerPasswordOut;
-  List<int>? _userPasswordOut;
-  List<int>? _encryptionKey;
+  Uint8List? _ownerPasswordOut;
+  Uint8List? _userPasswordOut;
+  Uint8List? _encryptionKey;
 
   /// internal field
   int? keyLength;
 
   /// internal field
-  List<int>? customArray;
+  Uint8List? customArray;
   List<int>? _permissionFlagValues;
-  List<int>? _fileEncryptionKey;
-  List<int>? _userEncryptionKeyOut;
-  List<int>? _ownerEncryptionKeyOut;
-  List<int>? _permissionFlag;
-  List<int>? _userRandomBytes;
-  List<int>? _ownerRandomBytes;
+  Uint8List? _fileEncryptionKey;
+  Uint8List? _userEncryptionKeyOut;
+  Uint8List? _ownerEncryptionKeyOut;
+  Uint8List? _permissionFlag;
+  Uint8List? _userRandomBytes;
+  Uint8List? _ownerRandomBytes;
 
   /// internal field
   bool? encryptOnlyMetadata;
@@ -104,15 +104,15 @@ class PdfEncryptor {
   }
 
   /// internal property
-  List<int>? get randomBytes {
+  Uint8List get randomBytes {
     if (_randomBytes == null) {
+      _randomBytes = Uint8List(_randomBytesAmount!);
       final Random random = Random.secure();
-      _randomBytes = List<int>.generate(
-        _randomBytesAmount!,
-        (int i) => random.nextInt(256),
-      );
+      for (int i = 0; i < _randomBytesAmount!; i++) {
+        _randomBytes![i] = random.nextInt(256);
+      }
     }
-    return _randomBytes;
+    return _randomBytes!;
   }
 
   /// internal property
@@ -196,13 +196,13 @@ class PdfEncryptor {
   }
 
   /// internal property
-  List<int>? get ownerPasswordOut {
+  Uint8List? get ownerPasswordOut {
     _initializeData();
     return _ownerPasswordOut;
   }
 
   /// internal property
-  List<int>? get userPasswordOut {
+  Uint8List? get userPasswordOut {
     _initializeData();
     return _userPasswordOut;
   }
@@ -253,7 +253,8 @@ class PdfEncryptor {
     ];
     permissions = <PdfPermissionsFlags>[PdfPermissionsFlags.none];
     encryptionOptions = PdfEncryptionOptions.encryptAllContents;
-    paddingBytes = <int>[
+
+    _paddingBytes = Uint8List.fromList(<int>[
       40,
       191,
       78,
@@ -286,8 +287,9 @@ class PdfEncryptor {
       83,
       105,
       122,
-    ];
-    customArray = List<int>.filled(_bytesAmount!, 0, growable: true);
+    ]);
+
+    customArray = Uint8List(_bytesAmount!);
     changed = false;
     hasComputedPasswordValues = false;
     encryptOnlyMetadata = true;
@@ -318,38 +320,46 @@ class PdfEncryptor {
     }
   }
 
-  List<int> _createUserPassword() {
+  Uint8List _createUserPassword() {
     return revisionNumber == 2
         ? _create40BitUserPassword()
         : _create128BitUserPassword();
   }
 
-  List<int> _create40BitUserPassword() {
+  Uint8List _create40BitUserPassword() {
     ArgumentError.checkNotNull(_encryptionKey);
+    final Uint8List paddingCopy = Uint8List.fromList(_paddingBytes!);
     return _encryptDataByCustom(
-      List<int>.from(paddingBytes!),
-      _encryptionKey,
+      paddingCopy,
+      _encryptionKey!,
       _encryptionKey!.length,
     );
   }
 
-  List<int> _create128BitUserPassword() {
+  Uint8List _create128BitUserPassword() {
     ArgumentError.checkNotNull(_encryptionKey);
-    final List<int> data = <int>[];
-    data.addAll(paddingBytes!);
-    data.addAll(randomBytes!);
-    final List<int> resultBytes = md5.convert(data).bytes;
-    final List<int> dataForCustom = List<int>.generate(
-      _randomBytesAmount!,
-      (int i) => resultBytes[i],
+
+    final BytesBuilder dataBuilder = BytesBuilder(copy: false);
+    dataBuilder.add(_paddingBytes!);
+    dataBuilder.add(randomBytes);
+
+    final Uint8List resultBytes = Uint8List.fromList(
+      md5.convert(dataBuilder.toBytes()).bytes,
     );
-    List<int> dataFromCustom = _encryptDataByCustom(
+    final Uint8List dataForCustom = Uint8List.view(
+      resultBytes.buffer,
+      0,
+      _randomBytesAmount,
+    );
+
+    Uint8List dataFromCustom = _encryptDataByCustom(
       dataForCustom,
-      _encryptionKey,
+      _encryptionKey!,
       _encryptionKey!.length,
     );
+
     for (int i = 1; i < _ownerLoopNum2!; i++) {
-      final List<int> currentKey = _getKeyWithOwnerPassword(_encryptionKey!, i);
+      final Uint8List currentKey = _getKeyWithOwnerPassword(_encryptionKey!, i);
       dataFromCustom = _encryptDataByCustom(
         dataFromCustom,
         currentKey,
@@ -359,37 +369,49 @@ class PdfEncryptor {
     return _padTrancateString(dataFromCustom);
   }
 
-  List<int> _create256BitUserPassword() {
+  Uint8List _create256BitUserPassword() {
     final Random random = Random.secure();
-    _userRandomBytes = List<int>.generate(
-      _randomBytesAmount!,
-      (int i) => random.nextInt(256),
+    _userRandomBytes = Uint8List(_randomBytesAmount!);
+    for (int i = 0; i < _randomBytesAmount!; i++) {
+      _userRandomBytes![i] = random.nextInt(256);
+    }
+
+    final Uint8List userPasswordBytes = Uint8List.fromList(
+      utf8.encode(_userPassword!),
     );
-    final List<int> userPasswordBytes = utf8.encode(_userPassword!);
-    final List<int> hash = <int>[];
-    hash.addAll(userPasswordBytes);
-    hash.addAll(List<int>.generate(8, (int i) => _userRandomBytes![i]));
-    final List<int> userPasswordOut = <int>[];
-    userPasswordOut.addAll(sha256.convert(hash).bytes);
-    userPasswordOut.addAll(_userRandomBytes!);
-    return userPasswordOut;
+
+    final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+    hashBuilder.add(userPasswordBytes);
+    hashBuilder.add(Uint8List.view(_userRandomBytes!.buffer, 0, 8));
+
+    final Uint8List hashBytes = Uint8List.fromList(
+      sha256.convert(hashBuilder.toBytes()).bytes,
+    );
+
+    final BytesBuilder resultBuilder = BytesBuilder(copy: false);
+    resultBuilder.add(hashBytes);
+    resultBuilder.add(_userRandomBytes!);
+
+    return resultBuilder.toBytes();
   }
 
-  List<int> _createOwnerPassword() {
+  Uint8List _createOwnerPassword() {
     final String password =
         ownerPassword.isEmpty ? userPassword : ownerPassword;
-    final List<int> customKey = _getKeyFromOwnerPassword(password);
-    final List<int> userPasswordBytes = _padTrancateString(
-      utf8.encode(userPassword),
+    final Uint8List customKey = _getKeyFromOwnerPassword(password);
+    final Uint8List userPasswordBytes = _padTrancateString(
+      Uint8List.fromList(utf8.encode(userPassword)),
     );
-    List<int> dataFromCustom = _encryptDataByCustom(
+
+    Uint8List dataFromCustom = _encryptDataByCustom(
       userPasswordBytes,
       customKey,
       customKey.length,
     );
+
     if (revisionNumber! > 2) {
       for (int i = 1; i < _ownerLoopNum2!; i++) {
-        final List<int> currentKey = _getKeyWithOwnerPassword(customKey, i);
+        final Uint8List currentKey = _getKeyWithOwnerPassword(customKey, i);
         dataFromCustom = _encryptDataByCustom(
           dataFromCustom,
           currentKey,
@@ -400,52 +422,69 @@ class PdfEncryptor {
     return dataFromCustom;
   }
 
-  List<int> _create256BitOwnerPassword() {
+  Uint8List _create256BitOwnerPassword() {
     final Random random = Random.secure();
-    _ownerRandomBytes = List<int>.generate(
-      _randomBytesAmount!,
-      (int i) => random.nextInt(256),
+    _ownerRandomBytes = Uint8List(_randomBytesAmount!);
+    for (int i = 0; i < _randomBytesAmount!; i++) {
+      _ownerRandomBytes![i] = random.nextInt(256);
+    }
+
+    final String password =
+        ownerPassword.isEmpty ? userPassword : ownerPassword;
+    final Uint8List ownerPasswordBytes = Uint8List.fromList(
+      utf8.encode(password),
     );
-    final String password =
-        ownerPassword.isEmpty ? userPassword : ownerPassword;
-    final List<int> ownerPasswordBytes = utf8.encode(password);
-    final List<int> hash = <int>[];
-    hash.addAll(ownerPasswordBytes);
-    hash.addAll(List<int>.generate(8, (int i) => _ownerRandomBytes![i]));
-    hash.addAll(_userPasswordOut!);
-    final List<int> ownerPasswordOut = <int>[];
-    ownerPasswordOut.addAll(sha256.convert(hash).bytes);
-    ownerPasswordOut.addAll(_ownerRandomBytes!);
-    return ownerPasswordOut;
+
+    final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+    hashBuilder.add(ownerPasswordBytes);
+    hashBuilder.add(Uint8List.view(_ownerRandomBytes!.buffer, 0, 8));
+    hashBuilder.add(_userPasswordOut!);
+
+    final Uint8List hashBytes = Uint8List.fromList(
+      sha256.convert(hashBuilder.toBytes()).bytes,
+    );
+
+    final BytesBuilder resultBuilder = BytesBuilder(copy: false);
+    resultBuilder.add(hashBytes);
+    resultBuilder.add(_ownerRandomBytes!);
+
+    return resultBuilder.toBytes();
   }
 
-  List<int>? _createUserEncryptionKey() {
-    final List<int> hash = <int>[];
-    hash.addAll(utf8.encode(userPassword));
-    hash.addAll(List<int>.generate(8, (int i) => _userRandomBytes![i + 8]));
-    final List<int> hashBytes = sha256.convert(hash).bytes;
+  Uint8List? _createUserEncryptionKey() {
+    final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+    hashBuilder.add(Uint8List.fromList(utf8.encode(userPassword)));
+    hashBuilder.add(Uint8List.view(_userRandomBytes!.buffer, 8, 8));
+
+    final Uint8List hashBytes = Uint8List.fromList(
+      sha256.convert(hashBuilder.toBytes()).bytes,
+    );
     return AesCipherNoPadding(
       true,
-      KeyParameter(Uint8List.fromList(hashBytes)),
-    ).process(Uint8List.fromList(_fileEncryptionKey!));
+      KeyParameter(hashBytes),
+    ).process(_fileEncryptionKey!);
   }
 
-  List<int>? _createOwnerEncryptionKey() {
+  Uint8List? _createOwnerEncryptionKey() {
     final String password =
         ownerPassword.isEmpty ? userPassword : ownerPassword;
-    final List<int> hash = <int>[];
-    hash.addAll(utf8.encode(password));
-    hash.addAll(List<int>.generate(8, (int i) => _ownerRandomBytes![i + 8]));
-    hash.addAll(_userPasswordOut!);
-    final List<int> hashBytes = sha256.convert(hash).bytes;
+
+    final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+    hashBuilder.add(Uint8List.fromList(utf8.encode(password)));
+    hashBuilder.add(Uint8List.view(_ownerRandomBytes!.buffer, 8, 8));
+    hashBuilder.add(_userPasswordOut!);
+
+    final Uint8List hashBytes = Uint8List.fromList(
+      sha256.convert(hashBuilder.toBytes()).bytes,
+    );
     return AesCipherNoPadding(
       true,
-      KeyParameter(Uint8List.fromList(hashBytes)),
-    ).process(Uint8List.fromList(_fileEncryptionKey!));
+      KeyParameter(hashBytes),
+    ).process(_fileEncryptionKey!);
   }
 
-  List<int>? _createPermissionFlag() {
-    final List<int> permissionFlagBytes = <int>[
+  Uint8List? _createPermissionFlag() {
+    final Uint8List permissionFlagBytes = Uint8List.fromList(<int>[
       _permissionValue!.toUnsigned(8),
       (_permissionValue! >> 8).toUnsigned(8),
       (_permissionValue! >> 16).toUnsigned(8),
@@ -463,119 +502,142 @@ class PdfEncryptor {
       98,
       98,
       98,
-    ];
+    ]);
+
     return AesCipherNoPadding(
       true,
-      KeyParameter(Uint8List.fromList(_fileEncryptionKey!)),
-    ).process(Uint8List.fromList(permissionFlagBytes));
+      KeyParameter(_fileEncryptionKey!),
+    ).process(permissionFlagBytes);
   }
 
   void _createAcrobatX256BitUserPassword() {
-    final List<int> userPasswordBytes = utf8.encode(_userPassword!);
+    final Uint8List userPasswordBytes = Uint8List.fromList(
+      utf8.encode(_userPassword!),
+    );
     final Random random = Random.secure();
-    final List<int> userValidationSalt = List<int>.generate(
-      8,
-      (int i) => random.nextInt(256),
+    final Uint8List userValidationSalt = Uint8List(8);
+    final Uint8List userKeySalt = Uint8List(8);
+
+    for (int i = 0; i < 8; i++) {
+      userValidationSalt[i] = random.nextInt(256);
+      userKeySalt[i] = random.nextInt(256);
+    }
+
+    final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+    hashBuilder.add(userPasswordBytes);
+    hashBuilder.add(userValidationSalt);
+
+    Uint8List hash = _acrobatXComputeHash(
+      hashBuilder.toBytes(),
+      userPasswordBytes,
+      null,
     );
-    final List<int> userKeySalt = List<int>.generate(
-      8,
-      (int i) => random.nextInt(256),
-    );
-    List<int> hash = <int>[];
-    hash.addAll(userPasswordBytes);
-    hash.addAll(userValidationSalt);
-    hash = _acrobatXComputeHash(hash, userPasswordBytes, null);
-    _userPasswordOut = <int>[];
-    _userPasswordOut!.addAll(hash);
-    _userPasswordOut!.addAll(userValidationSalt);
-    _userPasswordOut!.addAll(userKeySalt);
-    hash = <int>[];
-    hash.addAll(userPasswordBytes);
-    hash.addAll(userKeySalt);
-    hash = _acrobatXComputeHash(hash, userPasswordBytes, null);
+
+    final BytesBuilder resultBuilder = BytesBuilder(copy: false);
+    resultBuilder.add(hash);
+    resultBuilder.add(userValidationSalt);
+    resultBuilder.add(userKeySalt);
+    _userPasswordOut = resultBuilder.toBytes();
+
+    hashBuilder.clear();
+    hashBuilder.add(userPasswordBytes);
+    hashBuilder.add(userKeySalt);
+    hash = _acrobatXComputeHash(hashBuilder.toBytes(), userPasswordBytes, null);
+
     _userEncryptionKeyOut = AesCipherNoPadding(
       true,
-      KeyParameter(Uint8List.fromList(hash)),
-    ).process(Uint8List.fromList(_fileEncryptionKey!));
+      KeyParameter(hash),
+    ).process(_fileEncryptionKey!);
   }
 
   void _createAcrobatX256BitOwnerPassword() {
     final String password =
         ownerPassword.isEmpty ? userPassword : ownerPassword;
-    final List<int> ownerPasswordBytes = utf8.encode(password);
+    final Uint8List ownerPasswordBytes = Uint8List.fromList(
+      utf8.encode(password),
+    );
     final Random random = Random.secure();
-    final List<int> ownerValidationSalt = List<int>.generate(
-      8,
-      (int i) => random.nextInt(256),
+    final Uint8List ownerValidationSalt = Uint8List(8);
+    final Uint8List ownerKeySalt = Uint8List(8);
+
+    for (int i = 0; i < 8; i++) {
+      ownerValidationSalt[i] = random.nextInt(256);
+      ownerKeySalt[i] = random.nextInt(256);
+    }
+
+    final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+    hashBuilder.add(ownerPasswordBytes);
+    hashBuilder.add(ownerValidationSalt);
+    hashBuilder.add(_userPasswordOut!);
+
+    final Uint8List hash = _acrobatXComputeHash(
+      hashBuilder.toBytes(),
+      ownerPasswordBytes,
+      _userPasswordOut,
     );
-    final List<int> ownerKeySalt = List<int>.generate(
-      8,
-      (int i) => random.nextInt(256),
+
+    final BytesBuilder resultBuilder = BytesBuilder(copy: false);
+    resultBuilder.add(hash);
+    resultBuilder.add(ownerValidationSalt);
+    resultBuilder.add(ownerKeySalt);
+    _ownerPasswordOut = resultBuilder.toBytes();
+
+    hashBuilder.clear();
+    hashBuilder.add(ownerPasswordBytes);
+    hashBuilder.add(ownerKeySalt);
+    hashBuilder.add(_userPasswordOut!);
+
+    final Uint8List keyHash = _acrobatXComputeHash(
+      hashBuilder.toBytes(),
+      ownerPasswordBytes,
+      _userPasswordOut,
     );
-    final List<int> owenrPasswordOut = <int>[];
-    owenrPasswordOut.addAll(ownerPasswordBytes);
-    owenrPasswordOut.addAll(ownerValidationSalt);
-    owenrPasswordOut.addAll(_userPasswordOut!);
-    _ownerPasswordOut = <int>[];
-    _ownerPasswordOut!.addAll(
-      _acrobatXComputeHash(
-        owenrPasswordOut,
-        ownerPasswordBytes,
-        _userPasswordOut,
-      ),
-    );
-    _ownerPasswordOut!.addAll(ownerValidationSalt);
-    _ownerPasswordOut!.addAll(ownerKeySalt);
-    List<int> hash = <int>[];
-    hash.addAll(ownerPasswordBytes);
-    hash.addAll(ownerKeySalt);
-    hash.addAll(_userPasswordOut!);
-    hash = _acrobatXComputeHash(hash, ownerPasswordBytes, _userPasswordOut);
+
     _ownerEncryptionKeyOut = AesCipherNoPadding(
       true,
-      KeyParameter(Uint8List.fromList(hash)),
-    ).process(Uint8List.fromList(_fileEncryptionKey!));
+      KeyParameter(keyHash),
+    ).process(_fileEncryptionKey!);
   }
 
   void _createFileEncryptionKey() {
     final Random random = Random.secure();
-    _fileEncryptionKey = List<int>.generate(32, (int i) => random.nextInt(256));
+    _fileEncryptionKey = Uint8List(32);
+    for (int i = 0; i < 32; i++) {
+      _fileEncryptionKey![i] = random.nextInt(256);
+    }
   }
 
-  List<int> _encryptDataByCustom(
-    List<int> data,
-    List<int>? key,
-    int keyLength,
-  ) {
-    final List<int> buffer = List<int>.filled(data.length, 0, growable: true);
+  Uint8List _encryptDataByCustom(Uint8List data, Uint8List key, int keyLength) {
+    final Uint8List buffer = Uint8List(data.length);
     _recreateCustomArray(key, keyLength);
-    keyLength = data.length;
+
     int tmp1 = 0;
     int tmp2 = 0;
-    for (int i = 0; i < keyLength; i++) {
+
+    for (int i = 0; i < data.length; i++) {
       tmp1 = (tmp1 + 1) % _bytesAmount!;
       tmp2 = (tmp2 + customArray![tmp1]) % _bytesAmount!;
+
       final int temp = customArray![tmp1];
       customArray![tmp1] = customArray![tmp2];
       customArray![tmp2] = temp;
+
       final int byteXor =
           customArray![(customArray![tmp1] + customArray![tmp2]) %
               _bytesAmount!];
-      buffer[i] = (data[i] ^ byteXor).toUnsigned(8);
+      buffer[i] = (data[i] ^ byteXor) & 0xFF;
     }
     return buffer;
   }
 
-  void _recreateCustomArray(List<int>? key, int keyLength) {
-    final List<int> tempArray = List<int>.filled(
-      _bytesAmount!,
-      0,
-      growable: true,
-    );
+  void _recreateCustomArray(Uint8List key, int keyLength) {
+    final Uint8List tempArray = Uint8List(_bytesAmount!);
+
     for (int i = 0; i < _bytesAmount!; i++) {
-      tempArray[i] = key![i % keyLength];
-      customArray![i] = i.toUnsigned(8);
+      tempArray[i] = key[i % keyLength];
+      customArray![i] = i;
     }
+
     int temp = 0;
     for (int i = 0; i < _bytesAmount!; i++) {
       temp = (temp + customArray![i] + tempArray[i]) % _bytesAmount!;
@@ -585,25 +647,33 @@ class PdfEncryptor {
     }
   }
 
-  List<int> _getKeyFromOwnerPassword(String password) {
-    final List<int> passwordBytes = _padTrancateString(utf8.encode(password));
-    List<int> currentHash = md5.convert(passwordBytes).bytes;
-    final int? length = _getKeyLength();
+  Uint8List _getKeyFromOwnerPassword(String password) {
+    final Uint8List passwordBytes = _padTrancateString(
+      Uint8List.fromList(utf8.encode(password)),
+    );
+    Uint8List currentHash = Uint8List.fromList(
+      md5.convert(passwordBytes).bytes,
+    );
+    final int length = _getKeyLength()!;
+
     if (revisionNumber! > 2) {
       for (int i = 0; i < _ownerLoopNum!; i++) {
-        currentHash =
-            md5
-                .convert(
-                  currentHash.length == length
-                      ? currentHash
-                      : List<int>.generate(length!, (int i) => currentHash[i]),
-                )
-                .bytes;
+        if (currentHash.length != length) {
+          final Uint8List truncated = Uint8List(length);
+          truncated.setRange(0, length, currentHash);
+          currentHash = Uint8List.fromList(md5.convert(truncated).bytes);
+        } else {
+          currentHash = Uint8List.fromList(md5.convert(currentHash).bytes);
+        }
       }
     }
-    return currentHash.length == length
-        ? currentHash
-        : List<int>.generate(length!, (int i) => currentHash[i]);
+
+    if (currentHash.length != length) {
+      final Uint8List result = Uint8List(length);
+      result.setRange(0, length, currentHash);
+      return result;
+    }
+    return currentHash;
   }
 
   int? _getKeyLength() {
@@ -617,142 +687,161 @@ class PdfEncryptor {
                 : _key256));
   }
 
-  List<int> _padTrancateString(List<int> source) {
-    final List<int> passwordBytes = <int>[];
+  Uint8List _padTrancateString(Uint8List source) {
+    final Uint8List result = Uint8List(_stringLength!);
+
     if (source.isNotEmpty) {
-      passwordBytes.addAll(source);
+      final int copyLength = math.min(source.length, _stringLength!);
+      result.setRange(0, copyLength, source);
+
+      if (copyLength < _stringLength!) {
+        result.setRange(
+          copyLength,
+          _stringLength!,
+          _paddingBytes!.sublist(0, _stringLength! - copyLength),
+        );
+      }
+    } else {
+      result.setRange(0, _stringLength!, _paddingBytes!);
     }
-    if (source.length < _stringLength!) {
-      passwordBytes.addAll(
-        paddingBytes!.getRange(0, paddingBytes!.length - passwordBytes.length),
-      );
-    }
-    return List<int>.generate(_stringLength!, (int i) => passwordBytes[i]);
+
+    return result;
   }
 
-  List<int> _getKeyWithOwnerPassword(List<int> originalKey, int index) {
-    final List<int> result = List<int>.filled(
-      originalKey.length,
-      0,
-      growable: true,
-    );
+  Uint8List _getKeyWithOwnerPassword(Uint8List originalKey, int index) {
+    final Uint8List result = Uint8List(originalKey.length);
     for (int i = 0; i < originalKey.length; i++) {
-      result[i] = (originalKey[i] ^ index).toUnsigned(8);
+      result[i] = (originalKey[i] ^ index) & 0xFF;
     }
     return result;
   }
 
-  List<int> _createEncryptionKey(
+  Uint8List _createEncryptionKey(
     String inputPassword,
-    List<int> ownerPasswordBytes,
+    Uint8List ownerPasswordBytes,
   ) {
-    final List<int> passwordBytes = _padTrancateString(
-      utf8.encode(inputPassword),
+    final Uint8List passwordBytes = _padTrancateString(
+      Uint8List.fromList(utf8.encode(inputPassword)),
     );
-    final List<int> encryptionKeyData = <int>[];
-    encryptionKeyData.addAll(passwordBytes);
-    encryptionKeyData.addAll(ownerPasswordBytes);
-    encryptionKeyData.addAll(<int>[
-      _permissionValue!.toUnsigned(8),
-      (_permissionValue! >> 8).toUnsigned(8),
-      (_permissionValue! >> 16).toUnsigned(8),
-      (_permissionValue! >> 24).toUnsigned(8),
-    ]);
-    encryptionKeyData.addAll(randomBytes!);
-    int? revisionNumber;
+
+    final BytesBuilder encryptionKeyDataBuilder = BytesBuilder(copy: false);
+    encryptionKeyDataBuilder.add(passwordBytes);
+    encryptionKeyDataBuilder.add(ownerPasswordBytes);
+
+    final Uint8List permissionBytes = Uint8List(4);
+    permissionBytes[0] = _permissionValue!.toUnsigned(8);
+    permissionBytes[1] = (_permissionValue! >> 8).toUnsigned(8);
+    permissionBytes[2] = (_permissionValue! >> 16).toUnsigned(8);
+    permissionBytes[3] = (_permissionValue! >> 24).toUnsigned(8);
+    encryptionKeyDataBuilder.add(permissionBytes);
+    encryptionKeyDataBuilder.add(randomBytes);
+
+    int revNum;
     if (_revision != 0) {
-      revisionNumber = this.revisionNumber;
+      revNum = revisionNumber!;
     } else {
-      revisionNumber = getKeyLength() + 2;
+      revNum = getKeyLength() + 2;
     }
-    if (revisionNumber! > 3 && !encryptMetadata) {
-      encryptionKeyData.add(255);
-      encryptionKeyData.add(255);
-      encryptionKeyData.add(255);
-      encryptionKeyData.add(255);
+
+    if (revNum > 3 && !encryptMetadata) {
+      encryptionKeyDataBuilder.add(Uint8List.fromList([255, 255, 255, 255]));
     }
-    List<int> currentHash = md5.convert(encryptionKeyData).bytes;
-    final int? length = _getKeyLength();
-    if (this.revisionNumber! > 2) {
+
+    Uint8List currentHash = Uint8List.fromList(
+      md5.convert(encryptionKeyDataBuilder.toBytes()).bytes,
+    );
+    final int length = _getKeyLength()!;
+
+    if (revisionNumber! > 2) {
       for (int i = 0; i < _ownerLoopNum!; i++) {
-        currentHash =
-            md5
-                .convert(
-                  currentHash.length == length
-                      ? currentHash
-                      : List<int>.generate(length!, (int i) => currentHash[i]),
-                )
-                .bytes;
+        if (currentHash.length != length) {
+          final Uint8List truncated = Uint8List(length);
+          truncated.setRange(0, length, currentHash);
+          currentHash = Uint8List.fromList(md5.convert(truncated).bytes);
+        } else {
+          currentHash = Uint8List.fromList(md5.convert(currentHash).bytes);
+        }
       }
     }
-    return currentHash.length == length
-        ? currentHash
-        : List<int>.generate(length!, (int i) => currentHash[i]);
+
+    if (currentHash.length != length) {
+      final Uint8List result = Uint8List(length);
+      result.setRange(0, length, currentHash);
+      return result;
+    }
+    return currentHash;
   }
 
-  List<int> _acrobatXComputeHash(
-    List<int> input,
-    List<int> password,
-    List<int>? key,
+  Uint8List _acrobatXComputeHash(
+    Uint8List input,
+    Uint8List password,
+    Uint8List? key,
   ) {
-    List<int> hash = sha256.convert(input).bytes;
-    List<int>? finalHashKey;
+    Uint8List hash = Uint8List.fromList(sha256.convert(input).bytes);
+    Uint8List? finalHashKey;
+
     for (
       int i = 0;
-      i < 64 || (finalHashKey![finalHashKey.length - 1] & 0xFF) > i - 32;
+      i < 64 ||
+          (finalHashKey != null &&
+              (finalHashKey[finalHashKey.length - 1] & 0xFF) > i - 32);
       i++
     ) {
-      final List<int> roundHash = List<int>.filled(
-        (key != null && key.length >= 48)
-            ? 64 * (password.length + hash.length + 48)
-            : 64 * (password.length + hash.length),
-        0,
-        growable: true,
-      );
+      final int roundHashSize =
+          (key != null && key.length >= 48)
+              ? 64 * (password.length + hash.length + 48)
+              : 64 * (password.length + hash.length);
+
+      final Uint8List roundHash = Uint8List(roundHashSize);
       int position = 0;
+
       for (int j = 0; j < 64; j++) {
-        List.copyRange(roundHash, position, password, 0, password.length);
+        roundHash.setRange(position, position + password.length, password);
         position += password.length;
-        List.copyRange(roundHash, position, hash, 0, hash.length);
+        roundHash.setRange(position, position + hash.length, hash);
         position += hash.length;
         if (key != null && key.length >= 48) {
-          List.copyRange(roundHash, position, key, 0, 48);
+          roundHash.setRange(position, position + 48, key.sublist(0, 48));
           position += 48;
         }
       }
-      final List<int> hashFirst = List<int>.generate(16, (int i) => hash[i]);
-      final List<int> hashSecond = List<int>.generate(
-        16,
-        (int i) => hash[i + 16],
-      );
+
+      final Uint8List hashFirst = Uint8List.view(hash.buffer, 0, 16);
+      final Uint8List hashSecond = Uint8List.view(hash.buffer, 16, 16);
       final AesCipher encrypt = AesCipher(true, hashFirst, hashSecond);
-      finalHashKey = encrypt.update(roundHash, 0, roundHash.length);
-      final List<int> finalHashKeyFirst = List<int>.generate(
-        16,
-        (int i) => finalHashKey![i],
-      );
-      final BigInt finalKeyBigInteger = _readBigIntFromBytes(
-        finalHashKeyFirst,
-        0,
-        finalHashKeyFirst.length,
-      );
-      final BigInt divisior = BigInt.parse('3');
-      final BigInt algorithmNumber = finalKeyBigInteger % divisior;
-      final int algorithmIndex = algorithmNumber.toInt();
-      if (algorithmIndex == 0) {
-        hash = sha256.convert(finalHashKey!).bytes;
-      } else if (algorithmIndex == 1) {
-        hash = sha384.convert(finalHashKey!).bytes;
-      } else {
-        hash = sha512.convert(finalHashKey!).bytes;
+
+      final updateResult = encrypt.update(roundHash, 0, roundHash.length);
+      finalHashKey =
+          updateResult != null ? Uint8List.fromList(updateResult) : null;
+
+      if (finalHashKey != null) {
+        final Uint8List finalHashKeyFirst = Uint8List.view(
+          finalHashKey.buffer,
+          0,
+          16,
+        );
+        final BigInt finalKeyBigInteger = _readBigIntFromBytes(
+          finalHashKeyFirst,
+          0,
+          finalHashKeyFirst.length,
+        );
+        final BigInt algorithmNumber = finalKeyBigInteger % BigInt.from(3);
+        final int algorithmIndex = algorithmNumber.toInt();
+
+        if (algorithmIndex == 0) {
+          hash = Uint8List.fromList(sha256.convert(finalHashKey).bytes);
+        } else if (algorithmIndex == 1) {
+          hash = Uint8List.fromList(sha384.convert(finalHashKey).bytes);
+        } else {
+          hash = Uint8List.fromList(sha512.convert(finalHashKey).bytes);
+        }
       }
     }
-    return (hash.length > 32)
-        ? List<int>.generate(32, (int i) => hash[i])
-        : hash;
+
+    return (hash.length > 32) ? Uint8List.view(hash.buffer, 0, 32) : hash;
   }
 
-  BigInt _readBigIntFromBytes(List<int> bytes, int start, int end) {
+  BigInt _readBigIntFromBytes(Uint8List bytes, int start, int end) {
     if (end - start <= 4) {
       int result = 0;
       for (int i = end - 1; i >= start; i--) {
@@ -764,6 +853,24 @@ class PdfEncryptor {
     return _readBigIntFromBytes(bytes, start, mid) +
         _readBigIntFromBytes(bytes, mid, end) *
             (BigInt.one << ((mid - start) * 8));
+  }
+
+  bool _compareByteArrays(Uint8List array1, Uint8List? array2, [int? size]) {
+    if (array2 == null) {
+      return false;
+    }
+
+    final int compareLength = size ?? array1.length;
+    if (array1.length < compareLength || array2.length < compareLength) {
+      return false;
+    }
+
+    for (int i = 0; i < compareLength; i++) {
+      if (array1[i] != array2[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /// internal method
@@ -786,7 +893,7 @@ class PdfEncryptor {
     _updatePermissions(_permissionValue! & ~_permissionSet!);
     _versionNumberOut = dictionary.getInt(PdfDictionaryProperties.v);
     _revisionNumberOut = dictionary.getInt(PdfDictionaryProperties.r);
-    if (_revisionNumberOut != null) {
+    if (_revisionNumberOut != 0) {
       _revision = _revisionNumberOut;
     }
     int keySize = dictionary.getInt(PdfDictionaryProperties.v);
@@ -796,19 +903,27 @@ class PdfEncryptor {
       );
     }
     if (keySize == 5) {
-      _userEncryptionKeyOut =
-          dictionary.getString(PdfDictionaryProperties.ue)!.data;
-      _ownerEncryptionKeyOut =
-          dictionary.getString(PdfDictionaryProperties.oe)!.data;
-      _permissionFlag =
-          dictionary.getString(PdfDictionaryProperties.perms)!.data;
+      _userEncryptionKeyOut = Uint8List.fromList(
+        dictionary.getString(PdfDictionaryProperties.ue)!.data!,
+      );
+      _ownerEncryptionKeyOut = Uint8List.fromList(
+        dictionary.getString(PdfDictionaryProperties.oe)!.data!,
+      );
+      _permissionFlag = Uint8List.fromList(
+        dictionary.getString(PdfDictionaryProperties.perms)!.data!,
+      );
     }
-    _userPasswordOut = dictionary.getString(PdfDictionaryProperties.u)!.data;
-    _ownerPasswordOut = dictionary.getString(PdfDictionaryProperties.o)!.data;
+    _userPasswordOut = Uint8List.fromList(
+      dictionary.getString(PdfDictionaryProperties.u)!.data!,
+    );
+    _ownerPasswordOut = Uint8List.fromList(
+      dictionary.getString(PdfDictionaryProperties.o)!.data!,
+    );
     keyLength =
         dictionary.containsKey(PdfDictionaryProperties.length)
             ? dictionary.getInt(PdfDictionaryProperties.length)
             : (keySize == 1 ? 40 : (keySize == 2 ? 128 : 256));
+
     if (keyLength == 128 && _revisionNumberOut! < 4) {
       keySize = 2;
       encryptionAlgorithm = PdfEncryptionAlgorithm.rc4x128Bit;
@@ -891,7 +1006,7 @@ class PdfEncryptor {
     if (value & 0x000800 > 0) {
       _permissions!.add(PdfPermissionsFlags.fullQualityPrint);
     }
-    if (permissions.isEmpty) {
+    if (_permissions!.isEmpty) {
       _permissions!.add(PdfPermissionsFlags.none);
     }
   }
@@ -899,9 +1014,9 @@ class PdfEncryptor {
   /// internal method
   bool checkPassword(String password, PdfString key, bool attachEncryption) {
     bool result = false;
-    final List<int>? fileId =
-        _randomBytes != null ? List<int>.from(_randomBytes!) : _randomBytes;
-    _randomBytes = List<int>.from(key.data!);
+    final Uint8List? fileId = _randomBytes;
+    _randomBytes = Uint8List.fromList(key.data!);
+
     if (_authenticateOwnerPassword(password)) {
       _ownerPassword = password;
       result = true;
@@ -913,6 +1028,7 @@ class PdfEncryptor {
     } else {
       _encryptionKey = null;
     }
+
     if (!result) {
       _randomBytes = fileId;
     }
@@ -939,17 +1055,17 @@ class PdfEncryptor {
       return _authenticate256BitOwnerPassword(password);
     } else {
       _encryptionKey = _getKeyFromOwnerPassword(password);
-      List<int>? buff = _ownerPasswordOut;
+      Uint8List? buff = _ownerPasswordOut;
       if (revisionNumber == 2) {
         buff = _encryptDataByCustom(
           buff!,
-          _encryptionKey,
+          _encryptionKey!,
           _encryptionKey!.length,
         );
       } else if (revisionNumber! > 2) {
         buff = _ownerPasswordOut;
         for (int i = 0; i < _ownerLoopNum2!; ++i) {
-          final List<int> currKey = _getKeyWithOwnerPassword(
+          final Uint8List currKey = _getKeyWithOwnerPassword(
             _encryptionKey!,
             _ownerLoopNum2! - i - 1,
           );
@@ -968,100 +1084,57 @@ class PdfEncryptor {
     }
   }
 
-  String _convertToPassword(List<int> array) {
-    String result;
+  String _convertToPassword(Uint8List array) {
     int length = array.length;
     for (int i = 0; i < length; ++i) {
-      if (array[i] == paddingBytes![0]) {
-        if (i < length - 1 && array[i + 1] == paddingBytes![1]) {
+      if (array[i] == _paddingBytes![0]) {
+        if (i < length - 1 && array[i + 1] == _paddingBytes![1]) {
           length = i;
           break;
         }
       }
     }
-    result = PdfString.byteToString(array, length);
-    return result;
+    return PdfString.byteToString(array, length);
   }
 
   bool _authenticate256BitUserPassword(String password) {
-    final List<int> userValidationSalt = List<int>.filled(8, 0, growable: true);
-    final List<int> userKeySalt = List<int>.filled(8, 0, growable: true);
-    final List<int> hashProvided = List<int>.filled(32, 0, growable: true);
-    _userRandomBytes = List<int>.filled(16, 0, growable: true);
-    List<int> hash;
-    final List<int> userPassword = utf8.encode(password);
+    final Uint8List userValidationSalt = Uint8List(8);
+    final Uint8List userKeySalt = Uint8List(8);
+    final Uint8List hashProvided = Uint8List(32);
+    _userRandomBytes = Uint8List(16);
+
+    final Uint8List userPassword = Uint8List.fromList(utf8.encode(password));
+
     if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
-      List.copyRange(hashProvided, 0, _userPasswordOut!, 0, 32);
-      List.copyRange(userValidationSalt, 0, _userPasswordOut!, 32, 40);
-      final List<int> combinedUserpassword = List<int>.filled(
-        userPassword.length + userValidationSalt.length,
-        0,
-        growable: true,
-      );
-      List.copyRange(
-        combinedUserpassword,
-        0,
+      hashProvided.setRange(0, 32, _userPasswordOut!);
+      userValidationSalt.setRange(0, 8, _userPasswordOut!, 32);
+
+      final BytesBuilder combinedBuilder = BytesBuilder(copy: false);
+      combinedBuilder.add(userPassword);
+      combinedBuilder.add(userValidationSalt);
+
+      final Uint8List hash = _acrobatXComputeHash(
+        combinedBuilder.toBytes(),
         userPassword,
-        0,
-        userPassword.length,
+        null,
       );
-      List.copyRange(
-        combinedUserpassword,
-        userPassword.length,
-        userValidationSalt,
-        0,
-        userValidationSalt.length,
-      );
-      hash = _acrobatXComputeHash(combinedUserpassword, userPassword, null);
       _advanceXUserFileEncryptionKey(password);
       return _compareByteArrays(hash, hashProvided);
     } else {
-      List.copyRange(
-        hashProvided,
-        0,
-        _userPasswordOut!,
-        0,
-        hashProvided.length,
+      hashProvided.setRange(0, 32, _userPasswordOut!);
+      _userRandomBytes!.setRange(0, 16, _userPasswordOut!, 32);
+      userValidationSalt.setRange(0, 8, _userRandomBytes!);
+      userKeySalt.setRange(0, 8, _userRandomBytes!, 8);
+
+      final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+      hashBuilder.add(userPassword);
+      hashBuilder.add(userValidationSalt);
+
+      final Uint8List hashFound = Uint8List.fromList(
+        sha256.convert(hashBuilder.toBytes()).bytes,
       );
-      List.copyRange(_userRandomBytes!, 0, _userPasswordOut!, 32, 48);
-      List.copyRange(
-        userValidationSalt,
-        0,
-        _userRandomBytes!,
-        0,
-        userValidationSalt.length,
-      );
-      List.copyRange(
-        userKeySalt,
-        0,
-        _userRandomBytes!,
-        userValidationSalt.length,
-        userKeySalt.length + userValidationSalt.length,
-      );
-      hash = List<int>.filled(
-        userPassword.length + userValidationSalt.length,
-        0,
-        growable: true,
-      );
-      List.copyRange(hash, 0, userPassword, 0, userPassword.length);
-      List.copyRange(
-        hash,
-        userPassword.length,
-        userValidationSalt,
-        0,
-        userValidationSalt.length,
-      );
-      final List<int> hashFound = sha256.convert(hash).bytes;
-      bool bEqual = false;
-      if (hashFound.length == hashProvided.length) {
-        int i = 0;
-        while ((i < hashFound.length) && (hashFound[i] == hashProvided[i])) {
-          i += 1;
-        }
-        if (i == hashFound.length) {
-          bEqual = true;
-        }
-      }
+      final bool bEqual = _compareByteArrays(hashFound, hashProvided);
+
       if (bEqual) {
         _findFileEncryptionKey(password);
       }
@@ -1070,59 +1143,37 @@ class PdfEncryptor {
   }
 
   bool _authenticate256BitOwnerPassword(String password) {
-    final List<int> ownerValidationSalt = List<int>.filled(
-      8,
-      0,
-      growable: true,
-    );
-    final List<int> ownerKeySalt = List<int>.filled(8, 0, growable: true);
-    final List<int> hashProvided = List<int>.filled(32, 0, growable: true);
-    _ownerRandomBytes = List<int>.filled(16, 0, growable: true);
-    List<int> hash;
-    bool oEqual = false;
-    final List<int> ownerPassword = utf8.encode(password);
+    final Uint8List ownerValidationSalt = Uint8List(8);
+    final Uint8List ownerKeySalt = Uint8List(8);
+    final Uint8List hashProvided = Uint8List(32);
+    _ownerRandomBytes = Uint8List(16);
+
+    final Uint8List ownerPassword = Uint8List.fromList(utf8.encode(password));
+
     if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
-      List.copyRange(hashProvided, 0, _ownerPasswordOut!, 0, 32);
-      List.copyRange(ownerValidationSalt, 0, _ownerPasswordOut!, 32, 40);
-      int userKeyLength = 48;
-      if (_userPasswordOut!.length < 48) {
-        userKeyLength = _userPasswordOut!.length;
-      }
-      final List<int> mixedOwnerPassword = List<int>.filled(
-        ownerPassword.length + ownerValidationSalt.length + userKeyLength,
-        0,
-        growable: true,
+      hashProvided.setRange(0, 32, _ownerPasswordOut!);
+      ownerValidationSalt.setRange(0, 8, _ownerPasswordOut!, 32);
+
+      final int userKeyLength = math.min(48, _userPasswordOut!.length);
+
+      final BytesBuilder mixedBuilder = BytesBuilder(copy: false);
+      mixedBuilder.add(ownerPassword);
+      mixedBuilder.add(ownerValidationSalt);
+      mixedBuilder.add(
+        Uint8List.view(_userPasswordOut!.buffer, 0, userKeyLength),
       );
-      List.copyRange(
-        mixedOwnerPassword,
-        0,
-        ownerPassword,
-        0,
-        ownerPassword.length,
-      );
-      List.copyRange(
-        mixedOwnerPassword,
-        ownerPassword.length,
-        ownerValidationSalt,
-        0,
-        ownerValidationSalt.length,
-      );
-      List.copyRange(
-        mixedOwnerPassword,
-        ownerPassword.length + ownerValidationSalt.length,
-        _userPasswordOut!,
-        0,
-        userKeyLength,
-      );
-      hash = _acrobatXComputeHash(
-        mixedOwnerPassword,
+
+      final Uint8List hash = _acrobatXComputeHash(
+        mixedBuilder.toBytes(),
         ownerPassword,
         _userPasswordOut,
       );
+
       _acrobatXOwnerFileEncryptionKey(password);
-      oEqual = _compareByteArrays(hash, hashProvided);
-      if (oEqual == true) {
-        final List<int>? ownerRandom = _fileEncryptionKey;
+      final bool oEqual = _compareByteArrays(hash, hashProvided);
+
+      if (oEqual) {
+        final Uint8List? ownerRandom = _fileEncryptionKey;
         final String userPassword = password;
         _ownerRandomBytes = null;
         if (_authenticateUserPassword(userPassword)) {
@@ -1136,65 +1187,25 @@ class PdfEncryptor {
       }
       return oEqual;
     } else {
-      final List<int> userPasswordOut = List<int>.filled(48, 0, growable: true);
-      List.copyRange(userPasswordOut, 0, _userPasswordOut!, 0, 48);
-      List.copyRange(
-        hashProvided,
-        0,
-        _ownerPasswordOut!,
-        0,
-        hashProvided.length,
+      final Uint8List userPasswordOut = Uint8List(48);
+      userPasswordOut.setRange(0, 48, _userPasswordOut!);
+      hashProvided.setRange(0, 32, _ownerPasswordOut!);
+      _ownerRandomBytes!.setRange(0, 16, _ownerPasswordOut!, 32);
+      ownerValidationSalt.setRange(0, 8, _ownerRandomBytes!);
+      ownerKeySalt.setRange(0, 8, _ownerRandomBytes!, 8);
+
+      final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+      hashBuilder.add(ownerPassword);
+      hashBuilder.add(ownerValidationSalt);
+      hashBuilder.add(userPasswordOut);
+
+      final Uint8List hashFound = Uint8List.fromList(
+        sha256.convert(hashBuilder.toBytes()).bytes,
       );
-      List.copyRange(_ownerRandomBytes!, 0, _ownerPasswordOut!, 32, 48);
-      List.copyRange(
-        ownerValidationSalt,
-        0,
-        _ownerRandomBytes!,
-        0,
-        ownerValidationSalt.length,
-      );
-      List.copyRange(
-        ownerKeySalt,
-        0,
-        _ownerRandomBytes!,
-        ownerValidationSalt.length,
-        ownerKeySalt.length,
-      );
-      hash = List<int>.filled(
-        ownerPassword.length +
-            ownerValidationSalt.length +
-            userPasswordOut.length,
-        0,
-        growable: true,
-      );
-      List.copyRange(hash, 0, ownerPassword, 0, ownerPassword.length);
-      List.copyRange(
-        hash,
-        ownerPassword.length,
-        ownerValidationSalt,
-        0,
-        ownerValidationSalt.length,
-      );
-      List.copyRange(
-        hash,
-        ownerPassword.length + ownerValidationSalt.length,
-        userPasswordOut,
-        0,
-        userPasswordOut.length,
-      );
-      final List<int> hashFound = sha256.convert(hash).bytes;
-      bool bEqual = false;
-      if (hashFound.length == hashProvided.length) {
-        int i = 0;
-        while ((i < hashFound.length) && (hashFound[i] == hashProvided[i])) {
-          i += 1;
-        }
-        if (i == hashFound.length) {
-          bEqual = true;
-        }
-      }
+      final bool bEqual = _compareByteArrays(hashFound, hashProvided);
+
       _findFileEncryptionKey(password);
-      if (bEqual == true) {
+      if (bEqual) {
         _ownerRandomBytes = null;
         final String userPassword = password;
         if (_authenticateUserPassword(userPassword)) {
@@ -1209,190 +1220,97 @@ class PdfEncryptor {
   }
 
   void _findFileEncryptionKey(String password) {
-    List<int> hash;
-    late List<int> hashFound;
-    List<int>? forDecryption;
+    late Uint8List hashFound;
+    Uint8List? forDecryption;
+
     if (_ownerRandomBytes != null) {
-      final List<int> ownerValidationSalt = List<int>.filled(
-        8,
-        0,
-        growable: true,
+      final Uint8List ownerValidationSalt = Uint8List(8);
+      final Uint8List ownerKeySalt = Uint8List(8);
+      final Uint8List ownerPassword = Uint8List.fromList(utf8.encode(password));
+      final Uint8List userPasswordOut = Uint8List(48);
+
+      userPasswordOut.setRange(0, 48, _userPasswordOut!);
+      ownerValidationSalt.setRange(0, 8, _ownerRandomBytes!);
+      ownerKeySalt.setRange(0, 8, _ownerRandomBytes!, 8);
+
+      final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+      hashBuilder.add(ownerPassword);
+      hashBuilder.add(ownerKeySalt);
+      hashBuilder.add(userPasswordOut);
+
+      hashFound = Uint8List.fromList(
+        sha256.convert(hashBuilder.toBytes()).bytes,
       );
-      final List<int> ownerKeySalt = List<int>.filled(8, 0, growable: true);
-      final List<int> ownerPassword = utf8.encode(password);
-      final List<int> userPasswordOut = List<int>.filled(48, 0, growable: true);
-      List.copyRange(userPasswordOut, 0, _userPasswordOut!, 0, 48);
-      List.copyRange(ownerValidationSalt, 0, _ownerRandomBytes!, 0, 8);
-      List.copyRange(ownerKeySalt, 0, _ownerRandomBytes!, 8, 16);
-      hash = List<int>.filled(
-        ownerPassword.length +
-            ownerValidationSalt.length +
-            userPasswordOut.length,
-        0,
-        growable: true,
-      );
-      List.copyRange(hash, 0, ownerPassword, 0, ownerPassword.length);
-      List.copyRange(
-        hash,
-        ownerPassword.length,
-        ownerKeySalt,
-        0,
-        ownerKeySalt.length,
-      );
-      List.copyRange(
-        hash,
-        ownerPassword.length + ownerValidationSalt.length,
-        userPasswordOut,
-        0,
-        userPasswordOut.length,
-      );
-      hashFound = sha256.convert(hash).bytes;
       forDecryption = _ownerEncryptionKeyOut;
     } else if (_userRandomBytes != null) {
-      final List<int> userValidationSalt = List<int>.filled(
-        8,
-        0,
-        growable: true,
+      final Uint8List userValidationSalt = Uint8List(8);
+      final Uint8List userKeySalt = Uint8List(8);
+      final Uint8List userPassword = Uint8List.fromList(utf8.encode(password));
+
+      userValidationSalt.setRange(0, 8, _userRandomBytes!);
+      userKeySalt.setRange(0, 8, _userRandomBytes!, 8);
+
+      final BytesBuilder hashBuilder = BytesBuilder(copy: false);
+      hashBuilder.add(userPassword);
+      hashBuilder.add(userKeySalt);
+
+      hashFound = Uint8List.fromList(
+        sha256.convert(hashBuilder.toBytes()).bytes,
       );
-      final List<int> userKeySalt = List<int>.filled(8, 0, growable: true);
-      final List<int> userPassword = utf8.encode(password);
-      List.copyRange(userValidationSalt, 0, _userRandomBytes!, 0, 8);
-      List.copyRange(userKeySalt, 0, _userRandomBytes!, 8, 16);
-      hash = List<int>.filled(
-        userPassword.length + userKeySalt.length,
-        0,
-        growable: true,
-      );
-      List.copyRange(hash, 0, userPassword, 0, userPassword.length);
-      List.copyRange(
-        hash,
-        userPassword.length,
-        userKeySalt,
-        0,
-        userKeySalt.length,
-      );
-      hashFound = sha256.convert(hash).bytes;
       forDecryption = _userEncryptionKeyOut;
     }
+
     _fileEncryptionKey = AesCipherNoPadding(
       false,
-      KeyParameter(Uint8List.fromList(hashFound)),
-    ).process(Uint8List.fromList(forDecryption!));
-  }
-
-  bool _compareByteArrays(List<int> array1, List<int>? array2, [int? size]) {
-    bool result = true;
-    if (size == null) {
-      if (array2 == null) {
-        result = array1 == array2;
-      } else if (array1.length != array2.length) {
-        result = false;
-      } else {
-        for (int i = 0; i < array1.length; ++i) {
-          if (array1[i] != array2[i]) {
-            result = false;
-            break;
-          }
-        }
-      }
-    } else {
-      if (array2 == null) {
-        result = array1 == array2;
-      } else if (array1.length < size || array2.length < size) {
-        throw ArgumentError.value(
-          'Size of one of the arrays are less then requisted size.',
-        );
-      } else if (array1.length != array2.length) {
-        result = false;
-      } else {
-        for (int i = 0; i < size; ++i) {
-          if (array1[i] != array2[i]) {
-            result = false;
-            break;
-          }
-        }
-      }
-    }
-    return result;
+      KeyParameter(hashFound),
+    ).process(forDecryption!);
   }
 
   void _acrobatXOwnerFileEncryptionKey(String password) {
-    final List<int> ownerValidationSalt = List<int>.filled(
-      8,
-      0,
-      growable: true,
+    final Uint8List ownerValidationSalt = Uint8List(8);
+    final Uint8List ownerPassword = Uint8List.fromList(utf8.encode(password));
+    ownerValidationSalt.setRange(0, 8, _ownerPasswordOut!, 40);
+
+    final int userKeyLength = math.min(48, _userPasswordOut!.length);
+
+    final BytesBuilder combinedBuilder = BytesBuilder(copy: false);
+    combinedBuilder.add(ownerPassword);
+    combinedBuilder.add(ownerValidationSalt);
+    combinedBuilder.add(
+      Uint8List.view(_userPasswordOut!.buffer, 0, userKeyLength),
     );
-    final List<int> ownerPassword = utf8.encode(password);
-    List.copyRange(ownerValidationSalt, 0, _ownerPasswordOut!, 40, 48);
-    int userKeyLength = 48;
-    if (_userPasswordOut!.length < 48) {
-      userKeyLength = _userPasswordOut!.length;
-    }
-    final List<int> combinedPassword = List<int>.filled(
-      ownerPassword.length + ownerValidationSalt.length + userKeyLength,
-      0,
-      growable: true,
-    );
-    List.copyRange(combinedPassword, 0, ownerPassword, 0, ownerPassword.length);
-    List.copyRange(
-      combinedPassword,
-      ownerPassword.length,
-      ownerValidationSalt,
-      0,
-      ownerValidationSalt.length,
-    );
-    List.copyRange(
-      combinedPassword,
-      ownerPassword.length + ownerValidationSalt.length,
-      _userPasswordOut!,
-      0,
-      userKeyLength,
-    );
-    final List<int> hash = _acrobatXComputeHash(
-      combinedPassword,
+
+    final Uint8List hash = _acrobatXComputeHash(
+      combinedBuilder.toBytes(),
       ownerPassword,
       _userPasswordOut,
     );
-    final List<int> fileEncryptionKey = List<int>.from(_ownerEncryptionKeyOut!);
+
     _fileEncryptionKey = AesCipherNoPadding(
       false,
-      KeyParameter(Uint8List.fromList(hash)),
-    ).process(Uint8List.fromList(fileEncryptionKey));
+      KeyParameter(hash),
+    ).process(_ownerEncryptionKeyOut!);
   }
 
   void _advanceXUserFileEncryptionKey(String password) {
-    final List<int> userKeySalt = List<int>.filled(8, 0, growable: true);
-    List.copyRange(userKeySalt, 0, _userPasswordOut!, 40, 48);
-    final List<int> userpassword = utf8.encode(password);
-    final List<int> combinedUserPassword = List<int>.filled(
-      userpassword.length + userKeySalt.length,
-      0,
-      growable: true,
-    );
-    List.copyRange(
-      combinedUserPassword,
-      0,
-      userpassword,
-      0,
-      userpassword.length,
-    );
-    List.copyRange(
-      combinedUserPassword,
-      userpassword.length,
-      userKeySalt,
-      0,
-      userKeySalt.length,
-    );
-    final List<int> hash = _acrobatXComputeHash(
-      combinedUserPassword,
+    final Uint8List userKeySalt = Uint8List(8);
+    userKeySalt.setRange(0, 8, _userPasswordOut!, 40);
+    final Uint8List userpassword = Uint8List.fromList(utf8.encode(password));
+
+    final BytesBuilder combinedBuilder = BytesBuilder(copy: false);
+    combinedBuilder.add(userpassword);
+    combinedBuilder.add(userKeySalt);
+
+    final Uint8List hash = _acrobatXComputeHash(
+      combinedBuilder.toBytes(),
       userpassword,
       null,
     );
-    final List<int> fileEncryptionKey = List<int>.from(_userEncryptionKeyOut!);
+
     _fileEncryptionKey = AesCipherNoPadding(
       false,
-      KeyParameter(Uint8List.fromList(hash)),
-    ).process(Uint8List.fromList(fileEncryptionKey));
+      KeyParameter(hash),
+    ).process(_userEncryptionKeyOut!);
   }
 
   /// internal method
@@ -1413,12 +1331,14 @@ class PdfEncryptor {
     dictionary[PdfDictionaryProperties.o] = PdfString.fromBytes(
       ownerPasswordOut,
     );
+
     if (dictionary.containsKey(PdfDictionaryProperties.length)) {
       keyLength = 0;
     }
     dictionary[PdfDictionaryProperties.length] = PdfNumber(
       _getKeyLength()! * 8,
     );
+
     const bool isAes4Dict = false;
     if (encryptAttachmentOnly! &&
         (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit ||
@@ -1428,6 +1348,7 @@ class PdfEncryptor {
         'Encrypt only attachment is supported in AES algorithm with 128, 256 and 256Revision6 encryptions only.',
       );
     }
+
     if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
         encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
         encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
@@ -1440,6 +1361,7 @@ class PdfEncryptor {
         dictionary[PdfDictionaryProperties.v] = PdfNumber(5);
         dictionary[PdfDictionaryProperties.r] = PdfNumber(5);
       }
+
       if (encryptAttachmentOnly!) {
         dictionary[PdfDictionaryProperties.stmF] = PdfName(
           PdfDictionaryProperties.identity,
@@ -1464,6 +1386,7 @@ class PdfEncryptor {
           dictionary.remove(PdfDictionaryProperties.eff);
         }
       }
+
       if (!encryptOnlyMetadata!) {
         if (!dictionary.containsKey(PdfDictionaryProperties.encryptMetadata)) {
           dictionary[PdfDictionaryProperties.encryptMetadata] = PdfBoolean(
@@ -1475,6 +1398,7 @@ class PdfEncryptor {
           dictionary.remove(PdfDictionaryProperties.encryptMetadata);
         }
       }
+
       dictionary[PdfDictionaryProperties.cf] = _getCryptFilterDictionary();
       if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
           encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
@@ -1506,112 +1430,7 @@ class PdfEncryptor {
 
   /// internal method
   Future<PdfDictionary> saveToDictionaryAsync(PdfDictionary dictionary) async {
-    if (changed!) {
-      _revisionNumberOut = 0;
-      _versionNumberOut = 0;
-      _revision = 0;
-      keyLength = 0;
-    }
-    dictionary[PdfDictionaryProperties.filter] = PdfName(
-      PdfDictionaryProperties.standard,
-    );
-    dictionary[PdfDictionaryProperties.p] = PdfNumber(_permissionValue!);
-    dictionary[PdfDictionaryProperties.u] = PdfString.fromBytes(
-      userPasswordOut,
-    );
-    dictionary[PdfDictionaryProperties.o] = PdfString.fromBytes(
-      ownerPasswordOut,
-    );
-    if (dictionary.containsKey(PdfDictionaryProperties.length)) {
-      keyLength = 0;
-    }
-    dictionary[PdfDictionaryProperties.length] = PdfNumber(
-      _getKeyLength()! * 8,
-    );
-    const bool isAes4Dict = false;
-    if (encryptAttachmentOnly! &&
-        (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit ||
-            encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x40Bit)) {
-      throw ArgumentError.value(
-        encryptionAlgorithm,
-        'Encrypt only attachment is supported in AES algorithm with 128, 256 and 256Revision6 encryptions only.',
-      );
-    }
-    if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
-        encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
-        encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
-      dictionary[PdfDictionaryProperties.r] = PdfNumber(_getKeySize() + 3);
-      dictionary[PdfDictionaryProperties.v] = PdfNumber(_getKeySize() + 3);
-      if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
-        dictionary[PdfDictionaryProperties.v] = PdfNumber(5);
-        dictionary[PdfDictionaryProperties.r] = PdfNumber(6);
-      } else if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit) {
-        dictionary[PdfDictionaryProperties.v] = PdfNumber(5);
-        dictionary[PdfDictionaryProperties.r] = PdfNumber(5);
-      }
-      if (encryptAttachmentOnly!) {
-        dictionary[PdfDictionaryProperties.stmF] = PdfName(
-          PdfDictionaryProperties.identity,
-        );
-        dictionary[PdfDictionaryProperties.strF] = PdfName(
-          PdfDictionaryProperties.identity,
-        );
-        dictionary[PdfDictionaryProperties.eff] = PdfName(
-          PdfDictionaryProperties.stdCF,
-        );
-        dictionary[PdfDictionaryProperties.encryptMetadata] = PdfBoolean(
-          encryptOnlyMetadata,
-        );
-      } else {
-        dictionary[PdfDictionaryProperties.stmF] = PdfName(
-          PdfDictionaryProperties.stdCF,
-        );
-        dictionary[PdfDictionaryProperties.strF] = PdfName(
-          PdfDictionaryProperties.stdCF,
-        );
-        if (dictionary.containsKey(PdfDictionaryProperties.eff)) {
-          dictionary.remove(PdfDictionaryProperties.eff);
-        }
-      }
-      if (!encryptOnlyMetadata!) {
-        if (!dictionary.containsKey(PdfDictionaryProperties.encryptMetadata)) {
-          dictionary[PdfDictionaryProperties.encryptMetadata] = PdfBoolean(
-            encryptOnlyMetadata,
-          );
-        }
-      } else if (!encryptOnlyAttachment) {
-        if (dictionary.containsKey(PdfDictionaryProperties.encryptMetadata)) {
-          dictionary.remove(PdfDictionaryProperties.encryptMetadata);
-        }
-      }
-      dictionary[PdfDictionaryProperties.cf] =
-          await _getCryptFilterDictionaryAsync();
-      if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
-          encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6) {
-        dictionary[PdfDictionaryProperties.ue] = PdfString.fromBytes(
-          _userEncryptionKeyOut,
-        );
-        dictionary[PdfDictionaryProperties.oe] = PdfString.fromBytes(
-          _ownerEncryptionKeyOut,
-        );
-        dictionary[PdfDictionaryProperties.perms] = PdfString.fromBytes(
-          _permissionFlag,
-        );
-      }
-    } else {
-      dictionary[PdfDictionaryProperties.r] = PdfNumber(
-        (_revisionNumberOut! > 0 && !isAes4Dict)
-            ? _revisionNumberOut!
-            : (_getKeySize() + 2),
-      );
-      dictionary[PdfDictionaryProperties.v] = PdfNumber(
-        (_versionNumberOut! > 0 && !isAes4Dict)
-            ? _versionNumberOut!
-            : (_getKeySize() + 1),
-      );
-    }
-    dictionary.archive = false;
-    return dictionary;
+    return saveToDictionary(dictionary);
   }
 
   PdfDictionary _getCryptFilterDictionary() {
@@ -1644,54 +1463,12 @@ class PdfEncryptor {
       );
     }
     standardCryptFilter[PdfDictionaryProperties.length] = PdfNumber(
-      (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
-              encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6)
+      (encryptionAlgorithm! == PdfEncryptionAlgorithm.aesx256Bit ||
+              encryptionAlgorithm! ==
+                  PdfEncryptionAlgorithm.aesx256BitRevision6)
           ? _key256!
-          : ((encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
-                  encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit)
-              ? _key128!
-              : 128),
-    );
-    final PdfDictionary cryptFilterDictionary = PdfDictionary();
-    cryptFilterDictionary[PdfDictionaryProperties.stdCF] = standardCryptFilter;
-    return cryptFilterDictionary;
-  }
-
-  Future<PdfDictionary> _getCryptFilterDictionaryAsync() async {
-    final PdfDictionary standardCryptFilter = PdfDictionary();
-    if (!standardCryptFilter.containsKey(PdfDictionaryProperties.cfm)) {
-      if (encryptAttachmentOnly!) {
-        standardCryptFilter[PdfDictionaryProperties.cfm] = PdfName(
-          PdfDictionaryProperties.aesv2,
-        );
-        standardCryptFilter[PdfDictionaryProperties.type] = PdfName(
-          PdfDictionaryProperties.cryptFilter,
-        );
-      } else {
-        standardCryptFilter[PdfDictionaryProperties.cfm] = PdfName(
-          (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
-                  encryptionAlgorithm ==
-                      PdfEncryptionAlgorithm.aesx256BitRevision6)
-              ? PdfDictionaryProperties.aesv3
-              : (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit)
-              ? 'V2'
-              : PdfDictionaryProperties.aesv2,
-        );
-      }
-    }
-    if (!standardCryptFilter.containsKey(PdfDictionaryProperties.authEvent)) {
-      standardCryptFilter[PdfDictionaryProperties.authEvent] = PdfName(
-        encryptAttachmentOnly!
-            ? PdfDictionaryProperties.efOpen
-            : PdfDictionaryProperties.docOpen,
-      );
-    }
-    standardCryptFilter[PdfDictionaryProperties.length] = PdfNumber(
-      (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
-              encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256BitRevision6)
-          ? _key256!
-          : ((encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit ||
-                  encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit)
+          : ((encryptionAlgorithm! == PdfEncryptionAlgorithm.aesx128Bit ||
+                  encryptionAlgorithm! == PdfEncryptionAlgorithm.rc4x128Bit)
               ? _key128!
               : 128),
     );
@@ -1702,9 +1479,9 @@ class PdfEncryptor {
 
   int _getPermissionValue(List<PdfPermissionsFlags> permissionFlags) {
     int defaultValue = 0;
-    permissionFlags.toList().forEach((PdfPermissionsFlags flag) {
+    for (final PdfPermissionsFlags flag in permissionFlags) {
       defaultValue |= _permissionFlagValues![flag.index];
-    });
+    }
     return defaultValue;
   }
 
@@ -1731,10 +1508,9 @@ class PdfEncryptor {
     return result;
   }
 
-  /// internal method
-  List<int> encryptData(
+  Uint8List encryptData(
     int? currentObjectNumber,
-    List<int> data,
+    Uint8List data,
     bool isEncryption,
   ) {
     if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
@@ -1743,19 +1519,16 @@ class PdfEncryptor {
           ? _aesEncrypt(data, _fileEncryptionKey!)
           : _aesDecrypt(data, _fileEncryptionKey);
     }
+
     _initializeData();
     const int genNumber = 0;
-    int keyLen = 0;
-    List<int> newKey;
+    int keyLen;
+    Uint8List newKey;
+
     if (_encryptionKey!.length == 5) {
-      newKey = List<int>.filled(
-        _encryptionKey!.length + _newKeyOffset!,
-        0,
-        growable: true,
-      );
-      for (int i = 0; i < _encryptionKey!.length; ++i) {
-        newKey[i] = _encryptionKey![i];
-      }
+      newKey = Uint8List(_encryptionKey!.length + _newKeyOffset!);
+      newKey.setRange(0, _encryptionKey!.length, _encryptionKey!);
+
       int j = _encryptionKey!.length - 1;
       newKey[++j] = currentObjectNumber!.toUnsigned(8);
       newKey[++j] = (currentObjectNumber >> 8).toUnsigned(8);
@@ -1765,47 +1538,50 @@ class PdfEncryptor {
       keyLen = newKey.length;
       newKey = _prepareKeyForEncryption(newKey);
     } else {
-      newKey = List<int>.filled(
-        _encryptionKey!.length +
-            ((encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
-                    encryptionAlgorithm ==
-                        PdfEncryptionAlgorithm.aesx256BitRevision6 ||
-                    encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit)
-                ? 9
-                : 5),
-        0,
-        growable: true,
-      );
-      List.copyRange(newKey, 0, _encryptionKey!, 0, _encryptionKey!.length);
+      final int additionalBytes =
+          (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx256Bit ||
+                  encryptionAlgorithm ==
+                      PdfEncryptionAlgorithm.aesx256BitRevision6 ||
+                  encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit)
+              ? 9
+              : 5;
+
+      newKey = Uint8List(_encryptionKey!.length + additionalBytes);
+      newKey.setRange(0, _encryptionKey!.length, _encryptionKey!);
+
       int j = _encryptionKey!.length - 1;
       newKey[++j] = currentObjectNumber!.toUnsigned(8);
       newKey[++j] = (currentObjectNumber >> 8).toUnsigned(8);
       newKey[++j] = (currentObjectNumber >> 16).toUnsigned(8);
       newKey[++j] = genNumber.toUnsigned(8);
       newKey[++j] = (genNumber >> 8).toUnsigned(8);
+
       if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit) {
-        newKey[++j] = 0x73.toUnsigned(8);
-        newKey[++j] = 0x41.toUnsigned(8);
-        newKey[++j] = 0x6c.toUnsigned(8);
-        newKey[++j] = 0x54.toUnsigned(8);
+        newKey[++j] = 0x73;
+        newKey[++j] = 0x41;
+        newKey[++j] = 0x6c;
+        newKey[++j] = 0x54;
       }
-      newKey = md5.convert(newKey).bytes;
+
+      newKey = Uint8List.fromList(md5.convert(newKey).bytes);
       keyLen = newKey.length;
     }
-    keyLen = min(keyLen, newKey.length);
+
+    keyLen = math.min(keyLen, newKey.length);
     if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit) {
       return isEncryption
-          ? _aesEncrypt(data, encryptOnlyAttachment ? _encryptionKey! : newKey)
-          : _aesDecrypt(data, encryptOnlyAttachment ? _encryptionKey : newKey);
+          ? _aesEncrypt(data, encryptAttachmentOnly! ? _encryptionKey! : newKey)
+          : _aesDecrypt(data, encryptAttachmentOnly! ? _encryptionKey : newKey);
     }
     return _encryptDataByCustom(data, newKey, keyLen);
   }
 
-  List<int> _aesEncrypt(List<int> data, List<int> key) {
+  Uint8List _aesEncrypt(Uint8List data, Uint8List key) {
     if (key.isEmpty) {
       return data;
     }
-    final iv = Uint8List(16);
+
+    final Uint8List iv = Uint8List(16);
     final Random random = Random.secure();
     for (int i = 0; i < iv.length; i++) {
       iv[i] = random.nextInt(256);
@@ -1818,30 +1594,29 @@ class PdfEncryptor {
 
     final params =
         BlockCipherPaddedParameters<ICipherParameter, ICipherParameter>(
-          InvalidParameter(KeyParameter(Uint8List.fromList(key)), iv),
+          InvalidParameter(KeyParameter(key), iv),
           null,
         );
     cipher.initialize(true, params);
 
     try {
-      final encrypted = cipher.process(Uint8List.fromList(data));
-      final results = Uint8List(iv.length + encrypted.length);
+      final Uint8List encrypted = cipher.process(data);
+      final Uint8List results = Uint8List(iv.length + encrypted.length);
       results.setRange(0, iv.length, iv);
       results.setRange(iv.length, results.length, encrypted);
-
       return results;
     } catch (e) {
-      return <int>[];
+      return Uint8List(0);
     }
   }
 
-  List<int> _aesDecrypt(List<int> data, List<int>? key) {
+  Uint8List _aesDecrypt(Uint8List data, Uint8List? key) {
     if (key == null || key.isEmpty || data.length < 16) {
       return data;
     }
 
-    final ivBytes = Uint8List.fromList(data.take(16).toList());
-    final encryptedData = Uint8List.fromList(data.skip(16).toList());
+    final Uint8List ivBytes = Uint8List.view(data.buffer, 0, 16);
+    final Uint8List encryptedData = Uint8List.view(data.buffer, 16);
 
     final cipher = PaddedCipherMode(
       Pkcs7Padding(),
@@ -1850,7 +1625,7 @@ class PdfEncryptor {
 
     final params =
         BlockCipherPaddedParameters<ICipherParameter, ICipherParameter>(
-          InvalidParameter(KeyParameter(Uint8List.fromList(key)), ivBytes),
+          InvalidParameter(KeyParameter(key), ivBytes),
           null,
         );
 
@@ -1858,7 +1633,7 @@ class PdfEncryptor {
     try {
       return cipher.process(encryptedData);
     } catch (e) {
-      return <int>[];
+      return Uint8List(0);
     }
   }
 
@@ -1876,71 +1651,91 @@ class PdfEncryptor {
     }
   }
 
-  List<int> _prepareKeyForEncryption(List<int> originalKey) {
+  Uint8List _prepareKeyForEncryption(Uint8List originalKey) {
     final int keyLen = originalKey.length;
-    final List<int> newKey = md5.convert(originalKey).bytes;
+    final Uint8List newKey = Uint8List.fromList(md5.convert(originalKey).bytes);
+
     if (keyLen > _randomBytesAmount!) {
-      final int newKeyLength = min(
+      final int newKeyLength = math.min(
         _getKeyLength()! + _newKeyOffset!,
         _randomBytesAmount!,
       );
-      final List<int> result = List<int>.filled(
-        newKeyLength,
-        0,
-        growable: true,
-      );
-      List.copyRange(result, 0, newKey, 0, newKeyLength);
+      final Uint8List result = Uint8List(newKeyLength);
+      result.setRange(0, newKeyLength, newKey);
       return result;
     } else {
       return newKey;
     }
   }
 
-  /// internal method
   PdfEncryptor clone() {
     final PdfEncryptor encryptor =
         PdfEncryptor()
-          .._stringLength = _cloneInt(_stringLength)
-          .._revisionNumber40Bit = _cloneInt(_revisionNumber40Bit)
-          .._revisionNumber128Bit = _cloneInt(_revisionNumber128Bit)
-          .._ownerLoopNum2 = _cloneInt(_ownerLoopNum2)
-          .._ownerLoopNum = _cloneInt(_ownerLoopNum)
-          ..paddingBytes = _cloneList(paddingBytes)
-          .._bytesAmount = _cloneInt(_bytesAmount)
-          .._permissionSet = _cloneInt(_permissionSet)
-          .._permissionCleared = _cloneInt(_permissionCleared)
-          .._permissionRevisionTwoMask = _cloneInt(_permissionRevisionTwoMask)
-          .._revisionNumberOut = _cloneInt(_revisionNumberOut)
-          .._versionNumberOut = _cloneInt(_versionNumberOut)
-          .._permissionValue = _cloneInt(_permissionValue)
-          .._randomBytes = _cloneList(_randomBytes)
-          .._key40 = _cloneInt(_key40)
-          .._key128 = _cloneInt(_key128)
-          .._key256 = _cloneInt(_key256)
-          .._randomBytesAmount = _cloneInt(_randomBytesAmount)
-          .._newKeyOffset = _cloneInt(_newKeyOffset)
-          ..isEncrypt = _cloneBool(isEncrypt)
-          ..changed = _cloneBool(changed)
-          ..hasComputedPasswordValues = _cloneBool(hasComputedPasswordValues)
-          .._revision = _cloneInt(_revision)
-          .._ownerPasswordOut = _cloneList(_ownerPasswordOut)
-          .._userPasswordOut = _cloneList(_userPasswordOut)
-          .._encryptionKey = _cloneList(_encryptionKey)
-          ..keyLength = _cloneInt(keyLength)
-          ..customArray = _cloneList(customArray)
-          .._permissionFlagValues = _cloneList(_permissionFlagValues)
-          .._fileEncryptionKey = _cloneList(_fileEncryptionKey)
-          .._userEncryptionKeyOut = _cloneList(_userEncryptionKeyOut)
-          .._ownerEncryptionKeyOut = _cloneList(_ownerEncryptionKeyOut)
-          .._permissionFlag = _cloneList(_permissionFlag)
-          .._userRandomBytes = _cloneList(_userRandomBytes)
-          .._ownerRandomBytes = _cloneList(_ownerRandomBytes)
-          ..encryptOnlyMetadata = _cloneBool(encryptOnlyMetadata)
-          ..encryptAttachmentOnly = _cloneBool(encryptAttachmentOnly)
+          .._stringLength = _stringLength
+          .._revisionNumber40Bit = _revisionNumber40Bit
+          .._revisionNumber128Bit = _revisionNumber128Bit
+          .._ownerLoopNum2 = _ownerLoopNum2
+          .._ownerLoopNum = _ownerLoopNum
+          .._bytesAmount = _bytesAmount
+          .._permissionSet = _permissionSet
+          .._permissionCleared = _permissionCleared
+          .._permissionRevisionTwoMask = _permissionRevisionTwoMask
+          .._revisionNumberOut = _revisionNumberOut
+          .._versionNumberOut = _versionNumberOut
+          .._permissionValue = _permissionValue
+          .._key40 = _key40
+          .._key128 = _key128
+          .._key256 = _key256
+          .._randomBytesAmount = _randomBytesAmount
+          .._newKeyOffset = _newKeyOffset
+          ..isEncrypt = isEncrypt
+          ..changed = changed
+          ..hasComputedPasswordValues = hasComputedPasswordValues
+          .._revision = _revision
+          ..keyLength = keyLength
+          ..encryptOnlyMetadata = encryptOnlyMetadata
+          ..encryptAttachmentOnly = encryptAttachmentOnly
           ..encryptionAlgorithm = encryptionAlgorithm
           .._userPassword = _userPassword
           .._ownerPassword = _ownerPassword
-          ..encryptionOptions = encryptionOptions;
+          ..encryptionOptions = encryptionOptions
+          .._permissionFlagValues = _cloneList(_permissionFlagValues);
+
+    encryptor._paddingBytes =
+        _paddingBytes != null ? Uint8List.fromList(_paddingBytes!) : null;
+    encryptor._randomBytes =
+        _randomBytes != null ? Uint8List.fromList(_randomBytes!) : null;
+    encryptor._ownerPasswordOut =
+        _ownerPasswordOut != null
+            ? Uint8List.fromList(_ownerPasswordOut!)
+            : null;
+    encryptor._userPasswordOut =
+        _userPasswordOut != null ? Uint8List.fromList(_userPasswordOut!) : null;
+    encryptor._encryptionKey =
+        _encryptionKey != null ? Uint8List.fromList(_encryptionKey!) : null;
+    encryptor.customArray =
+        customArray != null ? Uint8List.fromList(customArray!) : null;
+    encryptor._fileEncryptionKey =
+        _fileEncryptionKey != null
+            ? Uint8List.fromList(_fileEncryptionKey!)
+            : null;
+    encryptor._userEncryptionKeyOut =
+        _userEncryptionKeyOut != null
+            ? Uint8List.fromList(_userEncryptionKeyOut!)
+            : null;
+    encryptor._ownerEncryptionKeyOut =
+        _ownerEncryptionKeyOut != null
+            ? Uint8List.fromList(_ownerEncryptionKeyOut!)
+            : null;
+    encryptor._permissionFlag =
+        _permissionFlag != null ? Uint8List.fromList(_permissionFlag!) : null;
+    encryptor._userRandomBytes =
+        _userRandomBytes != null ? Uint8List.fromList(_userRandomBytes!) : null;
+    encryptor._ownerRandomBytes =
+        _ownerRandomBytes != null
+            ? Uint8List.fromList(_ownerRandomBytes!)
+            : null;
+
     encryptor._permissions =
         _permissions != null
             ? List<PdfPermissionsFlags>.generate(
@@ -1948,27 +1743,8 @@ class PdfEncryptor {
               (int i) => _permissions![i],
             )
             : null;
+
     return encryptor;
-  }
-
-  bool? _cloneBool(bool? value) {
-    if (value != null) {
-      if (value) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  int? _cloneInt(int? value) {
-    if (value != null) {
-      return value;
-    } else {
-      return null;
-    }
   }
 
   List<int>? _cloneList(List<int>? value) {

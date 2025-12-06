@@ -1,4 +1,0 @@
-# See https://dart.dev/tools/pub/publishing#what-files-are-published
-
-lib/src/test/*
-
