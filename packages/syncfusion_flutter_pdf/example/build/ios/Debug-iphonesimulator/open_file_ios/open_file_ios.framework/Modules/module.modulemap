@@ -1,0 +1,6 @@
+framework module open_file_ios {
+  umbrella header "open_file_ios-umbrella.h"
+
+  export *
+  module * { export * }
+}

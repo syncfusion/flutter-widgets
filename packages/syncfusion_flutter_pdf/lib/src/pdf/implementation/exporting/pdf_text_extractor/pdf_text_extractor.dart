@@ -9,6 +9,7 @@ import '../../graphics/fonts/pdf_font.dart';
 import '../../graphics/fonts/pdf_standard_font.dart';
 import '../../graphics/fonts/rtl/arabic_shape_renderer.dart';
 import '../../graphics/fonts/rtl/bidi.dart';
+import '../../graphics/pdf_color.dart';
 import '../../io/pdf_constants.dart';
 import '../../pages/enum.dart';
 import '../../pages/pdf_page.dart';
@@ -554,6 +555,9 @@ class PdfTextExtractor {
                 glyphs,
                 _calculateBounds(wordBound),
                 textElement.fontSize,
+                i < renderer.imageRenderGlyphList.length
+                    ? renderer.imageRenderGlyphList[i].textColor
+                    : null,
               );
               textLine.wordCollection.add(textwords);
             }
@@ -1164,6 +1168,15 @@ class PdfTextExtractor {
     double? width,
     double? height,
   ) {
+    if (i >= renderer.imageRenderGlyphList.length) {
+      return <String, dynamic>{
+        'word': null,
+        'dx': dx,
+        'dy': dy,
+        'width': width,
+        'height': height,
+      };
+    }
     final Rect tempBounds = renderer.imageRenderGlyphList[i].boundingRect;
     final Rect glyphBounds = Rect.fromLTWH(
       tempBounds.left,
@@ -1199,6 +1212,9 @@ class PdfTextExtractor {
         <TextGlyph>[textGlyph],
         Rect.fromLTWH(dx, dy, width, height),
         textElement.fontSize,
+        i < renderer.imageRenderGlyphList.length
+            ? renderer.imageRenderGlyphList[i].textColor
+            : null,
       ),
       'dx': dx,
       'dy': dy,
@@ -1423,6 +1439,8 @@ class PdfTextExtractor {
     bool isSameFontStyle = true;
     String? fontName = '';
     double? fontSize = 0;
+    PdfColor? textColor;
+    bool isSameTextColor = true;
     textLine.pageIndex = _currentPageIndex;
     List<PdfFontStyle>? fontStyle = <PdfFontStyle>[PdfFontStyle.regular];
     if (rotation == 270 &&
@@ -1465,6 +1483,7 @@ class PdfTextExtractor {
         fontName = word.fontName;
         fontSize = word.fontSize;
         fontStyle = word.fontStyle;
+        textColor = word.textColor;
       }
       if (prevBounds != null &&
           (prevBounds.left + prevBounds.width - word.bounds.left).abs() > 1 &&
@@ -1501,6 +1520,15 @@ class PdfTextExtractor {
       }
       if (!isSameFontStyle) {
         isSameFontStyle = true;
+      }
+      if (textColor == word.textColor && isSameTextColor) {
+        textLine.textColor = textColor;
+      } else {
+        isSameTextColor = false;
+        textLine.textColor = null;
+      }
+      if (!isSameTextColor) {
+        isSameTextColor = true;
       }
     }
     if (textLine.text.isNotEmpty && bidi.Bidi.hasAnyRtl(textLine.text)) {

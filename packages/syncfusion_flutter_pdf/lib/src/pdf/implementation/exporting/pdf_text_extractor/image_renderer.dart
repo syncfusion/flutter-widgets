@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import '../../graphics/pdf_color.dart';
 import 'font_structure.dart';
 import 'glyph.dart';
 import 'graphic_object_data.dart';
@@ -52,6 +53,9 @@ class ImageRenderer {
       0,
       currentPageHeight! * transformMatrix.m22,
     );
+    // Initialize colors to black (default for PDF)
+    newObject.fillColor = PdfColor(0, 0, 0);
+    newObject.strokeColor = PdfColor(0, 0, 0);
     graphicsObjects!.push(newObject);
     graphicsObjects!.push(newObject);
     _contentElements = contentElements;
@@ -237,6 +241,7 @@ class ImageRenderer {
             token.replaceAll(_symbolChars[j], '');
           }
         }
+
         switch (token.trim()) {
           case 'BDC':
             {
@@ -294,6 +299,8 @@ class ImageRenderer {
                 data.wordSpacing = prevData.wordSpacing;
                 data.nonStrokingOpacity = prevData.nonStrokingOpacity;
                 data.strokingOpacity = prevData.strokingOpacity;
+                data.fillColor = prevData.fillColor;
+                data.strokeColor = prevData.strokeColor;
               }
               if (isXGraphics) {
                 xobjectGraphicsCount++;
@@ -536,6 +543,20 @@ class ImageRenderer {
           case 'W*':
             _graphicsObject!.transformMatrix = MatrixHelper(1, 0, 0, 1, 0, 0);
             break;
+          case 'g':
+          case 'G':
+          case 'rg':
+          case 'RG':
+          case 'k':
+          case 'K':
+            {
+              if (token == 'g' || token == 'rg' || token == 'k') {
+                _setFillColor(elements!, token);
+              } else {
+                _setStrokeColor(elements!, token);
+              }
+              break;
+            }
           default:
             break;
         }
@@ -618,6 +639,126 @@ class ImageRenderer {
   void _getScalingFactor(List<String> elements) {
     _textScaling = double.tryParse(elements[0]);
     objects.horizontalScaling = double.tryParse(elements[0]);
+  }
+
+  void _setFillColor(List<String> elements, String token) {
+    if (token == 'g') {
+      if (elements.isNotEmpty) {
+        try {
+          final double gray = double.parse(elements[0]);
+          if (gray >= 0 && gray <= 1) {
+            objects.fillColor = PdfColor(
+              (gray * 255).toInt(),
+              (gray * 255).toInt(),
+              (gray * 255).toInt(),
+            );
+          }
+        } catch (e) {
+          // Invalid color value, skip
+        }
+      }
+    } else if (token == 'rg') {
+      if (elements.length >= 3) {
+        try {
+          final double r = double.parse(elements[0]);
+          final double g = double.parse(elements[1]);
+          final double b = double.parse(elements[2]);
+          if (r >= 0 && r <= 1 && g >= 0 && g <= 1 && b >= 0 && b <= 1) {
+            objects.fillColor = PdfColor(
+              (r * 255).toInt(),
+              (g * 255).toInt(),
+              (b * 255).toInt(),
+            );
+          }
+        } catch (e) {
+          // Invalid color value, skip
+        }
+      }
+    } else if (token == 'k') {
+      if (elements.length >= 4) {
+        try {
+          final double c = double.parse(elements[0]);
+          final double m = double.parse(elements[1]);
+          final double y = double.parse(elements[2]);
+          final double k = double.parse(elements[3]);
+          if (c >= 0 &&
+              c <= 1 &&
+              m >= 0 &&
+              m <= 1 &&
+              y >= 0 &&
+              y <= 1 &&
+              k >= 0 &&
+              k <= 1) {
+            final double r = 255 * (1 - c) * (1 - k);
+            final double g = 255 * (1 - m) * (1 - k);
+            final double b = 255 * (1 - y) * (1 - k);
+            objects.fillColor = PdfColor(r.toInt(), g.toInt(), b.toInt());
+          }
+        } catch (e) {
+          // Invalid color value, skip
+        }
+      }
+    }
+  }
+
+  void _setStrokeColor(List<String> elements, String token) {
+    if (token == 'G') {
+      if (elements.isNotEmpty) {
+        try {
+          final double gray = double.parse(elements[0]);
+          if (gray >= 0 && gray <= 1) {
+            objects.strokeColor = PdfColor(
+              (gray * 255).toInt(),
+              (gray * 255).toInt(),
+              (gray * 255).toInt(),
+            );
+          }
+        } catch (e) {
+          // Invalid color value, skip
+        }
+      }
+    } else if (token == 'RG') {
+      if (elements.length >= 3) {
+        try {
+          final double r = double.parse(elements[0]);
+          final double g = double.parse(elements[1]);
+          final double b = double.parse(elements[2]);
+          if (r >= 0 && r <= 1 && g >= 0 && g <= 1 && b >= 0 && b <= 1) {
+            objects.strokeColor = PdfColor(
+              (r * 255).toInt(),
+              (g * 255).toInt(),
+              (b * 255).toInt(),
+            );
+          }
+        } catch (e) {
+          // Invalid color value, skip
+        }
+      }
+    } else if (token == 'K') {
+      if (elements.length >= 4) {
+        try {
+          final double c = double.parse(elements[0]);
+          final double m = double.parse(elements[1]);
+          final double y = double.parse(elements[2]);
+          final double k = double.parse(elements[3]);
+          if (c >= 0 &&
+              c <= 1 &&
+              m >= 0 &&
+              m <= 1 &&
+              y >= 0 &&
+              y <= 1 &&
+              k >= 0 &&
+              k <= 1) {
+            final double r = 255 * (1 - c) * (1 - k);
+            final double g = 255 * (1 - m) * (1 - k);
+            final double b = 255 * (1 - y) * (1 - k);
+            objects.strokeColor = PdfColor(r.toInt(), g.toInt(), b.toInt());
+          }
+        } catch (e) {
+          // Invalid color value, skip
+        }
+      }
+    }
   }
 
   void _getXObject(List<String> xobjectElement) {
@@ -717,6 +858,7 @@ class ImageRenderer {
       element.wordSpacing = objects.wordSpacing;
       element.characterSpacing = objects.characterSpacing;
       element.isExtractTextData = isExtractLineCollection;
+      element.textColor = objects.fillColor ?? PdfColor(0, 0, 0);
       final MatrixHelper tempTextMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
       tempTextMatrix.type = MatrixTypes.identity;
       if (_isCurrentPositionChanged) {
@@ -869,6 +1011,7 @@ class ImageRenderer {
       }
       element.wordSpacing = objects.wordSpacing;
       element.characterSpacing = objects.characterSpacing;
+      element.textColor = objects.fillColor ?? PdfColor(0, 0, 0);
       final MatrixHelper tempTextMatrix = MatrixHelper(0, 0, 0, 0, 0, 0);
       tempTextMatrix.type = MatrixTypes.identity;
       if (_isCurrentPositionChanged) {

@@ -1,3 +1,4 @@
+import '../../graphics/pdf_color.dart';
 import 'matrix_helper.dart';
 
 /// internal class
@@ -14,11 +15,20 @@ class GraphicObjectData {
     strokingOpacity = 1;
     textLeading = 0;
     fontSize = 0;
+    // Default text color is black
+    fillColor = PdfColor(0, 0, 0);
+    strokeColor = PdfColor(0, 0, 0);
   }
 
   //Fields
   /// internal field
   MatrixHelper? currentTransformationMatrix;
+
+  /// Non-stroking (fill) color for text rendering
+  PdfColor? fillColor;
+
+  /// Stroking color for text outlines
+  PdfColor? strokeColor;
 
   /// internal field
   MatrixHelper? drawing2dMatrixCTM;

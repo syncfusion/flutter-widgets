@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import '../../graphics/fonts/enums.dart';
+import '../../graphics/pdf_color.dart';
 import 'text_glyph.dart';
 
 /// Details of a word present in the line.
@@ -13,6 +14,7 @@ class TextWord {
     List<TextGlyph> glyphs,
     this.bounds,
     this.fontSize,
+    this.textColor,
   ) {
     _glyphs = glyphs;
   }
@@ -32,6 +34,10 @@ class TextWord {
 
   /// Gets the font style of the word.
   late List<PdfFontStyle> fontStyle;
+
+  /// Gets the color of the word text.
+  PdfColor? textColor;
+
   List<TextGlyph> _glyphs = <TextGlyph>[];
 
   //Properties
@@ -50,7 +56,16 @@ class TextWordHelper {
     List<TextGlyph> glyphs, [
     Rect bounds = Rect.zero,
     double fontSize = 0,
+    PdfColor? textColor,
   ]) {
-    return TextWord._(text, fontName, fontStyle, glyphs, bounds, fontSize);
+    return TextWord._(
+      text,
+      fontName,
+      fontStyle,
+      glyphs,
+      bounds,
+      fontSize,
+      textColor,
+    );
   }
 }

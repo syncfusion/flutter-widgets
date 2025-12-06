@@ -916,6 +916,10 @@ class FontStructure {
         result &= standardFontNames.contains(
           _resolveFontName(_standardFontName),
         );
+        // Pre-extract font styles for standard fonts
+        if (result && _standardFontName != null) {
+          _fontStyle = _getFontStyle(_standardFontName!);
+        }
       } else {
         result = false;
       }
@@ -958,6 +962,23 @@ class FontStructure {
         result &=
             _standardCJKFontName != '' &&
             standardCJKFontNames.contains(_standardCJKFontName);
+
+        // Pre-extract font styles for standard CJK fonts
+        if (result && _standardCJKFontName != null) {
+          _fontStyle = _getCJKFontStyle(_standardCJKFontName!);
+        } else if (_standardCJKFontName != null &&
+            encoding != null &&
+            cjkEncoding.contains(encoding.name)) {
+          // Even if exact match not found, still extract styles if base font is standard CJK and encoding is valid
+          // This handles cases like "HYGoThic-Medium,BoldUnderline" where underline is not in standardCJKFontNames list
+          final String baseNameOnly =
+              _standardCJKFontName!.split('-')[0].split(',')[0];
+          if (standardCJKFontNames.any(
+            (String name) => name.startsWith(baseNameOnly),
+          )) {
+            _fontStyle = _getCJKFontStyle(_standardCJKFontName!);
+          }
+        }
       } else {
         result = false;
       }
@@ -1207,6 +1228,8 @@ class FontStructure {
   /// internal method
   List<PdfFontStyle> getFontStyle() {
     List<PdfFontStyle> styles = <PdfFontStyle>[];
+
+    // First, try to extract styles from baseFont name
     if (fontDictionary.containsKey(PdfDictionaryProperties.baseFont)) {
       IPdfPrimitive? primitive =
           fontDictionary[PdfDictionaryProperties.baseFont];
@@ -1223,6 +1246,53 @@ class FontStructure {
         styles = _getFontStyle(baseFont.name!);
       }
     }
+
+    // If no styles found from baseFont name, check FontDescriptor flags
+    if (styles.isEmpty ||
+        (styles.length == 1 && styles[0] == PdfFontStyle.regular)) {
+      final List<PdfFontStyle> descriptorStyles =
+          _getStylesFromFontDescriptor();
+      if (descriptorStyles.isNotEmpty &&
+          !(descriptorStyles.length == 1 &&
+              descriptorStyles[0] == PdfFontStyle.regular)) {
+        styles = descriptorStyles;
+      }
+    }
+
+    if (styles.isEmpty) {
+      styles.add(PdfFontStyle.regular);
+    }
+    return styles;
+  }
+
+  /// Extracts font styles from FontDescriptor flags
+  /// Bit 6 (64) in flags indicates Italic style
+  List<PdfFontStyle> _getStylesFromFontDescriptor() {
+    final List<PdfFontStyle> styles = <PdfFontStyle>[];
+
+    if (fontDictionary.containsKey(PdfDictionaryProperties.fontDescriptor)) {
+      IPdfPrimitive? primitive =
+          fontDictionary[PdfDictionaryProperties.fontDescriptor];
+
+      if (primitive is PdfReferenceHolder) {
+        primitive = primitive.object;
+      }
+
+      if (primitive is PdfDictionary) {
+        if (primitive.containsKey(PdfDictionaryProperties.flags)) {
+          final IPdfPrimitive? flagPrimitive =
+              primitive[PdfDictionaryProperties.flags];
+          if (flagPrimitive is PdfNumber) {
+            final int flagValue = flagPrimitive.value?.toInt() ?? 0;
+            // Bit 6 (value 64) indicates Italic
+            if ((flagValue & 64) != 0) {
+              styles.add(PdfFontStyle.italic);
+            }
+          }
+        }
+      }
+    }
+
     if (styles.isEmpty) {
       styles.add(PdfFontStyle.regular);
     }
@@ -1231,65 +1301,81 @@ class FontStructure {
 
   List<PdfFontStyle> _getCJKFontStyle(String baseFont) {
     final List<PdfFontStyle> styles = <PdfFontStyle>[];
-    String style = '';
+    String normalizedFont = baseFont;
     if (baseFont.contains(',')) {
-      style = baseFont.split(',')[1];
+      normalizedFont = baseFont.split(',')[1];
     }
-    switch (style) {
-      case 'Italic':
-        styles.add(PdfFontStyle.italic);
-        break;
-      case 'Bold':
+    // If no comma found, baseFont is used as-is (could be just the style property like "Bold", "Underline", etc.)
+
+    // Check for combined styles first to avoid duplicates
+    if (normalizedFont.contains('BoldItalic')) {
+      styles.add(PdfFontStyle.bold);
+      styles.add(PdfFontStyle.italic);
+    } else {
+      // Check individual styles only if combined style not found
+      if (normalizedFont.contains('Bold')) {
         styles.add(PdfFontStyle.bold);
-        break;
-      case 'BoldItalic':
-        styles.add(PdfFontStyle.bold);
+      }
+      if (normalizedFont.contains('Italic')) {
         styles.add(PdfFontStyle.italic);
-        break;
-      default:
-        styles.add(PdfFontStyle.regular);
+      }
+    }
+
+    // Always check for additional properties
+    if (normalizedFont.contains('Underline')) {
+      styles.add(PdfFontStyle.underline);
+    }
+    if (normalizedFont.contains('Strikethrough') ||
+        normalizedFont.contains('StrikeOut')) {
+      styles.add(PdfFontStyle.strikethrough);
+    }
+
+    if (styles.isEmpty) {
+      styles.add(PdfFontStyle.regular);
     }
     return styles;
   }
 
   List<PdfFontStyle> _getFontStyle(String baseFont) {
     final List<PdfFontStyle> styles = <PdfFontStyle>[];
+
+    // Normalize the font name for style extraction
+    String normalizedFont = baseFont;
     if (baseFont.contains('-') || baseFont.contains(',')) {
-      String style = '';
       if (baseFont.contains('-')) {
-        style = baseFont.split('-')[1];
+        normalizedFont = baseFont.split('-')[1];
       } else if (baseFont.contains(',')) {
-        style = baseFont.split(',')[1];
+        normalizedFont = baseFont.split(',')[1];
       }
-      style = style.replaceAll('MT', '');
-      switch (style) {
-        case 'Italic':
-        case 'Oblique':
-          styles.add(PdfFontStyle.italic);
-          break;
-        case 'Bold':
-          styles.add(PdfFontStyle.bold);
-          break;
-        case 'BoldItalic':
-        case 'BoldOblique':
-          styles.add(PdfFontStyle.bold);
-          styles.add(PdfFontStyle.italic);
-          break;
-        default:
-          styles.add(PdfFontStyle.regular);
-      }
+      normalizedFont = normalizedFont.replaceAll('MT', '');
+    }
+    // If no separator found, baseFont is used as-is (could be just the style property like "Bold", "Underline", etc.)
+
+    // Check for combined styles first to avoid duplicates
+    if (normalizedFont.contains('BoldItalic') ||
+        normalizedFont.contains('BoldOblique')) {
+      styles.add(PdfFontStyle.bold);
+      styles.add(PdfFontStyle.italic);
     } else {
-      if (baseFont.contains('Bold')) {
+      // Check individual styles only if combined style not found
+      if (normalizedFont.contains('Bold')) {
         styles.add(PdfFontStyle.bold);
       }
-      if (baseFont.contains('BoldItalic') || baseFont.contains('BoldOblique')) {
-        styles.add(PdfFontStyle.bold);
-        styles.add(PdfFontStyle.italic);
-      }
-      if (baseFont.contains('Italic') || baseFont.contains('Oblique')) {
+      if (normalizedFont.contains('Italic') ||
+          normalizedFont.contains('Oblique')) {
         styles.add(PdfFontStyle.italic);
       }
     }
+
+    // Always check for additional properties
+    if (normalizedFont.contains('Underline')) {
+      styles.add(PdfFontStyle.underline);
+    }
+    if (normalizedFont.contains('Strikethrough') ||
+        normalizedFont.contains('StrikeOut')) {
+      styles.add(PdfFontStyle.strikethrough);
+    }
+
     if (styles.isEmpty) {
       styles.add(PdfFontStyle.regular);
     }

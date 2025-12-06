@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import '../../graphics/fonts/enums.dart';
+import '../../../../../pdf.dart';
 import 'matrix_helper.dart';
 
 /// internal class
@@ -58,6 +58,9 @@ class Glyph {
 
   /// internal field
   late int rotationAngle;
+
+  /// The fill color of this glyph
+  PdfColor? textColor;
 
   /// internal field
   double get descent {

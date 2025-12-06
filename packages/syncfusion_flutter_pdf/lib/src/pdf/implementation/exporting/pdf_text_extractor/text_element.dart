@@ -7,6 +7,7 @@ import '../../graphics/fonts/enums.dart';
 import '../../graphics/fonts/pdf_cjk_standard_font.dart';
 import '../../graphics/fonts/pdf_font.dart';
 import '../../graphics/fonts/pdf_standard_font.dart';
+import '../../graphics/pdf_color.dart';
 import 'font_structure.dart';
 import 'glyph.dart';
 import 'graphic_object_data.dart';
@@ -144,6 +145,9 @@ class TextElement {
 
   /// internal field
   List<int>? macRomanToUnicode;
+
+  /// internal field
+  PdfColor? textColor;
 
   //Implementation
   void _initialize() {
@@ -348,6 +352,7 @@ class TextElement {
         glyph.charId = character.codeUnitAt(0);
         glyph.toUnicode = character;
         glyph.charSpacing = characterSpacing!;
+        glyph.textColor = textColor;
         if (structure.isStandardFont) {
           final PdfStandardFont font = structure.font! as PdfStandardFont;
           glyph.width =
@@ -610,6 +615,7 @@ class TextElement {
             glyph.charId = character.codeUnitAt(0);
             glyph.toUnicode = character;
             glyph.charSpacing = this.characterSpacing!;
+            glyph.textColor = textColor;
             if (structure.isStandardFont) {
               final PdfStandardFont font = structure.font! as PdfStandardFont;
               glyph.width =
@@ -878,6 +884,7 @@ class TextElement {
     glyph.horizontalScaling = textHorizontalScaling!;
     glyph.width = glyphwidth!;
     glyph.charSpacing = characterSpacing!;
+    glyph.textColor = textColor;
     if (glyphChar == ' ') {
       glyph.wordSpacing = wordSpacing!;
     }
@@ -1001,6 +1008,7 @@ class TextElement {
       textElementGlyphList.add(glyph);
       for (int i = 0; i < glyph.toUnicode.length - 1; i++) {
         final Glyph emptyGlyph = Glyph();
+        emptyGlyph.textColor = textColor;
         textElementGlyphList.add(emptyGlyph);
       }
     } else {
@@ -1030,6 +1038,7 @@ class TextElement {
     gly.name = letter;
     gly.charId = letter.codeUnitAt(0).toUnsigned(8);
     gly.transformMatrix = _getTextRenderingMatrix();
+    gly.textColor = textColor;
     if (letter == ' ') {
       gly.wordSpacing = wordSpacing!;
     }
@@ -1127,6 +1136,7 @@ class TextElement {
     if (isExtractTextData && gly.toUnicode.length != 1) {
       for (int i = 0; i < gly.toUnicode.length - 1; i++) {
         final Glyph emptyGlyph = Glyph();
+        emptyGlyph.textColor = textColor;
         emptyGlyph.boundingRect = Rect.fromLTWH(
           gly.boundingRect.right,
           gly.boundingRect.top,

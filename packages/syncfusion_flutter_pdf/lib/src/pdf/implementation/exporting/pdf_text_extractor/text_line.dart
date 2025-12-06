@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import '../../graphics/fonts/enums.dart';
+import '../../graphics/pdf_color.dart';
 import 'text_word.dart';
 
 /// Details of the text present in a line
@@ -37,6 +38,9 @@ class TextLine {
 
   /// Gets the text.
   late String text;
+
+  /// Gets the color of the text.
+  PdfColor? textColor;
 }
 
 // ignore: avoid_classes_with_only_static_members
