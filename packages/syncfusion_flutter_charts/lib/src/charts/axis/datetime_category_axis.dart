@@ -18,17 +18,17 @@ import 'plot_band.dart';
 /// An axis which is used to plot date-time values. It is similar to
 /// [DateTimeAxis] except that it excludes missing dates.
 ///
-/// This is a unique type of axis used mainly with financial series. Like
-/// [CategoryAxis], all the data points are plotted with equal spaces by
-/// removing space for missing dates. Intervals and ranges for the axis are
-/// calculated similar to [DateTimeAxis]. There will be no visual gaps between
-/// points even when the difference between two points is more than a year.
+/// This is a unique type of axis used mainly with financial series. Like
+/// [CategoryAxis], all the data points are plotted with equal spaces by
+/// removing space for missing dates. Intervals and ranges for the axis are
+/// calculated similar to [DateTimeAxis]. There will be no visual gaps between
+/// points even when the difference between two points is more than a year.
 ///
-/// A simple use case of this axis type is when the user wishes to visualize
-/// the working hours on an employee for a month by excluding the weekends.
+/// A simple use case of this axis type is when the user wishes to visualize
+/// the working hours on an employee for a month by excluding the weekends.
 ///
-/// Provides options for label placement, interval, date format for customizing
-/// the appearance.
+/// Provides options for label placement, interval, date format for customizing
+/// the appearance.
 class DateTimeCategoryAxis extends ChartAxis {
   /// Creating an argument constructor of [DateTimeCategoryAxis] class.
   const DateTimeCategoryAxis({
@@ -84,17 +84,17 @@ class DateTimeCategoryAxis extends ChartAxis {
     super.axisLabelFormatter,
     this.onRendererCreated,
   }) : assert(
-         (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
-             autoScrollingDelta == null,
-         'Both properties have the same behavior to display the visible data points, use any one of the properties',
-       );
+  (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
+      autoScrollingDelta == null,
+  'Both properties have the same behavior to display the visible data points, use any one of the properties',
+  );
 
-  /// Formats the date-time category axis labels.
+  /// Formats the date-time category axis labels.
   ///
-  /// The axis label can be formatted with various built-in [date formats](https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html).
+  /// The axis label can be formatted with various built-in [date formats](https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html).
   ///
-  /// By default, date format will be applied to the axis labels based on the
-  /// interval between the data points.
+  /// By default, date format will be applied to the axis labels based on the
+  /// interval between the data points.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -125,15 +125,15 @@ class DateTimeCategoryAxis extends ChartAxis {
   /// ```
   final LabelPlacement labelPlacement;
 
-  /// Customizes the date-time category axis interval.
+  /// Customizes the date-time category axis interval.
   ///
-  /// Intervals can be set to days, hours, minutes, months, seconds, years, and
-  /// auto. If it is set to auto, the interval type will be decided based on
-  /// the data.
+  /// Intervals can be set to days, hours, minutes, months, seconds, years, and
+  /// auto. If it is set to auto, the interval type will be decided based on
+  /// the data.
   ///
-  /// Defaults to `DateTimeIntervalType.auto`.
+  /// Defaults to `DateTimeIntervalType.auto`.
   ///
-  /// Also refer [DateTimeIntervalType].
+  /// Also refer [DateTimeIntervalType].
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -291,17 +291,17 @@ class DateTimeCategoryAxis extends ChartAxis {
   /// ```
   final DateTime? initialVisibleMaximum;
 
-  /// Defines the type of delta value in the DateTime axis.
+  /// Defines the type of delta value in the DateTime axis.
   ///
-  /// For example, if the [autoScrollingDelta] value is 5 and
-  /// [autoScrollingDeltaType] is set to `DateTimeIntervalType.days`, the data
-  /// points with 5 days of values will be displayed.
+  /// For example, if the [autoScrollingDelta] value is 5 and
+  /// [autoScrollingDeltaType] is set to `DateTimeIntervalType.days`, the data
+  /// points with 5 days of values will be displayed.
   ///
-  /// The value can be set to years, months, days, hours, minutes, seconds
-  /// and auto.
+  /// The value can be set to years, months, days, hours, minutes, seconds
+  /// and auto.
   ///
-  /// Defaults to `DateTimeIntervalType.auto` and the delta will be calculated
-  /// automatically based on the data.
+  /// Defaults to `DateTimeIntervalType.auto` and the delta will be calculated
+  /// automatically based on the data.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -360,7 +360,7 @@ class DateTimeCategoryAxis extends ChartAxis {
   @override
   RenderDateTimeCategoryAxis createRenderObject(BuildContext context) {
     final RenderDateTimeCategoryAxis renderer =
-        super.createRenderObject(context) as RenderDateTimeCategoryAxis;
+    super.createRenderObject(context) as RenderDateTimeCategoryAxis;
     renderer
       ..labelPlacement = labelPlacement
       ..dateFormat = dateFormat
@@ -377,9 +377,9 @@ class DateTimeCategoryAxis extends ChartAxis {
 
   @override
   void updateRenderObject(
-    BuildContext context,
-    RenderDateTimeCategoryAxis renderObject,
-  ) {
+      BuildContext context,
+      RenderDateTimeCategoryAxis renderObject,
+      ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..labelPlacement = labelPlacement
@@ -402,13 +402,13 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
   @override
   DateTimeCategoryAxisController get controller => _controller;
   late final DateTimeCategoryAxisController _controller =
-      DateTimeCategoryAxisController(this);
+  DateTimeCategoryAxisController(this);
 
   @override
   @nonVirtual
   bool get canAnimate =>
       super.canAnimate ||
-      (initialVisibleMinimum != null && initialVisibleMaximum != null);
+          (initialVisibleMinimum != null && initialVisibleMaximum != null);
 
   DateFormat? get dateFormat => _dateFormat;
   DateFormat? _dateFormat;
@@ -588,10 +588,10 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
 
   @override
   DoubleRange updateAutoScrollingDelta(
-    int scrollingDelta,
-    DoubleRange actualRange,
-    DoubleRange visibleRange,
-  ) {
+      int scrollingDelta,
+      DoubleRange actualRange,
+      DoubleRange visibleRange,
+      ) {
     if (initialVisibleMaximum != null || initialVisibleMinimum != null) {
       return visibleRange;
     }
@@ -638,9 +638,9 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
       maximum.toInt(),
     );
     final num totalDays =
-        ((endDate.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) /
-                perDay)
-            .abs();
+    ((endDate.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) /
+        perDay)
+        .abs();
 
     // For years.
     num niceInterval = super.calculateNiceInterval(
@@ -711,10 +711,10 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
 
   @override
   DoubleRange applyRangePadding(
-    DoubleRange range,
-    num interval,
-    Size availableSize,
-  ) {
+      DoubleRange range,
+      num interval,
+      Size availableSize,
+      ) {
     if (labelPlacement == LabelPlacement.betweenTicks) {
       range.minimum -= 0.5;
       range.maximum += 0.5;
@@ -783,18 +783,18 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
     num niceInterval = visibleInterval;
     final List<String> split = niceInterval.toString().split('.');
     niceInterval =
-        split.length >= 2
-            ? split[1].length == 1 && split[1] == '0'
-                ? niceInterval.floor()
-                : niceInterval.ceil()
-            : niceInterval;
+    split.length >= 2
+        ? split[1].length == 1 && split[1] == '0'
+        ? niceInterval.floor()
+        : niceInterval.ceil()
+        : niceInterval;
     final num visibleMinimum = visibleRange!.minimum;
     final num visibleMaximum = visibleRange!.maximum;
     num current = visibleMinimum.ceil();
     num previous = current;
     final DateFormat niceDateTimeFormat =
         dateFormat ??
-        dateTimeCategoryAxisLabelFormat(this, current, previous.toInt());
+            dateTimeCategoryAxisLabelFormat(this, current, previous.toInt());
     while (current <= visibleMaximum) {
       if (current < visibleMinimum ||
           !effectiveVisibleRange!.contains(current)) {
@@ -878,11 +878,11 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
 
   @override
   void calculateTickPositions(
-    LabelPlacement placement, {
-    List<double>? source,
-    bool canCalculateMinorTick = false,
-    bool canCalculateMajorTick = true,
-  }) {
+      LabelPlacement placement, {
+        List<double>? source,
+        bool canCalculateMinorTick = false,
+        bool canCalculateMajorTick = true,
+      }) {
     int length = visibleLabels.length;
     if (length == 0) {
       return;
@@ -921,7 +921,7 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
       visiblePlotBands ??= <AxisPlotBand>[];
       final int length = plotBands.length;
       final Rect Function(PlotBand plotBand, num start, num end) bounds =
-          isVertical ? verticalPlotBandBounds : horizontalPlotBandBounds;
+      isVertical ? verticalPlotBandBounds : horizontalPlotBandBounds;
 
       for (int i = 0; i < length; i++) {
         final PlotBand plotBand = plotBands[i];
@@ -929,13 +929,13 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
           final dynamic actualStart = plotBand.start;
           final dynamic actualEnd = plotBand.end;
           final num min =
-              actualStart != null
-                  ? _handleValueType(actualStart)
-                  : visibleRange!.minimum;
+          actualStart != null
+              ? _handleValueType(actualStart)
+              : visibleRange!.minimum;
           num max =
-              actualEnd != null
-                  ? _handleValueType(actualEnd)
-                  : visibleRange!.maximum;
+          actualEnd != null
+              ? _handleValueType(actualEnd)
+              : visibleRange!.maximum;
 
           num extent;
           if (plotBand.isRepeatable) {
@@ -1020,15 +1020,15 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
     }
 
     _multilevelLabels.sort(
-      (AxisMultilevelLabel a, AxisMultilevelLabel b) =>
+          (AxisMultilevelLabel a, AxisMultilevelLabel b) =>
           a.level.compareTo(b.level),
     );
 
     final void Function(AxisMultilevelLabel label) add =
-        invertElementsOrder
-            ? (AxisMultilevelLabel label) =>
-                visibleMultilevelLabels.insert(0, label)
-            : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
+    invertElementsOrder
+        ? (AxisMultilevelLabel label) =>
+        visibleMultilevelLabels.insert(0, label)
+        : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
 
     final int labelsLength = _multilevelLabels.length;
     final TextStyle textStyle = chartThemeData!.axisMultiLevelLabelTextStyle!
@@ -1040,13 +1040,13 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
         TextStyle desiredTextStyle = textStyle;
         if (multiLevelLabelFormatter != null) {
           final MultiLevelLabelRenderDetails details =
-              MultiLevelLabelRenderDetails(
-                current.level,
-                desiredText,
-                desiredTextStyle,
-                i,
-                name,
-              );
+          MultiLevelLabelRenderDetails(
+            current.level,
+            desiredText,
+            desiredTextStyle,
+            i,
+            name,
+          );
           final ChartAxisLabel label = multiLevelLabelFormatter!(details);
           desiredText = label.text;
           desiredTextStyle = textStyle.merge(label.textStyle);
@@ -1157,19 +1157,47 @@ class RenderDateTimeCategoryAxis extends RenderChartAxis {
           int maxValue = 0;
           for (int i = 0; i < length; i++) {
             final int rawX = (xRawValues[i] as DateTime).millisecondsSinceEpoch;
-            if (!labels.contains(rawX)) {
+            final index = _binarySearch(labels, rawX);
+
+            final int indexValidated;
+            if (index < 0) {
               labels.add(rawX);
+              indexValidated = labels.length - 1;
+            } else {
+              indexValidated = index;
             }
 
-            final int index = labels.indexOf(rawX);
-            dependent.xValues[i] = index;
-            maxValue = max(maxValue, index);
+            dependent.xValues[i] = indexValidated;
+            maxValue = max(maxValue, indexValidated);
           }
           dependent.xMin = minValue;
           dependent.xMax = maxValue;
         }
       }
     }
+  }
+
+  int _binarySearch(List<int> sortedList, int target) {
+    int low = 0;
+    int high = sortedList.length - 1;
+
+    while (low <= high) {
+      final int mid =
+          low + ((high - low) ~/ 2); // Integer division for the midpoint
+      final midSample = sortedList.elementAt(mid);
+
+      final int comparison = midSample.compareTo(target);
+
+      if (comparison == 0) {
+        return mid; // Found the target
+      } else if (comparison < 0) {
+        low = mid + 1; // Target is in the right half
+      } else {
+        high = mid - 1; // Target is in the left half
+      }
+    }
+
+    return -1; // Target not found
   }
 
   @override
