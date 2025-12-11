@@ -712,10 +712,14 @@ class Treemap extends StatefulWidget {
     required this.tooltipSettings,
     required this.enableDrilldown,
     required this.breadcrumbs,
+    this.rebuildToken,
   }) : super(key: key);
 
   /// Represents the length of the given data source.
   final int dataCount;
+
+  /// Optional token to force widget rebuild when data values change.
+  final Object? rebuildToken;
 
   /// Returns a value based on which index passed through it.
   final IndexedDoubleValueMapper weightValueMapper;
@@ -1194,7 +1198,8 @@ class _TreemapState extends State<Treemap> with SingleTickerProviderStateMixin {
     if (_levelsLength != widget.levels.length) {
       _levelsLength = widget.levels.length;
       _invalidate();
-    } else if (widget.dataCount != oldWidget.dataCount) {
+    } else if (widget.dataCount != oldWidget.dataCount ||
+        widget.rebuildToken != oldWidget.rebuildToken) {
       _invalidate();
     }
 

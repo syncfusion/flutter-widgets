@@ -1870,6 +1870,7 @@ class SfTreemap extends StatelessWidget {
     this.tooltipSettings = const TreemapTooltipSettings(),
     this.enableDrilldown = false,
     this.breadcrumbs,
+    this.rebuildToken,
   }) : assert(dataCount > 0),
        assert(levels.length > 0),
        assert(colorMappers == null || colorMappers.length > 0),
@@ -1991,6 +1992,7 @@ class SfTreemap extends StatelessWidget {
     this.tileHoverBorder,
     this.enableDrilldown = false,
     this.breadcrumbs,
+    this.rebuildToken,
   }) : assert(dataCount > 0),
        assert(levels.length > 0),
        assert(colorMappers == null || colorMappers.length > 0),
@@ -2111,6 +2113,7 @@ class SfTreemap extends StatelessWidget {
     this.tileHoverBorder,
     this.enableDrilldown = false,
     this.breadcrumbs,
+    this.rebuildToken,
   }) : assert(dataCount > 0),
        assert(levels.length > 0),
        assert(colorMappers == null || colorMappers.length > 0),
@@ -2176,6 +2179,33 @@ class SfTreemap extends StatelessWidget {
   /// See also:
   /// * [SfTreemap], to know how treemap render the tiles.
   final int dataCount;
+
+  /// Optional token to force widget rebuild when data values change.
+  ///
+  /// The treemap widget only rebuilds when [dataCount] changes. If data values
+  /// change but the count remains the same, use this parameter to trigger a
+  /// rebuild by changing its value.
+  ///
+  /// Example:
+  /// ```dart
+  /// int _rebuildToken = 0;
+  ///
+  /// void updateData() {
+  ///   setState(() {
+  ///     _data = newData;
+  ///     _rebuildToken++;
+  ///   });
+  /// }
+  ///
+  /// SfTreemap(
+  ///   dataCount: _data.length,
+  ///   rebuildToken: _rebuildToken,
+  /// )
+  /// ```
+  ///
+  /// See also:
+  /// * [SfTreemap.dataCount], to know how to set the data count.
+  final Object? rebuildToken;
 
   /// Returns the values which determines the weight of each tile.
   ///
@@ -3085,6 +3115,7 @@ class SfTreemap extends StatelessWidget {
       tooltipSettings: tooltipSettings,
       enableDrilldown: enableDrilldown,
       breadcrumbs: breadcrumbs,
+      rebuildToken: rebuildToken,
     );
   }
 
