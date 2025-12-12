@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart' show Color;
+import 'package:flutter/material.dart' show Color, Offset;
 
 import '../annotation/annotation.dart';
+import '../annotation/sticky_notes.dart';
+import '../control/enums.dart';
 import '../form_fields/pdf_form_field.dart';
 
 /// The base class for all annotation change commands.
@@ -15,11 +17,12 @@ abstract class ChangeCommand {
 /// Represents a change in the properties of an annotation.
 class AnnotationPropertyChangeTracker extends ChangeCommand {
   /// Creates a new instance of [AnnotationPropertyChangeTracker].
-  AnnotationPropertyChangeTracker(
-      {required this.annotation,
-      required this.propertyName,
-      required this.oldValue,
-      required this.newValue});
+  AnnotationPropertyChangeTracker({
+    required this.annotation,
+    required this.propertyName,
+    required this.oldValue,
+    required this.newValue,
+  });
 
   /// The annotation whose property was changed.
   final Annotation annotation;
@@ -52,6 +55,20 @@ class AnnotationPropertyChangeTracker extends ChangeCommand {
       annotation.setOpacity(value as double);
     } else if (propertyName == 'isLocked') {
       annotation.setIsLocked(value as bool);
+    } else if (propertyName == 'icon') {
+      if (annotation is StickyNoteAnnotation) {
+        (annotation as StickyNoteAnnotation).setIcon(
+          value as PdfStickyNoteIcon,
+        );
+      }
+    } else if (propertyName == 'position') {
+      if (annotation is StickyNoteAnnotation) {
+        (annotation as StickyNoteAnnotation).setPosition(value as Offset);
+      }
+    } else if (propertyName == 'text') {
+      if (annotation is StickyNoteAnnotation) {
+        (annotation as StickyNoteAnnotation).setText(value as String);
+      }
     }
   }
 }
@@ -59,10 +76,11 @@ class AnnotationPropertyChangeTracker extends ChangeCommand {
 /// Represents a change in adding or removing an annotation.
 class AnnotationAddOrRemoveTracker extends ChangeCommand {
   /// Creates a new instance of [AnnotationAddOrRemoveTracker].
-  AnnotationAddOrRemoveTracker(
-      {required this.annotation,
-      required this.undoCallback,
-      required this.redoCallback});
+  AnnotationAddOrRemoveTracker({
+    required this.annotation,
+    required this.undoCallback,
+    required this.redoCallback,
+  });
 
   /// The annotation that was added or removed.
   final Annotation annotation;
@@ -89,10 +107,11 @@ class AnnotationAddOrRemoveTracker extends ChangeCommand {
 /// Represents a change in adding or removing all annotations.
 class ClearAnnotationsTracker extends ChangeCommand {
   /// Creates a new instance of [ClearAnnotationsTracker].
-  ClearAnnotationsTracker(
-      {required this.annotations,
-      required this.undoCallback,
-      required this.redoCallback});
+  ClearAnnotationsTracker({
+    required this.annotations,
+    required this.undoCallback,
+    required this.redoCallback,
+  });
 
   /// The annotation that was added or removed.
   final List<Annotation> annotations;
@@ -105,26 +124,22 @@ class ClearAnnotationsTracker extends ChangeCommand {
 
   @override
   void undo() {
-    // ignore: prefer_foreach
-    for (final Annotation annotation in annotations) {
-      undoCallback(annotation);
-    }
+    annotations.forEach(undoCallback);
   }
 
   @override
   void redo() {
-    // ignore: prefer_foreach
-    for (final Annotation annotation in annotations) {
-      redoCallback(annotation);
-    }
+    annotations.forEach(redoCallback);
   }
 }
 
 /// Represents a change in the value of the form field.
 class FormFieldValueChangeTracker extends ChangeCommand {
   /// Creates a new instance of [FormFieldValueChangeTracker].
-  FormFieldValueChangeTracker(
-      {required this.records, required this.onUndoOrRedo});
+  FormFieldValueChangeTracker({
+    required this.records,
+    required this.onUndoOrRedo,
+  });
 
   /// The records of the changes made in the form fields
   final List<FormFieldValueChangeRecord> records;
@@ -152,10 +167,11 @@ class FormFieldValueChangeTracker extends ChangeCommand {
 /// Represents a change in the value of the form field.
 class FormFieldValueChangeRecord {
   /// Creates a new instance of [FormFieldValueChangeRecord].
-  FormFieldValueChangeRecord(
-      {required this.formField,
-      required this.oldValue,
-      required this.newValue});
+  FormFieldValueChangeRecord({
+    required this.formField,
+    required this.oldValue,
+    required this.newValue,
+  });
 
   /// The form field whose value is changed.
   final PdfFormField formField;

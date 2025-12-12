@@ -26,13 +26,14 @@ import '../../radial_gauge/utils/enum.dart';
 @immutable
 class GaugeTitle {
   /// Creates the gauge title with default or required properties.
-  const GaugeTitle(
-      {required this.text,
-      this.textStyle,
-      this.alignment = GaugeAlignment.center,
-      this.borderColor,
-      this.borderWidth = 0,
-      this.backgroundColor});
+  const GaugeTitle({
+    required this.text,
+    this.textStyle,
+    this.alignment = GaugeAlignment.center,
+    this.borderColor,
+    this.borderWidth = 0,
+    this.backgroundColor,
+  });
 
   /// Text to be displayed as gauge title.
   ///
@@ -183,7 +184,7 @@ class GaugeTitle {
       textStyle,
       borderWidth,
       borderColor,
-      backgroundColor
+      backgroundColor,
     ];
     return Object.hashAll(values);
   }

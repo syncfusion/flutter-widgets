@@ -1,10 +1,17 @@
-part of xlsio;
+import 'dart:math';
+
+import '../../../xlsio.dart';
 
 /// Represents the class used for autofit columns and rows
-class _AutoFitManager {
+class AutoFitManager {
   /// Intializes the AutoFit Manager.
-  _AutoFitManager(
-      int row, int column, int lastRow, int lastColumn, Range rangeImpl) {
+  AutoFitManager(
+    int row,
+    int column,
+    int lastRow,
+    int lastColumn,
+    Range rangeImpl,
+  ) {
     _row = row;
     _column = column;
     _lastRow = lastRow;
@@ -15,7 +22,7 @@ class _AutoFitManager {
   }
 
   /// Intializes the AutoFit Manager.
-  _AutoFitManager._withSheet(Worksheet worksheet) {
+  AutoFitManager.withSheet(Worksheet worksheet) {
     _worksheet = worksheet;
     _book = worksheet.workbook;
   }
@@ -33,7 +40,11 @@ class _AutoFitManager {
 
   /// Measures the character ranges.
   int _measureCharacterRanges(
-      Style style, String strText, int num1, Rectangle<num> rectF) {
+    Style style,
+    String strText,
+    int num1,
+    Rectangle<num> rectF,
+  ) {
     Font? font2;
     final _FontStyle regular = _FontStyle._regular;
     double size = 10;
@@ -71,11 +82,18 @@ class _AutoFitManager {
   }
 
   /// Measures the character ranges.
-  int _measureCharacterRangesStyle(_StyleWithText styleWithText, int paramNum,
-      Rectangle<num> rectF, int column) {
+  int _measureCharacterRangesStyle(
+    _StyleWithText styleWithText,
+    int paramNum,
+    Rectangle<num> rectF,
+    int column,
+  ) {
     int num = 0;
     final Font font = _createFont(
-        styleWithText._fontName, styleWithText._size, styleWithText._style!);
+      styleWithText._fontName,
+      styleWithText._size,
+      styleWithText._style!,
+    );
 
     int defIndentWidthinPixels = 0;
     const int defaultPixel = 9;
@@ -107,7 +125,7 @@ class _AutoFitManager {
 
       int num3 =
           (_measureString(text, font, rectF, false).width + 0.05).toInt() +
-              paramNum;
+          paramNum;
       if (defIndentWidthinPixels > 0) {
         num3 += defIndentWidthinPixels - paramNum;
       }
@@ -151,17 +169,26 @@ class _AutoFitManager {
   }
 
   double _getFontHeight(Font font) {
-    return _book._getTextSizeFromFont('a', font)._height;
+    return _book.getTextSizeFromFont('a', font).fontHeight;
   }
 
   Rectangle<num> _measureString(
-      String text, Font font, Rectangle<num> rectF, bool isAutoFitRow) {
-    return _book._getMeasuredRectangle(text, font, rectF);
+    String text,
+    Font font,
+    Rectangle<num> rectF,
+    bool isAutoFitRow,
+  ) {
+    return _book.getMeasuredRectangle(text, font, rectF);
   }
 
   /// Sorts the text to fit.
-  static void _sortTextToFit(List<Object>? list, Font fontImpl, String strText,
-      bool autoFilter, HAlignType alignment) {
+  static void _sortTextToFit(
+    List<Object>? list,
+    Font fontImpl,
+    String strText,
+    bool autoFilter,
+    HAlignType alignment,
+  ) {
     final _FontStyle regular = _FontStyle._regular;
     double size = 10;
     String name = 'Arial';
@@ -211,7 +238,7 @@ class _AutoFitManager {
   }
 
   /// Measures to fit column.
-  void _measureToFitColumn() {
+  void measureToFitColumn() {
     const int num1 = 14;
     final int firstRow = _row;
     final int lastRow = _lastRow;
@@ -231,15 +258,18 @@ class _AutoFitManager {
 
         int num4 = 0;
 
-        final bool autofit = migrantRange._bAutofitText;
-        final List<dynamic> result =
-            Range._isMergedCell(migrantRange, false, num4);
+        final bool autofit = migrantRange.isAutoFitText;
+        final List<dynamic> result = Range.isMergedCell(
+          migrantRange,
+          false,
+          num4,
+        );
         num4 = result[0] as int;
         final bool isMerged = result[1] as bool;
 
         if (!isMerged || num4 != 0) {
           if (!autofit) {
-            migrantRange._bAutofitText = true;
+            migrantRange.isAutoFitText = true;
           }
 
           if (!columnsWidth.containsKey(column)) {
@@ -264,26 +294,34 @@ class _AutoFitManager {
             }
             final HAlignType horizontalAlignment = style.hAlign;
             if (horizontalAlignment == HAlignType.center) {
-              final Range cellRange =
-                  _rangeImpl.worksheet.getRangeByIndex(row, column++);
+              final Range cellRange = _rangeImpl.worksheet.getRangeByIndex(
+                row,
+                column++,
+              );
               if (column != cellRange.column + 1) {
                 continue;
               }
             }
             _sortTextToFit(arrList, fontImpl, text, false, horizontalAlignment);
           } else if (hasWrapText) {
-            final int columnWidth = _worksheet._getColumnWidthInPixels(column);
-            final double textHeight =
-                _calculateWrappedCell(style, text, columnWidth);
-            final double fitRowHeight = _book._convertFromPixel(textHeight, 6);
+            final int columnWidth = _worksheet.getColumnWidthInPixels(column);
+            final double textHeight = calculateWrappedCell(
+              style,
+              text,
+              columnWidth,
+            );
+            final double fitRowHeight = _book.convertFromPixel(textHeight, 6);
 
             final double rowHeight = migrantRange.rowHeight;
             List<String> words;
             final List<String> wordsN = text.split('\n');
-            final List<String> wordNSplit =
-                wordsN[wordsN.length - 1].split(' ');
-            words =
-                List<String>.filled(wordsN.length - 1 + wordNSplit.length, '');
+            final List<String> wordNSplit = wordsN[wordsN.length - 1].split(
+              ' ',
+            );
+            words = List<String>.filled(
+              wordsN.length - 1 + wordNSplit.length,
+              '',
+            );
             for (int i = 0; i < wordsN.length - 1; i++) {
               words[i] = '${wordsN[i]}\n';
             }
@@ -297,14 +335,20 @@ class _AutoFitManager {
             for (int index = 0; index < words.length; index++) {
               autoFitText = words[index];
               if (autoFitText.isNotEmpty) {
-                final int length =
-                    _measureCharacterRanges(style, autoFitText, num1, ef);
+                final int length = _measureCharacterRanges(
+                  style,
+                  autoFitText,
+                  num1,
+                  ef,
+                );
                 final CellType cellType = migrantRange.type;
                 final bool isNumberCellType = cellType == CellType.number;
                 if (length < columnWidth || isNumberCellType) {
-                  for (int temp = index + 1;
-                      temp < words.length || temp == 1;
-                      temp++) {
+                  for (
+                    int temp = index + 1;
+                    temp < words.length || temp == 1;
+                    temp++
+                  ) {
                     index = temp;
                     if (words.length != 1) {
                       if (!autoFitText.endsWith('\n')) {
@@ -313,11 +357,15 @@ class _AutoFitManager {
                         index--;
                       }
                     }
-                    final int currentLength =
-                        _measureCharacterRanges(style, autoFitText, num1, ef);
+                    final int currentLength = _measureCharacterRanges(
+                      style,
+                      autoFitText,
+                      num1,
+                      ef,
+                    );
                     if (wordsN.length == 1 &&
                         (currentLength > biggestLength) &&
-                        rowHeight >= _worksheet._standardHeight &&
+                        rowHeight >= _worksheet.standardHeight &&
                         rowHeight <= fitRowHeight) {
                       biggestLength = currentLength;
                     } else if (currentLength < columnWidth ||
@@ -335,7 +383,7 @@ class _AutoFitManager {
                 } else if (style.rotation == 0 || style.rotation == 0xff) {
                   if (wordsN.length == 1 &&
                       length > biggestLength &&
-                      rowHeight >= _worksheet._standardHeight &&
+                      rowHeight >= _worksheet.standardHeight &&
                       rowHeight <= fitRowHeight) {
                     biggestLength = length;
                   } else {
@@ -366,8 +414,12 @@ class _AutoFitManager {
       int num8 = 0;
       for (int k = 0; k < list3.length; k++) {
         final _StyleWithText styleWithText = list3[k] as _StyleWithText;
-        final int num10 =
-            _measureCharacterRangesStyle(styleWithText, num1, ef, key);
+        final int num10 = _measureCharacterRangesStyle(
+          styleWithText,
+          num1,
+          ef,
+          key,
+        );
         if (num8 < num10) {
           num8 = num10;
         }
@@ -387,8 +439,11 @@ class _AutoFitManager {
     }
   }
 
-  double _calculateWrappedCell(
-      Style format, String stringValue, int columnWidth) {
+  double calculateWrappedCell(
+    Style format,
+    String stringValue,
+    int columnWidth,
+  ) {
     final Font font = Font();
     font.name = format.fontName;
     font.size = format.fontSize;
@@ -399,18 +454,25 @@ class _AutoFitManager {
     if (stringValue.isEmpty) {
       return 0;
     } else {
-      final double calculatedValue = (stringValue.length / 406) * (font.size) +
+      final double calculatedValue =
+          (stringValue.length / 406) * (font.size) +
           (2 * ((font.bold || font.italic) ? 1 : 0));
-      num9 = (calculatedValue < columnWidth)
-          ? columnWidth.toDouble()
-          : calculatedValue;
+      num9 =
+          (calculatedValue < columnWidth)
+              ? columnWidth.toDouble()
+              : calculatedValue;
       num6 = _measureCell(format, stringValue, num9, number, true);
       return num6;
     }
   }
 
-  double _measureCell(Style format, String stringValue, double columnWidth,
-      int number, bool isString) {
+  double _measureCell(
+    Style format,
+    String stringValue,
+    double columnWidth,
+    int number,
+    bool isString,
+  ) {
     final Font font = Font();
     font.name = format.fontName;
     font.size = format.fontSize;
@@ -526,13 +588,19 @@ class _AutoFitManager {
   }
 
   double _measureFontSize(
-      Style extendedFromat, String stringValue, double columnWidth) {
+    Style extendedFromat,
+    String stringValue,
+    double columnWidth,
+  ) {
     if (stringValue.isEmpty) {
       return 0;
     }
     final double size = extendedFromat.fontSize;
-    final Font font =
-        _createFont(extendedFromat.fontName, size, _FontStyle._regular);
+    final Font font = _createFont(
+      extendedFromat.fontName,
+      size,
+      _FontStyle._regular,
+    );
 
     const double num2 = 0;
     const double num3 = 0;
@@ -607,10 +675,16 @@ class _FontStyle {
 }
 
 /// Metrics of the font.
-class _FontMetrics {
+class FontMetrics {
   /// Initialize the font Metrics class with the parameters.
-  _FontMetrics(double ascent, double descent, int linegap, double height,
-      double superscriptfactor, double subscriptfactor) {
+  FontMetrics(
+    double ascent,
+    double descent,
+    int linegap,
+    double height,
+    double superscriptfactor,
+    double subscriptfactor,
+  ) {
     _ascent = ascent;
     _descent = descent;
     _lineGap = linegap;
@@ -659,7 +733,7 @@ class _FontMetrics {
   }
 
   /// Returns height taking into consideration font's size.
-  double _getHeight(Font format) {
+  double getHeight(Font format) {
     double height;
     if (_getDescent(format) < 0) {
       height = _getAscent(format) - _getDescent(format) + _getLineGap(format);
@@ -677,17 +751,17 @@ class _FontMetrics {
   }
 }
 
-class _SizeF {
-  _SizeF(double width, double height) {
-    _width = width;
-    _height = height;
+class SizeF {
+  SizeF(double width, double height) {
+    fontWidth = width;
+    fontHeight = height;
   }
-  static final _SizeF _empty = _SizeF(0, 0);
-  late double _width;
-  late double _height;
+  static final SizeF empty = SizeF(0, 0);
+  late double fontWidth;
+  late double fontHeight;
 
   // ignore: unused_element
   bool get _isEmpty {
-    return (_width == 0) && (_height == 0);
+    return (fontWidth == 0) && (fontHeight == 0);
   }
 }

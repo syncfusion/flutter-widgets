@@ -72,7 +72,7 @@ class CompressedStreamReader {
     163,
     195,
     227,
-    258
+    258,
   ];
 
   /// internal field
@@ -105,7 +105,7 @@ class CompressedStreamReader {
     5,
     5,
     5,
-    0
+    0,
   ];
 
   /// internal field
@@ -139,7 +139,7 @@ class CompressedStreamReader {
     8193,
     12289,
     16385,
-    24577
+    24577,
   ];
 
   /// internal field
@@ -173,7 +173,7 @@ class CompressedStreamReader {
     12,
     12,
     13,
-    13
+    13,
   ];
 
   /// internal field
@@ -218,7 +218,9 @@ class CompressedStreamReader {
     final int header = _readInt16();
     if (header == -1) {
       throw ArgumentError.value(
-          header, 'Header of the stream can not be read.');
+        header,
+        'Header of the stream can not be read.',
+      );
     }
     if (header % 31 != 0) {
       throw ArgumentError.value(header, 'Header checksum illegal');
@@ -229,11 +231,15 @@ class CompressedStreamReader {
     _windowSize = pow(2, ((header & _defHeaderInfoMask) >> 12) + 8) as int;
     if (_windowSize > _maxValue) {
       throw ArgumentError.value(
-          header, 'Unsupported window size for deflate compression method.');
+        header,
+        'Unsupported window size for deflate compression method.',
+      );
     }
     if ((header & _defHeaderFlagsFdict) >> 5 == 1) {
       throw ArgumentError.value(
-          header, 'Custom dictionary is not supported at the moment.');
+        header,
+        'Custom dictionary is not supported at the moment.',
+      );
     }
   }
 
@@ -263,7 +269,9 @@ class CompressedStreamReader {
 
         if (length > _maxValue) {
           throw ArgumentError.value(
-              length, 'Uncompressed block length can not be more than 65535.');
+            length,
+            'Uncompressed block length can not be more than 65535.',
+          );
         }
 
         _uncompressedDataLength = length;
@@ -279,8 +287,10 @@ class CompressedStreamReader {
       case 2:
         _readingUncompressed = false;
         _uncompressedDataLength = -1;
-        final Map<String, dynamic> result =
-            _decodeDynamicHeader(_currentLengthTree, _currentDistanceTree);
+        final Map<String, dynamic> result = _decodeDynamicHeader(
+          _currentLengthTree,
+          _currentDistanceTree,
+        );
         _currentLengthTree = result['lengthTree'] as DecompressorHuffmanTree;
         _currentDistanceTree =
             result['distanceTree'] as DecompressorHuffmanTree;
@@ -291,8 +301,10 @@ class CompressedStreamReader {
     return true;
   }
 
-  Map<String, dynamic> _decodeDynamicHeader(DecompressorHuffmanTree? lengthTree,
-      DecompressorHuffmanTree? distanceTree) {
+  Map<String, dynamic> _decodeDynamicHeader(
+    DecompressorHuffmanTree? lengthTree,
+    DecompressorHuffmanTree? distanceTree,
+  ) {
     List<int> arrDecoderCodeLengths;
     List<int> arrResultingCodeLengths;
 
@@ -309,8 +321,11 @@ class CompressedStreamReader {
     iDistancesCount += 1;
 
     final int iResultingCodeLengthsCount = iLengthsCount + iDistancesCount;
-    arrResultingCodeLengths =
-        List<int>.filled(iResultingCodeLengthsCount, 0, growable: true);
+    arrResultingCodeLengths = List<int>.filled(
+      iResultingCodeLengthsCount,
+      0,
+      growable: true,
+    );
     arrDecoderCodeLengths = List<int>.filled(19, 0, growable: true);
     iCodeLengthsCount += 4;
     int iCurrentCode = 0;
@@ -323,11 +338,13 @@ class CompressedStreamReader {
       }
 
       arrDecoderCodeLengths[CompressedStreamWriter
-              .defHuffmanDyntreeCodeLengthsOrder[iCurrentCode++]] =
-          len.toUnsigned(8);
+          .defHuffmanDyntreeCodeLengthsOrder[iCurrentCode++]] = len.toUnsigned(
+        8,
+      );
     }
-    final DecompressorHuffmanTree treeInternalDecoder =
-        DecompressorHuffmanTree(arrDecoderCodeLengths);
+    final DecompressorHuffmanTree treeInternalDecoder = DecompressorHuffmanTree(
+      arrDecoderCodeLengths,
+    );
 
     iCurrentCode = 0;
 
@@ -383,21 +400,37 @@ class CompressedStreamReader {
       }
     }
 
-    final List<int> tempLengthArray =
-        List<int>.filled(iLengthsCount, 0, growable: true);
+    final List<int> tempLengthArray = List<int>.filled(
+      iLengthsCount,
+      0,
+      growable: true,
+    );
     List.copyRange(
-        tempLengthArray, 0, arrResultingCodeLengths, 0, iLengthsCount);
+      tempLengthArray,
+      0,
+      arrResultingCodeLengths,
+      0,
+      iLengthsCount,
+    );
     lengthTree = DecompressorHuffmanTree(tempLengthArray);
 
-    final List<int> tempDistanceArray =
-        List<int>.filled(iDistancesCount, 0, growable: true);
-    List.copyRange(tempDistanceArray, 0, arrResultingCodeLengths, iLengthsCount,
-        iLengthsCount + iDistancesCount);
+    final List<int> tempDistanceArray = List<int>.filled(
+      iDistancesCount,
+      0,
+      growable: true,
+    );
+    List.copyRange(
+      tempDistanceArray,
+      0,
+      arrResultingCodeLengths,
+      iLengthsCount,
+      iLengthsCount + iDistancesCount,
+    );
     distanceTree = DecompressorHuffmanTree(tempDistanceArray);
 
     return <String, dynamic>{
       'lengthTree': lengthTree,
-      'distanceTree': distanceTree
+      'distanceTree': distanceTree,
     };
   }
 
@@ -528,7 +561,9 @@ class CompressedStreamReader {
   Map<String, dynamic> read(List<int> buffer, int offset, int length) {
     if (offset < 0 || offset > buffer.length - 1) {
       throw ArgumentError.value(
-          offset, 'Offset does not belong to specified buffer.');
+        offset,
+        'Offset does not belong to specified buffer.',
+      );
     }
     if (length < 0 || length > buffer.length - offset) {
       throw ArgumentError.value(length, 'Length is illegal.');
@@ -537,13 +572,20 @@ class CompressedStreamReader {
     while (length > 0) {
       if (_currentPosition < _dataLength) {
         final int inBlockPosition = _currentPosition % _maxValue;
-        int dataToCopy =
-            min(_maxValue - inBlockPosition, _dataLength - _currentPosition);
+        int dataToCopy = min(
+          _maxValue - inBlockPosition,
+          _dataLength - _currentPosition,
+        );
         dataToCopy = min(dataToCopy, length);
 
         // Copy data.
-        List.copyRange(buffer, offset, _blockBuffer!, inBlockPosition,
-            inBlockPosition + dataToCopy);
+        List.copyRange(
+          buffer,
+          offset,
+          _blockBuffer!,
+          inBlockPosition,
+          inBlockPosition + dataToCopy,
+        );
         _currentPosition += dataToCopy;
         offset += dataToCopy;
         length -= dataToCopy;
@@ -567,13 +609,20 @@ class CompressedStreamReader {
           } else {
             // Position of the data end in block buffer.
             final int inBlockPosition = _dataLength % _maxValue;
-            final int dataToRead =
-                min(_uncompressedDataLength, _maxValue - inBlockPosition);
-            final int dataRead =
-                _readPackedBytes(_blockBuffer!, inBlockPosition, dataToRead);
+            final int dataToRead = min(
+              _uncompressedDataLength,
+              _maxValue - inBlockPosition,
+            );
+            final int dataRead = _readPackedBytes(
+              _blockBuffer!,
+              inBlockPosition,
+              dataToRead,
+            );
             if (dataToRead != dataRead) {
               throw ArgumentError.value(
-                  dataToRead, 'Not enough data in stream.');
+                dataToRead,
+                'Not enough data in stream.',
+              );
             }
             _uncompressedDataLength -= dataRead;
             _dataLength += dataRead;
@@ -605,19 +654,25 @@ class CompressedStreamReader {
 
     return <String, dynamic>{
       'length': initialLength - length,
-      'buffer': buffer
+      'buffer': buffer,
     };
   }
 
   void _checksumUpdate(List<int>? buffer, int offset, int length) {
     _checkSum = CompressedStreamWriter.checksumUpdate(
-        _checkSum, buffer, offset, length);
+      _checkSum,
+      buffer,
+      offset,
+      length,
+    );
   }
 
   int _readPackedBytes(List<int> buffer, int offset, int length) {
     if (offset < 0 || offset > buffer.length - 1) {
-      throw ArgumentError.value(offset,
-          'Offset cannot be less than zero or greater than buffer length - 1.');
+      throw ArgumentError.value(
+        offset,
+        'Offset cannot be less than zero or greater than buffer length - 1.',
+      );
     }
 
     if (length < 0) {
@@ -630,7 +685,9 @@ class CompressedStreamReader {
 
     if ((bufferedBits & 7) != 0) {
       throw ArgumentError.value(
-          buffer, 'Reading of unalligned data is not supported.');
+        buffer,
+        'Reading of unalligned data is not supported.',
+      );
     }
 
     if (length == 0) {

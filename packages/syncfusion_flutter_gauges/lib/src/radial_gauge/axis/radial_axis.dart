@@ -39,56 +39,55 @@ class RadialAxis extends StatefulWidget {
   /// [tickOffset] and [labelOffset] must not be null.
   /// Additionally [centerX], [centerY] must be non-negative
   /// and [maximum] must be greater than [minimum].
-  RadialAxis(
-      {Key? key,
-      this.startAngle = 130,
-      this.endAngle = 50,
-      this.radiusFactor = 0.95,
-      this.centerX = 0.5,
-      this.centerY = 0.5,
-      this.onLabelCreated,
-      this.onAxisTapped,
-      this.canRotateLabels = false,
-      this.showFirstLabel = true,
-      this.showLastLabel = false,
-      this.canScaleToFit = false,
-      this.backgroundImage,
-      this.ranges,
-      this.pointers,
-      this.annotations,
-      this.minimum = 0,
-      this.maximum = 100,
-      this.interval,
-      this.minorTicksPerInterval = 1,
-      this.showLabels = true,
-      this.showAxisLine = true,
-      this.showTicks = true,
-      this.tickOffset = 0,
-      this.labelOffset = 15,
-      this.isInversed = false,
-      this.maximumLabels = 3,
-      this.useRangeColorForAxis = false,
-      this.labelFormat,
-      NumberFormat? numberFormat,
-      this.onCreateAxisRenderer,
-      this.ticksPosition = ElementsPosition.inside,
-      this.labelsPosition = ElementsPosition.inside,
-      this.offsetUnit = GaugeSizeUnit.logicalPixel,
-      GaugeTextStyle? axisLabelStyle,
-      AxisLineStyle? axisLineStyle,
-      MajorTickStyle? majorTickStyle,
-      MinorTickStyle? minorTickStyle})
-      : assert(
-            radiusFactor >= 0, 'Radius factor must be a non-negative value.'),
-        assert(centerX >= 0, 'Center X must be a non-negative value.'),
-        assert(centerY >= 0, 'Center Y must be a non-negative value.'),
-        assert(minimum < maximum, 'Maximum should be greater than minimum.'),
-        axisLabelStyle = axisLabelStyle ?? const GaugeTextStyle(),
-        axisLineStyle = axisLineStyle ?? const AxisLineStyle(),
-        numberFormat = numberFormat ?? NumberFormat('#.##'),
-        majorTickStyle = majorTickStyle ?? const MajorTickStyle(),
-        minorTickStyle = minorTickStyle ?? const MinorTickStyle(),
-        super(key: key);
+  RadialAxis({
+    Key? key,
+    this.startAngle = 130,
+    this.endAngle = 50,
+    this.radiusFactor = 0.95,
+    this.centerX = 0.5,
+    this.centerY = 0.5,
+    this.onLabelCreated,
+    this.onAxisTapped,
+    this.canRotateLabels = false,
+    this.showFirstLabel = true,
+    this.showLastLabel = false,
+    this.canScaleToFit = false,
+    this.backgroundImage,
+    this.ranges,
+    this.pointers,
+    this.annotations,
+    this.minimum = 0,
+    this.maximum = 100,
+    this.interval,
+    this.minorTicksPerInterval = 1,
+    this.showLabels = true,
+    this.showAxisLine = true,
+    this.showTicks = true,
+    this.tickOffset = 0,
+    this.labelOffset = 15,
+    this.isInversed = false,
+    this.maximumLabels = 3,
+    this.useRangeColorForAxis = false,
+    this.labelFormat,
+    NumberFormat? numberFormat,
+    this.onCreateAxisRenderer,
+    this.ticksPosition = ElementsPosition.inside,
+    this.labelsPosition = ElementsPosition.inside,
+    this.offsetUnit = GaugeSizeUnit.logicalPixel,
+    GaugeTextStyle? axisLabelStyle,
+    AxisLineStyle? axisLineStyle,
+    MajorTickStyle? majorTickStyle,
+    MinorTickStyle? minorTickStyle,
+  }) : assert(radiusFactor >= 0, 'Radius factor must be a non-negative value.'),
+       assert(centerX >= 0, 'Center X must be a non-negative value.'),
+       assert(centerY >= 0, 'Center Y must be a non-negative value.'),
+       assert(minimum < maximum, 'Maximum should be greater than minimum.'),
+       axisLabelStyle = axisLabelStyle ?? const GaugeTextStyle(),
+       axisLineStyle = axisLineStyle ?? const AxisLineStyle(),
+       numberFormat = numberFormat ?? NumberFormat('#.##'),
+       majorTickStyle = majorTickStyle ?? const MajorTickStyle(),
+       minorTickStyle = minorTickStyle ?? const MinorTickStyle(),
+       super(key: key);
 
   /// Specifies the start angle of axis.
   ///
@@ -889,9 +888,10 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
   }
 
   void _updateOldList() {
-    _oldPointerList = (widget.pointers != null)
-        ? List<GaugePointer>.from(widget.pointers!)
-        : null;
+    _oldPointerList =
+        (widget.pointers != null)
+            ? List<GaugePointer>.from(widget.pointers!)
+            : null;
   }
 
   bool _isEqualLists(List<dynamic>? a, List<dynamic>? b) {
@@ -923,41 +923,61 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
     _disposeAnimationControllers();
     if (_enableAnimation) {
       _animationController = AnimationController(
-          vsync: this, duration: Duration(milliseconds: animationDuration));
+        vsync: this,
+        duration: Duration(milliseconds: animationDuration),
+      );
       _animationController!.addListener(_axisAnimationListener);
       if (_hasAxisLine) {
         _axisAnimation = Tween<double>(begin: 0, end: 1).animate(
-            CurvedAnimation(
-                parent: _animationController!,
-                curve: Interval(_axisLineInterval[0]!, _axisLineInterval[1]!,
-                    curve: Curves.easeIn)));
+          CurvedAnimation(
+            parent: _animationController!,
+            curve: Interval(
+              _axisLineInterval[0]!,
+              _axisLineInterval[1]!,
+              curve: Curves.easeIn,
+            ),
+          ),
+        );
       }
 
       // Includes animation duration for axis ticks and labels
       if (_hasAxisElements) {
         _axisElementAnimation = Tween<double>(begin: 0, end: 1).animate(
-            CurvedAnimation(
-                parent: _animationController!,
-                curve: Interval(
-                    _axisElementsInterval[0]!, _axisElementsInterval[1]!,
-                    curve: Curves.easeIn)));
+          CurvedAnimation(
+            parent: _animationController!,
+            curve: Interval(
+              _axisElementsInterval[0]!,
+              _axisElementsInterval[1]!,
+              curve: Curves.easeIn,
+            ),
+          ),
+        );
       }
 
       if (_hasRanges) {
         _rangeAnimation = Tween<double>(begin: 0, end: 1).animate(
-            CurvedAnimation(
-                parent: _animationController!,
-                curve: Interval(_rangesInterval[0]!, _rangesInterval[1]!,
-                    curve: Curves.easeIn)));
+          CurvedAnimation(
+            parent: _animationController!,
+            curve: Interval(
+              _rangesInterval[0]!,
+              _rangesInterval[1]!,
+              curve: Curves.easeIn,
+            ),
+          ),
+        );
       }
 
       if (_hasAnnotations) {
         _annotationAnimation = Tween<double>(begin: 0, end: 1).animate(
-            CurvedAnimation(
-                parent: _animationController!,
-                curve: Interval(
-                    _annotationInterval[0]!, _annotationInterval[1]!,
-                    curve: Curves.easeIn)));
+          CurvedAnimation(
+            parent: _animationController!,
+            curve: Interval(
+              _annotationInterval[0]!,
+              _annotationInterval[1]!,
+              curve: Curves.easeIn,
+            ),
+          ),
+        );
       }
     }
 
@@ -968,9 +988,11 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
         AnimationController? pointerAnimationController;
         if (widget.pointers![i].enableAnimation) {
           pointerAnimationController = AnimationController(
-              vsync: this,
-              duration: Duration(
-                  milliseconds: widget.pointers![i].animationDuration.toInt()));
+            vsync: this,
+            duration: Duration(
+              milliseconds: widget.pointers![i].animationDuration.toInt(),
+            ),
+          );
           _pointerAnimationControllers.add(pointerAnimationController);
         }
       }
@@ -1014,20 +1036,26 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
     _radialAxisWidgets.clear();
 
     /// Adding the axis widget.
-    _radialAxisWidgets.add(RadialAxisScope(
+    _radialAxisWidgets.add(
+      RadialAxisScope(
         animation1: _axisElementAnimation,
         isRadialGaugeAnimationEnabled: _enableAnimation,
         repaintNotifier: _repaintNotifier,
         animation: _axisAnimation,
-        child: RadialAxisRenderObjectWidget(axis: widget)));
+        child: RadialAxisRenderObjectWidget(axis: widget),
+      ),
+    );
 
     if (widget.ranges != null) {
       for (int i = 0; i < widget.ranges!.length; i++) {
-        _radialAxisWidgets.add(RadialAxisScope(
+        _radialAxisWidgets.add(
+          RadialAxisScope(
             isRadialGaugeAnimationEnabled: _enableAnimation,
             repaintNotifier: _repaintNotifier,
             animation: _rangeAnimation,
-            child: widget.ranges![i]));
+            child: widget.ranges![i],
+          ),
+        );
       }
     }
 
@@ -1044,22 +1072,28 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
           pointerAnimationController = _animationController;
         }
 
-        _radialAxisWidgets.add(RadialAxisScope(
+        _radialAxisWidgets.add(
+          RadialAxisScope(
             animationController: pointerAnimationController,
             isRadialGaugeAnimationEnabled: _enableAnimation,
             repaintNotifier: _repaintNotifier,
             pointerInterval: _pointersInterval,
-            child: widget.pointers![i] as Widget));
+            child: widget.pointers![i] as Widget,
+          ),
+        );
       }
     }
 
     if (widget.annotations != null) {
       for (int i = 0; i < widget.annotations!.length; i++) {
-        _radialAxisWidgets.add(RadialAxisScope(
+        _radialAxisWidgets.add(
+          RadialAxisScope(
             isRadialGaugeAnimationEnabled: _enableAnimation,
             repaintNotifier: _repaintNotifier,
             animation: _annotationAnimation,
-            child: widget.annotations![i]));
+            child: widget.annotations![i],
+          ),
+        );
       }
     }
 

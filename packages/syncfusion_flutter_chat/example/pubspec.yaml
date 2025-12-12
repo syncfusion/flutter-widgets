@@ -1,0 +1,21 @@
+name: chat_example
+description: "A Chat widget example project."
+version: 1.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: ^3.7.0
+
+flutter:
+  uses-material-design: true
+
+dependencies:
+  flutter:
+    sdk: flutter
+  syncfusion_flutter_chat:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

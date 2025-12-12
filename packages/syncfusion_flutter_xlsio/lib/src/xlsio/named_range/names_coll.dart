@@ -1,4 +1,6 @@
-part of xlsio;
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'name.dart';
 
 /// Represents the named range collection class.
 abstract class Names {

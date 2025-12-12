@@ -38,15 +38,15 @@ class SfRadialGauge extends StatefulWidget {
   ///
   /// To enable the loading animation set [enableLoadingAnimation] is true.
   // ignore: prefer_const_constructors_in_immutables
-  SfRadialGauge(
-      {Key? key,
-      List<RadialAxis>? axes,
-      this.enableLoadingAnimation = false,
-      this.animationDuration = 2000,
-      this.backgroundColor = Colors.transparent,
-      this.title})
-      : axes = axes ?? <RadialAxis>[RadialAxis()],
-        super(key: key);
+  SfRadialGauge({
+    Key? key,
+    List<RadialAxis>? axes,
+    this.enableLoadingAnimation = false,
+    this.animationDuration = 2000,
+    this.backgroundColor = Colors.transparent,
+    this.title,
+  }) : axes = axes ?? <RadialAxis>[RadialAxis()],
+       super(key: key);
 
   /// Add a list of radial axis to the gauge and customize each axis by
   /// adding it to the [axes] collection.
@@ -164,16 +164,14 @@ class SfRadialGaugeState extends State<SfRadialGauge>
     final ThemeData themeData = Theme.of(context);
     final bool isMaterial3 = themeData.useMaterial3;
     gaugeThemeData = gaugeThemeData.copyWith(
-        titleTextStyle: Theme.of(context)
-            .textTheme
-            .bodySmall!
-            .copyWith(
-              color:
-                  gaugeThemeData.titleColor ?? themeData.colorScheme.onSurface,
-              fontSize: isMaterial3 ? 16 : 15,
-            )
-            .merge(gaugeThemeData.titleTextStyle)
-            .merge(widget.title?.textStyle));
+      titleTextStyle: Theme.of(context).textTheme.bodySmall!
+          .copyWith(
+            color: gaugeThemeData.titleColor ?? themeData.colorScheme.onSurface,
+            fontSize: isMaterial3 ? 16 : 15,
+          )
+          .merge(gaugeThemeData.titleTextStyle)
+          .merge(widget.title?.textStyle),
+    );
     return gaugeThemeData;
   }
 
@@ -181,27 +179,30 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   Widget _addGaugeTitle() {
     if (widget.title != null && widget.title!.text.isNotEmpty) {
       final Widget titleWidget = Container(
-          padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-          decoration: BoxDecoration(
-              color: widget.title!.backgroundColor ??
-                  _gaugeTheme.titleBackgroundColor,
-              border: Border.all(
-                  color:
-                      widget.title!.borderColor ?? _gaugeTheme.titleBorderColor,
-                  width: widget.title!.borderWidth)),
-          alignment: (widget.title!.alignment == GaugeAlignment.near)
-              ? Alignment.topLeft
-              : (widget.title!.alignment == GaugeAlignment.far)
-                  ? Alignment.topRight
-                  : (widget.title!.alignment == GaugeAlignment.center)
-                      ? Alignment.topCenter
-                      : Alignment.topCenter,
-          child: Text(
-            widget.title!.text,
-            style: _gaugeTheme.titleTextStyle,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.clip,
-          ));
+        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+        decoration: BoxDecoration(
+          color:
+              widget.title!.backgroundColor ?? _gaugeTheme.titleBackgroundColor,
+          border: Border.all(
+            color: widget.title!.borderColor ?? _gaugeTheme.titleBorderColor,
+            width: widget.title!.borderWidth,
+          ),
+        ),
+        alignment:
+            (widget.title!.alignment == GaugeAlignment.near)
+                ? Alignment.topLeft
+                : (widget.title!.alignment == GaugeAlignment.far)
+                ? Alignment.topRight
+                : (widget.title!.alignment == GaugeAlignment.center)
+                ? Alignment.topCenter
+                : Alignment.topCenter,
+        child: Text(
+          widget.title!.text,
+          style: _gaugeTheme.titleTextStyle,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.clip,
+        ),
+      );
 
       return titleWidget;
     } else {
@@ -214,25 +215,35 @@ class SfRadialGaugeState extends State<SfRadialGauge>
     final List<Widget> radialAxes = <Widget>[];
 
     for (int i = 0; i < widget.axes.length; i++) {
-      radialAxes.add(RadialGaugeScope(
+      radialAxes.add(
+        RadialGaugeScope(
           enableLoadingAnimation: widget.enableLoadingAnimation,
           animationDuration: widget.animationDuration.toInt(),
-          child: widget.axes[i]));
+          child: widget.axes[i],
+        ),
+      );
     }
 
     return RepaintBoundary(
-        child: LimitedBox(
-            maxHeight: 350,
-            maxWidth: 350,
-            child: Container(
-                color: widget.backgroundColor,
-                child: Column(children: <Widget>[
-                  _addGaugeTitle(),
-                  Expanded(
-                      child: Stack(
-                          textDirection: TextDirection.ltr,
-                          children: radialAxes))
-                ]))));
+      child: LimitedBox(
+        maxHeight: 350,
+        maxWidth: 350,
+        child: Container(
+          color: widget.backgroundColor,
+          child: Column(
+            children: <Widget>[
+              _addGaugeTitle(),
+              Expanded(
+                child: Stack(
+                  textDirection: TextDirection.ltr,
+                  children: radialAxes,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   /// Method to convert the [SfRadialGauge] as an image.

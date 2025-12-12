@@ -33,31 +33,19 @@ analyzer:
   language:
     strict-raw-types: true
   errors:
-    # treat missing required parameters as a warning (not a hint)
-    missing_required_param: warning
-    # treat missing returns as a warning (not a hint)
-    missing_return: warning
     # allow having TODO comments in the code
     todo: ignore
-    # allow self-reference to deprecated members (we do this because otherwise we have
-    # to annotate every member in every test, assert, etc, when we deprecate something)
-    deprecated_member_use_from_same_package: ignore
-    # TODO(ianh): https://github.com/flutter/flutter/issues/74381
-    # Clean up existing unnecessary imports, and remove line to ignore.
-    unnecessary_import: ignore
-    # Turned off until null-safe rollout is complete.
-    unnecessary_null_comparison: ignore
-
+    
     #The below rules are ignored manually
-    omit_local_variable_types: ignore
-    argument_type_not_assignable: ignore
     overridden_fields: ignore
     include_file_not_found: ignore
     invalid_dependency: ignore
-
-    use_key_in_widget_constructors: ignore
+    
     avoid_dynamic_calls: ignore
-    use_late_for_private_fields_and_variables: ignore
+    lines_longer_than_80_chars: ignore
+    public_member_api_docs: ignore
+    always_specify_types: ignore
+
 
   exclude:
     - "bin/cache/**"
@@ -163,7 +151,7 @@ linter:
     # - one_member_abstracts # too many false positives
     - only_throw_errors # this does get disabled in a few places where we have legacy code that uses strings et al
     - overridden_fields
-    - package_api_docs
+    # - package_api_docs
     - package_names
     - package_prefixed_library_names
     # - parameter_assignments # we do this commonly
@@ -246,7 +234,7 @@ linter:
     - unnecessary_string_interpolations
     - unnecessary_this
     - unrelated_type_equality_checks
-    - unsafe_html
+    # - unsafe_html
     - use_build_context_synchronously
     # - use_decorated_box # not yet tested
     - use_full_hex_values_for_flutter_colors

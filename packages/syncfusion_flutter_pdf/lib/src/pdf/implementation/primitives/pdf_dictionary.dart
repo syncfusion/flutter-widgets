@@ -103,8 +103,9 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
   /// internal method
   void copyDictionary(PdfDictionary? dictionary) {
     if (dictionary != null) {
-      dictionary.items!
-          .forEach((PdfName? k, IPdfPrimitive? v) => addItems(k, v));
+      dictionary.items!.forEach(
+        (PdfName? k, IPdfPrimitive? v) => addItems(k, v),
+      );
       freezeChanges(this);
     }
   }
@@ -256,9 +257,11 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
         final List<PdfReferenceHolder> fieldCollection = <PdfReferenceHolder>[];
         if (fields is PdfArray) {
           for (int k = 0; k < fields.count; k++) {
-            final PdfReferenceHolder fieldReference =
-                fields.elements[k]! as PdfReferenceHolder;
-            fieldCollection.add(fieldReference);
+            if (fields.elements[k] is PdfReferenceHolder) {
+              final PdfReferenceHolder referenceHolder =
+                  fields.elements[k]! as PdfReferenceHolder;
+              fieldCollection.add(referenceHolder);
+            }
           }
           for (int i = 0; i < fields.count; i++) {
             if (fields.elements[i]! is PdfReferenceHolder) {
@@ -268,13 +271,15 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
                   refHolder.referenceObject as PdfDictionary?;
               if (field != null) {
                 if (field.beginSave != null) {
-                  final SavePdfPrimitiveArgs args =
-                      SavePdfPrimitiveArgs(writer);
+                  final SavePdfPrimitiveArgs args = SavePdfPrimitiveArgs(
+                    writer,
+                  );
                   field.beginSave!(field, args);
                 }
                 if (!field.containsKey(PdfName(PdfDictionaryProperties.kids))) {
-                  if (field.items!
-                      .containsKey(PdfName(PdfDictionaryProperties.ft))) {
+                  if (field.items!.containsKey(
+                    PdfName(PdfDictionaryProperties.ft),
+                  )) {
                     final IPdfPrimitive? value =
                         field.items![PdfName(PdfDictionaryProperties.ft)];
                     if (value != null &&
@@ -289,9 +294,11 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
                         final PdfDictionary field1 =
                             fieldRef.object! as PdfDictionary;
                         if (field1.items!.containsKey(
-                                PdfName(PdfDictionaryProperties.t)) &&
+                              PdfName(PdfDictionaryProperties.t),
+                            ) &&
                             field.items!.containsKey(
-                                PdfName(PdfDictionaryProperties.t))) {
+                              PdfName(PdfDictionaryProperties.t),
+                            )) {
                           final PdfString parentSignatureName =
                               field1.items![PdfName(PdfDictionaryProperties.t)]!
                                   as PdfString;
@@ -334,8 +341,9 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
 
   /// internal method
   int getInt(String propertyName) {
-    final IPdfPrimitive? primitive =
-        PdfCrossTable.dereference(this[propertyName]);
+    final IPdfPrimitive? primitive = PdfCrossTable.dereference(
+      this[propertyName],
+    );
     return (primitive != null && primitive is PdfNumber)
         ? primitive.value!.toInt()
         : 0;
@@ -343,8 +351,9 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
 
   /// internal method
   PdfString? getString(String propertyName) {
-    final IPdfPrimitive? primitive =
-        PdfCrossTable.dereference(this[propertyName]);
+    final IPdfPrimitive? primitive = PdfCrossTable.dereference(
+      this[propertyName],
+    );
     return (primitive != null && primitive is PdfString) ? primitive : null;
   }
 
@@ -405,7 +414,8 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
       modify();
     } else {
       this[key] = PdfString(
-          "D:${dateFormat.format(dateTime)}+$offsetHours'$offsetMinutes'");
+        "D:${dateFormat.format(dateTime)}+$offsetHours'$offsetMinutes'",
+      );
     }
   }
 
@@ -419,24 +429,33 @@ class PdfDictionary implements IPdfPrimitive, IPdfChangable {
       value = dateTimeString.value!;
     }
     while (value[value.length - 1].contains(RegExp('[:-D-(-)]'))) {
-      dateTimeString.value =
-          value.replaceRange(value.length - 1, value.length, '');
+      dateTimeString.value = value.replaceRange(
+        value.length - 1,
+        value.length,
+        '',
+      );
     }
     if (dateTimeString.value!.startsWith('191')) {
       dateTimeString.value = dateTimeString.value!.replaceFirst('191', '20');
     }
     final bool containPrefixD = dateTimeString.value!.contains(prefixD);
     const String dateTimeFormat = 'yyyyMMddHHmmss';
-    dateTimeString.value =
-        dateTimeString.value!.padRight(dateTimeFormat.length, '0');
+    dateTimeString.value = dateTimeString.value!.padRight(
+      dateTimeFormat.length,
+      '0',
+    );
     String localTime = ''.padRight(dateTimeFormat.length);
     if (dateTimeString.value!.isEmpty) {
       return DateTime.now();
     }
     if (dateTimeString.value!.length >= localTime.length) {
-      localTime = containPrefixD
-          ? dateTimeString.value!.substring(prefixD.length, localTime.length)
-          : dateTimeString.value!.substring(0, localTime.length);
+      localTime =
+          containPrefixD
+              ? dateTimeString.value!.substring(
+                prefixD.length,
+                localTime.length,
+              )
+              : dateTimeString.value!.substring(0, localTime.length);
     }
     final String dateWithT =
         '${localTime.substring(0, 8)}T${localTime.substring(8)}';
@@ -618,5 +637,5 @@ class SavePdfPrimitiveArgs {
 }
 
 /// internal type definition
-typedef SavePdfPrimitiveCallback = void Function(
-    Object sender, SavePdfPrimitiveArgs? args);
+typedef SavePdfPrimitiveCallback =
+    void Function(Object sender, SavePdfPrimitiveArgs? args);

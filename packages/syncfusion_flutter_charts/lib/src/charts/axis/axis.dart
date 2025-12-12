@@ -38,7 +38,9 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
   const ChartAxis({
     Key? key,
     this.name,
-    this.plotOffset = 0,
+    this.plotOffset,
+    this.plotOffsetStart,
+    this.plotOffsetEnd,
     this.isVisible = true,
     this.anchorRangeToVisiblePoints = true,
     this.title = const AxisTitle(),
@@ -487,20 +489,47 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
   /// ```
   final double? interval;
 
-  /// Padding for plot area. The axis is rendered in chart with padding.
+  /// The plotOffset property is used to offset the rendering of the axis at
+  /// start and end position.
   ///
-  /// Defaults to `0`.
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///     return Container(
-  ///         child: SfCartesianChart(
-  ///            primaryXAxis: NumericAxis(plotOffset: 60),
-  ///         )
+  ///     return SfCartesianChart(
+  ///         primaryXAxis: NumericAxis(plotOffset: 60),
   ///     );
   /// }
   /// ```
-  final double plotOffset;
+  final double? plotOffset;
+
+  /// The plotOffsetStart property is used to offset the rendering of the axis
+  /// at start position.
+  ///
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///     return SfCartesianChart(
+  ///         primaryXAxis: NumericAxis(plotOffsetStart: 60),
+  ///     );
+  /// }
+  /// ```
+  final double? plotOffsetStart;
+
+  /// The plotOffsetEnd property is used to offset the rendering of the axis
+  /// at end position.
+  ///
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///     return SfCartesianChart(
+  ///         primaryXAxis: NumericAxis(plotOffsetEnd: 60),
+  ///     );
+  /// }
+  /// ```
+  final double? plotOffsetEnd;
 
   /// Name of an axis.
   ///
@@ -855,16 +884,32 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
   final double? maximumLabelWidth;
 
   /// Specifies the fixed width for the axis labels. This width represents the
-  /// space between axis line and axis title.
+  /// space between axis line and axis title, if value exceeds the maximum size
+  /// of the axis label.
   ///
-  /// If an axis label exceeds the specified value, as like [maximumLabelWidth]
-  /// feature, axis label will get trimmed and ellipse(...) will be added at
-  /// the end of the trimmed text.
+  /// If the `labelsExtent` value is greater than the axis label width, and no
+  /// [maximumLabelWidth] is specified, the additional space defined by
+  /// `labelsExtent` will be applied between the axis line and the axis title.
+  /// If [maximumLabelWidth] is specified, extra space is applied only if
+  /// `labelsExtent` exceeds the [maximumLabelWidth].
   ///
-  /// Additionally, if an axis label width is within the specified value, white
-  /// space will be added at the beginning for remaining width. This is done to
-  /// maintain uniform bounds and to eliminate axis label flickering
-  /// on zooming/panning.
+  /// When multi-level labels are enabled, [labelsExtent] does not account for
+  /// their size; it only considers the axis label width. However, if the
+  /// `labelsExtent` value exceeds the axis label width, the extra space will
+  /// be applied between the axis title and the multi-level label.
+  ///
+  /// If the [labelPosition] is set to 'ChartDataLabelPosition.inside', and if
+  /// [labelsExtent] value exceeds the axis label width or [maximumLabelWidth],
+  /// additional space will be added between the axis line and the axis title.
+  ///
+  /// The [labelsExtent] property is especially useful when arranging the
+  /// multiple charts in a column layout, as it ensures that the Y-axis bounds
+  /// appear evenly aligned across all charts for better visual consistency.
+  ///
+  /// Additionally, if an axis label width or [maximumLabelWidth] is within the
+  /// specified value, white space will be added at the beginning for remaining
+  /// width.This is done to maintain uniform bounds and to eliminate axis label
+  /// flickering on zooming/panning.
   ///
   /// Complete label text will be shown in a tooltip when tapping/clicking over
   /// the trimmed axis labels.
@@ -1142,6 +1187,8 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
       ..edgeLabelPlacement = edgeLabelPlacement
       ..interval = interval
       ..plotOffset = plotOffset
+      ..plotOffsetStart = plotOffsetStart
+      ..plotOffsetEnd = plotOffsetEnd
       ..name = name
       ..initialZoomFactor = initialZoomFactor
       ..initialZoomPosition = initialZoomPosition
@@ -1193,6 +1240,8 @@ abstract class ChartAxis extends LeafRenderObjectWidget {
       ..edgeLabelPlacement = edgeLabelPlacement
       ..interval = interval
       ..plotOffset = plotOffset
+      ..plotOffsetStart = plotOffsetStart
+      ..plotOffsetEnd = plotOffsetEnd
       ..name = name
       ..enableAutoIntervalOnZooming = enableAutoIntervalOnZooming
       ..interactiveTooltip = interactiveTooltip
@@ -1313,7 +1362,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   set isVertical(bool value) {
     _isVertical = value;
     if (value) {
-      effectiveLabelIntersectAction = AxisLabelIntersectAction.hide;
+      effectiveLabelIntersectAction =
+          labelIntersectAction == AxisLabelIntersectAction.none
+              ? AxisLabelIntersectAction.none
+              : AxisLabelIntersectAction.hide;
       if (_renderer is! _VerticalAxisRenderer) {
         _renderer = _VerticalAxisRenderer(this);
       }
@@ -1477,7 +1529,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     if (_labelIntersectAction != value) {
       _labelIntersectAction = value;
       if (isVertical) {
-        effectiveLabelIntersectAction = AxisLabelIntersectAction.hide;
+        effectiveLabelIntersectAction =
+            labelIntersectAction == AxisLabelIntersectAction.none
+                ? AxisLabelIntersectAction.none
+                : AxisLabelIntersectAction.hide;
       } else {
         effectiveLabelIntersectAction = labelIntersectAction;
       }
@@ -1562,12 +1617,42 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     }
   }
 
-  double get plotOffset => _plotOffset;
-  double _plotOffset = 0.0;
-  set plotOffset(double value) {
+  double? get plotOffset => _plotOffset;
+  double? _plotOffset;
+  set plotOffset(double? value) {
     if (_plotOffset != value) {
+      assert(
+        value == null || value >= 0,
+        'PlotOffset must be greater than or equal to 0',
+      );
       _plotOffset = value;
-      markNeedsRangeUpdate();
+      _updateEffectivePlotOffset();
+    }
+  }
+
+  double? get plotOffsetStart => _plotOffsetStart;
+  double? _plotOffsetStart;
+  set plotOffsetStart(double? value) {
+    if (_plotOffsetStart != value) {
+      assert(
+        value == null || value >= 0,
+        'PlotOffsetStart must be greater than or equal to 0',
+      );
+      _plotOffsetStart = value;
+      _updateEffectivePlotOffset();
+    }
+  }
+
+  double? get plotOffsetEnd => _plotOffsetEnd;
+  double? _plotOffsetEnd;
+  set plotOffsetEnd(double? value) {
+    if (_plotOffsetEnd != value) {
+      assert(
+        value == null || value >= 0,
+        'PlotOffsetEnd must be greater than or equal to 0',
+      );
+      _plotOffsetEnd = value;
+      _updateEffectivePlotOffset();
     }
   }
 
@@ -1576,8 +1661,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   set initialZoomFactor(double value) {
     if (_initialZoomFactor != value) {
       _initialZoomFactor = value;
-      assert(initialZoomFactor >= 0 && initialZoomFactor <= 1,
-          'The initialZoomFactor of the axis should be between 0 and 1');
+      assert(
+        initialZoomFactor >= 0 && initialZoomFactor <= 1,
+        'The initialZoomFactor of the axis should be between 0 and 1',
+      );
       controller.zoomFactor = clampDouble(value, 0.0, 1.0);
       markNeedsRangeUpdate();
     }
@@ -1589,8 +1676,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     if (_initialZoomPosition != value) {
       _initialZoomPosition = value;
       _needsRangeUpdate = true;
-      assert(initialZoomPosition >= 0 && initialZoomPosition <= 1,
-          'The initialZoomPosition of the axis should be between 0 and 1');
+      assert(
+        initialZoomPosition >= 0 && initialZoomPosition <= 1,
+        'The initialZoomPosition of the axis should be between 0 and 1',
+      );
       controller.zoomPosition = clampDouble(value, 0.0, 1.0);
       markNeedsRangeUpdate();
     }
@@ -1664,8 +1753,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   set maximumLabelWidth(double? value) {
     if (_maximumLabelWidth != value) {
       _maximumLabelWidth = value;
-      assert(maximumLabelWidth != null && maximumLabelWidth! >= 0,
-          'maximumLabelWidth must not be negative');
+      assert(
+        maximumLabelWidth == null || maximumLabelWidth! >= 0,
+        'maximumLabelWidth must not be negative',
+      );
       markNeedsLayout();
     }
   }
@@ -1675,8 +1766,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   set labelsExtent(double? value) {
     if (_labelsExtent != value) {
       _labelsExtent = value;
-      assert(labelsExtent == null || labelsExtent! >= 0,
-          'labelsExtent must not be negative');
+      assert(
+        labelsExtent == null || labelsExtent! >= 0,
+        'labelsExtent must not be negative',
+      );
       markNeedsLayout();
     }
   }
@@ -1765,6 +1858,27 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
   double get outerSize => _renderer?.outerSize ?? 0.0;
 
+  double _effectivePlotOffset = 0.0;
+  double _effectivePlotOffsetStart = 0.0;
+  double _effectivePlotOffsetEnd = 0.0;
+
+  void _updateEffectivePlotOffset() {
+    if (plotOffset != null) {
+      _effectivePlotOffsetStart = plotOffset!;
+      _effectivePlotOffsetEnd = plotOffset!;
+    } else {
+      _effectivePlotOffsetStart = plotOffsetStart ?? 0.0;
+      _effectivePlotOffsetEnd = plotOffsetEnd ?? 0.0;
+    }
+
+    _effectivePlotOffset = _effectivePlotOffsetStart + _effectivePlotOffsetEnd;
+    if (plotOffset != null ||
+        plotOffsetStart != null ||
+        plotOffsetEnd != null) {
+      markNeedsRangeUpdate();
+    }
+  }
+
   void markNeedsRangeUpdate() {
     if (hasSize) {
       _needsRangeUpdate = true;
@@ -1824,8 +1938,9 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     );
     _animationController!.addStatusListener(_onAnimationStatusChanged);
     _animation!.addListener(markNeedsRangeUpdate);
-    controller
-        ._addZoomFactorAndPositionListener(_onZoomFactorAndPositionChanged);
+    controller._addZoomFactorAndPositionListener(
+      _onZoomFactorAndPositionChanged,
+    );
     super.attach(owner);
   }
 
@@ -1838,8 +1953,9 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   void detach() {
     _animationController?.removeStatusListener(_onAnimationStatusChanged);
     _animation?.removeListener(markNeedsRangeUpdate);
-    controller
-        ._removeZoomFactorAndPositionListener(_onZoomFactorAndPositionChanged);
+    controller._removeZoomFactorAndPositionListener(
+      _onZoomFactorAndPositionChanged,
+    );
     super.detach();
   }
 
@@ -1858,7 +1974,8 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   void performLayout() {
     _isLayoutPhase = true;
     final Size availableSize = constraints.biggest;
-    if (_needsRangeUpdate) {
+    final bool isResized = (parentData! as CartesianAxesParentData).isResized;
+    if (_needsRangeUpdate || isResized) {
       _calculateRangeAndInterval(availableSize);
     }
 
@@ -1879,22 +1996,25 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       assert(_renderer != null);
       newSize = _renderer!._preferredSize(availableSize);
     } else {
-      newSize = isVertical
-          ? Size(0, availableSize.height)
-          : Size(availableSize.width, 0);
+      newSize =
+          isVertical
+              ? Size(0, availableSize.height)
+              : Size(availableSize.width, 0);
     }
     final Size constraintsSize = constraints.biggest;
-    size = Size(min(newSize.width, constraintsSize.width),
-        min(newSize.height, constraintsSize.height));
+    size = Size(
+      min(newSize.width, constraintsSize.width),
+      min(newSize.height, constraintsSize.height),
+    );
 
     if (isVertical) {
-      _renderSize = Size(size.width, size.height - 2 * plotOffset);
+      _renderSize = Size(size.width, size.height - _effectivePlotOffset);
     } else {
-      _renderSize = Size(size.width - 2 * plotOffset, size.height);
+      _renderSize = Size(size.width - _effectivePlotOffset, size.height);
     }
 
     if (visibleRange != null) {
-      if (plotOffset > 0) {
+      if (_effectivePlotOffset > 0) {
         _calculateLabelPositions();
         _calculateBorderPositions();
       }
@@ -1928,25 +2048,36 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     }
 
     Size availableSize = size;
-    if (plotOffset > 0) {
+    if (_effectivePlotOffset > 0) {
       if (isVertical) {
-        availableSize =
-            Size(availableSize.width, availableSize.height - 2 * plotOffset);
+        availableSize = Size(
+          availableSize.width,
+          availableSize.height - _effectivePlotOffset,
+        );
       } else {
-        availableSize =
-            Size(availableSize.width - 2 * plotOffset, availableSize.height);
+        availableSize = Size(
+          availableSize.width - _effectivePlotOffset,
+          availableSize.height,
+        );
       }
     }
     DoubleRange newActualRange = calculateActualRange();
-    final num newActualInterval =
-        calculateActualInterval(newActualRange, availableSize);
-    newActualRange =
-        applyRangePadding(newActualRange, newActualInterval, availableSize);
+    final num newActualInterval = calculateActualInterval(
+      newActualRange,
+      availableSize,
+    );
+    newActualRange = applyRangePadding(
+      newActualRange,
+      newActualInterval,
+      availableSize,
+    );
     late DoubleRange newVisibleRange;
     // TODO(VijayakumarM): Need to handle anchorRangeToVisiblePoints in series?
     if (!anchorRangeToVisiblePoints &&
         isXAxis &&
-        parent!.behaviorArea?.zoomPanBehavior?.zoomMode == ZoomMode.x) {
+        parent != null &&
+        parent!.behaviorArea != null &&
+        parent!.behaviorArea!.effectiveZoomMode == ZoomMode.x) {
       newVisibleRange = newActualRange;
     } else {
       newVisibleRange = calculateVisibleRange(newActualRange);
@@ -1954,7 +2085,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
           autoScrollingDelta! > 0 &&
           !zoomingInProgress) {
         final DoubleRange autoScrollRange = updateAutoScrollingDelta(
-            autoScrollingDelta!, newActualRange, newVisibleRange);
+          autoScrollingDelta!,
+          newActualRange,
+          newVisibleRange,
+        );
         if ((autoScrollingMode == AutoScrollingMode.end &&
                 newActualRange.minimum < autoScrollRange.minimum) ||
             (autoScrollingMode == AutoScrollingMode.start &&
@@ -1966,29 +2100,40 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
     if (newVisibleRange != _visibleRange) {
       _effectiveVisibleRange = newVisibleRange;
-      _visibleRangeTween =
-          DoubleRangeTween(begin: _visibleRange, end: newVisibleRange);
+      _visibleRangeTween = DoubleRangeTween(
+        begin: _visibleRange,
+        end: newVisibleRange,
+      );
       _animationController?.forward(from: 0.0);
     }
   }
 
   void _calculateRangeAndInterval(Size availableSize) {
-    if (plotOffset > 0) {
+    if (_effectivePlotOffset > 0) {
       if (isVertical) {
-        availableSize =
-            Size(availableSize.width, availableSize.height - 2 * plotOffset);
+        availableSize = Size(
+          availableSize.width,
+          availableSize.height - _effectivePlotOffset,
+        );
       } else {
-        availableSize =
-            Size(availableSize.width - 2 * plotOffset, availableSize.height);
+        availableSize = Size(
+          availableSize.width - _effectivePlotOffset,
+          availableSize.height,
+        );
       }
     }
 
     DoubleRange newActualRange = calculateActualRange();
-    final num newActualInterval =
-        calculateActualInterval(newActualRange, availableSize);
+    final num newActualInterval = calculateActualInterval(
+      newActualRange,
+      availableSize,
+    );
     _actualInterval = newActualInterval;
-    newActualRange =
-        applyRangePadding(newActualRange, newActualInterval, availableSize);
+    newActualRange = applyRangePadding(
+      newActualRange,
+      newActualInterval,
+      availableSize,
+    );
     controller._updateActualRange(newActualRange);
     late DoubleRange newVisibleRange;
     num newVisibleInterval = _actualInterval;
@@ -1996,15 +2141,23 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       final bool canKeepActualRange = !anchorRangeToVisiblePoints;
       if (canKeepActualRange &&
           !isXAxis &&
-          parent?.behaviorArea?.zoomPanBehavior?.zoomMode == ZoomMode.x) {
+          parent != null &&
+          parent!.behaviorArea != null &&
+          parent!.behaviorArea!.effectiveZoomMode == ZoomMode.x) {
         newVisibleRange = newActualRange.copyWith();
       } else {
         newVisibleRange = calculateVisibleRange(newActualRange.copyWith());
+        final bool isResized =
+            (parentData! as CartesianAxesParentData).isResized;
         if (autoScrollingDelta != null &&
             autoScrollingDelta! > 0 &&
-            !zoomingInProgress) {
+            !zoomingInProgress &&
+            !isResized) {
           final DoubleRange autoScrollRange = updateAutoScrollingDelta(
-              autoScrollingDelta!, newActualRange, newVisibleRange);
+            autoScrollingDelta!,
+            newActualRange,
+            newVisibleRange,
+          );
           if ((autoScrollingMode == AutoScrollingMode.end &&
                   newActualRange.minimum < autoScrollRange.minimum) ||
               (autoScrollingMode == AutoScrollingMode.start &&
@@ -2012,19 +2165,25 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
             newVisibleRange = autoScrollRange;
           }
         }
-        newVisibleInterval =
-            calculateVisibleInterval(newVisibleRange, availableSize);
+        newVisibleInterval = calculateVisibleInterval(
+          newVisibleRange,
+          availableSize,
+        );
       }
     } else {
       final bool canKeepActualRange = !anchorRangeToVisiblePoints;
       if (canKeepActualRange &&
           !isXAxis &&
-          parent?.behaviorArea?.zoomPanBehavior?.zoomMode == ZoomMode.x) {
+          parent != null &&
+          parent!.behaviorArea != null &&
+          parent!.behaviorArea!.effectiveZoomMode == ZoomMode.x) {
         newVisibleRange = newActualRange.copyWith();
       } else {
         newVisibleRange = _visibleRangeTween!.evaluate(_animation!)!;
-        newVisibleInterval =
-            calculateVisibleInterval(newVisibleRange, availableSize);
+        newVisibleInterval = calculateVisibleInterval(
+          newVisibleRange,
+          availableSize,
+        );
       }
     }
 
@@ -2057,7 +2216,7 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
         controller.zoomFactor = newVisibleRange.delta / actualRangeDelta;
         controller.zoomPosition =
             (newVisibleRange.minimum - newActualRange.minimum) /
-                actualRangeDelta;
+            actualRangeDelta;
       }
       newVisibleInterval = args.visibleInterval;
     }
@@ -2067,7 +2226,7 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     _visibleRange = newVisibleRange;
     _visibleInterval = newVisibleInterval;
 
-    if (attached) {
+    if (attached && _needsRangeUpdate) {
       invokeLayoutCallback((Object? constraints) {
         for (final AxisDependent dependent in dependents) {
           dependent.didRangeChange(this);
@@ -2078,18 +2237,25 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
   @protected
   DoubleRange updateAutoScrollingDelta(
-      int scrollingDelta, DoubleRange actualRange, DoubleRange visibleRange) {
+    int scrollingDelta,
+    DoubleRange actualRange,
+    DoubleRange visibleRange,
+  ) {
     switch (autoScrollingMode) {
       case AutoScrollingMode.start:
         final DoubleRange autoScrollRange = DoubleRange(
-            actualRange.minimum, actualRange.minimum + scrollingDelta);
+          actualRange.minimum,
+          actualRange.minimum + scrollingDelta,
+        );
         controller.zoomFactor = autoScrollRange.delta / actualRange.delta;
         controller.zoomPosition = 0;
         return autoScrollRange;
 
       case AutoScrollingMode.end:
         final DoubleRange autoScrollRange = DoubleRange(
-            actualRange.maximum - scrollingDelta, actualRange.maximum);
+          actualRange.maximum - scrollingDelta,
+          actualRange.maximum,
+        );
         controller.zoomFactor = autoScrollRange.delta / actualRange.delta;
         controller.zoomPosition = 1 - controller.zoomFactor;
         return autoScrollRange;
@@ -2152,11 +2318,18 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
   @protected
   DoubleRange applyRangePadding(
-      DoubleRange range, num interval, Size availableSize) {
+    DoubleRange range,
+    num interval,
+    Size availableSize,
+  ) {
     final ChartRangePadding padding = effectiveRangePadding();
-    if (padding == ChartRangePadding.additional) {
+    if (padding == ChartRangePadding.additional ||
+        padding == ChartRangePadding.additionalStart ||
+        padding == ChartRangePadding.additionalEnd) {
       _addAdditionalRange(range, interval);
-    } else if (padding == ChartRangePadding.round) {
+    } else if (padding == ChartRangePadding.round ||
+        padding == ChartRangePadding.roundStart ||
+        padding == ChartRangePadding.roundEnd) {
       _roundRange(range, interval);
     } else if (padding == ChartRangePadding.normal) {
       addNormalRange(range, interval, availableSize);
@@ -2170,17 +2343,19 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     ChartRangePadding padding = ChartRangePadding.auto;
     if (rangePadding == ChartRangePadding.auto) {
       if (isVertical) {
-        padding = !isTransposed
-            ? (_dependentIsStacked100
-                ? ChartRangePadding.round
-                : ChartRangePadding.normal)
-            : ChartRangePadding.none;
+        padding =
+            !isTransposed
+                ? (_dependentIsStacked100
+                    ? ChartRangePadding.round
+                    : ChartRangePadding.normal)
+                : ChartRangePadding.none;
       } else {
-        padding = isTransposed
-            ? (_dependentIsStacked100
-                ? ChartRangePadding.round
-                : ChartRangePadding.normal)
-            : ChartRangePadding.none;
+        padding =
+            isTransposed
+                ? (_dependentIsStacked100
+                    ? ChartRangePadding.round
+                    : ChartRangePadding.normal)
+                : ChartRangePadding.none;
       }
     } else {
       padding = rangePadding;
@@ -2189,15 +2364,27 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   void _roundRange(DoubleRange range, num interval) {
-    range.minimum = ((range.minimum / interval).floor()) * interval;
-    range.maximum = ((range.maximum / interval).ceil()) * interval;
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundStart) {
+      range.minimum = ((range.minimum / interval).floor()) * interval;
+    }
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundEnd) {
+      range.maximum = ((range.maximum / interval).ceil()) * interval;
+    }
   }
 
   void _addAdditionalRange(DoubleRange range, num interval) {
-    final num minimum = ((range.minimum / interval).floor()) * interval;
-    final num maximum = ((range.maximum / interval).ceil()) * interval;
-    range.minimum = minimum - interval;
-    range.maximum = maximum + interval;
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalStart) {
+      final num minimum = ((range.minimum / interval).floor()) * interval;
+      range.minimum = minimum - interval;
+    }
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalEnd) {
+      final num maximum = ((range.maximum / interval).ceil()) * interval;
+      range.maximum = maximum + interval;
+    }
   }
 
   @protected
@@ -2223,24 +2410,27 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
         minimum = (minimum - interval) - _remainder(minimum, interval);
       }
     } else {
-      minimum = range.minimum < ((5.0 / 6.0) * range.maximum)
-          ? 0
-          : (range.minimum - (range.maximum - range.minimum) / 2);
+      minimum =
+          range.minimum < ((5.0 / 6.0) * range.maximum)
+              ? 0
+              : (range.minimum - (range.maximum - range.minimum) / 2);
       if (minimum % interval > 0) {
         minimum -= minimum % interval;
       }
     }
-    num maximum = (range.maximum > 0)
-        ? (range.maximum + (range.maximum - start) / 20)
-        : (range.maximum - (range.maximum - start) / 20);
+    num maximum =
+        (range.maximum > 0)
+            ? (range.maximum + (range.maximum - start) / 20)
+            : (range.maximum - (range.maximum - start) / 20);
     remaining = interval - (maximum % interval);
     if ((0.365 * interval) >= remaining) {
       maximum += interval;
     }
     if (maximum % interval > 0) {
-      maximum = range.maximum > 0
-          ? (maximum + interval) - (maximum % interval)
-          : (maximum + interval) + (maximum % interval);
+      maximum =
+          range.maximum > 0
+              ? (maximum + interval) - (maximum % interval)
+              : (maximum + interval) + (maximum % interval);
     }
     range.minimum = minimum;
     range.maximum = maximum;
@@ -2353,13 +2543,19 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     if (borderWidth > 0 && labelBorderColor != Colors.transparent) {
       switch (labelPlacement) {
         case LabelPlacement.onTicks:
-          calculateTickPositions(LabelPlacement.betweenTicks,
-              source: borderPositions, canCalculateMajorTick: false);
+          calculateTickPositions(
+            LabelPlacement.betweenTicks,
+            source: borderPositions,
+            canCalculateMajorTick: false,
+          );
           break;
 
         case LabelPlacement.betweenTicks:
-          calculateTickPositions(LabelPlacement.onTicks,
-              source: borderPositions, canCalculateMajorTick: false);
+          calculateTickPositions(
+            LabelPlacement.onTicks,
+            source: borderPositions,
+            canCalculateMajorTick: false,
+          );
           break;
       }
     }
@@ -2416,15 +2612,27 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
     if (effectiveLabelIntersectAction != AxisLabelIntersectAction.none) {
       _hasCollidingLabels = _isCollidingLabels(
-          length, startLabelAlign, betweenLabelsAlign, endLabelAlign);
+        length,
+        startLabelAlign,
+        betweenLabelsAlign,
+        endLabelAlign,
+      );
       if (_hasCollidingLabels) {
         _arrangeLabels(
-            length, startLabelAlign, betweenLabelsAlign, endLabelAlign);
+          length,
+          startLabelAlign,
+          betweenLabelsAlign,
+          endLabelAlign,
+        );
       }
     } else {
       _hasCollidingLabels = false;
       _arrangeLabels(
-          length, startLabelAlign, betweenLabelsAlign, endLabelAlign);
+        length,
+        startLabelAlign,
+        betweenLabelsAlign,
+        endLabelAlign,
+      );
     }
   }
 
@@ -2436,8 +2644,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   ) {
     if (labelsLength == 1) {
       final AxisLabel current = visibleLabels[0];
-      current.position =
-          betweenLabelsAlign(pointToPixel(current.value), current);
+      current.position = betweenLabelsAlign(
+        pointToPixel(current.value),
+        current,
+      );
       return false;
     }
 
@@ -2471,8 +2681,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     bool hasCollidingLabels = false;
     for (int i = startIndex; i < endIndex; i++) {
       current = visibleLabels[i];
-      current.position =
-          betweenLabelsAlign(pointToPixel(current.value), current);
+      current.position = betweenLabelsAlign(
+        pointToPixel(current.value),
+        current,
+      );
       hasCollidingLabels = _isIntersect(current, source);
       if (hasCollidingLabels) {
         return true;
@@ -2489,8 +2701,10 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       visibleLabels[labelsLength - 1].isVisible = false;
       // Need to find the endIndex [length - 2] position. Because, the for loop
       // only run till the previous index of endIndex.
-      current.position =
-          betweenLabelsAlign(pointToPixel(current.value), current);
+      current.position = betweenLabelsAlign(
+        pointToPixel(current.value),
+        current,
+      );
     } else {
       // Need to find the endIndex [length - 1] position. Because, the for loop
       // only run till the previous index of endIndex.
@@ -2505,6 +2719,27 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     _AlignLabel betweenLabelsAlign,
     _AlignLabel endLabelAlign,
   ) {
+    if (length == 1) {
+      final AxisLabel current = visibleLabels[0];
+      current.position = betweenLabelsAlign(
+        pointToPixel(current.value),
+        current,
+      );
+      return;
+    } else if (length <= 2) {
+      // Handles 2 visible labels when set [EdgeLabelPlacement] as hide.
+      AxisLabel current = visibleLabels[0];
+      current.position = betweenLabelsAlign(
+        pointToPixel(current.value),
+        current,
+      );
+      current = visibleLabels[1];
+      current.position = betweenLabelsAlign(
+        pointToPixel(current.value),
+        current,
+      );
+      return;
+    }
     late int startIndex;
     late int endIndex;
     final double extent = _renderSize.width / length;
@@ -2512,8 +2747,8 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     // The previous label which is not intersecting with the current label.
     AxisLabel source;
     AxisLabel current = visibleLabels[0];
-    final AxisLabel Function(AxisLabel, AxisLabel, double, _AlignLabel)
-        applyLabelIntersectAction = _applyLabelIntersectAction();
+    final AxisLabel Function(AxisLabel, AxisLabel, double, _AlignLabel, {int i})
+    applyLabelIntersectAction = _applyLabelIntersectAction();
 
     if (edgeLabelPlacement == EdgeLabelPlacement.hide) {
       // Start edge label [0] visibility is collapsed.
@@ -2527,13 +2762,19 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       // [1] index will overlaps with the [2] label. So taken the [2] as source.
       source = visibleLabels[startIndex];
       source.position = betweenLabelsAlign(pointToPixel(source.value), source);
-      current.position =
-          betweenLabelsAlign(pointToPixel(current.value), current);
+      current.position = betweenLabelsAlign(
+        pointToPixel(current.value),
+        current,
+      );
       if (effectiveLabelIntersectAction != AxisLabelIntersectAction.hide &&
           effectiveLabelIntersectAction !=
               AxisLabelIntersectAction.multipleRows) {
         source = applyLabelIntersectAction(
-            current, source, extent, betweenLabelsAlign);
+          current,
+          source,
+          extent,
+          betweenLabelsAlign,
+        );
       } else {
         source = current;
       }
@@ -2549,7 +2790,11 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
           effectiveLabelIntersectAction !=
               AxisLabelIntersectAction.multipleRows) {
         source = applyLabelIntersectAction(
-            current, source, edgeLabelsExtent, startLabelAlign);
+          current,
+          source,
+          edgeLabelsExtent,
+          startLabelAlign,
+        );
       } else {
         source = current;
       }
@@ -2557,29 +2802,51 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
     for (int i = startIndex; i < endIndex; i++) {
       current = visibleLabels[i];
-      current.position =
-          betweenLabelsAlign(pointToPixel(current.value), current);
+      current.position = betweenLabelsAlign(
+        pointToPixel(current.value),
+        current,
+      );
       source = applyLabelIntersectAction(
-          current, source, extent, betweenLabelsAlign);
+        current,
+        source,
+        extent,
+        betweenLabelsAlign,
+        i: i,
+      );
     }
 
     if (edgeLabelPlacement == EdgeLabelPlacement.hide) {
       current = visibleLabels[endIndex];
       current.position = endLabelAlign(pointToPixel(current.value), current);
       applyLabelIntersectAction(
-          current, source, edgeLabelsExtent, endLabelAlign);
+        current,
+        source,
+        edgeLabelsExtent,
+        endLabelAlign,
+        i: endIndex,
+      );
       visibleLabels[length - 1].isVisible = false;
     } else {
       current = visibleLabels[endIndex];
       current.position = endLabelAlign(pointToPixel(current.value), current);
       applyLabelIntersectAction(
-          current, source, edgeLabelsExtent, endLabelAlign);
+        current,
+        source,
+        edgeLabelsExtent,
+        endLabelAlign,
+        i: endIndex,
+      );
     }
   }
 
   AxisLabel Function(
-          AxisLabel source, AxisLabel target, double extent, _AlignLabel align)
-      _applyLabelIntersectAction() {
+    AxisLabel source,
+    AxisLabel target,
+    double extent,
+    _AlignLabel align, {
+    int i,
+  })
+  _applyLabelIntersectAction() {
     switch (effectiveLabelIntersectAction) {
       case AxisLabelIntersectAction.none:
         return _applyNoneIntersectAction;
@@ -2605,18 +2872,33 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   AxisLabel _applyNoneIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+    AxisLabel current,
+    AxisLabel source,
+    double extent,
+    _AlignLabel align, {
+    int i = 0,
+  }) {
     return current;
   }
 
   AxisLabel _applyHideIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+    AxisLabel current,
+    AxisLabel source,
+    double extent,
+    _AlignLabel align, {
+    int i = 0,
+  }) {
     current.isVisible = !_isIntersect(current, source);
     return current.isVisible ? current : source;
   }
 
   AxisLabel _applyWrapIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+    AxisLabel current,
+    AxisLabel source,
+    double extent,
+    _AlignLabel align, {
+    int i = 0,
+  }) {
     final List<String> words = current.renderText.split(RegExp(r'\s+'));
     final int wrapLength = words.length;
     final TextStyle textStyle = current.labelStyle;
@@ -2652,11 +2934,20 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   AxisLabel _applyTrimIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+    AxisLabel current,
+    AxisLabel source,
+    double extent,
+    _AlignLabel align, {
+    int i = 0,
+  }) {
     final TextStyle textStyle = current.labelStyle;
     if (current.labelSize.width > extent) {
-      current.renderText =
-          trimmedText(current.renderText, textStyle, extent, labelRotation);
+      current.renderText = trimmedText(
+        current.renderText,
+        textStyle,
+        extent,
+        labelRotation,
+      );
       if (current.renderText != current.text) {
         current.trimmedText = current.renderText;
         hasTrimmedAxisLabel = true;
@@ -2669,32 +2960,77 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
   }
 
   AxisLabel _applyMultipleRowsIntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+    AxisLabel current,
+    AxisLabel source,
+    double extent,
+    _AlignLabel align, {
+    int i = 0,
+  }) {
     if (_isIntersect(current, source)) {
-      current.renderText = '\n${current.renderText}';
       current
-        ..labelSize =
-            measureText(current.renderText, current.labelStyle, labelRotation)
+        ..labelSize = measureText(
+          current.renderText,
+          current.labelStyle,
+          labelRotation,
+        )
         ..position = align(pointToPixel(current.value), current);
+      _computeRowIndexForMultiRows(i, current);
       return source;
     }
     return current;
   }
 
+  /// Checks if the current label intersects with previous labels.
+  /// Adjusts the current label's row index to avoid overlap.
+  void _computeRowIndexForMultiRows(int length, AxisLabel current) {
+    final List<int> labelIndex = <int>[];
+    for (int i = length - 1; i >= 0; i--) {
+      final AxisLabel source = visibleLabels[i];
+      if (_isIntersect(current, source)) {
+        labelIndex.add(source._rowIndex);
+        current._rowIndex =
+            current._rowIndex > source._rowIndex
+                ? current._rowIndex
+                : source._rowIndex + 1;
+      } else {
+        current._rowIndex =
+            labelIndex.contains(source._rowIndex)
+                ? current._rowIndex
+                : source._rowIndex;
+      }
+    }
+  }
+
   AxisLabel _applyRotate90IntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+    AxisLabel current,
+    AxisLabel source,
+    double extent,
+    _AlignLabel align, {
+    int i = 0,
+  }) {
     current
-      ..labelSize =
-          measureText(current.renderText, current.labelStyle, angle90Degree)
+      ..labelSize = measureText(
+        current.renderText,
+        current.labelStyle,
+        angle90Degree,
+      )
       ..position = align(pointToPixel(current.value), current);
     return current;
   }
 
   AxisLabel _applyRotate45IntersectAction(
-      AxisLabel current, AxisLabel source, double extent, _AlignLabel align) {
+    AxisLabel current,
+    AxisLabel source,
+    double extent,
+    _AlignLabel align, {
+    int i = 0,
+  }) {
     current
-      ..labelSize =
-          measureText(current.renderText, current.labelStyle, angle45Degree)
+      ..labelSize = measureText(
+        current.renderText,
+        current.labelStyle,
+        angle45Degree,
+      )
       ..position = align(pointToPixel(current.value), current);
     return current;
   }
@@ -2745,15 +3081,17 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
       case EdgeLabelPlacement.shift:
         position = _centerAlignment(position, label);
+        final double actualWidth = _renderSize.width + _effectivePlotOffset;
+        final double actualHeight = _renderSize.height + _effectivePlotOffset;
         if (isVertical) {
           final double labelSize = label.labelSize.height;
-          if (position + labelSize > _renderSize.height) {
-            return _renderSize.height - labelSize;
+          if (position + labelSize > actualHeight) {
+            return actualHeight - labelSize;
           }
         } else {
           final double labelSize = label.labelSize.width;
-          if (position + labelSize > _renderSize.width) {
-            return _renderSize.width - labelSize;
+          if (position + labelSize > actualWidth) {
+            return actualWidth - labelSize;
           }
         }
     }
@@ -2868,12 +3206,14 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       for (int i = 0; i < length; i++) {
         final PlotBand plotBand = plotBands[i];
         if (plotBand.isVisible) {
-          final num min = plotBand.start != null
-              ? actualValue(plotBand.start)
-              : visibleRange!.minimum;
-          num max = plotBand.end != null
-              ? actualValue(plotBand.end)
-              : visibleRange!.maximum;
+          final num min =
+              plotBand.start != null
+                  ? actualValue(plotBand.start)
+                  : visibleRange!.minimum;
+          num max =
+              plotBand.end != null
+                  ? actualValue(plotBand.end)
+                  : visibleRange!.maximum;
 
           num extent;
           if (plotBand.isRepeatable) {
@@ -2893,8 +3233,13 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
           num current = min;
           if (plotBand.isRepeatable) {
             while (current < max) {
-              current =
-                  formPlotBandFrame(plotBand, current, extent, max, bounds);
+              current = formPlotBandFrame(
+                plotBand,
+                current,
+                extent,
+                max,
+                bounds,
+              );
             }
           } else {
             formPlotBandFrame(plotBand, current, extent, max, bounds);
@@ -2904,10 +3249,18 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     }
   }
 
-  num formPlotBandFrame(PlotBand plotBand, num current, num extent, num max,
-      Rect Function(PlotBand plotBand, num start, num end) bounds) {
-    num end = plotBandExtent(plotBand, current,
-        plotBand.isRepeatable ? plotBand.size ?? extent : extent);
+  num formPlotBandFrame(
+    PlotBand plotBand,
+    num current,
+    num extent,
+    num max,
+    Rect Function(PlotBand plotBand, num start, num end) bounds,
+  ) {
+    num end = plotBandExtent(
+      plotBand,
+      current,
+      plotBand.isRepeatable ? plotBand.size ?? extent : extent,
+    );
     if (end > max) {
       end = max;
     }
@@ -2915,17 +3268,22 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       final Rect frame = bounds(plotBand, current, end);
       addPlotBand(frame, plotBand);
     }
-    current = plotBand.size != null
-        ? plotBandExtent(plotBand, current,
-            plotBand.isRepeatable ? plotBand.repeatEvery : end)
-        : end;
+    current =
+        plotBand.size != null
+            ? plotBandExtent(
+              plotBand,
+              current,
+              plotBand.isRepeatable ? plotBand.repeatEvery : end,
+            )
+            : end;
     return current;
   }
 
   @nonVirtual
   void addPlotBand(Rect frame, PlotBand plotBand) {
-    final TextStyle textStyle =
-        chartThemeData!.plotBandLabelTextStyle!.merge(plotBand.textStyle);
+    final TextStyle textStyle = chartThemeData!.plotBandLabelTextStyle!.merge(
+      plotBand.textStyle,
+    );
     final Rect bounds = parent!.paintBounds;
     final AxisPlotBand plotBandDetails = AxisPlotBand(
       bounds: frame,
@@ -2961,63 +3319,84 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     if (plotBand.associatedAxisStart != null) {
       if (associatedAxis is RenderDateTimeCategoryAxis) {
         final dynamic associateStart = plotBand.associatedAxisStart;
-        top = associatedAxis!.pointToPixel(associatedAxis!.actualValue(
+        top = associatedAxis!.pointToPixel(
+          associatedAxis!.actualValue(
             associateStart is num
                 ? (associatedAxis! as RenderDateTimeCategoryAxis)
                     .indexToDateTime(associateStart as int)
-                : associateStart));
+                : associateStart,
+          ),
+        );
       } else if (associatedAxis is RenderCategoryAxis) {
         final dynamic associateStart = plotBand.associatedAxisStart;
-        top = associatedAxis!.pointToPixel(associatedAxis!.actualValue(
+        top = associatedAxis!.pointToPixel(
+          associatedAxis!.actualValue(
             associateStart is String
-                ? (associatedAxis! as RenderCategoryAxis)
-                    .labels
-                    .indexOf(associateStart)
-                : associateStart));
+                ? (associatedAxis! as RenderCategoryAxis).labels.indexOf(
+                  associateStart,
+                )
+                : associateStart,
+          ),
+        );
       } else {
         top = associatedAxis!.pointToPixel(
-            associatedAxis!.actualValue(plotBand.associatedAxisStart!));
+          associatedAxis!.actualValue(plotBand.associatedAxisStart!),
+        );
       }
     } else {
       if (associatedAxis is RenderLogarithmicAxis) {
         top = associatedAxis!.pointToPixel(
-            (associatedAxis! as RenderLogarithmicAxis)
-                .toPow(associatedAxis!.visibleRange!.minimum));
+          (associatedAxis! as RenderLogarithmicAxis).toPow(
+            associatedAxis!.visibleRange!.minimum,
+          ),
+        );
       } else {
-        top =
-            associatedAxis!.pointToPixel(associatedAxis!.visibleRange!.minimum);
+        top = associatedAxis!.pointToPixel(
+          associatedAxis!.visibleRange!.minimum,
+        );
       }
     }
 
     if (plotBand.associatedAxisEnd != null) {
       if (associatedAxis is RenderDateTimeCategoryAxis) {
         final dynamic associateEnd = plotBand.associatedAxisEnd;
-        bottom = associatedAxis!.pointToPixel(associatedAxis!.actualValue(
+        bottom = associatedAxis!.pointToPixel(
+          associatedAxis!.actualValue(
             associateEnd is num
                 ? (associatedAxis! as RenderDateTimeCategoryAxis)
                     .indexToDateTime(associateEnd as int)
-                : associateEnd));
+                : associateEnd,
+          ),
+        );
       } else if (associatedAxis is RenderCategoryAxis) {
         final dynamic associateEnd = plotBand.associatedAxisEnd;
-        final num index = associateEnd is String
-            ? (associatedAxis! as RenderCategoryAxis)
-                .labels
-                .indexOf(associateEnd)
-            : associateEnd;
-        bottom = associatedAxis!.pointToPixel(associatedAxis!.actualValue(
-            index != -1 ? index : associatedAxis!.actualRange!.maximum));
+        final num index =
+            associateEnd is String
+                ? (associatedAxis! as RenderCategoryAxis).labels.indexOf(
+                  associateEnd,
+                )
+                : associateEnd;
+        bottom = associatedAxis!.pointToPixel(
+          associatedAxis!.actualValue(
+            index != -1 ? index : associatedAxis!.actualRange!.maximum,
+          ),
+        );
       } else {
         bottom = associatedAxis!.pointToPixel(
-            associatedAxis!.actualValue(plotBand.associatedAxisEnd!));
+          associatedAxis!.actualValue(plotBand.associatedAxisEnd!),
+        );
       }
     } else {
       if (associatedAxis is RenderLogarithmicAxis) {
         bottom = associatedAxis!.pointToPixel(
-            (associatedAxis! as RenderLogarithmicAxis)
-                .toPow(associatedAxis!.visibleRange!.maximum));
+          (associatedAxis! as RenderLogarithmicAxis).toPow(
+            associatedAxis!.visibleRange!.maximum,
+          ),
+        );
       } else {
-        bottom =
-            associatedAxis!.pointToPixel(associatedAxis!.visibleRange!.maximum);
+        bottom = associatedAxis!.pointToPixel(
+          associatedAxis!.visibleRange!.maximum,
+        );
       }
     }
 
@@ -3033,63 +3412,84 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
     if (plotBand.associatedAxisStart != null) {
       if (associatedAxis is RenderDateTimeCategoryAxis) {
         final dynamic associateStart = plotBand.associatedAxisStart;
-        left = associatedAxis!.pointToPixel(associatedAxis!.actualValue(
+        left = associatedAxis!.pointToPixel(
+          associatedAxis!.actualValue(
             associateStart is num
                 ? (associatedAxis! as RenderDateTimeCategoryAxis)
                     .indexToDateTime(associateStart as int)
-                : associateStart));
+                : associateStart,
+          ),
+        );
       } else if (associatedAxis is RenderCategoryAxis) {
         final dynamic associateStart = plotBand.associatedAxisStart;
-        left = associatedAxis!.pointToPixel(associatedAxis!.actualValue(
+        left = associatedAxis!.pointToPixel(
+          associatedAxis!.actualValue(
             associateStart is String
-                ? (associatedAxis! as RenderCategoryAxis)
-                    .labels
-                    .indexOf(associateStart)
-                : associateStart));
+                ? (associatedAxis! as RenderCategoryAxis).labels.indexOf(
+                  associateStart,
+                )
+                : associateStart,
+          ),
+        );
       } else {
         left = associatedAxis!.pointToPixel(
-            associatedAxis!.actualValue(plotBand.associatedAxisStart!));
+          associatedAxis!.actualValue(plotBand.associatedAxisStart!),
+        );
       }
     } else {
       if (associatedAxis is RenderLogarithmicAxis) {
         left = associatedAxis!.pointToPixel(
-            (associatedAxis! as RenderLogarithmicAxis)
-                .toPow(associatedAxis!.visibleRange!.minimum));
+          (associatedAxis! as RenderLogarithmicAxis).toPow(
+            associatedAxis!.visibleRange!.minimum,
+          ),
+        );
       } else {
-        left =
-            associatedAxis!.pointToPixel(associatedAxis!.visibleRange!.minimum);
+        left = associatedAxis!.pointToPixel(
+          associatedAxis!.visibleRange!.minimum,
+        );
       }
     }
 
     if (plotBand.associatedAxisEnd != null) {
       if (associatedAxis is RenderDateTimeCategoryAxis) {
         final dynamic associateEnd = plotBand.associatedAxisEnd;
-        right = associatedAxis!.pointToPixel(associatedAxis!.actualValue(
+        right = associatedAxis!.pointToPixel(
+          associatedAxis!.actualValue(
             associateEnd is num
                 ? (associatedAxis! as RenderDateTimeCategoryAxis)
                     .indexToDateTime(associateEnd as int)
-                : associateEnd));
+                : associateEnd,
+          ),
+        );
       } else if (associatedAxis is RenderCategoryAxis) {
         final dynamic associateEnd = plotBand.associatedAxisEnd;
-        final num index = associateEnd is String
-            ? (associatedAxis! as RenderCategoryAxis)
-                .labels
-                .indexOf(associateEnd)
-            : associateEnd;
-        right = associatedAxis!.pointToPixel(associatedAxis!.actualValue(
-            index != -1 ? index : associatedAxis!.actualRange!.maximum));
+        final num index =
+            associateEnd is String
+                ? (associatedAxis! as RenderCategoryAxis).labels.indexOf(
+                  associateEnd,
+                )
+                : associateEnd;
+        right = associatedAxis!.pointToPixel(
+          associatedAxis!.actualValue(
+            index != -1 ? index : associatedAxis!.actualRange!.maximum,
+          ),
+        );
       } else {
         right = associatedAxis!.pointToPixel(
-            associatedAxis!.actualValue(plotBand.associatedAxisEnd!));
+          associatedAxis!.actualValue(plotBand.associatedAxisEnd!),
+        );
       }
     } else {
       if (associatedAxis is RenderLogarithmicAxis) {
         right = associatedAxis!.pointToPixel(
-            (associatedAxis! as RenderLogarithmicAxis)
-                .toPow(associatedAxis!.visibleRange!.maximum));
+          (associatedAxis! as RenderLogarithmicAxis).toPow(
+            associatedAxis!.visibleRange!.maximum,
+          ),
+        );
       } else {
-        right =
-            associatedAxis!.pointToPixel(associatedAxis!.visibleRange!.maximum);
+        right = associatedAxis!.pointToPixel(
+          associatedAxis!.visibleRange!.maximum,
+        );
       }
     }
 
@@ -3116,19 +3516,26 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 
     final num coefficient = _valueToCoefficient(dataPoint, range: range);
     if (isVertical) {
-      return plotOffset + _renderSize.height * (1 - coefficient);
+      return (isInversed
+              ? _effectivePlotOffsetStart
+              : _effectivePlotOffsetEnd) +
+          _renderSize.height * (1 - coefficient);
     } else {
-      return plotOffset + _renderSize.width * coefficient;
+      return (isInversed
+              ? _effectivePlotOffsetEnd
+              : _effectivePlotOffsetStart) +
+          _renderSize.width * coefficient;
     }
   }
 
   double pixelToPoint(Rect rect, double x, double y) {
     rect = Rect.fromLTWH(
-      rect.left + (!isVertical ? plotOffset : 0),
-      rect.top + (isVertical ? plotOffset : 0),
-      rect.width - (!isVertical ? 2 * plotOffset : 0),
-      rect.height - (isVertical ? 2 * plotOffset : 0),
+      rect.left + (!isVertical ? _effectivePlotOffsetStart : 0),
+      rect.top + (isVertical ? _effectivePlotOffsetEnd : 0),
+      rect.width - (!isVertical ? _effectivePlotOffset : 0),
+      rect.height - (isVertical ? _effectivePlotOffset : 0),
     );
+
     if (visibleRange != null) {
       return isVertical
           ? _coefficientToValue(1 - ((y - rect.top) / rect.height))
@@ -3166,24 +3573,27 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
       for (final AxisLabel label in visibleLabels) {
         if (label.region != null && label.region!.contains(localPosition)) {
           if (parent!.onAxisLabelTapped != null) {
-            final AxisLabelTapArgs args = AxisLabelTapArgs(widget, name)
-              ..text = label.text
-              ..value = label.value;
+            final AxisLabelTapArgs args =
+                AxisLabelTapArgs(widget, name)
+                  ..text = label.text
+                  ..value = label.value;
             parent!.onAxisLabelTapped!(args);
           }
           if (hasTrimmedAxisLabel && label.trimmedText != null) {
             final BoxParentData parentData =
                 parent!.parentData! as BoxParentData;
             final Rect parentBounds = parentData.offset & parent!.size;
-            parent!.behaviorArea!.showTooltip(TooltipInfo(
-              primaryPosition: localToGlobal(label.region!.topCenter),
-              secondaryPosition: localToGlobal(label.region!.bottomCenter),
-              text: label.text,
-              surfaceBounds: Rect.fromPoints(
-                parent!.localToGlobal(parentBounds.topLeft),
-                parent!.localToGlobal(parentBounds.bottomRight),
+            parent!.behaviorArea!.showTooltip(
+              TooltipInfo(
+                primaryPosition: localToGlobal(label.region!.topCenter),
+                secondaryPosition: localToGlobal(label.region!.bottomCenter),
+                text: label.text,
+                surfaceBounds: Rect.fromPoints(
+                  parent!.localToGlobal(parentBounds.topLeft),
+                  parent!.localToGlobal(parentBounds.bottomRight),
+                ),
               ),
-            ));
+            );
           }
           break;
         }
@@ -3203,15 +3613,17 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
             label.region!.contains(localPosition)) {
           final BoxParentData parentData = parent!.parentData! as BoxParentData;
           final Rect parentBounds = parentData.offset & parent!.size;
-          parent!.behaviorArea!.showTooltip(TooltipInfo(
-            primaryPosition: localToGlobal(label.region!.topCenter),
-            secondaryPosition: localToGlobal(label.region!.bottomCenter),
-            text: label.text,
-            surfaceBounds: Rect.fromPoints(
-              parent!.localToGlobal(parentBounds.topLeft),
-              parent!.localToGlobal(parentBounds.bottomRight),
+          parent!.behaviorArea!.showTooltip(
+            TooltipInfo(
+              primaryPosition: localToGlobal(label.region!.topCenter),
+              secondaryPosition: localToGlobal(label.region!.bottomCenter),
+              text: label.text,
+              surfaceBounds: Rect.fromPoints(
+                parent!.localToGlobal(parentBounds.topLeft),
+                parent!.localToGlobal(parentBounds.bottomRight),
+              ),
             ),
-          ));
+          );
           break;
         }
       }
@@ -3275,10 +3687,7 @@ abstract class RenderChartAxis extends RenderBox with ChartAreaUpdateMixin {
 }
 
 class DoubleRangeTween extends Tween<DoubleRange?> {
-  DoubleRangeTween({
-    super.begin,
-    super.end,
-  });
+  DoubleRangeTween({super.begin, super.end});
 
   @override
   DoubleRange? transform(double t) {
@@ -3334,7 +3743,9 @@ class DoubleRange {
 
   DoubleRange operator +(DoubleRange other) {
     return DoubleRange(
-        min(_minimum, other.minimum), max(_maximum, other.maximum));
+      min(_minimum, other.minimum),
+      max(_maximum, other.maximum),
+    );
   }
 
   DoubleRange copyWith({num? minimum, num? maximum}) {
@@ -3489,8 +3900,9 @@ abstract class _GridLineRenderer {
 
   @nonVirtual
   void onPaint(PaintingContext context, Offset offset) {
-    final Offset plotAreaGlobalOffset =
-        axis.parent!.localToGlobal(axis.parent!.plotAreaOffset);
+    final Offset plotAreaGlobalOffset = axis.parent!.localToGlobal(
+      axis.parent!.plotAreaOffset,
+    );
     final Offset plotAreaOffset = axis.globalToLocal(plotAreaGlobalOffset);
     context.canvas.save();
     context.canvas.clipRect(axis.parent!.plotAreaBounds);
@@ -3514,8 +3926,14 @@ class _HorizontalGridLineRenderer extends _GridLineRenderer {
     final MajorGridLines majorGridLines = axis.majorGridLines;
     final Color color =
         (majorGridLines.color ?? axis.chartThemeData!.majorGridLineColor)!;
-    _drawGridLines(context, offset, axis.majorTickPositions, color,
-        majorGridLines.width, majorGridLines.dashArray);
+    _drawGridLines(
+      context,
+      offset,
+      axis.majorTickPositions,
+      color,
+      majorGridLines.width,
+      majorGridLines.dashArray,
+    );
   }
 
   @override
@@ -3523,8 +3941,14 @@ class _HorizontalGridLineRenderer extends _GridLineRenderer {
     final MinorGridLines minorGridLines = axis.minorGridLines;
     final Color color =
         (minorGridLines.color ?? axis.chartThemeData!.minorGridLineColor)!;
-    _drawGridLines(context, offset, axis.minorTickPositions, color,
-        minorGridLines.width, minorGridLines.dashArray);
+    _drawGridLines(
+      context,
+      offset,
+      axis.minorTickPositions,
+      color,
+      minorGridLines.width,
+      minorGridLines.dashArray,
+    );
   }
 
   void _drawGridLines(
@@ -3538,11 +3962,12 @@ class _HorizontalGridLineRenderer extends _GridLineRenderer {
     if (axis.associatedAxis != null &&
         color != Colors.transparent &&
         width > 0) {
-      final Paint paint = Paint()
-        ..isAntiAlias = true
-        ..color = color
-        ..strokeWidth = width
-        ..style = PaintingStyle.stroke;
+      final Paint paint =
+          Paint()
+            ..isAntiAlias = true
+            ..color = color
+            ..strokeWidth = width
+            ..style = PaintingStyle.stroke;
 
       final RenderChartAxis associatedAxis = axis.associatedAxis!;
       num minimum = associatedAxis.visibleRange!.minimum;
@@ -3553,15 +3978,16 @@ class _HorizontalGridLineRenderer extends _GridLineRenderer {
         maximum = associatedAxis.toPow(maximum);
       }
 
-      final double plotOffset = associatedAxis.plotOffset;
+      final double plotOffsetStart = associatedAxis._effectivePlotOffsetStart;
+      final double plotOffsetEnd = associatedAxis._effectivePlotOffsetEnd;
       double y1 = associatedAxis.pointToPixel(minimum);
       double y2 = associatedAxis.pointToPixel(maximum);
       if (associatedAxis.isInversed) {
-        y1 = y1 - plotOffset;
-        y2 = y2 + plotOffset;
+        y1 = y1 - plotOffsetStart;
+        y2 = y2 + plotOffsetEnd;
       } else {
-        y1 = y1 + plotOffset;
-        y2 = y2 - plotOffset;
+        y1 = y1 + plotOffsetStart;
+        y2 = y2 - plotOffsetEnd;
       }
       for (final double position in positions) {
         final Offset start = offset.translate(position, y1);
@@ -3580,8 +4006,14 @@ class _VerticalGridLineRenderer extends _GridLineRenderer {
     final MajorGridLines majorGridLines = axis.majorGridLines;
     final Color color =
         (majorGridLines.color ?? axis.chartThemeData!.majorGridLineColor)!;
-    _drawGridLines(context, offset, axis.majorTickPositions, color,
-        majorGridLines.width, majorGridLines.dashArray);
+    _drawGridLines(
+      context,
+      offset,
+      axis.majorTickPositions,
+      color,
+      majorGridLines.width,
+      majorGridLines.dashArray,
+    );
   }
 
   @override
@@ -3589,8 +4021,14 @@ class _VerticalGridLineRenderer extends _GridLineRenderer {
     final MinorGridLines minorGridLines = axis.minorGridLines;
     final Color color =
         (minorGridLines.color ?? axis.chartThemeData!.minorGridLineColor)!;
-    _drawGridLines(context, offset, axis.minorTickPositions, color,
-        minorGridLines.width, minorGridLines.dashArray);
+    _drawGridLines(
+      context,
+      offset,
+      axis.minorTickPositions,
+      color,
+      minorGridLines.width,
+      minorGridLines.dashArray,
+    );
   }
 
   void _drawGridLines(
@@ -3604,11 +4042,12 @@ class _VerticalGridLineRenderer extends _GridLineRenderer {
     if (axis.associatedAxis != null &&
         color != Colors.transparent &&
         width > 0) {
-      final Paint paint = Paint()
-        ..isAntiAlias = true
-        ..color = color
-        ..strokeWidth = width
-        ..style = PaintingStyle.stroke;
+      final Paint paint =
+          Paint()
+            ..isAntiAlias = true
+            ..color = color
+            ..strokeWidth = width
+            ..style = PaintingStyle.stroke;
 
       final RenderChartAxis associatedAxis = axis.associatedAxis!;
       num minimum = associatedAxis.visibleRange!.minimum;
@@ -3619,15 +4058,16 @@ class _VerticalGridLineRenderer extends _GridLineRenderer {
         maximum = associatedAxis.toPow(maximum);
       }
 
-      final double plotOffset = associatedAxis.plotOffset;
+      final double plotOffsetStart = associatedAxis._effectivePlotOffsetStart;
+      final double plotOffsetEnd = associatedAxis._effectivePlotOffsetEnd;
       double x1 = associatedAxis.pointToPixel(minimum);
       double x2 = associatedAxis.pointToPixel(maximum);
       if (associatedAxis.isInversed) {
-        x1 = x1 + plotOffset;
-        x2 = x2 - plotOffset;
+        x1 = x1 + plotOffsetStart;
+        x2 = x2 - plotOffsetEnd;
       } else {
-        x1 = x1 - plotOffset;
-        x2 = x2 + plotOffset;
+        x1 = x1 - plotOffsetStart;
+        x2 = x2 + plotOffsetEnd;
       }
       for (final double position in positions) {
         final Offset start = offset.translate(x1, position);
@@ -3690,14 +4130,18 @@ abstract class _PlotBandRenderer {
     _drawPlotBand(context, offset);
   }
 
-  void _drawPlotBand(PaintingContext context, Offset offset,
-      {bool shouldRenderAboveSeries = false}) {
+  void _drawPlotBand(
+    PaintingContext context,
+    Offset offset, {
+    bool shouldRenderAboveSeries = false,
+  }) {
     if (axis.visiblePlotBands == null || axis.visiblePlotBands!.isEmpty) {
       return;
     }
 
-    final Offset plotAreaGlobalOffset =
-        axis.parent!.localToGlobal(axis.parent!.plotAreaOffset);
+    final Offset plotAreaGlobalOffset = axis.parent!.localToGlobal(
+      axis.parent!.plotAreaOffset,
+    );
     final Offset plotAreaOffset = axis.globalToLocal(plotAreaGlobalOffset);
     offset += plotAreaOffset;
     context.canvas.save();
@@ -3710,7 +4154,7 @@ abstract class _PlotBandRenderer {
           paint.shader = plotBand.gradient!.createShader(bounds);
         } else {
           if (plotBand.opacity < 1.0) {
-            paint.color = plotBand.color.withOpacity(plotBand.opacity);
+            paint.color = plotBand.color.withValues(alpha: plotBand.opacity);
           } else {
             paint.color = plotBand.color;
           }
@@ -3723,17 +4167,19 @@ abstract class _PlotBandRenderer {
         if (plotBand.borderWidth > 0 &&
             plotBand.borderColor != Colors.transparent) {
           paint
-            ..color = plotBand.opacity < 1.0
-                ? plotBand.borderColor.withOpacity(plotBand.opacity)
-                : plotBand.borderColor
+            ..color =
+                plotBand.opacity < 1.0
+                    ? plotBand.borderColor.withValues(alpha: plotBand.opacity)
+                    : plotBand.borderColor
             ..strokeWidth = plotBand.borderWidth
             ..style = PaintingStyle.stroke;
-          final Path path = Path()
-            ..moveTo(bounds.left, bounds.top)
-            ..lineTo(bounds.left + bounds.width, bounds.top)
-            ..lineTo(bounds.left + bounds.width, bounds.top + bounds.height)
-            ..lineTo(bounds.left, bounds.top + bounds.height)
-            ..close();
+          final Path path =
+              Path()
+                ..moveTo(bounds.left, bounds.top)
+                ..lineTo(bounds.left + bounds.width, bounds.top)
+                ..lineTo(bounds.left + bounds.width, bounds.top + bounds.height)
+                ..lineTo(bounds.left, bounds.top + bounds.height)
+                ..close();
           drawDashes(context.canvas, plotBand.dashArray, paint, path: path);
         }
         _drawText(context, bounds, plotBand);
@@ -3762,8 +4208,12 @@ abstract class _PlotBandRenderer {
     if (bounds.top > bounds.bottom) {
       // Top value is always greater than the bottom value. So vertical
       // alignment is working oppositely, hence swapped the value.
-      bounds =
-          Rect.fromLTRB(bounds.left, bounds.bottom, bounds.right, bounds.top);
+      bounds = Rect.fromLTRB(
+        bounds.left,
+        bounds.bottom,
+        bounds.right,
+        bounds.top,
+      );
     }
 
     switch (plotBand.yAlign) {
@@ -3790,8 +4240,9 @@ class _HorizontalPlotBandRenderer extends _PlotBandRenderer {
     if (plotBand.text.isNotEmpty) {
       TextStyle style = plotBand.textStyle;
       if (plotBand.opacity < 1.0) {
-        style =
-            style.copyWith(color: style.color?.withOpacity(plotBand.opacity));
+        style = style.copyWith(
+          color: style.color?.withValues(alpha: plotBand.opacity),
+        );
       }
       final TextSpan span = TextSpan(text: plotBand.text, style: style);
       _textPainter
@@ -3799,8 +4250,11 @@ class _HorizontalPlotBandRenderer extends _PlotBandRenderer {
         ..textAlign = TextAlign.center
         ..textDirection = TextDirection.ltr
         ..layout();
-      final Offset position =
-          _textPosition(plotBand, bounds, _textPainter.size);
+      final Offset position = _textPosition(
+        plotBand,
+        bounds,
+        _textPainter.size,
+      );
       if (plotBand.textAngle == 0) {
         _textPainter.paint(context.canvas, position);
       } else {
@@ -3825,8 +4279,9 @@ class _VerticalPlotBandRenderer extends _PlotBandRenderer {
     if (plotBand.text.isNotEmpty) {
       TextStyle style = plotBand.textStyle;
       if (plotBand.opacity < 1.0) {
-        style =
-            style.copyWith(color: style.color?.withOpacity(plotBand.opacity));
+        style = style.copyWith(
+          color: style.color?.withValues(alpha: plotBand.opacity),
+        );
       }
       final TextSpan span = TextSpan(text: plotBand.text, style: style);
       _textPainter
@@ -3834,8 +4289,11 @@ class _VerticalPlotBandRenderer extends _PlotBandRenderer {
         ..textAlign = TextAlign.center
         ..textDirection = TextDirection.ltr
         ..layout();
-      final Offset position =
-          _textPosition(plotBand, bounds, _textPainter.size);
+      final Offset position = _textPosition(
+        plotBand,
+        bounds,
+        _textPainter.size,
+      );
       if (plotBand.textAngle == 0) {
         _textPainter.paint(context.canvas, position);
       } else {
@@ -3920,8 +4378,8 @@ abstract class _AxisRenderer {
     borderSize = axis.borderWidth / 2;
     titleSize = 0.0;
     if (axis.title.text != null && axis.title.text!.isNotEmpty) {
-      final TextStyle textStyle =
-          axis.chartThemeData!.axisTitleTextStyle!.merge(axis.title.textStyle);
+      final TextStyle textStyle = axis.chartThemeData!.axisTitleTextStyle!
+          .merge(axis.title.textStyle);
       titleSize = measureText(axis.title.text!, textStyle).height;
     }
 
@@ -4010,6 +4468,14 @@ abstract class _AxisRenderer {
     double multilevelLabelPadding = 0.0;
     double titlePadding = 0.0;
 
+    // The `labelsExtent` defines the space between the axis line and the title,
+    // if its value exceeds the maximum size of the label.
+    final double labelsExtent = axis.labelsExtent ?? 0.0;
+    double labelsExtentPadding = 0.0;
+    if (maxLabelSize < labelsExtent) {
+      labelsExtentPadding = labelsExtent - maxLabelSize;
+    }
+
     double outerSize = 0.0;
 
     // Normal order
@@ -4023,25 +4489,31 @@ abstract class _AxisRenderer {
       majorTickPadding = 0.0;
       minorTickPadding = 0.0;
       labelPadding = outerTickSize + outerLabelGap;
-      multilevelLabelPadding = labelPadding +
+      multilevelLabelPadding =
+          labelPadding +
           outerLabelSize +
           outerBorderGap +
           effectiveBorderSize +
           outerMultilevelLabelGap +
           effectiveMultilevelBorderSize;
-      titlePadding = multilevelLabelPadding +
+      titlePadding =
+          multilevelLabelPadding +
           outerMultilevelLabelSize +
           effectiveMultilevelBorderSize +
+          labelsExtentPadding +
           titleGap;
       _axisBorderSize = multilevelLabelPadding - outerMultilevelLabelGap;
       outerSize = titlePadding + titleSize;
     } else {
       titlePadding = 0.0;
       multilevelLabelPadding =
-          titleSize + titleGap + effectiveMultilevelBorderSize;
-      borderPadding = multilevelLabelPadding +
+          titleSize +
+          titleGap +
+          labelsExtentPadding +
+          effectiveMultilevelBorderSize;
+      borderPadding =
+          multilevelLabelPadding +
           outerMultilevelLabelSize +
-          // effectiveMultilevelBorderSize +
           outerMultilevelLabelGap +
           effectiveBorderSize;
       labelPadding = borderPadding + outerBorderGap;
@@ -4051,7 +4523,8 @@ abstract class _AxisRenderer {
           labelPadding + outerLabelSize + outerLabelGap + majorTickAdj;
       axisLinePadding =
           labelPadding + outerLabelSize + outerLabelGap + outerTickSize;
-      _axisBorderSize = effectiveBorderSize +
+      _axisBorderSize =
+          effectiveBorderSize +
           effectiveMultilevelBorderSize +
           outerBorderGap +
           outerLabelSize +
@@ -4084,7 +4557,8 @@ abstract class _AxisRenderer {
       } else {
         labelPadding = outerSize + innerTickSize + innerLabelGap;
         borderPadding = outerSize;
-        multilevelLabelPadding = labelPadding +
+        multilevelLabelPadding =
+            labelPadding +
             innerLabelSize +
             innerBorderGap +
             innerMultilevelLabelGap;
@@ -4156,15 +4630,25 @@ abstract class _AxisRenderer {
     if (axis.parentData == null) {
       return;
     }
-    final Rect clipRect = axis.tickPosition == TickPosition.inside
-        ? axis.parent!.plotAreaBounds
-        : (axis.parentData! as CartesianAxesParentData).offset & axis.size;
-    final Rect extendedClipRect = clipRect
-        .inflate(max(axis.majorTickLines.size, axis.minorTickLines.size) / 2);
+    final Rect clipRect =
+        axis.tickPosition == TickPosition.inside
+            ? axis.parent!.plotAreaBounds
+            : (axis.parentData! as CartesianAxesParentData).offset & axis.size;
+    final Rect extendedClipRect = clipRect.inflate(
+      max(axis.majorTickLines.size, axis.minorTickLines.size) / 2,
+    );
+    // HACK: If the ouput renders in html web renderer, y axis labels, ticks
+    // and axis line hide. To avoid this y axis hide, we called canvas save
+    // two times.
+    context.canvas.save();
     context.canvas.save();
     context.canvas.clipRect(extendedClipRect);
     _drawMajorTicks(context, offset + _majorTickOffset);
     _drawMinorTicks(context, offset + _minorTickOffset);
+    // HACK: If the ouput renders in html web renderer, y axis labels, ticks
+    // and axis line hide. To avoid this y axis hide, we called canvas restore
+    // two times.
+    context.canvas.restore();
     context.canvas.restore();
   }
 
@@ -4196,6 +4680,11 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
 
   @override
   double _labelsMaxSize() {
+    if (axis.effectiveLabelIntersectAction ==
+        AxisLabelIntersectAction.multipleRows) {
+      return _multipleRowsLabelsMaxSize();
+    }
+
     double maxHeight = 0.0;
     final int length = axis.visibleLabels.length;
     for (int i = 0; i < length; i++) {
@@ -4204,6 +4693,45 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
     }
 
     return maxHeight;
+  }
+
+  double _multipleRowsLabelsMaxSize() {
+    final List<AxisLabel> visibleLabels = axis.visibleLabels;
+    // Calculates the max height for each row based on the _rowIndex.
+    final Map<int, double> rowMaxHeights = {};
+    for (final AxisLabel current in visibleLabels) {
+      final double labelHeight = current.labelSize.height;
+      final int rowIndex = current._rowIndex;
+      if (rowMaxHeights.containsKey(rowIndex)) {
+        rowMaxHeights[rowIndex] = max(rowMaxHeights[rowIndex]!, labelHeight);
+      } else {
+        rowMaxHeights[rowIndex] = labelHeight;
+      }
+    }
+
+    // Add 3 spacing between rows when rendering labels.
+    if (rowMaxHeights.length > 1) {
+      for (final int rowIndex in rowMaxHeights.keys) {
+        rowMaxHeights[rowIndex] = rowMaxHeights[rowIndex]! + 3;
+      }
+    }
+
+    // Set current label _rowSize using cumulative height of previous rows.
+    for (final AxisLabel current in visibleLabels) {
+      final int rowIndex = current._rowIndex;
+      if (rowIndex > 0) {
+        double cumulativeHeight = 0.0;
+        for (int i = 0; i < rowIndex; i++) {
+          if (rowMaxHeights.containsKey(i)) {
+            cumulativeHeight += rowMaxHeights[i]!;
+          }
+        }
+        current._prevRowSize = Size(current.labelSize.width, cumulativeHeight);
+      }
+    }
+
+    // Calculate the overall max height by summing the max heights of all rows.
+    return rowMaxHeights.values.fold(0.0, (sum, height) => sum + height);
   }
 
   @override
@@ -4236,11 +4764,12 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
 
   @override
   void _drawAxisLine(PaintingContext context, Offset offset) {
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..color = (axis.axisLine.color ?? axis.chartThemeData!.axisLineColor)!
-      ..strokeWidth = axis.axisLine.width
-      ..style = PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..color = (axis.axisLine.color ?? axis.chartThemeData!.axisLineColor)!
+          ..strokeWidth = axis.axisLine.width
+          ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
       drawDashes(
         context.canvas,
@@ -4254,12 +4783,14 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
 
   @override
   void _drawMajorTicks(PaintingContext context, Offset offset) {
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..color = (axis.majorTickLines.color ??
-          axis.chartThemeData!.majorTickLineColor)!
-      ..strokeWidth = axis.majorTickLines.width
-      ..style = PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..color =
+              (axis.majorTickLines.color ??
+                  axis.chartThemeData!.majorTickLineColor)!
+          ..strokeWidth = axis.majorTickLines.width
+          ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
       for (final double position in axis.majorTickPositions) {
         final Offset start = offset.translate(position, 0.0);
@@ -4271,12 +4802,14 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
 
   @override
   void _drawMinorTicks(PaintingContext context, Offset offset) {
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..color = (axis.minorTickLines.color ??
-          axis.chartThemeData!.minorTickLineColor)!
-      ..strokeWidth = axis.minorTickLines.width
-      ..style = PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..color =
+              (axis.minorTickLines.color ??
+                  axis.chartThemeData!.minorTickLineColor)!
+          ..strokeWidth = axis.minorTickLines.width
+          ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
       for (final double position in axis.minorTickPositions) {
         final Offset start = offset.translate(position, 0.0);
@@ -4302,7 +4835,11 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
       }
     }
 
+    final bool isMultipleRows = action == AxisLabelIntersectAction.multipleRows;
     final bool isOutSide = axis.labelPosition == ChartDataLabelPosition.outside;
+    final bool normalOrder =
+        (!axis.invertElementsOrder && isOutSide) ||
+        (axis.invertElementsOrder && !isOutSide);
     final List<AxisLabel> axisLabels = axis.visibleLabels;
     for (final AxisLabel label in axisLabels) {
       if (!label.isVisible || label.position == null || label.position!.isNaN) {
@@ -4310,23 +4847,39 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
       }
 
       double dy = labelOffset.dy;
-      if ((axis.invertElementsOrder && isOutSide) ||
-          (!axis.invertElementsOrder && !isOutSide)) {
+      if (!normalOrder) {
         dy += _maxLabelSize - label.labelSize.height;
+        if (isMultipleRows) {
+          dy -= label._prevRowSize.height;
+        }
+      } else {
+        if (isMultipleRows) {
+          dy += label._prevRowSize.height;
+        }
       }
 
       Offset position = Offset(labelOffset.dx + label.position!, dy);
-      label.region = Rect.fromLTWH(position.dx, position.dy,
-          label.labelSize.width, label.labelSize.height);
+      label.region = Rect.fromLTWH(
+        position.dx,
+        position.dy,
+        label.labelSize.width,
+        label.labelSize.height,
+      );
       position += offset;
       _drawLabel(context, position, label, rotationAngle);
     }
   }
 
-  void _drawLabel(PaintingContext context, Offset position, AxisLabel label,
-      int rotationAngle) {
-    final TextSpan span =
-        TextSpan(text: label.renderText, style: label.labelStyle);
+  void _drawLabel(
+    PaintingContext context,
+    Offset position,
+    AxisLabel label,
+    int rotationAngle,
+  ) {
+    final TextSpan span = TextSpan(
+      text: label.renderText,
+      style: label.labelStyle,
+    );
     _textPainter
       ..text = span
       ..textAlign = TextAlign.center
@@ -4337,11 +4890,15 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
     } else {
       context.canvas
         ..save()
-        ..translate(position.dx + label.labelSize.width / 2,
-            position.dy + label.labelSize.height / 2)
+        ..translate(
+          position.dx + label.labelSize.width / 2,
+          position.dy + label.labelSize.height / 2,
+        )
         ..rotate(degreeToRadian(rotationAngle));
-      _textPainter.paint(context.canvas,
-          Offset(-_textPainter.size.width / 2, -_textPainter.size.height / 2));
+      _textPainter.paint(
+        context.canvas,
+        Offset(-_textPainter.size.width / 2, -_textPainter.size.height / 2),
+      );
       context.canvas.restore();
     }
   }
@@ -4357,11 +4914,12 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
     if (effectiveBorderColor != Colors.transparent &&
         axis.borderWidth > 0 &&
         axis.borderPositions.isNotEmpty) {
-      final Paint paint = Paint()
-        ..isAntiAlias = true
-        ..color = effectiveBorderColor
-        ..strokeWidth = axis.borderWidth
-        ..style = PaintingStyle.stroke;
+      final Paint paint =
+          Paint()
+            ..isAntiAlias = true
+            ..color = effectiveBorderColor
+            ..strokeWidth = axis.borderWidth
+            ..style = PaintingStyle.stroke;
       final double axisLeft = axis.paintBounds.left;
       final double axisRight = axis.paintBounds.right;
       final List<double> positions = axis.borderPositions;
@@ -4392,13 +4950,16 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
     if (length > 0) {
       final MultiLevelBorderType borderType =
           axis.multiLevelLabelStyle.borderType;
-      final Paint paint = Paint()
-        ..color = (axis.multiLevelLabelStyle.borderColor ??
-            axis.chartThemeData!.axisLineColor)!
-        ..strokeWidth = axis.multiLevelLabelStyle.borderWidth != 0
-            ? axis.multiLevelLabelStyle.borderWidth
-            : axis.axisLine.width
-        ..style = PaintingStyle.stroke;
+      final Paint paint =
+          Paint()
+            ..color =
+                (axis.multiLevelLabelStyle.borderColor ??
+                    axis.chartThemeData!.axisLineColor)!
+            ..strokeWidth =
+                axis.multiLevelLabelStyle.borderWidth != 0
+                    ? axis.multiLevelLabelStyle.borderWidth
+                    : axis.axisLine.width
+            ..style = PaintingStyle.stroke;
 
       double top = offset.dy;
       int level = _multilevelLabelSizes.keys.first;
@@ -4411,31 +4972,40 @@ class _HorizontalAxisRenderer extends _AxisRenderer {
         }
 
         final TextSpan span = TextSpan(
-            text: label.trimmedText,
-            style: label.style.copyWith(
-                color:
-                    label.style.color ?? axis.chartThemeData!.axisLabelColor));
+          text: label.trimmedText,
+          style: label.style.copyWith(
+            color: label.style.color ?? axis.chartThemeData!.axisLabelColor,
+          ),
+        );
         _textPainter
           ..text = span
           ..textAlign = TextAlign.center
           ..textDirection = TextDirection.ltr
           ..layout();
-        final Rect bounds = Rect.fromLTWH(offset.dx + label.region.left,
-            top + label.region.top, label.region.width, height);
+        final Rect bounds = Rect.fromLTWH(
+          offset.dx + label.region.left,
+          top + label.region.top,
+          label.region.width,
+          height,
+        );
         _multilevelLabelBorderShape.onPaint(
-            context, borderType, bounds, _textPainter, paint, axis);
+          context,
+          borderType,
+          bounds,
+          _textPainter,
+          paint,
+          axis,
+        );
       }
     }
   }
 
   @override
   void _drawTitle(PaintingContext context, Offset offset) {
-    final TextStyle textStyle =
-        axis.chartThemeData!.axisTitleTextStyle!.merge(axis.title.textStyle);
-    final TextSpan span = TextSpan(
-      text: axis.title.text,
-      style: textStyle,
+    final TextStyle textStyle = axis.chartThemeData!.axisTitleTextStyle!.merge(
+      axis.title.textStyle,
     );
+    final TextSpan span = TextSpan(text: axis.title.text, style: textStyle);
     _textPainter
       ..text = span
       ..textAlign = TextAlign.center
@@ -4512,11 +5082,12 @@ class _VerticalAxisRenderer extends _AxisRenderer {
 
   @override
   void _drawAxisLine(PaintingContext context, Offset offset) {
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..color = (axis.axisLine.color ?? axis.chartThemeData!.axisLineColor)!
-      ..strokeWidth = axis.axisLine.width
-      ..style = PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..color = (axis.axisLine.color ?? axis.chartThemeData!.axisLineColor)!
+          ..strokeWidth = axis.axisLine.width
+          ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
       drawDashes(
         context.canvas,
@@ -4530,12 +5101,14 @@ class _VerticalAxisRenderer extends _AxisRenderer {
 
   @override
   void _drawMajorTicks(PaintingContext context, Offset offset) {
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..color = (axis.majorTickLines.color ??
-          axis.chartThemeData!.majorTickLineColor)!
-      ..strokeWidth = axis.majorTickLines.width
-      ..style = PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..color =
+              (axis.majorTickLines.color ??
+                  axis.chartThemeData!.majorTickLineColor)!
+          ..strokeWidth = axis.majorTickLines.width
+          ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
       for (final double position in axis.majorTickPositions) {
         final Offset start = offset.translate(0.0, position);
@@ -4547,12 +5120,14 @@ class _VerticalAxisRenderer extends _AxisRenderer {
 
   @override
   void _drawMinorTicks(PaintingContext context, Offset offset) {
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..color = (axis.minorTickLines.color ??
-          axis.chartThemeData!.minorTickLineColor)!
-      ..strokeWidth = axis.minorTickLines.width
-      ..style = PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..color =
+              (axis.minorTickLines.color ??
+                  axis.chartThemeData!.minorTickLineColor)!
+          ..strokeWidth = axis.minorTickLines.width
+          ..style = PaintingStyle.stroke;
     if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
       for (final double position in axis.minorTickPositions) {
         final Offset start = offset.translate(0.0, position);
@@ -4592,17 +5167,27 @@ class _VerticalAxisRenderer extends _AxisRenderer {
       }
 
       Offset position = Offset(dx, labelOffset.dy + label.position!);
-      label.region = Rect.fromLTWH(position.dx, position.dy,
-          label.labelSize.width, label.labelSize.height);
+      label.region = Rect.fromLTWH(
+        position.dx,
+        position.dy,
+        label.labelSize.width,
+        label.labelSize.height,
+      );
       position += offset;
       _drawLabel(context, position, label, rotationAngle);
     }
   }
 
-  void _drawLabel(PaintingContext context, Offset position, AxisLabel label,
-      int rotationAngle) {
-    final TextSpan span =
-        TextSpan(text: label.renderText, style: label.labelStyle);
+  void _drawLabel(
+    PaintingContext context,
+    Offset position,
+    AxisLabel label,
+    int rotationAngle,
+  ) {
+    final TextSpan span = TextSpan(
+      text: label.renderText,
+      style: label.labelStyle,
+    );
     _textPainter
       ..text = span
       ..textAlign = TextAlign.center
@@ -4613,11 +5198,15 @@ class _VerticalAxisRenderer extends _AxisRenderer {
     } else {
       context.canvas
         ..save()
-        ..translate(position.dx + label.labelSize.width / 2,
-            position.dy + label.labelSize.height / 2)
+        ..translate(
+          position.dx + label.labelSize.width / 2,
+          position.dy + label.labelSize.height / 2,
+        )
         ..rotate(degreeToRadian(rotationAngle));
-      _textPainter.paint(context.canvas,
-          Offset(-_textPainter.size.width / 2, -_textPainter.size.height / 2));
+      _textPainter.paint(
+        context.canvas,
+        Offset(-_textPainter.size.width / 2, -_textPainter.size.height / 2),
+      );
       context.canvas.restore();
     }
   }
@@ -4633,11 +5222,12 @@ class _VerticalAxisRenderer extends _AxisRenderer {
     if (effectiveBorderColor != Colors.transparent &&
         axis.borderWidth > 0 &&
         axis.borderPositions.isNotEmpty) {
-      final Paint paint = Paint()
-        ..isAntiAlias = true
-        ..color = effectiveBorderColor
-        ..strokeWidth = axis.borderWidth
-        ..style = PaintingStyle.stroke;
+      final Paint paint =
+          Paint()
+            ..isAntiAlias = true
+            ..color = effectiveBorderColor
+            ..strokeWidth = axis.borderWidth
+            ..style = PaintingStyle.stroke;
       final double axisTop = axis.paintBounds.top;
       final double axisBottom = axis.paintBounds.bottom;
       final List<double> positions = axis.borderPositions;
@@ -4668,13 +5258,16 @@ class _VerticalAxisRenderer extends _AxisRenderer {
     if (length > 0) {
       final MultiLevelBorderType borderType =
           axis.multiLevelLabelStyle.borderType;
-      final Paint paint = Paint()
-        ..color = (axis.multiLevelLabelStyle.borderColor ??
-            axis.chartThemeData!.axisLineColor)!
-        ..strokeWidth = axis.multiLevelLabelStyle.borderWidth != 0
-            ? axis.multiLevelLabelStyle.borderWidth
-            : axis.axisLine.width
-        ..style = PaintingStyle.stroke;
+      final Paint paint =
+          Paint()
+            ..color =
+                (axis.multiLevelLabelStyle.borderColor ??
+                    axis.chartThemeData!.axisLineColor)!
+            ..strokeWidth =
+                axis.multiLevelLabelStyle.borderWidth != 0
+                    ? axis.multiLevelLabelStyle.borderWidth
+                    : axis.axisLine.width
+            ..style = PaintingStyle.stroke;
 
       double left = offset.dx;
       int level = _multilevelLabelSizes.keys.first;
@@ -4687,19 +5280,30 @@ class _VerticalAxisRenderer extends _AxisRenderer {
         }
 
         final TextSpan span = TextSpan(
-            text: label.trimmedText,
-            style: label.style.copyWith(
-                color:
-                    label.style.color ?? axis.chartThemeData!.axisLabelColor));
+          text: label.trimmedText,
+          style: label.style.copyWith(
+            color: label.style.color ?? axis.chartThemeData!.axisLabelColor,
+          ),
+        );
         _textPainter
           ..text = span
           ..textAlign = TextAlign.center
           ..textDirection = TextDirection.ltr
           ..layout();
-        final Rect bounds = Rect.fromLTWH(left + label.region.left,
-            offset.dy + label.region.top, width, label.region.height);
+        final Rect bounds = Rect.fromLTWH(
+          left + label.region.left,
+          offset.dy + label.region.top,
+          width,
+          label.region.height,
+        );
         _multilevelLabelBorderShape.onPaint(
-            context, borderType, bounds, _textPainter, paint, axis);
+          context,
+          borderType,
+          bounds,
+          _textPainter,
+          paint,
+          axis,
+        );
       }
     }
   }
@@ -4707,8 +5311,9 @@ class _VerticalAxisRenderer extends _AxisRenderer {
   @override
   void _drawTitle(PaintingContext context, Offset offset) {
     final int rotationAngle = axis.invertElementsOrder ? 270 : 90;
-    final TextStyle textStyle =
-        axis.chartThemeData!.axisTitleTextStyle!.merge(axis.title.textStyle);
+    final TextStyle textStyle = axis.chartThemeData!.axisTitleTextStyle!.merge(
+      axis.title.textStyle,
+    );
     final TextSpan span = TextSpan(text: axis.title.text, style: textStyle);
     _textPainter
       ..text = span
@@ -4730,7 +5335,8 @@ class _VerticalAxisRenderer extends _AxisRenderer {
         }
         break;
       case ChartAlignment.center:
-        y = offset.dy +
+        y =
+            offset.dy +
             axis.size.height / 2 +
             (_textPainter.width / 2 * (axis.invertElementsOrder ? 1 : -1));
         break;
@@ -4777,9 +5383,10 @@ abstract class _MultilevelLabelBorderShape {
     if (axis.parentData == null) {
       return;
     }
-    final Rect clipRect = axis.labelPosition == ChartDataLabelPosition.inside
-        ? axis.parent!.plotAreaBounds
-        : (axis.parentData! as CartesianAxesParentData).offset & axis.size;
+    final Rect clipRect =
+        axis.labelPosition == ChartDataLabelPosition.inside
+            ? axis.parent!.plotAreaBounds
+            : (axis.parentData! as CartesianAxesParentData).offset & axis.size;
     final Rect extendedClipRect = clipRect.inflate(borderPaint.strokeWidth / 2);
     context.canvas.save();
     context.canvas.clipRect(extendedClipRect);
@@ -4793,52 +5400,94 @@ abstract class _MultilevelLabelBorderShape {
         break;
       case MultiLevelBorderType.withoutTopAndBottom:
         _drawBorderWithoutTopAndBottom(
-            context, bounds, labelPainter, borderPaint);
+          context,
+          bounds,
+          labelPainter,
+          borderPaint,
+        );
         break;
       case MultiLevelBorderType.squareBrace:
         _drawSquareBraceBorder(
-            context, bounds, labelPainter, borderPaint, invertElementsOrder);
+          context,
+          bounds,
+          labelPainter,
+          borderPaint,
+          invertElementsOrder,
+        );
         break;
       case MultiLevelBorderType.curlyBrace:
         _drawCurlyBraceBorder(
-            context, bounds, labelPainter, borderPaint, invertElementsOrder);
+          context,
+          bounds,
+          labelPainter,
+          borderPaint,
+          invertElementsOrder,
+        );
         break;
     }
     context.canvas.restore();
   }
 
-  void _drawRectangleBorder(PaintingContext context, Rect bounds,
-      TextPainter labelPainter, Paint paint) {
+  void _drawRectangleBorder(
+    PaintingContext context,
+    Rect bounds,
+    TextPainter labelPainter,
+    Paint paint,
+  ) {
     context.canvas.drawRect(bounds, paint);
     _drawLabelAtRectangleBorderCenter(context, labelPainter, bounds);
   }
 
   void _drawLabelAtRectangleBorderCenter(
-      PaintingContext context, TextPainter labelPainter, Rect bounds) {
+    PaintingContext context,
+    TextPainter labelPainter,
+    Rect bounds,
+  ) {
     labelPainter.paint(
-        context.canvas,
-        bounds.center.translate(
-            -labelPainter.size.width / 2, -labelPainter.size.height / 2));
+      context.canvas,
+      bounds.center.translate(
+        -labelPainter.size.width / 2,
+        -labelPainter.size.height / 2,
+      ),
+    );
   }
 
   @protected
-  void _drawBorderWithoutTopAndBottom(PaintingContext context, Rect bounds,
-      TextPainter labelPainter, Paint paint);
+  void _drawBorderWithoutTopAndBottom(
+    PaintingContext context,
+    Rect bounds,
+    TextPainter labelPainter,
+    Paint paint,
+  );
 
   @protected
-  void _drawSquareBraceBorder(PaintingContext context, Rect bounds,
-      TextPainter labelPainter, Paint paint, bool isOpposed);
+  void _drawSquareBraceBorder(
+    PaintingContext context,
+    Rect bounds,
+    TextPainter labelPainter,
+    Paint paint,
+    bool isOpposed,
+  );
 
   @protected
-  void _drawCurlyBraceBorder(PaintingContext context, Rect bounds,
-      TextPainter labelPainter, Paint paint, bool isOpposed);
+  void _drawCurlyBraceBorder(
+    PaintingContext context,
+    Rect bounds,
+    TextPainter labelPainter,
+    Paint paint,
+    bool isOpposed,
+  );
 }
 
 class _HorizontalMultilevelLabelBorderShape
     extends _MultilevelLabelBorderShape {
   @override
-  void _drawBorderWithoutTopAndBottom(PaintingContext context, Rect bounds,
-      TextPainter labelPainter, Paint paint) {
+  void _drawBorderWithoutTopAndBottom(
+    PaintingContext context,
+    Rect bounds,
+    TextPainter labelPainter,
+    Paint paint,
+  ) {
     context.canvas
       ..drawLine(bounds.topLeft, bounds.bottomLeft, paint)
       ..drawLine(bounds.topRight, bounds.bottomRight, paint);
@@ -4853,10 +5502,14 @@ class _HorizontalMultilevelLabelBorderShape
     Paint paint,
     bool isOpposed,
   ) {
-    final Offset labelOffset = bounds.center
-        .translate(-labelPainter.size.width / 2, -labelPainter.size.height / 2);
-    Offset labelStart =
-        labelOffset.translate(0.0, labelPainter.size.height / 2);
+    final Offset labelOffset = bounds.center.translate(
+      -labelPainter.size.width / 2,
+      -labelPainter.size.height / 2,
+    );
+    Offset labelStart = labelOffset.translate(
+      0.0,
+      labelPainter.size.height / 2,
+    );
     Offset labelEnd = labelStart.translate(labelPainter.size.width, 0.0);
 
     Offset topLeft = bounds.topLeft;
@@ -4898,8 +5551,12 @@ class _HorizontalMultilevelLabelBorderShape
     }
   }
 
-  void _drawNormalCurlyBraceBorder(Rect bounds, PaintingContext context,
-      TextPainter labelPainter, Paint paint) {
+  void _drawNormalCurlyBraceBorder(
+    Rect bounds,
+    PaintingContext context,
+    TextPainter labelPainter,
+    Paint paint,
+  ) {
     final Path path = Path();
     double left = bounds.left;
     double right = bounds.right;
@@ -4910,54 +5567,78 @@ class _HorizontalMultilevelLabelBorderShape
     }
 
     final Rect startCurveRegion = Rect.fromLTWH(
-        left, bounds.top, _curveBraceCurveSize, _curveBraceCurveSize);
+      left,
+      bounds.top,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
     final Rect centerStartCurveRegion = Rect.fromLTWH(
-        bounds.center.dx - _curveBraceCurveSize,
-        startCurveRegion.bottom,
-        _curveBraceCurveSize,
-        _curveBraceCurveSize);
+      bounds.center.dx - _curveBraceCurveSize,
+      startCurveRegion.bottom,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
 
     path
       ..moveTo(startCurveRegion.left, startCurveRegion.top)
       ..quadraticBezierTo(
-          startCurveRegion.bottomLeft.dx,
-          startCurveRegion.bottomLeft.dy,
-          startCurveRegion.bottomRight.dx,
-          startCurveRegion.bottomRight.dy)
+        startCurveRegion.bottomLeft.dx,
+        startCurveRegion.bottomLeft.dy,
+        startCurveRegion.bottomRight.dx,
+        startCurveRegion.bottomRight.dy,
+      )
       ..lineTo(centerStartCurveRegion.left, centerStartCurveRegion.top)
       ..quadraticBezierTo(
-          centerStartCurveRegion.topRight.dx,
-          centerStartCurveRegion.topRight.dy,
-          centerStartCurveRegion.bottomRight.dx,
-          centerStartCurveRegion.bottomRight.dy);
+        centerStartCurveRegion.topRight.dx,
+        centerStartCurveRegion.topRight.dy,
+        centerStartCurveRegion.bottomRight.dx,
+        centerStartCurveRegion.bottomRight.dy,
+      );
 
-    final Rect centerEndCurveRegion = Rect.fromLTWH(bounds.center.dx,
-        centerStartCurveRegion.top, _curveBraceCurveSize, _curveBraceCurveSize);
-    final Rect endCurveRegion = Rect.fromLTWH(right - _curveBraceCurveSize,
-        startCurveRegion.top, _curveBraceCurveSize, _curveBraceCurveSize);
+    final Rect centerEndCurveRegion = Rect.fromLTWH(
+      bounds.center.dx,
+      centerStartCurveRegion.top,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
+    final Rect endCurveRegion = Rect.fromLTWH(
+      right - _curveBraceCurveSize,
+      startCurveRegion.top,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
 
     path
       ..quadraticBezierTo(
-          centerEndCurveRegion.topLeft.dx,
-          centerEndCurveRegion.topLeft.dy,
-          centerEndCurveRegion.topRight.dx,
-          centerEndCurveRegion.topRight.dy)
+        centerEndCurveRegion.topLeft.dx,
+        centerEndCurveRegion.topLeft.dy,
+        centerEndCurveRegion.topRight.dx,
+        centerEndCurveRegion.topRight.dy,
+      )
       ..lineTo(endCurveRegion.left, endCurveRegion.bottom)
       ..quadraticBezierTo(
-          endCurveRegion.bottomRight.dx,
-          endCurveRegion.bottomRight.dy,
-          endCurveRegion.topRight.dx,
-          endCurveRegion.topRight.dy);
+        endCurveRegion.bottomRight.dx,
+        endCurveRegion.bottomRight.dy,
+        endCurveRegion.topRight.dx,
+        endCurveRegion.topRight.dy,
+      );
     context.canvas.drawPath(path, paint);
     // TODO(VijayakumarM): Add label padding.
     labelPainter.paint(
-        context.canvas,
-        Offset(bounds.center.dx - labelPainter.size.width / 2,
-            bounds.top + 2 * _curveBraceCurveSize));
+      context.canvas,
+      Offset(
+        bounds.center.dx - labelPainter.size.width / 2,
+        bounds.top + 2 * _curveBraceCurveSize,
+      ),
+    );
   }
 
-  void _drawOpposedCurlyBraceBorder(Rect bounds, PaintingContext context,
-      TextPainter labelPainter, Paint paint) {
+  void _drawOpposedCurlyBraceBorder(
+    Rect bounds,
+    PaintingContext context,
+    TextPainter labelPainter,
+    Paint paint,
+  ) {
     final Path path = Path();
     double left = bounds.left;
     double right = bounds.right;
@@ -4968,58 +5649,78 @@ class _HorizontalMultilevelLabelBorderShape
     }
 
     final Rect startCurveRegion = Rect.fromLTWH(
-        left,
-        bounds.bottom - _curveBraceCurveSize,
-        _curveBraceCurveSize,
-        _curveBraceCurveSize);
+      left,
+      bounds.bottom - _curveBraceCurveSize,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
     final Rect centerStartCurveRegion = Rect.fromLTWH(
-        bounds.center.dx - _curveBraceCurveSize,
-        startCurveRegion.top - _curveBraceCurveSize,
-        _curveBraceCurveSize,
-        _curveBraceCurveSize);
+      bounds.center.dx - _curveBraceCurveSize,
+      startCurveRegion.top - _curveBraceCurveSize,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
 
     path
       ..moveTo(startCurveRegion.left, startCurveRegion.bottom)
       ..quadraticBezierTo(
-          startCurveRegion.topLeft.dx,
-          startCurveRegion.topLeft.dy,
-          startCurveRegion.topRight.dx,
-          startCurveRegion.topRight.dy)
+        startCurveRegion.topLeft.dx,
+        startCurveRegion.topLeft.dy,
+        startCurveRegion.topRight.dx,
+        startCurveRegion.topRight.dy,
+      )
       ..lineTo(centerStartCurveRegion.left, centerStartCurveRegion.bottom)
       ..quadraticBezierTo(
-          centerStartCurveRegion.bottomRight.dx,
-          centerStartCurveRegion.bottomRight.dy,
-          centerStartCurveRegion.topRight.dx,
-          centerStartCurveRegion.topRight.dy);
+        centerStartCurveRegion.bottomRight.dx,
+        centerStartCurveRegion.bottomRight.dy,
+        centerStartCurveRegion.topRight.dx,
+        centerStartCurveRegion.topRight.dy,
+      );
 
-    final Rect centerEndCurveRegion = Rect.fromLTWH(bounds.center.dx,
-        centerStartCurveRegion.top, _curveBraceCurveSize, _curveBraceCurveSize);
-    final Rect endCurveRegion = Rect.fromLTWH(right - _curveBraceCurveSize,
-        startCurveRegion.top, _curveBraceCurveSize, _curveBraceCurveSize);
+    final Rect centerEndCurveRegion = Rect.fromLTWH(
+      bounds.center.dx,
+      centerStartCurveRegion.top,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
+    final Rect endCurveRegion = Rect.fromLTWH(
+      right - _curveBraceCurveSize,
+      startCurveRegion.top,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
 
     path
       ..quadraticBezierTo(
-          centerEndCurveRegion.bottomLeft.dx,
-          centerEndCurveRegion.bottomLeft.dy,
-          centerEndCurveRegion.bottomRight.dx,
-          centerEndCurveRegion.bottomRight.dy)
+        centerEndCurveRegion.bottomLeft.dx,
+        centerEndCurveRegion.bottomLeft.dy,
+        centerEndCurveRegion.bottomRight.dx,
+        centerEndCurveRegion.bottomRight.dy,
+      )
       ..lineTo(endCurveRegion.left, endCurveRegion.top)
       ..quadraticBezierTo(
-          endCurveRegion.topRight.dx,
-          endCurveRegion.topRight.dy,
-          endCurveRegion.bottomRight.dx,
-          endCurveRegion.bottomRight.dy);
+        endCurveRegion.topRight.dx,
+        endCurveRegion.topRight.dy,
+        endCurveRegion.bottomRight.dx,
+        endCurveRegion.bottomRight.dy,
+      );
     context.canvas.drawPath(path, paint);
     // TODO(VijayakumarM): Add label padding.
-    labelPainter.paint(context.canvas,
-        Offset(bounds.center.dx - labelPainter.size.width / 2, bounds.top));
+    labelPainter.paint(
+      context.canvas,
+      Offset(bounds.center.dx - labelPainter.size.width / 2, bounds.top),
+    );
   }
 }
 
 class _VerticalMultilevelLabelBorderShape extends _MultilevelLabelBorderShape {
   @override
-  void _drawBorderWithoutTopAndBottom(PaintingContext context, Rect bounds,
-      TextPainter labelPainter, Paint paint) {
+  void _drawBorderWithoutTopAndBottom(
+    PaintingContext context,
+    Rect bounds,
+    TextPainter labelPainter,
+    Paint paint,
+  ) {
     context.canvas
       ..drawLine(bounds.topLeft, bounds.topRight, paint)
       ..drawLine(bounds.bottomLeft, bounds.bottomRight, paint);
@@ -5037,11 +5738,15 @@ class _VerticalMultilevelLabelBorderShape extends _MultilevelLabelBorderShape {
     Offset topLeft = bounds.topLeft;
     Offset bottomLeft = bounds.bottomLeft;
 
-    final Offset labelOffset = bounds.center
-        .translate(-labelPainter.size.width / 2, -labelPainter.size.height / 2);
+    final Offset labelOffset = bounds.center.translate(
+      -labelPainter.size.width / 2,
+      -labelPainter.size.height / 2,
+    );
     final double halfLabelWidth = labelPainter.size.width / 2;
-    Offset labelStart =
-        labelOffset.translate(halfLabelWidth, labelPainter.size.height);
+    Offset labelStart = labelOffset.translate(
+      halfLabelWidth,
+      labelPainter.size.height,
+    );
     Offset labelEnd = labelOffset.translate(halfLabelWidth, 0.0);
 
     // Handling axis inversed.
@@ -5081,8 +5786,12 @@ class _VerticalMultilevelLabelBorderShape extends _MultilevelLabelBorderShape {
     }
   }
 
-  void _drawNormalCurlyBraceBorder(Rect bounds, PaintingContext context,
-      TextPainter labelPainter, Paint paint) {
+  void _drawNormalCurlyBraceBorder(
+    Rect bounds,
+    PaintingContext context,
+    TextPainter labelPainter,
+    Paint paint,
+  ) {
     final Path path = Path();
     double top = bounds.top;
     double bottom = bounds.bottom;
@@ -5094,57 +5803,78 @@ class _VerticalMultilevelLabelBorderShape extends _MultilevelLabelBorderShape {
     }
 
     final Rect startCurveRegion = Rect.fromLTWH(
-        bounds.left, top, _curveBraceCurveSize, _curveBraceCurveSize);
+      bounds.left,
+      top,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
     final Rect centerStartCurveRegion = Rect.fromLTWH(
-        startCurveRegion.left + _curveBraceCurveSize,
-        bounds.center.dy - _curveBraceCurveSize,
-        _curveBraceCurveSize,
-        _curveBraceCurveSize);
+      startCurveRegion.left + _curveBraceCurveSize,
+      bounds.center.dy - _curveBraceCurveSize,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
 
     path
       ..moveTo(startCurveRegion.left, startCurveRegion.top)
       ..quadraticBezierTo(
-          startCurveRegion.topRight.dx,
-          startCurveRegion.topRight.dy,
-          startCurveRegion.bottomRight.dx,
-          startCurveRegion.bottomRight.dy)
+        startCurveRegion.topRight.dx,
+        startCurveRegion.topRight.dy,
+        startCurveRegion.bottomRight.dx,
+        startCurveRegion.bottomRight.dy,
+      )
       ..lineTo(centerStartCurveRegion.left, centerStartCurveRegion.top)
       ..quadraticBezierTo(
-          centerStartCurveRegion.bottomLeft.dx,
-          centerStartCurveRegion.bottomLeft.dy,
-          centerStartCurveRegion.bottomRight.dx,
-          centerStartCurveRegion.bottomRight.dy);
+        centerStartCurveRegion.bottomLeft.dx,
+        centerStartCurveRegion.bottomLeft.dy,
+        centerStartCurveRegion.bottomRight.dx,
+        centerStartCurveRegion.bottomRight.dy,
+      );
 
-    final Rect centerEndCurveRegion = Rect.fromLTWH(centerStartCurveRegion.left,
-        bounds.center.dy, _curveBraceCurveSize, _curveBraceCurveSize);
+    final Rect centerEndCurveRegion = Rect.fromLTWH(
+      centerStartCurveRegion.left,
+      bounds.center.dy,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
     final Rect endCurveRegion = Rect.fromLTWH(
-        startCurveRegion.left,
-        bottom - _curveBraceCurveSize,
-        _curveBraceCurveSize,
-        _curveBraceCurveSize);
+      startCurveRegion.left,
+      bottom - _curveBraceCurveSize,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
 
     path
       ..quadraticBezierTo(
-          centerEndCurveRegion.topLeft.dx,
-          centerEndCurveRegion.topLeft.dy,
-          centerEndCurveRegion.bottomLeft.dx,
-          centerEndCurveRegion.bottomLeft.dy)
+        centerEndCurveRegion.topLeft.dx,
+        centerEndCurveRegion.topLeft.dy,
+        centerEndCurveRegion.bottomLeft.dx,
+        centerEndCurveRegion.bottomLeft.dy,
+      )
       ..lineTo(endCurveRegion.right, endCurveRegion.top)
       ..quadraticBezierTo(
-          endCurveRegion.bottomRight.dx,
-          endCurveRegion.bottomRight.dy,
-          endCurveRegion.bottomLeft.dx,
-          endCurveRegion.bottomLeft.dy);
+        endCurveRegion.bottomRight.dx,
+        endCurveRegion.bottomRight.dy,
+        endCurveRegion.bottomLeft.dx,
+        endCurveRegion.bottomLeft.dy,
+      );
     context.canvas.drawPath(path, paint);
     // TODO(VijayakumarM): Add label padding.
     labelPainter.paint(
-        context.canvas,
-        Offset(bounds.left + 2 * _curveBraceCurveSize,
-            bounds.center.dy - labelPainter.size.height / 2));
+      context.canvas,
+      Offset(
+        bounds.left + 2 * _curveBraceCurveSize,
+        bounds.center.dy - labelPainter.size.height / 2,
+      ),
+    );
   }
 
-  void _drawOpposedCurlyBraceBorder(Rect bounds, PaintingContext context,
-      TextPainter labelPainter, Paint paint) {
+  void _drawOpposedCurlyBraceBorder(
+    Rect bounds,
+    PaintingContext context,
+    TextPainter labelPainter,
+    Paint paint,
+  ) {
     final Path path = Path();
     double top = bounds.top;
     double bottom = bounds.bottom;
@@ -5156,54 +5886,67 @@ class _VerticalMultilevelLabelBorderShape extends _MultilevelLabelBorderShape {
     }
 
     final Rect startCurveRegion = Rect.fromLTWH(
-        bounds.right - _curveBraceCurveSize,
-        top,
-        _curveBraceCurveSize,
-        _curveBraceCurveSize);
+      bounds.right - _curveBraceCurveSize,
+      top,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
     final Rect centerStartCurveRegion = Rect.fromLTWH(
-        startCurveRegion.left - _curveBraceCurveSize,
-        bounds.center.dy - _curveBraceCurveSize,
-        _curveBraceCurveSize,
-        _curveBraceCurveSize);
+      startCurveRegion.left - _curveBraceCurveSize,
+      bounds.center.dy - _curveBraceCurveSize,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
 
     path
       ..moveTo(startCurveRegion.right, startCurveRegion.top)
       ..quadraticBezierTo(
-          startCurveRegion.topLeft.dx,
-          startCurveRegion.topLeft.dy,
-          startCurveRegion.bottomLeft.dx,
-          startCurveRegion.bottomLeft.dy)
+        startCurveRegion.topLeft.dx,
+        startCurveRegion.topLeft.dy,
+        startCurveRegion.bottomLeft.dx,
+        startCurveRegion.bottomLeft.dy,
+      )
       ..lineTo(centerStartCurveRegion.right, centerStartCurveRegion.top)
       ..quadraticBezierTo(
-          centerStartCurveRegion.bottomRight.dx,
-          centerStartCurveRegion.bottomRight.dy,
-          centerStartCurveRegion.bottomLeft.dx,
-          centerStartCurveRegion.bottomLeft.dy);
+        centerStartCurveRegion.bottomRight.dx,
+        centerStartCurveRegion.bottomRight.dy,
+        centerStartCurveRegion.bottomLeft.dx,
+        centerStartCurveRegion.bottomLeft.dy,
+      );
 
-    final Rect centerEndCurveRegion = Rect.fromLTWH(centerStartCurveRegion.left,
-        bounds.center.dy, _curveBraceCurveSize, _curveBraceCurveSize);
+    final Rect centerEndCurveRegion = Rect.fromLTWH(
+      centerStartCurveRegion.left,
+      bounds.center.dy,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
     final Rect endCurveRegion = Rect.fromLTWH(
-        startCurveRegion.left,
-        bottom - _curveBraceCurveSize,
-        _curveBraceCurveSize,
-        _curveBraceCurveSize);
+      startCurveRegion.left,
+      bottom - _curveBraceCurveSize,
+      _curveBraceCurveSize,
+      _curveBraceCurveSize,
+    );
 
     path
       ..quadraticBezierTo(
-          centerEndCurveRegion.topRight.dx,
-          centerEndCurveRegion.topRight.dy,
-          centerEndCurveRegion.bottomRight.dx,
-          centerEndCurveRegion.bottomRight.dy)
+        centerEndCurveRegion.topRight.dx,
+        centerEndCurveRegion.topRight.dy,
+        centerEndCurveRegion.bottomRight.dx,
+        centerEndCurveRegion.bottomRight.dy,
+      )
       ..lineTo(endCurveRegion.left, endCurveRegion.top)
       ..quadraticBezierTo(
-          endCurveRegion.bottomLeft.dx,
-          endCurveRegion.bottomLeft.dy,
-          endCurveRegion.bottomRight.dx,
-          endCurveRegion.bottomRight.dy);
+        endCurveRegion.bottomLeft.dx,
+        endCurveRegion.bottomLeft.dy,
+        endCurveRegion.bottomRight.dx,
+        endCurveRegion.bottomRight.dy,
+      );
     context.canvas.drawPath(path, paint);
     // TODO(VijayakumarM): Add label padding.
-    labelPainter.paint(context.canvas,
-        Offset(bounds.left, bounds.center.dy - labelPainter.size.height / 2));
+    labelPainter.paint(
+      context.canvas,
+      Offset(bounds.left, bounds.center.dy - labelPainter.size.height / 2),
+    );
   }
 }
 
@@ -5231,12 +5974,13 @@ class AxisLabel {
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               primaryXAxis: CategoryAxis(
-  ///                      labelStyle: TextStyle(color: Colors.black),
-  ///                  )
-  ///         );
+  ///   return Container(
+  ///     child: SfCartesianChart(
+  ///       primaryXAxis: CategoryAxis(
+  ///         labelStyle: TextStyle(color: Colors.black),
+  ///       ),
+  ///     ),
+  ///   );
   /// }
   /// ```
   TextStyle labelStyle;
@@ -5264,6 +6008,31 @@ class AxisLabel {
 
   /// Specifies the label region.
   Rect? region;
+
+  /// Specifies the row index of the label when multiple rows are set.
+  ///
+  /// The `_rowIndex` determines the row position of the label.
+  /// For example:
+  /// - `_rowIndex = 0` for the first row.
+  /// - `_rowIndex = 1` for the second row.
+  /// - `_rowIndex = 2` for the third row, and so on.
+  ///
+  /// This is only applicable when multiple rows are enabled for the axis labels.
+  int _rowIndex = 0;
+
+  /// Specifies the size of the row for the label when multiple rows are set.
+  ///
+  /// The `_prevRowSize` is calculated based on the cumulative height of all
+  /// previous rows.
+  /// For example:
+  /// - For the first row (`_rowIndex = 0`), `_prevRowSize` is zero.
+  /// - For the second row (`_rowIndex = 1`), `_prevRowSize` is the height of
+  ///  the label size of the first row.
+  /// - For the third row (`_rowIndex = 2`), `_prevRowSize` is the sum of the
+  ///   heights of the first and second rows.
+  ///
+  /// This is only applicable when multiple rows are enabled for the axis labels.
+  Size _prevRowSize = Size.zero;
 }
 
 /// This class Renders the major tick lines for axis.
@@ -5276,11 +6045,7 @@ class AxisLabel {
 /// the appearance.
 class MajorTickLines {
   /// Creating an argument constructor of [MajorTickLines] class.
-  const MajorTickLines({
-    this.size = 5,
-    this.width = 1,
-    this.color,
-  });
+  const MajorTickLines({this.size = 5, this.width = 1, this.color});
 
   /// Size of the major tick lines.
   ///
@@ -5351,11 +6116,7 @@ class MajorTickLines {
 @immutable
 class MinorTickLines {
   /// Creating an argument constructor of MinorTickLines class.
-  const MinorTickLines({
-    this.size = 3,
-    this.width = 0.7,
-    this.color,
-  });
+  const MinorTickLines({this.size = 3, this.width = 0.7, this.color});
 
   /// Height of the minor tick lines.
   ///
@@ -5453,11 +6214,7 @@ class MinorTickLines {
 @immutable
 class MajorGridLines {
   /// Creating an argument constructor of MajorGridLines class.
-  const MajorGridLines({
-    this.width = 0.7,
-    this.color,
-    this.dashArray,
-  });
+  const MajorGridLines({this.width = 0.7, this.color, this.dashArray});
 
   /// Any number of values can be provided in the list. Odd value is considered
   /// as rendering size and even value is considered as a gap.
@@ -5547,11 +6304,7 @@ class MajorGridLines {
 /// to customize the appearance.
 class MinorGridLines {
   /// Creating an argument constructor of MinorGridLines class.
-  const MinorGridLines({
-    this.width = 0.5,
-    this.color,
-    this.dashArray,
-  });
+  const MinorGridLines({this.width = 0.5, this.color, this.dashArray});
 
   /// Any number of values can be provided in the list. Odd value is considered
   /// as rendering size and even value is considered as a gap.
@@ -5624,11 +6377,7 @@ class MinorGridLines {
 /// appearance of the axis line.
 class AxisLine {
   /// Creating an argument constructor of AxisLine class.
-  const AxisLine({
-    this.color,
-    this.dashArray,
-    this.width = 1,
-  });
+  const AxisLine({this.color, this.dashArray, this.width = 1});
 
   /// Width of the axis line.
   ///
@@ -5794,9 +6543,10 @@ abstract class ChartAxisController {
   double get previousZoomPosition => _previousZoomPosition;
   double _previousZoomPosition = 0.0;
 
-  double get zoomFactor => _zoomFactorTween != null && axis._animation != null
-      ? _zoomFactorTween!.evaluate(axis._animation!)
-      : _zoomFactor;
+  double get zoomFactor =>
+      _zoomFactorTween != null && axis._animation != null
+          ? _zoomFactorTween!.evaluate(axis._animation!)
+          : _zoomFactor;
   double _zoomFactor = 1.0;
   set zoomFactor(double value) {
     _zoomFactor = value;
@@ -5833,10 +6583,13 @@ abstract class ChartAxisController {
       return;
     }
 
+    final DoubleRange? visibleRange = axis.visibleRange;
     final num actualMin = _actualRange!.minimum;
     final num actualMax = _actualRange!.maximum;
-    final num visibleMin = min ?? actualMin;
-    final num visibleMax = max ?? actualMax;
+    final num currentVisibleMin = visibleRange?.minimum ?? actualMin;
+    final num currentVisibleMax = visibleRange?.maximum ?? actualMax;
+    final num visibleMin = min ?? currentVisibleMin;
+    final num visibleMax = max ?? currentVisibleMax;
     zoomFactor = (visibleMax - visibleMin) / _actualRange!.delta;
     zoomPosition = (visibleMin - actualMin) / _actualRange!.delta;
 
@@ -5844,9 +6597,6 @@ abstract class ChartAxisController {
       return;
     }
 
-    final DoubleRange? visibleRange = axis.visibleRange;
-    final num currentVisibleMin = visibleRange?.minimum ?? actualMin;
-    final num currentVisibleMax = visibleRange?.maximum ?? actualMax;
     _previousZoomFactor =
         (currentVisibleMax - currentVisibleMin) / _actualRange!.delta;
     _previousZoomPosition =
@@ -6063,7 +6813,8 @@ class DateTimeAxisController extends ChartAxisController {
       return _visibleMinimum;
     }
     return DateTime.fromMillisecondsSinceEpoch(
-        axis.visibleRange!.minimum.toInt());
+      axis.visibleRange!.minimum.toInt(),
+    );
   }
 
   DateTime? _visibleMax() {
@@ -6071,7 +6822,8 @@ class DateTimeAxisController extends ChartAxisController {
       return _visibleMaximum;
     }
     return DateTime.fromMillisecondsSinceEpoch(
-        axis.visibleRange!.maximum.toInt());
+      axis.visibleRange!.maximum.toInt(),
+    );
   }
 }
 
@@ -6098,7 +6850,9 @@ class DateTimeCategoryAxisController extends ChartAxisController {
         _updateMinMaxIfNeeded();
         _isVisibleMinChanged = true;
         _updateZoomFactorAndPosition(
-            _visibleMinimumIndex, _visibleMaximumIndex);
+          _visibleMinimumIndex,
+          _visibleMaximumIndex,
+        );
       }
     }
   }
@@ -6112,7 +6866,9 @@ class DateTimeCategoryAxisController extends ChartAxisController {
         _updateMinMaxIfNeeded();
         _isVisibleMaxChanged = true;
         _updateZoomFactorAndPosition(
-            _visibleMinimumIndex, _visibleMaximumIndex);
+          _visibleMinimumIndex,
+          _visibleMaximumIndex,
+        );
       }
     }
   }
@@ -6127,8 +6883,10 @@ class DateTimeCategoryAxisController extends ChartAxisController {
         _visibleMaximumIndex == null &&
         _dateAxis.labels.isNotEmpty) {
       _visibleMinimumIndex = _dateAxis.effectiveValue(_visibleMinimum);
-      _visibleMaximumIndex =
-          _dateAxis.effectiveValue(_visibleMaximum, needMin: false);
+      _visibleMaximumIndex = _dateAxis.effectiveValue(
+        _visibleMaximum,
+        needMin: false,
+      );
       if (axis.labelPlacement == LabelPlacement.betweenTicks) {
         if (_visibleMinimumIndex != null) {
           _visibleMinimumIndex = _visibleMinimumIndex! - 0.5;
@@ -6140,7 +6898,9 @@ class DateTimeCategoryAxisController extends ChartAxisController {
       _updateMinMaxIfNeeded();
       if (_visibleMaximumIndex != null && _visibleMinimumIndex != null) {
         _updateZoomFactorAndPosition(
-            _visibleMinimumIndex, _visibleMaximumIndex);
+          _visibleMinimumIndex,
+          _visibleMaximumIndex,
+        );
       }
     }
     _onUpdateInitialZoomFactorAndPosition?.call();
@@ -6157,8 +6917,10 @@ class DateTimeCategoryAxisController extends ChartAxisController {
 
     _visibleMaximumIndex = null;
     if (_visibleMaximum != null) {
-      _visibleMaximumIndex =
-          _dateAxis.effectiveValue(_visibleMaximum, needMin: false);
+      _visibleMaximumIndex = _dateAxis.effectiveValue(
+        _visibleMaximum,
+        needMin: false,
+      );
       if (axis.labelPlacement == LabelPlacement.betweenTicks) {
         _visibleMaximumIndex = _visibleMaximumIndex! + 0.5;
       }
@@ -6190,7 +6952,8 @@ class DateTimeCategoryAxisController extends ChartAxisController {
       return _visibleMinimum;
     }
     return DateTime.fromMillisecondsSinceEpoch(
-        axis.visibleRange!.minimum.toInt());
+      axis.visibleRange!.minimum.toInt(),
+    );
   }
 
   DateTime? _visibleMax() {
@@ -6198,7 +6961,8 @@ class DateTimeCategoryAxisController extends ChartAxisController {
       return _visibleMaximum;
     }
     return DateTime.fromMillisecondsSinceEpoch(
-        axis.visibleRange!.maximum.toInt());
+      axis.visibleRange!.maximum.toInt(),
+    );
   }
 }
 

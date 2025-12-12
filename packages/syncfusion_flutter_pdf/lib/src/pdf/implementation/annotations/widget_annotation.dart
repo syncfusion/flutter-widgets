@@ -57,10 +57,12 @@ class WidgetAnnotation extends PdfAnnotation {
       _parent = value;
       _parent != null
           ? PdfAnnotationHelper.getHelper(this).dictionary!.setProperty(
-              PdfDictionaryProperties.parent, PdfReferenceHolder(_parent))
-          : PdfAnnotationHelper.getHelper(this)
-              .dictionary!
-              .remove(PdfDictionaryProperties.parent);
+            PdfDictionaryProperties.parent,
+            PdfReferenceHolder(_parent),
+          )
+          : PdfAnnotationHelper.getHelper(
+            this,
+          ).dictionary!.remove(PdfDictionaryProperties.parent);
     }
   }
 
@@ -69,9 +71,10 @@ class WidgetAnnotation extends PdfAnnotation {
   set textAlignment(PdfTextAlignment? value) {
     if (alignment != value) {
       alignment = value;
-      PdfAnnotationHelper.getHelper(this)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.q, PdfNumber(alignment!.index));
+      PdfAnnotationHelper.getHelper(this).dictionary!.setProperty(
+        PdfDictionaryProperties.q,
+        PdfNumber(alignment!.index),
+      );
     }
   }
 
@@ -83,8 +86,9 @@ class WidgetAnnotation extends PdfAnnotation {
   set highlightMode(PdfHighlightMode? value) {
     _highlightMode = value;
     PdfAnnotationHelper.getHelper(this).dictionary!.setName(
-        PdfName(PdfDictionaryProperties.h),
-        _helper.highlightModeToString(_highlightMode));
+      PdfName(PdfDictionaryProperties.h),
+      _helper.highlightModeToString(_highlightMode),
+    );
   }
 
   /// internal property
@@ -103,7 +107,9 @@ class WidgetAnnotation extends PdfAnnotation {
     if (_appearState != value) {
       _appearState = value;
       PdfAnnotationHelper.getHelper(this).dictionary!.setName(
-          PdfName(PdfDictionaryProperties.usageApplication), _appearState);
+        PdfName(PdfDictionaryProperties.usageApplication),
+        _appearState,
+      );
     }
   }
 
@@ -111,9 +117,9 @@ class WidgetAnnotation extends PdfAnnotation {
   PdfAnnotationActions? get actions {
     if (_actions == null) {
       _actions = PdfAnnotationActions();
-      PdfAnnotationHelper.getHelper(this)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.aa, _actions);
+      PdfAnnotationHelper.getHelper(
+        this,
+      ).dictionary!.setProperty(PdfDictionaryProperties.aa, _actions);
     }
     return _actions;
   }
@@ -121,9 +127,9 @@ class WidgetAnnotation extends PdfAnnotation {
   set actions(PdfAnnotationActions? value) {
     if (value != null) {
       _actions = value;
-      PdfAnnotationHelper.getHelper(this)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.aa, _actions);
+      PdfAnnotationHelper.getHelper(
+        this,
+      ).dictionary!.setProperty(PdfDictionaryProperties.aa, _actions);
     }
   }
 }
@@ -134,17 +140,23 @@ class WidgetAnnotationHelper extends PdfAnnotationHelper {
   WidgetAnnotationHelper(this.widgetAnnotation) : super(widgetAnnotation) {
     initializeAnnotation();
     dictionary!.setNumber(PdfDictionaryProperties.f, 4); //Sets print.
-    dictionary!.setProperty(PdfDictionaryProperties.subtype,
-        PdfName(PdfDictionaryProperties.widget));
+    dictionary!.setProperty(
+      PdfDictionaryProperties.subtype,
+      PdfName(PdfDictionaryProperties.widget),
+    );
     widgetAnnotation.widgetBorder ??=
         PdfAnnotationBorderHelper.getWidgetBorder();
-    dictionary!
-        .setProperty(PdfDictionaryProperties.bs, widgetAnnotation.widgetBorder);
+    dictionary!.setProperty(
+      PdfDictionaryProperties.bs,
+      widgetAnnotation.widgetBorder,
+    );
     widgetAppearance = WidgetAppearance();
   }
   WidgetAnnotationHelper._(
-      this.widgetAnnotation, PdfDictionary dictionary, PdfCrossTable crossTable)
-      : super(widgetAnnotation) {
+    this.widgetAnnotation,
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) : super(widgetAnnotation) {
     initializeExistingAnnotation(dictionary, crossTable);
   }
 
@@ -165,7 +177,9 @@ class WidgetAnnotationHelper extends PdfAnnotationHelper {
 
   /// internal method
   static WidgetAnnotation load(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
     return WidgetAnnotation._(dictionary, crossTable);
   }
 
@@ -188,7 +202,8 @@ class WidgetAnnotationHelper extends PdfAnnotationHelper {
             PdfDocumentHelper.getHelper(document).conformanceLevel ==
                 PdfConformanceLevel.a3b)) {
       throw ArgumentError(
-          "The appearance dictionary doesn't contain an entry in the conformance PDF.");
+        "The appearance dictionary doesn't contain an entry in the conformance PDF.",
+      );
     }
     helper.saveAnnotation();
     _onBeginSave();
@@ -200,21 +215,23 @@ class WidgetAnnotationHelper extends PdfAnnotationHelper {
       dictionary.setProperty(PdfDictionaryProperties.ap, null);
       final PdfAppearance? tempAppearance = helper.appearance;
       dictionary.setProperty(
-          PdfDictionaryProperties.ap,
-          tempAppearance != null &&
-                  PdfAppearanceHelper.getHelper(tempAppearance)
-                          .templateNormal !=
-                      null
-              ? tempAppearance
-              : null);
+        PdfDictionaryProperties.ap,
+        tempAppearance != null &&
+                PdfAppearanceHelper.getHelper(tempAppearance).templateNormal !=
+                    null
+            ? tempAppearance
+            : null,
+      );
       if (widgetAppearance != null && widgetAppearance!.dictionary!.count > 0) {
         dictionary.setProperty(PdfDictionaryProperties.mk, widgetAppearance);
       }
       dictionary.setProperty(PdfDictionaryProperties.usageApplication, null);
     }
     if (pdfDefaultAppearance != null) {
-      dictionary.setProperty(PdfDictionaryProperties.da,
-          PdfString(pdfDefaultAppearance!.getString()));
+      dictionary.setProperty(
+        PdfDictionaryProperties.da,
+        PdfString(pdfDefaultAppearance!.getString()),
+      );
     }
   }
 
@@ -241,11 +258,14 @@ class WidgetAnnotationHelper extends PdfAnnotationHelper {
 
   PdfHighlightMode _obtainHighlightMode() {
     PdfHighlightMode mode = PdfHighlightMode.noHighlighting;
-    if (PdfAnnotationHelper.getHelper(base)
-        .dictionary!
-        .containsKey(PdfDictionaryProperties.h)) {
-      final PdfName name = PdfAnnotationHelper.getHelper(base)
-          .dictionary![PdfDictionaryProperties.h]! as PdfName;
+    if (PdfAnnotationHelper.getHelper(
+      base,
+    ).dictionary!.containsKey(PdfDictionaryProperties.h)) {
+      final PdfName name =
+          PdfAnnotationHelper.getHelper(
+                base,
+              ).dictionary![PdfDictionaryProperties.h]!
+              as PdfName;
       switch (name.name) {
         case 'I':
           mode = PdfHighlightMode.invert;

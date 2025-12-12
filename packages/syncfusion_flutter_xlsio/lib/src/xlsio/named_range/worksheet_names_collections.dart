@@ -1,9 +1,14 @@
-part of xlsio;
+import '../general/workbook.dart';
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'name.dart';
+import 'name_impl.dart';
+import 'names_coll.dart';
 
 /// Represents implementations of names collection in a workbook.
-class _WorksheetNamesCollection implements Names {
+class WorksheetNamesCollection implements Names {
   /// Create a instances of worksheet names collection.
-  _WorksheetNamesCollection(Worksheet sheet) {
+  WorksheetNamesCollection(Worksheet sheet) {
     _sheet = sheet;
     _book = sheet.workbook;
     _list = sheet.workbook.innerNamesCollection;
@@ -65,7 +70,7 @@ class _WorksheetNamesCollection implements Names {
   @override
   void remove(String name) {
     for (int i = 0; i < _list.length; i++) {
-      if (_list[i].name == name && _list[i].scope == _sheet._name) {
+      if (_list[i].name == name && _list[i].scope == _sheet.name) {
         _list.remove(_list[i]);
       }
     }
@@ -90,14 +95,14 @@ class _WorksheetNamesCollection implements Names {
   /// Adds a new named range to the named range collection.
   @override
   Name add(String name, [Range? range]) {
-    final _NameImpl nameImpl = _NameImpl(_book);
+    final NameImpl nameImpl = NameImpl(_book);
     nameImpl.name = name;
-    nameImpl._isLocal = true;
+    nameImpl.isLocal = true;
     if (range != null) {
       nameImpl.refersToRange = range;
-      nameImpl._worksheet = range._worksheet;
-      nameImpl._scope = range._worksheet._name;
-      nameImpl._value = range.addressGlobal;
+      nameImpl.worksheet = range.worksheet;
+      nameImpl.scope = range.worksheet.name;
+      nameImpl.value = range.addressGlobal;
     }
     _list.add(nameImpl);
     _worksheetNames.add(nameImpl);
@@ -126,7 +131,7 @@ class _WorksheetNamesCollection implements Names {
   /// Add worksheet names collection
   void addWorksheetNames(List<Name> listColl) {
     for (int i = 0; i < listColl.length; i++) {
-      if (listColl[i].scope == _sheet._name &&
+      if (listColl[i].scope == _sheet.name &&
           !_worksheetNames.contains(listColl[i])) {
         _worksheetNames.add(listColl[i]);
       }

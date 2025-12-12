@@ -17,7 +17,9 @@ class PdfNamedDestinationCollection implements IPdfWrapper {
   }
 
   PdfNamedDestinationCollection._(
-      PdfDictionary? dictionary, PdfCrossTable? crossTable) {
+    PdfDictionary? dictionary,
+    PdfCrossTable? crossTable,
+  ) {
     _helper = PdfNamedDestinationCollectionHelper(this);
     _helper.dictionary = dictionary;
     if (crossTable != null) {
@@ -25,8 +27,11 @@ class PdfNamedDestinationCollection implements IPdfWrapper {
     }
     if (_helper.dictionary != null &&
         _helper.dictionary!.containsKey(PdfDictionaryProperties.dests)) {
-      final PdfDictionary? destination = PdfCrossTable.dereference(
-          _helper.dictionary![PdfDictionaryProperties.dests]) as PdfDictionary?;
+      final PdfDictionary? destination =
+          PdfCrossTable.dereference(
+                _helper.dictionary![PdfDictionaryProperties.dests],
+              )
+              as PdfDictionary?;
       if (destination != null &&
           destination.containsKey(PdfDictionaryProperties.names)) {
         _addCollection(destination);
@@ -38,32 +43,43 @@ class PdfNamedDestinationCollection implements IPdfWrapper {
         if (kids != null) {
           for (int i = 0; i < kids.count; i++) {
             _findDestination(
-                PdfCrossTable.dereference(kids[i]) as PdfDictionary?);
+              PdfCrossTable.dereference(kids[i]) as PdfDictionary?,
+            );
           }
         }
       }
     }
-    PdfDocumentHelper.getHelper(_crossTable.document!).catalog.beginSave =
-        (Object sender, SavePdfPrimitiveArgs? ars) {
+    PdfDocumentHelper.getHelper(_crossTable.document!).catalog.beginSave = (
+      Object sender,
+      SavePdfPrimitiveArgs? ars,
+    ) {
       for (final PdfNamedDestination values in _namedCollections) {
         _namedDestination.add(PdfString(values.title));
         _namedDestination.add(PdfReferenceHolder(values));
       }
       _helper.dictionary!.setProperty(
-          PdfDictionaryProperties.names, PdfReferenceHolder(_namedDestination));
+        PdfDictionaryProperties.names,
+        PdfReferenceHolder(_namedDestination),
+      );
 
       if (_helper.dictionary!.containsKey(PdfDictionaryProperties.dests)) {
-        final PdfDictionary? destsDictionary = PdfCrossTable.dereference(
-                _helper.dictionary![PdfDictionaryProperties.dests])
-            as PdfDictionary?;
+        final PdfDictionary? destsDictionary =
+            PdfCrossTable.dereference(
+                  _helper.dictionary![PdfDictionaryProperties.dests],
+                )
+                as PdfDictionary?;
         if (destsDictionary != null &&
             !destsDictionary.containsKey(PdfDictionaryProperties.kids)) {
-          destsDictionary.setProperty(PdfDictionaryProperties.names,
-              PdfReferenceHolder(_namedDestination));
+          destsDictionary.setProperty(
+            PdfDictionaryProperties.names,
+            PdfReferenceHolder(_namedDestination),
+          );
         }
       } else {
-        _helper.dictionary!.setProperty(PdfDictionaryProperties.names,
-            PdfReferenceHolder(_namedDestination));
+        _helper.dictionary!.setProperty(
+          PdfDictionaryProperties.names,
+          PdfReferenceHolder(_namedDestination),
+        );
       }
     };
     PdfDocumentHelper.getHelper(_crossTable.document!).catalog.modify();
@@ -114,7 +130,8 @@ class PdfNamedDestinationCollection implements IPdfWrapper {
   void removeAt(int index) {
     if (index >= _namedCollections.length) {
       throw RangeError(
-          'The index value should not be greater than or equal to the count.');
+        'The index value should not be greater than or equal to the count.',
+      );
     }
     _namedCollections.removeAt(index);
   }
@@ -128,7 +145,8 @@ class PdfNamedDestinationCollection implements IPdfWrapper {
   void insert(int index, PdfNamedDestination namedDestination) {
     if (index < 0 || index > count) {
       throw RangeError(
-          "The index can't be less then zero or greater then Count.");
+        "The index can't be less then zero or greater then Count.",
+      );
     }
     _namedCollections.insert(index, namedDestination);
   }
@@ -141,13 +159,18 @@ class PdfNamedDestinationCollection implements IPdfWrapper {
         _namedDestination.add(PdfReferenceHolder(values));
       }
       _helper.dictionary!.setProperty(
-          PdfDictionaryProperties.names, PdfReferenceHolder(_namedDestination));
+        PdfDictionaryProperties.names,
+        PdfReferenceHolder(_namedDestination),
+      );
     };
   }
 
   void _addCollection(PdfDictionary namedDictionary) {
-    final PdfArray? elements = PdfCrossTable.dereference(
-        namedDictionary[PdfDictionaryProperties.names]) as PdfArray?;
+    final PdfArray? elements =
+        PdfCrossTable.dereference(
+              namedDictionary[PdfDictionaryProperties.names],
+            )
+            as PdfArray?;
     if (elements != null) {
       for (int i = 1; i <= elements.count; i = i + 2) {
         PdfReferenceHolder? reference;
@@ -157,13 +180,17 @@ class PdfNamedDestinationCollection implements IPdfWrapper {
         PdfDictionary? dictionary;
         if (reference != null && reference.object is PdfArray) {
           dictionary = PdfDictionary();
-          dictionary.setProperty(PdfDictionaryProperties.d,
-              PdfArray(reference.object as PdfArray?));
+          dictionary.setProperty(
+            PdfDictionaryProperties.d,
+            PdfArray(reference.object as PdfArray?),
+          );
         } else if (reference == null && elements[i] is PdfArray) {
           dictionary = PdfDictionary();
           final PdfArray referenceArray = elements[i]! as PdfArray;
           dictionary.setProperty(
-              PdfDictionaryProperties.d, PdfArray(referenceArray));
+            PdfDictionaryProperties.d,
+            PdfArray(referenceArray),
+          );
         } else {
           dictionary = reference!.object as PdfDictionary?;
         }
@@ -192,7 +219,8 @@ class PdfNamedDestinationCollection implements IPdfWrapper {
       if (kids != null) {
         for (int i = 0; i < kids.count; i++) {
           _findDestination(
-              PdfCrossTable.dereference(kids[i]) as PdfDictionary?);
+            PdfCrossTable.dereference(kids[i]) as PdfDictionary?,
+          );
         }
       }
     }
@@ -212,13 +240,16 @@ class PdfNamedDestinationCollectionHelper {
 
   /// internal method
   static PdfNamedDestinationCollectionHelper getHelper(
-      PdfNamedDestinationCollection destination) {
+    PdfNamedDestinationCollection destination,
+  ) {
     return destination._helper;
   }
 
   /// internal method
   static PdfNamedDestinationCollection load(
-      PdfDictionary? dictionary, PdfCrossTable? crossTable) {
+    PdfDictionary? dictionary,
+    PdfCrossTable? crossTable,
+  ) {
     return PdfNamedDestinationCollection._(dictionary, crossTable);
   }
 

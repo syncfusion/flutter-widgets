@@ -1,4 +1,5 @@
-part of officechart;
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import '../../officechart.dart';
 
 /// Represents the Chart serie collection.
 class ChartSeriesCollection {
@@ -37,7 +38,7 @@ class ChartSeriesCollection {
   ChartSerie operator [](dynamic index) => innerList[index];
 
   /// Add serie to the chart serie collection.
-  ChartSerie _add() {
+  ChartSerie add() {
     final ChartSerie serie = ChartSerie(_worksheet, _chart);
     innerList.add(serie);
     return serie;
@@ -46,5 +47,10 @@ class ChartSeriesCollection {
   /// Clear the innerList.
   void _clear() {
     _innerList.clear();
+  }
+
+  // ignore: public_member_api_docs
+  void clear() {
+    _clear();
   }
 }

@@ -20,18 +20,20 @@ class SfDateRangePickerThemeKey extends SfDateRangePickerThemeData {
   late final SfColorScheme colorScheme = SfTheme.colorScheme(context);
 
   @override
-  Color? get backgroundColor => Theme.of(context).useMaterial3
-      ? (Theme.of(context).brightness == Brightness.light
-          ? const Color.fromRGBO(238, 232, 244, 1)
-          : const Color.fromRGBO(48, 45, 56, 1))
-      : Colors.transparent;
+  Color? get backgroundColor =>
+      Theme.of(context).useMaterial3
+          ? (Theme.of(context).brightness == Brightness.light
+              ? const Color.fromRGBO(238, 232, 244, 1)
+              : const Color.fromRGBO(48, 45, 56, 1))
+          : Colors.transparent;
 
   @override
-  Color? get headerBackgroundColor => Theme.of(context).useMaterial3
-      ? (Theme.of(context).brightness == Brightness.light
-          ? const Color.fromRGBO(238, 232, 244, 1)
-          : const Color.fromRGBO(48, 45, 56, 1))
-      : Theme.of(context).brightness == Brightness.light
+  Color? get headerBackgroundColor =>
+      Theme.of(context).useMaterial3
+          ? (Theme.of(context).brightness == Brightness.light
+              ? const Color.fromRGBO(238, 232, 244, 1)
+              : const Color.fromRGBO(48, 45, 56, 1))
+          : Theme.of(context).brightness == Brightness.light
           ? Colors.white
           : Colors.grey[850];
 

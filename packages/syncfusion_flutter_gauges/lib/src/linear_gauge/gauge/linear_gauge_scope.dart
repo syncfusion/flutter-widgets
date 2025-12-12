@@ -6,15 +6,15 @@ import '../utils/enum.dart';
 /// Linear gauge scope class.
 class LinearGaugeScope extends InheritedWidget {
   /// Creates a object for Linear gauge scope.
-  const LinearGaugeScope(
-      {Key? key,
-      required Widget child,
-      required this.orientation,
-      required this.isMirrored,
-      required this.isAxisInversed,
-      this.animation,
-      this.animationController})
-      : super(key: key, child: child);
+  const LinearGaugeScope({
+    Key? key,
+    required Widget child,
+    required this.orientation,
+    required this.isMirrored,
+    required this.isAxisInversed,
+    this.animation,
+    this.animationController,
+  }) : super(key: key, child: child);
 
   /// Child animation.
   final Animation<double>? animation;
@@ -35,9 +35,11 @@ class LinearGaugeScope extends InheritedWidget {
   static LinearGaugeScope of(BuildContext context) {
     late LinearGaugeScope scope;
 
-    final InheritedWidget widget = context
-        .getElementForInheritedWidgetOfExactType<LinearGaugeScope>()!
-        .widget as InheritedWidget;
+    final InheritedWidget widget =
+        context
+                .getElementForInheritedWidgetOfExactType<LinearGaugeScope>()!
+                .widget
+            as InheritedWidget;
 
     if (widget is LinearGaugeScope) {
       scope = widget;

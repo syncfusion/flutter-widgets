@@ -13,18 +13,28 @@ class PdfCjkStandardFontMetricsFactory {
 
   /// Returns font metrics depending on the font settings.
   static PdfFontMetrics getMetrics(
-      PdfCjkFontFamily? fontFamily, int? fontStyle, double size) {
+    PdfCjkFontFamily? fontFamily,
+    int? fontStyle,
+    double size,
+  ) {
     PdfFontMetrics metrics;
-
+    final PdfCjkStandardFontMetricsFactory fontfactory =
+        PdfCjkStandardFontMetricsFactory();
     switch (fontFamily) {
       case PdfCjkFontFamily.hanyangSystemsGothicMedium:
-        metrics =
-            _getHanyangSystemsGothicMediumMetrix(fontFamily, fontStyle!, size);
+        metrics = _getHanyangSystemsGothicMediumMetrix(
+          fontFamily,
+          fontStyle!,
+          size,
+        );
         break;
 
       case PdfCjkFontFamily.hanyangSystemsShinMyeongJoMedium:
         metrics = _getHanyangSystemsShinMyeongJoMediumMetrix(
-            fontFamily, fontStyle!, size);
+          fontFamily,
+          fontStyle!,
+          size,
+        );
         break;
 
       case PdfCjkFontFamily.heiseiKakuGothicW5:
@@ -44,7 +54,11 @@ class PdfCjkStandardFontMetricsFactory {
         break;
 
       case PdfCjkFontFamily.sinoTypeSongLight:
-        metrics = _getSinoTypeSongLight(fontFamily, fontStyle!, size);
+        metrics = fontfactory._getSinoTypeSongLight(
+          fontFamily,
+          fontStyle!,
+          size,
+        );
         break;
 
       // ignore: no_default_cases
@@ -61,7 +75,10 @@ class PdfCjkStandardFontMetricsFactory {
 
   /// Gets the hanyang systems gothic medium font metrix.
   static PdfFontMetrics _getHanyangSystemsGothicMediumMetrix(
-      PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
+    PdfCjkFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     final CjkWidthTable widthTable = CjkWidthTable(1000);
     metrics.widthTable = widthTable;
@@ -92,7 +109,10 @@ class PdfCjkStandardFontMetricsFactory {
 
   /// Gets the monotype hei medium metrix.
   static PdfFontMetrics _getMonotypeHeiMedium(
-      PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
+    PdfCjkFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     final CjkWidthTable widthTable = CjkWidthTable(1000);
     metrics.widthTable = widthTable;
@@ -123,7 +143,10 @@ class PdfCjkStandardFontMetricsFactory {
 
   /// Gets the monotype sung light metrix.
   static PdfFontMetrics _getMonotypeSungLightMetrix(
-      PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
+    PdfCjkFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     final CjkWidthTable widthTable = CjkWidthTable(1000);
     metrics.widthTable = widthTable;
@@ -153,8 +176,11 @@ class PdfCjkStandardFontMetricsFactory {
   }
 
   /// Gets the sino type song light font metrics.
-  static PdfFontMetrics _getSinoTypeSongLight(
-      PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
+  PdfFontMetrics _getSinoTypeSongLight(
+    PdfCjkFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     final CjkWidthTable widthTable = CjkWidthTable(1000);
     metrics.widthTable = widthTable;
@@ -187,7 +213,10 @@ class PdfCjkStandardFontMetricsFactory {
 
   /// Gets the heisei mincho w3.
   static PdfFontMetrics _getHeiseiMinchoW3(
-      PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
+    PdfCjkFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     final CjkWidthTable widthTable = CjkWidthTable(1000);
     metrics.widthTable = widthTable;
@@ -218,7 +247,10 @@ class PdfCjkStandardFontMetricsFactory {
 
   /// Gets the heisei kaku gothic w5 metrix.
   static PdfFontMetrics _getHeiseiKakuGothicW5Metrix(
-      PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
+    PdfCjkFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     final CjkWidthTable widthTable = CjkWidthTable(1000);
     metrics.widthTable = widthTable;
@@ -249,7 +281,10 @@ class PdfCjkStandardFontMetricsFactory {
 
   /// Gets the hanyang systems shin myeong jo medium metrix.
   static PdfFontMetrics _getHanyangSystemsShinMyeongJoMediumMetrix(
-      PdfCjkFontFamily? fontFamily, int fontStyle, double size) {
+    PdfCjkFontFamily? fontFamily,
+    int fontStyle,
+    double size,
+  ) {
     final PdfFontMetrics metrics = PdfFontMetrics();
     final CjkWidthTable widthTable = CjkWidthTable(1000);
     metrics.widthTable = widthTable;

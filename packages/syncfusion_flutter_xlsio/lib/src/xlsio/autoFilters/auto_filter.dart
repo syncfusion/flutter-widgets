@@ -1,4 +1,5 @@
-part of xlsio;
+import '../autoFilters/autofiltercondition.dart';
+import '../general/enums.dart';
 
 ///AutoFilter class
 abstract class AutoFilter {
@@ -12,7 +13,7 @@ abstract class AutoFilter {
   ExcelLogicalOperator logicalOperator = ExcelLogicalOperator.or;
 
   /// Specifies the type of filter
-  late _ExcelFilterType _filtertype;
+  late ExcelFilterType filterType;
 
   ///Applies text filter with the specified string collection.
   void addTextFilter(Set<String> filterCollection);

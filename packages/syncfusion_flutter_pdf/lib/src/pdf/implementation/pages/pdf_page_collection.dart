@@ -37,7 +37,9 @@ class PdfPageCollection {
   }
 
   PdfPageCollection._fromCrossTable(
-      PdfDocument document, PdfCrossTable crossTable) {
+    PdfDocument document,
+    PdfCrossTable crossTable,
+  ) {
     _helper = PdfPageCollectionHelper(this);
     _helper.document = document;
     _helper._crossTable = crossTable;
@@ -65,8 +67,10 @@ class PdfPageCollection {
   int get count {
     if (PdfDocumentHelper.getHelper(_helper.document!).isLoadedDocument) {
       int tempCount = 0;
-      final IPdfPrimitive? obj = PdfDocumentHelper.getHelper(_helper.document!)
-          .catalog[PdfDictionaryProperties.pages];
+      final IPdfPrimitive? obj =
+          PdfDocumentHelper.getHelper(
+            _helper.document!,
+          ).catalog[PdfDictionaryProperties.pages];
       final PdfDictionary? node =
           PdfCrossTable.dereference(obj) as PdfDictionary?;
       if (node != null) {
@@ -137,18 +141,21 @@ class PdfPageCollection {
   /// [margins] - The page margin.
   /// [rotation] - The PDF page rotation angle.
   /// [orientation] - The PDF page orientation.
-  PdfPage insert(int index,
-      [Size? size,
-      PdfMargins? margins,
-      PdfPageRotateAngle? rotation,
-      PdfPageOrientation? orientation]) {
+  PdfPage insert(
+    int index, [
+    Size? size,
+    PdfMargins? margins,
+    PdfPageRotateAngle? rotation,
+    PdfPageOrientation? orientation,
+  ]) {
     if (size == null || size.isEmpty) {
       size = PdfPageSize.a4;
     }
     rotation ??= PdfPageRotateAngle.rotateAngle0;
-    orientation ??= (size.width > size.height)
-        ? PdfPageOrientation.landscape
-        : PdfPageOrientation.portrait;
+    orientation ??=
+        (size.width > size.height)
+            ? PdfPageOrientation.landscape
+            : PdfPageOrientation.portrait;
     final PdfPage page = PdfPage();
     final PdfPageSettings settings = PdfPageSettings(size, orientation);
     if (margins == null) {
@@ -162,8 +169,11 @@ class PdfPageCollection {
     PdfSectionHelper.getHelper(sec).add(page);
     PdfDictionary dic = IPdfWrapper.getElement(sec)! as PdfDictionary;
     int? localIndex = 0;
-    final Map<String, dynamic> result =
-        _getValidParent(index, localIndex, false);
+    final Map<String, dynamic> result = _getValidParent(
+      index,
+      localIndex,
+      false,
+    );
     final PdfDictionary parent = result['node'] as PdfDictionary;
     localIndex = result['index'] as int?;
     if (parent.containsKey(PdfDictionaryProperties.rotate)) {
@@ -172,9 +182,8 @@ class PdfPageCollection {
           parent[PdfDictionaryProperties.rotate]! as PdfNumber;
       if (parentRotation.value!.toInt() != rotationValue &&
           (!dic.containsKey(PdfDictionaryProperties.rotate))) {
-        PdfPageHelper.getHelper(page)
-                .dictionary![PdfDictionaryProperties.rotate] =
-            PdfNumber(rotationValue);
+        PdfPageHelper.getHelper(page).dictionary![PdfDictionaryProperties
+            .rotate] = PdfNumber(rotationValue);
       }
     }
     dic[PdfDictionaryProperties.parent] = PdfReferenceHolder(parent);
@@ -185,8 +194,9 @@ class PdfPageCollection {
     _helper._pageCache![dic] = page;
     page.graphics.colorSpace = _helper.document!.colorSpace;
     PdfPageLayerHelper.getHelper(
-            PdfGraphicsHelper.getHelper(page.graphics).layer!)
-        .colorSpace = _helper.document!.colorSpace;
+          PdfGraphicsHelper.getHelper(page.graphics).layer!,
+        ).colorSpace =
+        _helper.document!.colorSpace;
     return page;
   }
 
@@ -227,8 +237,9 @@ class PdfPageCollection {
 
   //Implementation
   int _getNodeCount(PdfDictionary node) {
-    final PdfNumber? number = _helper._crossTable!
-        .getObject(node[PdfDictionaryProperties.count]) as PdfNumber?;
+    final PdfNumber? number =
+        _helper._crossTable!.getObject(node[PdfDictionaryProperties.count])
+            as PdfNumber?;
     return (number == null) ? 0 : number.value!.toInt();
   }
 
@@ -264,8 +275,9 @@ class PdfPageCollection {
       return _helper.getPage(node);
     } else {
       if (_helper._section != null) {
-        return PdfSectionHelper.getHelper(_helper._section!)
-            .getPageByIndex(index);
+        return PdfSectionHelper.getHelper(
+          _helper._section!,
+        ).getPageByIndex(index);
       } else {
         if (index < 0 || index >= count) {
           throw ArgumentError.value('index', 'out of range');
@@ -279,8 +291,9 @@ class PdfPageCollection {
           sectionCount = PdfSectionHelper.getHelper(section).count;
           pageIndex = index - sectionStartIndex;
           if (index >= sectionStartIndex && pageIndex < sectionCount) {
-            page =
-                PdfSectionHelper.getHelper(section).getPageByIndex(pageIndex);
+            page = PdfSectionHelper.getHelper(
+              section,
+            ).getPageByIndex(pageIndex);
             break;
           }
           sectionStartIndex += sectionCount;
@@ -294,18 +307,24 @@ class PdfPageCollection {
     while (parent != null) {
       final int count = _getNodeCount(parent) + 1;
       parent[PdfDictionaryProperties.count] = PdfNumber(count);
-      parent = PdfCrossTable.dereference(parent[PdfDictionaryProperties.parent])
-          as PdfDictionary?;
+      parent =
+          PdfCrossTable.dereference(parent[PdfDictionaryProperties.parent])
+              as PdfDictionary?;
     }
   }
 
   Map<String, dynamic> _getValidParent(
-      int index, int? localIndex, bool zeroValid) {
+    int index,
+    int? localIndex,
+    bool zeroValid,
+  ) {
     if (index < 0 && index > count) {
       throw ArgumentError.value(index, 'page index is not within range');
     }
-    final IPdfPrimitive? obj = PdfDocumentHelper.getHelper(_helper.document!)
-        .catalog[PdfDictionaryProperties.pages];
+    final IPdfPrimitive? obj =
+        PdfDocumentHelper.getHelper(
+          _helper.document!,
+        ).catalog[PdfDictionaryProperties.pages];
     PdfDictionary node = _helper._crossTable!.getObject(obj)! as PdfDictionary;
     int lowIndex = 0;
     localIndex = _getNodeCount(node);
@@ -384,8 +403,10 @@ class PdfPageCollection {
     if (index < 0 && index > count) {
       throw ArgumentError.value(index, 'page index is not within range');
     }
-    _pageCatalog ??= PdfDocumentHelper.getHelper(_helper.document!)
-        .catalog[PdfDictionaryProperties.pages];
+    _pageCatalog ??=
+        PdfDocumentHelper.getHelper(
+          _helper.document!,
+        ).catalog[PdfDictionaryProperties.pages];
     bool isNodeChanged = false;
     PdfDictionary? node;
     if (_nodeDictionary == null) {
@@ -448,21 +469,42 @@ class PdfPageCollection {
       int? tempLocalIndex = 0;
 
       if (kids!.count == count) {
-        Map<String, dynamic> returnValue = _getParentNode(kidStartIndex, kids,
-            0, index, tempNode, tempLocalIndex, isParentNodeFetched);
+        Map<String, dynamic> returnValue = _getParentNode(
+          kidStartIndex,
+          kids,
+          0,
+          index,
+          tempNode,
+          tempLocalIndex,
+          isParentNodeFetched,
+        );
         tempNode = returnValue['tempNode'] as PdfDictionary?;
         tempLocalIndex = returnValue['tempLocalIndex'] as int?;
         isParentNodeFetched = returnValue['isParentNodeFetched'] as bool?;
         if (!isParentNodeFetched!) {
           returnValue = _getParentNode(
-              0, kids, 0, index, tempNode, tempLocalIndex, isParentNodeFetched);
+            0,
+            kids,
+            0,
+            index,
+            tempNode,
+            tempLocalIndex,
+            isParentNodeFetched,
+          );
           tempNode = returnValue['tempNode'] as PdfDictionary?;
           tempLocalIndex = returnValue['tempLocalIndex'] as int?;
           isParentNodeFetched = returnValue['isParentNodeFetched'] as bool?;
         }
       } else {
         final Map<String, dynamic> returnValue = _getParentNode(
-            0, kids, 0, index, tempNode, tempLocalIndex, isParentNodeFetched);
+          0,
+          kids,
+          0,
+          index,
+          tempNode,
+          tempLocalIndex,
+          isParentNodeFetched,
+        );
         tempNode = returnValue['tempNode'] as PdfDictionary?;
         tempLocalIndex = returnValue['tempLocalIndex'] as int?;
         isParentNodeFetched = returnValue['isParentNodeFetched'] as bool?;
@@ -488,13 +530,14 @@ class PdfPageCollection {
   }
 
   Map<String, dynamic> _getParentNode(
-      int kidStartIndex,
-      PdfArray kids,
-      int lowIndex,
-      int pageIndex,
-      PdfDictionary? node,
-      int? localIndex,
-      bool? isParentFetched) {
+    int kidStartIndex,
+    PdfArray kids,
+    int lowIndex,
+    int pageIndex,
+    PdfDictionary? node,
+    int? localIndex,
+    bool? isParentFetched,
+  ) {
     isParentFetched = false;
     node = null;
     localIndex = -1;
@@ -536,7 +579,7 @@ class PdfPageCollection {
     return <String, dynamic>{
       'tempNode': node,
       'tempLocalIndex': localIndex,
-      'isParentNodeFetched': isParentFetched
+      'isParentNodeFetched': isParentFetched,
     };
   }
 
@@ -547,12 +590,14 @@ class PdfPageCollection {
   int _countPages() {
     final PdfSectionCollection sectionCollection = _helper.document!.sections!;
     int count = 0;
-    for (int i = 0;
-        i <
-            PdfSectionCollectionHelper.getHelper(sectionCollection)
-                .sections
-                .length;
-        i++) {
+    for (
+      int i = 0;
+      i <
+          PdfSectionCollectionHelper.getHelper(
+            sectionCollection,
+          ).sections.length;
+      i++
+    ) {
       final PdfSection section = sectionCollection[i];
       count += PdfSectionHelper.getHelper(section).count;
     }
@@ -563,8 +608,9 @@ class PdfPageCollection {
     if (PdfDocumentHelper.getHelper(_helper.document!).isLoadedDocument &&
         index > -1) {
       final Map<PdfPage, dynamic>? pageToBookmarkDic =
-          PdfDocumentHelper.getHelper(_helper.document!)
-              .createBookmarkDestinationDictionary();
+          PdfDocumentHelper.getHelper(
+            _helper.document!,
+          ).createBookmarkDestinationDictionary();
       if (pageToBookmarkDic != null) {
         List<dynamic>? bookmarks;
         if (pageToBookmarkDic.containsKey(page)) {
@@ -574,19 +620,19 @@ class PdfPageCollection {
           for (int i = 0; i < bookmarks.length; i++) {
             if (bookmarks[i] is PdfBookmarkBase) {
               final PdfBookmarkBase current = bookmarks[i] as PdfBookmarkBase;
-              if (PdfBookmarkBaseHelper.getHelper(current)
-                  .dictionary!
-                  .containsKey(PdfDictionaryProperties.a)) {
-                PdfBookmarkBaseHelper.getHelper(current)
-                    .dictionary!
-                    .remove(PdfDictionaryProperties.a);
+              if (PdfBookmarkBaseHelper.getHelper(
+                current,
+              ).dictionary!.containsKey(PdfDictionaryProperties.a)) {
+                PdfBookmarkBaseHelper.getHelper(
+                  current,
+                ).dictionary!.remove(PdfDictionaryProperties.a);
               }
-              if (PdfBookmarkBaseHelper.getHelper(current)
-                  .dictionary!
-                  .containsKey(PdfDictionaryProperties.dest)) {
-                PdfBookmarkBaseHelper.getHelper(current)
-                    .dictionary!
-                    .remove(PdfDictionaryProperties.dest);
+              if (PdfBookmarkBaseHelper.getHelper(
+                current,
+              ).dictionary!.containsKey(PdfDictionaryProperties.dest)) {
+                PdfBookmarkBaseHelper.getHelper(
+                  current,
+                ).dictionary!.remove(PdfDictionaryProperties.dest);
               }
             }
           }
@@ -687,14 +733,15 @@ class PdfPageCollection {
         }
       }
       _updateCountDecrement(parent);
+      dic.isSkip = true;
     }
   }
 
   void _removeFormFields(PdfReferenceHolder pageHolder) {
     if (PdfDocumentHelper.getHelper(_helper.document!).isLoadedDocument) {
       PdfFormFieldCollectionHelper.getHelper(
-              PdfPageCollectionHelper.getHelper(this).document!.form.fields)
-          .removeContainingField(pageHolder);
+        PdfPageCollectionHelper.getHelper(this).document!.form.fields,
+      ).removeContainingField(pageHolder);
     }
   }
 
@@ -703,8 +750,9 @@ class PdfPageCollection {
       int count = _getNodeCount(parent) - 1;
       if (count == 0) {
         final PdfDictionary node = parent;
-        final IPdfPrimitive? result =
-            PdfCrossTable.dereference(parent[PdfDictionaryProperties.parent]);
+        final IPdfPrimitive? result = PdfCrossTable.dereference(
+          parent[PdfDictionaryProperties.parent],
+        );
         if (result != null && result is PdfDictionary) {
           final IPdfPrimitive? kids = result[PdfDictionaryProperties.kids];
           if (kids != null && kids is PdfArray) {
@@ -714,8 +762,9 @@ class PdfPageCollection {
       }
       count = _getNodeCount(parent) - 1;
       parent[PdfDictionaryProperties.count] = PdfNumber(count);
-      final IPdfPrimitive? primitive =
-          PdfCrossTable.dereference(parent[PdfDictionaryProperties.parent]);
+      final IPdfPrimitive? primitive = PdfCrossTable.dereference(
+        parent[PdfDictionaryProperties.parent],
+      );
       parent =
           (primitive != null && primitive is PdfDictionary) ? primitive : null;
     }
@@ -742,7 +791,9 @@ class PdfPageCollectionHelper {
 
   /// internal method
   static PdfPageCollection fromCrossTable(
-      PdfDocument document, PdfCrossTable crossTable) {
+    PdfDocument document,
+    PdfCrossTable crossTable,
+  ) {
     return PdfPageCollection._fromCrossTable(document, crossTable);
   }
 
@@ -774,16 +825,15 @@ class PdfPageCollectionHelper {
 
   PdfSection _getLastSection() {
     final PdfSectionCollection sectionCollection = document!.sections!;
-    if (PdfSectionCollectionHelper.getHelper(sectionCollection)
-        .sections
-        .isEmpty) {
+    if (PdfSectionCollectionHelper.getHelper(
+      sectionCollection,
+    ).sections.isEmpty) {
       sectionCollection.add();
     }
-    return sectionCollection[
-        PdfSectionCollectionHelper.getHelper(sectionCollection)
-                .sections
-                .length -
-            1];
+    return sectionCollection[PdfSectionCollectionHelper.getHelper(
+          sectionCollection,
+        ).sections.length -
+        1];
   }
 
   bool _checkPageSettings(PdfPageSettings sectionSettings) {
@@ -803,8 +853,9 @@ class PdfPageCollectionHelper {
     } else {
       bool value = false;
       for (int i = 0; i < document!.sections!.count; i++) {
-        value |= PdfPageCollectionHelper.getHelper(document!.sections![i].pages)
-            .contains(page);
+        value |= PdfPageCollectionHelper.getHelper(
+          document!.sections![i].pages,
+        ).contains(page);
       }
       return value;
     }
@@ -823,10 +874,12 @@ class PdfPageCollectionHelper {
       PdfSectionHelper.getHelper(_section!).remove(page);
     } else {
       for (int i = 0; i < document!.sections!.count; i++) {
-        if (PdfPageCollectionHelper.getHelper(document!.sections![i].pages)
-            .contains(page)) {
-          PdfPageCollectionHelper.getHelper(document!.sections![i].pages)
-              .remove(page);
+        if (PdfPageCollectionHelper.getHelper(
+          document!.sections![i].pages,
+        ).contains(page)) {
+          PdfPageCollectionHelper.getHelper(
+            document!.sections![i].pages,
+          ).remove(page);
           break;
         }
       }

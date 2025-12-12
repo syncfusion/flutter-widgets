@@ -54,7 +54,9 @@ class Pkcs1Encoding implements ICipherBlock {
       }
     } else {
       block = List<int>.generate(
-          _cipher!.inputBlock!, (int i) => _random.nextInt(256));
+        _cipher!.inputBlock!,
+        (int i) => _random.nextInt(256),
+      );
       block[0] = 0x02;
       for (int i = 1; i != block.length - inLen - 1; i++) {
         while (block[i] == 0) {
@@ -72,7 +74,10 @@ class Pkcs1Encoding implements ICipherBlock {
     final List<int> block = _cipher!.processBlock(input, inOff, inLen)!;
     if (block.length < outputBlock!) {
       throw ArgumentError.value(
-          inLen, 'inLen', 'Invalid block. Block truncated');
+        inLen,
+        'inLen',
+        'Invalid block. Block truncated',
+      );
     }
     final int type = block[0];
     if (type != 1 && type != 2) {
@@ -95,8 +100,10 @@ class Pkcs1Encoding implements ICipherBlock {
     if (start > block.length || start < 10) {
       throw ArgumentError.value(start, 'start', 'no data in block');
     }
-    final List<int> result =
-        List<int>.generate(block.length - start, (int i) => 0);
+    final List<int> result = List<int>.generate(
+      block.length - start,
+      (int i) => 0,
+    );
     List.copyRange(result, 0, block, start, start + result.length);
     return result;
   }

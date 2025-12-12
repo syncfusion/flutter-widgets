@@ -8,11 +8,14 @@ import 'helper/save_file_mobile.dart'
     if (dart.library.html) 'helper/save_file_web.dart';
 
 void main() {
-  runApp(CreateOfficeChartWidget());
+  runApp(const CreateOfficeChartWidget());
 }
 
 /// Represents the office chart widget class.
 class CreateOfficeChartWidget extends StatelessWidget {
+  // Constructor with a named key parameter
+  const CreateOfficeChartWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -25,7 +28,7 @@ class CreateOfficeChartWidget extends StatelessWidget {
 class CreateOfficeChartStatefulWidget extends StatefulWidget {
   /// Initalize the instance of the [CreateOfficeChartStatefulWidget] class.
   const CreateOfficeChartStatefulWidget({Key? key, required this.title})
-      : super(key: key);
+    : super(key: key);
 
   /// title.
   final String title;
@@ -38,9 +41,7 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      appBar: AppBar(title: Text(widget.title)),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -53,7 +54,7 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
               ),
               onPressed: generateOfficeChart,
               child: const Text('Generate Excel Chart'),
-            )
+            ),
           ],
         ),
       ),

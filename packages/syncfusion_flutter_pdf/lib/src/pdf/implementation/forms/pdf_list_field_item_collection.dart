@@ -74,9 +74,9 @@ class PdfListFieldItemCollection extends PdfObjectCollection
   void clear() {
     if (_field != null && PdfFieldHelper.getHelper(_field!).isLoadedField) {
       final PdfArray list = _getItems()..clear();
-      PdfFieldHelper.getHelper(_field!)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.opt, list);
+      PdfFieldHelper.getHelper(
+        _field!,
+      ).dictionary!.setProperty(PdfDictionaryProperties.opt, list);
     } else {
       _helper._items.clear();
     }
@@ -89,9 +89,9 @@ class PdfListFieldItemCollection extends PdfObjectCollection
       final PdfArray list = _getItems();
       final PdfArray itemArray = _getArray(item);
       list.add(itemArray);
-      PdfFieldHelper.getHelper(_field!)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.opt, list);
+      PdfFieldHelper.getHelper(
+        _field!,
+      ).dictionary!.setProperty(PdfDictionaryProperties.opt, list);
     } else {
       _helper._items.add(IPdfWrapper.getElement(item)!);
     }
@@ -104,9 +104,9 @@ class PdfListFieldItemCollection extends PdfObjectCollection
       final PdfArray list = _getItems();
       final PdfArray itemArray = _getArray(item);
       list.insert(index, itemArray);
-      PdfFieldHelper.getHelper(_field!)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.opt, list);
+      PdfFieldHelper.getHelper(
+        _field!,
+      ).dictionary!.setProperty(PdfDictionaryProperties.opt, list);
     } else {
       _helper._items.insert(index, IPdfWrapper.getElement(item)!);
     }
@@ -119,9 +119,9 @@ class PdfListFieldItemCollection extends PdfObjectCollection
     }
     if (_field != null && PdfFieldHelper.getHelper(_field!).isLoadedField) {
       final PdfArray list = _getItems()..removeAt(index!);
-      PdfFieldHelper.getHelper(_field!)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.opt, list);
+      PdfFieldHelper.getHelper(
+        _field!,
+      ).dictionary!.setProperty(PdfDictionaryProperties.opt, list);
     } else {
       _helper._items.removeAt(index!);
     }
@@ -130,13 +130,15 @@ class PdfListFieldItemCollection extends PdfObjectCollection
 
   PdfArray _getItems() {
     PdfArray? items;
-    if (PdfFieldHelper.getHelper(_field!)
-        .dictionary!
-        .containsKey(PdfDictionaryProperties.opt)) {
-      final IPdfPrimitive? obj = PdfFieldHelper.getHelper(_field!)
-          .crossTable!
-          .getObject(PdfFieldHelper.getHelper(_field!)
-              .dictionary![PdfDictionaryProperties.opt]);
+    if (PdfFieldHelper.getHelper(
+      _field!,
+    ).dictionary!.containsKey(PdfDictionaryProperties.opt)) {
+      final IPdfPrimitive? obj = PdfFieldHelper.getHelper(
+        _field!,
+      ).crossTable!.getObject(
+        PdfFieldHelper.getHelper(_field!).dictionary![PdfDictionaryProperties
+            .opt],
+      );
       if (obj != null && obj is PdfArray) {
         items = obj;
       }
@@ -160,7 +162,7 @@ class PdfListFieldItemCollection extends PdfObjectCollection
 class PdfListFieldItemCollectionHelper extends PdfObjectCollectionHelper {
   /// internal constructor
   PdfListFieldItemCollectionHelper(this.listFieldItemCollection)
-      : super(listFieldItemCollection);
+    : super(listFieldItemCollection);
 
   /// internal field
   PdfListFieldItemCollection listFieldItemCollection;
@@ -175,7 +177,8 @@ class PdfListFieldItemCollectionHelper extends PdfObjectCollectionHelper {
 
   /// internal method
   static PdfListFieldItemCollectionHelper getHelper(
-      PdfListFieldItemCollection itemCollection) {
+    PdfListFieldItemCollection itemCollection,
+  ) {
     return itemCollection._helper;
   }
 

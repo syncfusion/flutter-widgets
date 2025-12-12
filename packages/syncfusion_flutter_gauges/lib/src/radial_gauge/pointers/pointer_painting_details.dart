@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 @immutable
 class PointerPaintingDetails {
   /// Creates the details which are required to paint the pointer
-  const PointerPaintingDetails(
-      {required this.startOffset,
-      required this.endOffset,
-      required this.pointerAngle,
-      required this.axisRadius,
-      required this.axisCenter});
+  const PointerPaintingDetails({
+    required this.startOffset,
+    required this.endOffset,
+    required this.pointerAngle,
+    required this.axisRadius,
+    required this.axisCenter,
+  });
 
   /// Specifies the starting position of the pointer in the logical pixels.
   final Offset startOffset;

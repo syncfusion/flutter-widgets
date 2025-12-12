@@ -1,5 +1,114 @@
 ## Unreleased
 
+**General**
+
+* The compatible version of our Flutter DataGrid widget has been updated to Flutter SDK 3.32.0.
+
+**Features**
+
+- Provided support to customize the default appearance of checkbox and advanced filtering popup menus.
+- Provided support to obtain the row details by row index using a helper method.
+- Provided built-in support to customize the background color of the caption summary row.
+
+## [29.1.39] - 04/22/2025
+
+**General**
+
+* The minimum Dart version has been updated to 3.7.
+
+## [29.1.33] - 03/25/2025
+
+**General**
+
+* The compatible version of our Flutter DataGrid widget has been updated to Flutter SDK 3.29.0.
+* The Syncfusion<sup>&reg;</sup> Flutter DataGrid example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+* The Syncfusion<sup>&reg;</sup> Flutter DataGrid example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
+
+**Features**
+
+* Provided callback support to listen column sort changes.
+* Provided callback support to listen value changes in the checkbox column.
+* Provided support to display a widget (placeholder) when the data source is empty.
+
+**Bugs**
+
+* The `SfDataPager` now properly displays the navigation button when `initialPageIndex` is set to the last page.
+
+## [28.2.11] - 03/11/2025
+
+**Bugs**
+
+* The `SfDataGrid` now handles selection and provides selected details based on visible rows.
+
+## [28.2.3] - 01/29/2025
+
+**Bugs**
+
+* The `SfDataGrid` now refreshes the grouping when filtering is removed using the `Select All` option.
+
+## [28.1.38] - 01/07/2025
+
+**Bugs**
+
+* The `SfDataGrid` now creates new rows instead of reusing them when the `rowCacheExtent` is set.
+
+## [27.1.58] - 11/05/2024
+
+**Bugs**
+
+* The datagrid now properly selects rows with checkboxes when using shift selection.
+
+## [27.1.55] - 10/22/2024
+
+**Bugs**
+
+* The rows are now visible when performing pagination with grouped rows.
+
+## [27.1.53] - 10/15/2024
+
+**Bugs**
+
+* The RangeError exception will no longer occur when collapsing a group with the column width mode set to fill the last column for all rows.
+
+## [27.0.0] - 09/09/2024
+
+**General**
+
+* The compatible version of our Flutter DataGrid widget has been updated to Flutter SDK 3.24.0.
+
+## [26.2.10] - 08/20/2024
+
+**Bugs**
+
+* The `SfDataGrid` now calculates cell width according to the `columnWidthMode` when there is only a single row.
+
+## [26.2.9] - 08/13/2024
+
+**Bugs**
+
+* The selection is now disabled on secondary mouse tap when the `onCellDoubleTap` callback is enabled.
+
+## [26.1.40] - 07/02/2024
+
+**Bugs**
+
+* The `ScrollController not attached to any scroll views exception` will not be thrown when navigating to the new page from datagrid.
+
+## [26.1.39] - 06/25/2024
+
+**Bugs**
+
+* The datagrid now arranges header cells correctly when resizing a column from the maximum scroll extent position.
+
+## [25.2.7] - 06/04/2024
+
+**Bugs**
+
+* The datagrid now draws the outer border on all sides when gridline visibility is not set to none.
+* The datagrid now properly selects rows during shift selection.
+
+## [25.2.6] - 05/28/2024
+
 **Bugs**
 
 * The custom filter icons now align properly during horizontal scrolling. 

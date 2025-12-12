@@ -403,12 +403,7 @@ class MultiLevelLabelStyle {
 /// Holds the multi-level axis label information.
 class AxisMultilevelLabel {
   /// Argument constructor of [AxisMultilevelLabel] class.
-  AxisMultilevelLabel(
-    this.text,
-    this.level,
-    this.start,
-    this.end,
-  );
+  AxisMultilevelLabel(this.text, this.level, this.start, this.end);
 
   /// Contains the text of the label.
   String text;

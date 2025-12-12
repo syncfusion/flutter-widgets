@@ -30,18 +30,23 @@ abstract class PdfLayoutElement {
   ///
   /// If both graphics and page provide in the arguments
   /// then page takes more precedence than graphics
-  PdfLayoutResult? draw(
-      {PdfGraphics? graphics,
-      PdfPage? page,
-      Rect? bounds,
-      PdfLayoutFormat? format}) {
+  PdfLayoutResult? draw({
+    PdfGraphics? graphics,
+    PdfPage? page,
+    Rect? bounds,
+    PdfLayoutFormat? format,
+  }) {
     return _draw(graphics, page, bounds, format);
   }
 
   //Implementation
 
-  PdfLayoutResult? _draw(PdfGraphics? graphics, PdfPage? page, Rect? bounds,
-      PdfLayoutFormat? format) {
+  PdfLayoutResult? _draw(
+    PdfGraphics? graphics,
+    PdfPage? page,
+    Rect? bounds,
+    PdfLayoutFormat? format,
+  ) {
     if (page != null) {
       final PdfLayoutParams param = PdfLayoutParams();
       param.page = page;
@@ -100,8 +105,9 @@ class PdfLayoutElementHelper {
     if (base is PdfShapeElement) {
       return PdfShapeElementHelper.layout(base as PdfShapeElement, param);
     } else if (base is PdfTextElement) {
-      return PdfTextElementHelper.getHelper(base as PdfTextElement)
-          .layout(param);
+      return PdfTextElementHelper.getHelper(
+        base as PdfTextElement,
+      ).layout(param);
     } else if (base is PdfList) {
       return PdfListHelper.getHelper(base as PdfList).layout(param);
     } else if (base is PdfGrid) {
@@ -127,16 +133,19 @@ class PdfLayoutElementHelper {
   /// internal method
   void drawInternal(PdfGraphics graphics, PdfRectangle bounds) {
     if (base is PdfBezierCurve) {
-      PdfBezierCurveHelper.getHelper(base as PdfBezierCurve)
-          .drawInternal(graphics, bounds);
+      PdfBezierCurveHelper.getHelper(
+        base as PdfBezierCurve,
+      ).drawInternal(graphics, bounds);
     } else if (base is PdfPath) {
       PdfPathHelper.getHelper(base as PdfPath).drawInternal(graphics, bounds);
     } else if (base is PdfTextElement) {
-      PdfTextElementHelper.getHelper(base as PdfTextElement)
-          .drawInternal(graphics, bounds);
+      PdfTextElementHelper.getHelper(
+        base as PdfTextElement,
+      ).drawInternal(graphics, bounds);
     } else if (base is PdfImage) {
-      PdfBitmapHelper.getHelper(base as PdfBitmap)
-          .drawInternal(graphics, bounds);
+      PdfBitmapHelper.getHelper(
+        base as PdfBitmap,
+      ).drawInternal(graphics, bounds);
     } else if (base is PdfList) {
       PdfListHelper.getHelper(base as PdfList).drawInternal(graphics, bounds);
     } else if (base is PdfGrid) {
@@ -206,10 +215,10 @@ class PdfCancelArgs {
 
 /// Represents the method that will handle an event
 /// that before lay outing on the page.
-typedef BeginPageLayoutCallback = void Function(
-    Object sender, BeginPageLayoutArgs args);
+typedef BeginPageLayoutCallback =
+    void Function(Object sender, BeginPageLayoutArgs args);
 
 /// Represents the method that will handle an event,
 /// once completed the lay outing on the page.
-typedef EndPageLayoutCallback = void Function(
-    Object sender, EndPageLayoutArgs args);
+typedef EndPageLayoutCallback =
+    void Function(Object sender, EndPageLayoutArgs args);

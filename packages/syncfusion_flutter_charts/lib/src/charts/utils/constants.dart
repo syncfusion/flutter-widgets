@@ -42,8 +42,9 @@ const double tooltipMarkerSize = 10.0;
 /// Specifies the tooltip marker padding.
 const EdgeInsets tooltipMarkerPadding = EdgeInsets.all(2.0);
 
-const EdgeInsetsDirectional tooltipItemSpacing =
-    EdgeInsetsDirectional.only(end: 3.0);
+const EdgeInsetsDirectional tooltipItemSpacing = EdgeInsetsDirectional.only(
+  end: 3.0,
+);
 
 const EdgeInsets tooltipInnerPadding = EdgeInsets.all(6.0);
 
@@ -81,6 +82,9 @@ const double defaultTrackballPadding = 5;
 
 // Specifies for default trackball tooltip width.
 const double defaultTooltipWidth = 10;
+
+// Specifies the space between multiple axes.
+const double spaceBetweenMultipleAxes = 3.0;
 
 // Specifies the tooltip event is touch or mouse.
 bool isHover = false;

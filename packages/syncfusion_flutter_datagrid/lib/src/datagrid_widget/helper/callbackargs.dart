@@ -4,10 +4,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../grid_common/row_column_index.dart';
+import '../../../datagrid.dart';
 import '../runtime/column.dart';
 import 'datagrid_configuration.dart';
-import 'enums.dart';
 
 /// A base class which provides the details for callbacks that use
 /// [DataGridCellTapDetails], [DataGridCellDoubleTapDetails] and
@@ -24,8 +23,10 @@ import 'enums.dart';
 class DataGridCellDetails {
   /// Creates a [DataGridCellDetails] with the specified [rowColumnIndex] and
   /// [column].
-  const DataGridCellDetails(
-      {required this.rowColumnIndex, required this.column});
+  const DataGridCellDetails({
+    required this.rowColumnIndex,
+    required this.column,
+  });
 
   /// The coordinates of the cell in [SfDataGrid].
   final RowColumnIndex rowColumnIndex;
@@ -43,13 +44,13 @@ class DataGridCellDetails {
 class DataGridCellTapDetails extends DataGridCellDetails {
   /// Creates a [DataGridCellTapDetails] with the specified [rowColumnIndex],
   /// [column], [globalPosition], [localPosition] and [kind].
-  const DataGridCellTapDetails(
-      {required RowColumnIndex rowColumnIndex,
-      required GridColumn column,
-      required this.globalPosition,
-      required this.localPosition,
-      required this.kind})
-      : super(rowColumnIndex: rowColumnIndex, column: column);
+  const DataGridCellTapDetails({
+    required RowColumnIndex rowColumnIndex,
+    required GridColumn column,
+    required this.globalPosition,
+    required this.localPosition,
+    required this.kind,
+  }) : super(rowColumnIndex: rowColumnIndex, column: column);
 
   /// The global position at which the pointer contacted the screen.
   final Offset globalPosition;
@@ -96,12 +97,17 @@ class RowHeightDetails {
   /// [SfDataGrid.columnSizer] property.
   ///
   /// The auto size is calculated based on default [TextStyle] of the datagrid.
-  double getIntrinsicRowHeight(int rowIndex,
-      {bool canIncludeHiddenColumns = false,
-      List<String> excludedColumns = const <String>[]}) {
-    return getAutoFitRowHeight(_columnSizer, rowIndex,
-        canIncludeHiddenColumns: canIncludeHiddenColumns,
-        excludedColumns: excludedColumns);
+  double getIntrinsicRowHeight(
+    int rowIndex, {
+    bool canIncludeHiddenColumns = false,
+    List<String> excludedColumns = const <String>[],
+  }) {
+    return getAutoFitRowHeight(
+      _columnSizer,
+      rowIndex,
+      canIncludeHiddenColumns: canIncludeHiddenColumns,
+      excludedColumns: excludedColumns,
+    );
   }
 }
 
@@ -114,9 +120,10 @@ class RowHeightDetails {
 class DataGridCellDoubleTapDetails extends DataGridCellDetails {
   /// Creates a [DataGridCellDoubleTapDetails] with the specified [rowColumnIndex]
   /// and [column].
-  const DataGridCellDoubleTapDetails(
-      {required RowColumnIndex rowColumnIndex, required GridColumn column})
-      : super(rowColumnIndex: rowColumnIndex, column: column);
+  const DataGridCellDoubleTapDetails({
+    required RowColumnIndex rowColumnIndex,
+    required GridColumn column,
+  }) : super(rowColumnIndex: rowColumnIndex, column: column);
 }
 
 /// Details for callbacks that use [DataGridCellLongPressDetails].
@@ -187,10 +194,11 @@ class DataGridSwipeStartDetails {
 @immutable
 class DataGridSwipeUpdateDetails {
   /// Creates a [DataGridSwipeUpdateDetails] class for [SfDataGrid].
-  const DataGridSwipeUpdateDetails(
-      {required this.rowIndex,
-      required this.swipeOffset,
-      required this.swipeDirection});
+  const DataGridSwipeUpdateDetails({
+    required this.rowIndex,
+    required this.swipeOffset,
+    required this.swipeDirection,
+  });
 
   /// An index of a row which is swiped.
   final int rowIndex;
@@ -206,8 +214,10 @@ class DataGridSwipeUpdateDetails {
 @immutable
 class DataGridSwipeEndDetails {
   /// Creates a [DataGridSwipeEndDetails] class for [SfDataGrid].
-  const DataGridSwipeEndDetails(
-      {required this.rowIndex, required this.swipeDirection});
+  const DataGridSwipeEndDetails({
+    required this.rowIndex,
+    required this.swipeDirection,
+  });
 
   /// An index of a row which is swiped.
   final int rowIndex;
@@ -220,8 +230,11 @@ class DataGridSwipeEndDetails {
 @immutable
 class ColumnResizeStartDetails {
   /// Creates the [ColumnResizeStartDetails] with the specified [column] and [width].
-  const ColumnResizeStartDetails(
-      {required this.column, required this.width, required this.columnIndex});
+  const ColumnResizeStartDetails({
+    required this.column,
+    required this.width,
+    required this.columnIndex,
+  });
 
   ///  A column that is going to be resized.
   final GridColumn column;
@@ -237,8 +250,11 @@ class ColumnResizeStartDetails {
 @immutable
 class ColumnResizeUpdateDetails {
   /// Creates the [ColumnResizeUpdateDetails] with the specified [column] and [width].
-  const ColumnResizeUpdateDetails(
-      {required this.column, required this.width, required this.columnIndex});
+  const ColumnResizeUpdateDetails({
+    required this.column,
+    required this.width,
+    required this.columnIndex,
+  });
 
   ///  A column that is being resized.
   final GridColumn column;
@@ -254,8 +270,11 @@ class ColumnResizeUpdateDetails {
 @immutable
 class ColumnResizeEndDetails {
   /// Creates the [ColumnResizeEndDetails] with the specified [column] and [width].
-  const ColumnResizeEndDetails(
-      {required this.column, required this.width, required this.columnIndex});
+  const ColumnResizeEndDetails({
+    required this.column,
+    required this.width,
+    required this.columnIndex,
+  });
 
   ///  A column that is resized.
   final GridColumn column;
@@ -277,8 +296,10 @@ class ColumnResizeEndDetails {
 class DataGridFilterChangeDetails {
   /// Creates the [DataGridFilterChangeDetails] for the
   /// `DataGridFilterChangingCallback` and `DataGridFilterChangedCallback`.
-  const DataGridFilterChangeDetails(
-      {required this.column, required this.filterConditions});
+  const DataGridFilterChangeDetails({
+    required this.column,
+    required this.filterConditions,
+  });
 
   /// The column where the current filtering is applied.
   final GridColumn column;
@@ -290,14 +311,17 @@ class DataGridFilterChangeDetails {
 
 /// Sets the `columnSizer` instance to the [RowHeightDetails] class.
 void setColumnSizerInRowHeightDetailsArgs(
-    RowHeightDetails rowHeightDetails, ColumnSizer columnSizer) {
+  RowHeightDetails rowHeightDetails,
+  ColumnSizer columnSizer,
+) {
   rowHeightDetails._columnSizer = columnSizer;
 }
 
 ///Sets the `dataGridConfiguration` instance to the [DataGridSwipeStartDetails] class
 void setSwipeOffsetInDataGridSwipeStartDetailsArgs(
-    DataGridConfiguration dataGridConfiguration,
-    DataGridSwipeStartDetails swipeStartDetails) {
+  DataGridConfiguration dataGridConfiguration,
+  DataGridSwipeStartDetails swipeStartDetails,
+) {
   swipeStartDetails._dataGridConfiguration = dataGridConfiguration;
 }
 
@@ -306,11 +330,12 @@ void setSwipeOffsetInDataGridSwipeStartDetailsArgs(
 class DataGridColumnDragDetails {
   /// Creates the [DataGridColumnDragDetails] for the
   /// `DataGridColumnDraggingCallback`.
-  const DataGridColumnDragDetails(
-      {required this.from,
-      required this.to,
-      required this.action,
-      required this.offset});
+  const DataGridColumnDragDetails({
+    required this.from,
+    required this.to,
+    required this.action,
+    required this.offset,
+  });
 
   //// An index of a column that is being dragged.
   final int from;
@@ -341,8 +366,11 @@ class ColumnGroup {
 @immutable
 class DataGridGroupChangingDetails {
   ///
-  const DataGridGroupChangingDetails(
-      {required this.key, required this.groupLevel, required this.isExpanded});
+  const DataGridGroupChangingDetails({
+    required this.key,
+    required this.groupLevel,
+    required this.isExpanded,
+  });
 
   /// Specifies the key in a caption summary row.
   final String key;
@@ -360,8 +388,11 @@ class DataGridGroupChangingDetails {
 @immutable
 class DataGridGroupChangedDetails {
   ///
-  const DataGridGroupChangedDetails(
-      {required this.key, required this.groupLevel, required this.isExpanded});
+  const DataGridGroupChangedDetails({
+    required this.key,
+    required this.groupLevel,
+    required this.isExpanded,
+  });
 
   /// Specifies the key in a caption summary row.
   final String key;
@@ -373,4 +404,27 @@ class DataGridGroupChangedDetails {
 
   /// Decides whether the group is expanded.
   final bool isExpanded;
+}
+
+/// Signature for [SfDataGrid.onCheckboxValueChanged] callbacks.
+class DataGridCheckboxValueChangedDetails {
+  ///
+  const DataGridCheckboxValueChangedDetails({
+    required this.value,
+    required this.row,
+    required this.rowType,
+  });
+
+  /// Specifies the current value of the checkbox.
+  final bool value;
+
+  /// Specifies the [DataGridRow] that associates with the check box in the checkbox column.
+  ///
+  /// The value will be `null` if the checkbox is part of a column header, indicating that this checkbox is not associated with a specific data row.
+  final DataGridRow? row;
+
+  /// Specifies the row type of the checkbox in the checkbox column.
+  ///
+  /// It notifies whether the checkbox value of the data row is changed, or header row changed.
+  final RowType rowType;
 }

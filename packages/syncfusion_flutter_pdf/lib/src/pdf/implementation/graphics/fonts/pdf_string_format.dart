@@ -52,29 +52,31 @@ class PdfStringFormat {
   /// //Close the document.
   /// document.dispose();
   /// ```
-  PdfStringFormat(
-      {PdfTextAlignment alignment = PdfTextAlignment.left,
-      PdfVerticalAlignment lineAlignment = PdfVerticalAlignment.top,
-      PdfTextDirection textDirection = PdfTextDirection.none,
-      double characterSpacing = 0,
-      double wordSpacing = 0,
-      double lineSpacing = 0,
-      PdfSubSuperscript subSuperscript = PdfSubSuperscript.none,
-      double paragraphIndent = 0,
-      bool measureTrailingSpaces = false,
-      PdfWordWrapType wordWrap = PdfWordWrapType.word}) {
+  PdfStringFormat({
+    PdfTextAlignment alignment = PdfTextAlignment.left,
+    PdfVerticalAlignment lineAlignment = PdfVerticalAlignment.top,
+    PdfTextDirection textDirection = PdfTextDirection.none,
+    double characterSpacing = 0,
+    double wordSpacing = 0,
+    double lineSpacing = 0,
+    PdfSubSuperscript subSuperscript = PdfSubSuperscript.none,
+    double paragraphIndent = 0,
+    bool measureTrailingSpaces = false,
+    PdfWordWrapType wordWrap = PdfWordWrapType.word,
+  }) {
     _helper = PdfStringFormatHelper();
     _initialize(
-        alignment,
-        lineAlignment,
-        textDirection,
-        characterSpacing,
-        wordSpacing,
-        lineSpacing,
-        subSuperscript,
-        paragraphIndent,
-        measureTrailingSpaces,
-        wordWrap);
+      alignment,
+      lineAlignment,
+      textDirection,
+      characterSpacing,
+      wordSpacing,
+      lineSpacing,
+      subSuperscript,
+      paragraphIndent,
+      measureTrailingSpaces,
+      wordWrap,
+    );
   }
 
   //Fields
@@ -335,16 +337,17 @@ class PdfStringFormat {
 
   //Implementation
   void _initialize(
-      PdfTextAlignment textAlignment,
-      PdfVerticalAlignment verticalAlignment,
-      PdfTextDirection textDirection,
-      double characterSpacing,
-      double wordSpacing,
-      double lineSpacing,
-      PdfSubSuperscript subSuperscript,
-      double paragraphIndent,
-      bool measureTrailingSpaces,
-      PdfWordWrapType wordWrap) {
+    PdfTextAlignment textAlignment,
+    PdfVerticalAlignment verticalAlignment,
+    PdfTextDirection textDirection,
+    double characterSpacing,
+    double wordSpacing,
+    double lineSpacing,
+    PdfSubSuperscript subSuperscript,
+    double paragraphIndent,
+    bool measureTrailingSpaces,
+    PdfWordWrapType wordWrap,
+  ) {
     alignment = textAlignment;
     lineAlignment = verticalAlignment;
     this.characterSpacing = characterSpacing;

@@ -1,26 +1,26 @@
-part of xlsio;
+import 'dart:collection';
 
 /// Represent stack class.
 class Stack {
-  final Queue<dynamic> _queue = Queue<dynamic>();
+  final Queue<dynamic> dynamicQueue = Queue<dynamic>();
 
   /// Represent the count.
-  int get _count {
-    return _queue.length;
+  int get count {
+    return dynamicQueue.length;
   }
 
   /// Represent the pop.
-  dynamic _pop() {
-    return _queue.removeFirst();
+  dynamic pop() {
+    return dynamicQueue.removeFirst();
   }
 
   /// Push values to the stack.
-  void _push(Object value) {
-    _queue.addFirst(value);
+  void push(Object value) {
+    dynamicQueue.addFirst(value);
   }
 
   /// clear the stack.
-  void _clear() {
-    _queue.clear();
+  void clear() {
+    dynamicQueue.clear();
   }
 }

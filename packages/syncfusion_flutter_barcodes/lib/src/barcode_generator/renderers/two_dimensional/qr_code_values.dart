@@ -200,7 +200,7 @@ class QRCodeValue {
     750,
     1372,
     2040,
-    2430
+    2430,
   ];
 
   /// Specifies the value of numeric data capacity of low error correction level
@@ -379,7 +379,7 @@ class QRCodeValue {
     2625,
     2735,
     2927,
-    3057
+    3057,
   ];
 
   /// Specifies the value of alpha numeric data capacity of low error
@@ -424,7 +424,7 @@ class QRCodeValue {
     3729,
     3927,
     4087,
-    4296
+    4296,
   ];
 
   /// Specifies the value of alpha numeric data capacity of high error
@@ -469,7 +469,7 @@ class QRCodeValue {
     2894,
     3054,
     3220,
-    3391
+    3391,
   ];
 
   /// Specifies the value of alpha numeric data capacity of quartile error
@@ -514,7 +514,7 @@ class QRCodeValue {
     2071,
     2181,
     2298,
-    2420
+    2420,
   ];
 
   /// Specifies the value of alpha numeric data capacity of high error
@@ -559,7 +559,7 @@ class QRCodeValue {
     1591,
     1658,
     1774,
-    1852
+    1852,
   ];
 
   /// Specifies the value of binary data capacity of low error correction level
@@ -603,7 +603,7 @@ class QRCodeValue {
     2563,
     2699,
     2809,
-    2953
+    2953,
   ];
 
   /// Specifies the value of binary data capacity of medium error correction
@@ -648,7 +648,7 @@ class QRCodeValue {
     1989,
     2099,
     2213,
-    2331
+    2331,
   ];
 
   /// Specifies the value of binary data capacity of quartile error correction
@@ -693,7 +693,7 @@ class QRCodeValue {
     1423,
     1499,
     1579,
-    1663
+    1663,
   ];
 
   /// Specifies the value of binary data capacity of high error correction level
@@ -737,12 +737,14 @@ class QRCodeValue {
     1093,
     1139,
     1219,
-    1273
+    1273,
   ];
 
   /// Returns the numeric data capacity
   static int getNumericDataCapacity(
-      ErrorCorrectionLevel level, QRCodeVersion codeVersion) {
+    ErrorCorrectionLevel level,
+    QRCodeVersion codeVersion,
+  ) {
     List<int> capacity;
     switch (level) {
       case ErrorCorrectionLevel.low:
@@ -765,7 +767,9 @@ class QRCodeValue {
 
   /// Specifies the alpha numeric data capcity
   static int getAlphaNumericDataCapacity(
-      ErrorCorrectionLevel level, QRCodeVersion codeVersion) {
+    ErrorCorrectionLevel level,
+    QRCodeVersion codeVersion,
+  ) {
     List<int> capacity;
     switch (level) {
       case ErrorCorrectionLevel.low:
@@ -789,7 +793,9 @@ class QRCodeValue {
 
   /// Specifies the bunary data capacity
   static int getBinaryDataCapacity(
-      ErrorCorrectionLevel level, QRCodeVersion codeVersion) {
+    ErrorCorrectionLevel level,
+    QRCodeVersion codeVersion,
+  ) {
     List<int> capacity;
     switch (level) {
       case ErrorCorrectionLevel.low:
@@ -3080,7 +3086,7 @@ class QRCodeValue {
           1,
           0,
           0,
-          0
+          0,
         ];
         break;
       case 8:
@@ -3102,7 +3108,7 @@ class QRCodeValue {
           0,
           1,
           0,
-          0
+          0,
         ];
         break;
       case 9:
@@ -3124,7 +3130,7 @@ class QRCodeValue {
           0,
           1,
           0,
-          0
+          0,
         ];
         break;
       case 10:
@@ -3146,7 +3152,7 @@ class QRCodeValue {
           0,
           1,
           0,
-          0
+          0,
         ];
         break;
       case 11:
@@ -3168,7 +3174,7 @@ class QRCodeValue {
           0,
           1,
           0,
-          0
+          0,
         ];
         break;
       case 12:
@@ -3190,7 +3196,7 @@ class QRCodeValue {
           1,
           1,
           0,
-          0
+          0,
         ];
         break;
       case 13:
@@ -3212,7 +3218,7 @@ class QRCodeValue {
           1,
           1,
           0,
-          0
+          0,
         ];
         break;
       case 14:
@@ -3234,7 +3240,7 @@ class QRCodeValue {
           1,
           1,
           0,
-          0
+          0,
         ];
         break;
       case 15:
@@ -3256,7 +3262,7 @@ class QRCodeValue {
           1,
           1,
           0,
-          0
+          0,
         ];
         break;
       case 16:
@@ -3278,7 +3284,7 @@ class QRCodeValue {
           0,
           0,
           1,
-          0
+          0,
         ];
         break;
       case 17:
@@ -3300,7 +3306,7 @@ class QRCodeValue {
           0,
           0,
           1,
-          0
+          0,
         ];
         break;
       case 18:
@@ -3322,7 +3328,7 @@ class QRCodeValue {
           0,
           0,
           1,
-          0
+          0,
         ];
         break;
       case 19:
@@ -3344,7 +3350,7 @@ class QRCodeValue {
           0,
           0,
           1,
-          0
+          0,
         ];
         break;
       case 20:
@@ -3366,7 +3372,7 @@ class QRCodeValue {
           1,
           0,
           1,
-          0
+          0,
         ];
         break;
       case 21:
@@ -3388,7 +3394,7 @@ class QRCodeValue {
           1,
           0,
           1,
-          0
+          0,
         ];
         break;
       case 22:
@@ -3410,7 +3416,7 @@ class QRCodeValue {
           1,
           0,
           1,
-          0
+          0,
         ];
         break;
       case 23:
@@ -3432,7 +3438,7 @@ class QRCodeValue {
           1,
           0,
           1,
-          0
+          0,
         ];
         break;
       case 24:
@@ -3454,7 +3460,7 @@ class QRCodeValue {
           0,
           1,
           1,
-          0
+          0,
         ];
         break;
       case 25:
@@ -3476,7 +3482,7 @@ class QRCodeValue {
           0,
           1,
           1,
-          0
+          0,
         ];
         break;
       case 26:
@@ -3498,7 +3504,7 @@ class QRCodeValue {
           0,
           1,
           1,
-          0
+          0,
         ];
         break;
       case 27:
@@ -3520,7 +3526,7 @@ class QRCodeValue {
           0,
           1,
           1,
-          0
+          0,
         ];
         break;
       case 28:
@@ -3542,7 +3548,7 @@ class QRCodeValue {
           1,
           1,
           1,
-          0
+          0,
         ];
         break;
       case 29:
@@ -3564,7 +3570,7 @@ class QRCodeValue {
           1,
           1,
           1,
-          0
+          0,
         ];
         break;
       case 30:
@@ -3586,7 +3592,7 @@ class QRCodeValue {
           1,
           1,
           1,
-          0
+          0,
         ];
         break;
       case 31:
@@ -3608,7 +3614,7 @@ class QRCodeValue {
           1,
           1,
           1,
-          0
+          0,
         ];
         break;
       case 32:
@@ -3630,7 +3636,7 @@ class QRCodeValue {
           0,
           0,
           0,
-          1
+          1,
         ];
         break;
       case 33:
@@ -3652,7 +3658,7 @@ class QRCodeValue {
           0,
           0,
           0,
-          1
+          1,
         ];
         break;
       case 34:
@@ -3674,7 +3680,7 @@ class QRCodeValue {
           0,
           0,
           0,
-          1
+          1,
         ];
         break;
       case 35:
@@ -3696,7 +3702,7 @@ class QRCodeValue {
           0,
           0,
           0,
-          1
+          1,
         ];
         break;
       case 36:
@@ -3718,7 +3724,7 @@ class QRCodeValue {
           1,
           0,
           0,
-          1
+          1,
         ];
         break;
       case 37:
@@ -3740,7 +3746,7 @@ class QRCodeValue {
           1,
           0,
           0,
-          1
+          1,
         ];
         break;
       case 38:
@@ -3762,7 +3768,7 @@ class QRCodeValue {
           1,
           0,
           0,
-          1
+          1,
         ];
         break;
       case 39:
@@ -3784,7 +3790,7 @@ class QRCodeValue {
           1,
           0,
           0,
-          1
+          1,
         ];
         break;
       case 40:
@@ -3806,7 +3812,7 @@ class QRCodeValue {
           0,
           1,
           0,
-          1
+          1,
         ];
         break;
     }

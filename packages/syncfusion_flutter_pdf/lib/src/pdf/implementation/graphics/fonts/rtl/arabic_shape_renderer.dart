@@ -86,7 +86,7 @@ class ArabicShapeRenderer {
     <String>['\u06CC', '\uFBFC', '\uFBFD', '\uFBFE', '\uFBFF'],
     <String>['\u06D0', '\uFBE4', '\uFBE5', '\uFBE6', '\uFBE7'],
     <String>['\u06D2', '\uFBAE', '\uFBAF'],
-    <String>['\u06D3', '\uFBB0', '\uFBB1']
+    <String>['\u06D3', '\uFBB0', '\uFBB1'],
   ];
 
   /// internal field
@@ -197,8 +197,8 @@ class ArabicShapeRenderer {
     final StringBuffer str = StringBuffer();
     int ligature, len, i = 0;
     String next;
-    _ArabicShape previous = _ArabicShape();
-    _ArabicShape present = _ArabicShape();
+    ArabicShape previous = ArabicShape();
+    ArabicShape present = ArabicShape();
     while (i < input.length) {
       next = input[i++];
       ligature = this.ligature(next, present);
@@ -212,7 +212,7 @@ class ArabicShapeRenderer {
         present.value = getCharacterShape(present.value, len);
         append(str, previous, level);
         previous = present;
-        present = _ArabicShape();
+        present = ArabicShape();
         present.value = next;
         present.shapes = shapeCount;
         present.ligature++;
@@ -227,7 +227,7 @@ class ArabicShapeRenderer {
   }
 
   /// internal method
-  void append(StringBuffer buffer, _ArabicShape shape, int level) {
+  void append(StringBuffer buffer, ArabicShape shape, int level) {
     if (shape.value != '') {
       buffer.write(shape.value);
       shape.ligature -= 1;
@@ -251,7 +251,7 @@ class ArabicShapeRenderer {
   }
 
   /// internal method
-  int ligature(String value, _ArabicShape shape) {
+  int ligature(String value, ArabicShape shape) {
     if (shape.value != '') {
       int result = 0;
       if ((value.codeUnitAt(0) >= fathatan.codeUnitAt(0) &&
@@ -374,7 +374,7 @@ class ArabicShapeRenderer {
   }
 }
 
-class _ArabicShape {
+class ArabicShape {
   String value = '';
   String type = '';
   String vowel = '';

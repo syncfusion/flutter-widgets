@@ -22,7 +22,7 @@ enum PdfTextAlignment {
   right,
 
   /// Specifies the text as Justified text.
-  justify
+  justify,
 }
 
 /// Specifies the type of Vertical alignment.
@@ -70,7 +70,7 @@ enum PdfTextDirection {
   leftToRight,
 
   /// Specifies the right to left direction.
-  rightToLeft
+  rightToLeft,
 }
 
 /// Defines set of color spaces.
@@ -99,7 +99,7 @@ enum PdfColorSpace {
   grayScale,
 
   /// Indexed color space.
-  indexed
+  indexed,
 }
 
 /// Possible dash styles of the pen.
@@ -134,7 +134,7 @@ enum PdfDashStyle {
   dashDotDot,
 
   /// User defined dash style.
-  custom
+  custom,
 }
 
 /// Specifies the corner style of the shapes.
@@ -164,7 +164,7 @@ enum PdfLineJoin {
 
   /// The two segments are finished with caps and the resulting notch beyond
   /// the ends of the segments is filled with a triangle.
-  bevel
+  bevel,
 }
 
 /// Specifies the line cap style to be used at the ends of the lines.
@@ -193,7 +193,7 @@ enum PdfLineCap {
 
   ///	The stroke continues beyond the endpoint of the path for a distance
   /// equal to half the line width and is squared off.
-  square
+  square,
 }
 
 /// Specifies how the shapes are filled.
@@ -217,7 +217,7 @@ enum PdfFillMode {
   winding,
 
   /// Even odd rule of determining "insideness" of point.
-  alternate
+  alternate,
 }
 
 /// Specifies the blend mode for transparency.
@@ -321,5 +321,5 @@ enum PdfBlendMode {
   /// Creates a color with the luminosity of the source color
   /// and the hue and saturation of the backdrop color. This
   /// produces an inverse effect to that of the Color mode.
-  luminosity
+  luminosity,
 }

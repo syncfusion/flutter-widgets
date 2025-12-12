@@ -1,17 +1,21 @@
-part of xlsio;
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/date_symbols.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/number_symbols.dart';
+import 'package:intl/number_symbols_data.dart';
 
 /// Represent the Culture Info class.
 class CultureInfo {
   /// Create an instances of culture info class.
   CultureInfo(String name) {
-    _culture = name;
-    initializeDateFormatting(_culture);
-    _dateTimeFormat = DateTimeFormatInfo(_culture);
-    _numberFormat = NumberFormatInfo(_culture);
+    culture = name;
+    initializeDateFormatting(culture);
+    _dateTimeFormat = DateTimeFormatInfo(culture);
+    _numberFormat = NumberFormatInfo(culture);
     _textInfo = TextInfo();
   }
 
-  late String _culture;
+  late String culture;
   late NumberFormatInfo _numberFormat;
   late DateTimeFormatInfo _dateTimeFormat;
   late TextInfo _textInfo;
@@ -51,18 +55,16 @@ class NumberFormatInfo {
   NumberSymbols get _numberSymbols {
     if (_numberSymbolsField == null) {
       if (numberFormatSymbols[_locale] != null) {
-        _numberSymbolsField = numberFormatSymbols[_locale] as NumberSymbols;
+        _numberSymbolsField = numberFormatSymbols[_locale];
       }
       if (_numberSymbolsField == null &&
           _locale.length > 2 &&
           numberFormatSymbols[_locale.replaceAll('-', '_')] != null) {
-        _numberSymbolsField =
-            numberFormatSymbols[_locale.replaceAll('-', '_')] as NumberSymbols;
+        _numberSymbolsField = numberFormatSymbols[_locale.replaceAll('-', '_')];
       }
       if (_numberSymbolsField != null &&
           numberFormatSymbols[_locale.substring(0, 2)] != null) {
-        _numberSymbolsField =
-            numberFormatSymbols[_locale.substring(0, 2)] as NumberSymbols;
+        _numberSymbolsField = numberFormatSymbols[_locale.substring(0, 2)];
       }
     }
     return _numberSymbolsField!;
@@ -98,7 +100,7 @@ class NumberFormatInfo {
   }
 
   /// Represents Currency Symbol.
-  String get _currencySymbol {
+  String get currencySymbol {
     if (_currencySymbolField == null) {
       final NumberFormat format = NumberFormat.currency(locale: _locale);
       _currencySymbolField = format.currencySymbol;
@@ -109,7 +111,7 @@ class NumberFormatInfo {
   }
 
   // ignore: unused_element
-  set _currencySymbol(String value) {
+  set currencySymbol(String value) {
     _currencySymbolField = value;
   }
 }
@@ -143,7 +145,7 @@ class DateTimeFormatInfo {
   late Map<dynamic, dynamic> _dateTimeSymbols;
 
   /// Maximum supported date time.
-  final DateTime _maxSupportedDateTime = DateTime(9999, 12, 31);
+  final DateTime maxSupportedDateTime = DateTime(9999, 12, 31);
 
   /// Minimum supported date time.
   // ignore: unused_field

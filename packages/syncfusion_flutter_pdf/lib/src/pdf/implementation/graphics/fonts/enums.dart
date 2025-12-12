@@ -24,7 +24,7 @@ enum PdfFontStyle {
   underline,
 
   ///Represents Strikeout text
-  strikethrough
+  strikethrough,
 }
 
 /// Indicates type of standard PDF fonts.
@@ -80,7 +80,7 @@ enum PdfSubSuperscript {
   superscript,
 
   /// Specifies subscript format.
-  subscript
+  subscript,
 }
 
 /// Specifies the type of CJK font.
@@ -116,7 +116,7 @@ enum PdfCjkFontFamily {
   monotypeSungLight,
 
   /// Represents the sinotype song light font.
-  sinoTypeSongLight
+  sinoTypeSongLight,
 }
 
 /// Specifies the types of text wrapping.
@@ -148,7 +148,7 @@ enum PdfWordWrapType {
 
   /// Text is wrapped by characters. In this case the word
   /// at the end of the text line can be split.
-  character
+  character,
 }
 
 /// Break type of the line.
@@ -166,5 +166,5 @@ enum LineType {
   firstParagraphLine,
 
   /// The line is the last in the paragraph.
-  lastParagraphLine
+  lastParagraphLine,
 }

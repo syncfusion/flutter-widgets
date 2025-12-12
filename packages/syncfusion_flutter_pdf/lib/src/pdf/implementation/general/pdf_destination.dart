@@ -145,8 +145,9 @@ class PdfDestination implements IPdfWrapper {
   }
 
   PdfPoint _pointToNativePdf(PdfPage page, PdfPoint point) {
-    return PdfSectionHelper.getHelper(PdfPageHelper.getHelper(page).section!)
-        .pointToNativePdf(page, point);
+    return PdfSectionHelper.getHelper(
+      PdfPageHelper.getHelper(page).section!,
+    ).pointToNativePdf(page, point);
   }
 }
 

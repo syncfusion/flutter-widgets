@@ -17,31 +17,36 @@ class EAN8Renderer extends SymbologyRenderer {
       if (int.parse(value[7]) == _getCheckSumData(value)) {
         _encodedValue = value;
       } else {
-        throw ArgumentError('Invalid check digit at the trailing end. '
-            'Provide the valid check digit or remove it. '
-            'Since, it has been calculated automatically.');
+        throw ArgumentError(
+          'Invalid check digit at the trailing end. '
+          'Provide the valid check digit or remove it. '
+          'Since, it has been calculated automatically.',
+        );
       }
     } else if (value.contains(RegExp(r'^(?=.*?[0-9]).{7}$'))) {
       _encodedValue = value + _getCheckSumData(value).toString();
     } else {
-      throw ArgumentError('EAN8 supports only numeric characters.'
-          ' The provided value should have 7 digits (without check digit)'
-          ' or with 8 digits.');
+      throw ArgumentError(
+        'EAN8 supports only numeric characters.'
+        ' The provided value should have 7 digits (without check digit)'
+        ' or with 8 digits.',
+      );
     }
     return true;
   }
 
   @override
   void renderBarcode(
-      Canvas canvas,
-      Size size,
-      Offset offset,
-      String value,
-      Color foregroundColor,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      bool showValue) {
+    Canvas canvas,
+    Size size,
+    Offset offset,
+    String value,
+    Color foregroundColor,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    bool showValue,
+  ) {
     ///  _positions[0] specifies end position of start  bar
     ///  _positions[1] specifies start position of middle  bar
     ///  _positions[2] specifies end position of middle bar
@@ -50,12 +55,21 @@ class EAN8Renderer extends SymbologyRenderer {
     final Paint paint = getBarPaint(foregroundColor);
     final List<String> code = _getCodeValues();
     final int barTotalLength = _getTotalLength(code);
-    double left = symbology?.module == null
-        ? offset.dx
-        : getLeftPosition(
-            barTotalLength, symbology?.module, size.width, offset.dx);
+    double left =
+        symbology?.module == null
+            ? offset.dx
+            : getLeftPosition(
+              barTotalLength,
+              symbology?.module,
+              size.width,
+              offset.dx,
+            );
     final Rect barCodeRect = Rect.fromLTRB(
-        offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
+      offset.dx,
+      offset.dy,
+      offset.dx + size.width,
+      offset.dy + size.height,
+    );
 
     double ratio = 0;
     if (symbology?.module != null) {
@@ -72,12 +86,13 @@ class EAN8Renderer extends SymbologyRenderer {
       final String codeValue = code[i];
       final bool hasExtraHeight = getHasExtraHeight(i, code);
       final double additionalHeight = i == 2 ? 0.4 : 0.5;
-      final double barHeight = hasExtraHeight
-          ? size.height +
-              (showValue
-                  ? (textSize!.height * additionalHeight) + textSpacing
-                  : 0)
-          : size.height;
+      final double barHeight =
+          hasExtraHeight
+              ? size.height +
+                  (showValue
+                      ? (textSize!.height * additionalHeight) + textSpacing
+                      : 0)
+              : size.height;
       final int codeLength = codeValue.length;
       for (int j = 0; j < codeLength; j++) {
         // Draw the barcode when the current code value is 1
@@ -85,7 +100,11 @@ class EAN8Renderer extends SymbologyRenderer {
         if (canDraw &&
             (left >= barCodeRect.left && left + ratio < barCodeRect.right)) {
           final Rect individualBarRect = Rect.fromLTRB(
-              left, offset.dy, left + ratio, offset.dy + barHeight);
+            left,
+            offset.dy,
+            left + ratio,
+            offset.dy + barHeight,
+          );
           canvas.drawRect(individualBarRect, paint);
         }
         left += ratio;
@@ -105,8 +124,16 @@ class EAN8Renderer extends SymbologyRenderer {
       }
     }
     if (showValue) {
-      _paintText(canvas, offset, size, _encodedValue, textStyle, textSpacing,
-          textAlign, positions);
+      _paintText(
+        canvas,
+        offset,
+        size,
+        _encodedValue,
+        textStyle,
+        textSpacing,
+        textAlign,
+        positions,
+      );
     }
   }
 
@@ -138,9 +165,11 @@ class EAN8Renderer extends SymbologyRenderer {
   /// Represents the encoded value for the first 6 digits of the input value
   String _getLeftValue(Map<String, String> codes, bool isLeft) {
     String code = '';
-    for (int i = isLeft ? 0 : _encodedValue.length - 4;
-        i < (isLeft ? _encodedValue.length - 4 : _encodedValue.length);
-        i++) {
+    for (
+      int i = isLeft ? 0 : _encodedValue.length - 4;
+      i < (isLeft ? _encodedValue.length - 4 : _encodedValue.length);
+      i++
+    ) {
       final int currentValue = int.parse(_encodedValue[i]);
       if (i == 0 || i == 4) {
         code = codes.entries.elementAt(currentValue).value;
@@ -157,7 +186,8 @@ class EAN8Renderer extends SymbologyRenderer {
     for (int i = 0; i < value.length; i++) {
       final int sum1 =
           int.parse(value[1]) + int.parse(value[3]) + int.parse(value[5]);
-      final int sum2 = 3 *
+      final int sum2 =
+          3 *
           (int.parse(value[0]) +
               int.parse(value[2]) +
               int.parse(value[4]) +
@@ -196,7 +226,7 @@ class EAN8Renderer extends SymbologyRenderer {
         '6': '1010000',
         '7': '1000100',
         '8': '1001000',
-        '9': '1110100'
+        '9': '1110100',
       };
     }
     return codes;
@@ -204,14 +234,15 @@ class EAN8Renderer extends SymbologyRenderer {
 
   /// Method to render the input value of the barcode
   void _paintText(
-      Canvas canvas,
-      Offset offset,
-      Size size,
-      String value,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      List<double?> positions) {
+    Canvas canvas,
+    Offset offset,
+    Size size,
+    String value,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    List<double?> positions,
+  ) {
     final String value1 = value.substring(0, 4);
     final String value2 = value.substring(4, 8);
     final double firstTextWidth = positions[1]! - positions[0]!;
@@ -219,26 +250,28 @@ class EAN8Renderer extends SymbologyRenderer {
 
     // Renders the first four digits of input
     drawText(
-        canvas,
-        Offset(positions[0]!, offset.dy),
-        Size(firstTextWidth, size.height),
-        value1,
-        textStyle,
-        textSpacing,
-        textAlign,
-        offset,
-        size);
+      canvas,
+      Offset(positions[0]!, offset.dy),
+      Size(firstTextWidth, size.height),
+      value1,
+      textStyle,
+      textSpacing,
+      textAlign,
+      offset,
+      size,
+    );
 
     // Renders the last four digits of input
     drawText(
-        canvas,
-        Offset(positions[2]!, offset.dy),
-        Size(secondTextWidth, size.height),
-        value2,
-        textStyle,
-        textSpacing,
-        textAlign,
-        offset,
-        size);
+      canvas,
+      Offset(positions[2]!, offset.dy),
+      Size(secondTextWidth, size.height),
+      value2,
+      textStyle,
+      textSpacing,
+      textAlign,
+      offset,
+      size,
+    );
   }
 }

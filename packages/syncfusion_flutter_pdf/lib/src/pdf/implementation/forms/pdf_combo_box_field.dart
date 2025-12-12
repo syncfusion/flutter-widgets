@@ -30,32 +30,40 @@ import 'pdf_list_field_item.dart';
 class PdfComboBoxField extends PdfListField {
   /// Initializes a new instance of the [PdfComboBoxField] class with
   /// the specific page, name and bounds.
-  PdfComboBoxField(PdfPage page, String name, Rect bounds,
-      {List<PdfListFieldItem>? items,
-      bool editable = false,
-      int? selectedIndex,
-      String? selectedValue,
-      PdfFont? font,
-      PdfTextAlignment alignment = PdfTextAlignment.left,
-      PdfColor? borderColor,
-      PdfColor? foreColor,
-      PdfColor? backColor,
-      int? borderWidth,
-      PdfHighlightMode highlightMode = PdfHighlightMode.invert,
-      PdfBorderStyle borderStyle = PdfBorderStyle.solid,
-      String? tooltip}) {
+  PdfComboBoxField(
+    PdfPage page,
+    String name,
+    Rect bounds, {
+    List<PdfListFieldItem>? items,
+    bool editable = false,
+    int? selectedIndex,
+    String? selectedValue,
+    PdfFont? font,
+    PdfTextAlignment alignment = PdfTextAlignment.left,
+    PdfColor? borderColor,
+    PdfColor? foreColor,
+    PdfColor? backColor,
+    int? borderWidth,
+    PdfHighlightMode highlightMode = PdfHighlightMode.invert,
+    PdfBorderStyle borderStyle = PdfBorderStyle.solid,
+    String? tooltip,
+  }) {
     _helper = PdfComboBoxFieldHelper(this);
-    _helper.initializeInternal(page, name, bounds,
-        font: font,
-        alignment: alignment,
-        items: items,
-        borderColor: borderColor,
-        foreColor: foreColor,
-        backColor: backColor,
-        borderWidth: borderWidth,
-        highlightMode: highlightMode,
-        borderStyle: borderStyle,
-        tooltip: tooltip);
+    _helper.initializeInternal(
+      page,
+      name,
+      bounds,
+      font: font,
+      alignment: alignment,
+      items: items,
+      borderColor: borderColor,
+      foreColor: foreColor,
+      backColor: backColor,
+      borderWidth: borderWidth,
+      highlightMode: highlightMode,
+      borderStyle: borderStyle,
+      tooltip: tooltip,
+    );
     _helper.flags.add(FieldFlags.combo);
     this.editable = editable;
     if (selectedIndex != null) {
@@ -82,7 +90,8 @@ class PdfComboBoxField extends PdfListField {
   /// The default value is false.
   bool get editable {
     if (_helper.isLoadedField) {
-      _editable = _helper.isFlagPresent(FieldFlags.edit) ||
+      _editable =
+          _helper.isFlagPresent(FieldFlags.edit) ||
           _helper.flags.contains(FieldFlags.edit);
     }
     return _editable;
@@ -94,8 +103,8 @@ class PdfComboBoxField extends PdfListField {
       _editable
           ? _helper.flags.add(FieldFlags.edit)
           : _helper.isLoadedField
-              ? _helper.removeFlag(FieldFlags.edit)
-              : _helper.flags.remove(FieldFlags.edit);
+          ? _helper.removeFlag(FieldFlags.edit)
+          : _helper.flags.remove(FieldFlags.edit);
     }
   }
 
@@ -128,7 +137,9 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
 
   /// internal method
   static PdfComboBoxField loadComboBox(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
     return PdfComboBoxField._load(dictionary, crossTable);
   }
 
@@ -142,36 +153,44 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
   void drawAppearance(PdfTemplate template) {
     super.drawAppearance(template);
     final PaintParams params = PaintParams(
-        bounds: Rect.fromLTWH(
-            0, 0, comboBoxField.bounds.width, comboBoxField.bounds.height),
-        backBrush: backBrush,
-        foreBrush: foreBrush,
-        borderPen: borderPen,
-        style: comboBoxField.borderStyle,
-        borderWidth: comboBoxField.borderWidth,
-        shadowBrush: shadowBrush);
+      bounds: Rect.fromLTWH(
+        0,
+        0,
+        comboBoxField.bounds.width,
+        comboBoxField.bounds.height,
+      ),
+      backBrush: backBrush,
+      foreBrush: foreBrush,
+      borderPen: borderPen,
+      style: comboBoxField.borderStyle,
+      borderWidth: comboBoxField.borderWidth,
+      shadowBrush: shadowBrush,
+    );
     FieldPainter().drawRectangularControl(template.graphics!, params);
     if (comboBoxField.selectedIndex != -1 &&
         comboBoxField.items[comboBoxField.selectedIndex].text != '' &&
         PdfDocumentHelper.getHelper(
-                    PdfPageHelper.getHelper(comboBoxField.page!).document!)
-                .conformanceLevel ==
+              PdfPageHelper.getHelper(comboBoxField.page!).document!,
+            ).conformanceLevel ==
             PdfConformanceLevel.none) {
-      final int multiplier = params.style == PdfBorderStyle.beveled ||
-              params.style == PdfBorderStyle.inset
-          ? 2
-          : 1;
+      final int multiplier =
+          params.style == PdfBorderStyle.beveled ||
+                  params.style == PdfBorderStyle.inset
+              ? 2
+              : 1;
       final Rect rectangle = Rect.fromLTWH(
-          params.bounds!.left + (2 * multiplier) * params.borderWidth!,
-          params.bounds!.top + (2 * multiplier) * params.borderWidth!,
-          params.bounds!.width - (4 * multiplier) * params.borderWidth!,
-          params.bounds!.height - (4 * multiplier) * params.borderWidth!);
+        params.bounds!.left + (2 * multiplier) * params.borderWidth!,
+        params.bounds!.top + (2 * multiplier) * params.borderWidth!,
+        params.bounds!.width - (4 * multiplier) * params.borderWidth!,
+        params.bounds!.height - (4 * multiplier) * params.borderWidth!,
+      );
       template.graphics!.drawString(
-          comboBoxField.items[comboBoxField.selectedIndex].text,
-          comboBoxField.font ?? PdfStandardFont(PdfFontFamily.timesRoman, 12),
-          brush: params.foreBrush,
-          bounds: rectangle,
-          format: format);
+        comboBoxField.items[comboBoxField.selectedIndex].text,
+        comboBoxField.font ?? PdfStandardFont(PdfFontFamily.timesRoman, 12),
+        brush: params.foreBrush,
+        bounds: rectangle,
+        format: format,
+      );
     }
   }
 
@@ -185,29 +204,37 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
   void _applyAppearance(PdfDictionary widget) {
     if (widget.containsKey(PdfDictionaryProperties.ap) &&
         !PdfFormHelper.getHelper(comboBoxField.form!).needAppearances!) {
-      final IPdfPrimitive? appearance =
-          crossTable!.getObject(widget[PdfDictionaryProperties.ap]);
+      final IPdfPrimitive? appearance = crossTable!.getObject(
+        widget[PdfDictionaryProperties.ap],
+      );
       if ((appearance != null) &&
           appearance is PdfDictionary &&
           (appearance.containsKey(PdfDictionaryProperties.n))) {
         final PdfTemplate template = PdfTemplate(
-            comboBoxField.bounds.width, comboBoxField.bounds.height);
+          comboBoxField.bounds.width,
+          comboBoxField.bounds.height,
+        );
         _drawComboBox(template.graphics);
         appearance.remove(PdfDictionaryProperties.n);
         appearance.setProperty(
-            PdfDictionaryProperties.n, PdfReferenceHolder(template));
+          PdfDictionaryProperties.n,
+          PdfReferenceHolder(template),
+        );
         widget.setProperty(PdfDictionaryProperties.ap, appearance);
       }
     } else if (comboBoxField.form!.readOnly == true ||
         comboBoxField.readOnly == true) {
       PdfFormHelper.getHelper(comboBoxField.form!).setAppearanceDictionary =
           true;
-    } else if (PdfFormHelper.getHelper(comboBoxField.form!)
-            .setAppearanceDictionary &&
+    } else if (PdfFormHelper.getHelper(
+          comboBoxField.form!,
+        ).setAppearanceDictionary &&
         !PdfFormHelper.getHelper(comboBoxField.form!).needAppearances!) {
       final PdfDictionary dic = PdfDictionary();
-      final PdfTemplate template =
-          PdfTemplate(comboBoxField.bounds.width, comboBoxField.bounds.height);
+      final PdfTemplate template = PdfTemplate(
+        comboBoxField.bounds.width,
+        comboBoxField.bounds.height,
+      );
       drawAppearance(template);
       dic.setProperty(PdfDictionaryProperties.n, PdfReferenceHolder(template));
       widget.setProperty(PdfDictionaryProperties.ap, dic);
@@ -221,21 +248,31 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
     if (!isLoadedField &&
         PdfAnnotationHelper.getHelper(widget!).appearance != null) {
       comboBoxField.page!.graphics.drawPdfTemplate(
-          widget!.appearance.normal, comboBoxField.bounds.topLeft);
+        widget!.appearance.normal,
+        comboBoxField.bounds.topLeft,
+      );
     } else {
       final Rect rect = Rect.fromLTWH(
-          0, 0, comboBoxField.bounds.width, comboBoxField.bounds.height);
-      final PdfFont font = comboBoxField.font ??
+        0,
+        0,
+        comboBoxField.bounds.width,
+        comboBoxField.bounds.height,
+      );
+      final PdfFont font =
+          comboBoxField.font ??
           PdfStandardFont(
-              PdfFontFamily.helvetica, getFontHeight(PdfFontFamily.helvetica));
+            PdfFontFamily.helvetica,
+            getFontHeight(PdfFontFamily.helvetica),
+          );
       final PaintParams parameters = PaintParams(
-          bounds: rect,
-          backBrush: backBrush,
-          foreBrush: foreBrush,
-          borderPen: borderPen,
-          style: comboBoxField.borderStyle,
-          borderWidth: comboBoxField.borderWidth,
-          shadowBrush: shadowBrush);
+        bounds: rect,
+        backBrush: backBrush,
+        foreBrush: foreBrush,
+        borderPen: borderPen,
+        style: comboBoxField.borderStyle,
+        borderWidth: comboBoxField.borderWidth,
+        shadowBrush: shadowBrush,
+      );
       final PdfTemplate template = PdfTemplate(rect.width, rect.height);
       String? text = '';
       if (comboBoxField.selectedIndex != -1) {
@@ -245,8 +282,9 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
             dictionary!.containsKey(PdfDictionaryProperties.v) &&
             dictionary!.containsKey(PdfDictionaryProperties.ap) &&
             !dictionary!.containsKey(PdfDictionaryProperties.parent)) {
-          final IPdfPrimitive? value =
-              PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.v]);
+          final IPdfPrimitive? value = PdfCrossTable.dereference(
+            dictionary![PdfDictionaryProperties.v],
+          );
           if (value != null && value is PdfString) {
             text = value.value;
           }
@@ -256,7 +294,8 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
                 (dictionary![PdfDictionaryProperties.dv]! as PdfString).value;
           } else {
             final IPdfPrimitive? str = PdfCrossTable.dereference(
-                dictionary![PdfDictionaryProperties.dv]);
+              dictionary![PdfDictionaryProperties.dv],
+            );
             if (str != null && str is PdfString) {
               text = str.value;
             }
@@ -267,37 +306,54 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
         FieldPainter().drawRectangularControl(template.graphics!, parameters);
         final double borderWidth = parameters.borderWidth!.toDouble();
         final double doubleBorderWidth = 2 * borderWidth;
-        final bool padding = parameters.style == PdfBorderStyle.inset ||
+        final bool padding =
+            parameters.style == PdfBorderStyle.inset ||
             parameters.style == PdfBorderStyle.beveled;
-        final Offset point = padding
-            ? Offset(2 * doubleBorderWidth, 2 * borderWidth)
-            : Offset(doubleBorderWidth, borderWidth);
+        final Offset point =
+            padding
+                ? Offset(2 * doubleBorderWidth, 2 * borderWidth)
+                : Offset(doubleBorderWidth, borderWidth);
         final double width = parameters.bounds!.width - doubleBorderWidth;
         final Rect itemTextBound = Rect.fromLTWH(
-            point.dx,
-            point.dy,
-            width - point.dx,
-            parameters.bounds!.height -
-                (padding ? doubleBorderWidth : borderWidth));
-        template.graphics!.drawString(text!, font,
-            brush: foreBrush, bounds: itemTextBound, format: format);
-        comboBoxField.page!.graphics
-            .drawPdfTemplate(template, comboBoxField.bounds.topLeft, rect.size);
+          point.dx,
+          point.dy,
+          width - point.dx,
+          parameters.bounds!.height -
+              (padding ? doubleBorderWidth : borderWidth),
+        );
+        template.graphics!.drawString(
+          text!,
+          font,
+          brush: foreBrush,
+          bounds: itemTextBound,
+          format: format,
+        );
+        comboBoxField.page!.graphics.drawPdfTemplate(
+          template,
+          comboBoxField.bounds.topLeft,
+          rect.size,
+        );
       } else {
         final GraphicsProperties gp = GraphicsProperties(comboBoxField);
         final PaintParams prms = PaintParams(
-            bounds: gp.bounds,
-            backBrush: gp.backBrush,
-            foreBrush: gp.foreBrush,
-            borderPen: gp.borderPen,
-            style: gp.style,
-            borderWidth: gp.borderWidth,
-            shadowBrush: gp.shadowBrush);
+          bounds: gp.bounds,
+          backBrush: gp.backBrush,
+          foreBrush: gp.foreBrush,
+          borderPen: gp.borderPen,
+          style: gp.style,
+          borderWidth: gp.borderWidth,
+          shadowBrush: gp.shadowBrush,
+        );
         if (gp.font!.height > comboBoxField.bounds.height) {
           setFittingFontSize(gp, prms, text!);
         }
         FieldPainter().drawComboBox(
-            comboBoxField.page!.graphics, prms, text, gp.font, gp.stringFormat);
+          comboBoxField.page!.graphics,
+          prms,
+          text,
+          gp.font,
+          gp.stringFormat,
+        );
       }
     }
   }
@@ -305,15 +361,20 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
   void _drawComboBox(PdfGraphics? graphics) {
     final GraphicsProperties gp = GraphicsProperties(comboBoxField);
     gp.bounds = Rect.fromLTWH(
-        0, 0, comboBoxField.bounds.width, comboBoxField.bounds.height);
+      0,
+      0,
+      comboBoxField.bounds.width,
+      comboBoxField.bounds.height,
+    );
     final PaintParams prms = PaintParams(
-        bounds: gp.bounds,
-        backBrush: gp.backBrush,
-        foreBrush: gp.foreBrush,
-        borderPen: gp.borderPen,
-        style: gp.style,
-        borderWidth: gp.borderWidth,
-        shadowBrush: gp.shadowBrush);
+      bounds: gp.bounds,
+      backBrush: gp.backBrush,
+      foreBrush: gp.foreBrush,
+      borderPen: gp.borderPen,
+      style: gp.style,
+      borderWidth: gp.borderWidth,
+      shadowBrush: gp.shadowBrush,
+    );
     String? text;
     if (selectedItems.count > 0 &&
         comboBoxField.selectedIndex != -1 &&
@@ -321,18 +382,29 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
       text = selectedItems[0].text;
     } else if (dictionary!.containsKey(PdfDictionaryProperties.dv) &&
         !flattenField) {
-      final IPdfPrimitive? defaultValue =
-          PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.dv]);
+      final IPdfPrimitive? defaultValue = PdfCrossTable.dereference(
+        dictionary![PdfDictionaryProperties.dv],
+      );
       if (defaultValue != null && defaultValue is PdfString) {
         text = defaultValue.value;
       }
     }
     if (selectedItems.count == 0) {
-      FieldPainter().drawComboBox(graphics!, prms, comboBoxField.selectedValue,
-          gp.font, gp.stringFormat);
+      FieldPainter().drawComboBox(
+        graphics!,
+        prms,
+        comboBoxField.selectedValue,
+        gp.font,
+        gp.stringFormat,
+      );
     } else if (text != null && !flattenField) {
-      FieldPainter()
-          .drawComboBox(graphics!, prms, text, gp.font, gp.stringFormat);
+      FieldPainter().drawComboBox(
+        graphics!,
+        prms,
+        text,
+        gp.font,
+        gp.stringFormat,
+      );
     } else {
       FieldPainter().drawRectangularControl(graphics!, prms);
     }
@@ -345,8 +417,9 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
     final List<double> widths = <double>[];
     if (comboBoxField.selectedIndex != -1) {
       final PdfFont itemFont = PdfStandardFont(family, 12);
-      widths
-          .add(itemFont.measureString(comboBoxField.selectedItem!.text).width);
+      widths.add(
+        itemFont.measureString(comboBoxField.selectedItem!.text).width,
+      );
     } else {
       final PdfFont sfont = PdfStandardFont(family, 12);
       double max = sfont.measureString(comboBoxField.items[0].text).width;
@@ -358,12 +431,13 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
       }
     }
     widths.sort();
-    double s = widths.isNotEmpty
-        ? ((12 *
-                (comboBoxField.bounds.size.width -
-                    4 * comboBoxField.borderWidth)) /
-            widths[widths.length - 1])
-        : 12;
+    double s =
+        widths.isNotEmpty
+            ? ((12 *
+                    (comboBoxField.bounds.size.width -
+                        4 * comboBoxField.borderWidth)) /
+                widths[widths.length - 1])
+            : 12;
     if (comboBoxField.selectedIndex != -1) {
       final PdfFont font = PdfStandardFont(family, s);
       final String text = comboBoxField.selectedValue;
@@ -384,8 +458,11 @@ class PdfComboBoxFieldHelper extends PdfListFieldHelper {
             do {
               fontSize = fontSize - 0.001;
               PdfFontHelper.getHelper(font).setSize(fontSize);
-              final double textWidth =
-                  PdfFontHelper.getLineWidth(font, text, format);
+              final double textWidth = PdfFontHelper.getLineWidth(
+                font,
+                text,
+                format,
+              );
               if (fontSize < minimumFontSize) {
                 PdfFontHelper.getHelper(font).setSize(minimumFontSize);
                 break;

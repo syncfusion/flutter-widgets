@@ -11,8 +11,12 @@ class PdfDestinationPageNumberField extends PdfPageNumberField {
   // constructor
   /// Initializes a new instance of the [PdfDestinationPageNumberField] class
   /// may include with [PdfFont], [PdfBrush] and [Rect].
-  PdfDestinationPageNumberField(
-      {PdfPage? page, super.font, super.brush, super.bounds}) {
+  PdfDestinationPageNumberField({
+    PdfPage? page,
+    super.font,
+    super.brush,
+    super.bounds,
+  }) {
     if (page != null) {
       this.page = page;
     }
@@ -32,7 +36,9 @@ class PdfDestinationPageNumberField extends PdfPageNumberField {
 class PdfDestinationPageNumberFieldHelper {
   /// internal method
   static String getValue(
-      PdfDestinationPageNumberField field, PdfGraphics graphics) {
+    PdfDestinationPageNumberField field,
+    PdfGraphics graphics,
+  ) {
     return field._getValue(graphics);
   }
 }

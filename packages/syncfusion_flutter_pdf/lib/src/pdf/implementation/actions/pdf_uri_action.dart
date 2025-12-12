@@ -13,8 +13,9 @@ class PdfUriAction extends PdfAction {
       this.uri = uri;
     }
     PdfActionHelper.getHelper(this).dictionary.setProperty(
-        PdfName(PdfDictionaryProperties.s),
-        PdfName(PdfDictionaryProperties.uri));
+      PdfName(PdfDictionaryProperties.s),
+      PdfName(PdfDictionaryProperties.uri),
+    );
   }
 
   // fields
@@ -27,8 +28,8 @@ class PdfUriAction extends PdfAction {
   /// Sets the unique resource identifier.
   set uri(String value) {
     _uri = value;
-    PdfActionHelper.getHelper(this)
-        .dictionary
-        .setString(PdfDictionaryProperties.uri, _uri);
+    PdfActionHelper.getHelper(
+      this,
+    ).dictionary.setString(PdfDictionaryProperties.uri, _uri);
   }
 }

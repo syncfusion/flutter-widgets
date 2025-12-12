@@ -256,7 +256,8 @@ class PdfListItemCollectionHelper extends PdfObjectCollectionHelper {
   PdfListItem getValue(int index) {
     if (index < 0 || index >= base.count) {
       throw RangeError(
-          "The index should be less than item's count or more or equal to 0");
+        "The index should be less than item's count or more or equal to 0",
+      );
     }
     return list[index] as PdfListItem;
   }
@@ -274,7 +275,8 @@ class PdfListItemCollectionHelper extends PdfObjectCollectionHelper {
   void insert(int index, PdfListItem item, double? itemIndent) {
     if (index < 0 || index >= base.count) {
       throw ArgumentError(
-          "The index should be less than item's count or more or equal to 0, $index");
+        "The index should be less than item's count or more or equal to 0, $index",
+      );
     }
     if (itemIndent != null) {
       item.textIndent = itemIndent;
@@ -294,7 +296,8 @@ class PdfListItemCollectionHelper extends PdfObjectCollectionHelper {
   void removeAt(int index) {
     if (index < 0 || index >= base.count) {
       throw ArgumentError(
-          "The index should be less than item's count or more or equal to 0, $index");
+        "The index should be less than item's count or more or equal to 0, $index",
+      );
     }
     list.removeAt(index);
   }

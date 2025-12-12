@@ -68,13 +68,13 @@ class ResourceViewSettings with Diagnosticable {
   /// Creates a resource view settings for calendar.
   ///
   /// The properties allows to customize the resource view of [SfCalendar].
-  const ResourceViewSettings(
-      {this.size = 75,
-      this.visibleResourceCount = -1,
-      this.showAvatar = true,
-      this.displayNameTextStyle})
-      : assert(size >= 0),
-        assert(visibleResourceCount >= -1);
+  const ResourceViewSettings({
+    this.size = 75,
+    this.visibleResourceCount = -1,
+    this.showAvatar = true,
+    this.displayNameTextStyle,
+  }) : assert(size >= 0),
+       assert(visibleResourceCount >= -1);
 
   /// The number of resources to be displayed in the available screen height in
   /// [SfCalendar]
@@ -243,8 +243,12 @@ class ResourceViewSettings with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'displayNameTextStyle', displayNameTextStyle));
+    properties.add(
+      DiagnosticsProperty<TextStyle>(
+        'displayNameTextStyle',
+        displayNameTextStyle,
+      ),
+    );
     properties.add(DoubleProperty('size', size));
     properties.add(DiagnosticsProperty<bool>('showAvatar', showAvatar));
     properties.add(IntProperty('visibleResourceCount', visibleResourceCount));
@@ -253,6 +257,10 @@ class ResourceViewSettings with Diagnosticable {
   @override
   int get hashCode {
     return Object.hash(
-        size, visibleResourceCount, showAvatar, displayNameTextStyle);
+      size,
+      visibleResourceCount,
+      showAvatar,
+      displayNameTextStyle,
+    );
   }
 }

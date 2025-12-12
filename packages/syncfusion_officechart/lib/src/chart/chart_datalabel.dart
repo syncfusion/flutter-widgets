@@ -1,4 +1,5 @@
-part of officechart;
+import 'chart_serie.dart';
+import 'chart_text_area.dart';
 
 /// Represents the Chart data labels class.
 class ChartDataLabels {

@@ -26,11 +26,12 @@ class PdfSolidBrush implements PdfBrush {
 
   @override
   bool _monitorChanges(
-      PdfBrush? brush,
-      PdfStreamWriter? streamWriter,
-      Function? getResources,
-      bool saveChanges,
-      PdfColorSpace? currentColorSpace) {
+    PdfBrush? brush,
+    PdfStreamWriter? streamWriter,
+    Function? getResources,
+    bool saveChanges,
+    PdfColorSpace? currentColorSpace,
+  ) {
     bool diff = false;
     if (getResources != null && streamWriter != null) {
       if (brush == null) {
@@ -72,11 +73,12 @@ class PdfSolidBrush implements PdfBrush {
 /// ```
 abstract class PdfBrush {
   bool _monitorChanges(
-      PdfBrush? brush,
-      PdfStreamWriter? streamWriter,
-      Function? getResources,
-      bool saveChanges,
-      PdfColorSpace? currentColorSpace);
+    PdfBrush? brush,
+    PdfStreamWriter? streamWriter,
+    Function? getResources,
+    bool saveChanges,
+    PdfColorSpace? currentColorSpace,
+  );
 }
 
 // ignore: avoid_classes_with_only_static_members
@@ -84,13 +86,19 @@ abstract class PdfBrush {
 class PdfBrushHelper {
   /// internal method
   static bool monitorChanges(
-      PdfBrush base,
-      PdfBrush? brush,
-      PdfStreamWriter? streamWriter,
-      Function? getResources,
-      bool saveChanges,
-      PdfColorSpace? currentColorSpace) {
+    PdfBrush base,
+    PdfBrush? brush,
+    PdfStreamWriter? streamWriter,
+    Function? getResources,
+    bool saveChanges,
+    PdfColorSpace? currentColorSpace,
+  ) {
     return base._monitorChanges(
-        brush, streamWriter, getResources, saveChanges, currentColorSpace);
+      brush,
+      streamWriter,
+      getResources,
+      saveChanges,
+      currentColorSpace,
+    );
   }
 }

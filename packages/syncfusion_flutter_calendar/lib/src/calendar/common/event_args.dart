@@ -32,9 +32,12 @@ class ViewChangedDetails {
 @immutable
 class CalendarTapDetails extends CalendarTouchDetails {
   /// Creates details for [CalendarTapCallback].
-  const CalendarTapDetails(List<dynamic>? appointments, DateTime? date,
-      CalendarElement element, CalendarResource? resource)
-      : super(appointments, date, element, resource);
+  const CalendarTapDetails(
+    List<dynamic>? appointments,
+    DateTime? date,
+    CalendarElement element,
+    CalendarResource? resource,
+  ) : super(appointments, date, element, resource);
 }
 
 /// The element that long pressed on view in [SfCalendar]
@@ -50,9 +53,12 @@ class CalendarTapDetails extends CalendarTouchDetails {
 @immutable
 class CalendarLongPressDetails extends CalendarTouchDetails {
   /// Creates details for [CalendarLongPressCallback]
-  const CalendarLongPressDetails(List<dynamic>? appointments, DateTime? date,
-      CalendarElement element, CalendarResource? resource)
-      : super(appointments, date, element, resource);
+  const CalendarLongPressDetails(
+    List<dynamic>? appointments,
+    DateTime? date,
+    CalendarElement element,
+    CalendarResource? resource,
+  ) : super(appointments, date, element, resource);
 }
 
 /// The element that tapped on view in [SfCalendar]
@@ -92,7 +98,11 @@ class CalendarSelectionDetails {
 class CalendarTouchDetails {
   /// Creates details for [CalendarTapCallback] and [CalendarLongPressCallback].
   const CalendarTouchDetails(
-      this.appointments, this.date, this.targetElement, this.resource);
+    this.appointments,
+    this.date,
+    this.targetElement,
+    this.resource,
+  );
 
   /// The collection of appointments that return from the date.
   final List<dynamic>? appointments;
@@ -141,7 +151,11 @@ class AppointmentResizeStartDetails {
 class AppointmentResizeUpdateDetails {
   /// Creates details for [AppointmentResizeUpdateCallback].
   const AppointmentResizeUpdateDetails(
-      this.appointment, this.resource, this.resizingTime, this.resizingOffset);
+    this.appointment,
+    this.resource,
+    this.resizingTime,
+    this.resizingOffset,
+  );
 
   /// The appointment that resizing on view in [SfCalendar].
   final dynamic appointment;
@@ -169,7 +183,11 @@ class AppointmentResizeUpdateDetails {
 class AppointmentResizeEndDetails {
   /// Creates details for [AppointmentResizeUpdateCallback].
   const AppointmentResizeEndDetails(
-      this.appointment, this.resource, this.startTime, this.endTime);
+    this.appointment,
+    this.resource,
+    this.startTime,
+    this.endTime,
+  );
 
   /// The appointment that resized on view in [SfCalendar].
   final dynamic appointment;
@@ -220,8 +238,13 @@ class AppointmentDragStartDetails {
 @immutable
 class AppointmentDragUpdateDetails {
   /// Creates details for [AppointmentDragUpdateCallback].
-  const AppointmentDragUpdateDetails(this.appointment, this.sourceResource,
-      this.targetResource, this.draggingPosition, this.draggingTime);
+  const AppointmentDragUpdateDetails(
+    this.appointment,
+    this.sourceResource,
+    this.targetResource,
+    this.draggingPosition,
+    this.draggingTime,
+  );
 
   /// The dragging appointment.
   final Object? appointment;
@@ -251,8 +274,12 @@ class AppointmentDragUpdateDetails {
 /// in calendar.
 class AppointmentDragEndDetails {
   /// Creates details for [AppointmentDragEndCallback].
-  const AppointmentDragEndDetails(this.appointment, this.sourceResource,
-      this.targetResource, this.droppingTime);
+  const AppointmentDragEndDetails(
+    this.appointment,
+    this.sourceResource,
+    this.targetResource,
+    this.droppingTime,
+  );
 
   /// The dropping appointment.
   final Object? appointment;
@@ -272,9 +299,12 @@ class AppointmentDragEndDetails {
 @immutable
 class CalendarDetails extends CalendarTouchDetails {
   /// creates details for [CalendarDetailsCallback].
-  const CalendarDetails(List<dynamic>? appointments, DateTime? date,
-      CalendarElement element, CalendarResource? resource)
-      : super(appointments, date, element, resource);
+  const CalendarDetails(
+    List<dynamic>? appointments,
+    DateTime? date,
+    CalendarElement element,
+    CalendarResource? resource,
+  ) : super(appointments, date, element, resource);
 }
 
 /// Signature for a function that creates a widget based on month
@@ -283,32 +313,38 @@ class CalendarDetails extends CalendarTouchDetails {
 /// See also:
 /// * [SfCalendar.scheduleViewMonthHeaderBuilder], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef ScheduleViewMonthHeaderBuilder = Widget Function(
-    BuildContext context, ScheduleViewMonthHeaderDetails details);
+typedef ScheduleViewMonthHeaderBuilder =
+    Widget Function(
+      BuildContext context,
+      ScheduleViewMonthHeaderDetails details,
+    );
 
 /// Signature for a function that creates a widget based on month cell details.
 ///
 /// See also:
 /// * [SfCalendar.monthCellBuilder], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef MonthCellBuilder = Widget Function(
-    BuildContext context, MonthCellDetails details);
+typedef MonthCellBuilder =
+    Widget Function(BuildContext context, MonthCellDetails details);
 
 /// Signature for a function that creates a widget based on appointment details.
 ///
 /// See also:
 /// * [SfCalendar.appointmentBuilder], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef CalendarAppointmentBuilder = Widget Function(BuildContext context,
-    CalendarAppointmentDetails calendarAppointmentDetails);
+typedef CalendarAppointmentBuilder =
+    Widget Function(
+      BuildContext context,
+      CalendarAppointmentDetails calendarAppointmentDetails,
+    );
 
 /// Signature for a function that creates a widget based on time region details.
 ///
 /// See also:
 /// * [SfCalendar.timeRegionBuilder], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef TimeRegionBuilder = Widget Function(
-    BuildContext context, TimeRegionDetails timeRegionDetails);
+typedef TimeRegionBuilder =
+    Widget Function(BuildContext context, TimeRegionDetails timeRegionDetails);
 
 /// Signature for the function that create the widget based on load
 /// more details.
@@ -316,8 +352,11 @@ typedef TimeRegionBuilder = Widget Function(
 /// See also:
 /// * [SfCalendar.loadMoreWidgetBuilder], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef LoadMoreWidgetBuilder = Widget Function(
-    BuildContext context, LoadMoreCallback loadMoreAppointments);
+typedef LoadMoreWidgetBuilder =
+    Widget Function(
+      BuildContext context,
+      LoadMoreCallback loadMoreAppointments,
+    );
 
 /// Signature for the function that have no arguments and return no data, but
 /// that return a [Future] to indicate when their work is complete.
@@ -333,8 +372,8 @@ typedef LoadMoreCallback = Future<void> Function();
 /// See also:
 /// * [SfCalendar.resourceViewHeaderBuilder], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef ResourceViewHeaderBuilder = Widget Function(
-    BuildContext context, ResourceViewHeaderDetails details);
+typedef ResourceViewHeaderBuilder =
+    Widget Function(BuildContext context, ResourceViewHeaderDetails details);
 
 /// Contains the details that needed on month cell builder.
 ///
@@ -347,7 +386,11 @@ typedef ResourceViewHeaderBuilder = Widget Function(
 class MonthCellDetails {
   /// Default constructor to store the details needed in month cell builder
   const MonthCellDetails(
-      this.date, this.appointments, this.visibleDates, this.bounds);
+    this.date,
+    this.appointments,
+    this.visibleDates,
+    this.bounds,
+  );
 
   /// The date value associated with the month cell widget.
   final DateTime date;
@@ -386,8 +429,12 @@ class ScheduleViewMonthHeaderDetails {
 /// * [SfCalendar], which passes the information to one of its receiver.
 class CalendarAppointmentDetails {
   /// Default constructor to store the details needed in appointment builder.
-  const CalendarAppointmentDetails(this.date, this.appointments, this.bounds,
-      {this.isMoreAppointmentRegion = false});
+  const CalendarAppointmentDetails(
+    this.date,
+    this.appointments,
+    this.bounds, {
+    this.isMoreAppointmentRegion = false,
+  });
 
   /// The date value associated with the appointment view widget.
   final DateTime date;
@@ -455,8 +502,8 @@ class ResourceViewHeaderDetails {
 /// See also:
 /// * [SfCalendar.onViewChanged], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef ViewChangedCallback = void Function(
-    ViewChangedDetails viewChangedDetails);
+typedef ViewChangedCallback =
+    void Function(ViewChangedDetails viewChangedDetails);
 
 /// Signature for callback that reports that a calendar element tapped on view.
 ///
@@ -468,8 +515,8 @@ typedef ViewChangedCallback = void Function(
 /// See also:
 /// * [SfCalendar.onTap], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef CalendarTapCallback = void Function(
-    CalendarTapDetails calendarTapDetails);
+typedef CalendarTapCallback =
+    void Function(CalendarTapDetails calendarTapDetails);
 
 /// Signature for callback that reports that a calendar element long pressed
 /// on view.
@@ -482,8 +529,8 @@ typedef CalendarTapCallback = void Function(
 /// See also:
 /// * [SfCalendar.onLongPress], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef CalendarLongPressCallback = void Function(
-    CalendarLongPressDetails calendarLongPressDetails);
+typedef CalendarLongPressCallback =
+    void Function(CalendarLongPressDetails calendarLongPressDetails);
 
 /// Signature for callback that reports that
 /// a calendar view selection changed on view.
@@ -497,8 +544,8 @@ typedef CalendarLongPressCallback = void Function(
 /// See also:
 /// * [SfCalendar.onSelectionChanged], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef CalendarSelectionChangedCallback = void Function(
-    CalendarSelectionDetails calendarSelectionDetails);
+typedef CalendarSelectionChangedCallback =
+    void Function(CalendarSelectionDetails calendarSelectionDetails);
 
 /// Signature for callback that reports that a appointment starts resizing in
 /// [SfCalendar].
@@ -511,8 +558,8 @@ typedef CalendarSelectionChangedCallback = void Function(
 /// See also:
 /// * [SfCalendar.onAppointmentResizeStart], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef AppointmentResizeStartCallback = void Function(
-    AppointmentResizeStartDetails appointmentResizeStartDetails);
+typedef AppointmentResizeStartCallback =
+    void Function(AppointmentResizeStartDetails appointmentResizeStartDetails);
 
 /// Signature for callback that reports that a appointment resizing in
 /// [SfCalendar].
@@ -525,8 +572,10 @@ typedef AppointmentResizeStartCallback = void Function(
 /// See also:
 /// * [SfCalendar.onAppointmentResizeUpdate], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef AppointmentResizeUpdateCallback = void Function(
-    AppointmentResizeUpdateDetails appointmentResizeUpdateDetails);
+typedef AppointmentResizeUpdateCallback =
+    void Function(
+      AppointmentResizeUpdateDetails appointmentResizeUpdateDetails,
+    );
 
 /// Signature for callback that reports that a appointment resizing completed in
 /// [SfCalendar].
@@ -540,8 +589,8 @@ typedef AppointmentResizeUpdateCallback = void Function(
 /// See also:
 /// * [SfCalendar.onAppointmentResizeEnd], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef AppointmentResizeEndCallback = void Function(
-    AppointmentResizeEndDetails appointmentResizeEndDetails);
+typedef AppointmentResizeEndCallback =
+    void Function(AppointmentResizeEndDetails appointmentResizeEndDetails);
 
 /// Signature for callback that reports that a appointment starts dragging in
 /// [SfCalendar].
@@ -554,8 +603,8 @@ typedef AppointmentResizeEndCallback = void Function(
 /// See also:
 /// * [SfCalendar.onDragStart], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef AppointmentDragStartCallback = void Function(
-    AppointmentDragStartDetails appointmentDragStartDetails);
+typedef AppointmentDragStartCallback =
+    void Function(AppointmentDragStartDetails appointmentDragStartDetails);
 
 /// Signature for callback that reports that a appointment dragging in
 /// [SfCalendar].
@@ -569,8 +618,8 @@ typedef AppointmentDragStartCallback = void Function(
 /// See also:
 /// * [SfCalendar.onDragUpdate], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef AppointmentDragUpdateCallback = void Function(
-    AppointmentDragUpdateDetails appointmentDragUpdateDetails);
+typedef AppointmentDragUpdateCallback =
+    void Function(AppointmentDragUpdateDetails appointmentDragUpdateDetails);
 
 /// Signature for callback that reports that a appointment dragging completed in
 /// [SfCalendar].
@@ -584,5 +633,5 @@ typedef AppointmentDragUpdateCallback = void Function(
 /// See also:
 /// * [SfCalendar.onDragEnd], which matches this signature.
 /// * [SfCalendar], which uses this signature in one of it's callback.
-typedef AppointmentDragEndCallback = void Function(
-    AppointmentDragEndDetails appointmentDragEndDetails);
+typedef AppointmentDragEndCallback =
+    void Function(AppointmentDragEndDetails appointmentDragEndDetails);

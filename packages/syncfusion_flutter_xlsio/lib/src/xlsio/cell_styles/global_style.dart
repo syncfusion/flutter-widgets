@@ -1,24 +1,22 @@
-part of xlsio;
-
 /// Represents cell styles.
-class _GlobalStyle {
+class GlobalStyle {
   /// Creates an new instances of the cell styles.
-  _GlobalStyle() {
-    _name = 'Normal';
-    _xfId = 0;
-    _builtinId = 0;
+  GlobalStyle() {
+    name = 'Normal';
+    xfId = 0;
+    builtinId = 0;
   }
 
   /// Represents cell style name.
-  late String _name;
+  late String name;
 
   /// Represents xf id.
-  late int _xfId;
+  late int xfId;
 
   /// Number format.
   // ignore: unused_field
-  String? _numberFormat;
+  String? numberFormat;
 
   /// build in id.
-  late int _builtinId;
+  late int builtinId;
 }

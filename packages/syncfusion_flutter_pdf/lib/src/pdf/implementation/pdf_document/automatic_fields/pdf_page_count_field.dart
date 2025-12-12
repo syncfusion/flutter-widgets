@@ -93,9 +93,12 @@ class PdfPageCountField extends PdfSingleValueField {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfPageCountField(
-      {PdfFont? font, PdfBrush? brush, Rect? bounds, bool? isSectionPageCount})
-      : super(font, brush, bounds) {
+  PdfPageCountField({
+    PdfFont? font,
+    PdfBrush? brush,
+    Rect? bounds,
+    bool? isSectionPageCount,
+  }) : super(font, brush, bounds) {
     _isSectionPageCount = isSectionPageCount != null && isSectionPageCount;
   }
 
@@ -153,11 +156,12 @@ class PdfPageCountField extends PdfSingleValueField {
         final int count = PdfSectionHelper.getHelper(section).count;
         return PdfAutomaticFieldHelper.convert(count, numberStyle);
       } else {
-        final PdfDocument document = PdfSectionCollectionHelper.getHelper(
-                PdfSectionHelper.getHelper(
-                        PdfPageHelper.getHelper(page).section!)
-                    .parent!)
-            .document!;
+        final PdfDocument document =
+            PdfSectionCollectionHelper.getHelper(
+              PdfSectionHelper.getHelper(
+                PdfPageHelper.getHelper(page).section!,
+              ).parent!,
+            ).document!;
         final int number = document.pages.count;
         return PdfAutomaticFieldHelper.convert(number, numberStyle);
       }

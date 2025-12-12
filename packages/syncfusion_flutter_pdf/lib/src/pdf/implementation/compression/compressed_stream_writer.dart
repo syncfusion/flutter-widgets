@@ -6,14 +6,30 @@ import 'compressor_huffman_tree.dart';
 /// internal class
 class CompressedStreamWriter {
   /// internal constructor
-  CompressedStreamWriter(List<int> outputStream, bool bNoWrap,
-      PdfCompressionLevel? level, bool bCloseStream) {
-    _treeLiteral =
-        CompressorHuffmanTree(this, defHuffmanLiteralAlphabetLength, 257, 15);
-    _treeDistances =
-        CompressorHuffmanTree(this, defHuffmanDistancesAlphabetLength, 1, 15);
-    _treeCodeLengths =
-        CompressorHuffmanTree(this, defHuffmanBitlenTreeLength, 4, 7);
+  CompressedStreamWriter(
+    List<int> outputStream,
+    bool bNoWrap,
+    PdfCompressionLevel? level,
+    bool bCloseStream,
+  ) {
+    _treeLiteral = CompressorHuffmanTree(
+      this,
+      defHuffmanLiteralAlphabetLength,
+      257,
+      15,
+    );
+    _treeDistances = CompressorHuffmanTree(
+      this,
+      defHuffmanDistancesAlphabetLength,
+      1,
+      15,
+    );
+    _treeCodeLengths = CompressorHuffmanTree(
+      this,
+      defHuffmanBitlenTreeLength,
+      4,
+      7,
+    );
     _arrDistancesBuffer = List<int>.filled(defHuffmanBufferSize, 0);
     _arrLiteralsBuffer = List<int>.filled(defHuffmanBufferSize, 0);
     _stream = outputStream;
@@ -114,7 +130,7 @@ class CompressedStreamWriter {
     128,
     128,
     258,
-    258
+    258,
   ];
 
   /// Internal compression engine constant
@@ -128,7 +144,7 @@ class CompressedStreamWriter {
     128,
     256,
     1024,
-    4096
+    4096,
   ];
 
   /// internal field
@@ -148,7 +164,7 @@ class CompressedStreamWriter {
     3,
     11,
     7,
-    15
+    15,
   ];
 
   /// internal field
@@ -171,7 +187,7 @@ class CompressedStreamWriter {
     2,
     14,
     1,
-    15
+    15,
   ];
 
   /// internal field
@@ -261,10 +277,14 @@ class CompressedStreamWriter {
         _arrLiteralCodes![i] = bitReverse(((0x0c0 - 280) + i) << 8);
         _arrLiteralLengths[i++] = 8;
       }
-      _arrDistanceCodes =
-          List<int>.filled(defHuffmanDistancesAlphabetLength, 0);
-      _arrDistanceLengths =
-          List<int>.filled(defHuffmanDistancesAlphabetLength, 0);
+      _arrDistanceCodes = List<int>.filled(
+        defHuffmanDistancesAlphabetLength,
+        0,
+      );
+      _arrDistanceLengths = List<int>.filled(
+        defHuffmanDistancesAlphabetLength,
+        0,
+      );
 
       for (i = 0; i < defHuffmanDistancesAlphabetLength; i++) {
         _arrDistanceCodes[i] = bitReverse(i << 11);
@@ -362,7 +382,11 @@ class CompressedStreamWriter {
         _matchPreviousAvailable = false;
 
         _huffmanFlushBlock(
-            _dataWindow, _blockStart, _stringStart - _blockStart, finish);
+          _dataWindow,
+          _blockStart,
+          _stringStart - _blockStart,
+          finish,
+        );
 
         _blockStart = _stringStart;
 
@@ -446,7 +470,11 @@ class CompressedStreamWriter {
     while (_lookAhead >= minLookahead || flush) {
       if (_lookAhead == 0) {
         _huffmanFlushBlock(
-            _dataWindow, _blockStart, _stringStart - _blockStart, finish);
+          _dataWindow,
+          _blockStart,
+          _stringStart - _blockStart,
+          finish,
+        );
         _blockStart = _stringStart;
         return false;
       }
@@ -462,7 +490,11 @@ class CompressedStreamWriter {
         if (_huffmanTallyDist(_stringStart - _matchStart, _matchLength)) {
           final bool lastBlock = finish && _lookAhead == 0;
           _huffmanFlushBlock(
-              _dataWindow, _blockStart, _stringStart - _blockStart, lastBlock);
+            _dataWindow,
+            _blockStart,
+            _stringStart - _blockStart,
+            lastBlock,
+          );
           _blockStart = _stringStart;
         }
         _lookAhead -= _matchLength;
@@ -491,7 +523,11 @@ class CompressedStreamWriter {
       if (_huffmanIsFull) {
         final bool lastBlock = finish && _lookAhead == 0;
         _huffmanFlushBlock(
-            _dataWindow, _blockStart, _stringStart - _blockStart, lastBlock);
+          _dataWindow,
+          _blockStart,
+          _stringStart - _blockStart,
+          lastBlock,
+        );
         _blockStart = _stringStart;
 
         return !lastBlock;
@@ -589,7 +625,11 @@ class CompressedStreamWriter {
   }
 
   void _huffmanFlushBlock(
-      List<int>? stored, int storedOffset, int storedLength, bool lastBlock) {
+    List<int>? stored,
+    int storedOffset,
+    int storedLength,
+    bool lastBlock,
+  ) {
     _treeLiteral.codeFrequences[defHuffmanEndblockSymbol]++;
 
     // Build trees.
@@ -610,7 +650,8 @@ class CompressedStreamWriter {
         blTreeCodes = i + 1;
       }
     }
-    int optLen = 14 +
+    int optLen =
+        14 +
         blTreeCodes * 3 +
         _treeCodeLengths!.getEncodedLength() +
         _treeLiteral.getEncodedLength() +
@@ -657,9 +698,9 @@ class CompressedStreamWriter {
 
     for (int rank = 0; rank < blTreeCodes; rank++) {
       pendingBufferWriteBits(
-          _treeCodeLengths!
-              .codeLengths![defHuffmanDyntreeCodeLengthsOrder[rank]],
-          3);
+        _treeCodeLengths!.codeLengths![defHuffmanDyntreeCodeLengthsOrder[rank]],
+        3,
+      );
     }
 
     _treeLiteral.writeTree(_treeCodeLengths);
@@ -668,7 +709,8 @@ class CompressedStreamWriter {
 
   int _insertString() {
     int match;
-    final int hash = ((_currentHash << hashShift) ^
+    final int hash =
+        ((_currentHash << hashShift) ^
             _dataWindow![_stringStart + (minMatch - 1)]) &
         hashMask;
 
@@ -733,7 +775,11 @@ class CompressedStreamWriter {
   }
 
   void _huffmanFlushStoredBlock(
-      List<int> stored, int storedOffset, int storedLength, bool lastBlock) {
+    List<int> stored,
+    int storedOffset,
+    int storedLength,
+    bool lastBlock,
+  ) {
     pendingBufferWriteBits((0 << 1) + (lastBlock ? 1 : 0), 3);
     _pendingBufferAlignToByte();
     _pendingBufferWriteShort(storedLength);
@@ -757,18 +803,23 @@ class CompressedStreamWriter {
 
   void _pendingBufferWriteByteBlock(List<int> data, int offset, int length) {
     List.copyRange(
-        _pendingBuffer, _pendingBufferLength, data, offset, offset + length);
+      _pendingBuffer,
+      _pendingBufferLength,
+      data,
+      offset,
+      offset + length,
+    );
     _pendingBufferLength += length;
   }
 
   void _pendingBufferAlignToByte() {
     if (_pendingBufferBitsInCache > 0) {
-      _pendingBuffer[_pendingBufferLength++] =
-          _pendingBufferBitsCache.toUnsigned(8);
+      _pendingBuffer[_pendingBufferLength++] = _pendingBufferBitsCache
+          .toUnsigned(8);
 
       if (_pendingBufferBitsInCache > 8) {
-        _pendingBuffer[_pendingBufferLength++] =
-            (_pendingBufferBitsCache >> 8).toUnsigned(8);
+        _pendingBuffer[_pendingBufferLength++] = (_pendingBufferBitsCache >> 8)
+            .toUnsigned(8);
       }
     }
 
@@ -801,8 +852,13 @@ class CompressedStreamWriter {
       if (more > _inputEnd - _inputOffset) {
         more = _inputEnd - _inputOffset;
       }
-      List.copyRange(_dataWindow!, _stringStart + _lookAhead, _inputBuffer!,
-          _inputOffset, _inputOffset + more);
+      List.copyRange(
+        _dataWindow!,
+        _stringStart + _lookAhead,
+        _inputBuffer!,
+        _inputOffset,
+        _inputOffset + more,
+      );
 
       _inputOffset += more;
       _lookAhead += more;
@@ -831,7 +887,8 @@ class CompressedStreamWriter {
   }
 
   void _updateHash() {
-    _currentHash = (_dataWindow![_stringStart] << hashShift) ^
+    _currentHash =
+        (_dataWindow![_stringStart] << hashShift) ^
         _dataWindow![_stringStart + 1];
   }
 
@@ -850,8 +907,8 @@ class CompressedStreamWriter {
     int result = 0;
     while (_pendingBufferBitsInCache >= 8 &&
         _pendingBufferLength < defPendingBufferSize) {
-      _pendingBuffer[_pendingBufferLength++] =
-          _pendingBufferBitsCache.toUnsigned(8);
+      _pendingBuffer[_pendingBufferLength++] = _pendingBufferBitsCache
+          .toUnsigned(8);
       _pendingBufferBitsCache >>= 8;
       _pendingBufferBitsInCache -= 8;
       result++;
@@ -898,7 +955,11 @@ class CompressedStreamWriter {
 
   /// internal method
   static int checksumUpdate(
-      int checksum, List<int>? buffer, int offset, int length) {
+    int checksum,
+    List<int>? buffer,
+    int offset,
+    int length,
+  ) {
     int checksumUint = checksum.toUnsigned(32);
     int s1 = checksumUint & 65535;
     int s2 = checksumUint >> checkSumBitOffset;

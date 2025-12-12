@@ -62,14 +62,20 @@ class MessageDigestFinder {
       return doFinal(digest);
     } else {
       throw ArgumentError.value(
-          algorithm, 'hashAlgorithm', 'Invalid message digest algorithm');
+        algorithm,
+        'hashAlgorithm',
+        'Invalid message digest algorithm',
+      );
     }
   }
 
   /// Internal method
   List<int> doFinal(IMessageDigest digest) {
-    final List<int> bytes =
-        List<int>.filled(digest.messageDigestSize!, 0, growable: true);
+    final List<int> bytes = List<int>.filled(
+      digest.messageDigestSize!,
+      0,
+      growable: true,
+    );
     digest.doFinal(bytes, 0);
     return bytes;
   }
@@ -236,7 +242,8 @@ class RIPEMD160MessageDigest extends MessageDigest {
 
   @override
   void processWord(List<int> input, int inOff) {
-    _x[_xOffset++] = (input[inOff] & 0xff) |
+    _x[_xOffset++] =
+        (input[inOff] & 0xff) |
         ((input[inOff + 1] & 0xff) << 8) |
         ((input[inOff + 2] & 0xff) << 16) |
         ((input[inOff + 3] & 0xff) << 24);
@@ -311,523 +318,907 @@ class RIPEMD160MessageDigest extends MessageDigest {
     a = getRightToLeft(a + getBitLevelEXOR(b, c, d) + _x[15], 8) + e;
     c = getRightToLeft(c, 10);
 
-    f = getRightToLeft(
-            f + getBitlevelReverseNegative(g, h, i) + _x[5] + 1352829926, 8) +
+    f =
+        getRightToLeft(
+          f + getBitlevelReverseNegative(g, h, i) + _x[5] + 1352829926,
+          8,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelReverseNegative(f, g, h) + _x[14] + 1352829926, 9) +
+    j =
+        getRightToLeft(
+          j + getBitlevelReverseNegative(f, g, h) + _x[14] + 1352829926,
+          9,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelReverseNegative(j, f, g) + _x[7] + 1352829926, 9) +
+    i =
+        getRightToLeft(
+          i + getBitlevelReverseNegative(j, f, g) + _x[7] + 1352829926,
+          9,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelReverseNegative(i, j, f) + _x[0] + 1352829926, 11) +
+    h =
+        getRightToLeft(
+          h + getBitlevelReverseNegative(i, j, f) + _x[0] + 1352829926,
+          11,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelReverseNegative(h, i, j) + _x[9] + 1352829926, 13) +
+    g =
+        getRightToLeft(
+          g + getBitlevelReverseNegative(h, i, j) + _x[9] + 1352829926,
+          13,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelReverseNegative(g, h, i) + _x[2] + 1352829926, 15) +
+    f =
+        getRightToLeft(
+          f + getBitlevelReverseNegative(g, h, i) + _x[2] + 1352829926,
+          15,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelReverseNegative(f, g, h) + _x[11] + 1352829926, 15) +
+    j =
+        getRightToLeft(
+          j + getBitlevelReverseNegative(f, g, h) + _x[11] + 1352829926,
+          15,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelReverseNegative(j, f, g) + _x[4] + 1352829926, 5) +
+    i =
+        getRightToLeft(
+          i + getBitlevelReverseNegative(j, f, g) + _x[4] + 1352829926,
+          5,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelReverseNegative(i, j, f) + _x[13] + 1352829926, 7) +
+    h =
+        getRightToLeft(
+          h + getBitlevelReverseNegative(i, j, f) + _x[13] + 1352829926,
+          7,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelReverseNegative(h, i, j) + _x[6] + 1352829926, 7) +
+    g =
+        getRightToLeft(
+          g + getBitlevelReverseNegative(h, i, j) + _x[6] + 1352829926,
+          7,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelReverseNegative(g, h, i) + _x[15] + 1352829926, 8) +
+    f =
+        getRightToLeft(
+          f + getBitlevelReverseNegative(g, h, i) + _x[15] + 1352829926,
+          8,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelReverseNegative(f, g, h) + _x[8] + 1352829926, 11) +
+    j =
+        getRightToLeft(
+          j + getBitlevelReverseNegative(f, g, h) + _x[8] + 1352829926,
+          11,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelReverseNegative(j, f, g) + _x[1] + 1352829926, 14) +
+    i =
+        getRightToLeft(
+          i + getBitlevelReverseNegative(j, f, g) + _x[1] + 1352829926,
+          14,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelReverseNegative(i, j, f) + _x[10] + 1352829926, 14) +
+    h =
+        getRightToLeft(
+          h + getBitlevelReverseNegative(i, j, f) + _x[10] + 1352829926,
+          14,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelReverseNegative(h, i, j) + _x[3] + 1352829926, 12) +
+    g =
+        getRightToLeft(
+          g + getBitlevelReverseNegative(h, i, j) + _x[3] + 1352829926,
+          12,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelReverseNegative(g, h, i) + _x[12] + 1352829926, 6) +
+    f =
+        getRightToLeft(
+          f + getBitlevelReverseNegative(g, h, i) + _x[12] + 1352829926,
+          6,
+        ) +
         j;
     h = getRightToLeft(h, 10);
 
-    e = getRightToLeft(
-            e + getBitlevelMultiplexer(a, b, c) + _x[7] + 1518500249, 7) +
+    e =
+        getRightToLeft(
+          e + getBitlevelMultiplexer(a, b, c) + _x[7] + 1518500249,
+          7,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelMultiplexer(e, a, b) + _x[4] + 1518500249, 6) +
+    d =
+        getRightToLeft(
+          d + getBitlevelMultiplexer(e, a, b) + _x[4] + 1518500249,
+          6,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelMultiplexer(d, e, a) + _x[13] + 1518500249, 8) +
+    c =
+        getRightToLeft(
+          c + getBitlevelMultiplexer(d, e, a) + _x[13] + 1518500249,
+          8,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelMultiplexer(c, d, e) + _x[1] + 1518500249, 13) +
+    b =
+        getRightToLeft(
+          b + getBitlevelMultiplexer(c, d, e) + _x[1] + 1518500249,
+          13,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelMultiplexer(b, c, d) + _x[10] + 1518500249, 11) +
+    a =
+        getRightToLeft(
+          a + getBitlevelMultiplexer(b, c, d) + _x[10] + 1518500249,
+          11,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelMultiplexer(a, b, c) + _x[6] + 1518500249, 9) +
+    e =
+        getRightToLeft(
+          e + getBitlevelMultiplexer(a, b, c) + _x[6] + 1518500249,
+          9,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelMultiplexer(e, a, b) + _x[15] + 1518500249, 7) +
+    d =
+        getRightToLeft(
+          d + getBitlevelMultiplexer(e, a, b) + _x[15] + 1518500249,
+          7,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelMultiplexer(d, e, a) + _x[3] + 1518500249, 15) +
+    c =
+        getRightToLeft(
+          c + getBitlevelMultiplexer(d, e, a) + _x[3] + 1518500249,
+          15,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelMultiplexer(c, d, e) + _x[12] + 1518500249, 7) +
+    b =
+        getRightToLeft(
+          b + getBitlevelMultiplexer(c, d, e) + _x[12] + 1518500249,
+          7,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelMultiplexer(b, c, d) + _x[0] + 1518500249, 12) +
+    a =
+        getRightToLeft(
+          a + getBitlevelMultiplexer(b, c, d) + _x[0] + 1518500249,
+          12,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelMultiplexer(a, b, c) + _x[9] + 1518500249, 15) +
+    e =
+        getRightToLeft(
+          e + getBitlevelMultiplexer(a, b, c) + _x[9] + 1518500249,
+          15,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelMultiplexer(e, a, b) + _x[5] + 1518500249, 9) +
+    d =
+        getRightToLeft(
+          d + getBitlevelMultiplexer(e, a, b) + _x[5] + 1518500249,
+          9,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelMultiplexer(d, e, a) + _x[2] + 1518500249, 11) +
+    c =
+        getRightToLeft(
+          c + getBitlevelMultiplexer(d, e, a) + _x[2] + 1518500249,
+          11,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelMultiplexer(c, d, e) + _x[14] + 1518500249, 7) +
+    b =
+        getRightToLeft(
+          b + getBitlevelMultiplexer(c, d, e) + _x[14] + 1518500249,
+          7,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelMultiplexer(b, c, d) + _x[11] + 1518500249, 13) +
+    a =
+        getRightToLeft(
+          a + getBitlevelMultiplexer(b, c, d) + _x[11] + 1518500249,
+          13,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelMultiplexer(a, b, c) + _x[8] + 1518500249, 12) +
+    e =
+        getRightToLeft(
+          e + getBitlevelMultiplexer(a, b, c) + _x[8] + 1518500249,
+          12,
+        ) +
         d;
     b = getRightToLeft(b, 10);
 
-    j = getRightToLeft(
-            j + getBitlevelDemultiplexer(f, g, h) + _x[6] + 1548603684, 9) +
+    j =
+        getRightToLeft(
+          j + getBitlevelDemultiplexer(f, g, h) + _x[6] + 1548603684,
+          9,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelDemultiplexer(j, f, g) + _x[11] + 1548603684, 13) +
+    i =
+        getRightToLeft(
+          i + getBitlevelDemultiplexer(j, f, g) + _x[11] + 1548603684,
+          13,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelDemultiplexer(i, j, f) + _x[3] + 1548603684, 15) +
+    h =
+        getRightToLeft(
+          h + getBitlevelDemultiplexer(i, j, f) + _x[3] + 1548603684,
+          15,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelDemultiplexer(h, i, j) + _x[7] + 1548603684, 7) +
+    g =
+        getRightToLeft(
+          g + getBitlevelDemultiplexer(h, i, j) + _x[7] + 1548603684,
+          7,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelDemultiplexer(g, h, i) + _x[0] + 1548603684, 12) +
+    f =
+        getRightToLeft(
+          f + getBitlevelDemultiplexer(g, h, i) + _x[0] + 1548603684,
+          12,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelDemultiplexer(f, g, h) + _x[13] + 1548603684, 8) +
+    j =
+        getRightToLeft(
+          j + getBitlevelDemultiplexer(f, g, h) + _x[13] + 1548603684,
+          8,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelDemultiplexer(j, f, g) + _x[5] + 1548603684, 9) +
+    i =
+        getRightToLeft(
+          i + getBitlevelDemultiplexer(j, f, g) + _x[5] + 1548603684,
+          9,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelDemultiplexer(i, j, f) + _x[10] + 1548603684, 11) +
+    h =
+        getRightToLeft(
+          h + getBitlevelDemultiplexer(i, j, f) + _x[10] + 1548603684,
+          11,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelDemultiplexer(h, i, j) + _x[14] + 1548603684, 7) +
+    g =
+        getRightToLeft(
+          g + getBitlevelDemultiplexer(h, i, j) + _x[14] + 1548603684,
+          7,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelDemultiplexer(g, h, i) + _x[15] + 1548603684, 7) +
+    f =
+        getRightToLeft(
+          f + getBitlevelDemultiplexer(g, h, i) + _x[15] + 1548603684,
+          7,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelDemultiplexer(f, g, h) + _x[8] + 1548603684, 12) +
+    j =
+        getRightToLeft(
+          j + getBitlevelDemultiplexer(f, g, h) + _x[8] + 1548603684,
+          12,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelDemultiplexer(j, f, g) + _x[12] + 1548603684, 7) +
+    i =
+        getRightToLeft(
+          i + getBitlevelDemultiplexer(j, f, g) + _x[12] + 1548603684,
+          7,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelDemultiplexer(i, j, f) + _x[4] + 1548603684, 6) +
+    h =
+        getRightToLeft(
+          h + getBitlevelDemultiplexer(i, j, f) + _x[4] + 1548603684,
+          6,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelDemultiplexer(h, i, j) + _x[9] + 1548603684, 15) +
+    g =
+        getRightToLeft(
+          g + getBitlevelDemultiplexer(h, i, j) + _x[9] + 1548603684,
+          15,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelDemultiplexer(g, h, i) + _x[1] + 1548603684, 13) +
+    f =
+        getRightToLeft(
+          f + getBitlevelDemultiplexer(g, h, i) + _x[1] + 1548603684,
+          13,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelDemultiplexer(f, g, h) + _x[2] + 1548603684, 11) +
+    j =
+        getRightToLeft(
+          j + getBitlevelDemultiplexer(f, g, h) + _x[2] + 1548603684,
+          11,
+        ) +
         i;
     g = getRightToLeft(g, 10);
 
-    d = getRightToLeft(
-            d + getBitlevelNegative(e, a, b) + _x[3] + 1859775393, 11) +
+    d =
+        getRightToLeft(
+          d + getBitlevelNegative(e, a, b) + _x[3] + 1859775393,
+          11,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelNegative(d, e, a) + _x[10] + 1859775393, 13) +
+    c =
+        getRightToLeft(
+          c + getBitlevelNegative(d, e, a) + _x[10] + 1859775393,
+          13,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelNegative(c, d, e) + _x[14] + 1859775393, 6) +
+    b =
+        getRightToLeft(
+          b + getBitlevelNegative(c, d, e) + _x[14] + 1859775393,
+          6,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelNegative(b, c, d) + _x[4] + 1859775393, 7) +
+    a =
+        getRightToLeft(
+          a + getBitlevelNegative(b, c, d) + _x[4] + 1859775393,
+          7,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelNegative(a, b, c) + _x[9] + 1859775393, 14) +
+    e =
+        getRightToLeft(
+          e + getBitlevelNegative(a, b, c) + _x[9] + 1859775393,
+          14,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelNegative(e, a, b) + _x[15] + 1859775393, 9) +
+    d =
+        getRightToLeft(
+          d + getBitlevelNegative(e, a, b) + _x[15] + 1859775393,
+          9,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelNegative(d, e, a) + _x[8] + 1859775393, 13) +
+    c =
+        getRightToLeft(
+          c + getBitlevelNegative(d, e, a) + _x[8] + 1859775393,
+          13,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelNegative(c, d, e) + _x[1] + 1859775393, 15) +
+    b =
+        getRightToLeft(
+          b + getBitlevelNegative(c, d, e) + _x[1] + 1859775393,
+          15,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelNegative(b, c, d) + _x[2] + 1859775393, 14) +
+    a =
+        getRightToLeft(
+          a + getBitlevelNegative(b, c, d) + _x[2] + 1859775393,
+          14,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelNegative(a, b, c) + _x[7] + 1859775393, 8) +
+    e =
+        getRightToLeft(
+          e + getBitlevelNegative(a, b, c) + _x[7] + 1859775393,
+          8,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelNegative(e, a, b) + _x[0] + 1859775393, 13) +
+    d =
+        getRightToLeft(
+          d + getBitlevelNegative(e, a, b) + _x[0] + 1859775393,
+          13,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelNegative(d, e, a) + _x[6] + 1859775393, 6) +
+    c =
+        getRightToLeft(
+          c + getBitlevelNegative(d, e, a) + _x[6] + 1859775393,
+          6,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelNegative(c, d, e) + _x[13] + 1859775393, 5) +
+    b =
+        getRightToLeft(
+          b + getBitlevelNegative(c, d, e) + _x[13] + 1859775393,
+          5,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelNegative(b, c, d) + _x[11] + 1859775393, 12) +
+    a =
+        getRightToLeft(
+          a + getBitlevelNegative(b, c, d) + _x[11] + 1859775393,
+          12,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelNegative(a, b, c) + _x[5] + 1859775393, 7) +
+    e =
+        getRightToLeft(
+          e + getBitlevelNegative(a, b, c) + _x[5] + 1859775393,
+          7,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelNegative(e, a, b) + _x[12] + 1859775393, 5) +
+    d =
+        getRightToLeft(
+          d + getBitlevelNegative(e, a, b) + _x[12] + 1859775393,
+          5,
+        ) +
         c;
     a = getRightToLeft(a, 10);
 
-    i = getRightToLeft(
-            i + getBitlevelNegative(j, f, g) + _x[15] + 1836072691, 9) +
+    i =
+        getRightToLeft(
+          i + getBitlevelNegative(j, f, g) + _x[15] + 1836072691,
+          9,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelNegative(i, j, f) + _x[5] + 1836072691, 7) +
+    h =
+        getRightToLeft(
+          h + getBitlevelNegative(i, j, f) + _x[5] + 1836072691,
+          7,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelNegative(h, i, j) + _x[1] + 1836072691, 15) +
+    g =
+        getRightToLeft(
+          g + getBitlevelNegative(h, i, j) + _x[1] + 1836072691,
+          15,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelNegative(g, h, i) + _x[3] + 1836072691, 11) +
+    f =
+        getRightToLeft(
+          f + getBitlevelNegative(g, h, i) + _x[3] + 1836072691,
+          11,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelNegative(f, g, h) + _x[7] + 1836072691, 8) +
+    j =
+        getRightToLeft(
+          j + getBitlevelNegative(f, g, h) + _x[7] + 1836072691,
+          8,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelNegative(j, f, g) + _x[14] + 1836072691, 6) +
+    i =
+        getRightToLeft(
+          i + getBitlevelNegative(j, f, g) + _x[14] + 1836072691,
+          6,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelNegative(i, j, f) + _x[6] + 1836072691, 6) +
+    h =
+        getRightToLeft(
+          h + getBitlevelNegative(i, j, f) + _x[6] + 1836072691,
+          6,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelNegative(h, i, j) + _x[9] + 1836072691, 14) +
+    g =
+        getRightToLeft(
+          g + getBitlevelNegative(h, i, j) + _x[9] + 1836072691,
+          14,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelNegative(g, h, i) + _x[11] + 1836072691, 12) +
+    f =
+        getRightToLeft(
+          f + getBitlevelNegative(g, h, i) + _x[11] + 1836072691,
+          12,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelNegative(f, g, h) + _x[8] + 1836072691, 13) +
+    j =
+        getRightToLeft(
+          j + getBitlevelNegative(f, g, h) + _x[8] + 1836072691,
+          13,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelNegative(j, f, g) + _x[12] + 1836072691, 5) +
+    i =
+        getRightToLeft(
+          i + getBitlevelNegative(j, f, g) + _x[12] + 1836072691,
+          5,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelNegative(i, j, f) + _x[2] + 1836072691, 14) +
+    h =
+        getRightToLeft(
+          h + getBitlevelNegative(i, j, f) + _x[2] + 1836072691,
+          14,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelNegative(h, i, j) + _x[10] + 1836072691, 13) +
+    g =
+        getRightToLeft(
+          g + getBitlevelNegative(h, i, j) + _x[10] + 1836072691,
+          13,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelNegative(g, h, i) + _x[0] + 1836072691, 13) +
+    f =
+        getRightToLeft(
+          f + getBitlevelNegative(g, h, i) + _x[0] + 1836072691,
+          13,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelNegative(f, g, h) + _x[4] + 1836072691, 7) +
+    j =
+        getRightToLeft(
+          j + getBitlevelNegative(f, g, h) + _x[4] + 1836072691,
+          7,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelNegative(j, f, g) + _x[13] + 1836072691, 5) +
+    i =
+        getRightToLeft(
+          i + getBitlevelNegative(j, f, g) + _x[13] + 1836072691,
+          5,
+        ) +
         h;
     f = getRightToLeft(f, 10);
 
-    c = getRightToLeft(
-            c + getBitlevelDemultiplexer(d, e, a) + _x[1] - 1894007588, 11) +
+    c =
+        getRightToLeft(
+          c + getBitlevelDemultiplexer(d, e, a) + _x[1] - 1894007588,
+          11,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelDemultiplexer(c, d, e) + _x[9] - 1894007588, 12) +
+    b =
+        getRightToLeft(
+          b + getBitlevelDemultiplexer(c, d, e) + _x[9] - 1894007588,
+          12,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelDemultiplexer(b, c, d) + _x[11] - 1894007588, 14) +
+    a =
+        getRightToLeft(
+          a + getBitlevelDemultiplexer(b, c, d) + _x[11] - 1894007588,
+          14,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelDemultiplexer(a, b, c) + _x[10] - 1894007588, 15) +
+    e =
+        getRightToLeft(
+          e + getBitlevelDemultiplexer(a, b, c) + _x[10] - 1894007588,
+          15,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelDemultiplexer(e, a, b) + _x[0] - 1894007588, 14) +
+    d =
+        getRightToLeft(
+          d + getBitlevelDemultiplexer(e, a, b) + _x[0] - 1894007588,
+          14,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelDemultiplexer(d, e, a) + _x[8] - 1894007588, 15) +
+    c =
+        getRightToLeft(
+          c + getBitlevelDemultiplexer(d, e, a) + _x[8] - 1894007588,
+          15,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelDemultiplexer(c, d, e) + _x[12] - 1894007588, 9) +
+    b =
+        getRightToLeft(
+          b + getBitlevelDemultiplexer(c, d, e) + _x[12] - 1894007588,
+          9,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelDemultiplexer(b, c, d) + _x[4] - 1894007588, 8) +
+    a =
+        getRightToLeft(
+          a + getBitlevelDemultiplexer(b, c, d) + _x[4] - 1894007588,
+          8,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelDemultiplexer(a, b, c) + _x[13] - 1894007588, 9) +
+    e =
+        getRightToLeft(
+          e + getBitlevelDemultiplexer(a, b, c) + _x[13] - 1894007588,
+          9,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelDemultiplexer(e, a, b) + _x[3] - 1894007588, 14) +
+    d =
+        getRightToLeft(
+          d + getBitlevelDemultiplexer(e, a, b) + _x[3] - 1894007588,
+          14,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelDemultiplexer(d, e, a) + _x[7] - 1894007588, 5) +
+    c =
+        getRightToLeft(
+          c + getBitlevelDemultiplexer(d, e, a) + _x[7] - 1894007588,
+          5,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelDemultiplexer(c, d, e) + _x[15] - 1894007588, 6) +
+    b =
+        getRightToLeft(
+          b + getBitlevelDemultiplexer(c, d, e) + _x[15] - 1894007588,
+          6,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelDemultiplexer(b, c, d) + _x[14] - 1894007588, 8) +
+    a =
+        getRightToLeft(
+          a + getBitlevelDemultiplexer(b, c, d) + _x[14] - 1894007588,
+          8,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelDemultiplexer(a, b, c) + _x[5] - 1894007588, 6) +
+    e =
+        getRightToLeft(
+          e + getBitlevelDemultiplexer(a, b, c) + _x[5] - 1894007588,
+          6,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelDemultiplexer(e, a, b) + _x[6] - 1894007588, 5) +
+    d =
+        getRightToLeft(
+          d + getBitlevelDemultiplexer(e, a, b) + _x[6] - 1894007588,
+          5,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelDemultiplexer(d, e, a) + _x[2] - 1894007588, 12) +
+    c =
+        getRightToLeft(
+          c + getBitlevelDemultiplexer(d, e, a) + _x[2] - 1894007588,
+          12,
+        ) +
         b;
     e = getRightToLeft(e, 10);
 
-    h = getRightToLeft(
-            h + getBitlevelMultiplexer(i, j, f) + _x[8] + 2053994217, 15) +
+    h =
+        getRightToLeft(
+          h + getBitlevelMultiplexer(i, j, f) + _x[8] + 2053994217,
+          15,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelMultiplexer(h, i, j) + _x[6] + 2053994217, 5) +
+    g =
+        getRightToLeft(
+          g + getBitlevelMultiplexer(h, i, j) + _x[6] + 2053994217,
+          5,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelMultiplexer(g, h, i) + _x[4] + 2053994217, 8) +
+    f =
+        getRightToLeft(
+          f + getBitlevelMultiplexer(g, h, i) + _x[4] + 2053994217,
+          8,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelMultiplexer(f, g, h) + _x[1] + 2053994217, 11) +
+    j =
+        getRightToLeft(
+          j + getBitlevelMultiplexer(f, g, h) + _x[1] + 2053994217,
+          11,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelMultiplexer(j, f, g) + _x[3] + 2053994217, 14) +
+    i =
+        getRightToLeft(
+          i + getBitlevelMultiplexer(j, f, g) + _x[3] + 2053994217,
+          14,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelMultiplexer(i, j, f) + _x[11] + 2053994217, 14) +
+    h =
+        getRightToLeft(
+          h + getBitlevelMultiplexer(i, j, f) + _x[11] + 2053994217,
+          14,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelMultiplexer(h, i, j) + _x[15] + 2053994217, 6) +
+    g =
+        getRightToLeft(
+          g + getBitlevelMultiplexer(h, i, j) + _x[15] + 2053994217,
+          6,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelMultiplexer(g, h, i) + _x[0] + 2053994217, 14) +
+    f =
+        getRightToLeft(
+          f + getBitlevelMultiplexer(g, h, i) + _x[0] + 2053994217,
+          14,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelMultiplexer(f, g, h) + _x[5] + 2053994217, 6) +
+    j =
+        getRightToLeft(
+          j + getBitlevelMultiplexer(f, g, h) + _x[5] + 2053994217,
+          6,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelMultiplexer(j, f, g) + _x[12] + 2053994217, 9) +
+    i =
+        getRightToLeft(
+          i + getBitlevelMultiplexer(j, f, g) + _x[12] + 2053994217,
+          9,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelMultiplexer(i, j, f) + _x[2] + 2053994217, 12) +
+    h =
+        getRightToLeft(
+          h + getBitlevelMultiplexer(i, j, f) + _x[2] + 2053994217,
+          12,
+        ) +
         g;
     j = getRightToLeft(j, 10);
-    g = getRightToLeft(
-            g + getBitlevelMultiplexer(h, i, j) + _x[13] + 2053994217, 9) +
+    g =
+        getRightToLeft(
+          g + getBitlevelMultiplexer(h, i, j) + _x[13] + 2053994217,
+          9,
+        ) +
         f;
     i = getRightToLeft(i, 10);
-    f = getRightToLeft(
-            f + getBitlevelMultiplexer(g, h, i) + _x[9] + 2053994217, 12) +
+    f =
+        getRightToLeft(
+          f + getBitlevelMultiplexer(g, h, i) + _x[9] + 2053994217,
+          12,
+        ) +
         j;
     h = getRightToLeft(h, 10);
-    j = getRightToLeft(
-            j + getBitlevelMultiplexer(f, g, h) + _x[7] + 2053994217, 5) +
+    j =
+        getRightToLeft(
+          j + getBitlevelMultiplexer(f, g, h) + _x[7] + 2053994217,
+          5,
+        ) +
         i;
     g = getRightToLeft(g, 10);
-    i = getRightToLeft(
-            i + getBitlevelMultiplexer(j, f, g) + _x[10] + 2053994217, 15) +
+    i =
+        getRightToLeft(
+          i + getBitlevelMultiplexer(j, f, g) + _x[10] + 2053994217,
+          15,
+        ) +
         h;
     f = getRightToLeft(f, 10);
-    h = getRightToLeft(
-            h + getBitlevelMultiplexer(i, j, f) + _x[14] + 2053994217, 8) +
+    h =
+        getRightToLeft(
+          h + getBitlevelMultiplexer(i, j, f) + _x[14] + 2053994217,
+          8,
+        ) +
         g;
     j = getRightToLeft(j, 10);
 
-    b = getRightToLeft(
-            b + getBitlevelReverseNegative(c, d, e) + _x[4] - 1454113458, 9) +
+    b =
+        getRightToLeft(
+          b + getBitlevelReverseNegative(c, d, e) + _x[4] - 1454113458,
+          9,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelReverseNegative(b, c, d) + _x[0] - 1454113458, 15) +
+    a =
+        getRightToLeft(
+          a + getBitlevelReverseNegative(b, c, d) + _x[0] - 1454113458,
+          15,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelReverseNegative(a, b, c) + _x[5] - 1454113458, 5) +
+    e =
+        getRightToLeft(
+          e + getBitlevelReverseNegative(a, b, c) + _x[5] - 1454113458,
+          5,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelReverseNegative(e, a, b) + _x[9] - 1454113458, 11) +
+    d =
+        getRightToLeft(
+          d + getBitlevelReverseNegative(e, a, b) + _x[9] - 1454113458,
+          11,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelReverseNegative(d, e, a) + _x[7] - 1454113458, 6) +
+    c =
+        getRightToLeft(
+          c + getBitlevelReverseNegative(d, e, a) + _x[7] - 1454113458,
+          6,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelReverseNegative(c, d, e) + _x[12] - 1454113458, 8) +
+    b =
+        getRightToLeft(
+          b + getBitlevelReverseNegative(c, d, e) + _x[12] - 1454113458,
+          8,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelReverseNegative(b, c, d) + _x[2] - 1454113458, 13) +
+    a =
+        getRightToLeft(
+          a + getBitlevelReverseNegative(b, c, d) + _x[2] - 1454113458,
+          13,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelReverseNegative(a, b, c) + _x[10] - 1454113458, 12) +
+    e =
+        getRightToLeft(
+          e + getBitlevelReverseNegative(a, b, c) + _x[10] - 1454113458,
+          12,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelReverseNegative(e, a, b) + _x[14] - 1454113458, 5) +
+    d =
+        getRightToLeft(
+          d + getBitlevelReverseNegative(e, a, b) + _x[14] - 1454113458,
+          5,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelReverseNegative(d, e, a) + _x[1] - 1454113458, 12) +
+    c =
+        getRightToLeft(
+          c + getBitlevelReverseNegative(d, e, a) + _x[1] - 1454113458,
+          12,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelReverseNegative(c, d, e) + _x[3] - 1454113458, 13) +
+    b =
+        getRightToLeft(
+          b + getBitlevelReverseNegative(c, d, e) + _x[3] - 1454113458,
+          13,
+        ) +
         a;
     d = getRightToLeft(d, 10);
-    a = getRightToLeft(
-            a + getBitlevelReverseNegative(b, c, d) + _x[8] - 1454113458, 14) +
+    a =
+        getRightToLeft(
+          a + getBitlevelReverseNegative(b, c, d) + _x[8] - 1454113458,
+          14,
+        ) +
         e;
     c = getRightToLeft(c, 10);
-    e = getRightToLeft(
-            e + getBitlevelReverseNegative(a, b, c) + _x[11] - 1454113458, 11) +
+    e =
+        getRightToLeft(
+          e + getBitlevelReverseNegative(a, b, c) + _x[11] - 1454113458,
+          11,
+        ) +
         d;
     b = getRightToLeft(b, 10);
-    d = getRightToLeft(
-            d + getBitlevelReverseNegative(e, a, b) + _x[6] - 1454113458, 8) +
+    d =
+        getRightToLeft(
+          d + getBitlevelReverseNegative(e, a, b) + _x[6] - 1454113458,
+          8,
+        ) +
         c;
     a = getRightToLeft(a, 10);
-    c = getRightToLeft(
-            c + getBitlevelReverseNegative(d, e, a) + _x[15] - 1454113458, 5) +
+    c =
+        getRightToLeft(
+          c + getBitlevelReverseNegative(d, e, a) + _x[15] - 1454113458,
+          5,
+        ) +
         b;
     e = getRightToLeft(e, 10);
-    b = getRightToLeft(
-            b + getBitlevelReverseNegative(c, d, e) + _x[13] - 1454113458, 6) +
+    b =
+        getRightToLeft(
+          b + getBitlevelReverseNegative(c, d, e) + _x[13] - 1454113458,
+          6,
+        ) +
         a;
     d = getRightToLeft(d, 10);
 

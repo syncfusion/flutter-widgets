@@ -91,7 +91,7 @@ class QRCodeRenderer extends SymbologyRenderer {
     '258C',
     '2590',
     '2580',
-    '25A0'
+    '25A0',
   ];
 
   /// Specifies the latin2 character set
@@ -152,7 +152,7 @@ class QRCodeRenderer extends SymbologyRenderer {
     '16F',
     '171',
     '163',
-    '2D9'
+    '2D9',
   ];
 
   /// Specifies the latin3 character set
@@ -182,7 +182,7 @@ class QRCodeRenderer extends SymbologyRenderer {
     '121',
     '11D',
     '16D',
-    '15D'
+    '15D',
   ];
 
   /// Specifies the latin4 character set
@@ -235,7 +235,7 @@ class QRCodeRenderer extends SymbologyRenderer {
     '137',
     '173',
     '169',
-    '16B'
+    '16B',
   ];
 
   /// Specifies the windows 1250 character set
@@ -249,7 +249,7 @@ class QRCodeRenderer extends SymbologyRenderer {
     '15F',
     '13D',
     '13E',
-    '17C'
+    '17C',
   ];
 
   /// Specifies the windows 1251 character set
@@ -283,7 +283,7 @@ class QRCodeRenderer extends SymbologyRenderer {
     '458',
     '405',
     '455',
-    '457'
+    '457',
   ];
 
   /// Specifies the windows 1252 character set
@@ -314,7 +314,7 @@ class QRCodeRenderer extends SymbologyRenderer {
     '203A',
     '153',
     '17E',
-    '178'
+    '178',
   ];
 
   /// Specifies the QR code value
@@ -516,7 +516,7 @@ class QRCodeRenderer extends SymbologyRenderer {
       '153',
       '6BA',
       '6BE',
-      '6C1'
+      '6C1',
     ];
 
     if (windows1256CharSet.contains(inputChar)) {
@@ -717,9 +717,10 @@ class QRCodeRenderer extends SymbologyRenderer {
   ///Methods to creates the block value based on the encoded data
   List<List<String?>> _getBlocks(List<bool> encodeData, int noOfBlocks) {
     final List<List<String?>> encodedBlocks = List<List<String?>>.generate(
-        noOfBlocks,
-        (int i) =>
-            List<String?>.filled(encodeData.length ~/ 8 ~/ noOfBlocks, null));
+      noOfBlocks,
+      (int i) =>
+          List<String?>.filled(encodeData.length ~/ 8 ~/ noOfBlocks, null),
+    );
 
     String stringValue = '';
     int j = 0;
@@ -746,7 +747,10 @@ class QRCodeRenderer extends SymbologyRenderer {
 
   /// Method to the split code word
   List<String?> _splitCodeWord(
-      List<List<String?>> encodeData, int block, int count) {
+    List<List<String?>> encodeData,
+    int block,
+    int count,
+  ) {
     final List<String?> encodeDataString = List<String?>.filled(count, null);
     for (int i = 0; i < count; i++) {
       encodeDataString[i] = encodeData[block][i];
@@ -820,7 +824,6 @@ class QRCodeRenderer extends SymbologyRenderer {
           _eciAssignmentNumber = 2;
           break;
         }
-
         //Check for ISO/IEC 8859-2
         else if (_getIsISO8859_2CharacterSet(_encodedText[i].codeUnitAt(0))) {
           _eciAssignmentNumber = 4;
@@ -861,7 +864,6 @@ class QRCodeRenderer extends SymbologyRenderer {
           _eciAssignmentNumber = 13;
           break;
         }
-
         //Check for Windows1250
         else if (_getIsWindows1250Character(_encodedText[i].codeUnitAt(0))) {
           _eciAssignmentNumber = 21;
@@ -938,17 +940,24 @@ class QRCodeRenderer extends SymbologyRenderer {
         int capacity = 0;
         if (_inputMode == QRInputMode.alphaNumeric) {
           capacity = QRCodeValue.getAlphaNumericDataCapacity(
-              _errorCorrectionLevel, _codeVersion);
+            _errorCorrectionLevel,
+            _codeVersion,
+          );
         } else if (_inputMode == QRInputMode.numeric) {
           capacity = QRCodeValue.getNumericDataCapacity(
-              _errorCorrectionLevel, _codeVersion);
+            _errorCorrectionLevel,
+            _codeVersion,
+          );
         } else if (_inputMode == QRInputMode.binary) {
           capacity = QRCodeValue.getBinaryDataCapacity(
-              _errorCorrectionLevel, _codeVersion);
+            _errorCorrectionLevel,
+            _codeVersion,
+          );
         }
         if (capacity < _encodedText.length) {
           throw ArgumentError(
-              'The input value length is greater than version capacity');
+            'The input value length is greater than version capacity',
+          );
         }
       } else {
         int capacityLow = 0,
@@ -957,31 +966,55 @@ class QRCodeRenderer extends SymbologyRenderer {
             capacityHigh = 0;
         if (_inputMode == QRInputMode.alphaNumeric) {
           capacityLow = QRCodeValue.getAlphaNumericDataCapacity(
-              ErrorCorrectionLevel.low, _codeVersion);
+            ErrorCorrectionLevel.low,
+            _codeVersion,
+          );
           capacityMedium = QRCodeValue.getAlphaNumericDataCapacity(
-              ErrorCorrectionLevel.medium, _codeVersion);
+            ErrorCorrectionLevel.medium,
+            _codeVersion,
+          );
           capacityQuartile = QRCodeValue.getAlphaNumericDataCapacity(
-              ErrorCorrectionLevel.quartile, _codeVersion);
+            ErrorCorrectionLevel.quartile,
+            _codeVersion,
+          );
           capacityHigh = QRCodeValue.getAlphaNumericDataCapacity(
-              ErrorCorrectionLevel.high, _codeVersion);
+            ErrorCorrectionLevel.high,
+            _codeVersion,
+          );
         } else if (_inputMode == QRInputMode.numeric) {
           capacityLow = QRCodeValue.getNumericDataCapacity(
-              ErrorCorrectionLevel.low, _codeVersion);
+            ErrorCorrectionLevel.low,
+            _codeVersion,
+          );
           capacityMedium = QRCodeValue.getNumericDataCapacity(
-              ErrorCorrectionLevel.medium, _codeVersion);
+            ErrorCorrectionLevel.medium,
+            _codeVersion,
+          );
           capacityQuartile = QRCodeValue.getNumericDataCapacity(
-              ErrorCorrectionLevel.quartile, _codeVersion);
+            ErrorCorrectionLevel.quartile,
+            _codeVersion,
+          );
           capacityHigh = QRCodeValue.getNumericDataCapacity(
-              ErrorCorrectionLevel.high, _codeVersion);
+            ErrorCorrectionLevel.high,
+            _codeVersion,
+          );
         } else if (_inputMode == QRInputMode.binary) {
           capacityLow = QRCodeValue.getBinaryDataCapacity(
-              ErrorCorrectionLevel.low, _codeVersion);
+            ErrorCorrectionLevel.low,
+            _codeVersion,
+          );
           capacityMedium = QRCodeValue.getBinaryDataCapacity(
-              ErrorCorrectionLevel.medium, _codeVersion);
+            ErrorCorrectionLevel.medium,
+            _codeVersion,
+          );
           capacityQuartile = QRCodeValue.getBinaryDataCapacity(
-              ErrorCorrectionLevel.quartile, _codeVersion);
+            ErrorCorrectionLevel.quartile,
+            _codeVersion,
+          );
           capacityHigh = QRCodeValue.getBinaryDataCapacity(
-              ErrorCorrectionLevel.high, _codeVersion);
+            ErrorCorrectionLevel.high,
+            _codeVersion,
+          );
         }
 
         if (capacityHigh > _encodedText.length) {
@@ -994,7 +1027,8 @@ class QRCodeRenderer extends SymbologyRenderer {
           _errorCorrectionLevel = ErrorCorrectionLevel.low;
         } else {
           throw ArgumentError(
-              'The input value length is greater than version capacity');
+            'The input value length is greater than version capacity',
+          );
         }
       }
     }
@@ -1130,9 +1164,10 @@ class QRCodeRenderer extends SymbologyRenderer {
   /// uses single for loop for calculating the data allocation values
   void _dataAllocationAndMasking(List<bool> data) {
     _dataAllocationValues = List<List<ModuleValue>>.generate(
-        _noOfModules,
-        (int i) =>
-            List<ModuleValue>.generate(_noOfModules, (int j) => ModuleValue()));
+      _noOfModules,
+      (int i) =>
+          List<ModuleValue>.generate(_noOfModules, (int j) => ModuleValue()),
+    );
 
     int point = 0;
 
@@ -1421,12 +1456,14 @@ class QRCodeRenderer extends SymbologyRenderer {
   void _generateValues() {
     _initialize();
     _qrCodeValues = QRCodeValue(
-        qrCodeVersion: _codeVersion,
-        errorCorrectionLevel: _errorCorrectionLevel);
+      qrCodeVersion: _codeVersion,
+      errorCorrectionLevel: _errorCorrectionLevel,
+    );
     _moduleValues = List<List<ModuleValue>>.generate(
-        _noOfModules,
-        (int i) =>
-            List<ModuleValue>.generate(_noOfModules, (int j) => ModuleValue()));
+      _noOfModules,
+      (int i) =>
+          List<ModuleValue>.generate(_noOfModules, (int j) => ModuleValue()),
+    );
     _drawPDP(0, 0);
     _drawPDP(_noOfModules - 7, 0);
     _drawPDP(0, _noOfModules - 7);
@@ -1475,8 +1512,10 @@ class QRCodeRenderer extends SymbologyRenderer {
           _encodeDataCodeWords.add(true);
 
           //Add ECI assignment number
-          final List<bool?> numberInBool =
-              _getStringToBoolArray(_eciAssignmentNumber.toString(), 8);
+          final List<bool?> numberInBool = _getStringToBoolArray(
+            _eciAssignmentNumber.toString(),
+            8,
+          );
           for (int i = 0; i < numberInBool.length; i++) {
             _encodeDataCodeWords.add(numberInBool[i]!);
           }
@@ -1629,7 +1668,8 @@ class QRCodeRenderer extends SymbologyRenderer {
         /// European Encoding
       } else {
         throw ArgumentError(
-            'The provided input value contains non-convertible characters');
+          'The provided input value contains non-convertible characters',
+        );
       }
 
       final List<bool?> numberInBool = _getIntToBoolArray(number, 8);
@@ -1695,8 +1735,10 @@ class QRCodeRenderer extends SymbologyRenderer {
     if (_blocks!.length == 6) {
       totalBlockSize = _blocks![0] + _blocks![3];
     }
-    final List<List<String?>> ds1 =
-        List<List<String?>>.generate(totalBlockSize, (int i) => <String?>[]);
+    final List<List<String?>> ds1 = List<List<String?>>.generate(
+      totalBlockSize,
+      (int i) => <String?>[],
+    );
 
     List<bool> testEncodeData = _encodeDataCodeWords;
     if (_blocks!.length == 6) {
@@ -1708,33 +1750,45 @@ class QRCodeRenderer extends SymbologyRenderer {
     }
 
     List<List<String?>> dsOne = List<List<String?>>.generate(
-        _blocks![0],
-        (int i) => List<String?>.filled(
-            testEncodeData.length ~/ 8 ~/ _blocks![0], null));
+      _blocks![0],
+      (int i) =>
+          List<String?>.filled(testEncodeData.length ~/ 8 ~/ _blocks![0], null),
+    );
     dsOne = _getBlocks(testEncodeData, _blocks![0]);
 
     for (int i = 0; i < _blocks![0]; i++) {
-      ds1[i] =
-          _splitCodeWord(dsOne, i, testEncodeData.length ~/ 8 ~/ _blocks![0]);
+      ds1[i] = _splitCodeWord(
+        dsOne,
+        i,
+        testEncodeData.length ~/ 8 ~/ _blocks![0],
+      );
     }
 
     if (_blocks!.length == 6) {
       testEncodeData = <bool>[];
-      for (int i = _blocks![0] * _blocks![2] * 8;
-          i < _encodeDataCodeWords.length;
-          i++) {
+      for (
+        int i = _blocks![0] * _blocks![2] * 8;
+        i < _encodeDataCodeWords.length;
+        i++
+      ) {
         testEncodeData.add(_encodeDataCodeWords[i]);
       }
 
       List<List<String?>> dsTwo = List<List<String?>>.generate(
-          _blocks![0],
-          (int i) => List<String?>.filled(
-              testEncodeData.length ~/ 8 ~/ _blocks![3], null));
+        _blocks![0],
+        (int i) => List<String?>.filled(
+          testEncodeData.length ~/ 8 ~/ _blocks![3],
+          null,
+        ),
+      );
       dsTwo = _getBlocks(testEncodeData, _blocks![3]);
 
       for (int i = _blocks![0], count = 0; i < totalBlockSize; i++) {
         ds1[i] = _splitCodeWord(
-            dsTwo, count++, testEncodeData.length ~/ 8 ~/ _blocks![3]);
+          dsTwo,
+          count++,
+          testEncodeData.length ~/ 8 ~/ _blocks![3],
+        );
       }
     }
 
@@ -1771,7 +1825,9 @@ class QRCodeRenderer extends SymbologyRenderer {
 
     final List<bool?> numberOfBitsInCharacterCountIndicatorInBool =
         _getIntToBoolArray(
-            _encodedText.length, numberOfBitsInCharacterCountIndicator);
+          _encodedText.length,
+          numberOfBitsInCharacterCountIndicator,
+        );
 
     for (int i = 0; i < numberOfBitsInCharacterCountIndicator; i++) {
       _encodeDataCodeWords.add(numberOfBitsInCharacterCountIndicatorInBool[i]!);
@@ -1795,10 +1851,14 @@ class QRCodeRenderer extends SymbologyRenderer {
 
   /// Method to calculate the error correcting code word
   void _calculateErrorCorrectingCodeWord(
-      int totalBlockSize, List<List<String?>> ds1) {
+    int totalBlockSize,
+    List<List<String?>> ds1,
+  ) {
     final ErrorCorrectionCodeWords errorCorrectionCodeWord =
         ErrorCorrectionCodeWords(
-            codeVersion: _codeVersion, correctionLevel: _errorCorrectionLevel);
+          codeVersion: _codeVersion,
+          correctionLevel: _errorCorrectionLevel,
+        );
 
     _dataBits = _qrCodeValues.noOfDataCodeWord;
     final int eccw = _qrCodeValues.noOfErrorCorrectionCodeWord;
@@ -1813,8 +1873,10 @@ class QRCodeRenderer extends SymbologyRenderer {
 
     errorCorrectionCodeWord.eccw = eccw ~/ totalBlockSize;
 
-    final List<List<String>> polynomial =
-        List<List<String>>.generate(totalBlockSize, (int i) => <String>[]);
+    final List<List<String>> polynomial = List<List<String>>.generate(
+      totalBlockSize,
+      (int i) => <String>[],
+    );
     int count = 0;
 
     for (int i = 0; i < _blocks![0]; i++) {
@@ -1856,15 +1918,16 @@ class QRCodeRenderer extends SymbologyRenderer {
 
   @override
   void renderBarcode(
-      Canvas canvas,
-      Size size,
-      Offset offset,
-      String value,
-      Color foregroundColor,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      bool showValue) {
+    Canvas canvas,
+    Size size,
+    Offset offset,
+    String value,
+    Color foregroundColor,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    bool showValue,
+  ) {
     _encodedText = value;
     _generateValues();
 
@@ -1899,8 +1962,12 @@ class QRCodeRenderer extends SymbologyRenderer {
           }
         }
 
-        final Rect rect = Rect.fromLTRB(x.toDouble(), yPosition.toDouble(),
-            (x + dimension).toDouble(), (yPosition + dimension).toDouble());
+        final Rect rect = Rect.fromLTRB(
+          x.toDouble(),
+          yPosition.toDouble(),
+          (x + dimension).toDouble(),
+          (yPosition + dimension).toDouble(),
+        );
         canvas.drawRect(rect, paint);
 
         x = (x + dimension).toInt();
@@ -1912,23 +1979,39 @@ class QRCodeRenderer extends SymbologyRenderer {
     if (showValue) {
       final Offset textOffset = Offset(offset.dx, yPosition.toDouble());
       drawText(
-          canvas, textOffset, size, value, textStyle, textSpacing, textAlign);
+        canvas,
+        textOffset,
+        size,
+        value,
+        textStyle,
+        textSpacing,
+        textAlign,
+      );
     }
   }
 
   /// Method to render the input value of the barcode
   @override
-  void drawText(Canvas canvas, Offset offset, Size size, String value,
-      TextStyle textStyle, double textSpacing, TextAlign textAlign,
-      [Offset? actualOffset, Size? actualSize]) {
+  void drawText(
+    Canvas canvas,
+    Offset offset,
+    Size size,
+    String value,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign, [
+    Offset? actualOffset,
+    Size? actualSize,
+  ]) {
     final TextSpan span = TextSpan(text: value, style: textStyle);
 
     final TextPainter textPainter = TextPainter(
-        maxLines: 1,
-        ellipsis: '.....',
-        text: span,
-        textDirection: TextDirection.ltr,
-        textAlign: textAlign);
+      maxLines: 1,
+      ellipsis: '.....',
+      text: span,
+      textDirection: TextDirection.ltr,
+      textAlign: textAlign,
+    );
     textPainter.layout(maxWidth: size.width);
     double x;
     double y;

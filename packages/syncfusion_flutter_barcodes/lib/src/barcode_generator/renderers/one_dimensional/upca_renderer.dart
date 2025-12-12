@@ -20,14 +20,18 @@ class UPCARenderer extends SymbologyRenderer {
       if (int.parse(value[11]) == _getCheckSumData(value)) {
         _encodedValue = value;
       } else {
-        throw ArgumentError('Invalid check digit at the trailing end.'
-            ' Provide the valid check digit or remove it.'
-            ' Since, it has been calculated automatically.');
+        throw ArgumentError(
+          'Invalid check digit at the trailing end.'
+          ' Provide the valid check digit or remove it.'
+          ' Since, it has been calculated automatically.',
+        );
       }
     } else {
-      throw ArgumentError('UPCA supports only numeric characters. '
-          'The provided value should have 11 digits (without check digit) '
-          'or with 12 digits.');
+      throw ArgumentError(
+        'UPCA supports only numeric characters. '
+        'The provided value should have 11 digits (without check digit) '
+        'or with 12 digits.',
+      );
     }
     return true;
   }
@@ -37,15 +41,16 @@ class UPCARenderer extends SymbologyRenderer {
   /// to be passed
   @override
   void renderBarcode(
-      Canvas canvas,
-      Size size,
-      Offset offset,
-      String value,
-      Color foregroundColor,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      bool showValue) {
+    Canvas canvas,
+    Size size,
+    Offset offset,
+    String value,
+    Color foregroundColor,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    bool showValue,
+  ) {
     final Paint paint = getBarPaint(foregroundColor);
     final List<String> code = _getCodeValues();
     final int barTotalLength = _getTotalLength(code);
@@ -73,12 +78,21 @@ class UPCARenderer extends SymbologyRenderer {
     }
     final double width =
         size.width - (singleDigitValues[1]! + singleDigitValues[3]!);
-    double left = symbology?.module == null
-        ? offset.dx + singleDigitValues[1]!
-        : getLeftPosition(barTotalLength, symbology?.module, width,
-            offset.dx + singleDigitValues[1]!);
+    double left =
+        symbology?.module == null
+            ? offset.dx + singleDigitValues[1]!
+            : getLeftPosition(
+              barTotalLength,
+              symbology?.module,
+              width,
+              offset.dx + singleDigitValues[1]!,
+            );
     final Rect barCodeRect = Rect.fromLTRB(
-        offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
+      offset.dx,
+      offset.dy,
+      offset.dx + size.width,
+      offset.dy + size.height,
+    );
     double ratio = 0;
     if (symbology?.module != null) {
       ratio = symbology!.module!.toDouble();
@@ -96,19 +110,24 @@ class UPCARenderer extends SymbologyRenderer {
       final String codeValue = code[i];
       final bool hasExtraHeight = getHasExtraHeight(i, code);
       final double additionalHeight = i == code.length - 4 ? 0.4 : 0.5;
-      final double barHeight = hasExtraHeight
-          ? size.height +
-              (showValue
-                  ? (textSize!.height * additionalHeight) + textSpacing
-                  : 0)
-          : size.height;
+      final double barHeight =
+          hasExtraHeight
+              ? size.height +
+                  (showValue
+                      ? (textSize!.height * additionalHeight) + textSpacing
+                      : 0)
+              : size.height;
       final int codeLength = codeValue.length;
       for (int j = 0; j < codeLength; j++) {
         final bool canDraw = codeValue[j] == '1';
         if (canDraw &&
             (left >= barCodeRect.left && left + ratio < barCodeRect.right)) {
           final Rect individualBarRect = Rect.fromLTRB(
-              left, offset.dy, left + ratio, offset.dy + barHeight);
+            left,
+            offset.dy,
+            left + ratio,
+            offset.dy + barHeight,
+          );
           canvas.drawRect(individualBarRect, paint);
         }
         left += ratio;
@@ -136,8 +155,17 @@ class UPCARenderer extends SymbologyRenderer {
     }
 
     if (showValue) {
-      _paintText(canvas, offset, size, _encodedValue, textStyle, textSpacing,
-          textAlign, positions, singleDigitValues);
+      _paintText(
+        canvas,
+        offset,
+        size,
+        _encodedValue,
+        textStyle,
+        textSpacing,
+        textAlign,
+        positions,
+        singleDigitValues,
+      );
     }
   }
 
@@ -179,7 +207,7 @@ class UPCARenderer extends SymbologyRenderer {
         '0101111',
         '0111011',
         '0110111',
-        '0001011'
+        '0001011',
       ],
       'R': <String>[
         '1110010',
@@ -191,8 +219,8 @@ class UPCARenderer extends SymbologyRenderer {
         '1010000',
         '1000100',
         '1001000',
-        '1110100'
-      ]
+        '1110100',
+      ],
     };
 
     return codes;
@@ -222,14 +250,16 @@ class UPCARenderer extends SymbologyRenderer {
 
   /// Method to calculate the check sum digit
   int _getCheckSumData(String value) {
-    final int sum1 = 3 *
+    final int sum1 =
+        3 *
         (int.parse(value[0]) +
             int.parse(value[2]) +
             int.parse(value[4]) +
             int.parse(value[6]) +
             int.parse(value[8]) +
             int.parse(value[10]));
-    final int sum2 = int.parse(value[9]) +
+    final int sum2 =
+        int.parse(value[9]) +
         int.parse(value[7]) +
         int.parse(value[5]) +
         int.parse(value[3]) +
@@ -240,15 +270,16 @@ class UPCARenderer extends SymbologyRenderer {
 
   /// Method to render the input value of the barcode
   void _paintText(
-      Canvas canvas,
-      Offset offset,
-      Size size,
-      String value,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      List<double?> positions,
-      List<double?> singleDigitValues) {
+    Canvas canvas,
+    Offset offset,
+    Size size,
+    String value,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    List<double?> positions,
+    List<double?> singleDigitValues,
+  ) {
     final String value1 = value[0];
     final String value2 = value.substring(1, 6);
     final String value3 = value.substring(6, 11);
@@ -258,50 +289,54 @@ class UPCARenderer extends SymbologyRenderer {
 
     // Renders the first digit of encoded value
     drawText(
-        canvas,
-        Offset(singleDigitValues[0]!, offset.dy + size.height + textSpacing),
-        Size(singleDigitValues[1]!, size.height),
-        value1,
-        textStyle,
-        textSpacing,
-        textAlign,
-        offset,
-        size);
+      canvas,
+      Offset(singleDigitValues[0]!, offset.dy + size.height + textSpacing),
+      Size(singleDigitValues[1]!, size.height),
+      value1,
+      textStyle,
+      textSpacing,
+      textAlign,
+      offset,
+      size,
+    );
 
     // Renders the first five digits of encoded input value
     drawText(
-        canvas,
-        Offset(positions[0]!, offset.dy),
-        Size(secondTextWidth, size.height),
-        value2,
-        textStyle,
-        textSpacing,
-        textAlign,
-        offset,
-        size);
+      canvas,
+      Offset(positions[0]!, offset.dy),
+      Size(secondTextWidth, size.height),
+      value2,
+      textStyle,
+      textSpacing,
+      textAlign,
+      offset,
+      size,
+    );
 
     // Renders the second five digits of encoded input value
     drawText(
-        canvas,
-        Offset(positions[2]!, offset.dy),
-        Size(thirdTextWidth, size.height),
-        value3,
-        textStyle,
-        textSpacing,
-        textAlign,
-        offset,
-        size);
+      canvas,
+      Offset(positions[2]!, offset.dy),
+      Size(thirdTextWidth, size.height),
+      value3,
+      textStyle,
+      textSpacing,
+      textAlign,
+      offset,
+      size,
+    );
 
     // Renders the last digit of the encoded input value
     drawText(
-        canvas,
-        Offset(singleDigitValues[2]!, offset.dy + size.height + textSpacing),
-        Size(singleDigitValues[3]!, size.height),
-        value[value.length - 1],
-        textStyle,
-        textSpacing,
-        textAlign,
-        offset,
-        size);
+      canvas,
+      Offset(singleDigitValues[2]!, offset.dy + size.height + textSpacing),
+      Size(singleDigitValues[3]!, size.height),
+      value[value.length - 1],
+      textStyle,
+      textSpacing,
+      textAlign,
+      offset,
+      size,
+    );
   }
 }

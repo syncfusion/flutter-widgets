@@ -56,7 +56,9 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
   }
 
   PdfDocumentLinkAnnotation._(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
     _helper = PdfDocumentLinkAnnotationHelper._(this, dictionary, crossTable);
   }
 
@@ -94,9 +96,9 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
         _helper.destination = value;
       }
       if (PdfAnnotationHelper.getHelper(this).isLoadedAnnotation) {
-        PdfAnnotationHelper.getHelper(this)
-            .dictionary!
-            .setProperty(PdfDictionaryProperties.dest, value);
+        PdfAnnotationHelper.getHelper(
+          this,
+        ).dictionary!.setProperty(PdfDictionaryProperties.dest, value);
       }
     }
   }
@@ -127,24 +129,28 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
     final PdfCrossTable crossTable =
         PdfAnnotationHelper.getHelper(this).crossTable;
     if (dictionary.containsKey(PdfDictionaryProperties.dest)) {
-      final IPdfPrimitive? obj =
-          crossTable.getObject(dictionary[PdfDictionaryProperties.dest]);
+      final IPdfPrimitive? obj = crossTable.getObject(
+        dictionary[PdfDictionaryProperties.dest],
+      );
       PdfArray? array;
       if (obj is PdfArray) {
         array = obj;
       } else if (crossTable.document != null &&
           PdfDocumentHelper.getHelper(crossTable.document!).isLoadedDocument) {
         if (obj is PdfName || obj is PdfString) {
-          array = PdfDocumentHelper.getHelper(crossTable.document!)
-              .getNamedDestination(obj!);
+          array = PdfDocumentHelper.getHelper(
+            crossTable.document!,
+          ).getNamedDestination(obj!);
         }
       }
       PdfPage page;
       if (array != null && array[0] is PdfReferenceHolder) {
-        final PdfDictionary? dic = crossTable
-            .getObject(array[0]! as PdfReferenceHolder) as PdfDictionary?;
-        page = PdfPageCollectionHelper.getHelper(crossTable.document!.pages)
-            .getPage(dic);
+        final PdfDictionary? dic =
+            crossTable.getObject(array[0]! as PdfReferenceHolder)
+                as PdfDictionary?;
+        page = PdfPageCollectionHelper.getHelper(
+          crossTable.document!.pages,
+        ).getPage(dic);
         final PdfName? mode = array[1] as PdfName?;
         if (mode != null) {
           if (mode.name == 'XYZ') {
@@ -187,7 +193,9 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
               final double width = (array[4]! as PdfNumber).value!.toDouble();
               final double height = (array[5]! as PdfNumber).value!.toDouble();
               dest = PdfDestinationHelper.getDestination(
-                  page, PdfRectangle(left, top, width, height));
+                page,
+                PdfRectangle(left, top, width, height),
+              );
               dest.mode = PdfDestinationMode.fitR;
             }
           }
@@ -207,8 +215,9 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
       } else if (crossTable.document != null &&
           PdfDocumentHelper.getHelper(crossTable.document!).isLoadedDocument) {
         if (obj is PdfName || obj is PdfString) {
-          array = PdfDocumentHelper.getHelper(crossTable.document!)
-              .getNamedDestination(obj);
+          array = PdfDocumentHelper.getHelper(
+            crossTable.document!,
+          ).getNamedDestination(obj);
         }
       }
       if (array != null && array[0] is PdfReferenceHolder) {
@@ -217,8 +226,9 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
         final IPdfPrimitive? primitiveObj = PdfCrossTable.dereference(holder);
         final PdfDictionary? dic = primitiveObj as PdfDictionary?;
         if (dic != null) {
-          page = PdfPageCollectionHelper.getHelper(crossTable.document!.pages)
-              .getPage(dic);
+          page = PdfPageCollectionHelper.getHelper(
+            crossTable.document!.pages,
+          ).getPage(dic);
         }
         if (page != null) {
           final PdfName mode = array[1]! as PdfName;
@@ -260,9 +270,14 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
               final PdfNumber right = array[4]! as PdfNumber;
               final PdfNumber top = array[5]! as PdfNumber;
               dest = PdfDestinationHelper.getDestination(
-                  page,
-                  PdfRectangle(left.value!.toDouble(), bottom.value!.toDouble(),
-                      right.value!.toDouble(), top.value!.toDouble()));
+                page,
+                PdfRectangle(
+                  left.value!.toDouble(),
+                  bottom.value!.toDouble(),
+                  right.value!.toDouble(),
+                  top.value!.toDouble(),
+                ),
+              );
               dest.mode = PdfDestinationMode.fitR;
             }
           } else {
@@ -282,10 +297,12 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
 class PdfDocumentLinkAnnotationHelper extends PdfLinkAnnotationHelper {
   /// internal constructor
   PdfDocumentLinkAnnotationHelper(this.documentLinkHelper, Rect bounds)
-      : super(documentLinkHelper, bounds);
-  PdfDocumentLinkAnnotationHelper._(this.documentLinkHelper,
-      PdfDictionary dictionary, PdfCrossTable crossTable)
-      : super.load(documentLinkHelper, dictionary, crossTable);
+    : super(documentLinkHelper, bounds);
+  PdfDocumentLinkAnnotationHelper._(
+    this.documentLinkHelper,
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) : super.load(documentLinkHelper, dictionary, crossTable);
 
   /// internal field
   PdfDocumentLinkAnnotation documentLinkHelper;
@@ -301,20 +318,24 @@ class PdfDocumentLinkAnnotationHelper extends PdfLinkAnnotationHelper {
   void save() {
     if (destination != null) {
       PdfAnnotationHelper.getHelper(base).dictionary!.setProperty(
-          PdfName(PdfDictionaryProperties.dest),
-          IPdfWrapper.getElement(destination!));
+        PdfName(PdfDictionaryProperties.dest),
+        IPdfWrapper.getElement(destination!),
+      );
     }
   }
 
   /// internal method
   static PdfDocumentLinkAnnotation load(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
     return PdfDocumentLinkAnnotation._(dictionary, crossTable);
   }
 
   /// internal method
   static PdfDocumentLinkAnnotationHelper getHelper(
-      PdfDocumentLinkAnnotation annotation) {
+    PdfDocumentLinkAnnotation annotation,
+  ) {
     return annotation._helper;
   }
 }

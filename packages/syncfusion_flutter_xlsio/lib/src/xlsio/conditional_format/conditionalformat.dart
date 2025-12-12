@@ -1,4 +1,11 @@
-part of xlsio;
+import 'dart:ui';
+
+import '../conditional_format/above_below_average/above_below_average.dart';
+import '../conditional_format/color_scale/color_scale.dart';
+import '../conditional_format/data_bar/data_bar.dart';
+import '../conditional_format/icon_set/icon_set.dart';
+import '../conditional_format/top_bottom/top_bottom.dart';
+import '../general/enums.dart';
 
 /// Represents a conditional format.
 class ConditionalFormat {
@@ -48,7 +55,7 @@ class ConditionalFormat {
   /// ```
   late ExcelCFType formatType;
 
-  ///  Gets or sets one of the constants of <see cref="CFTimePeriods"/> enumeration
+  ///  Gets or sets one of the constants of see cref="CFTimePeriods" enumeration
   ///  which represents the type of the time period.
   /// ```dart
   ///  // Create a new Excel Document.

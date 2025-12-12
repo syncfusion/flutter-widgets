@@ -108,7 +108,9 @@ class _MapTooltipState extends State<MapTooltip>
   void initState() {
     super.initState();
     controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
   }
 
   @override
@@ -120,7 +122,8 @@ class _MapTooltipState extends State<MapTooltip>
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
-    isDesktop = kIsWeb ||
+    isDesktop =
+        kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
         themeData.platform == TargetPlatform.linux;
@@ -163,7 +166,9 @@ class _MapTooltipRenderObjectWidget extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderMapTooltip renderObject) {
+    BuildContext context,
+    _RenderMapTooltip renderObject,
+  ) {
     renderObject
       ..source = source
       ..tooltipSettings = tooltipSettings
@@ -181,13 +186,15 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     required MediaQueryData mediaQueryData,
     required this.context,
     required _MapTooltipState state,
-  })  : _source = source,
-        _tooltipSettings = tooltipSettings,
-        _themeData = themeData,
-        _mediaQueryData = mediaQueryData,
-        _state = state {
-    _scaleAnimation =
-        CurvedAnimation(parent: _state.controller, curve: Curves.easeOutBack);
+  }) : _source = source,
+       _tooltipSettings = tooltipSettings,
+       _themeData = themeData,
+       _mediaQueryData = mediaQueryData,
+       _state = state {
+    _scaleAnimation = CurvedAnimation(
+      parent: _state.controller,
+      curve: Curves.easeOutBack,
+    );
   }
 
   static const double tooltipTriangleHeight = 7;
@@ -247,8 +254,12 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     hideTooltip(immediately: true);
   }
 
-  void _update(Offset? position, int? index, MapLayerElement? element,
-      int? sublayerIndex) {
+  void _update(
+    Offset? position,
+    int? index,
+    MapLayerElement? element,
+    int? sublayerIndex,
+  ) {
     if (index != null) {
       _state.adoptChild(index, element!, sublayerIndex: sublayerIndex);
       _currentPosition = position;
@@ -287,7 +298,9 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     _showTimer?.cancel();
     if (_pointerKind == PointerKind.touch) {
       _showTimer = Timer(
-          Duration(seconds: _tooltipSettings.hideDelay.toInt()), hideTooltip);
+        Duration(seconds: _tooltipSettings.hideDelay.toInt()),
+        hideTooltip,
+      );
     }
   }
 
@@ -301,8 +314,13 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     immediately ? _state.controller.reset() : _state.controller.reverse();
   }
 
-  void _updateTooltipIfNeeded(Offset? position, int? index, Rect? elementRect,
-      MapLayerElement? element, int? sublayerIndex) {
+  void _updateTooltipIfNeeded(
+    Offset? position,
+    int? index,
+    Rect? elementRect,
+    MapLayerElement? element,
+    int? sublayerIndex,
+  ) {
     if (sublayerIndex == _previousSublayerIndex &&
         element != MapLayerElement.shape &&
         element != MapLayerElement.vector &&
@@ -338,12 +356,22 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
   }
 
   @override
-  void paintTooltip(int? elementIndex, Rect? elementRect,
-      MapLayerElement? element, PointerKind kind,
-      [int? sublayerIndex, Offset? position]) {
+  void paintTooltip(
+    int? elementIndex,
+    Rect? elementRect,
+    MapLayerElement? element,
+    PointerKind kind, [
+    int? sublayerIndex,
+    Offset? position,
+  ]) {
     _pointerKind = kind;
     _updateTooltipIfNeeded(
-        position, elementIndex, elementRect, element, sublayerIndex);
+      position,
+      elementIndex,
+      elementRect,
+      element,
+      sublayerIndex,
+    );
   }
 
   @override
@@ -411,14 +439,15 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
       }
 
       _tooltipShape.paint(
-          context,
-          offset,
-          _currentPosition!,
-          _preferTooltipOnTop,
-          this,
-          _scaleAnimation,
-          _themeData,
-          _tooltipSettings);
+        context,
+        offset,
+        _currentPosition!,
+        _preferTooltipOnTop,
+        this,
+        _scaleAnimation,
+        _themeData,
+        _tooltipSettings,
+      );
     }
   }
 
@@ -433,23 +462,29 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
         _updateElementRect(bounds);
       }
       final double halfRectWidth = _elementRect!.width / 2;
-      Offset tooltipPosition = _elementRect!.topLeft +
+      Offset tooltipPosition =
+          _elementRect!.topLeft +
           Offset(halfRectWidth, _elementRect!.height * tooltipHeightFactor);
       _preferTooltipOnTop = bounds.contains(
-          tooltipPosition - Offset(0.0, tooltipHeight + tooltipTriangleHeight));
+        tooltipPosition - Offset(0.0, tooltipHeight + tooltipTriangleHeight),
+      );
       if (!_preferTooltipOnTop) {
         // To get the tooltip position at bottom based on the current rect,
         // we had subtracted 1 with the tooltipHeightFactor.
-        tooltipPosition = _elementRect!.topLeft +
-            Offset(halfRectWidth,
-                _elementRect!.height * (1 - tooltipHeightFactor));
+        tooltipPosition =
+            _elementRect!.topLeft +
+            Offset(
+              halfRectWidth,
+              _elementRect!.height * (1 - tooltipHeightFactor),
+            );
       }
       _currentPosition = tooltipPosition;
     }
     // For shape.
     else {
-      _preferTooltipOnTop = bounds.contains(_currentPosition! -
-          Offset(0.0, tooltipHeight + tooltipTriangleHeight));
+      _preferTooltipOnTop = bounds.contains(
+        _currentPosition! - Offset(0.0, tooltipHeight + tooltipTriangleHeight),
+      );
     }
   }
 
@@ -483,21 +518,23 @@ class _TooltipShape {
 
   /// Paints the tooltip shapes based on the value passed to it.
   void paint(
-      PaintingContext context,
-      Offset offset,
-      Offset center,
-      bool preferTooltipOnTop,
-      RenderProxyBox parentBox,
-      Animation<double> tooltipAnimation,
-      SfMapsThemeData themeData,
-      MapTooltipSettings tooltipSettings) {
+    PaintingContext context,
+    Offset offset,
+    Offset center,
+    bool preferTooltipOnTop,
+    RenderProxyBox parentBox,
+    Animation<double> tooltipAnimation,
+    SfMapsThemeData themeData,
+    MapTooltipSettings tooltipSettings,
+  ) {
     const double tooltipTriangleWidth = 12.0;
     const double halfTooltipTriangleWidth = tooltipTriangleWidth / 2;
     const double elevation = 0.0;
 
     Path path = Path();
-    BorderRadius borderRadius =
-        themeData.tooltipBorderRadius.resolve(TextDirection.ltr);
+    BorderRadius borderRadius = themeData.tooltipBorderRadius.resolve(
+      TextDirection.ltr,
+    );
     final double tooltipWidth = parentBox.child!.size.width;
     double tooltipHeight = parentBox.child!.size.height;
     final double halfTooltipWidth = tooltipWidth / 2;
@@ -508,29 +545,36 @@ class _TooltipShape {
     double tooltipTriangleOffsetY = tooltipStartPoint - triangleHeight;
 
     final double endGlobal = parentBox.size.width - marginSpace;
-    double rightLineWidth = center.dx + halfTooltipWidth > endGlobal
-        ? endGlobal - center.dx
-        : halfTooltipWidth;
-    final double leftLineWidth = center.dx - halfTooltipWidth < marginSpace
-        ? center.dx - marginSpace
-        : tooltipWidth - rightLineWidth;
-    rightLineWidth = leftLineWidth < halfTooltipWidth
-        ? halfTooltipWidth - leftLineWidth + rightLineWidth
-        : rightLineWidth;
+    double rightLineWidth =
+        center.dx + halfTooltipWidth > endGlobal
+            ? endGlobal - center.dx
+            : halfTooltipWidth;
+    final double leftLineWidth =
+        center.dx - halfTooltipWidth < marginSpace
+            ? center.dx - marginSpace
+            : tooltipWidth - rightLineWidth;
+    rightLineWidth =
+        leftLineWidth < halfTooltipWidth
+            ? halfTooltipWidth - leftLineWidth + rightLineWidth
+            : rightLineWidth;
 
-    double moveNosePoint = leftLineWidth < tooltipWidth * 0.2
-        ? tooltipWidth * 0.2 - leftLineWidth
-        : 0.0;
-    moveNosePoint = rightLineWidth < tooltipWidth * 0.2
-        ? -(tooltipWidth * 0.2 - rightLineWidth)
-        : moveNosePoint;
+    double moveNosePoint =
+        leftLineWidth < tooltipWidth * 0.2
+            ? tooltipWidth * 0.2 - leftLineWidth
+            : 0.0;
+    moveNosePoint =
+        rightLineWidth < tooltipWidth * 0.2
+            ? -(tooltipWidth * 0.2 - rightLineWidth)
+            : moveNosePoint;
 
-    double shiftText = leftLineWidth > rightLineWidth
-        ? -(halfTooltipWidth - rightLineWidth)
-        : 0.0;
-    shiftText = leftLineWidth < rightLineWidth
-        ? (halfTooltipWidth - leftLineWidth)
-        : shiftText;
+    double shiftText =
+        leftLineWidth > rightLineWidth
+            ? -(halfTooltipWidth - rightLineWidth)
+            : 0.0;
+    shiftText =
+        leftLineWidth < rightLineWidth
+            ? (halfTooltipWidth - leftLineWidth)
+            : shiftText;
 
     rightLineWidth = rightLineWidth + elevation;
     if (!preferTooltipOnTop) {
@@ -545,44 +589,56 @@ class _TooltipShape {
       tooltipHeight *= -1;
       borderRadius = BorderRadius.only(
         topRight: Radius.elliptical(
-            borderRadius.bottomRight.x, -borderRadius.bottomRight.y),
+          borderRadius.bottomRight.x,
+          -borderRadius.bottomRight.y,
+        ),
         bottomRight: Radius.elliptical(
-            borderRadius.topRight.x, -borderRadius.topRight.y),
+          borderRadius.topRight.x,
+          -borderRadius.topRight.y,
+        ),
         topLeft: Radius.elliptical(
-            borderRadius.bottomLeft.x, -borderRadius.bottomLeft.y),
-        bottomLeft:
-            Radius.elliptical(borderRadius.topLeft.x, -borderRadius.topLeft.y),
+          borderRadius.bottomLeft.x,
+          -borderRadius.bottomLeft.y,
+        ),
+        bottomLeft: Radius.elliptical(
+          borderRadius.topLeft.x,
+          -borderRadius.topLeft.y,
+        ),
       );
     }
 
     path = _getTooltipPath(
-        path,
-        triangleHeight,
-        halfTooltipHeight,
-        halfTooltipTriangleWidth,
-        tooltipTriangleOffsetY,
-        moveNosePoint,
-        rightLineWidth,
-        leftLineWidth,
-        borderRadius,
-        tooltipHeight);
+      path,
+      triangleHeight,
+      halfTooltipHeight,
+      halfTooltipTriangleWidth,
+      tooltipTriangleOffsetY,
+      moveNosePoint,
+      rightLineWidth,
+      leftLineWidth,
+      borderRadius,
+      tooltipHeight,
+    );
 
     context.canvas.save();
-    context.canvas
-        .translate(center.dx, center.dy - triangleHeight - halfTooltipHeight);
+    context.canvas.translate(
+      center.dx,
+      center.dy - triangleHeight - halfTooltipHeight,
+    );
     context.canvas.scale(tooltipAnimation.value);
     // In web HTML rendering, fill color clipped half of its tooltip's size.
     // To avoid this issue we are drawing stroke before fill.
     final Color? strokeColor =
         tooltipSettings.strokeColor ?? themeData.tooltipStrokeColor;
-    final Paint paint = Paint()
-      ..color = strokeColor ?? Colors.transparent
-      // We are drawing stroke before fill to avoid tooltip rendering issue
-      // in a web HTML rendering. Due to this, half of the stroke width only
-      // visible to us so that we are twice the stroke width.
-      ..strokeWidth =
-          (tooltipSettings.strokeWidth ?? themeData.tooltipStrokeWidth) * 2
-      ..style = PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..color = strokeColor ?? Colors.transparent
+          // We are drawing stroke before fill to avoid tooltip rendering issue
+          // in a web HTML rendering. Due to this, half of the stroke width only
+          // visible to us so that we are twice the stroke width.
+          ..strokeWidth =
+              (tooltipSettings.strokeWidth ?? themeData.tooltipStrokeWidth) * 2
+          ..style = PaintingStyle.stroke;
     // Drawing stroke.
     context.canvas.drawPath(path, paint);
     // Drawing fill color.
@@ -592,22 +648,25 @@ class _TooltipShape {
     context.canvas.drawPath(path, paint);
 
     context.canvas.clipPath(path);
-    context.paintChild(parentBox.child!,
-        offset - _getShiftPosition(offset, center, parentBox));
+    context.paintChild(
+      parentBox.child!,
+      offset - _getShiftPosition(offset, center, parentBox),
+    );
     context.canvas.restore();
   }
 
   Path _getTooltipPath(
-      Path path,
-      double tooltipTriangleHeight,
-      double halfTooltipHeight,
-      double halfTooltipTriangleWidth,
-      double tooltipTriangleOffsetY,
-      double moveNosePoint,
-      double rightLineWidth,
-      double leftLineWidth,
-      BorderRadius borderRadius,
-      double tooltipHeight) {
+    Path path,
+    double tooltipTriangleHeight,
+    double halfTooltipHeight,
+    double halfTooltipTriangleWidth,
+    double tooltipTriangleOffsetY,
+    double moveNosePoint,
+    double rightLineWidth,
+    double leftLineWidth,
+    BorderRadius borderRadius,
+    double tooltipHeight,
+  ) {
     path.reset();
 
     path.moveTo(0, tooltipTriangleHeight + halfTooltipHeight);
@@ -617,7 +676,9 @@ class _TooltipShape {
     // preferTooltipOnTop is false,
     //        \
     path.lineTo(
-        halfTooltipTriangleWidth + moveNosePoint, tooltipTriangleOffsetY);
+      halfTooltipTriangleWidth + moveNosePoint,
+      tooltipTriangleOffsetY,
+    );
     // preferTooltipOnTop is true,
     //         ___
     //        /
@@ -625,7 +686,9 @@ class _TooltipShape {
     // preferTooltipOnTop is false,
     //        \___
     path.lineTo(
-        rightLineWidth - borderRadius.bottomRight.x, tooltipTriangleOffsetY);
+      rightLineWidth - borderRadius.bottomRight.x,
+      tooltipTriangleOffsetY,
+    );
     // preferTooltipOnTop is true,
     //         ___|
     //        /
@@ -633,10 +696,16 @@ class _TooltipShape {
     // preferTooltipOnTop is false,
     //        \___
     //            |
-    path.quadraticBezierTo(rightLineWidth, tooltipTriangleOffsetY,
-        rightLineWidth, tooltipTriangleOffsetY - borderRadius.bottomRight.y);
-    path.lineTo(rightLineWidth,
-        tooltipTriangleOffsetY - tooltipHeight + borderRadius.topRight.y);
+    path.quadraticBezierTo(
+      rightLineWidth,
+      tooltipTriangleOffsetY,
+      rightLineWidth,
+      tooltipTriangleOffsetY - borderRadius.bottomRight.y,
+    );
+    path.lineTo(
+      rightLineWidth,
+      tooltipTriangleOffsetY - tooltipHeight + borderRadius.topRight.y,
+    );
     // preferTooltipOnTop is true,
     //     _______
     //         ___|
@@ -646,12 +715,15 @@ class _TooltipShape {
     //         \___
     //     ________|
     path.quadraticBezierTo(
-        rightLineWidth,
-        tooltipTriangleOffsetY - tooltipHeight,
-        rightLineWidth - borderRadius.topRight.x,
-        tooltipTriangleOffsetY - tooltipHeight);
-    path.lineTo(-leftLineWidth + borderRadius.topLeft.x,
-        tooltipTriangleOffsetY - tooltipHeight);
+      rightLineWidth,
+      tooltipTriangleOffsetY - tooltipHeight,
+      rightLineWidth - borderRadius.topRight.x,
+      tooltipTriangleOffsetY - tooltipHeight,
+    );
+    path.lineTo(
+      -leftLineWidth + borderRadius.topLeft.x,
+      tooltipTriangleOffsetY - tooltipHeight,
+    );
     // preferTooltipOnTop is true,
     //     _______
     //    |    ___|
@@ -661,12 +733,15 @@ class _TooltipShape {
     //         \___
     //    |________|
     path.quadraticBezierTo(
-        -leftLineWidth,
-        tooltipTriangleOffsetY - tooltipHeight,
-        -leftLineWidth,
-        tooltipTriangleOffsetY - tooltipHeight + borderRadius.topLeft.y);
+      -leftLineWidth,
+      tooltipTriangleOffsetY - tooltipHeight,
+      -leftLineWidth,
+      tooltipTriangleOffsetY - tooltipHeight + borderRadius.topLeft.y,
+    );
     path.lineTo(
-        -leftLineWidth, tooltipTriangleOffsetY - borderRadius.bottomLeft.y);
+      -leftLineWidth,
+      tooltipTriangleOffsetY - borderRadius.bottomLeft.y,
+    );
     // preferTooltipOnTop is true,
     //      ________
     //     |___  ___|
@@ -675,10 +750,16 @@ class _TooltipShape {
     // preferTooltipOnTop is false,
     //      ___ \___
     //     |________|
-    path.quadraticBezierTo(-leftLineWidth, tooltipTriangleOffsetY,
-        -leftLineWidth + borderRadius.bottomLeft.x, tooltipTriangleOffsetY);
+    path.quadraticBezierTo(
+      -leftLineWidth,
+      tooltipTriangleOffsetY,
+      -leftLineWidth + borderRadius.bottomLeft.x,
+      tooltipTriangleOffsetY,
+    );
     path.lineTo(
-        -halfTooltipTriangleWidth + moveNosePoint, tooltipTriangleOffsetY);
+      -halfTooltipTriangleWidth + moveNosePoint,
+      tooltipTriangleOffsetY,
+    );
     // preferTooltipOnTop is true,
     //       ________
     //      |___  ___|
@@ -693,7 +774,10 @@ class _TooltipShape {
   }
 
   Offset _getShiftPosition(
-      Offset offset, Offset center, RenderProxyBox parent) {
+    Offset offset,
+    Offset center,
+    RenderProxyBox parent,
+  ) {
     final Size childSize = parent.child!.size;
     final double halfChildWidth = childSize.width / 2;
     final double halfChildHeight = childSize.height / 2;
@@ -702,8 +786,9 @@ class _TooltipShape {
     // edge goes out of the map's right edge.
     if (center.dx + halfChildWidth + marginSpace > parent.size.width) {
       return Offset(
-          childSize.width + center.dx - parent.size.width + marginSpace,
-          halfChildHeight);
+        childSize.width + center.dx - parent.size.width + marginSpace,
+        halfChildHeight,
+      );
     }
     // Shifting the position of the tooltip to the right side, if its left
     // edge goes out of the map's left edge.

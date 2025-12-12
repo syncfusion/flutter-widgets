@@ -10,7 +10,6 @@ import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../axis/axis.dart';
 import '../axis/category_axis.dart';
-import '../axis/datetime_category_axis.dart';
 import '../axis/logarithmic_axis.dart';
 import '../base.dart';
 import '../common/callbacks.dart';
@@ -34,6 +33,8 @@ import '../utils/typedef.dart';
 ///
 /// Provides options to customize the [activationMode], [tooltipDisplayMode],
 /// [lineType] and [tooltipSettings].
+@immutable
+// ignore: must_be_immutable
 class TrackballBehavior extends ChartBehavior {
   /// Creating an argument constructor of TrackballBehavior class.
   TrackballBehavior({
@@ -422,7 +423,7 @@ class TrackballBehavior extends ChartBehavior {
       lineWidth,
       shouldAlwaysShow,
       builder,
-      hideDelay
+      hideDelay,
     ];
     return Object.hashAll(values);
   }
@@ -458,20 +459,30 @@ class TrackballBehavior extends ChartBehavior {
     assert(!y.isNaN);
     if (coordinateUnit == 'point') {
       _position = rawValueToPixelPoint(
-          x, y, parent.xAxis, parent.yAxis, parent.isTransposed);
+        x,
+        y,
+        parent.xAxis,
+        parent.yAxis,
+        parent.isTransposed,
+      );
     } else if (coordinateUnit == 'pixel') {
       if (x is num) {
         _position = Offset(x.toDouble(), y);
       } else {
         _position = Offset(
-            rawValueToPixelPoint(
-                    x, y, parent.xAxis, parent.yAxis, parent.isTransposed)
-                .dx,
-            y);
+          rawValueToPixelPoint(
+            x,
+            y,
+            parent.xAxis,
+            parent.yAxis,
+            parent.isTransposed,
+          ).dx,
+          y,
+        );
       }
     }
 
-    _show();
+    _show(parent);
   }
 
   /// Displays the trackball at the specified point index.
@@ -508,7 +519,13 @@ class TrackballBehavior extends ChartBehavior {
   /// (e.g., CrosshairBehavior, TrackballBehavior, ZoomingBehavior).
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
-    if (event is PointerMoveEvent) {
+    if (parentBox == null) {
+      return;
+    }
+
+    if (event is PointerDownEvent) {
+      _handlePointerDown(event);
+    } else if (event is PointerMoveEvent) {
       _handlePointerMove(event);
     } else if (event is PointerHoverEvent) {
       _handlePointerHover(event);
@@ -516,6 +533,12 @@ class TrackballBehavior extends ChartBehavior {
       _hideTrackball(immediately: true);
     } else if (event is PointerUpEvent) {
       _hideTrackball();
+    }
+  }
+
+  void _handlePointerDown(PointerDownEvent details) {
+    if (activationMode == ActivationMode.singleTap) {
+      _showTrackball(parentBox!.globalToLocal(details.position));
     }
   }
 
@@ -534,7 +557,7 @@ class TrackballBehavior extends ChartBehavior {
   /// Called when a pointer or mouse enter on the screen.
   @override
   void handlePointerEnter(PointerEnterEvent details) {
-    if (activationMode == ActivationMode.singleTap) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
       _showTrackball(parentBox!.globalToLocal(details.position));
     }
   }
@@ -549,7 +572,7 @@ class TrackballBehavior extends ChartBehavior {
   /// recognized in behavior.
   @override
   void handleLongPressStart(LongPressStartDetails details) {
-    if (activationMode == ActivationMode.longPress) {
+    if (parentBox != null && activationMode == ActivationMode.longPress) {
       _showTrackball(parentBox!.globalToLocal(details.globalPosition));
     }
   }
@@ -558,7 +581,7 @@ class TrackballBehavior extends ChartBehavior {
   /// recognized in behavior.
   @override
   void handleLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
-    if (activationMode == ActivationMode.longPress) {
+    if (parentBox != null && activationMode == ActivationMode.longPress) {
       _showTrackball(parentBox!.globalToLocal(details.globalPosition));
     }
   }
@@ -573,7 +596,7 @@ class TrackballBehavior extends ChartBehavior {
   /// Called when the pointer tap has contacted the screen in behavior.
   @override
   void handleTapDown(TapDownDetails details) {
-    if (activationMode == ActivationMode.singleTap) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
       _showTrackball(parentBox!.globalToLocal(details.globalPosition));
     }
   }
@@ -587,7 +610,7 @@ class TrackballBehavior extends ChartBehavior {
   /// Called when pointer tap has contacted the screen double time in behavior.
   @override
   void handleDoubleTap(Offset position) {
-    if (activationMode == ActivationMode.doubleTap) {
+    if (parentBox != null && activationMode == ActivationMode.doubleTap) {
       _showTrackball(parentBox!.globalToLocal(position));
       _hideTrackball(doubleTapHideDelay: 200);
     }
@@ -606,17 +629,18 @@ class TrackballBehavior extends ChartBehavior {
       final int hideDelayDuration =
           hideDelay > 0 ? hideDelay.toInt() : doubleTapHideDelay;
       _trackballHideTimer?.cancel();
-      _trackballHideTimer =
-          Timer(Duration(milliseconds: hideDelayDuration), () {
-        _trackballHideTimer = null;
-        hide();
-      });
+      _trackballHideTimer = Timer(
+        Duration(milliseconds: hideDelayDuration),
+        () {
+          _trackballHideTimer = null;
+          hide();
+        },
+      );
     }
   }
 
   void _fetchImage() {
     if (markerSettings != null &&
-        markerSettings!.markerVisibility == TrackballVisibilityMode.visible &&
         markerSettings!.shape == DataMarkerType.image &&
         markerSettings!.image != null) {
       fetchImage(markerSettings!.image).then((Image? value) {
@@ -628,9 +652,8 @@ class TrackballBehavior extends ChartBehavior {
     }
   }
 
-  void _show() {
-    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (_position == null || parent == null) {
+  void _show(RenderBehaviorArea parent) {
+    if (_position == null) {
       return;
     }
 
@@ -646,21 +669,43 @@ class TrackballBehavior extends ChartBehavior {
       if (tooltipDisplayMode == TrackballDisplayMode.groupAllPoints) {
         for (int i = 0; i < length; i++) {
           final ChartPointInfo pointInfo = chartPointInfo[i];
-          chartPoints.add(pointInfo.chartPoint!);
-          currentPointIndices.add(pointInfo.dataPointIndex!);
-          visibleSeriesIndices.add(pointInfo.seriesIndex!);
-          visibleSeriesList.add(pointInfo.series!);
+          final bool isIndicator = pointInfo.series is IndicatorRenderer;
+          final bool isCartesianSeries =
+              pointInfo.series is CartesianSeriesRenderer;
+          if (isIndicator ||
+              (isCartesianSeries && pointInfo.series.enableTrackball)) {
+            chartPoints.add(pointInfo.chartPoint!);
+            currentPointIndices.add(pointInfo.dataPointIndex!);
+            visibleSeriesIndices.add(pointInfo.seriesIndex!);
+            visibleSeriesList.add(pointInfo.series);
+          }
         }
 
         final TrackballGroupingModeInfo groupingModeInfo =
-            TrackballGroupingModeInfo(chartPoints, currentPointIndices,
-                visibleSeriesIndices, visibleSeriesList);
+            TrackballGroupingModeInfo(
+              chartPoints,
+              currentPointIndices,
+              visibleSeriesIndices,
+              visibleSeriesList,
+            );
         details.add(TrackballDetails(null, null, null, null, groupingModeInfo));
       } else {
         for (int i = 0; i < length; i++) {
           final ChartPointInfo pointInfo = chartPointInfo[i];
-          details.add(TrackballDetails(pointInfo.chartPoint, pointInfo.series!,
-              pointInfo.dataPointIndex, pointInfo.seriesIndex));
+          final bool isIndicator = pointInfo.series is IndicatorRenderer;
+          final bool isCartesianSeries =
+              pointInfo.series is CartesianSeriesRenderer;
+          if (isIndicator ||
+              (isCartesianSeries && pointInfo.series.enableTrackball)) {
+            details.add(
+              TrackballDetails(
+                pointInfo.chartPoint,
+                pointInfo.series,
+                pointInfo.dataPointIndex,
+                pointInfo.seriesIndex,
+              ),
+            );
+          }
         }
       }
       parent.trackballBuilder!(details);
@@ -697,7 +742,7 @@ class TrackballBehavior extends ChartBehavior {
     final bool isRtl = parent.textDirection == TextDirection.rtl;
     final bool isGroupMode =
         tooltipDisplayMode == TrackballDisplayMode.groupAllPoints;
-    _chartThemeData = parent.chartThemeData!;
+    _chartThemeData = parent.chartThemeData;
     _themeData = parent.themeData;
     _plotAreaBounds = parent.paintBounds;
     _isTransposed = parent.isTransposed;
@@ -705,16 +750,21 @@ class TrackballBehavior extends ChartBehavior {
     chartPlotArea.visitChildren((RenderObject child) {
       if (child is CartesianSeriesRenderer &&
           child.controller.isVisible &&
+          child.enableTrackball &&
           child.dataSource != null &&
           child.dataSource!.isNotEmpty &&
           child.animationController != null &&
           !child.animationController!.isAnimating) {
-        final List<int> nearestPointIndexes =
-            _findNearestChartPointIndexes(child, position);
+        final List<int> nearestPointIndexes = _findNearestChartPointIndexes(
+          child,
+          position,
+        );
         for (final int nearestPointIndex in nearestPointIndexes) {
           final ChartSegment segment = child.segmentAt(nearestPointIndex);
-          final TrackballInfo? trackballInfo =
-              segment.trackballInfo(position, nearestPointIndex);
+          final TrackballInfo? trackballInfo = segment.trackballInfo(
+            position,
+            nearestPointIndex,
+          );
 
           if (trackballInfo != null) {
             final ChartTrackballInfo trackInfo =
@@ -729,8 +779,9 @@ class TrackballBehavior extends ChartBehavior {
                 leastX = xPos;
               }
 
-              final Rect rect = _plotAreaBounds
-                  .intersect(Rect.fromLTWH(xPos - 1, yPos - 1, 2, 2));
+              final Rect rect = _plotAreaBounds.intersect(
+                Rect.fromLTWH(xPos - 1, yPos - 1, 2, 2),
+              );
               if (_plotAreaBounds.contains(trackPosition) ||
                   _plotAreaBounds.overlaps(rect)) {
                 _visiblePoints.add(Offset(xPos, yPos));
@@ -759,8 +810,9 @@ class TrackballBehavior extends ChartBehavior {
     if (parent.indicatorArea != null) {
       parent.indicatorArea!.visitChildren((RenderObject child) {
         if (child is IndicatorRenderer && child.effectiveIsVisible) {
-          final List<TrackballInfo>? trackballInfo =
-              child.trackballInfo(position);
+          final List<TrackballInfo>? trackballInfo = child.trackballInfo(
+            position,
+          );
           if (trackballInfo != null &&
               trackballInfo.isNotEmpty &&
               child.animationFactor == 1) {
@@ -769,7 +821,7 @@ class TrackballBehavior extends ChartBehavior {
               final CartesianChartPoint chartPoint = info.point;
               final bool pointIsNaN =
                   (chartPoint.xValue != null && chartPoint.xValue!.isNaN) ||
-                      (chartPoint.y != null && chartPoint.y!.isNaN);
+                  (chartPoint.y != null && chartPoint.y!.isNaN);
               if (trackInfo.pointIndex >= 0 && !pointIsNaN) {
                 final Offset indicatorPosition = info.position!;
                 double xPos = indicatorPosition.dx;
@@ -784,8 +836,9 @@ class TrackballBehavior extends ChartBehavior {
                   leastX = yPos;
                 }
 
-                final Rect rect = _plotAreaBounds
-                    .intersect(Rect.fromLTWH(xPos - 1, yPos - 1, 2, 2));
+                final Rect rect = _plotAreaBounds.intersect(
+                  Rect.fromLTWH(xPos - 1, yPos - 1, 2, 2),
+                );
                 if (_plotAreaBounds.contains(indicatorPosition) ||
                     _plotAreaBounds.overlaps(rect)) {
                   _visiblePoints.add(Offset(xPos, yPos));
@@ -810,7 +863,12 @@ class TrackballBehavior extends ChartBehavior {
     _sortTrackballPoints(_isTransposed);
     _triggerTrackballRenderCallback(parent);
     _applyTooltipDisplayMode(
-        _chartThemeData!, _themeData!, leastX, position, isRtl);
+      _chartThemeData!,
+      _themeData!,
+      leastX,
+      position,
+      isRtl,
+    );
   }
 
   void _sortTrackballPoints(bool isTranposed) {
@@ -822,13 +880,19 @@ class TrackballBehavior extends ChartBehavior {
     if (chartPointInfo.isNotEmpty) {
       if (tooltipDisplayMode != TrackballDisplayMode.groupAllPoints) {
         isTranposed
-            ? chartPointInfo.sort((ChartPointInfo a, ChartPointInfo b) =>
-                a.xPosition!.compareTo(b.xPosition!))
+            ? chartPointInfo.sort(
+              (ChartPointInfo a, ChartPointInfo b) =>
+                  a.xPosition!.compareTo(b.xPosition!),
+            )
             : tooltipDisplayMode == TrackballDisplayMode.floatAllPoints
-                ? chartPointInfo.sort((ChartPointInfo a, ChartPointInfo b) =>
-                    a.yPosition!.compareTo(b.yPosition!))
-                : chartPointInfo.sort((ChartPointInfo a, ChartPointInfo b) =>
-                    b.yPosition!.compareTo(a.yPosition!));
+            ? chartPointInfo.sort(
+              (ChartPointInfo a, ChartPointInfo b) =>
+                  a.yPosition!.compareTo(b.yPosition!),
+            )
+            : chartPointInfo.sort(
+              (ChartPointInfo a, ChartPointInfo b) =>
+                  b.yPosition!.compareTo(a.yPosition!),
+            );
       }
     }
   }
@@ -853,7 +917,9 @@ class TrackballBehavior extends ChartBehavior {
   }
 
   List<int> _findNearestChartPointIndexes(
-      CartesianSeriesRenderer series, Offset position) {
+    CartesianSeriesRenderer series,
+    Offset position,
+  ) {
     final List<int> indexes = <int>[];
     final int dataCount = series.dataCount;
     final RenderChartAxis xAxis = series.xAxis!;
@@ -863,8 +929,8 @@ class TrackballBehavior extends ChartBehavior {
     num yValue = yAxis.pixelToPoint(bounds, position.dx, position.dy);
 
     if (series.canFindLinearVisibleIndexes &&
-        ((xAxis is RenderCategoryAxis && xAxis.arrangeByIndex) ||
-            xAxis is RenderDateTimeCategoryAxis)) {
+        xAxis is RenderCategoryAxis &&
+        xAxis.arrangeByIndex) {
       final DoubleRange range = xAxis.visibleRange!;
       final int index = xValue.round();
       if (index <= range.maximum &&
@@ -883,8 +949,12 @@ class TrackballBehavior extends ChartBehavior {
       }
 
       if (series.canFindLinearVisibleIndexes) {
-        final int binaryIndex =
-            binarySearch(series.xValues, xValue.toDouble(), 0, dataCount - 1);
+        final int binaryIndex = binarySearch(
+          series.xValues,
+          xValue.toDouble(),
+          0,
+          dataCount - 1,
+        );
         if (binaryIndex >= 0) {
           indexes.add(binaryIndex);
         }
@@ -917,7 +987,10 @@ class TrackballBehavior extends ChartBehavior {
   }
 
   void _addChartPointInfo(
-      ChartTrackballInfo trackballInfo, double xPos, double yPos) {
+    ChartTrackballInfo trackballInfo,
+    double xPos,
+    double yPos,
+  ) {
     final ChartPointInfo pointInfo = ChartPointInfo(
       label: trackballInfo.text,
       header: trackballInfo.header,
@@ -1008,13 +1081,14 @@ class TrackballBehavior extends ChartBehavior {
         final ChartPointInfo nextPoint = chartPointInfo[i];
         final double nextX = nextPoint.xPosition!;
         final double nextY = nextPoint.yPosition!;
-        final bool isXYPositioned = !_isTransposed
-            ? (((pointInfo!.yPosition! - touchYPos).abs() >
-                    (nextY - touchYPos).abs()) &&
-                pointInfo.xPosition! == nextX)
-            : (((pointInfo!.xPosition! - touchXPos).abs() >
-                    (nextX - touchXPos).abs()) &&
-                pointInfo.yPosition! == nextY);
+        final bool isXYPositioned =
+            !_isTransposed
+                ? (((pointInfo!.yPosition! - touchYPos).abs() >
+                        (nextY - touchYPos).abs()) &&
+                    pointInfo.xPosition! == nextX)
+                : (((pointInfo!.xPosition! - touchXPos).abs() >
+                        (nextX - touchXPos).abs()) &&
+                    pointInfo.yPosition! == nextY);
         if (isXYPositioned) {
           pointInfo = chartPointInfo[i];
         }
@@ -1045,28 +1119,44 @@ class TrackballBehavior extends ChartBehavior {
     }
 
     if (builder == null) {
-      final bool markerIsVisible = markerSettings != null &&
+      final bool markerIsVisible =
+          markerSettings != null &&
           markerSettings!.markerVisibility == TrackballVisibilityMode.visible;
+      final bool markerAutoVisibility =
+          markerSettings != null &&
+          markerSettings!.markerVisibility == TrackballVisibilityMode.auto;
 
       if (tooltipSettings.enable) {
         final TextStyle labelStyle = _createLabelStyle(
-            FontWeight.normal, _chartThemeData!.trackballTextStyle!);
-        final bool markerAutoVisibility = markerSettings != null &&
-            markerSettings!.markerVisibility == TrackballVisibilityMode.auto;
+          FontWeight.normal,
+          _chartThemeData!.trackballTextStyle!,
+        );
         switch (tooltipDisplayMode) {
           case TrackballDisplayMode.nearestPoint:
             _applyNearestPointDisplayMode(
-                labelStyle, markerIsVisible, markerAutoVisibility, isRtl);
+              labelStyle,
+              markerIsVisible,
+              markerAutoVisibility,
+              isRtl,
+            );
             break;
 
           case TrackballDisplayMode.floatAllPoints:
             _applyFloatAllPointsDisplayMode(
-                labelStyle, markerIsVisible, markerAutoVisibility, isRtl);
+              labelStyle,
+              markerIsVisible,
+              markerAutoVisibility,
+              isRtl,
+            );
             break;
 
           case TrackballDisplayMode.groupAllPoints:
             _applyGroupAllPointDisplayMode(
-                labelStyle, markerIsVisible, markerAutoVisibility, isRtl);
+              labelStyle,
+              markerIsVisible,
+              markerAutoVisibility,
+              isRtl,
+            );
             break;
 
           case TrackballDisplayMode.none:
@@ -1074,8 +1164,14 @@ class TrackballBehavior extends ChartBehavior {
         }
       }
 
-      if (markerIsVisible) {
-        _computeLineMarkers(themeData, _lineMarkers);
+      if (markerSettings != null &&
+          markerSettings!.markerVisibility != TrackballVisibilityMode.hidden) {
+        _computeLineMarkers(
+          themeData,
+          _lineMarkers,
+          markerIsVisible,
+          markerAutoVisibility,
+        );
       }
     }
   }
@@ -1098,15 +1194,25 @@ class TrackballBehavior extends ChartBehavior {
         borderRadius = borderRadius > 5 ? 5 : borderRadius;
       }
       borderRadius = borderRadius > 15 ? 15 : borderRadius;
-      final double padding = (markerAutoVisibility
-              ? series is IndicatorRenderer ||
-                  (series != null && series.markerSettings.isVisible)
-              : markerIsVisible)
-          ? (markerSettings!.width / 2) + defaultTrackballPadding
-          : defaultTrackballPadding;
+      final double padding =
+          (markerAutoVisibility
+                  ? series is IndicatorRenderer ||
+                      (series != null && series.markerSettings.isVisible)
+                  : markerIsVisible)
+              ? (markerSettings!.width / 2) + defaultTrackballPadding
+              : defaultTrackballPadding;
 
-      _computeNearestTooltip(pointInfo, labelStyle, width, labelSize.height,
-          padding, arrowWidth, arrowLength, borderRadius, isRtl);
+      _computeNearestTooltip(
+        pointInfo,
+        labelStyle,
+        width,
+        labelSize.height,
+        padding,
+        arrowWidth,
+        arrowLength,
+        borderRadius,
+        isRtl,
+      );
     }
   }
 
@@ -1127,36 +1233,58 @@ class TrackballBehavior extends ChartBehavior {
     final double labelRectWidth = tooltipRect.width;
     final double labelRectHeight = tooltipRect.height;
     final Offset alignPosition = _alignPosition(
-        xPosition,
-        yPosition,
-        labelRectWidth,
-        labelRectHeight,
-        arrowLength,
-        arrowWidth,
-        padding,
-        isRtl);
+      xPosition,
+      yPosition,
+      labelRectWidth,
+      labelRectHeight,
+      arrowLength,
+      arrowWidth,
+      padding,
+      isRtl,
+    );
     final RRect tooltipRRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(
-          alignPosition.dx, alignPosition.dy, labelRectWidth, labelRectHeight),
+        alignPosition.dx,
+        alignPosition.dy,
+        labelRectWidth,
+        labelRectHeight,
+      ),
       Radius.circular(borderRadius),
     );
 
-    final Path nosePath = _nosePath(_tooltipDirection(), tooltipRRect,
-        Offset(xPosition, yPosition), arrowLength, arrowWidth);
-    final Path nearestTooltipPath = Path()
-      ..addRRect(tooltipRRect)
-      ..addPath(nosePath, Offset.zero);
+    final Path nosePath = _nosePath(
+      _tooltipDirection(),
+      tooltipRRect,
+      Offset(xPosition, yPosition),
+      arrowLength,
+      arrowWidth,
+    );
+    final Path nearestTooltipPath =
+        Path()
+          ..addRRect(tooltipRRect)
+          ..addPath(nosePath, Offset.zero);
     _tooltipPaths.add(nearestTooltipPath);
 
     if (tooltipSettings.canShowMarker) {
       final Offset markerPosition = _markerPosition(
-          tooltipRRect, width, height, defaultTrackballPadding, isRtl);
+        tooltipRRect,
+        width,
+        height,
+        defaultTrackballPadding,
+        isRtl,
+      );
       _computeTooltipMarkers(pointInfo, markerPosition);
     }
 
     if (pointInfo.label != null) {
       _computeTooltipLabels(
-          pointInfo.label!, width, height, labelStyle, tooltipRRect, isRtl);
+        pointInfo.label!,
+        width,
+        height,
+        labelStyle,
+        tooltipRRect,
+        isRtl,
+      );
     }
   }
 
@@ -1183,12 +1311,13 @@ class TrackballBehavior extends ChartBehavior {
         borderRadius = borderRadius > 5 ? 5 : borderRadius;
       }
       borderRadius = borderRadius > 15 ? 15 : borderRadius;
-      final double padding = (markerAutoVisibility
-              ? series is IndicatorRenderer ||
-                  (series != null && series.markerSettings.isVisible)
-              : markerIsVisible)
-          ? (markerSettings!.width / 2) + defaultTrackballPadding
-          : defaultTrackballPadding;
+      final double padding =
+          (markerAutoVisibility
+                  ? series is IndicatorRenderer ||
+                      (series != null && series.markerSettings.isVisible)
+                  : markerIsVisible)
+              ? (markerSettings!.width / 2) + defaultTrackballPadding
+              : defaultTrackballPadding;
 
       final num tooltipTop = floatTooltipPosition.tooltipTop[i];
       final num tooltipBottom = floatTooltipPosition.tooltipBottom[i];
@@ -1198,17 +1327,18 @@ class TrackballBehavior extends ChartBehavior {
           : tooltipTop >= _plotAreaBounds.top &&
               tooltipBottom <= _plotAreaBounds.bottom) {
         _computeFloatAllPointTooltip(
-            i,
-            pointInfo,
-            width,
-            labelSize.height,
-            padding,
-            arrowWidth,
-            arrowLength,
-            borderRadius,
-            labelStyle,
-            floatTooltipPosition,
-            isRtl);
+          i,
+          pointInfo,
+          width,
+          labelSize.height,
+          padding,
+          arrowWidth,
+          arrowLength,
+          borderRadius,
+          labelStyle,
+          floatTooltipPosition,
+          isRtl,
+        );
       }
     }
   }
@@ -1232,45 +1362,67 @@ class TrackballBehavior extends ChartBehavior {
     final double labelRectWidth = tooltipRect.width;
     final double labelRectHeight = tooltipRect.height;
     final Offset alignPosition = _alignPosition(
-        xPosition,
-        yPosition,
-        labelRectWidth,
-        labelRectHeight,
-        arrowLength,
-        arrowWidth,
-        padding,
-        isRtl);
+      xPosition,
+      yPosition,
+      labelRectWidth,
+      labelRectHeight,
+      arrowLength,
+      arrowWidth,
+      padding,
+      isRtl,
+    );
 
     final double topValue = tooltipPosition.tooltipTop[index].toDouble();
     final RRect tooltipRRect = RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-            _isTransposed ? topValue : alignPosition.dx,
-            _isTransposed ? alignPosition.dy : topValue,
-            labelRectWidth,
-            labelRectHeight),
-        Radius.circular(borderRadius));
+      Rect.fromLTWH(
+        _isTransposed ? topValue : alignPosition.dx,
+        _isTransposed ? alignPosition.dy : topValue,
+        labelRectWidth,
+        labelRectHeight,
+      ),
+      Radius.circular(borderRadius),
+    );
 
-    final Path nosePath = _nosePath(_tooltipDirection(), tooltipRRect,
-        Offset(xPosition, yPosition), arrowLength, arrowWidth);
-    final Path nearestTooltipPath = Path()
-      ..addRRect(tooltipRRect)
-      ..addPath(nosePath, Offset.zero);
+    final Path nosePath = _nosePath(
+      _tooltipDirection(),
+      tooltipRRect,
+      Offset(xPosition, yPosition),
+      arrowLength,
+      arrowWidth,
+    );
+    final Path nearestTooltipPath =
+        Path()
+          ..addRRect(tooltipRRect)
+          ..addPath(nosePath, Offset.zero);
     _tooltipPaths.add(nearestTooltipPath);
 
     if (tooltipSettings.canShowMarker) {
       final Offset markerPosition = _markerPosition(
-          tooltipRRect, width, height, defaultTrackballPadding, isRtl);
+        tooltipRRect,
+        width,
+        height,
+        defaultTrackballPadding,
+        isRtl,
+      );
       _computeTooltipMarkers(pointInfo, markerPosition);
     }
 
     if (pointInfo.label != null) {
       _computeTooltipLabels(
-          pointInfo.label!, width, height, labelStyle, tooltipRRect, isRtl);
+        pointInfo.label!,
+        width,
+        height,
+        labelStyle,
+        tooltipRRect,
+        isRtl,
+      );
     }
   }
 
   _TooltipPositions _computeTooltipPositionForFloatAllPoints(
-      TextStyle labelStyle, double borderRadius) {
+    TextStyle labelStyle,
+    double borderRadius,
+  ) {
     final List<num> tooltipTop = <num>[];
     final List<num> tooltipBottom = <num>[];
     final List<RenderChartAxis> xAxesInfo = <RenderChartAxis>[];
@@ -1292,13 +1444,19 @@ class TrackballBehavior extends ChartBehavior {
         final Offset visiblePoint = _visiblePoints[i];
         final double closeX = visiblePoint.dx;
         final double closeY = visiblePoint.dy;
-        tooltipTop.add(_isTransposed
-            ? closeX - tooltipPaddingForFloatPoint - (width / 2)
-            : closeY - tooltipPaddingForFloatPoint - height / 2);
-        tooltipBottom.add(_isTransposed
-            ? (closeX + tooltipPaddingForFloatPoint + (width / 2)) +
-                (tooltipSettings.canShowMarker ? trackballTooltipMarkerSize : 0)
-            : closeY + tooltipPaddingForFloatPoint + height / 2);
+        tooltipTop.add(
+          _isTransposed
+              ? closeX - tooltipPaddingForFloatPoint - (width / 2)
+              : closeY - tooltipPaddingForFloatPoint - height / 2,
+        );
+        tooltipBottom.add(
+          _isTransposed
+              ? (closeX + tooltipPaddingForFloatPoint + (width / 2)) +
+                  (tooltipSettings.canShowMarker
+                      ? trackballTooltipMarkerSize
+                      : 0)
+              : closeY + tooltipPaddingForFloatPoint + height / 2,
+        );
         if (series != null && series.xAxis != null) {
           xAxesInfo.add(series.xAxis!);
         }
@@ -1309,20 +1467,27 @@ class TrackballBehavior extends ChartBehavior {
     }
 
     if (tooltipTop.isNotEmpty && tooltipBottom.isNotEmpty) {
-      return _smartTooltipPositions(tooltipTop, tooltipBottom, xAxesInfo,
-          yAxesInfo, chartPointInfo, tooltipPaddingForFloatPoint);
+      return _smartTooltipPositions(
+        tooltipTop,
+        tooltipBottom,
+        xAxesInfo,
+        yAxesInfo,
+        chartPointInfo,
+        tooltipPaddingForFloatPoint,
+      );
     }
     return _TooltipPositions(tooltipTop, tooltipBottom);
   }
 
   /// Method to place the collided tooltips properly
   _TooltipPositions _smartTooltipPositions(
-      List<num> tooltipTop,
-      List<num> tooltipBottom,
-      List<RenderChartAxis> xAxesInfo,
-      List<RenderChartAxis> yAxesInfo,
-      List<ChartPointInfo> chartPointInfo,
-      [num tooltipPaddingForFloatPoint = 0]) {
+    List<num> tooltipTop,
+    List<num> tooltipBottom,
+    List<RenderChartAxis> xAxesInfo,
+    List<RenderChartAxis> yAxesInfo,
+    List<ChartPointInfo> chartPointInfo, [
+    num tooltipPaddingForFloatPoint = 0,
+  ]) {
     final List<num> visibleLocation = <num>[];
     num totalHeight = 0;
     final int length = chartPointInfo.length;
@@ -1336,15 +1501,20 @@ class TrackballBehavior extends ChartBehavior {
     }
 
     _TooltipPositions smartTooltipPosition = _continuousOverlappingPoints(
-        tooltipTop,
-        tooltipBottom,
-        visibleLocation,
-        tooltipPaddingForFloatPoint);
+      tooltipTop,
+      tooltipBottom,
+      visibleLocation,
+      tooltipPaddingForFloatPoint,
+    );
     if (!_isTransposed
         ? totalHeight < (_plotAreaBounds.bottom - _plotAreaBounds.top)
         : totalHeight < (_plotAreaBounds.right - _plotAreaBounds.left)) {
-      smartTooltipPosition = _verticalArrangements(smartTooltipPosition,
-          xAxesInfo, yAxesInfo, tooltipPaddingForFloatPoint);
+      smartTooltipPosition = _verticalArrangements(
+        smartTooltipPosition,
+        xAxesInfo,
+        yAxesInfo,
+        tooltipPaddingForFloatPoint,
+      );
     }
     return smartTooltipPosition;
   }
@@ -1439,7 +1609,7 @@ class TrackballBehavior extends ChartBehavior {
                   tooltipPosition.tooltipBottom[j - 1] < chartHeight!)) {
             tooltipPosition.tooltipTop[j] =
                 tooltipPosition.tooltipBottom[j - 1] +
-                    tooltipPaddingForFloatPoint;
+                tooltipPaddingForFloatPoint;
             tooltipPosition.tooltipBottom[j] =
                 tooltipPosition.tooltipTop[j] + secWidth;
           }
@@ -1451,8 +1621,12 @@ class TrackballBehavior extends ChartBehavior {
 
   // Method to identify the colliding trackball tooltips and
   // return the new tooltip positions
-  _TooltipPositions _continuousOverlappingPoints(List<num> tooltipTop,
-      List<num> tooltipBottom, List<num> visibleLocation, num tooltipPadding) {
+  _TooltipPositions _continuousOverlappingPoints(
+    List<num> tooltipTop,
+    List<num> tooltipBottom,
+    List<num> visibleLocation,
+    num tooltipPadding,
+  ) {
     num temp;
     num count = 0;
     num start = 0;
@@ -1542,8 +1716,12 @@ class TrackballBehavior extends ChartBehavior {
     return _TooltipPositions(tooltipTop, tooltipBottom);
   }
 
-  void _applyGroupAllPointDisplayMode(TextStyle labelStyle,
-      bool markerIsVisible, bool markerAutoVisibility, bool isRtl) {
+  void _applyGroupAllPointDisplayMode(
+    TextStyle labelStyle,
+    bool markerIsVisible,
+    bool markerAutoVisibility,
+    bool isRtl,
+  ) {
     double borderRadius = tooltipSettings.borderRadius;
     final ChartPointInfo pointInfo = chartPointInfo[0];
     final double xPosition = pointInfo.xPosition!;
@@ -1557,12 +1735,13 @@ class TrackballBehavior extends ChartBehavior {
       borderRadius = borderRadius > 5 ? 5 : borderRadius;
     }
     borderRadius = borderRadius > 15 ? 15 : borderRadius;
-    final double padding = (markerAutoVisibility
-            ? series is IndicatorRenderer ||
-                (series != null && series.markerSettings.isVisible)
-            : markerIsVisible)
-        ? (markerSettings!.width / 2) + defaultTrackballPadding
-        : defaultTrackballPadding;
+    final double padding =
+        (markerAutoVisibility
+                ? series is IndicatorRenderer ||
+                    (series != null && series.markerSettings.isVisible)
+                : markerIsVisible)
+            ? (markerSettings!.width / 2) + defaultTrackballPadding
+            : defaultTrackballPadding;
 
     final Rect tooltipRect = _tooltipRect(xPosition, yPosition, width, height);
     final double labelRectWidth = tooltipRect.width;
@@ -1582,7 +1761,11 @@ class TrackballBehavior extends ChartBehavior {
 
     final RRect tooltipRRect = _validateRect(
       Rect.fromLTWH(
-          alignPosition.dx, alignPosition.dy, labelRectWidth, labelRectHeight),
+        alignPosition.dx,
+        alignPosition.dy,
+        labelRectWidth,
+        labelRectHeight,
+      ),
       _plotAreaBounds,
       borderRadius,
     );
@@ -1590,12 +1773,22 @@ class TrackballBehavior extends ChartBehavior {
     if (tooltipRRect != RRect.zero) {
       _tooltipPaths.add(Path()..addRRect(tooltipRRect));
       _computeGroupTooltipLabels(
-          alignPosition, tooltipRRect, totalLabelSize, labelStyle, isRtl);
+        alignPosition,
+        tooltipRRect,
+        totalLabelSize,
+        labelStyle,
+        isRtl,
+      );
     }
   }
 
-  void _computeGroupTooltipLabels(Offset alignPosition, RRect tooltipRRect,
-      Size totalLabelSize, TextStyle textStyle, bool isRtl) {
+  void _computeGroupTooltipLabels(
+    Offset alignPosition,
+    RRect tooltipRRect,
+    Size totalLabelSize,
+    TextStyle textStyle,
+    bool isRtl,
+  ) {
     bool hasIndicator = false;
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent != null && parent.indicatorArea != null) {
@@ -1619,19 +1812,26 @@ class TrackballBehavior extends ChartBehavior {
       totalLabelHeight += headerHeight;
       eachTextHeight += headerHeight;
 
-      _tooltipLabels.add(_TooltipLabels(
-        header,
-        boldStyle,
-        Offset(tooltipRRect.left + tooltipRRect.width / 2,
-                tooltipRRect.top + headerHeight / 2 + headerPadding / 2)
-            .translate(-headerSize.width / 2, -headerSize.height / 2),
-      ));
+      _tooltipLabels.add(
+        _TooltipLabels(
+          header,
+          boldStyle,
+          Offset(
+            tooltipRRect.left + tooltipRRect.width / 2,
+            tooltipRRect.top + headerHeight / 2 + headerPadding / 2,
+          ).translate(-headerSize.width / 2, -headerSize.height / 2),
+        ),
+      );
 
       // Divider offset calculation.
-      _dividerStartOffset = Offset(tooltipRRect.left + headerPadding,
-          tooltipRRect.top + headerHeight + headerPadding);
-      _dividerEndOffset = Offset(tooltipRRect.right - headerPadding,
-          tooltipRRect.top + headerHeight + headerPadding);
+      _dividerStartOffset = Offset(
+        tooltipRRect.left + headerPadding,
+        tooltipRRect.top + headerHeight + headerPadding,
+      );
+      _dividerEndOffset = Offset(
+        tooltipRRect.right - headerPadding,
+        tooltipRRect.top + headerHeight + headerPadding,
+      );
     }
 
     // Empty text size consideration between the header and series text.
@@ -1654,12 +1854,14 @@ class TrackballBehavior extends ChartBehavior {
 
     final double rectLeftWithPadding = tooltipRRect.left + padding;
     final double rectRightWithPadding = tooltipRRect.right - padding;
-    final double markerX = isRtl
-        ? rectRightWithPadding - halfMarkerSize
-        : rectLeftWithPadding + halfMarkerSize;
-    final double x = isRtl
-        ? rectRightWithPadding - markerSize
-        : rectLeftWithPadding + markerSize;
+    final double markerX =
+        isRtl
+            ? rectRightWithPadding - halfMarkerSize
+            : rectLeftWithPadding + halfMarkerSize;
+    final double x =
+        isRtl
+            ? rectRightWithPadding - markerSize
+            : rectLeftWithPadding + markerSize;
     final double y = tooltipRRect.top + defaultTrackballPadding;
     final int length = chartPointInfo.length;
     for (int i = 0; i < length; i++) {
@@ -1677,11 +1879,15 @@ class TrackballBehavior extends ChartBehavior {
       if (canShowMarker) {
         Offset markerPosition;
         if (text.contains('\n') && hasIndicator) {
-          markerPosition = Offset(markerX,
-              totalLabelHeight - actualLabelHeight + defaultTrackballPadding);
+          markerPosition = Offset(
+            markerX,
+            totalLabelHeight - actualLabelHeight + defaultTrackballPadding,
+          );
         } else {
-          markerPosition =
-              Offset(markerX, totalLabelHeight - actualLabelHeight / 2);
+          markerPosition = Offset(
+            markerX,
+            totalLabelHeight - actualLabelHeight / 2,
+          );
         }
 
         _computeTooltipMarkers(pointInfo, markerPosition);
@@ -1768,7 +1974,7 @@ class TrackballBehavior extends ChartBehavior {
     if (_isTransposed) {
       switch (tooltipAlignment) {
         case ChartAlignment.near:
-          xPos = _plotAreaBounds.top;
+          xPos = _plotAreaBounds.left;
           break;
 
         case ChartAlignment.center:
@@ -1776,7 +1982,7 @@ class TrackballBehavior extends ChartBehavior {
           break;
 
         case ChartAlignment.far:
-          xPos = _plotAreaBounds.bottom;
+          xPos = _plotAreaBounds.right;
           break;
       }
     } else {
@@ -1797,8 +2003,13 @@ class TrackballBehavior extends ChartBehavior {
     return Offset(xPos, yPos);
   }
 
-  Offset _markerPosition(RRect tooltipRRect, double labelWidth,
-      double labelHeight, double markerPadding, bool isRtl) {
+  Offset _markerPosition(
+    RRect tooltipRRect,
+    double labelWidth,
+    double labelHeight,
+    double markerPadding,
+    bool isRtl,
+  ) {
     final double padding = labelWidth / 2 + markerPadding;
     return Offset(
       (tooltipRRect.left + tooltipRRect.width / 2) +
@@ -1810,26 +2021,32 @@ class TrackballBehavior extends ChartBehavior {
   Rect _tooltipRect(double x, double y, double width, double height) {
     if (tooltipSettings.canShowMarker) {
       return Rect.fromLTWH(
-          x,
-          y,
-          width + (trackballTooltipMarkerSize + trackballTooltipPadding),
-          height + defaultTooltipWidth);
+        x,
+        y,
+        width + (trackballTooltipMarkerSize + trackballTooltipPadding),
+        height + defaultTooltipWidth,
+      );
     } else {
-      return Rect.fromLTWH(x, y, width + trackballTooltipMarkerSize,
-          height + defaultTooltipWidth);
+      return Rect.fromLTWH(
+        x,
+        y,
+        width + trackballTooltipMarkerSize,
+        height + defaultTooltipWidth,
+      );
     }
   }
 
   Offset _alignPosition(
-      double xPosition,
-      double yPosition,
-      double rectWidth,
-      double rectHeight,
-      double arrowLength,
-      double arrowWidth,
-      double padding,
-      bool isRtl,
-      [bool isGroupMode = false]) {
+    double xPosition,
+    double yPosition,
+    double rectWidth,
+    double rectHeight,
+    double arrowLength,
+    double arrowWidth,
+    double padding,
+    bool isRtl, [
+    bool isGroupMode = false,
+  ]) {
     double xPos = xPosition;
     double yPos = yPosition;
     if (yPosition > arrowLength + rectHeight) {
@@ -1855,25 +2072,29 @@ class TrackballBehavior extends ChartBehavior {
         if (!isRtl) {
           if (xPos + rectWidth + padding + arrowLength >
               _plotAreaBounds.right) {
-            xPos = isGroupMode
-                ? xPos - rectWidth - groupAllPadding
-                : xPos - rectWidth - padding - arrowLength;
+            xPos =
+                isGroupMode
+                    ? xPos - rectWidth - groupAllPadding
+                    : xPos - rectWidth - padding - arrowLength;
             _isLeft = true;
           } else {
-            xPos = isGroupMode
-                ? xPosition + groupAllPadding
-                : xPosition + padding + arrowLength;
+            xPos =
+                isGroupMode
+                    ? xPosition + groupAllPadding
+                    : xPosition + padding + arrowLength;
             _isLeft = false;
             _isRight = true;
           }
         } else {
-          xPos = isGroupMode
-              ? xPos - rectWidth - groupAllPadding
-              : xPos - rectWidth - padding - arrowLength;
+          xPos =
+              isGroupMode
+                  ? xPos - rectWidth - groupAllPadding
+                  : xPos - rectWidth - padding - arrowLength;
           if (xPos < _plotAreaBounds.left) {
-            xPos = isGroupMode
-                ? xPosition + groupAllPadding
-                : xPosition + padding + arrowLength;
+            xPos =
+                isGroupMode
+                    ? xPosition + groupAllPadding
+                    : xPosition + padding + arrowLength;
             _isRight = true;
           } else {
             _isLeft = true;
@@ -1909,27 +2130,31 @@ class TrackballBehavior extends ChartBehavior {
                   ? (xPos + (rectWidth / 2) + groupAllPadding)
                   : xPos + rectWidth + padding + arrowLength) >
               _plotAreaBounds.right) {
-            xPos = isGroupMode
-                ? (xPos - (rectWidth / 2) - groupAllPadding)
-                : xPos - rectWidth - padding - arrowLength;
+            xPos =
+                isGroupMode
+                    ? (xPos - (rectWidth / 2) - groupAllPadding)
+                    : xPos - rectWidth - padding - arrowLength;
             _isLeft = true;
           } else {
-            xPos = isGroupMode
-                ? xPosition + groupAllPadding
-                : xPosition + padding + arrowLength;
+            xPos =
+                isGroupMode
+                    ? xPosition + groupAllPadding
+                    : xPosition + padding + arrowLength;
             _isRight = true;
           }
         } else {
           if (xPosition - rectWidth - padding - arrowLength >
               _plotAreaBounds.left) {
-            xPos = isGroupMode
-                ? (xPos - (rectWidth / 2) - groupAllPadding)
-                : xPos - rectWidth - padding - arrowLength;
+            xPos =
+                isGroupMode
+                    ? (xPos - (rectWidth / 2) - groupAllPadding)
+                    : xPos - rectWidth - padding - arrowLength;
             _isLeft = true;
           } else {
-            xPos = isGroupMode
-                ? xPosition + groupAllPadding
-                : xPosition + padding + arrowLength;
+            xPos =
+                isGroupMode
+                    ? xPosition + groupAllPadding
+                    : xPosition + padding + arrowLength;
             _isRight = true;
           }
         }
@@ -1950,7 +2175,10 @@ class TrackballBehavior extends ChartBehavior {
   }
 
   RRect _validateRect(
-      Rect tooltipRRect, Rect plotAreaBounds, double borderRadius) {
+    Rect tooltipRRect,
+    Rect plotAreaBounds,
+    double borderRadius,
+  ) {
     if (tooltipRRect == Rect.zero ||
         tooltipRRect.width >= plotAreaBounds.width ||
         tooltipRRect.height >= plotAreaBounds.height) {
@@ -1981,8 +2209,13 @@ class TrackballBehavior extends ChartBehavior {
     return alignedRect;
   }
 
-  Path _nosePath(String tooltipPosition, RRect tooltipRect, Offset position,
-      double arrowLength, double arrowWidth) {
+  Path _nosePath(
+    String tooltipPosition,
+    RRect tooltipRect,
+    Offset position,
+    double arrowLength,
+    double arrowWidth,
+  ) {
     final Path nosePath = Path();
     final double tooltipLeft = tooltipRect.left;
     final double tooltipRight = tooltipRect.right;
@@ -1994,7 +2227,9 @@ class TrackballBehavior extends ChartBehavior {
       case 'Left':
         nosePath.moveTo(tooltipRight, tooltipTop + rectHalfHeight - arrowWidth);
         nosePath.lineTo(
-            tooltipRight, tooltipBottom - rectHalfHeight + arrowWidth);
+          tooltipRight,
+          tooltipBottom - rectHalfHeight + arrowWidth,
+        );
         nosePath.lineTo(tooltipRight + arrowLength, position.dy);
         nosePath.close();
         return nosePath;
@@ -2002,7 +2237,9 @@ class TrackballBehavior extends ChartBehavior {
       case 'Right':
         nosePath.moveTo(tooltipLeft, tooltipTop + rectHalfHeight - arrowWidth);
         nosePath.lineTo(
-            tooltipLeft, tooltipBottom - rectHalfHeight + arrowWidth);
+          tooltipLeft,
+          tooltipBottom - rectHalfHeight + arrowWidth,
+        );
         nosePath.lineTo(tooltipLeft - arrowLength, position.dy);
         nosePath.close();
         return nosePath;
@@ -2010,16 +2247,22 @@ class TrackballBehavior extends ChartBehavior {
       case 'Top':
         nosePath.moveTo(position.dx, tooltipBottom + arrowLength);
         nosePath.lineTo(
-            (tooltipRight - rectHalfWidth) + arrowWidth, tooltipBottom);
+          (tooltipRight - rectHalfWidth) + arrowWidth,
+          tooltipBottom,
+        );
         nosePath.lineTo(
-            (tooltipLeft + rectHalfWidth) - arrowWidth, tooltipBottom);
+          (tooltipLeft + rectHalfWidth) - arrowWidth,
+          tooltipBottom,
+        );
         nosePath.close();
         return nosePath;
 
       case 'Bottom':
         nosePath.moveTo(position.dx, tooltipTop - arrowLength);
         nosePath.lineTo(
-            (tooltipRight - rectHalfWidth) + arrowWidth, tooltipTop);
+          (tooltipRight - rectHalfWidth) + arrowWidth,
+          tooltipTop,
+        );
         nosePath.lineTo((tooltipLeft + rectHalfWidth) - arrowWidth, tooltipTop);
         nosePath.close();
         return nosePath;
@@ -2041,41 +2284,43 @@ class TrackballBehavior extends ChartBehavior {
 
   TextStyle _createLabelStyle(FontWeight fontWeight, TextStyle labelStyle) {
     return TextStyle(
-        fontWeight: fontWeight,
-        color: labelStyle.color,
-        fontSize: labelStyle.fontSize,
-        fontFamily: labelStyle.fontFamily,
-        fontStyle: labelStyle.fontStyle,
-        inherit: labelStyle.inherit,
-        backgroundColor: labelStyle.backgroundColor,
-        letterSpacing: labelStyle.letterSpacing,
-        wordSpacing: labelStyle.wordSpacing,
-        textBaseline: labelStyle.textBaseline,
-        height: labelStyle.height,
-        locale: labelStyle.locale,
-        foreground: labelStyle.foreground,
-        background: labelStyle.background,
-        shadows: labelStyle.shadows,
-        fontFeatures: labelStyle.fontFeatures,
-        decoration: labelStyle.decoration,
-        decorationColor: labelStyle.decorationColor,
-        decorationStyle: labelStyle.decorationStyle,
-        decorationThickness: labelStyle.decorationThickness,
-        debugLabel: labelStyle.debugLabel,
-        fontFamilyFallback: labelStyle.fontFamilyFallback);
+      fontWeight: fontWeight,
+      color: labelStyle.color,
+      fontSize: labelStyle.fontSize,
+      fontFamily: labelStyle.fontFamily,
+      fontStyle: labelStyle.fontStyle,
+      inherit: labelStyle.inherit,
+      backgroundColor: labelStyle.backgroundColor,
+      letterSpacing: labelStyle.letterSpacing,
+      wordSpacing: labelStyle.wordSpacing,
+      textBaseline: labelStyle.textBaseline,
+      height: labelStyle.height,
+      locale: labelStyle.locale,
+      foreground: labelStyle.foreground,
+      background: labelStyle.background,
+      shadows: labelStyle.shadows,
+      fontFeatures: labelStyle.fontFeatures,
+      decoration: labelStyle.decoration,
+      decorationColor: labelStyle.decorationColor,
+      decorationStyle: labelStyle.decorationStyle,
+      decorationThickness: labelStyle.decorationThickness,
+      debugLabel: labelStyle.debugLabel,
+      fontFamilyFallback: labelStyle.fontFamilyFallback,
+    );
   }
 
   void _computeTooltipMarkers(ChartPointInfo pointInfo, Offset markerPosition) {
     final Color color = pointInfo.color!;
-    final ChartMarker marker = ChartMarker()
-      ..x = markerPosition.dx
-      ..y = markerPosition.dy
-      ..index = pointInfo.dataPointIndex!
-      ..height = tooltipMarkerSize
-      ..width = tooltipMarkerSize
-      ..borderColor = color
-      ..borderWidth = 1
-      ..color = color;
+    final ChartMarker marker =
+        ChartMarker()
+          ..x = markerPosition.dx
+          ..y = markerPosition.dy
+          ..index = pointInfo.dataPointIndex!
+          ..height = tooltipMarkerSize
+          ..width = tooltipMarkerSize
+          ..borderColor = color
+          ..borderWidth = 1
+          ..color = color;
     if (markerSettings != null) {
       marker.merge(
         borderColor: markerSettings!.borderColor ?? color,
@@ -2084,10 +2329,14 @@ class TrackballBehavior extends ChartBehavior {
         type: markerSettings!.shape,
       );
     }
-    marker.position =
-        Offset(marker.x - marker.width / 2, marker.y - marker.height / 2);
+    marker.position = Offset(
+      marker.x - marker.width / 2,
+      marker.y - marker.height / 2,
+    );
     marker.shader = _markerShader(
-        pointInfo, marker.position & Size(marker.height, marker.width));
+      pointInfo,
+      marker.position & Size(marker.height, marker.width),
+    );
     _tooltipMarkers.add(marker);
   }
 
@@ -2104,32 +2353,46 @@ class TrackballBehavior extends ChartBehavior {
     return null;
   }
 
-  void _computeLineMarkers(ThemeData themeData, List<ChartMarker> source) {
+  void _computeLineMarkers(
+    ThemeData themeData,
+    List<ChartMarker> source,
+    bool markerIsVisible,
+    bool markerAutoVisibility,
+  ) {
     final Color themeFillColor = themeData.colorScheme.surface;
-    final int length = chartPointInfo.length;
-    for (int i = 0; i < length; i++) {
-      final ChartPointInfo pointInfo = chartPointInfo[i];
-      final Color color = pointInfo.color!;
-      final ChartMarker marker = ChartMarker()
-        ..x = pointInfo.markerXPos!
-        ..y = pointInfo.markerYPos!
-        ..index = pointInfo.dataPointIndex!
-        ..borderColor = color
-        ..color = themeFillColor;
-      if (markerSettings != null) {
-        marker.merge(
-          borderColor: markerSettings!.borderColor ?? color,
-          borderWidth: markerSettings!.borderWidth,
-          color: markerSettings!.color ?? themeFillColor,
-          height: markerSettings!.height,
-          width: markerSettings!.width,
-          image: markerSettings!.image,
-          type: markerSettings!.shape,
+    for (final ChartPointInfo pointInfo in chartPointInfo) {
+      final dynamic series = pointInfo.series;
+      final bool isVisible =
+          markerAutoVisibility
+              ? series is IndicatorRenderer ||
+                  (series != null && series.markerSettings.isVisible)
+              : markerIsVisible;
+      if (isVisible) {
+        final Color color = pointInfo.color!;
+        final ChartMarker marker =
+            ChartMarker()
+              ..x = pointInfo.markerXPos!
+              ..y = pointInfo.markerYPos!
+              ..index = pointInfo.dataPointIndex!
+              ..borderColor = color
+              ..color = themeFillColor;
+        if (markerSettings != null) {
+          marker.merge(
+            borderColor: markerSettings!.borderColor ?? color,
+            borderWidth: markerSettings!.borderWidth,
+            color: markerSettings!.color ?? themeFillColor,
+            height: markerSettings!.height,
+            width: markerSettings!.width,
+            image: markerSettings!.image,
+            type: markerSettings!.shape,
+          );
+        }
+        marker.position = Offset(
+          marker.x - marker.width / 2,
+          marker.y - marker.height / 2,
         );
+        source.add(marker);
       }
-      marker.position =
-          Offset(marker.x - marker.width / 2, marker.y - marker.height / 2);
-      source.add(marker);
     }
   }
 
@@ -2145,9 +2408,10 @@ class TrackballBehavior extends ChartBehavior {
     final double markerSize = canShowMarker ? trackballTooltipMarkerSize : 0;
     final double padding = canShowMarker ? 0 : defaultTrackballPadding;
     final double markerSizeWithPadding = defaultTrackballPadding + markerSize;
-    final double x = isRtl
-        ? tooltipRRect.right - markerSizeWithPadding - padding
-        : tooltipRRect.left + markerSizeWithPadding + padding;
+    final double x =
+        isRtl
+            ? tooltipRRect.right - markerSizeWithPadding - padding
+            : tooltipRRect.left + markerSizeWithPadding + padding;
     final double y = tooltipRRect.top + defaultTrackballPadding;
     if (tooltipSettings.format != null) {
       _computeFormatTooltipLabels(x, y, text, textStyle, isRtl);
@@ -2157,17 +2421,26 @@ class TrackballBehavior extends ChartBehavior {
         _computeDefaultTooltipLabels(x, y, text, textStyle, isRtl);
       } else {
         // It represents for xYDataSeries.
-        final TextStyle boldStyle =
-            _createLabelStyle(FontWeight.bold, textStyle);
-        final Offset offset =
-            Offset(isRtl ? x - measureText(text, boldStyle).width : x, y);
+        final TextStyle boldStyle = _createLabelStyle(
+          FontWeight.bold,
+          textStyle,
+        );
+        final Offset offset = Offset(
+          isRtl ? x - measureText(text, boldStyle).width : x,
+          y,
+        );
         _tooltipLabels.add(_TooltipLabels(text, boldStyle, offset));
       }
     }
   }
 
   void _computeDefaultTooltipLabels(
-      double x, double y, String text, TextStyle textStyle, bool isRtl) {
+    double x,
+    double y,
+    String text,
+    TextStyle textStyle,
+    bool isRtl,
+  ) {
     final TextStyle boldStyle = _createLabelStyle(FontWeight.bold, textStyle);
     double eachTextHeight = 0;
     final List<String> labels = text.split('\n');
@@ -2186,17 +2459,21 @@ class TrackballBehavior extends ChartBehavior {
           eachTextHeight += isRtl ? rightSize.height : leftSize.height;
           if (isRtl) {
             dx -= rightSize.width;
-            _tooltipLabels
-                .add(_TooltipLabels(rightText, textStyle, Offset(dx, dy)));
+            _tooltipLabels.add(
+              _TooltipLabels(rightText, textStyle, Offset(dx, dy)),
+            );
             dx -= leftSize.width;
-            _tooltipLabels
-                .add(_TooltipLabels(leftText, boldStyle, Offset(dx, dy)));
+            _tooltipLabels.add(
+              _TooltipLabels(leftText, boldStyle, Offset(dx, dy)),
+            );
           } else {
-            _tooltipLabels
-                .add(_TooltipLabels(leftText, textStyle, Offset(dx, dy)));
+            _tooltipLabels.add(
+              _TooltipLabels(leftText, textStyle, Offset(dx, dy)),
+            );
             dx += leftSize.width;
-            _tooltipLabels
-                .add(_TooltipLabels(rightText, boldStyle, Offset(dx, dy)));
+            _tooltipLabels.add(
+              _TooltipLabels(rightText, boldStyle, Offset(dx, dy)),
+            );
           }
         }
       } else {
@@ -2211,7 +2488,12 @@ class TrackballBehavior extends ChartBehavior {
   }
 
   void _computeFormatTooltipLabels(
-      double x, double y, String text, TextStyle textStyle, bool isRtl) {
+    double x,
+    double y,
+    String text,
+    TextStyle textStyle,
+    bool isRtl,
+  ) {
     if (text.contains('\n')) {
       _multiLineLabelFormat(x, y, text, textStyle, isRtl);
     } else {
@@ -2228,7 +2510,12 @@ class TrackballBehavior extends ChartBehavior {
   }
 
   void _multiLineLabelFormat(
-      double x, double y, String label, TextStyle textStyle, bool isRtl) {
+    double x,
+    double y,
+    String label,
+    TextStyle textStyle,
+    bool isRtl,
+  ) {
     double dy = y;
     final List<String> multiLines = label.split('\n');
     for (final String text in multiLines) {
@@ -2247,7 +2534,12 @@ class TrackballBehavior extends ChartBehavior {
   }
 
   void _singleLineLabelFormat(
-      double x, double y, String label, TextStyle textStyle, bool isRtl) {
+    double x,
+    double y,
+    String label,
+    TextStyle textStyle,
+    bool isRtl,
+  ) {
     final TextStyle boldStyle = _createLabelStyle(FontWeight.bold, textStyle);
     double dx = x;
     if (label.contains('<b>') && label.contains('</b>')) {
@@ -2275,8 +2567,9 @@ class TrackballBehavior extends ChartBehavior {
                   j == partsStart ? boldStyle : textStyle;
               final Size textSize = measureText(part, currentStyle);
               dx -= textSize.width;
-              _tooltipLabels
-                  .add(_TooltipLabels(part, currentStyle, Offset(dx, y)));
+              _tooltipLabels.add(
+                _TooltipLabels(part, currentStyle, Offset(dx, y)),
+              );
             }
           } else {
             dx -= measureText(text, textStyle).width;
@@ -2303,8 +2596,9 @@ class TrackballBehavior extends ChartBehavior {
 
               final TextStyle currentStyle = j == 0 ? boldStyle : textStyle;
               final Size textSize = measureText(part, currentStyle);
-              _tooltipLabels
-                  .add(_TooltipLabels(part, currentStyle, Offset(dx, y)));
+              _tooltipLabels.add(
+                _TooltipLabels(part, currentStyle, Offset(dx, y)),
+              );
               dx += textSize.width;
             }
           } else {
@@ -2324,25 +2618,40 @@ class TrackballBehavior extends ChartBehavior {
   /// Override this method to customize the trackball tooltip labels
   /// and it's positions and line rendering.
   @override
-  void onPaint(PaintingContext context, Offset offset,
-      SfChartThemeData chartThemeData, ThemeData themeData) {
+  void onPaint(
+    PaintingContext context,
+    Offset offset,
+    SfChartThemeData chartThemeData,
+    ThemeData themeData,
+  ) {
     _drawTrackballLine(context, offset, chartThemeData, themeData);
     // Draw line marker.
     _drawMarkers(context, chartThemeData, _lineMarkers);
     _drawLabel(context, offset, chartThemeData, themeData);
   }
 
-  void _drawTrackballLine(PaintingContext context, Offset offset,
-      SfChartThemeData chartThemeData, ThemeData themeData) {
+  void _drawTrackballLine(
+    PaintingContext context,
+    Offset offset,
+    SfChartThemeData chartThemeData,
+    ThemeData themeData,
+  ) {
     if (chartPointInfo.isNotEmpty && lineType != TrackballLineType.none) {
-      final Paint paint = Paint()
-        ..isAntiAlias = true
-        ..color = (lineColor ?? chartThemeData.crosshairLineColor)!
-        ..strokeWidth = lineWidth
-        ..style = PaintingStyle.stroke;
+      final Paint paint =
+          Paint()
+            ..isAntiAlias = true
+            ..color = (lineColor ?? chartThemeData.crosshairLineColor)!
+            ..strokeWidth = lineWidth
+            ..style = PaintingStyle.stroke;
 
       _drawLine(
-          context, offset, chartThemeData, themeData, lineDashArray, paint);
+        context,
+        offset,
+        chartThemeData,
+        themeData,
+        lineDashArray,
+        paint,
+      );
     }
   }
 
@@ -2374,8 +2683,12 @@ class TrackballBehavior extends ChartBehavior {
     drawDashes(context.canvas, dashArray, paint, path: path);
   }
 
-  void _drawLabel(PaintingContext context, Offset offset,
-      SfChartThemeData chartThemeData, ThemeData themeData) {
+  void _drawLabel(
+    PaintingContext context,
+    Offset offset,
+    SfChartThemeData chartThemeData,
+    ThemeData themeData,
+  ) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent == null) {
       return;
@@ -2387,16 +2700,18 @@ class TrackballBehavior extends ChartBehavior {
       if (_tooltipPaths.isNotEmpty) {
         final Color themeBackgroundColor =
             chartThemeData.crosshairBackgroundColor!;
-        final Paint fillPaint = Paint()
-          ..color = tooltipSettings.color ?? themeBackgroundColor
-          ..isAntiAlias = true
-          ..style = PaintingStyle.fill;
-        final Paint strokePaint = Paint()
-          ..color = tooltipSettings.borderColor ?? themeBackgroundColor
-          ..strokeWidth = tooltipSettings.borderWidth
-          ..strokeCap = StrokeCap.butt
-          ..isAntiAlias = true
-          ..style = PaintingStyle.stroke;
+        final Paint fillPaint =
+            Paint()
+              ..color = tooltipSettings.color ?? themeBackgroundColor
+              ..isAntiAlias = true
+              ..style = PaintingStyle.fill;
+        final Paint strokePaint =
+            Paint()
+              ..color = tooltipSettings.borderColor ?? themeBackgroundColor
+              ..strokeWidth = tooltipSettings.borderWidth
+              ..strokeCap = StrokeCap.butt
+              ..isAntiAlias = true
+              ..style = PaintingStyle.stroke;
         final int length = _tooltipPaths.length;
         for (int i = 0; i < length; i++) {
           final Path path = _tooltipPaths[i];
@@ -2429,21 +2744,31 @@ class TrackballBehavior extends ChartBehavior {
         for (int i = 0; i < length; i++) {
           final _TooltipLabels label = _tooltipLabels[i];
           _drawText(
-              context.canvas, label.text, label.position, label.style, isRtl);
+            context.canvas,
+            label.text,
+            label.position,
+            label.style,
+            isRtl,
+          );
         }
       }
     }
   }
 
-  void _drawMarkers(PaintingContext context, SfChartThemeData chartThemeData,
-      List<ChartMarker> markers) {
+  void _drawMarkers(
+    PaintingContext context,
+    SfChartThemeData chartThemeData,
+    List<ChartMarker> markers,
+  ) {
     if (markers.isNotEmpty) {
-      final Paint fillPaint = Paint()
-        ..isAntiAlias = true
-        ..style = PaintingStyle.fill;
-      final Paint strokePaint = Paint()
-        ..isAntiAlias = true
-        ..style = PaintingStyle.stroke;
+      final Paint fillPaint =
+          Paint()
+            ..isAntiAlias = true
+            ..style = PaintingStyle.fill;
+      final Paint strokePaint =
+          Paint()
+            ..isAntiAlias = true
+            ..style = PaintingStyle.stroke;
       for (final ChartMarker marker in markers) {
         fillPaint
           ..color = marker.color!
@@ -2463,8 +2788,14 @@ class TrackballBehavior extends ChartBehavior {
     }
   }
 
-  void _drawMarker(Canvas canvas, Offset position, Size size,
-      DataMarkerType type, Paint fillPaint, Paint strokePaint) {
+  void _drawMarker(
+    Canvas canvas,
+    Offset position,
+    Size size,
+    DataMarkerType type,
+    Paint fillPaint,
+    Paint strokePaint,
+  ) {
     if (position.isNaN) {
       return;
     }
@@ -2472,7 +2803,10 @@ class TrackballBehavior extends ChartBehavior {
     if (type == DataMarkerType.image) {
       if (_trackballImage != null) {
         paintImage(
-            canvas: canvas, rect: position & size, image: _trackballImage!);
+          canvas: canvas,
+          rect: position & size,
+          image: _trackballImage!,
+        );
       }
     } else if (type != DataMarkerType.none) {
       paint(
@@ -2485,8 +2819,13 @@ class TrackballBehavior extends ChartBehavior {
     }
   }
 
-  void _drawText(Canvas canvas, String text, Offset position, TextStyle style,
-      bool isRtl) {
+  void _drawText(
+    Canvas canvas,
+    String text,
+    Offset position,
+    TextStyle style,
+    bool isRtl,
+  ) {
     final TextPainter textPainter = TextPainter(
       text: TextSpan(text: text, style: style),
       textAlign: isRtl ? TextAlign.right : TextAlign.left,
@@ -2524,16 +2863,16 @@ class TrackballOpacityRenderBox extends RenderOpacity {
 }
 
 class TrackballBuilderRenderObjectWidget extends SingleChildRenderObjectWidget {
-  const TrackballBuilderRenderObjectWidget(
-      {Key? key,
-      this.index,
-      required this.xPos,
-      required this.yPos,
-      required this.builder,
-      required this.chartPointInfo,
-      required this.trackballBehavior,
-      required Widget child})
-      : super(key: key, child: child);
+  const TrackballBuilderRenderObjectWidget({
+    Key? key,
+    this.index,
+    required this.xPos,
+    required this.yPos,
+    required this.builder,
+    required this.chartPointInfo,
+    required this.trackballBehavior,
+    required Widget child,
+  }) : super(key: key, child: child);
 
   final int? index;
   final double xPos;
@@ -2556,7 +2895,9 @@ class TrackballBuilderRenderObjectWidget extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, covariant TrackballBuilderRenderBox renderObject) {
+    BuildContext context,
+    covariant TrackballBuilderRenderBox renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..index = index
@@ -2571,10 +2912,15 @@ class TrackballBuilderRenderObjectWidget extends SingleChildRenderObjectWidget {
 /// Render the annotation widget in the respective position.
 class TrackballBuilderRenderBox extends RenderShiftedBox {
   /// Creates an instance of trackball template render box.
-  TrackballBuilderRenderBox(this.index, this.xPos, this.yPos, this._builder,
-      this.chartPointInfo, this.trackballBehavior,
-      [RenderBox? child])
-      : super(child);
+  TrackballBuilderRenderBox(
+    this.index,
+    this.xPos,
+    this.yPos,
+    this._builder,
+    this.chartPointInfo,
+    this.trackballBehavior, [
+    RenderBox? child,
+  ]) : super(child);
 
   /// Holds the value of x and y position.
   double xPos, yPos;
@@ -2617,7 +2963,7 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
   // Offset arrowOffset;
 
   /// Holds the tooltip position.
-  _TooltipPositions? _tooltipPosition;
+  late _TooltipPositions? _tooltipPosition;
 
   /// Holds the value of box parent data.
   late BoxParentData childParentData;
@@ -2652,7 +2998,8 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
   @override
   void performLayout() {
     size = constraints.biggest;
-    isTransposed = chartPointInfo != null &&
+    isTransposed =
+        chartPointInfo != null &&
         chartPointInfo!.isNotEmpty &&
         chartPointInfo![0].series!.isTransposed;
     final TrackballDisplayMode tooltipDisplayMode =
@@ -2661,12 +3008,13 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
         tooltipDisplayMode == TrackballDisplayMode.groupAllPoints;
     isNearestPoint = tooltipDisplayMode == TrackballDisplayMode.nearestPoint;
 
-    final List<num>? tooltipTop = <num>[];
+    final List<num> tooltipTop = <num>[];
     final List<num> tooltipBottom = <num>[];
     final List<RenderChartAxis> xAxesInfo = <RenderChartAxis>[];
     final List<RenderChartAxis> yAxesInfo = <RenderChartAxis>[];
-    final bool isTrackballMarkerEnabled =
-        trackballBehavior.markerSettings != null;
+    final TrackballMarkerSettings? markerSettings =
+        trackballBehavior.markerSettings;
+    final bool isTrackballMarkerEnabled = markerSettings != null;
 
     final List<Offset> visiblePoints = trackballBehavior._visiblePoints;
     pointerLength = trackballBehavior.tooltipSettings.arrowLength;
@@ -2680,98 +3028,116 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
     if (child != null) {
       child!.layout(constraints, parentUsesSize: true);
       if (child!.parentData is BoxParentData) {
-        childParentData = child!.parentData as BoxParentData;
-        final double sizeFullWidth = child!.size.width;
-        final double sizeFullHeight = child!.size.height;
-        final double sizeHalfWidth = sizeFullWidth / 2;
-        final double sizeHalfHeight = sizeFullHeight / 2;
+        childParentData = child!.parentData! as BoxParentData;
+        final double markerHalfWidth =
+            isTrackballMarkerEnabled ? markerSettings.width / 2 : 0;
+        final double markerHalfHeight =
+            isTrackballMarkerEnabled ? markerSettings.height / 2 : 0;
+        final double templateFullWidth = child!.size.width;
+        final double templateFullHeight = child!.size.height;
+        final double templateHalfWidth = templateFullWidth / 2;
+        final double templateHalfHeight = templateFullHeight / 2;
 
         if (isGroupAllPoints) {
           final ChartAlignment tooltipAlignment =
               trackballBehavior.tooltipAlignment;
-          if (tooltipAlignment == ChartAlignment.center) {
-            yPos = plotAreaBounds.center.dy - sizeHalfHeight;
-          } else if (tooltipAlignment == ChartAlignment.near) {
-            yPos = plotAreaBounds.top;
+          final Offset tooltipPosition = trackballBehavior
+              ._defaultGroupPosition(xPos, yPos);
+          xPos = tooltipPosition.dx;
+          yPos = tooltipPosition.dy;
+          if (isTransposed) {
+            if (tooltipAlignment == ChartAlignment.far) {
+              xPos = tooltipPosition.dx - templateFullWidth;
+            } else if (tooltipAlignment == ChartAlignment.center) {
+              xPos = tooltipPosition.dx - templateHalfWidth;
+            }
           } else {
-            yPos = plotAreaBounds.bottom;
-          }
-
-          if (yPos + sizeFullHeight > plotAreaBounds.bottom &&
-              tooltipAlignment == ChartAlignment.far) {
-            yPos = plotAreaBounds.bottom - sizeFullHeight;
+            if (tooltipAlignment == ChartAlignment.far) {
+              yPos = tooltipPosition.dy - templateFullHeight;
+            } else if (tooltipAlignment == ChartAlignment.center) {
+              yPos = tooltipPosition.dy - templateHalfHeight;
+            }
           }
         }
-
-        final double markerHalfWidth = isTrackballMarkerEnabled
-            ? trackballBehavior.markerSettings!.width / 2
-            : 0;
 
         if (chartPointInfo != null &&
             chartPointInfo!.isNotEmpty &&
             !isGroupAllPoints) {
           final int length = chartPointInfo!.length;
           for (int i = 0; i < length; i++) {
-            final dynamic series = chartPointInfo![i].series!;
+            final dynamic series = chartPointInfo![i].series;
             final Offset visiblePoint = visiblePoints[i];
             final double closestPointX = visiblePoint.dx;
             final double closestPointY = visiblePoint.dy;
-            tooltipTop!.add(isTransposed
-                ? closestPointX - sizeHalfWidth
-                : closestPointY - sizeHalfHeight);
-            tooltipBottom.add(isTransposed
-                ? closestPointX + sizeHalfWidth
-                : closestPointY + sizeHalfHeight);
+            tooltipTop.add(
+              isTransposed
+                  ? closestPointX - templateHalfWidth
+                  : closestPointY - templateHalfHeight,
+            );
+            tooltipBottom.add(
+              isTransposed
+                  ? closestPointX + templateHalfWidth
+                  : closestPointY + templateHalfHeight,
+            );
             xAxesInfo.add(series.xAxis!);
             yAxesInfo.add(series.yAxis!);
           }
 
-          if (tooltipTop != null && tooltipTop.isNotEmpty) {
+          if (tooltipTop.isNotEmpty) {
             _tooltipPosition = trackballBehavior._smartTooltipPositions(
-                tooltipTop,
-                tooltipBottom,
-                xAxesInfo,
-                yAxesInfo,
-                chartPointInfo!,
-                isTransposed ? 8 : 5);
+              tooltipTop,
+              tooltipBottom,
+              xAxesInfo,
+              yAxesInfo,
+              chartPointInfo!,
+              isTransposed ? 8 : 5,
+            );
           }
 
           if (isNearestPoint) {
-            left = isTransposed
-                ? xPos + sizeHalfWidth
-                : xPos + padding + markerHalfWidth;
-            top = isTransposed
-                ? yPos + padding + markerHalfWidth
-                : yPos - sizeHalfHeight;
+            left =
+                isTransposed
+                    ? xPos + templateHalfWidth
+                    : xPos + padding + markerHalfWidth;
+            top =
+                isTransposed
+                    ? yPos + padding + markerHalfWidth
+                    : yPos - templateHalfHeight;
           } else {
-            left = (isTransposed
-                    ? _tooltipPosition!.tooltipTop[index!]
-                    : xPos + padding + markerHalfWidth)
-                .toDouble();
-            top = (isTransposed
-                    ? yPos + pointerLength + markerHalfWidth
-                    : _tooltipPosition!.tooltipTop[index!])
-                .toDouble();
+            left =
+                (isTransposed
+                        ? _tooltipPosition!.tooltipTop[index!]
+                        : xPos + padding + markerHalfWidth)
+                    .toDouble();
+            top =
+                (isTransposed
+                        ? yPos + pointerLength + markerHalfWidth
+                        : _tooltipPosition!.tooltipTop[index!])
+                    .toDouble();
           }
 
           if (!isTransposed) {
-            if (left + sizeFullWidth > totalWidth) {
+            if (left + templateFullWidth > totalWidth) {
               isRight = true;
-              left = xPos - sizeFullWidth - pointerLength - markerHalfWidth;
+              left = xPos - templateFullWidth - pointerLength - markerHalfWidth;
             } else {
               isRight = false;
             }
           } else {
-            if (top + sizeFullHeight > plotAreaBounds.bottom) {
+            if (top + templateFullHeight > plotAreaBounds.bottom) {
               isBottom = true;
-              top = yPos - sizeFullHeight - pointerLength - markerHalfWidth;
+              top = yPos - templateFullHeight - pointerLength - markerHalfWidth;
             } else {
               isBottom = false;
             }
           }
 
-          trackballTemplateRect =
-              Rect.fromLTWH(left, top, sizeFullWidth, sizeFullHeight);
+          trackballTemplateRect = Rect.fromLTWH(
+            left,
+            top,
+            templateFullWidth,
+            templateFullHeight,
+          );
           double xPlotOffset =
               visiblePoints.first.dx - trackballTemplateRect!.width / 2;
           final double rightTemplateEnd =
@@ -2790,7 +3156,8 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
                 xPlotOffset = xPlotOffset + (boundaryLeft - xPlotOffset);
                 if (xPlotOffset + trackballTemplateRect!.width >
                     boundaryRight) {
-                  xPlotOffset = xPlotOffset -
+                  xPlotOffset =
+                      xPlotOffset -
                       (totalWidth +
                           trackballTemplateRect!.width -
                           boundaryRight);
@@ -2802,7 +3169,8 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
             } else if (leftTemplateEnd < boundaryLeft) {
               xPlotOffset = xPlotOffset + (boundaryLeft - leftTemplateEnd);
               if (xPlotOffset + trackballTemplateRect!.width > boundaryRight) {
-                xPlotOffset = xPlotOffset -
+                xPlotOffset =
+                    xPlotOffset -
                     (totalWidth + trackballTemplateRect!.width - boundaryRight);
                 if (xPlotOffset < boundaryLeft) {
                   xPlotOffset = xPlotOffset + (boundaryLeft - xPlotOffset);
@@ -2814,20 +3182,64 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
                 }
               }
             }
-            childParentData.offset = Offset(xPlotOffset, yPos);
+
+            /// Adjusts the yPos of the trackball tooltip to ensure it stays
+            /// within the plot area's boundaries.
+            final double templateHeightWithPadding =
+                trackballTemplateRect!.height + padding;
+            final double templateRectTop = yPos - templateHeightWithPadding;
+            final double templateRectBottom = yPos + templateHeightWithPadding;
+            double yPlotOffset = yPos;
+            if (templateRectTop >= plotAreaBounds.top) {
+              yPlotOffset = yPlotOffset - templateHeightWithPadding;
+            } else if (templateRectBottom <= plotAreaBounds.bottom) {
+              yPlotOffset = yPlotOffset + padding;
+            }
+
+            if (templateRectTop < plotAreaBounds.top &&
+                templateRectBottom > plotAreaBounds.bottom) {
+              isTemplateInBounds = false;
+            }
+            childParentData.offset = Offset(xPlotOffset, yPlotOffset);
           } else {
-            child!.layout(constraints.copyWith(maxWidth: 0),
-                parentUsesSize: true);
+            child!.layout(
+              constraints.copyWith(maxWidth: 0),
+              parentUsesSize: true,
+            );
             isTemplateInBounds = false;
           }
         } else {
           if (visiblePoints.isNotEmpty) {
-            if (xPos + sizeFullWidth > totalWidth) {
-              xPos = xPos - sizeFullWidth - 2 * padding - markerHalfWidth;
+            // Adjusts the yPos and xPos of the trackball tooltip to ensure
+            // it stays within the plot area bounds.
+            if (isTransposed) {
+              final double templateYPosition =
+                  yPos - templateFullHeight - padding - markerHalfHeight;
+              // Move the template inside the plot area bounds, when
+              // template top lesser than plot area bounds top.
+              if (templateYPosition < plotAreaBounds.top) {
+                yPos = yPos + padding + markerHalfHeight;
+              } else {
+                yPos = templateYPosition;
+              }
+            } else {
+              final double templateXPosition = xPos + padding + markerHalfWidth;
+              // Move the template inside the plot area bounds, when
+              // template right greater than plot area bounds right.
+              if (templateXPosition + templateFullWidth >
+                  plotAreaBounds.right) {
+                xPos = xPos - templateFullWidth - padding - markerHalfWidth;
+              } else {
+                xPos = templateXPosition;
+              }
             }
 
-            trackballTemplateRect =
-                Rect.fromLTWH(xPos, yPos, sizeFullWidth, sizeFullHeight);
+            trackballTemplateRect = Rect.fromLTWH(
+              xPos,
+              yPos,
+              templateFullWidth,
+              templateFullHeight,
+            );
             double xPlotOffset =
                 visiblePoints.first.dx - trackballTemplateRect!.width / 2;
             final double rightTemplateEnd =
@@ -2835,19 +3247,11 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
             final double leftTemplateEnd = xPlotOffset;
 
             if (_isTemplateWithinBounds(
-                    plotAreaBounds, trackballTemplateRect!) &&
-                (boundaryRight > trackballTemplateRect!.right &&
-                    boundaryLeft < trackballTemplateRect!.left)) {
+              plotAreaBounds,
+              trackballTemplateRect!,
+            )) {
               isTemplateInBounds = true;
-              childParentData.offset = Offset(
-                  xPos +
-                      (trackballTemplateRect!.right + padding > boundaryRight
-                          ? trackballTemplateRect!.right +
-                              padding -
-                              boundaryRight
-                          : padding) +
-                      markerHalfWidth,
-                  yPos);
+              childParentData.offset = Offset(xPos, yPos);
             } else if (plotAreaBounds.width > trackballTemplateRect!.width &&
                 plotAreaBounds.height > trackballTemplateRect!.height) {
               isTemplateInBounds = true;
@@ -2857,7 +3261,8 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
                   xPlotOffset = xPlotOffset + (boundaryLeft - xPlotOffset);
                   if (xPlotOffset + trackballTemplateRect!.width >
                       boundaryRight) {
-                    xPlotOffset = xPlotOffset -
+                    xPlotOffset =
+                        xPlotOffset -
                         (totalWidth +
                             trackballTemplateRect!.width -
                             boundaryRight);
@@ -2871,7 +3276,8 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
                 xPlotOffset = xPlotOffset + (boundaryLeft - leftTemplateEnd);
                 if (xPlotOffset + trackballTemplateRect!.width >
                     boundaryRight) {
-                  xPlotOffset = xPlotOffset -
+                  xPlotOffset =
+                      xPlotOffset -
                       (xPlotOffset +
                           trackballTemplateRect!.width -
                           boundaryRight);
@@ -2884,10 +3290,13 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
                   }
                 }
               }
+
               childParentData.offset = Offset(xPlotOffset, yPos);
             } else {
-              child!.layout(constraints.copyWith(maxWidth: 0),
-                  parentUsesSize: true);
+              child!.layout(
+                constraints.copyWith(maxWidth: 0),
+                parentUsesSize: true,
+              );
               isTemplateInBounds = false;
             }
           }
@@ -2895,7 +3304,7 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
       }
     }
     if (!isGroupAllPoints && index == chartPointInfo!.length - 1) {
-      tooltipTop?.clear();
+      tooltipTop.clear();
       tooltipBottom.clear();
       yAxesInfo.clear();
       xAxesInfo.clear();
@@ -2906,23 +3315,28 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
   bool _isTemplateWithinBounds(Rect plotAreaBounds, Rect templateRect) {
     final double triplePadding = (3 * padding).toDouble();
     final Rect rect = Rect.fromLTWH(
-        padding + templateRect.left,
-        triplePadding + templateRect.top,
-        templateRect.width,
-        templateRect.height);
+      padding + templateRect.left,
+      triplePadding + templateRect.top,
+      templateRect.width,
+      templateRect.height,
+    );
     final Rect axisBounds = Rect.fromLTWH(
-        padding + plotAreaBounds.left,
-        triplePadding + plotAreaBounds.top,
-        plotAreaBounds.width,
-        plotAreaBounds.height);
+      padding + plotAreaBounds.left,
+      triplePadding + plotAreaBounds.top,
+      plotAreaBounds.width,
+      plotAreaBounds.height,
+    );
     return rect.left >= axisBounds.left &&
         rect.left + rect.width <= axisBounds.left + axisBounds.width &&
         rect.top >= axisBounds.top &&
         rect.bottom <= axisBounds.top + axisBounds.height;
   }
 
-  void _calculateMarkerPositions(PaintingContext context,
-      SfChartThemeData chartThemeData, ThemeData themeData) {
+  void _calculateMarkerPositions(
+    PaintingContext context,
+    SfChartThemeData chartThemeData,
+    ThemeData themeData,
+  ) {
     final TrackballMarkerSettings? markerSettings =
         trackballBehavior.markerSettings;
     if ((chartPointInfo != null && chartPointInfo!.isEmpty) ||
@@ -2932,7 +3346,14 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
     }
 
     final List<ChartMarker> markers = <ChartMarker>[];
-    trackballBehavior._computeLineMarkers(themeData, markers);
+    final TrackballVisibilityMode markerVisibility =
+        markerSettings.markerVisibility;
+    trackballBehavior._computeLineMarkers(
+      themeData,
+      markers,
+      markerVisibility == TrackballVisibilityMode.visible,
+      markerVisibility == TrackballVisibilityMode.auto,
+    );
     trackballBehavior._drawMarkers(context, chartThemeData, markers);
   }
 
@@ -2953,31 +3374,36 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
       final Color chartThemeBackgroundColor =
           chartThemeData.crosshairBackgroundColor!;
       final ChartPointInfo pointInfo = chartPointInfo![index!];
-      final Color color = pointInfo.series is IndicatorRenderer
-          ? pointInfo.color
-          : (pointInfo.series!.color) ?? chartThemeBackgroundColor;
+      final Color color =
+          pointInfo.series is IndicatorRenderer
+              ? pointInfo.color
+              : (pointInfo.series!.color) ?? chartThemeBackgroundColor;
       final InteractiveTooltip tooltipSettings =
           trackballBehavior.tooltipSettings;
-      final Paint fillPaint = Paint()
-        ..color = tooltipSettings.color ?? color
-        ..isAntiAlias = true
-        ..style = PaintingStyle.fill;
-      final Paint strokePaint = Paint()
-        ..color = tooltipSettings.borderColor ?? color
-        ..strokeWidth = tooltipSettings.borderWidth
-        ..strokeCap = StrokeCap.butt
-        ..isAntiAlias = true
-        ..style = PaintingStyle.stroke;
+      final Paint fillPaint =
+          Paint()
+            ..color = tooltipSettings.color ?? color
+            ..isAntiAlias = true
+            ..style = PaintingStyle.fill;
+      final Paint strokePaint =
+          Paint()
+            ..color = tooltipSettings.borderColor ?? color
+            ..strokeWidth = tooltipSettings.borderWidth
+            ..strokeCap = StrokeCap.butt
+            ..isAntiAlias = true
+            ..style = PaintingStyle.stroke;
 
       if (trackballTemplateRect!.left > plotAreaBounds.left &&
           trackballTemplateRect!.right < plotAreaBounds.right) {
         final RRect templateRRect = RRect.fromRectAndRadius(
-            Rect.fromLTWH(
-                offset.dx + trackballTemplateRect!.left,
-                offset.dy + trackballTemplateRect!.top,
-                trackballTemplateRect!.width,
-                trackballTemplateRect!.height),
-            Radius.zero);
+          Rect.fromLTWH(
+            offset.dx + trackballTemplateRect!.left,
+            offset.dy + trackballTemplateRect!.top,
+            trackballTemplateRect!.width,
+            trackballTemplateRect!.height,
+          ),
+          Radius.zero,
+        );
 
         String nosePosition = '';
         if (!isTransposed) {
@@ -2995,8 +3421,13 @@ class TrackballBuilderRenderBox extends RenderShiftedBox {
           }
         }
 
-        final Path nosePath = trackballBehavior._nosePath(nosePosition,
-            templateRRect, Offset(xPos, yPos), pointerLength, pointerWidth);
+        final Path nosePath = trackballBehavior._nosePath(
+          nosePosition,
+          templateRRect,
+          Offset(xPos, yPos),
+          pointerLength,
+          pointerWidth,
+        );
 
         if (isTemplateInBounds) {
           context.canvas.drawPath(nosePath, fillPaint);
@@ -3098,18 +3529,14 @@ class TrackballMarkerSettings extends MarkerSettings {
       shape,
       borderWidth,
       borderColor,
-      image
+      image,
     ];
     return Object.hashAll(values);
   }
 }
 
 class TrackballInfo {
-  TrackballInfo({
-    required this.position,
-    this.name,
-    this.color,
-  });
+  TrackballInfo({required this.position, this.name, this.color});
 
   /// Local position of the tooltip.
   final Offset? position;

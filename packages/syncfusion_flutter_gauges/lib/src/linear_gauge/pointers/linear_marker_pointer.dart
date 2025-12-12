@@ -5,19 +5,20 @@ import '../../linear_gauge/utils/enum.dart';
 /// [LinearMarkerPointer] has properties for customizing linear gauge pointers.
 abstract class LinearMarkerPointer {
   /// Creates a pointer for linear axis with the default or required properties.
-  LinearMarkerPointer(
-      {required this.value,
-      this.onChanged,
-      this.onChangeStart,
-      this.onChangeEnd,
-      this.enableAnimation = false,
-      this.animationDuration = 1000,
-      this.animationType = LinearAnimationType.ease,
-      this.offset = 0.0,
-      this.markerAlignment = LinearMarkerAlignment.center,
-      this.position = LinearElementPosition.cross,
-      this.dragBehavior = LinearMarkerDragBehavior.free,
-      this.onAnimationCompleted});
+  LinearMarkerPointer({
+    required this.value,
+    this.onChanged,
+    this.onChangeStart,
+    this.onChangeEnd,
+    this.enableAnimation = false,
+    this.animationDuration = 1000,
+    this.animationType = LinearAnimationType.ease,
+    this.offset = 0.0,
+    this.markerAlignment = LinearMarkerAlignment.center,
+    this.position = LinearElementPosition.cross,
+    this.dragBehavior = LinearMarkerDragBehavior.free,
+    this.onAnimationCompleted,
+  });
 
   /// Specifies the linear axis value to place the pointer.
   ///
@@ -114,30 +115,30 @@ abstract class LinearMarkerPointer {
 /// Represents the render object base class for shape and widget pointer.
 class RenderLinearPointerBase extends RenderProxyBox {
   /// Creates a instance for [RenderLinearPointerBase]
-  RenderLinearPointerBase(
-      {required double value,
-      ValueChanged<double>? onChanged,
-      this.onChangeStart,
-      this.onChangeEnd,
-      required double offset,
-      required LinearElementPosition position,
-      required LinearMarkerAlignment markerAlignment,
-      required bool isAxisInversed,
-      required bool isMirrored,
-      Animation<double>? pointerAnimation,
-      VoidCallback? onAnimationCompleted,
-      required LinearMarkerDragBehavior dragBehavior,
-      this.animationController})
-      : _value = value,
-        _onChanged = onChanged,
-        _offset = offset,
-        _position = position,
-        _dragBehavior = dragBehavior,
-        _markerAlignment = markerAlignment,
-        _pointerAnimation = pointerAnimation,
-        _isAxisInversed = isAxisInversed,
-        _isMirrored = isMirrored,
-        _onAnimationCompleted = onAnimationCompleted;
+  RenderLinearPointerBase({
+    required double value,
+    ValueChanged<double>? onChanged,
+    this.onChangeStart,
+    this.onChangeEnd,
+    required double offset,
+    required LinearElementPosition position,
+    required LinearMarkerAlignment markerAlignment,
+    required bool isAxisInversed,
+    required bool isMirrored,
+    Animation<double>? pointerAnimation,
+    VoidCallback? onAnimationCompleted,
+    required LinearMarkerDragBehavior dragBehavior,
+    this.animationController,
+  }) : _value = value,
+       _onChanged = onChanged,
+       _offset = offset,
+       _position = position,
+       _dragBehavior = dragBehavior,
+       _markerAlignment = markerAlignment,
+       _pointerAnimation = pointerAnimation,
+       _isAxisInversed = isAxisInversed,
+       _isMirrored = isMirrored,
+       _onAnimationCompleted = onAnimationCompleted;
 
   /// Gets or sets the shape pointer old value.
   double? oldValue;

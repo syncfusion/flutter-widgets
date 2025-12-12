@@ -66,7 +66,8 @@ class JsonParser {
       if (groupHolders != null && groupHolders!.isNotEmpty) {
         for (final PdfDictionary dictionary in groupHolders!) {
           final IPdfPrimitive? inReplyTo = PdfCrossTable.dereference(
-              dictionary[PdfDictionaryProperties.irt]);
+            dictionary[PdfDictionaryProperties.irt],
+          );
           if (inReplyTo != null &&
               inReplyTo is PdfString &&
               !isNullOrEmpty(inReplyTo.value)) {
@@ -118,8 +119,11 @@ class JsonParser {
     if (pageIndex >= 0 && pageIndex < document.pages.count) {
       final PdfPage loadedPage = document.pages[pageIndex];
       PdfPageHelper.getHelper(loadedPage).importAnnotation = true;
-      final PdfDictionary annotDictionary =
-          getAnnotationData(type, pageIndex, annotData);
+      final PdfDictionary annotDictionary = getAnnotationData(
+        type,
+        pageIndex,
+        annotData,
+      );
       if (annotDictionary.count > 0) {
         final PdfReferenceHolder holder = PdfReferenceHolder(annotDictionary);
         if (annotDictionary.containsKey(PdfDictionaryProperties.nm) ||
@@ -133,7 +137,8 @@ class JsonParser {
             pageDictionary[PdfDictionaryProperties.annots] = PdfArray();
           }
           final IPdfPrimitive? annots = PdfCrossTable.dereference(
-              pageDictionary[PdfDictionaryProperties.annots]);
+            pageDictionary[PdfDictionaryProperties.annots],
+          );
           if (annots != null && annots is PdfArray) {
             annots.elements.add(holder);
             annots.changed = true;
@@ -147,9 +152,12 @@ class JsonParser {
 
   /// Internal Method.
   void addReferenceToGroup(
-      PdfReferenceHolder holder, PdfDictionary dictionary) {
-    IPdfPrimitive? name =
-        PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.nm]);
+    PdfReferenceHolder holder,
+    PdfDictionary dictionary,
+  ) {
+    IPdfPrimitive? name = PdfCrossTable.dereference(
+      dictionary[PdfDictionaryProperties.nm],
+    );
     groupReferences ??= <String, PdfReferenceHolder>{};
     if (name != null && name is PdfString && !isNullOrEmpty(name.value)) {
       groupReferences![name.value!] = holder;
@@ -159,8 +167,9 @@ class JsonParser {
       }
     } else if (name == null) {
       if (dictionary.containsKey(PdfDictionaryProperties.irt)) {
-        name =
-            PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.irt]);
+        name = PdfCrossTable.dereference(
+          dictionary[PdfDictionaryProperties.irt],
+        );
       }
       if (name != null && name is PdfString && !isNullOrEmpty(name.value)) {
         if (groupReferences!.containsKey(name.value)) {
@@ -174,41 +183,58 @@ class JsonParser {
 
   /// Internal Method.
   PdfDictionary getAnnotationData(
-      String type, int pageindex, Map<String, dynamic> annotData) {
+    String type,
+    int pageindex,
+    Map<String, dynamic> annotData,
+  ) {
     final PdfDictionary annotDictionary = PdfDictionary();
     annotDictionary.setName(
-        PdfDictionaryProperties.type, PdfDictionaryProperties.annot);
+      PdfDictionaryProperties.type,
+      PdfDictionaryProperties.annot,
+    );
     bool isValidType = true;
     switch (type.toLowerCase()) {
       case 'line':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.line);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.line,
+        );
         break;
       case 'circle':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.circle);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.circle,
+        );
         break;
       case 'square':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.square);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.square,
+        );
         break;
       case 'polyline':
         annotDictionary.setName(PdfDictionaryProperties.subtype, 'PolyLine');
         break;
       case 'polygon':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.polygon);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.polygon,
+        );
         break;
       case 'ink':
         annotDictionary.setName(PdfDictionaryProperties.subtype, 'Ink');
         break;
       case 'popup':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.popup);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.popup,
+        );
         break;
       case 'text':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.text);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.text,
+        );
         break;
       case 'freetext':
         annotDictionary.setName(PdfDictionaryProperties.subtype, 'FreeText');
@@ -218,23 +244,33 @@ class JsonParser {
         break;
       case 'highlight':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.highlight);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.highlight,
+        );
         break;
       case 'squiggly':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.squiggly);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.squiggly,
+        );
         break;
       case 'underline':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.underline);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.underline,
+        );
         break;
       case 'strikeout':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, PdfDictionaryProperties.strikeOut);
+          PdfDictionaryProperties.subtype,
+          PdfDictionaryProperties.strikeOut,
+        );
         break;
       case 'fileattachment':
         annotDictionary.setName(
-            PdfDictionaryProperties.subtype, 'FileAttachment');
+          PdfDictionaryProperties.subtype,
+          'FileAttachment',
+        );
         break;
       case 'sound':
         annotDictionary.setName(PdfDictionaryProperties.subtype, 'Sound');
@@ -260,8 +296,11 @@ class JsonParser {
   }
 
   /// Internal method.
-  void addAnnotationData(PdfDictionary annotDictionary,
-      Map<String, dynamic> annotData, int index) {
+  void addAnnotationData(
+    PdfDictionary annotDictionary,
+    Map<String, dynamic> annotData,
+    int index,
+  ) {
     List<num>? linePoints = <num>[];
     final PdfDictionary borderEffectDictionary = PdfDictionary();
     final PdfDictionary borderStyleDictionary = PdfDictionary();
@@ -275,7 +314,9 @@ class JsonParser {
           linePoints!.addAll(_obtainFloatPoints(value));
           if (linePoints!.length == 4) {
             annotDictionary.setProperty(
-                PdfDictionaryProperties.l, PdfArray(linePoints));
+              PdfDictionaryProperties.l,
+              PdfArray(linePoints),
+            );
             linePoints!.clear();
             linePoints = null;
           }
@@ -295,20 +336,29 @@ class JsonParser {
           break;
         case 'inreplyto':
           addString(
-              annotDictionary, PdfDictionaryProperties.irt, value.toString());
+            annotDictionary,
+            PdfDictionaryProperties.irt,
+            value.toString(),
+          );
           break;
         case 'dashes':
         case 'width':
         case 'intensity':
         case 'style':
           addBorderStyle(
-              key, value, borderEffectDictionary, borderStyleDictionary);
+            key,
+            value,
+            borderEffectDictionary,
+            borderStyleDictionary,
+          );
           break;
         case 'rect':
           final List<num> points = _obtainFloatPoints(value.values.toList());
           if (points.length == 4) {
             annotDictionary.setProperty(
-                PdfDictionaryProperties.rect, PdfArray(points));
+              PdfDictionaryProperties.rect,
+              PdfArray(points),
+            );
           }
           break;
         case 'color':
@@ -316,7 +366,9 @@ class JsonParser {
             final PdfArray? colorArray = getColorArray(value);
             if (colorArray != null) {
               annotDictionary.setProperty(
-                  PdfDictionaryProperties.c, colorArray);
+                PdfDictionaryProperties.c,
+                colorArray,
+              );
             }
           }
           break;
@@ -326,7 +378,9 @@ class JsonParser {
               final PdfArray? colorArray = getColorArray(value);
               if (colorArray != null) {
                 annotDictionary.setProperty(
-                    PdfDictionaryProperties.ic, colorArray);
+                  PdfDictionaryProperties.ic,
+                  colorArray,
+                );
               }
             }
           }
@@ -336,21 +390,32 @@ class JsonParser {
             final PdfArray? colorArray = getColorArray(value);
             if (colorArray != null) {
               annotDictionary.setProperty(
-                  PdfDictionaryProperties.ic, colorArray);
+                PdfDictionaryProperties.ic,
+                colorArray,
+              );
             }
           }
           break;
         case 'date':
           addString(
-              annotDictionary, PdfDictionaryProperties.m, value.toString());
+            annotDictionary,
+            PdfDictionaryProperties.m,
+            value.toString(),
+          );
           break;
         case 'creationdate':
-          addString(annotDictionary, PdfDictionaryProperties.creationDate,
-              value.toString());
+          addString(
+            annotDictionary,
+            PdfDictionaryProperties.creationDate,
+            value.toString(),
+          );
           break;
         case 'name':
           addString(
-              annotDictionary, PdfDictionaryProperties.nm, value.toString());
+            annotDictionary,
+            PdfDictionaryProperties.nm,
+            value.toString(),
+          );
           break;
         case 'icon':
           if (value is String && !isNullOrEmpty(value)) {
@@ -359,7 +424,10 @@ class JsonParser {
           break;
         case 'subject':
           addString(
-              annotDictionary, PdfDictionaryProperties.subj, value.toString());
+            annotDictionary,
+            PdfDictionaryProperties.subj,
+            value.toString(),
+          );
           break;
         case 'title':
           addString(annotDictionary, PdfDictionaryProperties.t, value);
@@ -368,8 +436,11 @@ class JsonParser {
           addNumber(annotDictionary, PdfDictionaryProperties.rotate, value);
           break;
         case 'fringe':
-          addFloatPoints(annotDictionary, _obtainFloatPoints(value),
-              PdfDictionaryProperties.rd);
+          addFloatPoints(
+            annotDictionary,
+            _obtainFloatPoints(value),
+            PdfDictionaryProperties.rd,
+          );
           break;
         case 'it':
           if (value is String && !isNullOrEmpty(value)) {
@@ -378,16 +449,24 @@ class JsonParser {
           break;
         case 'leaderlength':
           addNumber(
-              annotDictionary, PdfDictionaryProperties.ll, value.toString());
+            annotDictionary,
+            PdfDictionaryProperties.ll,
+            value.toString(),
+          );
           break;
         case 'leaderextend':
           addNumber(
-              annotDictionary, PdfDictionaryProperties.lle, value.toString());
+            annotDictionary,
+            PdfDictionaryProperties.lle,
+            value.toString(),
+          );
           break;
         case 'caption':
           if (value is String && !isNullOrEmpty(value)) {
-            annotDictionary.setBoolean(PdfDictionaryProperties.cap,
-                value.toLowerCase() == 'yes' || value.toLowerCase() == 'true');
+            annotDictionary.setBoolean(
+              PdfDictionaryProperties.cap,
+              value.toLowerCase() == 'yes' || value.toLowerCase() == 'true',
+            );
           }
           break;
         case 'caption-style':
@@ -396,32 +475,45 @@ class JsonParser {
           }
           break;
         case 'callout':
-          addFloatPoints(annotDictionary, _obtainFloatPoints(value),
-              PdfDictionaryProperties.cl);
+          addFloatPoints(
+            annotDictionary,
+            _obtainFloatPoints(value),
+            PdfDictionaryProperties.cl,
+          );
           break;
         case 'coords':
-          addFloatPoints(annotDictionary, _obtainFloatPoints(value),
-              PdfDictionaryProperties.quadPoints);
+          addFloatPoints(
+            annotDictionary,
+            _obtainFloatPoints(value),
+            PdfDictionaryProperties.quadPoints,
+          );
           break;
         case 'border':
-          addFloatPoints(annotDictionary, _obtainFloatPoints(value),
-              PdfDictionaryProperties.border);
+          addFloatPoints(
+            annotDictionary,
+            _obtainFloatPoints(value),
+            PdfDictionaryProperties.border,
+          );
           break;
         case 'opacity':
           addNumber(annotDictionary, PdfDictionaryProperties.ds, value);
           break;
         case 'defaultstyle':
           addString(
-              annotDictionary,
-              PdfDictionaryProperties.ds,
-              value
-                  .toString()
-                  .replaceAll(RegExp(r'[{}]'), '')
-                  .replaceAll(',', ';'));
+            annotDictionary,
+            PdfDictionaryProperties.ds,
+            value
+                .toString()
+                .replaceAll(RegExp(r'[{}]'), '')
+                .replaceAll(',', ';'),
+          );
           break;
         case 'defaultappearance':
-          addString(annotDictionary, PdfDictionaryProperties.da,
-              value.toString().replaceAll(RegExp(r'[{},]'), ''));
+          addString(
+            annotDictionary,
+            PdfDictionaryProperties.da,
+            value.toString().replaceAll(RegExp(r'[{},]'), ''),
+          );
           break;
         case 'contents-richtext':
           final String richtext = trimEscapeCharacters(value);
@@ -444,8 +536,9 @@ class JsonParser {
             }
             int flagValue = 0;
             for (int i = 0; i < annotFlag.length; i++) {
-              flagValue |=
-                  PdfAnnotationHelper.getAnnotationFlagsValue(annotFlag[i]);
+              flagValue |= PdfAnnotationHelper.getAnnotationFlagsValue(
+                annotFlag[i],
+              );
             }
             if (flagValue > 0) {
               annotDictionary.setNumber(PdfDictionaryProperties.f, flagValue);
@@ -454,14 +547,18 @@ class JsonParser {
           break;
         case 'open':
           if (value is String && !isNullOrEmpty(value)) {
-            annotDictionary.setBoolean(PdfDictionaryProperties.open,
-                value == 'true' || value == 'yes');
+            annotDictionary.setBoolean(
+              PdfDictionaryProperties.open,
+              value == 'true' || value == 'yes',
+            );
           }
           break;
         case 'repeat':
           if (value is String && !isNullOrEmpty(value)) {
-            annotDictionary.setBoolean(PdfDictionaryProperties.repeat,
-                value == 'true' || value == 'yes');
+            annotDictionary.setBoolean(
+              PdfDictionaryProperties.repeat,
+              value == 'true' || value == 'yes',
+            );
           }
           break;
         case 'overlaytext':
@@ -471,7 +568,9 @@ class JsonParser {
           final String contents = trimEscapeCharacters(value);
           if (!isNullOrEmpty(contents)) {
             annotDictionary.setString(
-                PdfDictionaryProperties.contents, contents);
+              PdfDictionaryProperties.contents,
+              contents,
+            );
           }
           break;
         case 'q':
@@ -501,15 +600,19 @@ class JsonParser {
             pointsList.clear();
           }
           annotDictionary.setProperty(
-              PdfDictionaryProperties.inkList, inkListCollection);
+            PdfDictionaryProperties.inkList,
+            inkListCollection,
+          );
           break;
         case 'head':
-          beginLineStyle =
-              getEnumName(XfdfParser.mapLineEndingStyle(value.toString()));
+          beginLineStyle = getEnumName(
+            XfdfParser.mapLineEndingStyle(value.toString()),
+          );
           break;
         case 'tail':
-          endLineStyle =
-              getEnumName(XfdfParser.mapLineEndingStyle(value.toString()));
+          endLineStyle = getEnumName(
+            XfdfParser.mapLineEndingStyle(value.toString()),
+          );
           break;
         case 'creation':
         case 'modification':
@@ -538,14 +641,19 @@ class JsonParser {
               }
               if (verticesList.isNotEmpty && verticesList.length.isEven) {
                 annotDictionary.setProperty(
-                    PdfDictionaryProperties.vertices, PdfArray(verticesList));
+                  PdfDictionaryProperties.vertices,
+                  PdfArray(verticesList),
+                );
               }
             }
           }
           break;
         case 'customdata':
-          addString(annotDictionary, PdfDictionaryProperties.customData,
-              trimEscapeCharacters(value.toString()));
+          addString(
+            annotDictionary,
+            PdfDictionaryProperties.customData,
+            trimEscapeCharacters(value.toString()),
+          );
           break;
         case 'appearance':
           _addAppearanceData(annotDictionary, value.toString());
@@ -561,7 +669,9 @@ class JsonParser {
         lineEndingStyles.add(PdfName(beginLineStyle));
         lineEndingStyles.add(PdfName(endLineStyle));
         annotDictionary.setProperty(
-            PdfDictionaryProperties.le, lineEndingStyles);
+          PdfDictionaryProperties.le,
+          lineEndingStyles,
+        );
       } else {
         annotDictionary.setName(PdfDictionaryProperties.le, beginLineStyle);
       }
@@ -569,14 +679,20 @@ class JsonParser {
       annotDictionary.setName(PdfDictionaryProperties.le, beginLineStyle);
     }
     if (borderStyleDictionary.count > 0) {
-      borderStyleDictionary.setProperty(PdfDictionaryProperties.type,
-          PdfName(PdfDictionaryProperties.border));
-      annotDictionary.setProperty(PdfDictionaryProperties.bs,
-          PdfReferenceHolder(borderStyleDictionary));
+      borderStyleDictionary.setProperty(
+        PdfDictionaryProperties.type,
+        PdfName(PdfDictionaryProperties.border),
+      );
+      annotDictionary.setProperty(
+        PdfDictionaryProperties.bs,
+        PdfReferenceHolder(borderStyleDictionary),
+      );
     }
     if (borderEffectDictionary.count > 0) {
-      annotDictionary.setProperty(PdfDictionaryProperties.be,
-          PdfReferenceHolder(borderEffectDictionary));
+      annotDictionary.setProperty(
+        PdfDictionaryProperties.be,
+        PdfReferenceHolder(borderEffectDictionary),
+      );
     }
     if (dataStream != null && values != null) {
       addStreamData(dataStream!, annotDictionary, values!);
@@ -584,7 +700,9 @@ class JsonParser {
   }
 
   void _addMeasureDictionary(
-      PdfDictionary annotDictionary, Map<String, dynamic> element) {
+    PdfDictionary annotDictionary,
+    Map<String, dynamic> element,
+  ) {
     Map<String, String>? area;
     Map<String, String>? distance;
     Map<String, String>? xformat;
@@ -608,7 +726,9 @@ class JsonParser {
     measureDictionary.items![PdfName(PdfDictionaryProperties.v)] = vArray;
     if (element.containsKey(PdfDictionaryProperties.type1.toLowerCase())) {
       measureDictionary.setName(
-          PdfDictionaryProperties.type, PdfDictionaryProperties.measure);
+        PdfDictionaryProperties.type,
+        PdfDictionaryProperties.measure,
+      );
     }
     element.forEach((String key, dynamic value) {
       if (value is String) {
@@ -621,7 +741,9 @@ class JsonParser {
             break;
           case 'targetunitconversion':
             measureDictionary.setString(
-                PdfDictionaryProperties.targetUnitConversion, value);
+              PdfDictionaryProperties.targetUnitConversion,
+              value,
+            );
             break;
           case 'area':
             area = <String, String>{};
@@ -668,8 +790,9 @@ class JsonParser {
     }
     if (measureDictionary.count > 0 &&
         measureDictionary.containsKey(PdfDictionaryProperties.type)) {
-      annotDictionary.items![PdfName(PdfDictionaryProperties.measure)] =
-          PdfReferenceHolder(measureDictionary);
+      annotDictionary.items![PdfName(
+        PdfDictionaryProperties.measure,
+      )] = PdfReferenceHolder(measureDictionary);
     }
   }
 
@@ -679,40 +802,49 @@ class JsonParser {
       if (elementValue != null) {
         switch (key.toLowerCase()) {
           case 'd':
-            dictionary.items![PdfName(PdfDictionaryProperties.d)] =
-                PdfNumber(elementValue);
+            dictionary.items![PdfName(PdfDictionaryProperties.d)] = PdfNumber(
+              elementValue,
+            );
             break;
           case 'c':
-            dictionary.items![PdfName(PdfDictionaryProperties.c)] =
-                PdfNumber(elementValue);
+            dictionary.items![PdfName(PdfDictionaryProperties.c)] = PdfNumber(
+              elementValue,
+            );
             break;
           case 'rt':
-            dictionary.items![PdfName(PdfDictionaryProperties.rt)] =
-                PdfNumber(elementValue);
+            dictionary.items![PdfName(PdfDictionaryProperties.rt)] = PdfNumber(
+              elementValue,
+            );
             break;
           case 'rd':
-            dictionary.items![PdfName(PdfDictionaryProperties.rd)] =
-                PdfNumber(elementValue);
+            dictionary.items![PdfName(PdfDictionaryProperties.rd)] = PdfNumber(
+              elementValue,
+            );
             break;
           case 'ss':
-            dictionary.items![PdfName(PdfDictionaryProperties.ss)] =
-                PdfNumber(elementValue);
+            dictionary.items![PdfName(PdfDictionaryProperties.ss)] = PdfNumber(
+              elementValue,
+            );
             break;
           case 'u':
-            dictionary.items![PdfName(PdfDictionaryProperties.u)] =
-                PdfNumber(elementValue);
+            dictionary.items![PdfName(PdfDictionaryProperties.u)] = PdfNumber(
+              elementValue,
+            );
             break;
           case 'f':
-            dictionary.items![PdfName(PdfDictionaryProperties.f)] =
-                PdfNumber(elementValue);
+            dictionary.items![PdfName(PdfDictionaryProperties.f)] = PdfNumber(
+              elementValue,
+            );
             break;
           case 'fd':
-            dictionary.items![PdfName(PdfDictionaryProperties.fd)] =
-                PdfNumber(elementValue);
+            dictionary.items![PdfName(PdfDictionaryProperties.fd)] = PdfNumber(
+              elementValue,
+            );
             break;
           case 'type':
-            dictionary.items![PdfName(PdfDictionaryProperties.type)] =
-                PdfNumber(elementValue);
+            dictionary.items![PdfName(
+              PdfDictionaryProperties.type,
+            )] = PdfNumber(elementValue);
             break;
         }
       }
@@ -720,7 +852,9 @@ class JsonParser {
   }
 
   Map<String, String> _addDictionaryData(
-      Map<String, String> data, String value) {
+    Map<String, String> data,
+    String value,
+  ) {
     String addValue = '';
     for (int k = 0; k < value.length; k++) {
       addValue += (value[k] == ':' || value[k] == ';') ? '#' : value[k];
@@ -736,13 +870,15 @@ class JsonParser {
     if (!isNullOrEmpty(value)) {
       final List<int> appearanceData = base64.decode(value);
       if (appearanceData.isNotEmpty) {
-        final Map<String, dynamic> dict =
-            json.decode(utf8.decode(appearanceData));
+        final Map<String, dynamic> dict = json.decode(
+          utf8.decode(appearanceData),
+        );
         final PdfDictionary appearance = PdfDictionary();
         if (dict.isNotEmpty) {
           for (final dynamic dictValue in dict.values) {
             dictionary[PdfDictionaryProperties.ap] = PdfReferenceHolder(
-                _parseDictionaryItems(dictValue, appearance));
+              _parseDictionaryItems(dictValue, appearance),
+            );
           }
         }
       }
@@ -751,7 +887,9 @@ class JsonParser {
   }
 
   IPdfPrimitive _parseDictionaryItems(
-      dynamic elementValue, IPdfPrimitive primitive) {
+    dynamic elementValue,
+    IPdfPrimitive primitive,
+  ) {
     if (elementValue != null) {
       if (elementValue is Map<String, dynamic>) {
         for (String token in elementValue.keys) {
@@ -802,7 +940,8 @@ class JsonParser {
                 bool isImage = false;
                 if (primitive.containsKey(PdfDictionaryProperties.subtype)) {
                   final IPdfPrimitive? subtype = PdfCrossTable.dereference(
-                      primitive[PdfDictionaryProperties.subtype]);
+                    primitive[PdfDictionaryProperties.subtype],
+                  );
                   if (subtype != null &&
                       subtype is PdfName &&
                       subtype.name == PdfDictionaryProperties.image) {
@@ -827,13 +966,15 @@ class JsonParser {
               } else if (primitive is PdfDictionary) {
                 _isNormalAppearanceAdded = true;
                 final PdfDictionary dic = PdfDictionary();
-                primitive[token] =
-                    PdfReferenceHolder(_parseDictionaryItems(value, dic));
+                primitive[token] = PdfReferenceHolder(
+                  _parseDictionaryItems(value, dic),
+                );
               } else {
                 _isNormalAppearanceAdded = true;
                 final PdfDictionary dic = PdfDictionary();
-                dic[token] =
-                    PdfReferenceHolder(_parseDictionaryItems(value, dic));
+                dic[token] = PdfReferenceHolder(
+                  _parseDictionaryItems(value, dic),
+                );
                 return dic;
               }
               break;
@@ -910,8 +1051,9 @@ class JsonParser {
             default:
               if (primitive is PdfDictionary) {
                 final PdfDictionary temp = PdfDictionary();
-                primitive[token] =
-                    PdfReferenceHolder(_parseDictionaryItems(value, temp));
+                primitive[token] = PdfReferenceHolder(
+                  _parseDictionaryItems(value, temp),
+                );
               }
               break;
           }
@@ -944,8 +1086,9 @@ class JsonParser {
                   break;
                 case 'dict':
                   PdfDictionary pdfDictionary = PdfDictionary();
-                  pdfDictionary = _parseDictionaryItems(value, pdfDictionary)
-                      as PdfDictionary;
+                  pdfDictionary =
+                      _parseDictionaryItems(value, pdfDictionary)
+                          as PdfDictionary;
                   primitive.add(PdfReferenceHolder(pdfDictionary));
                   break;
                 case 'array':
@@ -1012,10 +1155,11 @@ class JsonParser {
 
   /// Internal Methods.
   void addBorderStyle(
-      String key,
-      dynamic value,
-      PdfDictionary borderEffectDictionary,
-      PdfDictionary borderStyleDictionary) {
+    String key,
+    dynamic value,
+    PdfDictionary borderEffectDictionary,
+    PdfDictionary borderStyleDictionary,
+  ) {
     if (value is String) {
       switch (value) {
         case 'dash':
@@ -1052,14 +1196,18 @@ class JsonParser {
       }
     }
     if (!isNullOrEmpty(style)) {
-      (isBasicStyle ? borderStyleDictionary : borderEffectDictionary)
-          .setName(PdfDictionaryProperties.s, style);
+      (isBasicStyle ? borderStyleDictionary : borderEffectDictionary).setName(
+        PdfDictionaryProperties.s,
+        style,
+      );
     }
     if (key == 'dashes') {
       final List<num> dashPoints = _obtainFloatPoints(value.toString());
       if (dashPoints.isNotEmpty) {
         borderStyleDictionary.setProperty(
-            PdfDictionaryProperties.d, PdfArray(dashPoints));
+          PdfDictionaryProperties.d,
+          PdfArray(dashPoints),
+        );
       }
     }
   }
@@ -1124,11 +1272,15 @@ class JsonParser {
   }
 
   /// Internal Methods.
-  void addStreamData(Map<String, String> dataValues,
-      PdfDictionary annotDictionary, String values) {
+  void addStreamData(
+    Map<String, String> dataValues,
+    PdfDictionary annotDictionary,
+    String values,
+  ) {
     if (annotDictionary.containsKey(PdfDictionaryProperties.subtype)) {
       final IPdfPrimitive? primitive = PdfCrossTable.dereference(
-          annotDictionary[PdfDictionaryProperties.subtype]);
+        annotDictionary[PdfDictionaryProperties.subtype],
+      );
       if (primitive != null && primitive is PdfName && primitive.name != null) {
         final String subtype = primitive.name!;
         final List<int> raw = List<int>.from(hex.decode(values));
@@ -1136,7 +1288,9 @@ class JsonParser {
           if (subtype.toLowerCase() == 'sound') {
             final PdfStream soundStream = PdfStream();
             soundStream.setName(
-                PdfDictionaryProperties.type, PdfDictionaryProperties.sound);
+              PdfDictionaryProperties.type,
+              PdfDictionaryProperties.sound,
+            );
             dataValues.forEach((String key, String value) {
               switch (key) {
                 case 'bits':
@@ -1166,13 +1320,17 @@ class JsonParser {
             });
             soundStream.data = raw;
             annotDictionary.setProperty(
-                PdfDictionaryProperties.sound, PdfReferenceHolder(soundStream));
+              PdfDictionaryProperties.sound,
+              PdfReferenceHolder(soundStream),
+            );
           } else if (subtype.toLowerCase() == 'fileattachment') {
             final PdfDictionary fileDictionary = PdfDictionary();
             final PdfStream fileStream = PdfStream();
             final PdfDictionary param = PdfDictionary();
             fileDictionary.setName(
-                PdfDictionaryProperties.type, PdfDictionaryProperties.filespec);
+              PdfDictionaryProperties.type,
+              PdfDictionaryProperties.filespec,
+            );
             dataValues.forEach((String key, String value) {
               switch (key) {
                 case 'file':
@@ -1188,11 +1346,17 @@ class JsonParser {
                   break;
                 case 'creation':
                   addString(
-                      param, 'creation', PdfDictionaryProperties.creationDate);
+                    param,
+                    'creation',
+                    PdfDictionaryProperties.creationDate,
+                  );
                   break;
                 case 'modification':
-                  addString(param, 'modification',
-                      PdfDictionaryProperties.modificationDate);
+                  addString(
+                    param,
+                    'modification',
+                    PdfDictionaryProperties.modificationDate,
+                  );
                   break;
               }
             });
@@ -1200,11 +1364,17 @@ class JsonParser {
             fileStream.data = raw;
             final PdfDictionary embeddedFile = PdfDictionary();
             embeddedFile.setProperty(
-                PdfDictionaryProperties.f, PdfReferenceHolder(fileStream));
+              PdfDictionaryProperties.f,
+              PdfReferenceHolder(fileStream),
+            );
             fileDictionary.setProperty(
-                PdfDictionaryProperties.ef, embeddedFile);
+              PdfDictionaryProperties.ef,
+              embeddedFile,
+            );
             annotDictionary.setProperty(
-                PdfDictionaryProperties.fs, PdfReferenceHolder(fileDictionary));
+              PdfDictionaryProperties.fs,
+              PdfReferenceHolder(fileDictionary),
+            );
           }
         }
       }
@@ -1218,8 +1388,10 @@ class JsonParser {
   }
 
   List<num> _obtainFloatPoints(dynamic points) {
-    final List<String> pointsValue =
-        points.toString().replaceAll(RegExp(r'[\[\]{}:]'), '').split(',');
+    final List<String> pointsValue = points
+        .toString()
+        .replaceAll(RegExp(r'[\[\]{}:]'), '')
+        .split(',');
     final List<num> linePoints = <num>[];
     for (final dynamic value in pointsValue) {
       if (value is String && !isNullOrEmpty(value)) {

@@ -1,7 +1,4 @@
-part of xlsio;
-
 /// Represents cell font.
-
 class Font {
   /// Creates an new instances of Font.
   Font() {
@@ -12,7 +9,7 @@ class Font {
     italic = false;
     color = 'FF000000';
   }
-  Font._withNameSize(this.name, this.size) {
+  Font.withNameSize(this.name, this.size) {
     underline = false;
     bold = false;
     italic = false;

@@ -13,8 +13,10 @@ class PdfICCColorProfile implements IPdfWrapper {
   /// Initializes a new instance of the [PdfICCColorProfile] class.
   PdfICCColorProfile() : super() {
     stream.compress = true;
-    stream.setProperty(PdfDictionaryProperties.filter,
-        PdfName(PdfDictionaryProperties.flateDecode));
+    stream.setProperty(
+      PdfDictionaryProperties.filter,
+      PdfName(PdfDictionaryProperties.flateDecode),
+    );
     stream.setProperty(PdfDictionaryProperties.n, PdfNumber(3));
     stream.beginSave = _beginSaveStream;
   }

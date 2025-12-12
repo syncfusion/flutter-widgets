@@ -1,10 +1,87 @@
-## [25.1.35] - 15/03/2024
+## Unreleased
+
+* No changes.
+
+## [30.1.37] - 06/25/2025
+
+**General**
+
+*  The compatible version of our Flutter sliders widget has been updated to Flutter SDK 3.32.0.
+
+## Slider
+
+**Features**
+
+* #FR49315 - Now, the Slider labels can be customized individually using the `onLabelCreated` property.
+
+## Range Slider
+
+**Features**
+
+* #FR49315 - Now, the Range Slider labels can be customized individually using the `onLabelCreated` property.
+
+## Range Selector
+
+**Features**
+
+* #FR49315 - Now, the Range Selector labels can be customized individually using the `onLabelCreated` property.
+
+### Breaking changes
+
+The `labelFormatterCallback` property has been deprecated. Use `onLabelCreated` instead to customize the label's format and style.
+
+## [29.1.39] - 04/22/2025
+
+**General**
+
+* The minimum Dart version has been updated to 3.7.
+
+## [29.1.33] - 03/25/2025
+
+**General**
+
+*  The compatible version of our Flutter sliders widget has been updated to Flutter SDK 3.29.0.
+*  The Syncfusion<sup>&reg;</sup> Flutter sliders example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+*  The Syncfusion<sup>&reg;</sup> Flutter sliders example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
+
+## [28.2.7] - 02/25/2025
+
+**General**
+
+* The minimum Dart version of our Flutter widgets has been updated to 3.4 from 3.3.
+
+## [28.1.36] - 12/24/2024
+
+**General**
+
+* The compatible version of our Flutter sliders widget has been updated to Flutter SDK 3.27.0.
+
+## [28.1.33] - 12/12/2024
+
+**General**
+
+* All of our Syncfusion<sup>&reg;</sup> Flutter widgets have been updated to support [`WebAssembly`](https://docs.flutter.dev/platform-integration/web/wasm) (WASM) as a compilation target for building web applications.
+* The minimum Dart version of our Flutter widgets has been updated to 3.3 from 2.17.
+
+## [27.1.53] - 15/10/2024
+
+**Bugs**
+
+* \#FB61614 - Now paddle tooltip is rendering properly in slider when the tooltip size is greater than parent widget.
+
+## [27.1.48] - 09/18/2024
+
+**General**
+
+* The compatible version of our Flutter sliders widget has been updated to Flutter SDK 3.24.0.
+
+## [25.1.35] - 03/15/2024
 
 **General**
 
 * Provided th​e Material 3 themes support.
 
-## [24.1.46] - 17/01/2024
+## [24.1.46] - 01/17/2024
 
 **General**
 

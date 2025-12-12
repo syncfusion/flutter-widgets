@@ -1,4 +1,7 @@
-part of xlsio;
+import 'dart:convert';
+
+import '../worksheet/worksheet.dart';
+import 'picture.dart';
 
 /// Represents worksheet collection.
 class PicturesCollection {
@@ -81,9 +84,9 @@ class PicturesCollection {
   }
 
   /// clear the Picture.
-  void _clear() {
+  void clear() {
     for (final Picture picture in _pictures) {
-      picture._clear();
+      picture.clear();
     }
     _pictures.clear();
   }

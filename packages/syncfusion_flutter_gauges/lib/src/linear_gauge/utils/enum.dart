@@ -4,7 +4,7 @@ enum LinearGaugeOrientation {
   vertical,
 
   ///LinearGaugeOrientation.horizontal will align the linear gauge in horizontal orientation.
-  horizontal
+  horizontal,
 }
 
 /// Apply the shape style for range element.
@@ -13,7 +13,7 @@ enum LinearRangeShapeType {
   flat,
 
   /// LinearRangeShapeType.curve apply the curve shape between start and end value.
-  curve
+  curve,
 }
 
 /// Apply the edge style for range pointer.
@@ -28,7 +28,7 @@ enum LinearEdgeStyle {
   startCurve,
 
   /// LinearEdgeStyle.endCurve apply the rounded corner on end(right) side.
-  endCurve
+  endCurve,
 }
 
 /// Apply the different marker pointer.
@@ -70,7 +70,7 @@ enum LinearAnimationType {
   linear,
 
   /// LinearAnimationType.slowMiddle animates the pointers with Curves.slowMiddle.
-  slowMiddle
+  slowMiddle,
 }
 
 /// Apply the different label position based on Axis.
@@ -79,7 +79,7 @@ enum LinearLabelPosition {
   inside,
 
   /// LinearAnimationType.outside places the elements inside the axis.
-  outside
+  outside,
 }
 
 /// Apply the different element position based on Axis.
@@ -91,7 +91,7 @@ enum LinearElementPosition {
   outside,
 
   /// LinearElementPosition.cross places the elements cross the axis.
-  cross
+  cross,
 }
 
 /// Apply the different pointer alignment based on Axis.
@@ -103,7 +103,7 @@ enum LinearMarkerAlignment {
   start,
 
   /// LinearMarkerAlignment.end points the axis from outside position.
-  end
+  end,
 }
 
 /// Apply the different drag behavior for marker pointers.

@@ -9,23 +9,37 @@ import '../pages/pdf_section.dart';
 class PdfDocumentTemplate {
   //Constructors
   /// Initializes a new instance of the [PdfDocumentTemplate] class.
-  PdfDocumentTemplate(
-      {PdfPageTemplateElement? left,
-      PdfPageTemplateElement? top,
-      PdfPageTemplateElement? right,
-      PdfPageTemplateElement? bottom,
-      PdfPageTemplateElement? evenLeft,
-      PdfPageTemplateElement? evenTop,
-      PdfPageTemplateElement? evenRight,
-      PdfPageTemplateElement? evenBottom,
-      PdfPageTemplateElement? oddLeft,
-      PdfPageTemplateElement? oddTop,
-      PdfPageTemplateElement? oddRight,
-      PdfPageTemplateElement? oddBottom,
-      PdfStampCollection? stamps}) {
+  PdfDocumentTemplate({
+    PdfPageTemplateElement? left,
+    PdfPageTemplateElement? top,
+    PdfPageTemplateElement? right,
+    PdfPageTemplateElement? bottom,
+    PdfPageTemplateElement? evenLeft,
+    PdfPageTemplateElement? evenTop,
+    PdfPageTemplateElement? evenRight,
+    PdfPageTemplateElement? evenBottom,
+    PdfPageTemplateElement? oddLeft,
+    PdfPageTemplateElement? oddTop,
+    PdfPageTemplateElement? oddRight,
+    PdfPageTemplateElement? oddBottom,
+    PdfStampCollection? stamps,
+  }) {
     _helper = PdfDocumentTemplateHelper(this);
-    _intialize(left, top, right, bottom, evenLeft, evenTop, evenRight,
-        evenBottom, oddLeft, oddTop, oddRight, oddBottom, stamps);
+    _intialize(
+      left,
+      top,
+      right,
+      bottom,
+      evenLeft,
+      evenTop,
+      evenRight,
+      evenBottom,
+      oddLeft,
+      oddTop,
+      oddRight,
+      oddBottom,
+      stamps,
+    );
   }
 
   //Fields
@@ -149,19 +163,20 @@ class PdfDocumentTemplate {
 
   //Implementation
   void _intialize(
-      PdfPageTemplateElement? left,
-      PdfPageTemplateElement? top,
-      PdfPageTemplateElement? right,
-      PdfPageTemplateElement? bottom,
-      PdfPageTemplateElement? evenLeft,
-      PdfPageTemplateElement? evenTop,
-      PdfPageTemplateElement? evenRight,
-      PdfPageTemplateElement? evenBottom,
-      PdfPageTemplateElement? oddLeft,
-      PdfPageTemplateElement? oddTop,
-      PdfPageTemplateElement? oddRight,
-      PdfPageTemplateElement? oddBottom,
-      PdfStampCollection? stamps) {
+    PdfPageTemplateElement? left,
+    PdfPageTemplateElement? top,
+    PdfPageTemplateElement? right,
+    PdfPageTemplateElement? bottom,
+    PdfPageTemplateElement? evenLeft,
+    PdfPageTemplateElement? evenTop,
+    PdfPageTemplateElement? evenRight,
+    PdfPageTemplateElement? evenBottom,
+    PdfPageTemplateElement? oddLeft,
+    PdfPageTemplateElement? oddTop,
+    PdfPageTemplateElement? oddRight,
+    PdfPageTemplateElement? oddBottom,
+    PdfStampCollection? stamps,
+  ) {
     if (left != null) {
       this.left = left;
     }
@@ -204,12 +219,16 @@ class PdfDocumentTemplate {
   }
 
   PdfPageTemplateElement? _checkElement(
-      PdfPageTemplateElement? templateElement, TemplateType type) {
+    PdfPageTemplateElement? templateElement,
+    TemplateType type,
+  ) {
     if (templateElement != null) {
       if (PdfPageTemplateElementHelper.getHelper(templateElement).type !=
           TemplateType.none) {
-        throw ArgumentError.value(type,
-            "Can't reassign the template element. Please, create new one.");
+        throw ArgumentError.value(
+          type,
+          "Can't reassign the template element. Please, create new one.",
+        );
       }
       PdfPageTemplateElementHelper.getHelper(templateElement).type = type;
     }
@@ -317,16 +336,16 @@ class PdfDocumentTemplateHelper {
 
   bool _isEven(PdfPage page) {
     final PdfPageCollection pages =
-        PdfSectionHelper.getHelper(PdfPageHelper.getHelper(page).section!)
-            .document!
-            .pages;
+        PdfSectionHelper.getHelper(
+          PdfPageHelper.getHelper(page).section!,
+        ).document!.pages;
     int index = 0;
-    if (PdfPageCollectionHelper.getHelper(pages)
-        .pageCollectionIndex
-        .containsKey(page)) {
+    if (PdfPageCollectionHelper.getHelper(
+      pages,
+    ).pageCollectionIndex.containsKey(page)) {
       index =
           PdfPageCollectionHelper.getHelper(pages).pageCollectionIndex[page]! +
-              1;
+          1;
     } else {
       index = pages.indexOf(page) + 1;
     }

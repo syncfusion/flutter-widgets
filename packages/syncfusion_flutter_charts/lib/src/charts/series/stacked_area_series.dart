@@ -50,6 +50,7 @@ class StackedAreaSeries<T, D> extends StackedSeriesBase<T, D> {
     super.dataLabelSettings,
     super.initialIsVisible,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     this.borderColor = Colors.transparent,
@@ -119,7 +120,9 @@ class StackedAreaSeries<T, D> extends StackedSeriesBase<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, StackedAreaSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    StackedAreaSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..groupName = groupName
@@ -176,17 +179,23 @@ class StackedAreaSeriesRenderer<T, D> extends StackedSeriesRenderer<T, D>
     final StackedAreaSegment<T, D> stackedAreaSegment =
         segment as StackedAreaSegment<T, D>;
     updateSegmentColor(stackedAreaSegment, borderColor, borderWidth);
-    updateSegmentGradient(stackedAreaSegment,
-        gradientBounds: stackedAreaSegment._fillPath.getBounds(),
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      stackedAreaSegment,
+      gradientBounds: stackedAreaSegment._fillPath.getBounds(),
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
     paintSegments(context, offset);
     context.canvas.restore();
@@ -216,7 +225,9 @@ class StackedAreaSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _drawIndexes.clear();
@@ -236,26 +247,50 @@ class StackedAreaSegment<T, D> extends ChartSegment {
       final int newPointsLength = _highPoints.length;
       if (oldPointsLength == newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, _highPoints[i].dy)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, _lowPoints[i].dy)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                _highPoints[i].dy,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                _lowPoints[i].dy,
+              )!;
         }
       } else if (oldPointsLength < newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, _highPoints[i].dy)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, _lowPoints[i].dy)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                _highPoints[i].dy,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                _lowPoints[i].dy,
+              )!;
         }
         _oldHighPoints.addAll(_highPoints.sublist(oldPointsLength));
         _oldLowPoints.addAll(_lowPoints.sublist(oldPointsLength));
       } else {
         for (int i = 0; i < newPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, _highPoints[i].dy)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, _lowPoints[i].dy)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                _highPoints[i].dy,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                _lowPoints[i].dy,
+              )!;
         }
         _oldHighPoints.removeRange(newPointsLength, oldPointsLength);
         _oldLowPoints.removeRange(newPointsLength, oldPointsLength);
@@ -294,7 +329,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
   }
 
   void _calculatePoints(
-      List<num> xValues, List<num> topValues, List<num> bottomValues) {
+    List<num> xValues,
+    List<num> topValues,
+    List<num> bottomValues,
+  ) {
     final PointToPixelCallback transformX = series.pointToPixelX;
     final PointToPixelCallback transformY = series.pointToPixelY;
 
@@ -315,8 +353,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
       final Offset highPoint = Offset(transformX(x, topY), transformY(x, topY));
       _highPoints.add(highPoint);
 
-      final Offset lowPoint =
-          Offset(transformX(x, bottomY), transformY(x, bottomY));
+      final Offset lowPoint = Offset(
+        transformX(x, bottomY),
+        transformY(x, bottomY),
+      );
       _lowPoints.add(lowPoint);
 
       points.add(highPoint);
@@ -330,7 +370,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
   }
 
   void _calculateDropPoints(
-      List<num> xValues, List<num> topValues, List<num> bottomValues) {
+    List<num> xValues,
+    List<num> topValues,
+    List<num> bottomValues,
+  ) {
     final PointToPixelCallback transformX = series.pointToPixelX;
     final PointToPixelCallback transformY = series.pointToPixelY;
 
@@ -362,8 +405,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
         continue;
       }
 
-      final Offset lowPoint =
-          Offset(transformX(x, bottomY), transformY(x, bottomY));
+      final Offset lowPoint = Offset(
+        transformX(x, bottomY),
+        transformY(x, bottomY),
+      );
       _lowPoints.add(lowPoint);
     }
 
@@ -382,8 +427,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final List<Offset> lerpHighPoints =
-        _lerpPoints(_oldHighPoints, _highPoints);
+    final List<Offset> lerpHighPoints = _lerpPoints(
+      _oldHighPoints,
+      _highPoints,
+    );
     final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
 
     switch (series.emptyPointSettings.mode) {
@@ -413,12 +460,18 @@ class StackedAreaSegment<T, D> extends ChartSegment {
           case EmptyPointMode.zero:
           case EmptyPointMode.average:
             _createExcludeBottomStrokePath(
-                _strokePath, lerpHighPoints, lerpLowPoints);
+              _strokePath,
+              lerpHighPoints,
+              lerpLowPoints,
+            );
             break;
 
           case EmptyPointMode.drop:
             _createExcludeBottomStrokePathForDrop(
-                _strokePath, lerpHighPoints, lerpLowPoints);
+              _strokePath,
+              lerpHighPoints,
+              lerpLowPoints,
+            );
             break;
         }
         break;
@@ -432,18 +485,21 @@ class StackedAreaSegment<T, D> extends ChartSegment {
     if (oldPointsLength == newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
         lerpPoints.add(
-            oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!);
+          oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!,
+        );
       }
     } else if (oldPointsLength < newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
         lerpPoints.add(
-            oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!);
+          oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!,
+        );
       }
       lerpPoints.addAll(newPoints.sublist(oldPointsLength));
     } else {
       for (int i = 0; i < newPointsLength; i++) {
         lerpPoints.add(
-            oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!);
+          oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!,
+        );
       }
     }
 
@@ -451,7 +507,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
   }
 
   Path _createFillPath(
-      Path source, List<Offset> highPoints, List<Offset> lowPoints) {
+    Path source,
+    List<Offset> highPoints,
+    List<Offset> lowPoints,
+  ) {
     Path? path;
     final int length = highPoints.length;
     final int lastIndex = length - 1;
@@ -460,7 +519,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
         final Offset lowPoint = lowPoints[i];
         if (lowPoint.isNaN) {
           _createFillPath(
-              source, highPoints.sublist(i + 1), lowPoints.sublist(i + 1));
+            source,
+            highPoints.sublist(i + 1),
+            lowPoints.sublist(i + 1),
+          );
           break;
         } else {
           path = Path();
@@ -494,7 +556,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
   }
 
   Path _createDropFillPath(
-      Path source, List<Offset> highPoints, List<Offset> lowPoints) {
+    Path source,
+    List<Offset> highPoints,
+    List<Offset> lowPoints,
+  ) {
     Path? path;
     int length = highPoints.length;
     for (int i = 0; i < length; i++) {
@@ -545,7 +610,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
   }
 
   Path _createExcludeBottomStrokePath(
-      Path source, List<Offset> highPoints, List<Offset> lowPoints) {
+    Path source,
+    List<Offset> highPoints,
+    List<Offset> lowPoints,
+  ) {
     Path? path;
     final int length = highPoints.length;
     final int lastIndex = length - 1;
@@ -554,7 +622,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
         final Offset lowPoint = lowPoints[i];
         if (lowPoint.isNaN) {
           _createExcludeBottomStrokePath(
-              source, highPoints.sublist(i + 1), lowPoints.sublist(i + 1));
+            source,
+            highPoints.sublist(i + 1),
+            lowPoints.sublist(i + 1),
+          );
           break;
         } else {
           path = Path();
@@ -567,7 +638,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
         final Offset lowPoint = lowPoints[i - 1];
         path!.lineTo(lowPoint.dx, lowPoint.dy);
         _createExcludeBottomStrokePath(
-            source, highPoints.sublist(i), lowPoints.sublist(i));
+          source,
+          highPoints.sublist(i),
+          lowPoints.sublist(i),
+        );
         break;
       } else {
         path!.lineTo(highPoint.dx, highPoint.dy);
@@ -586,7 +660,10 @@ class StackedAreaSegment<T, D> extends ChartSegment {
   }
 
   Path _createExcludeBottomStrokePathForDrop(
-      Path source, List<Offset> highPoints, List<Offset> lowPoints) {
+    Path source,
+    List<Offset> highPoints,
+    List<Offset> lowPoints,
+  ) {
     Path? path;
     final int length = highPoints.length;
     for (int i = 0; i < length; i++) {
@@ -615,8 +692,11 @@ class StackedAreaSegment<T, D> extends ChartSegment {
     final MarkerSettings marker = series.markerSettings;
     final int length = points.length;
     for (int i = 0; i < length; i++) {
-      if (tooltipTouchBounds(points[i], marker.width, marker.height)
-          .contains(position)) {
+      if (tooltipTouchBounds(
+        points[i],
+        marker.width,
+        marker.height,
+      ).contains(position)) {
         return true;
       }
     }
@@ -657,14 +737,17 @@ class StackedAreaSegment<T, D> extends ChartSegment {
           series.markerSettings.isVisible ? marker.height / 2 : 0;
       final Offset preferredPos = Offset(dx, dy);
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -682,12 +765,17 @@ class StackedAreaSegment<T, D> extends ChartSegment {
   @override
   TrackballInfo? trackballInfo(Offset position, int pointIndex) {
     if (pointIndex != -1 && points.isNotEmpty) {
-      final Offset preferredPos = points[pointIndex];
+      final int drawPointIndex = drawIndex(pointIndex, _drawIndexes);
+      if (drawPointIndex == -1) {
+        return null;
+      }
+
+      final Offset preferredPos = points[drawPointIndex];
       if (preferredPos.isNaN) {
         return null;
       }
 
-      final int actualPointIndex = _drawIndexes[pointIndex];
+      final int actualPointIndex = _drawIndexes[drawPointIndex];
       final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       return ChartTrackballInfo<T, D>(
         position: preferredPos,

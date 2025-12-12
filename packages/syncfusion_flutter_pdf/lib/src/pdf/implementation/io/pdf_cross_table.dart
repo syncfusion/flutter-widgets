@@ -46,8 +46,11 @@ class PdfCrossTable {
   }
 
   /// internal constructor
-  PdfCrossTable.fromCatalog(int tableCount, PdfDictionary? encryptionDictionary,
-      this.pdfDocumentCatalog) {
+  PdfCrossTable.fromCatalog(
+    int tableCount,
+    PdfDictionary? encryptionDictionary,
+    this.pdfDocumentCatalog,
+  ) {
     _storedCount = tableCount;
     _encryptorDictionary = encryptionDictionary;
     _bForceNew = true;
@@ -122,6 +125,9 @@ class PdfCrossTable {
   /// internal property
   PdfDictionary? get trailer {
     _trailer ??= crossTable == null ? PdfStream() : crossTable!.trailer;
+    if (_trailer!.containsKey('XRefStm')) {
+      _trailer!.remove('XRefStm');
+    }
     return _trailer;
   }
 
@@ -129,8 +135,9 @@ class PdfCrossTable {
   PdfDictionary? get encryptorDictionary {
     if (_encryptorDictionary == null &&
         trailer!.containsKey(PdfDictionaryProperties.encrypt)) {
-      final IPdfPrimitive? primitive =
-          dereference(trailer![PdfDictionaryProperties.encrypt]);
+      final IPdfPrimitive? primitive = dereference(
+        trailer![PdfDictionaryProperties.encrypt],
+      );
       if (primitive is PdfDictionary) {
         _encryptorDictionary = primitive;
       }
@@ -193,9 +200,9 @@ class PdfCrossTable {
     trailer!.items!.forEach((PdfName? name, IPdfPrimitive? element) {
       if (element is PdfReferenceHolder) {
         final PdfReferenceHolder rh = element;
-        if (!PdfDocumentHelper.getHelper(document!)
-            .objects
-            .contains(rh.object!)) {
+        if (!PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.contains(rh.object!)) {
           PdfDocumentHelper.getHelper(document!).objects.add(rh.object);
         }
       }
@@ -206,9 +213,9 @@ class PdfCrossTable {
     trailer!.items!.forEach((PdfName? name, IPdfPrimitive? element) {
       if (element is PdfReferenceHolder) {
         final PdfReferenceHolder rh = element;
-        if (!PdfDocumentHelper.getHelper(document!)
-            .objects
-            .contains(rh.object!)) {
+        if (!PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.contains(rh.object!)) {
           PdfDocumentHelper.getHelper(document!).objects.add(rh.object);
         }
       }
@@ -239,7 +246,10 @@ class PdfCrossTable {
     if (_isCrossReferenceStream(writer.document)) {
       PdfReference? xRefReference;
       final Map<String, IPdfPrimitive> returnedValue = _prepareXRefStream(
-          prevXRef.toDouble(), referencePosition!.toDouble(), xRefReference);
+        prevXRef.toDouble(),
+        referencePosition!.toDouble(),
+        xRefReference,
+      );
       final PdfStream xRefStream = returnedValue['xRefStream']! as PdfStream;
       xRefReference = returnedValue['reference'] as PdfReference?;
       xRefStream.blockEncryption = true;
@@ -275,8 +285,11 @@ class PdfCrossTable {
     if (await _isCrossReferenceStreamAsync(writer.document)) {
       await _saveArchivesAsync(writer);
     }
-    await _registerObjectAsync(PdfReference(0, -1),
-        position: 0, isFreeType: true);
+    await _registerObjectAsync(
+      PdfReference(0, -1),
+      position: 0,
+      isFreeType: true,
+    );
     final int? referencePosition = writer.position;
     final int prevXRef =
         crossTable == null ? 0 : crossTable!.startCrossReference;
@@ -284,8 +297,10 @@ class PdfCrossTable {
       PdfReference? xRefReference;
       PdfStream? xRefStream;
       await _prepareXRefStreamAsync(
-              prevXRef.toDouble(), referencePosition!.toDouble(), xRefReference)
-          .then((Map<String, IPdfPrimitive> returnedValue) {
+        prevXRef.toDouble(),
+        referencePosition!.toDouble(),
+        xRefReference,
+      ).then((Map<String, IPdfPrimitive> returnedValue) {
         xRefStream = returnedValue['xRefStream']! as PdfStream;
         xRefReference = returnedValue['reference'] as PdfReference?;
       });
@@ -322,8 +337,9 @@ class PdfCrossTable {
       final String version = await _generateFileVersionAsync(writer.document!);
       await writer.writeAsync(version).then((_) async {
         await writer.writeAsync(PdfOperators.newLine).then((_) async {
-          await writer
-              .writeAsync(<int>[0x25, 0x83, 0x92, 0xfa, 0xfe]).then((_) async {
+          await writer.writeAsync(<int>[0x25, 0x83, 0x92, 0xfa, 0xfe]).then((
+            _,
+          ) async {
             await writer.writeAsync(PdfOperators.newLine);
           });
         });
@@ -414,16 +430,17 @@ class PdfCrossTable {
         PdfDocumentHelper.getHelper(document!).objects.add(securityDictionary);
         securityDictionary.position = -1;
       }
-      securityDictionary = PdfSecurityHelper.getHelper(security)
-          .encryptor
-          .saveToDictionary(securityDictionary);
+      securityDictionary = PdfSecurityHelper.getHelper(
+        security,
+      ).encryptor.saveToDictionary(securityDictionary);
       trailer![PdfDictionaryProperties.id] =
           PdfSecurityHelper.getHelper(security).encryptor.fileID;
-      trailer![PdfDictionaryProperties.encrypt] =
-          PdfReferenceHolder(securityDictionary);
-    } else if (!PdfSecurityHelper.getHelper(security)
-        .encryptor
-        .encryptOnlyAttachment) {
+      trailer![PdfDictionaryProperties.encrypt] = PdfReferenceHolder(
+        securityDictionary,
+      );
+    } else if (!PdfSecurityHelper.getHelper(
+      security,
+    ).encryptor.encryptOnlyAttachment) {
       if (trailer!.containsKey(PdfDictionaryProperties.encrypt)) {
         trailer!.remove(PdfDictionaryProperties.encrypt);
       }
@@ -445,16 +462,17 @@ class PdfCrossTable {
         PdfDocumentHelper.getHelper(document!).objects.add(securityDictionary);
         securityDictionary.position = -1;
       }
-      securityDictionary = await PdfSecurityHelper.getHelper(security)
-          .encryptor
-          .saveToDictionaryAsync(securityDictionary);
+      securityDictionary = await PdfSecurityHelper.getHelper(
+        security,
+      ).encryptor.saveToDictionaryAsync(securityDictionary);
       trailer![PdfDictionaryProperties.id] =
           PdfSecurityHelper.getHelper(security).encryptor.fileID;
-      trailer![PdfDictionaryProperties.encrypt] =
-          PdfReferenceHolder(securityDictionary);
-    } else if (!PdfSecurityHelper.getHelper(security)
-        .encryptor
-        .encryptOnlyAttachment) {
+      trailer![PdfDictionaryProperties.encrypt] = PdfReferenceHolder(
+        securityDictionary,
+      );
+    } else if (!PdfSecurityHelper.getHelper(
+      security,
+    ).encryptor.encryptOnlyAttachment) {
       if (trailer!.containsKey(PdfDictionaryProperties.encrypt)) {
         trailer!.remove(PdfDictionaryProperties.encrypt);
       }
@@ -510,7 +528,9 @@ class PdfCrossTable {
   }
 
   Future<void> _saveIndirectObjectAsync(
-      IPdfPrimitive object, PdfWriter writer) async {
+    IPdfPrimitive object,
+    PdfWriter writer,
+  ) async {
     await getReferenceAsync(object).then((PdfReference reference) async {
       if (object is PdfCatalog) {
         trailer![PdfDictionaryProperties.root] = reference;
@@ -546,8 +566,9 @@ class PdfCrossTable {
           !sigFlag) {
         await _doArchiveObjectAsync(object, reference, writer);
       } else {
-        await _registerObjectAsync(reference, position: writer.position)
-            .then((_) async {
+        await _registerObjectAsync(reference, position: writer.position).then((
+          _,
+        ) async {
           await _doSaveObjectAsync(object, reference, writer).then((_) {
             if (object == _archive) {
               _archive = null;
@@ -580,17 +601,16 @@ class PdfCrossTable {
       if (items!.count > 0 &&
           object.objectCollectionIndex! > 0 &&
           items!.count > object.objectCollectionIndex! - 1) {
-        final Map<String, dynamic> result =
-            PdfDocumentHelper.getHelper(document!)
-                .objects
-                .getReference(object, wasNew);
+        final Map<String, dynamic> result = PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.getReference(object, wasNew);
         wasNew = result['isNew'] as bool?;
         reference = result['reference'];
       }
     } else {
-      final Map<String, dynamic> result = PdfDocumentHelper.getHelper(document!)
-          .objects
-          .getReference(object, wasNew);
+      final Map<String, dynamic> result = PdfDocumentHelper.getHelper(
+        document!,
+      ).objects.getReference(object, wasNew);
       wasNew = result['isNew'] as bool?;
       reference = result['reference'];
     }
@@ -605,17 +625,17 @@ class PdfCrossTable {
     }
     if (_bForceNew) {
       if (reference == null) {
-        int maxObj = (_storedCount > 0)
-            ? _storedCount++
-            : PdfDocumentHelper.getHelper(document!).objects.count;
+        int maxObj =
+            (_storedCount > 0)
+                ? _storedCount++
+                : PdfDocumentHelper.getHelper(document!).objects.count;
         if (maxObj <= 0) {
           maxObj = -1;
           _storedCount = 2;
         }
-        while (PdfDocumentHelper.getHelper(document!)
-            .objects
-            .mainObjectCollection!
-            .containsKey(maxObj)) {
+        while (PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.mainObjectCollection!.containsKey(maxObj)) {
           maxObj++;
         }
         reference = PdfReference(maxObj, 0);
@@ -632,10 +652,9 @@ class PdfCrossTable {
           objectNumber = nextObjectNumber;
         }
       }
-      if (PdfDocumentHelper.getHelper(document!)
-          .objects
-          .mainObjectCollection!
-          .containsKey(objectNumber)) {
+      if (PdfDocumentHelper.getHelper(
+        document!,
+      ).objects.mainObjectCollection!.containsKey(objectNumber)) {
         reference = PdfReference(nextObjectNumber, 0);
       } else {
         PdfNumber? trailerCount;
@@ -654,27 +673,31 @@ class PdfCrossTable {
           (object as IPdfChangable).changed = true;
         }
         PdfDocumentHelper.getHelper(document!).objects.add(object);
-        PdfDocumentHelper.getHelper(document!)
-            .objects
-            .trySetReference(object, reference);
+        PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.trySetReference(object, reference);
         final int tempIndex =
             PdfDocumentHelper.getHelper(document!).objects.count - 1;
-        final int? tempkey = PdfDocumentHelper.getHelper(document!)
-            .objects
-            .objectCollection![tempIndex]
-            .reference!
-            .objNum;
+        final int? tempkey =
+            PdfDocumentHelper.getHelper(
+              document!,
+            ).objects.objectCollection![tempIndex].reference!.objNum;
         final PdfObjectInfo tempvalue =
-            PdfDocumentHelper.getHelper(document!).objects.objectCollection![
-                PdfDocumentHelper.getHelper(document!).objects.count - 1];
-        PdfDocumentHelper.getHelper(document!)
-            .objects
-            .mainObjectCollection![tempkey] = tempvalue;
+            PdfDocumentHelper.getHelper(
+              document!,
+            ).objects.objectCollection![PdfDocumentHelper.getHelper(
+                  document!,
+                ).objects.count -
+                1];
+        PdfDocumentHelper.getHelper(
+              document!,
+            ).objects.mainObjectCollection![tempkey] =
+            tempvalue;
         object.position = -1;
       } else {
-        PdfDocumentHelper.getHelper(document!)
-            .objects
-            .trySetReference(object, reference);
+        PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.trySetReference(object, reference);
       }
       object.objectCollectionIndex = reference.objNum as int?;
       object.status = PdfObjectStatus.none;
@@ -705,22 +728,20 @@ class PdfCrossTable {
       if (items!.count > 0 &&
           object.objectCollectionIndex! > 0 &&
           items!.count > object.objectCollectionIndex! - 1) {
-        await PdfDocumentHelper.getHelper(document!)
-            .objects
+        await PdfDocumentHelper.getHelper(document!).objects
             .getReferenceAsync(object, wasNew)
             .then((Map<String, dynamic> result) {
-          wasNew = result['isNew'] as bool?;
-          reference = result['reference'];
-        });
+              wasNew = result['isNew'] as bool?;
+              reference = result['reference'];
+            });
       }
     } else {
-      await PdfDocumentHelper.getHelper(document!)
-          .objects
+      await PdfDocumentHelper.getHelper(document!).objects
           .getReferenceAsync(object, wasNew)
           .then((Map<String, dynamic> result) {
-        wasNew = result['isNew'] as bool?;
-        reference = result['reference'];
-      });
+            wasNew = result['isNew'] as bool?;
+            reference = result['reference'];
+          });
     }
     if (reference == null) {
       if (object.status == PdfObjectStatus.registered) {
@@ -733,17 +754,17 @@ class PdfCrossTable {
     }
     if (_bForceNew) {
       if (reference == null) {
-        int maxObj = (_storedCount > 0)
-            ? _storedCount++
-            : PdfDocumentHelper.getHelper(document!).objects.count;
+        int maxObj =
+            (_storedCount > 0)
+                ? _storedCount++
+                : PdfDocumentHelper.getHelper(document!).objects.count;
         if (maxObj <= 0) {
           maxObj = -1;
           _storedCount = 2;
         }
-        while (PdfDocumentHelper.getHelper(document!)
-            .objects
-            .mainObjectCollection!
-            .containsKey(maxObj)) {
+        while (PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.mainObjectCollection!.containsKey(maxObj)) {
           maxObj++;
         }
         reference = PdfReference(maxObj, 0);
@@ -760,10 +781,9 @@ class PdfCrossTable {
           objectNumber = nextObjectNumber;
         }
       }
-      if (PdfDocumentHelper.getHelper(document!)
-          .objects
-          .mainObjectCollection!
-          .containsKey(objectNumber)) {
+      if (PdfDocumentHelper.getHelper(
+        document!,
+      ).objects.mainObjectCollection!.containsKey(objectNumber)) {
         reference = PdfReference(nextObjectNumber, 0);
       } else {
         PdfNumber? trailerCount;
@@ -782,27 +802,31 @@ class PdfCrossTable {
           (object as IPdfChangable).changed = true;
         }
         await PdfDocumentHelper.getHelper(document!).objects.addAsync(object);
-        await PdfDocumentHelper.getHelper(document!)
-            .objects
-            .trySetReferenceAsync(object, reference);
+        await PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.trySetReferenceAsync(object, reference);
         final int tempIndex =
             PdfDocumentHelper.getHelper(document!).objects.count - 1;
-        final int? tempkey = PdfDocumentHelper.getHelper(document!)
-            .objects
-            .objectCollection![tempIndex]
-            .reference!
-            .objNum;
+        final int? tempkey =
+            PdfDocumentHelper.getHelper(
+              document!,
+            ).objects.objectCollection![tempIndex].reference!.objNum;
         final PdfObjectInfo tempvalue =
-            PdfDocumentHelper.getHelper(document!).objects.objectCollection![
-                PdfDocumentHelper.getHelper(document!).objects.count - 1];
-        PdfDocumentHelper.getHelper(document!)
-            .objects
-            .mainObjectCollection![tempkey] = tempvalue;
+            PdfDocumentHelper.getHelper(
+              document!,
+            ).objects.objectCollection![PdfDocumentHelper.getHelper(
+                  document!,
+                ).objects.count -
+                1];
+        PdfDocumentHelper.getHelper(
+              document!,
+            ).objects.mainObjectCollection![tempkey] =
+            tempvalue;
         object.position = -1;
       } else {
-        await PdfDocumentHelper.getHelper(document!)
-            .objects
-            .trySetReferenceAsync(object, reference);
+        await PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.trySetReferenceAsync(object, reference);
       }
       object.objectCollectionIndex = reference.objNum as int?;
       object.status = PdfObjectStatus.none;
@@ -813,9 +837,10 @@ class PdfCrossTable {
   /// internal method
   PdfReference getMappedReference(PdfReference reference) {
     _mappedReferences ??= <PdfReference, PdfReference>{};
-    PdfReference? mref = _mappedReferences!.containsKey(reference)
-        ? _mappedReferences![reference]
-        : null;
+    PdfReference? mref =
+        _mappedReferences!.containsKey(reference)
+            ? _mappedReferences![reference]
+            : null;
     if (mref == null) {
       mref = PdfReference(nextObjectNumber, 0);
       _mappedReferences![reference] = mref;
@@ -826,9 +851,10 @@ class PdfCrossTable {
   /// internal method
   Future<PdfReference> getMappedReferenceAsync(PdfReference reference) async {
     _mappedReferences ??= <PdfReference, PdfReference>{};
-    PdfReference? mref = _mappedReferences!.containsKey(reference)
-        ? _mappedReferences![reference]
-        : null;
+    PdfReference? mref =
+        _mappedReferences!.containsKey(reference)
+            ? _mappedReferences![reference]
+            : null;
     if (mref == null) {
       mref = PdfReference(nextObjectNumber, 0);
       _mappedReferences![reference] = mref;
@@ -836,44 +862,67 @@ class PdfCrossTable {
     return mref;
   }
 
-  void _registerObject(PdfReference reference,
-      {int? position, PdfArchiveStream? archive, bool? isFreeType}) {
+  void _registerObject(
+    PdfReference reference, {
+    int? position,
+    PdfArchiveStream? archive,
+    bool? isFreeType,
+  }) {
     if (isFreeType == null) {
       if (position != null) {
         _objects![reference.objNum] = _RegisteredObject(position, reference);
         _maxGenNumIndex = max(_maxGenNumIndex, reference.genNum!.toDouble());
       } else {
-        _objects![reference.objNum] =
-            _RegisteredObject.fromArchive(this, archive, reference);
+        _objects![reference.objNum] = _RegisteredObject.fromArchive(
+          this,
+          archive,
+          reference,
+        );
         _maxGenNumIndex = max(_maxGenNumIndex, archive!.count.toDouble());
       }
     } else {
-      _objects![reference.objNum] =
-          _RegisteredObject(position, reference, isFreeType);
+      _objects![reference.objNum] = _RegisteredObject(
+        position,
+        reference,
+        isFreeType,
+      );
       _maxGenNumIndex = max(_maxGenNumIndex, reference.genNum!.toDouble());
     }
   }
 
-  Future<void> _registerObjectAsync(PdfReference reference,
-      {int? position, PdfArchiveStream? archive, bool? isFreeType}) async {
+  Future<void> _registerObjectAsync(
+    PdfReference reference, {
+    int? position,
+    PdfArchiveStream? archive,
+    bool? isFreeType,
+  }) async {
     if (isFreeType == null) {
       if (position != null) {
         _objects![reference.objNum] = _RegisteredObject(position, reference);
         _maxGenNumIndex = max(_maxGenNumIndex, reference.genNum!.toDouble());
       } else {
-        _objects![reference.objNum] =
-            _RegisteredObject.fromArchive(this, archive, reference);
+        _objects![reference.objNum] = _RegisteredObject.fromArchive(
+          this,
+          archive,
+          reference,
+        );
         _maxGenNumIndex = max(_maxGenNumIndex, archive!.count.toDouble());
       }
     } else {
-      _objects![reference.objNum] =
-          _RegisteredObject(position, reference, isFreeType);
+      _objects![reference.objNum] = _RegisteredObject(
+        position,
+        reference,
+        isFreeType,
+      );
       _maxGenNumIndex = max(_maxGenNumIndex, reference.genNum!.toDouble());
     }
   }
 
   void _doSaveObject(
-      IPdfPrimitive object, PdfReference reference, PdfWriter writer) {
+    IPdfPrimitive object,
+    PdfReference reference,
+    PdfWriter writer,
+  ) {
     writer.write(reference.objNum);
     writer.write(PdfOperators.whiteSpace);
     writer.write(reference.genNum);
@@ -889,7 +938,10 @@ class PdfCrossTable {
   }
 
   Future<void> _doSaveObjectAsync(
-      IPdfPrimitive object, PdfReference reference, PdfWriter writer) async {
+    IPdfPrimitive object,
+    PdfReference reference,
+    PdfWriter writer,
+  ) async {
     await writer.writeAsync(reference.objNum).then((_) async {
       await writer.writeAsync(PdfOperators.whiteSpace).then((_) async {
         await writer.writeAsync(reference.genNum).then((_) async {
@@ -929,8 +981,9 @@ class PdfCrossTable {
     int objectNumber = 0;
     int? count = 0;
     do {
-      await _prepareSubsectionAsync(objectNumber)
-          .then((Map<String, int> result) {
+      await _prepareSubsectionAsync(objectNumber).then((
+        Map<String, int> result,
+      ) {
         count = result['count'];
         objectNumber = result['objectNumber']!;
       });
@@ -948,12 +1001,13 @@ class PdfCrossTable {
       total = PdfDocumentHelper.getHelper(document!).objects.count + 1;
     }
     if (total <
-        PdfDocumentHelper.getHelper(document!)
-            .objects
-            .maximumReferenceObjectNumber!) {
-      total = PdfDocumentHelper.getHelper(document!)
-          .objects
-          .maximumReferenceObjectNumber!;
+        PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.maximumReferenceObjectNumber!) {
+      total =
+          PdfDocumentHelper.getHelper(
+            document!,
+          ).objects.maximumReferenceObjectNumber!;
       _isIndexOutOfRange = true;
     }
     if (objectNumber >= total) {
@@ -982,12 +1036,13 @@ class PdfCrossTable {
       total = PdfDocumentHelper.getHelper(document!).objects.count + 1;
     }
     if (total <
-        PdfDocumentHelper.getHelper(document!)
-            .objects
-            .maximumReferenceObjectNumber!) {
-      total = PdfDocumentHelper.getHelper(document!)
-          .objects
-          .maximumReferenceObjectNumber!;
+        PdfDocumentHelper.getHelper(
+          document!,
+        ).objects.maximumReferenceObjectNumber!) {
+      total =
+          PdfDocumentHelper.getHelper(
+            document!,
+          ).objects.maximumReferenceObjectNumber!;
       _isIndexOutOfRange = true;
     }
     if (objectNumber >= total) {
@@ -1027,7 +1082,10 @@ class PdfCrossTable {
   }
 
   Future<void> _saveSubsectionAsync(
-      IPdfWriter writer, int? objectNumber, int tempCount) async {
+    IPdfWriter writer,
+    int? objectNumber,
+    int tempCount,
+  ) async {
     if (tempCount <= 0 || objectNumber! >= count && !_isIndexOutOfRange) {
       return;
     }
@@ -1063,14 +1121,18 @@ class PdfCrossTable {
       result = '${result}0';
     }
     result = '$result$generationNumber ';
-    result = result +
+    result =
+        result +
         (isFreeType ? PdfOperators.f : PdfOperators.n) +
         PdfOperators.newLine;
     return result;
   }
 
   Future<String> _getItemAsync(
-      int? offset, int generationNumber, bool isFreeType) async {
+    int? offset,
+    int generationNumber,
+    bool isFreeType,
+  ) async {
     String result = '';
     final int offsetLength = 10 - offset.toString().length;
     if (generationNumber <= 0) {
@@ -1088,7 +1150,8 @@ class PdfCrossTable {
       result = '${result}0';
     }
     result = '$result$generationNumber ';
-    result = result +
+    result =
+        result +
         (isFreeType ? PdfOperators.f : PdfOperators.n) +
         PdfOperators.newLine;
     return result;
@@ -1108,7 +1171,10 @@ class PdfCrossTable {
   }
 
   Future<void> _saveTrailerAsync(
-      IPdfWriter writer, int count, int prevCrossReference) async {
+    IPdfWriter writer,
+    int count,
+    int prevCrossReference,
+  ) async {
     writer.write(PdfOperators.trailer);
     writer.write(PdfOperators.newLine);
     PdfDictionary trailerDictionary = trailer!;
@@ -1122,18 +1188,22 @@ class PdfCrossTable {
   }
 
   void _saveEnd(IPdfWriter writer, int? position) {
-    writer.write(PdfOperators.newLine +
-        PdfOperators.startCrossReference +
-        PdfOperators.newLine);
+    writer.write(
+      PdfOperators.newLine +
+          PdfOperators.startCrossReference +
+          PdfOperators.newLine,
+    );
     writer.write(position.toString() + PdfOperators.newLine);
     writer.write(PdfOperators.endOfFileMarker);
     writer.write(PdfOperators.newLine);
   }
 
   Future<void> _saveEndAsync(IPdfWriter writer, int? position) async {
-    writer.write(PdfOperators.newLine +
-        PdfOperators.startCrossReference +
-        PdfOperators.newLine);
+    writer.write(
+      PdfOperators.newLine +
+          PdfOperators.startCrossReference +
+          PdfOperators.newLine,
+    );
     writer.write(position.toString() + PdfOperators.newLine);
     writer.write(PdfOperators.endOfFileMarker);
     writer.write(PdfOperators.newLine);
@@ -1229,11 +1299,12 @@ class PdfCrossTable {
             final PdfName type = getObject(objType)! as PdfName;
             if (type.name == 'Page') {
               if (!dic.containsKey(PdfDictionaryProperties.kids)) {
-                if (PdfDocumentHelper.getHelper(_pdfDocument!)
-                    .isLoadedDocument) {
-                  final PdfPage lPage =
-                      PdfPageCollectionHelper.getHelper(_pdfDocument!.pages)
-                          .getPage(dic);
+                if (PdfDocumentHelper.getHelper(
+                  _pdfDocument!,
+                ).isLoadedDocument) {
+                  final PdfPage lPage = PdfPageCollectionHelper.getHelper(
+                    _pdfDocument!.pages,
+                  ).getPage(dic);
                   obj = IPdfWrapper.getElement(lPage);
                   final PdfMainObjectCollection items =
                       PdfDocumentHelper.getHelper(_pdfDocument!).objects;
@@ -1260,7 +1331,8 @@ class PdfCrossTable {
         result = true;
       }
     } else {
-      result = document!.fileStructure.crossReferenceType ==
+      result =
+          document!.fileStructure.crossReferenceType ==
           PdfCrossReferenceType.crossReferenceStream;
     }
     return result;
@@ -1274,7 +1346,8 @@ class PdfCrossTable {
         result = true;
       }
     } else {
-      result = document!.fileStructure.crossReferenceType ==
+      result =
+          document!.fileStructure.crossReferenceType ==
           PdfCrossReferenceType.crossReferenceStream;
     }
     return result;
@@ -1304,8 +1377,9 @@ class PdfCrossTable {
           ai._reference = reference;
         }
         PdfDocumentHelper.getHelper(document!).currentSavingObject = reference;
-        await _registerObjectAsync(reference, position: writer.position)
-            .then((_) async {
+        await _registerObjectAsync(reference, position: writer.position).then((
+          _,
+        ) async {
           await _doSaveObjectAsync(ai._archive!, reference!, writer);
         });
       }
@@ -1313,7 +1387,10 @@ class PdfCrossTable {
   }
 
   void _doArchiveObject(
-      IPdfPrimitive obj, PdfReference reference, PdfWriter writer) {
+    IPdfPrimitive obj,
+    PdfReference reference,
+    PdfWriter writer,
+  ) {
     if (_archive == null) {
       _archive = PdfArchiveStream(document);
       _saveArchive(writer);
@@ -1326,7 +1403,10 @@ class PdfCrossTable {
   }
 
   Future<void> _doArchiveObjectAsync(
-      IPdfPrimitive obj, PdfReference reference, PdfWriter writer) async {
+    IPdfPrimitive obj,
+    PdfReference reference,
+    PdfWriter writer,
+  ) async {
     if (_archive == null) {
       _archive = PdfArchiveStream(document);
       await _saveArchiveAsync(writer);
@@ -1352,7 +1432,10 @@ class PdfCrossTable {
   }
 
   Map<String, IPdfPrimitive> _prepareXRefStream(
-      double prevXRef, double position, PdfReference? reference) {
+    double prevXRef,
+    double position,
+    PdfReference? reference,
+  ) {
     PdfStream? xRefStream;
     xRefStream = _trailer as PdfStream?;
     if (xRefStream == null) {
@@ -1408,12 +1491,15 @@ class PdfCrossTable {
     xRefStream.encrypt = false;
     return <String, IPdfPrimitive>{
       'xRefStream': xRefStream,
-      'reference': reference
+      'reference': reference,
     };
   }
 
   Future<Map<String, IPdfPrimitive>> _prepareXRefStreamAsync(
-      double prevXRef, double position, PdfReference? reference) async {
+    double prevXRef,
+    double position,
+    PdfReference? reference,
+  ) async {
     PdfStream? xRefStream;
     xRefStream = _trailer as PdfStream?;
     if (xRefStream == null) {
@@ -1429,13 +1515,16 @@ class PdfCrossTable {
     double objectNum = 0;
     double count = 0;
     final List<int> paramsFormat = <int>[1, 8, 1];
-    paramsFormat[1] = max(await _getSizeAsync(position),
-        await _getSizeAsync(this.count.toDouble()));
+    paramsFormat[1] = max(
+      await _getSizeAsync(position),
+      await _getSizeAsync(this.count.toDouble()),
+    );
     paramsFormat[2] = await _getSizeAsync(_maxGenNumIndex);
     final List<int> ms = <int>[];
     while (true) {
-      await _prepareSubsectionAsync(objectNum.toInt())
-          .then((Map<String, int> result) {
+      await _prepareSubsectionAsync(objectNum.toInt()).then((
+        Map<String, int> result,
+      ) {
         count = result['count']!.toDouble();
         objectNum = result['objectNumber']!.toDouble();
       });
@@ -1444,8 +1533,9 @@ class PdfCrossTable {
       } else {
         sectionIndeces.add(PdfNumber(objectNum));
         sectionIndeces.add(PdfNumber(count));
-        await _saveSubSectionAsync(ms, objectNum, count, paramsFormat)
-            .then((_) {
+        await _saveSubSectionAsync(ms, objectNum, count, paramsFormat).then((
+          _,
+        ) {
           objectNum += count;
         });
       }
@@ -1474,7 +1564,7 @@ class PdfCrossTable {
     xRefStream.encrypt = false;
     return <String, IPdfPrimitive>{
       'xRefStream': xRefStream,
-      'reference': reference
+      'reference': reference,
     };
   }
 
@@ -1525,7 +1615,11 @@ class PdfCrossTable {
   }
 
   void _saveSubSection(
-      List<int> xRefStream, double objectNum, double count, List<int> format) {
+    List<int> xRefStream,
+    double objectNum,
+    double count,
+    List<int> format,
+  ) {
     for (int i = objectNum.toInt(); i < objectNum + count; ++i) {
       final _RegisteredObject obj = _objects![i]!;
       xRefStream.add(obj._type!.index.toUnsigned(8));
@@ -1552,15 +1646,22 @@ class PdfCrossTable {
     }
   }
 
-  Future<void> _saveSubSectionAsync(List<int> xRefStream, double objectNum,
-      double count, List<int> format) async {
+  Future<void> _saveSubSectionAsync(
+    List<int> xRefStream,
+    double objectNum,
+    double count,
+    List<int> format,
+  ) async {
     for (int i = objectNum.toInt(); i < objectNum + count; ++i) {
       final _RegisteredObject obj = _objects![i]!;
       xRefStream.add(obj._type!.index.toUnsigned(8));
       switch (obj._type) {
         case PdfObjectType.free:
           await _saveLongAsync(
-              xRefStream, obj._objectNumber!.toInt(), format[1]);
+            xRefStream,
+            obj._objectNumber!.toInt(),
+            format[1],
+          );
           await _saveLongAsync(xRefStream, obj._generationNumber, format[2]);
           break;
 
@@ -1571,7 +1672,10 @@ class PdfCrossTable {
 
         case PdfObjectType.packed:
           await _saveLongAsync(
-              xRefStream, obj._objectNumber!.toInt(), format[1]);
+            xRefStream,
+            obj._objectNumber!.toInt(),
+            format[1],
+          );
           await _saveLongAsync(xRefStream, obj.offset, format[2]);
           break;
 
@@ -1590,7 +1694,10 @@ class PdfCrossTable {
   }
 
   Future<void> _saveLongAsync(
-      List<int> xRefStream, int? number, int count) async {
+    List<int> xRefStream,
+    int? number,
+    int count,
+  ) async {
     for (int i = count - 1; i >= 0; --i) {
       final int b = (number! >> (i << 3) & 255).toUnsigned(8);
       xRefStream.add(b);
@@ -1613,7 +1720,8 @@ class PdfCrossTable {
   }
 
   Future<PdfReference> _findArchiveReferenceAsync(
-      PdfArchiveStream archive) async {
+    PdfArchiveStream archive,
+  ) async {
     int i = 0;
     late _ArchiveInfo ai;
     for (final int count = _archives!.length; i < count; ++i) {
@@ -1680,16 +1788,20 @@ class PdfCrossTable {
   /// Checks the dictionary if it is an outline type.
   bool _checkForOutlinesAndDestination(PdfDictionary dictionary) {
     if (dictionary.containsKey(PdfDictionaryProperties.parent)) {
-      final IPdfPrimitive? outline =
-          PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.parent]);
+      final IPdfPrimitive? outline = PdfCrossTable.dereference(
+        dictionary[PdfDictionaryProperties.parent],
+      );
       if (outline != null && outline is PdfDictionary) {
         if (documentCatalog != null &&
             documentCatalog!.containsKey(PdfDictionaryProperties.outlines)) {
           final IPdfPrimitive? dict = PdfCrossTable.dereference(
-              documentCatalog![PdfDictionaryProperties.outlines]);
-          return dict != null && dict is PdfDictionary && dict == outline
-              ? (true)
-              : _checkForOutlinesAndDestination(outline);
+            documentCatalog![PdfDictionaryProperties.outlines],
+          );
+          if (dict != null && dict is PdfDictionary && dict == outline) {
+            return true;
+          } else {
+            return _checkForOutlinesAndDestination(outline);
+          }
         }
       }
     } else if (dictionary.containsKey(PdfDictionaryProperties.limits)) {
@@ -1713,8 +1825,11 @@ class _RegisteredObject {
     }
   }
 
-  _RegisteredObject.fromArchive(PdfCrossTable xrefTable,
-      PdfArchiveStream? archive, PdfReference reference) {
+  _RegisteredObject.fromArchive(
+    PdfCrossTable xrefTable,
+    PdfArchiveStream? archive,
+    PdfReference reference,
+  ) {
     _xrefTable = xrefTable;
     _archive = archive;
     _offset = reference.objNum;

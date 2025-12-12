@@ -50,13 +50,15 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicator<T, D> {
     this.bandColor = const Color(0x409e9e9e),
     super.onRenderDetailsUpdate,
   }) : super(
-          xValueMapper: xValueMapper != null && dataSource != null
-              ? (int index) => xValueMapper(dataSource[index], index)
-              : null,
-          closeValueMapper: closeValueMapper != null && dataSource != null
-              ? (int index) => closeValueMapper(dataSource[index], index)
-              : null,
-        );
+         xValueMapper:
+             xValueMapper != null && dataSource != null
+                 ? (int index) => xValueMapper(dataSource[index], index)
+                 : null,
+         closeValueMapper:
+             closeValueMapper != null && dataSource != null
+                 ? (int index) => closeValueMapper(dataSource[index], index)
+                 : null,
+       );
 
   /// Standard deviation value of the bollinger band.
   ///
@@ -249,7 +251,7 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicator<T, D> {
       upperLineWidth,
       lowerLineColor,
       lowerLineWidth,
-      bandColor
+      bandColor,
     ];
     return Object.hashAll(values);
   }
@@ -296,7 +298,9 @@ class BollingerIndicatorWidget extends IndicatorWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, BollingerIndicatorRenderer renderObject) {
+    BuildContext context,
+    BollingerIndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final BollingerBandIndicator bollinger =
         indicator as BollingerBandIndicator;
@@ -485,21 +489,25 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           if (j + 1 == length) {
             for (int k = 0; k < length - 1; k++) {
               midBands[k] = smaPoints[j];
-              lowBands[k] = lowerBand.isNaN || lowerBand.isInfinite
-                  ? smaPoints[j]
-                  : lowerBand;
-              upperBands[k] = upperBand.isNaN || upperBand.isInfinite
-                  ? smaPoints[j]
-                  : upperBand;
+              lowBands[k] =
+                  lowerBand.isNaN || lowerBand.isInfinite
+                      ? smaPoints[j]
+                      : lowerBand;
+              upperBands[k] =
+                  upperBand.isNaN || upperBand.isInfinite
+                      ? smaPoints[j]
+                      : upperBand;
             }
           }
           midBands[j] = smaPoints[j];
-          lowBands[j] = lowerBand.isNaN || lowerBand.isInfinite
-              ? smaPoints[j]
-              : lowerBand;
-          upperBands[j] = upperBand.isNaN || upperBand.isInfinite
-              ? smaPoints[j]
-              : upperBand;
+          lowBands[j] =
+              lowerBand.isNaN || lowerBand.isInfinite
+                  ? smaPoints[j]
+                  : lowerBand;
+          upperBands[j] =
+              upperBand.isNaN || upperBand.isInfinite
+                  ? smaPoints[j]
+                  : upperBand;
         } else {
           if (j < period - 1) {
             smaPoints[j] = sma;
@@ -530,10 +538,12 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           _lowerLineActualValues.add(Offset(x, lower));
           _signalLineActualValues.add(Offset(x, middle));
           if (enableBand) {
-            _upperBandActualValues
-                .add(Offset(x, _upperLineActualValues[++l].dy));
-            _lowerBandActualValues
-                .add(Offset(x, _lowerLineActualValues[++m].dy));
+            _upperBandActualValues.add(
+              Offset(x, _upperLineActualValues[++l].dy),
+            );
+            _lowerBandActualValues.add(
+              Offset(x, _lowerLineActualValues[++m].dy),
+            );
           }
         }
       }
@@ -572,8 +582,10 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     for (int i = 0; i < dataCount; i++) {
       final num xValue = xValues[i];
-      final CartesianChartPoint<D> point =
-          CartesianChartPoint<D>(x: xRawValues[i], xValue: xValue);
+      final CartesianChartPoint<D> point = CartesianChartPoint<D>(
+        x: xRawValues[i],
+        xValue: xValue,
+      );
       for (int j = 0; j < yLength; j++) {
         point[positions[j]] = yLists[j][i];
       }
@@ -624,10 +636,12 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       final int length = _upperLineActualValues.length;
       for (int i = 0; i < length; i++) {
         final Offset upper = _upperLineActualValues[i];
-        _upperLinePoints.add(Offset(
-          pointToPixelX(upper.dx, upper.dy),
-          pointToPixelY(upper.dx, upper.dy),
-        ));
+        _upperLinePoints.add(
+          Offset(
+            pointToPixelX(upper.dx, upper.dy),
+            pointToPixelY(upper.dx, upper.dy),
+          ),
+        );
       }
     }
 
@@ -635,10 +649,12 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       final int length = _lowerLineActualValues.length;
       for (int i = 0; i < length; i++) {
         final Offset lower = _lowerLineActualValues[i];
-        _lowerLinePoints.add(Offset(
-          pointToPixelX(lower.dx, lower.dy),
-          pointToPixelY(lower.dx, lower.dy),
-        ));
+        _lowerLinePoints.add(
+          Offset(
+            pointToPixelX(lower.dx, lower.dy),
+            pointToPixelY(lower.dx, lower.dy),
+          ),
+        );
       }
     }
 
@@ -646,10 +662,12 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       final int length = _signalLineActualValues.length;
       for (int i = 0; i < length; i++) {
         final Offset signal = _signalLineActualValues[i];
-        signalLinePoints.add(Offset(
-          pointToPixelX(signal.dx, signal.dy),
-          pointToPixelY(signal.dx, signal.dy),
-        ));
+        signalLinePoints.add(
+          Offset(
+            pointToPixelX(signal.dx, signal.dy),
+            pointToPixelY(signal.dx, signal.dy),
+          ),
+        );
       }
     }
 
@@ -688,11 +706,15 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     final List<ChartTrackballInfo<T, D>> trackballInfo =
         <ChartTrackballInfo<T, D>>[];
     if (signalLineWidth > 0) {
-      final int nearestPointIndex =
-          _findNearestPoint(signalLinePoints, position);
+      final int nearestPointIndex = _findNearestPoint(
+        signalLinePoints,
+        position,
+      );
       if (nearestPointIndex != -1) {
-        final CartesianChartPoint<D> bollingerPoint =
-            _chartPoint(nearestPointIndex, 'bollinger');
+        final CartesianChartPoint<D> bollingerPoint = _chartPoint(
+          nearestPointIndex,
+          'bollinger',
+        );
         final String bollingerText = defaultLegendItemText();
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
@@ -713,8 +735,10 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (upperLineWidth > 0) {
       final int upperPointIndex = _findNearestPoint(_upperLinePoints, position);
       if (upperPointIndex != -1) {
-        final CartesianChartPoint<D> upperPoint =
-            _chartPoint(upperPointIndex, 'upper');
+        final CartesianChartPoint<D> upperPoint = _chartPoint(
+          upperPointIndex,
+          'upper',
+        );
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: _upperLinePoints[upperPointIndex],
@@ -734,8 +758,10 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (lowerLineWidth > 0) {
       final int lowerPointIndex = _findNearestPoint(_lowerLinePoints, position);
       if (lowerPointIndex != -1) {
-        final CartesianChartPoint<D> lowerPoint =
-            _chartPoint(lowerPointIndex, 'lower');
+        final CartesianChartPoint<D> lowerPoint = _chartPoint(
+          lowerPointIndex,
+          'lower',
+        );
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: _lowerLinePoints[lowerPointIndex],
@@ -798,9 +824,10 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     return CartesianChartPoint<D>(
       x: xRawValues[pointIndex + period - 1],
       xValue: xValues[pointIndex + period - 1],
-      y: type == 'bollinger'
-          ? _signalLineActualValues[pointIndex].dy
-          : type == 'upper'
+      y:
+          type == 'bollinger'
+              ? _signalLineActualValues[pointIndex].dy
+              : type == 'upper'
               ? _upperLineActualValues[pointIndex].dy
               : _lowerLineActualValues[pointIndex].dy,
     );
@@ -811,16 +838,17 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (onRenderDetailsUpdate != null) {
       final BollingerBandIndicatorRenderParams params =
           BollingerBandIndicatorRenderParams(
-        _upperLineChartPoints,
-        _lowerLineChartPoints,
-        chartPoints,
-        legendItemText ?? name ?? defaultLegendItemText(),
-        signalLineWidth,
-        signalLineColor,
-        dashArray,
+            _upperLineChartPoints,
+            _lowerLineChartPoints,
+            chartPoints,
+            legendItemText ?? name ?? defaultLegendItemText(),
+            signalLineWidth,
+            signalLineColor,
+            dashArray,
+          );
+      final TechnicalIndicatorRenderDetails details = onRenderDetailsUpdate!(
+        params,
       );
-      final TechnicalIndicatorRenderDetails details =
-          onRenderDetailsUpdate!(params);
       strokePaint
         ..color = details.signalLineColor
         ..strokeWidth = details.signalLineWidth;
@@ -836,8 +864,12 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
 
     if (bandColor != Colors.transparent) {
@@ -869,19 +901,22 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       length = _upperLinePoints.length;
 
       _upperLinePath.moveTo(
-          _upperLinePoints.first.dx, _upperLinePoints.first.dy);
+        _upperLinePoints.first.dx,
+        _upperLinePoints.first.dy,
+      );
       for (int i = 1; i < length; i++) {
         final Offset upper = _upperLinePoints[i];
         _upperLinePath.lineTo(upper.dx, upper.dy);
       }
 
       drawDashes(
-          context.canvas,
-          _dashArray,
-          strokePaint
-            ..color = upperLineColor
-            ..strokeWidth = upperLineWidth,
-          path: _upperLinePath);
+        context.canvas,
+        _dashArray,
+        strokePaint
+          ..color = upperLineColor
+          ..strokeWidth = upperLineWidth,
+        path: _upperLinePath,
+      );
     }
 
     // Draw lower line.
@@ -892,19 +927,22 @@ class BollingerIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       length = _lowerLinePoints.length;
 
       _lowerLinePath.moveTo(
-          _lowerLinePoints.first.dx, _lowerLinePoints.first.dy);
+        _lowerLinePoints.first.dx,
+        _lowerLinePoints.first.dy,
+      );
       for (int i = 1; i < length; i++) {
         final Offset lower = _lowerLinePoints[i];
         _lowerLinePath.lineTo(lower.dx, lower.dy);
       }
 
       drawDashes(
-          context.canvas,
-          _dashArray,
-          strokePaint
-            ..color = lowerLineColor
-            ..strokeWidth = lowerLineWidth,
-          path: _lowerLinePath);
+        context.canvas,
+        _dashArray,
+        strokePaint
+          ..color = lowerLineColor
+          ..strokeWidth = lowerLineWidth,
+        path: _lowerLinePath,
+      );
     }
     context.canvas.restore();
   }

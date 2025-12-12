@@ -1,7 +1,7 @@
-part of xlsio;
+import '../general/enums.dart';
 
 /// Common interface for all combination filter type.
-class _MultipleFilter {
+class MultipleFilter {
   ///Represents type of combination filtertype.
-  late _ExcelCombinationFilterType _combinationFilterType;
+  late ExcelCombinationFilterType combinationFilterType;
 }

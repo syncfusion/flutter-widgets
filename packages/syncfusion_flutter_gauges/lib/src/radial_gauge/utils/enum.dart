@@ -10,7 +10,7 @@ enum GaugeAlignment {
 
   /// GaugeAlignment.far aligns the gauge element to far either
   /// the horizontal or vertical.
-  far
+  far,
 }
 
 /// Position the gauge element either inside or outside the axis.
@@ -19,7 +19,7 @@ enum ElementsPosition {
   inside,
 
   /// ElementPosition.outside places the axis elements outside the axis.
-  outside
+  outside,
 }
 
 /// Apply the corner style for range pointer.
@@ -34,7 +34,7 @@ enum CornerStyle {
   startCurve,
 
   /// CornerStyle.endCurce apply the rounded corner on end(right) side.
-  endCurve
+  endCurve,
 }
 
 /// Apply the different marker type for pointer.
@@ -58,7 +58,7 @@ enum MarkerType {
   image,
 
   /// MarkerText.text points the value with text.
-  text
+  text,
 }
 
 /// Apply the different types of animation to pointer.
@@ -82,7 +82,7 @@ enum AnimationType {
   linear,
 
   /// AnimationType.slowMiddle animates the pointers with Curves.slowMiddle.
-  slowMiddle
+  slowMiddle,
 }
 
 /// Size determined either the logical pixel or the radius factor.
@@ -91,5 +91,5 @@ enum GaugeSizeUnit {
   factor,
 
   /// GaugeSizeUnit.logicalPixel specifies the value in logical pixel.
-  logicalPixel
+  logicalPixel,
 }

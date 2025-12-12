@@ -1,5 +1,3 @@
-part of officechart;
-
 /// Specifies the chart type.
 enum ExcelChartType {
   /// Represents the clustered column chart.

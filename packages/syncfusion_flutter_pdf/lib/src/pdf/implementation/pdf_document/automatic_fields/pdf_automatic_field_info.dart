@@ -5,8 +5,12 @@ import 'pdf_automatic_field.dart';
 class PdfAutomaticFieldInfo {
   // constructor
   /// internal constructor
-  PdfAutomaticFieldInfo(this.field,
-      [PdfPoint? location, double scalingX = 1, double scalingY = 1]) {
+  PdfAutomaticFieldInfo(
+    this.field, [
+    PdfPoint? location,
+    double scalingX = 1,
+    double scalingY = 1,
+  ]) {
     this.location = location ?? PdfPoint.empty;
     scalingX = scalingX;
     scalingY = scalingY;

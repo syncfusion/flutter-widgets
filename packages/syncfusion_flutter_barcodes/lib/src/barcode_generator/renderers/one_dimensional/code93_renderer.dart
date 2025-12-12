@@ -18,7 +18,8 @@ class Code93Renderer extends SymbologyRenderer {
     for (int i = 0; i < value.length; i++) {
       if (!_character.contains(value[i])) {
         throw ArgumentError(
-            'The provided input cannot be encoded : ${value[i]}');
+          'The provided input cannot be encoded : ${value[i]}',
+        );
       }
     }
     return true;
@@ -132,24 +133,34 @@ class Code93Renderer extends SymbologyRenderer {
 
   @override
   void renderBarcode(
-      Canvas canvas,
-      Size size,
-      Offset offset,
-      String value,
-      Color foregroundColor,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      bool showValue) {
+    Canvas canvas,
+    Size size,
+    Offset offset,
+    String value,
+    Color foregroundColor,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    bool showValue,
+  ) {
     final Paint paint = getBarPaint(foregroundColor);
     final List<String> code = _getCodeValues(value);
     final int barTotalLength = _getTotalLength(code);
-    double left = symbology?.module == null
-        ? offset.dx
-        : getLeftPosition(
-            barTotalLength, symbology?.module, size.width, offset.dx);
+    double left =
+        symbology?.module == null
+            ? offset.dx
+            : getLeftPosition(
+              barTotalLength,
+              symbology?.module,
+              size.width,
+              offset.dx,
+            );
     final Rect barCodeRect = Rect.fromLTRB(
-        offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
+      offset.dx,
+      offset.dy,
+      offset.dx + size.width,
+      offset.dy + size.height,
+    );
     double ratio = 0;
     if (symbology?.module != null) {
       ratio = symbology!.module!.toDouble();
@@ -171,7 +182,11 @@ class Code93Renderer extends SymbologyRenderer {
         if (canDraw &&
             (left >= barCodeRect.left && left + ratio < barCodeRect.right)) {
           final Rect individualBarRect = Rect.fromLTRB(
-              left, offset.dy, left + ratio, offset.dy + barHeight);
+            left,
+            offset.dy,
+            left + ratio,
+            offset.dy + barHeight,
+          );
           canvas.drawRect(individualBarRect, paint);
         }
         left += ratio;
@@ -183,8 +198,11 @@ class Code93Renderer extends SymbologyRenderer {
   }
 
   /// Represents the pattern collection based on the provided input
-  List<String> _getPatternCollection(String givenCharacter,
-      Map<String, String> codes, List<String> encodingValue) {
+  List<String> _getPatternCollection(
+    String givenCharacter,
+    Map<String, String> codes,
+    List<String> encodingValue,
+  ) {
     final List<String> codeKey = codes.keys.toList();
     for (int i = 0; i < givenCharacter.length; i++) {
       final int index = codeKey.indexOf(givenCharacter[i]);

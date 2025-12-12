@@ -1,4 +1,12 @@
-part of xlsio;
+import 'dart:ui';
+
+import '../general/enums.dart';
+import '../general/workbook.dart';
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
+import 'borders.dart';
+import 'cell_style.dart';
+import 'style.dart';
 
 /// Represent the Cell Style Wrapper class.
 class CellStyleWrapper implements Style {
@@ -511,7 +519,6 @@ class CellStyleWrapper implements Style {
   }
 
   @override
-
   /// Represents the locked.
   bool get locked {
     bool locked = true;

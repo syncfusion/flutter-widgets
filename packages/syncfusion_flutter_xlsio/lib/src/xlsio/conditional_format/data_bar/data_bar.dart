@@ -1,4 +1,7 @@
-part of xlsio;
+import 'dart:ui';
+
+import '../../general/enums.dart';
+import '../condition_value.dart';
 
 /// Represents a data bar conditional formatting rule. Applying a data bar to a
 /// range helps you see the value of a cell relative to other cells.

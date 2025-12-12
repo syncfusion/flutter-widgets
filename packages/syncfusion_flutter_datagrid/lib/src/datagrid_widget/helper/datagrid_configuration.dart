@@ -318,6 +318,15 @@ class DataGridConfiguration {
   /// Invoked when the row is selected.
   SelectionChangedCallback? onSelectionChanged;
 
+  /// Invoked when the Checkbox is being selected or being unselected
+  DataGridCheckboxValueChangedCallback? onCheckboxValueChanged;
+
+  /// Invoked when the column is being sorted.
+  DataGridColumnSortChangingCallback? onColumnSortChanging;
+
+  /// Invoked when the column is sorted.
+  DataGridColumnSortChangedCallback? onColumnSortChanged;
+
   /// Invoked when the cell is activated.
   CurrentCellActivatedCallback? onCurrentCellActivated;
 
@@ -355,6 +364,9 @@ class DataGridConfiguration {
 
   /// The widget to show over the bottom of the [SfDataGrid].
   Widget? footer;
+
+  /// The widget to display when the data source of the [SfDataGrid] is empty.
+  Widget? placeholder;
 
   /// An instance of a [SfColorScheme.colorScheme] that can be used to configure the
   /// color properties in the [SfDataGrid].

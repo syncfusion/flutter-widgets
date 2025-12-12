@@ -398,9 +398,9 @@ class SelectionBehavior extends ChartBehavior {
   void selectDataPoints(int pointIndex, [int seriesIndex = 0]) {
     RenderChartPlotArea? plotArea;
     if (parentBox is RenderChartPlotArea) {
-      plotArea = parentBox as RenderChartPlotArea;
+      plotArea = parentBox! as RenderChartPlotArea;
     } else if (parentBox is RenderBehaviorArea) {
-      final RenderBehaviorArea behaviorArea = parentBox as RenderBehaviorArea;
+      final RenderBehaviorArea behaviorArea = parentBox! as RenderBehaviorArea;
       plotArea = behaviorArea.plotArea;
     }
 
@@ -437,9 +437,9 @@ class SelectionBehavior extends ChartBehavior {
   List<int> getSelectedDataPoints(CartesianSeries series) {
     RenderChartPlotArea? plotArea;
     if (parentBox is RenderChartPlotArea) {
-      plotArea = parentBox as RenderChartPlotArea;
+      plotArea = parentBox! as RenderChartPlotArea;
     } else if (parentBox is RenderBehaviorArea) {
-      final RenderBehaviorArea behaviorArea = parentBox as RenderBehaviorArea;
+      final RenderBehaviorArea behaviorArea = parentBox! as RenderBehaviorArea;
       plotArea = behaviorArea.plotArea;
     }
 

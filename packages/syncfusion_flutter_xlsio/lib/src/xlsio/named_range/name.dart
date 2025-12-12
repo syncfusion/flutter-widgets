@@ -1,4 +1,5 @@
-part of xlsio;
+import '../range/range.dart';
+import '../worksheet/worksheet.dart';
 
 /// Represents collections of pagesetup in a worksheet.
 abstract class Name {

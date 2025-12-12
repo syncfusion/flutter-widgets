@@ -37,7 +37,7 @@ class BigEndianWriter {
   void writeShort(int value) {
     final List<int> bytes = <int>[
       (value & 0x0000ff00) >> 8,
-      value & 0x000000ff
+      value & 0x000000ff,
     ];
     _flush(bytes);
   }
@@ -56,7 +56,7 @@ class BigEndianWriter {
       (value & 0xff000000) >> 24,
       (value & 0x00ff0000) >> 16,
       (value & 0x0000ff00) >> 8,
-      value & 0x000000ff
+      value & 0x000000ff,
     ];
     _flush(bytes);
   }
@@ -67,7 +67,7 @@ class BigEndianWriter {
       (value & 0xff000000) >> 24,
       (value & 0x00ff0000) >> 16,
       (value & 0x0000ff00) >> 8,
-      value & 0x000000ff
+      value & 0x000000ff,
     ];
     _flush(buff);
   }

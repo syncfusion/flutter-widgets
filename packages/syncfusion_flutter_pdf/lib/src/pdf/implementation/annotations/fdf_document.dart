@@ -29,7 +29,11 @@ class FdfDocument {
 
   /// Internal method
   Map<String, dynamic> exportAnnotations(
-      int currentID, List<String> annotID, int pageIndex, bool hasAppearance) {
+    int currentID,
+    List<String> annotID,
+    int pageIndex,
+    bool hasAppearance,
+  ) {
     const String startObject =
         '${PdfOperators.whiteSpace}0${PdfOperators.whiteSpace}${PdfOperators.obj}${PdfOperators.newLine}';
     const String endObject =
@@ -43,11 +47,12 @@ class FdfDocument {
     annotID.add(_annotationID);
     dictionary.items![PdfName('Page')] = PdfNumber(pageIndex);
     Map<String, dynamic> exportDataDictionary = _getEntriesInDictionary(
-        subDictionaries,
-        streamReferences,
-        currentID,
-        dictionary,
-        hasAppearance);
+      subDictionaries,
+      streamReferences,
+      currentID,
+      dictionary,
+      hasAppearance,
+    );
     exportData.addAll(exportDataDictionary['exportData'] as List<int>);
     currentID = exportDataDictionary['currentID'] as int;
     dictionary.remove('Page');
@@ -68,8 +73,13 @@ class FdfDocument {
             }
           }
           exportData.addAll(utf8.encode('$key$startObject<<'));
-          exportDataDictionary = _getEntriesInDictionary(subDictionaries,
-              streamReferences, currentID, dictionary, hasAppearance);
+          exportDataDictionary = _getEntriesInDictionary(
+            subDictionaries,
+            streamReferences,
+            currentID,
+            dictionary,
+            hasAppearance,
+          );
           exportData.addAll(exportDataDictionary['exportData'] as List<int>);
           currentID = exportDataDictionary['currentID'] as int;
           if (dictionary.containsKey('Page')) {
@@ -86,20 +96,31 @@ class FdfDocument {
         } else if (subDictionaries[key] is PdfArray) {
           final PdfArray array = subDictionaries[key]! as PdfArray;
           exportData.addAll(utf8.encode('$key$startObject'));
-          final Map<String, dynamic> result = _appendArrayElements(array,
-              currentID, hasAppearance, subDictionaries, streamReferences);
+          final Map<String, dynamic> result = _appendArrayElements(
+            array,
+            currentID,
+            hasAppearance,
+            subDictionaries,
+            streamReferences,
+          );
           exportData.addAll(result['exportData'] as List<int>);
           currentID = result['currentID'] as int;
           exportData.addAll(utf8.encode(endObject));
         } else if (subDictionaries[key] is PdfBoolean) {
           final PdfBoolean boolean = subDictionaries[key]! as PdfBoolean;
-          exportData.addAll(utf8.encode(
-              '$key$startObject${boolean.value! ? 'true' : 'false'}$endObject'));
+          exportData.addAll(
+            utf8.encode(
+              '$key$startObject${boolean.value! ? 'true' : 'false'}$endObject',
+            ),
+          );
         } else if (subDictionaries[key] is PdfString) {
           final PdfString data = subDictionaries[key]! as PdfString;
           if (data.value != null) {
-            exportData.addAll(utf8.encode(
-                '$key$startObject(${_getFormattedStringFDF(data.value!)})$endObject'));
+            exportData.addAll(
+              utf8.encode(
+                '$key$startObject(${_getFormattedStringFDF(data.value!)})$endObject',
+              ),
+            );
           }
         }
         subDictionaries.remove(key);
@@ -123,11 +144,12 @@ class FdfDocument {
   }
 
   Map<String, dynamic> _getEntriesInDictionary(
-      Map<int, IPdfPrimitive> dictionaries,
-      List<int> streamReferences,
-      int currentID,
-      PdfDictionary dictionary,
-      bool hasAppearance) {
+    Map<int, IPdfPrimitive> dictionaries,
+    List<int> streamReferences,
+    int currentID,
+    PdfDictionary dictionary,
+    bool hasAppearance,
+  ) {
     final List<int> annotationData = <int>[];
     bool isStream = false;
     final List<PdfName?> keys = dictionary.items!.keys.toList();
@@ -147,13 +169,19 @@ class FdfDocument {
       if (primitive is PdfString) {
         if (primitive.value != null) {
           annotationData.addAll(
-              utf8.encode('(${_getFormattedStringFDF(primitive.value!)})'));
+            utf8.encode('(${_getFormattedStringFDF(primitive.value!)})'),
+          );
         }
       } else if (primitive is PdfName) {
         annotationData.addAll(utf8.encode(primitive.toString()));
       } else if (primitive is PdfArray) {
         final Map<String, dynamic> result = _appendArrayElements(
-            primitive, currentID, isStream, dictionaries, streamReferences);
+          primitive,
+          currentID,
+          isStream,
+          dictionaries,
+          streamReferences,
+        );
         annotationData.addAll(result['exportData'] as List<int>);
         currentID = result['currentID'] as int;
       } else if (primitive is PdfNumber) {
@@ -162,15 +190,21 @@ class FdfDocument {
         annotationData.addAll(utf8.encode(' ${primitive.value!}'));
       } else if (primitive is PdfDictionary) {
         annotationData.addAll(utf8.encode('<<'));
-        final Map<String, dynamic> data = _getEntriesInDictionary(dictionaries,
-            streamReferences, currentID, primitive, hasAppearance);
+        final Map<String, dynamic> data = _getEntriesInDictionary(
+          dictionaries,
+          streamReferences,
+          currentID,
+          primitive,
+          hasAppearance,
+        );
         annotationData.addAll(data['exportData'] as List<int>);
         currentID = data['currentID'] as int;
         annotationData.addAll(utf8.encode('>>'));
       } else if (primitive is PdfReferenceHolder) {
         if (PdfPageHelper.getHelper(page).document != null) {
-          final int pageNumber =
-              PdfPageHelper.getHelper(page).document!.pages.indexOf(page);
+          final int pageNumber = PdfPageHelper.getHelper(
+            page,
+          ).document!.pages.indexOf(page);
           if (key.name == PdfDictionaryProperties.parent) {
             annotationData.addAll(utf8.encode(' $_annotationID 0 R'));
             annotationData.addAll(utf8.encode('/Page $pageNumber'));
@@ -180,12 +214,14 @@ class FdfDocument {
               if (inReplyTo != null &&
                   inReplyTo is PdfDictionary &&
                   inReplyTo.containsKey('NM')) {
-                final IPdfPrimitive? name =
-                    PdfCrossTable.dereference(inReplyTo['NM']);
+                final IPdfPrimitive? name = PdfCrossTable.dereference(
+                  inReplyTo['NM'],
+                );
                 if (name != null && name is PdfString) {
                   if (name.value != null) {
-                    annotationData.addAll(utf8
-                        .encode('(${_getFormattedStringFDF(name.value!)})'));
+                    annotationData.addAll(
+                      utf8.encode('(${_getFormattedStringFDF(name.value!)})'),
+                    );
                   }
                 }
               }
@@ -206,7 +242,7 @@ class FdfDocument {
     }
     return <String, dynamic>{
       'exportData': annotationData,
-      'currentID': currentID
+      'currentID': currentID,
     };
   }
 
@@ -232,11 +268,12 @@ class FdfDocument {
   }
 
   Map<String, dynamic> _appendArrayElements(
-      PdfArray array,
-      int currentID,
-      bool isStream,
-      Map<int, IPdfPrimitive> dictionaries,
-      List<int> streamReferences) {
+    PdfArray array,
+    int currentID,
+    bool isStream,
+    Map<int, IPdfPrimitive> dictionaries,
+    List<int> streamReferences,
+  ) {
     final List<int> arrayData = <int>[];
     arrayData.addAll(utf8.encode('['));
     if (array.elements.isNotEmpty) {
@@ -251,7 +288,12 @@ class FdfDocument {
           arrayData.addAll(utf8.encode(' '));
         }
         final Map<String, dynamic> result = _appendElement(
-            element!, currentID, isStream, dictionaries, streamReferences);
+          element!,
+          currentID,
+          isStream,
+          dictionaries,
+          streamReferences,
+        );
         arrayData.addAll(result['exportData'] as List<int>);
         currentID = result['currentID'] as int;
       }
@@ -261,11 +303,12 @@ class FdfDocument {
   }
 
   Map<String, dynamic> _appendElement(
-      IPdfPrimitive element,
-      int currentID,
-      bool isStream,
-      Map<int, IPdfPrimitive> dictionaries,
-      List<int> streamReferences) {
+    IPdfPrimitive element,
+    int currentID,
+    bool isStream,
+    Map<int, IPdfPrimitive> dictionaries,
+    List<int> streamReferences,
+  ) {
     final List<int> exportData = <int>[];
     if (element is PdfNumber) {
       exportData.addAll(utf8.encode(element.value!.toString()));
@@ -273,8 +316,9 @@ class FdfDocument {
       exportData.addAll(utf8.encode(element.toString()));
     } else if (element is PdfString) {
       if (element.value != null) {
-        exportData
-            .addAll(utf8.encode('(${_getFormattedStringFDF(element.value!)})'));
+        exportData.addAll(
+          utf8.encode('(${_getFormattedStringFDF(element.value!)})'),
+        );
       }
     } else if (element is PdfBoolean) {
       exportData.addAll(utf8.encode(element.value!.toString()));
@@ -289,13 +333,23 @@ class FdfDocument {
       exportData.addAll(utf8.encode('$currentID 0 R'));
     } else if (element is PdfArray) {
       final Map<String, dynamic> result = _appendArrayElements(
-          element, currentID, isStream, dictionaries, streamReferences);
+        element,
+        currentID,
+        isStream,
+        dictionaries,
+        streamReferences,
+      );
       currentID = result['currentID'] as int;
       exportData.addAll(result['exportData'] as List<int>);
     } else if (element is PdfDictionary) {
       exportData.addAll(utf8.encode('<<'));
       final Map<String, dynamic> data = _getEntriesInDictionary(
-          dictionaries, streamReferences, currentID, element, isStream);
+        dictionaries,
+        streamReferences,
+        currentID,
+        element,
+        isStream,
+      );
       exportData.addAll(data['exportData'] as List<int>);
       currentID = data['currentID'] as int;
       exportData.addAll(utf8.encode('>>'));

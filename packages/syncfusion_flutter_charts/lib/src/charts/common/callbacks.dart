@@ -171,16 +171,15 @@ class MultiLevelLabelRenderDetails {
 /// Holds the axis label text and style details.
 class ChartAxisLabel {
   /// Creating an argument constructor of ChartAxisLabel class.
-  ChartAxisLabel(
-    this.text,
-    TextStyle? textStyle,
-  ) : textStyle = textStyle ??
-            const TextStyle(
-              fontFamily: 'Roboto',
-              fontStyle: FontStyle.normal,
-              fontWeight: FontWeight.normal,
-              fontSize: 12,
-            );
+  ChartAxisLabel(this.text, TextStyle? textStyle)
+    : textStyle =
+          textStyle ??
+          const TextStyle(
+            fontFamily: 'Roboto',
+            fontStyle: FontStyle.normal,
+            fontWeight: FontWeight.normal,
+            fontSize: 12,
+          );
 
   ///Text which is to be rendered as an axis label.
   final String text;
@@ -270,10 +269,7 @@ class DataLabelRenderArgs {
 /// [SfPyramidChart] and [SfFunnelChart].
 class LegendRenderArgs {
   /// Creating an argument constructor of LegendRenderArgs class.
-  LegendRenderArgs([
-    this.seriesIndex,
-    this.pointIndex,
-  ]);
+  LegendRenderArgs([this.seriesIndex, this.pointIndex]);
 
   /// Get and set the legend text.
   String? text;
@@ -354,12 +350,7 @@ class TrackballArgs {
 /// and orientation.
 class CrosshairRenderArgs {
   /// Creating an argument constructor of CrosshairRenderArgs class.
-  CrosshairRenderArgs([
-    this.axis,
-    this.value,
-    this.axisName,
-    this.orientation,
-  ]);
+  CrosshairRenderArgs([this.axis, this.value, this.axisName, this.orientation]);
 
   /// Get the type of chart axis and its properties.
   final ChartAxis? axis;
@@ -399,11 +390,7 @@ class ChartTouchInteractionArgs {
 /// _Note:_ This is only applicable for [SfCartesianChart].
 class ZoomPanArgs {
   /// Creating an argument constructor of ZoomPanArgs class.
-  ZoomPanArgs([
-    this.axis,
-    this.previousZoomPosition,
-    this.previousZoomFactor,
-  ]);
+  ZoomPanArgs([this.axis, this.previousZoomPosition, this.previousZoomFactor]);
 
   /// Get the chart axis types and properties.
   final RenderChartAxis? axis;
@@ -455,10 +442,7 @@ class ChartPointDetails {
 /// options to get the axis type, label text, and axis name.
 class AxisLabelTapArgs {
   /// Creating an argument constructor of AxisLabelTapArgs class.
-  AxisLabelTapArgs([
-    this.axis,
-    this.axisName,
-  ]);
+  AxisLabelTapArgs([this.axis, this.axisName]);
 
   /// Get the type of chart axis and its properties.
   final ChartAxis? axis;
@@ -479,11 +463,7 @@ class AxisLabelTapArgs {
 /// can get the `series`, [seriesIndex], and [pointIndex].
 class LegendTapArgs {
   /// Creating an argument constructor of LegendTapArgs class.
-  LegendTapArgs([
-    this.series,
-    this.seriesIndex,
-    this.pointIndex,
-  ]);
+  LegendTapArgs([this.series, this.seriesIndex, this.pointIndex]);
 
   /// Get the current series.
   ///
@@ -557,7 +537,6 @@ class SelectionArgs {
 }
 
 @Deprecated('Use IndicatorRenderParams instead.')
-
 /// Holds the onRenderDetailsUpdate event arguments.
 ///
 /// Triggers when indicator is rendering. You can customize the
@@ -686,11 +665,7 @@ class DataLabelTapDetails {
 /// (either series or legend).
 class ChartShaderDetails {
   /// Creating an argument constructor of ChartShaderDetails class.
-  ChartShaderDetails(
-    this.outerRect,
-    this.innerRect,
-    this.renderType,
-  );
+  ChartShaderDetails(this.outerRect, this.innerRect, this.renderType);
 
   /// Holds the pie, doughnut and radial bar chart's outer rect value.
   final Rect outerRect;
@@ -705,10 +680,7 @@ class ChartShaderDetails {
 /// Holds the onCreateShader callback arguments.
 class ShaderDetails {
   /// Creating an argument constructor of ShaderDetails class.
-  ShaderDetails(
-    this.rect,
-    this.renderType,
-  );
+  ShaderDetails(this.rect, this.renderType);
 
   /// Holds the chart area rect.
   final Rect rect;
@@ -781,12 +753,12 @@ class MomentumIndicatorRenderParams extends IndicatorRenderParams {
     Color signalLineColor,
     List<double> signalLineDashArray,
   ) : super(
-          calculatedDataPoints,
-          name,
-          signalLineWidth,
-          signalLineColor,
-          signalLineDashArray,
-        );
+        calculatedDataPoints,
+        name,
+        signalLineWidth,
+        signalLineColor,
+        signalLineDashArray,
+      );
 
   /// Gets the calculated center line value of the Momentum indicator.
   final double? centerLineValue;
@@ -803,12 +775,12 @@ class RocIndicatorRenderParams extends IndicatorRenderParams {
     Color signalLineColor,
     List<double> signalLineDashArray,
   ) : super(
-          calculatedDataPoints,
-          name,
-          signalLineWidth,
-          signalLineColor,
-          signalLineDashArray,
-        );
+        calculatedDataPoints,
+        name,
+        signalLineWidth,
+        signalLineColor,
+        signalLineDashArray,
+      );
 
   /// Gets the calculated center line value of the Roc indicator.
   final double? centerLineValue;
@@ -825,12 +797,12 @@ class StochasticIndicatorRenderParams extends IndicatorRenderParams {
     Color signalLineColor,
     List<double> signalLineDashArray,
   ) : super(
-          calculatedDataPoints,
-          name,
-          signalLineWidth,
-          signalLineColor,
-          signalLineDashArray,
-        );
+        calculatedDataPoints,
+        name,
+        signalLineWidth,
+        signalLineColor,
+        signalLineDashArray,
+      );
 
   /// Gets the calculated period line values of the stochastic indicator.
   final List<CartesianChartPoint>? periodLineValues;
@@ -848,12 +820,12 @@ class MacdIndicatorRenderParams extends IndicatorRenderParams {
     Color signalLineColor,
     List<double> signalLineDashArray,
   ) : super(
-          calculatedDataPoints,
-          name,
-          signalLineWidth,
-          signalLineColor,
-          signalLineDashArray,
-        );
+        calculatedDataPoints,
+        name,
+        signalLineWidth,
+        signalLineColor,
+        signalLineDashArray,
+      );
 
   /// Gets the calculated Macd line values of the Macd indicator.
   final List<CartesianChartPoint>? macdLineValues;
@@ -973,7 +945,7 @@ class TrackballDetails {
       series,
       pointIndex,
       seriesIndex,
-      groupingModeInfo
+      groupingModeInfo,
     ];
     return Object.hashAll(values);
   }

@@ -583,8 +583,8 @@ class EndItemLayoutArgsHelper {
 /// //Dispose the document.
 /// document.dispose();
 /// ```
-typedef BeginItemLayoutCallback = void Function(
-    Object sender, BeginItemLayoutArgs args);
+typedef BeginItemLayoutCallback =
+    void Function(Object sender, BeginItemLayoutArgs args);
 
 /// typedef for handling EndItemLayoutEvent.
 ///
@@ -614,5 +614,5 @@ typedef BeginItemLayoutCallback = void Function(
 /// //Dispose the document.
 /// document.dispose();
 /// ```
-typedef EndItemLayoutCallback = void Function(
-    Object sender, EndItemLayoutArgs args);
+typedef EndItemLayoutCallback =
+    void Function(Object sender, EndItemLayoutArgs args);

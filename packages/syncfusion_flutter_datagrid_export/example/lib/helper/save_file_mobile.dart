@@ -14,14 +14,14 @@ Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
       Platform.isLinux ||
       Platform.isWindows) {
     if (Platform.isAndroid) {
-      final Directory? directory =
-          await path_provider.getExternalStorageDirectory();
+      final Directory? directory = await path_provider
+          .getExternalStorageDirectory();
       if (directory != null) {
         path = directory.path;
       }
     } else {
-      final Directory directory =
-          await path_provider.getApplicationSupportDirectory();
+      final Directory directory = await path_provider
+          .getApplicationSupportDirectory();
       path = directory.path;
     }
   } else {
@@ -29,8 +29,9 @@ Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
         .getApplicationSupportPath();
   }
 
-  final String fileLocation =
-      Platform.isWindows ? '$path\\$fileName' : '$path/$fileName';
+  final String fileLocation = Platform.isWindows
+      ? '$path\\$fileName'
+      : '$path/$fileName';
   final File file = File(fileLocation);
   await file.writeAsBytes(bytes, flush: true);
 

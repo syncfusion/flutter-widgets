@@ -7,6 +7,7 @@ import '../../graphics/fonts/pdf_font.dart';
 import '../../graphics/fonts/pdf_standard_font.dart';
 import '../../io/decode_big_endian.dart';
 import '../../io/pdf_constants.dart';
+import '../../io/pdf_cross_table.dart';
 import '../../primitives/pdf_array.dart';
 import '../../primitives/pdf_dictionary.dart';
 import '../../primitives/pdf_name.dart';
@@ -38,8 +39,9 @@ class FontStructure {
             if (fontDictionary['CharProcs'] is PdfDictionary) {
               charProcs = fontDictionary['CharProcs'] as PdfDictionary?;
             } else {
-              charProcs = (fontDictionary['CharProcs']! as PdfReferenceHolder)
-                  .object as PdfDictionary?;
+              charProcs =
+                  (fontDictionary['CharProcs']! as PdfReferenceHolder).object
+                      as PdfDictionary?;
             }
             final List<PdfName?> names = charProcs!.items!.keys.toList();
             int i = 0;
@@ -61,7 +63,7 @@ class FontStructure {
       }
     }
     _fontStyle = <PdfFontStyle>[PdfFontStyle.regular];
-    defaultGlyphWidth = 0;
+    defaultGlyphWidth = isCid ? 1000 : 0;
     _containsCmap = true;
     differenceEncoding = <int, String>{};
   }
@@ -175,7 +177,13 @@ class FontStructure {
   late List<String> cjkEncoding;
   late List<String> _windows1252MapTable;
 
-//Properties
+  /// internal field
+  bool isLayout = false;
+
+  /// internal field
+  bool macRomanEncoded = false;
+
+  //Properties
   /// internal property
   String? get fontEncoding => _fontEncoding ??= getFontEncoding();
 
@@ -253,10 +261,12 @@ class FontStructure {
 
   /// internal property
   Map<int, int>? get fontGlyphWidths {
-    if (fontEncoding == 'Identity-H' || fontEncoding == 'Identity#2DH') {
-      _getGlyphWidths();
-    } else {
-      _getGlyphWidthsNonIdH();
+    if (_fontGlyphWidth == null) {
+      if (fontEncoding == 'Identity-H' || fontEncoding == 'Identity#2DH') {
+        _getGlyphWidths();
+      } else {
+        _getGlyphWidthsNonIdH();
+      }
     }
     return _fontGlyphWidth;
   }
@@ -310,13 +320,13 @@ class FontStructure {
       'HYSMyeongJo-Medium,BoldItalic',
       'HYSMyeongJo-Medium,Bold',
       'HYSMyeongJo-Medium,Italic',
-      'HYSMyeongJo-Medium'
+      'HYSMyeongJo-Medium',
     ];
     cjkEncoding = <String>[
       'UniKS-UCS2-H',
       'UniJIS-UCS2-H',
       'UniCNS-UCS2-H',
-      'UniGB-UCS2-H'
+      'UniGB-UCS2-H',
     ];
     standardFontNames = <String>[
       'Helvetica',
@@ -343,7 +353,7 @@ class FontStructure {
       'Times-Italic',
       'Times-BoldItalic',
       'Symbol',
-      'ZapfDingbats'
+      'ZapfDingbats',
     ];
     _windows1252MapTable = <String>[
       '\u0000',
@@ -600,7 +610,7 @@ class FontStructure {
       'ü',
       'ý',
       'þ',
-      'ÿ'
+      'ÿ',
     ];
   }
 
@@ -639,8 +649,9 @@ class FontStructure {
             final IPdfPrimitive? primitiveObject = referenceholder.object;
             if (primitiveObject != null && primitiveObject is PdfDictionary) {
               final PdfDictionary dictionary = primitiveObject;
-              if (dictionary
-                  .containsKey(PdfDictionaryProperties.fontDescriptor)) {
+              if (dictionary.containsKey(
+                PdfDictionaryProperties.fontDescriptor,
+              )) {
                 IPdfPrimitive? fontDescriptor =
                     dictionary[PdfDictionaryProperties.fontDescriptor];
                 PdfDictionary? descriptorDictionary;
@@ -654,8 +665,9 @@ class FontStructure {
                   descriptorDictionary = fontDescriptor;
                 }
                 if (descriptorDictionary != null &&
-                    descriptorDictionary
-                        .containsKey(PdfDictionaryProperties.flags)) {
+                    descriptorDictionary.containsKey(
+                      PdfDictionaryProperties.flags,
+                    )) {
                   primitive =
                       descriptorDictionary[PdfDictionaryProperties.flags];
                   if (primitive is PdfNumber) {
@@ -779,14 +791,14 @@ class FontStructure {
     int firstChar = 0;
     final PdfDictionary dictionary = fontDictionary;
     if (dictionary.containsKey(PdfDictionaryProperties.dw)) {
-      defaultGlyphWidth = (dictionary[PdfDictionaryProperties.dw]! as PdfNumber)
-          .value!
-          .toDouble();
+      defaultGlyphWidth =
+          (dictionary[PdfDictionaryProperties.dw]! as PdfNumber).value!
+              .toDouble();
     }
     if (dictionary.containsKey(PdfDictionaryProperties.firstChar)) {
-      firstChar = (dictionary[PdfDictionaryProperties.firstChar]! as PdfNumber)
-          .value!
-          .toInt();
+      firstChar =
+          (dictionary[PdfDictionaryProperties.firstChar]! as PdfNumber).value!
+              .toInt();
     }
     _fontGlyphWidth = <int, int>{};
     PdfArray? w;
@@ -853,8 +865,9 @@ class FontStructure {
                     _fontGlyphWidth![entryValue] =
                         (tempW[j]! as PdfNumber).value!.toInt();
                   }
-                } else if (differencesDictionary
-                    .containsKey(index.toString())) {
+                } else if (differencesDictionary.containsKey(
+                  index.toString(),
+                )) {
                   if (!_fontGlyphWidth!.containsKey(index)) {
                     _fontGlyphWidth![index] =
                         (tempW[j]! as PdfNumber).value!.toInt();
@@ -900,8 +913,9 @@ class FontStructure {
       }
       if (baseFont != null) {
         _standardFontName = baseFont.name;
-        result &=
-            standardFontNames.contains(_resolveFontName(_standardFontName));
+        result &= standardFontNames.contains(
+          _resolveFontName(_standardFontName),
+        );
       } else {
         result = false;
       }
@@ -941,7 +955,8 @@ class FontStructure {
           }
         }
         result &= encoding != null && cjkEncoding.contains(encoding.name);
-        result &= _standardCJKFontName != '' &&
+        result &=
+            _standardCJKFontName != '' &&
             standardCJKFontNames.contains(_standardCJKFontName);
       } else {
         result = false;
@@ -980,8 +995,11 @@ class FontStructure {
       final List<PdfFontStyle> styles = _getFontStyle(_standardFontName!);
       if (styles.contains(PdfFontStyle.bold) &&
           styles.contains(PdfFontStyle.italic)) {
-        font = PdfStandardFont(fontFamily, size,
-            multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic]);
+        font = PdfStandardFont(
+          fontFamily,
+          size,
+          multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic],
+        );
       } else if (styles.contains(PdfFontStyle.bold)) {
         font = PdfStandardFont(fontFamily, size, style: PdfFontStyle.bold);
       } else if (styles.contains(PdfFontStyle.italic)) {
@@ -996,13 +1014,17 @@ class FontStructure {
   /// internal method
   PdfFont? createStandardCJKFont(double size) {
     if (_standardCJKFontName != '') {
-      final PdfCjkFontFamily fontFamily =
-          _getCJKFontFamily(_standardCJKFontName!);
+      final PdfCjkFontFamily fontFamily = _getCJKFontFamily(
+        _standardCJKFontName!,
+      );
       final List<PdfFontStyle> styles = _getCJKFontStyle(_standardCJKFontName!);
       if (styles.contains(PdfFontStyle.bold) &&
           styles.contains(PdfFontStyle.italic)) {
-        font = PdfCjkStandardFont(fontFamily, size,
-            multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic]);
+        font = PdfCjkStandardFont(
+          fontFamily,
+          size,
+          multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic],
+        );
       } else if (styles.contains(PdfFontStyle.bold)) {
         font = PdfCjkStandardFont(fontFamily, size, style: PdfFontStyle.bold);
       } else if (styles.contains(PdfFontStyle.italic)) {
@@ -1086,19 +1108,28 @@ class FontStructure {
       } else {
         PdfDictionary? baseFontDict = PdfDictionary();
         if (fontDictionary[PdfDictionaryProperties.encoding] is PdfDictionary) {
-          baseFontDict = fontDictionary[PdfDictionaryProperties.encoding]
-              as PdfDictionary?;
+          baseFontDict =
+              fontDictionary[PdfDictionaryProperties.encoding]
+                  as PdfDictionary?;
           if (baseFontDict == null) {
-            baseFont = (fontDictionary[PdfDictionaryProperties.encoding]!
-                    as PdfReferenceHolder)
-                .object as PdfName?;
+            baseFont =
+                (fontDictionary[PdfDictionaryProperties.encoding]!
+                            as PdfReferenceHolder)
+                        .object
+                    as PdfName?;
             fontEncoding = baseFont!.name;
           }
         } else if (fontDictionary[PdfDictionaryProperties.encoding]
             is PdfReferenceHolder) {
-          baseFontDict = (fontDictionary[PdfDictionaryProperties.encoding]!
-                  as PdfReferenceHolder)
-              .object as PdfDictionary?;
+          final IPdfPrimitive? primitive = PdfCrossTable.dereference(
+            fontDictionary[PdfDictionaryProperties.encoding],
+          );
+          if (primitive != null && primitive is PdfName) {
+            baseFont = primitive;
+            fontEncoding = baseFont.name;
+          } else if (primitive != null && primitive is PdfDictionary) {
+            baseFontDict = primitive;
+          }
         }
         if (baseFontDict != null &&
             baseFontDict.containsKey(PdfDictionaryProperties.type)) {
@@ -1134,9 +1165,11 @@ class FontStructure {
         baseFont = fontDictionary[PdfDictionaryProperties.baseFont] as PdfName?;
       } else if (fontDictionary[PdfDictionaryProperties.baseFont]
           is PdfReferenceHolder) {
-        baseFont = (fontDictionary[PdfDictionaryProperties.baseFont]!
-                as PdfReferenceHolder)
-            .object as PdfName?;
+        baseFont =
+            (fontDictionary[PdfDictionaryProperties.baseFont]!
+                        as PdfReferenceHolder)
+                    .object
+                as PdfName?;
       }
       String font = baseFont!.name!;
       if (font.contains('#20') && !font.contains('+')) {
@@ -1367,27 +1400,40 @@ class FontStructure {
                           final int numberOfCharacters = tableValue.length ~/ 4;
                           for (int j2 = 0; j2 < numberOfCharacters; j2++) {
                             final String mapChar = String.fromCharCode(
-                                int.parse(tableValue.substring(0, 4), radix: 16)
-                                    .toSigned(64));
+                              int.parse(
+                                tableValue.substring(0, 4),
+                                radix: 16,
+                              ).toSigned(64),
+                            );
                             tableValue = tableValue.substring(4);
                             mapValue += mapChar;
                           }
                           mapValue = checkContainInvalidChar(mapValue);
                           if (!mapTable.containsKey(
-                              int.parse(tmpList[0], radix: 16).toSigned(64))) {
-                            mapTable[int.parse(tmpList[0], radix: 16)
-                                .toSigned(64)
-                                .toDouble()] = mapValue;
+                            int.parse(tmpList[0], radix: 16).toSigned(64),
+                          )) {
+                            mapTable[int.parse(
+                                  tmpList[0],
+                                  radix: 16,
+                                ).toSigned(64).toDouble()] =
+                                mapValue;
                           }
                           continue;
                         }
-                        if (!mapTable.containsKey(
-                            int.parse(tmpList[0], radix: 16).toSigned(64))) {
+                        if (tmpList.length > 1 &&
+                            tmpList[0] != '' &&
+                            tmpList[1] != '' &&
+                            !mapTable.containsKey(
+                              int.parse(tmpList[0], radix: 16).toSigned(64),
+                            )) {
                           final String mapValue = String.fromCharCode(
-                              int.parse(tmpList[1], radix: 16).toSigned(64));
-                          mapTable[int.parse(tmpList[0], radix: 16)
-                              .toSigned(64)
-                              .toDouble()] = mapValue;
+                            int.parse(tmpList[1], radix: 16).toSigned(64),
+                          );
+                          mapTable[int.parse(
+                                tmpList[0],
+                                radix: 16,
+                              ).toSigned(64).toDouble()] =
+                              mapValue;
                         }
                       }
                     }
@@ -1404,28 +1450,37 @@ class FontStructure {
                       final int numberOfCharacters = tableValue.length ~/ 4;
                       for (int j = 0; j < numberOfCharacters; j++) {
                         final String mapChar = String.fromCharCode(
-                            int.parse(tableValue.substring(0, 4), radix: 16)
-                                .toSigned(64));
+                          int.parse(
+                            tableValue.substring(0, 4),
+                            radix: 16,
+                          ).toSigned(64),
+                        );
                         tableValue = tableValue.substring(4);
                         mapValue += mapChar;
                       }
                       mapValue = checkContainInvalidChar(mapValue);
                       if (!mapTable.containsKey(
-                          int.parse(tempStringList[0], radix: 16)
-                              .toSigned(64))) {
-                        mapTable[int.parse(tempStringList[0], radix: 16)
-                            .toSigned(64)
-                            .toDouble()] = mapValue;
+                        int.parse(tempStringList[0], radix: 16).toSigned(64),
+                      )) {
+                        mapTable[int.parse(
+                              tempStringList[0],
+                              radix: 16,
+                            ).toSigned(64).toDouble()] =
+                            mapValue;
                       }
                       continue;
                     }
                     if (!mapTable.containsKey(
-                        int.parse(tempStringList[0]).toSigned(64))) {
+                      int.parse(tempStringList[0]).toSigned(64),
+                    )) {
                       final String mapValue = String.fromCharCode(
-                          int.parse(tempStringList[1], radix: 16).toSigned(64));
-                      mapTable[int.parse(tempStringList[0], radix: 16)
-                          .toSigned(64)
-                          .toDouble()] = mapValue;
+                        int.parse(tempStringList[1], radix: 16).toSigned(64),
+                      );
+                      mapTable[int.parse(
+                            tempStringList[0],
+                            radix: 16,
+                          ).toSigned(64).toDouble()] =
+                          mapValue;
                     }
                   }
                 }
@@ -1439,13 +1494,17 @@ class FontStructure {
                   final int subArrayStatIndex = tableEntry[i].indexOf('[');
                   final int subArrayEndIndex = tableEntry[i].indexOf(']');
                   if (subArrayEndIndex == -1) {
-                    str = tableEntry[i]
-                        .substring(subArrayStatIndex, tableEntry[i].length);
+                    str = tableEntry[i].substring(
+                      subArrayStatIndex,
+                      tableEntry[i].length,
+                    );
                     i++;
                     while (true) {
                       if (tableEntry[i].contains(']')) {
-                        str += tableEntry[i]
-                            .substring(0, tableEntry[i].indexOf(']'));
+                        str += tableEntry[i].substring(
+                          0,
+                          tableEntry[i].indexOf(']'),
+                        );
                         break;
                       } else {
                         str += tableEntry[i];
@@ -1453,8 +1512,10 @@ class FontStructure {
                       }
                     }
                   } else {
-                    str = tableEntry[i]
-                        .substring(subArrayStatIndex, subArrayEndIndex);
+                    str = tableEntry[i].substring(
+                      subArrayStatIndex,
+                      subArrayEndIndex,
+                    );
                   }
                   List<String> subArray = <String>[];
                   subArray = getHexCode(str);
@@ -1469,27 +1530,39 @@ class FontStructure {
                   }
                   endOfTable = i;
                   if (tempStringList.length > 1) {
-                    startRange = int.parse(tempStringList[0], radix: 16)
-                        .toSigned(64)
-                        .toDouble();
-                    endRange = int.parse(tempStringList[1], radix: 16)
-                        .toSigned(64)
-                        .toDouble();
+                    startRange =
+                        int.parse(
+                          tempStringList[0],
+                          radix: 16,
+                        ).toSigned(64).toDouble();
+                    endRange =
+                        int.parse(
+                          tempStringList[1],
+                          radix: 16,
+                        ).toSigned(64).toDouble();
                     int t = 0;
-                    for (double j = startRange, k = 0;
-                        j <= endRange;
-                        j++, k++, t++) {
+                    for (
+                      double j = startRange, k = 0;
+                      j <= endRange;
+                      j++, k++, t++
+                    ) {
                       String mapString = '';
                       int l = 0;
                       while (l < subArray[t].length) {
-                        final String mapValueHex =
-                            subArray[t].substring(l, l + 4);
-                        final int hexEquivalent =
-                            int.parse(mapValueHex, radix: 16).toSigned(64);
+                        final String mapValueHex = subArray[t].substring(
+                          l,
+                          l + 4,
+                        );
+                        final int hexEquivalent = int.parse(
+                          mapValueHex,
+                          radix: 16,
+                        ).toSigned(64);
                         final int hex = hexEquivalent;
                         final String hexString = hex.toRadixString(16);
-                        final int mapValue =
-                            int.parse(hexString, radix: 16).toSigned(64);
+                        final int mapValue = int.parse(
+                          hexString,
+                          radix: 16,
+                        ).toSigned(64);
                         final String mapChar = String.fromCharCode(mapValue);
                         mapString += mapChar;
                         l += 4;
@@ -1502,33 +1575,46 @@ class FontStructure {
                 } else {
                   tempStringList = getHexCode(tableEntry[i]);
                   if (tempStringList.length == 3) {
-                    startRange = int.parse(tempStringList[0], radix: 16)
-                        .toSigned(64)
-                        .toDouble();
-                    endRange = int.parse(tempStringList[1], radix: 16)
-                        .toSigned(64)
-                        .toDouble();
+                    startRange =
+                        int.parse(
+                          tempStringList[0],
+                          radix: 16,
+                        ).toSigned(64).toDouble();
+                    endRange =
+                        int.parse(
+                          tempStringList[1],
+                          radix: 16,
+                        ).toSigned(64).toDouble();
                     String mapValueHex = tempStringList[2];
                     if (tempStringList[2].length > 4) {
                       final String mapFirstHex = mapValueHex.substring(0, 4);
-                      final int hexFirstEquivalent =
-                          int.parse(mapFirstHex, radix: 16).toSigned(64);
+                      final int hexFirstEquivalent = int.parse(
+                        mapFirstHex,
+                        radix: 16,
+                      ).toSigned(64);
                       final int mapFirstValue = int.parse(
-                              hexFirstEquivalent.toRadixString(16),
-                              radix: 16)
-                          .toSigned(64);
-                      final String mapFirstChar =
-                          String.fromCharCode(mapFirstValue);
+                        hexFirstEquivalent.toRadixString(16),
+                        radix: 16,
+                      ).toSigned(64);
+                      final String mapFirstChar = String.fromCharCode(
+                        mapFirstValue,
+                      );
                       mapValueHex = mapValueHex.substring(5, 8);
-                      final int hexEquivalent =
-                          int.parse(mapValueHex, radix: 16).toSigned(64);
-                      for (double j = startRange, k = 0;
-                          j <= endRange;
-                          j++, k++) {
+                      final int hexEquivalent = int.parse(
+                        mapValueHex,
+                        radix: 16,
+                      ).toSigned(64);
+                      for (
+                        double j = startRange, k = 0;
+                        j <= endRange;
+                        j++, k++
+                      ) {
                         final int hex = hexEquivalent + k.toInt();
                         final String hexString = hex.toRadixString(16);
-                        final int mapValue =
-                            int.parse(hexString, radix: 16).toSigned(64);
+                        final int mapValue = int.parse(
+                          hexString,
+                          radix: 16,
+                        ).toSigned(64);
                         String mapChar =
                             mapFirstChar + String.fromCharCode(mapValue);
                         mapChar = checkContainInvalidChar(mapChar);
@@ -1537,15 +1623,21 @@ class FontStructure {
                         }
                       }
                     } else {
-                      final int hexEquivalent =
-                          int.parse(mapValueHex, radix: 16).toSigned(64);
-                      for (double j = startRange, k = 0;
-                          j <= endRange;
-                          j++, k++) {
+                      final int hexEquivalent = int.parse(
+                        mapValueHex,
+                        radix: 16,
+                      ).toSigned(64);
+                      for (
+                        double j = startRange, k = 0;
+                        j <= endRange;
+                        j++, k++
+                      ) {
                         final int hex = hexEquivalent + k.toInt();
                         final String hexString = hex.toRadixString(16);
-                        final int mapValue =
-                            int.parse(hexString, radix: 16).toSigned(64);
+                        final int mapValue = int.parse(
+                          hexString,
+                          radix: 16,
+                        ).toSigned(64);
                         final String mapChar = String.fromCharCode(mapValue);
                         if (!mapTable.containsKey(j)) {
                           mapTable[j] = mapChar;
@@ -1557,11 +1649,16 @@ class FontStructure {
                     semiCount = tempStringList.length;
                     for (int k = 0; k < semiCount;) {
                       final String mapValue = String.fromCharCode(
-                          int.parse(tempStringList[k + 2], radix: 16)
-                              .toSigned(64));
-                      mapTable[int.parse(tempStringList[k], radix: 16)
-                          .toSigned(64)
-                          .toDouble()] = mapValue;
+                        int.parse(
+                          tempStringList[k + 2],
+                          radix: 16,
+                        ).toSigned(64),
+                      );
+                      mapTable[int.parse(
+                            tempStringList[k],
+                            radix: 16,
+                          ).toSigned(64).toDouble()] =
+                          mapValue;
                       k = k + 3;
                     }
                   }
@@ -1597,9 +1694,12 @@ class FontStructure {
     if (fontDictionary.containsKey(PdfDictionaryProperties.encoding)) {
       if (fontDictionary[PdfDictionaryProperties.encoding]
           is PdfReferenceHolder) {
-        encodingDictionary = (fontDictionary[PdfDictionaryProperties.encoding]!
-                as PdfReferenceHolder)
-            .object as PdfDictionary?;
+        final IPdfPrimitive? primitive = PdfCrossTable.dereference(
+          fontDictionary[PdfDictionaryProperties.encoding],
+        );
+        if (primitive != null && primitive is PdfDictionary) {
+          encodingDictionary = primitive;
+        }
       } else if (fontDictionary[PdfDictionaryProperties.encoding]
           is PdfDictionary) {
         encodingDictionary =
@@ -1607,8 +1707,9 @@ class FontStructure {
       }
 
       if (encodingDictionary != null) {
-        if (encodingDictionary
-            .containsKey(PdfDictionaryProperties.differences)) {
+        if (encodingDictionary.containsKey(
+          PdfDictionaryProperties.differences,
+        )) {
           int differenceCount = 0;
           final IPdfPrimitive? obj =
               encodingDictionary[PdfDictionaryProperties.differences];
@@ -1629,16 +1730,17 @@ class FontStructure {
                 text = (differences[i]! as PdfName).name;
                 if ((fontType!.name == 'Type1') && (text == '.notdef')) {
                   text = ' ';
-                  differencesDictionary[differenceCount.toString()] =
-                      getLatinCharacter(text);
+                  differencesDictionary[differenceCount
+                      .toString()] = getLatinCharacter(text);
                   differenceCount++;
                 } else {
                   text = getLatinCharacter(text);
                   text = getSpecialCharacter(text);
-                  if (!differencesDictionary
-                      .containsKey(differenceCount.toString())) {
-                    differencesDictionary[differenceCount.toString()] =
-                        getLatinCharacter(text);
+                  if (!differencesDictionary.containsKey(
+                    differenceCount.toString(),
+                  )) {
+                    differencesDictionary[differenceCount
+                        .toString()] = getLatinCharacter(text);
                   }
                   differenceCount++;
                 }
@@ -2490,8 +2592,11 @@ class FontStructure {
   }
 
   /// internal method
-  String decodeTextExtraction(String textToDecode, bool isSameFont,
-      [List<dynamic>? charcodes]) {
+  String decodeTextExtraction(
+    String textToDecode,
+    bool isSameFont, [
+    List<dynamic>? charcodes,
+  ]) {
     String decodedText = '';
     String encodedText = textToDecode;
     this.isSameFont = isSameFont;
@@ -2520,10 +2625,11 @@ class FontStructure {
                 'UniCNS-UCS2-H',
                 'UniKS-UCS2-H',
                 'UniJIS-UCS2-H',
-                'UniGB-UCS2-H'
+                'UniGB-UCS2-H',
               ].contains(
-                  (fontDictionary[PdfDictionaryProperties.encoding]! as PdfName)
-                      .name)) {
+                (fontDictionary[PdfDictionaryProperties.encoding]! as PdfName)
+                    .name,
+              )) {
                 String text = decodedText;
                 if (!hasEscapeChar) {
                   do {
@@ -2579,23 +2685,29 @@ class FontStructure {
               }
             }
 
-            final String tempString =
-                encodedText.substring(textStart + 1, textEnd);
+            final String tempString = encodedText.substring(
+              textStart + 1,
+              textEnd,
+            );
             if (isHex) {
               decodedText += getHexaDecimalString(tempString, charcodes);
             } else {
               decodedText += getLiteralString(tempString, charcodes);
             }
 
-            encodedText =
-                encodedText.substring(textEnd + 1, encodedText.length);
+            encodedText = encodedText.substring(
+              textEnd + 1,
+              encodedText.length,
+            );
           }
         }
         break;
       case '<':
         {
-          final String hexEncodedText =
-              encodedText.substring(1, encodedText.length - 1);
+          final String hexEncodedText = encodedText.substring(
+            1,
+            encodedText.length - 1,
+          );
           decodedText = getHexaDecimalString(hexEncodedText, charcodes);
           isHex = true;
         }
@@ -2624,6 +2736,7 @@ class FontStructure {
       decodedText = mapZapf(decodedText);
     }
     if (fontEncoding == 'MacRomanEncoding') {
+      macRomanEncoded = true;
       String tempstring = '';
       for (int i = 0; i < decodedText.length; i++) {
         final int b = decodedText[i].codeUnitAt(0).toUnsigned(8);
@@ -2714,9 +2827,10 @@ class FontStructure {
           decodedList.add(listElement);
         }
         final String tempString = encodedText.substring(textStart + 1, textEnd);
-        listElement = isHex
-            ? getHexaDecimalCJKString(tempString)
-            : getLiteralString(tempString);
+        listElement =
+            isHex
+                ? getHexaDecimalCJKString(tempString)
+                : getLiteralString(tempString);
         decodedText += listElement;
         listElement = skipEscapeSequence(listElement);
         if (listElement.isNotEmpty) {
@@ -2724,8 +2838,11 @@ class FontStructure {
               listElement[0].codeUnitAt(0) <= 3711 &&
               decodedList.isNotEmpty) {
             String previous = decodedList[0];
-            previous =
-                previous.replaceRange(previous.length - 1, previous.length, '');
+            previous = previous.replaceRange(
+              previous.length - 1,
+              previous.length,
+              '',
+            );
             previous += listElement;
             listElement = previous;
             decodedList[0] = '${fromUnicodeText(listElement)}s';
@@ -2737,7 +2854,10 @@ class FontStructure {
                 decodedList.isNotEmpty) {
               String previous = decodedList[0];
               previous = previous.replaceRange(
-                  previous.length - 1, previous.length, '');
+                previous.length - 1,
+                previous.length,
+                '',
+              );
               previous += listElement;
               listElement = previous;
               decodedList[0] = '${fromUnicodeText(listElement)}s';
@@ -2776,7 +2896,9 @@ class FontStructure {
 
   /// internal method
   Map<List<dynamic>, String> decodeTextExtractionTJ(
-      String textToDecode, bool isSameFont) {
+    String textToDecode,
+    bool isSameFont,
+  ) {
     String decodedText = '';
     String encodedText = textToDecode;
     String listElement;
@@ -2879,8 +3001,10 @@ class FontStructure {
                 charCodes = <dynamic>[];
               }
             }
-            final String tempString =
-                encodedText.substring(textStart + 1, textEnd);
+            final String tempString = encodedText.substring(
+              textStart + 1,
+              textEnd,
+            );
             if (isHex) {
               listElement = getHexaDecimalString(tempString, charCodes);
               if (listElement.contains(r'\')) {
@@ -2895,7 +3019,9 @@ class FontStructure {
             if (listElement.contains('\u0000') &&
                 !characterMapTable.containsKey(0)) {
               listElement = listElement.replaceAll(
-                  '\u0000', ''); //replace empty character.
+                '\u0000',
+                '',
+              ); //replace empty character.
             }
             listElement = skipEscapeSequence(listElement);
             if (fontEncoding != 'Identity-H' ||
@@ -2913,10 +3039,11 @@ class FontStructure {
             if (cidToGidTable != null && !isTextExtraction) {
               listElement = mapCidToGid(listElement);
             }
-            if (encodedText
-                .substring(textEnd + 1, encodedText.length)
-                .trim()
-                .isEmpty) {
+            if (!isLayout &&
+                encodedText
+                    .substring(textEnd + 1, encodedText.length)
+                    .trim()
+                    .isEmpty) {
               listElement = listElement.trimRight();
             }
             if (listElement.contains(RegExp('[\n-\r]'))) {
@@ -2928,7 +3055,10 @@ class FontStructure {
                   decodedList.isNotEmpty) {
                 String previous = decodedList.values.toList()[0];
                 previous = previous.replaceRange(
-                    previous.length - 1, previous.length, '');
+                  previous.length - 1,
+                  previous.length,
+                  '',
+                );
                 previous += listElement;
                 listElement = previous;
                 decodedList[decodedList.keys.toList()[0]] = '${listElement}s';
@@ -2940,7 +3070,10 @@ class FontStructure {
                     decodedList.isNotEmpty) {
                   String previous = decodedList.values.toList()[0];
                   previous = previous.replaceRange(
-                      previous.length - 1, previous.length, '');
+                    previous.length - 1,
+                    previous.length,
+                    '',
+                  );
                   previous += listElement;
                   listElement = previous;
                   decodedList[decodedList.keys.toList()[0]] = '${listElement}s';
@@ -2959,15 +3092,19 @@ class FontStructure {
               decodedList[charCodes] = listElement;
               charCodes = <dynamic>[];
             }
-            encodedText =
-                encodedText.substring(textEnd + 1, encodedText.length);
+            encodedText = encodedText.substring(
+              textEnd + 1,
+              encodedText.length,
+            );
           }
         }
         break;
       case '<':
         {
-          final String hexEncodedText =
-              encodedText.substring(1, encodedText.length - 1);
+          final String hexEncodedText = encodedText.substring(
+            1,
+            encodedText.length - 1,
+          );
           decodedText = getHexaDecimalString(hexEncodedText, charCodes);
         }
         break;
@@ -2975,7 +3112,10 @@ class FontStructure {
         break;
     }
     decodedText = skipEscapeSequence(decodedText);
-    isWhiteSpace = decodedText.isEmpty || decodedText.trimRight() == '';
+    isWhiteSpace =
+        decodedText.isEmpty ||
+        (!decodedText.contains(RegExp(r'[\f\r]')) &&
+            decodedText.trimRight().isEmpty);
     return decodedList;
   }
 
@@ -2986,7 +3126,8 @@ class FontStructure {
       for (int i = 0; i < value.length; i++) {
         if (i + 1 < value.length) {
           result += String.fromCharCode(
-              (value.codeUnitAt(i) * 256) + value.codeUnitAt(i + 1));
+            (value.codeUnitAt(i) * 256) + value.codeUnitAt(i + 1),
+          );
           i++;
         } else {
           result += String.fromCharCode(value.codeUnitAt(i));
@@ -2995,7 +3136,8 @@ class FontStructure {
     } else {
       for (int i = 0; i < value.length; i++) {
         result += String.fromCharCode(
-            (value.codeUnitAt(i) * 256) + value.codeUnitAt(i + 1));
+          (value.codeUnitAt(i) * 256) + value.codeUnitAt(i + 1),
+        );
         i++;
       }
     }
@@ -3120,8 +3262,10 @@ class FontStructure {
                 }
               }
             }
-            final String tempString =
-                textToEncode.substring(textStart + 1, textEnd);
+            final String tempString = textToEncode.substring(
+              textStart + 1,
+              textEnd,
+            );
             if (isHex) {
               encodedText += getHexaDecimalString(tempString);
             } else if (!isHex && fontEncoding == 'Identity-H') {
@@ -3129,15 +3273,19 @@ class FontStructure {
             } else {
               encodedText += getLiteralString(tempString);
             }
-            textToEncode =
-                textToEncode.substring(textEnd + 1, textToEncode.length);
+            textToEncode = textToEncode.substring(
+              textEnd + 1,
+              textToEncode.length,
+            );
           }
         }
         break;
       case '<':
         {
-          final String hexEncodedText =
-              textToEncode.substring(1, textToEncode.length - 1);
+          final String hexEncodedText = textToEncode.substring(
+            1,
+            textToEncode.length - 1,
+          );
           encodedText = getHexaDecimalString(hexEncodedText);
           if (encodedText.contains(r'\')) {
             // ignore: use_raw_strings
@@ -3156,7 +3304,10 @@ class FontStructure {
     if (!isTextExtraction) {
       encodedText = skipEscapeSequence(encodedText);
     }
-    isWhiteSpace = encodedText.isEmpty || encodedText.trimRight() == '';
+    isWhiteSpace =
+        encodedText.isEmpty ||
+        (!encodedText.contains(RegExp(r'[\f\r]')) &&
+            encodedText.trimRight().isEmpty);
     return encodedText;
   }
 
@@ -3176,8 +3327,9 @@ class FontStructure {
             primitive = (descendantFontArray[0]! as PdfReferenceHolder).object;
             if (primitive is PdfDictionary) {
               final PdfDictionary descendantDictionary = primitive;
-              if (descendantDictionary
-                  .containsKey(PdfDictionaryProperties.subtype)) {
+              if (descendantDictionary.containsKey(
+                PdfDictionaryProperties.subtype,
+              )) {
                 primitive =
                     descendantDictionary[PdfDictionaryProperties.subtype];
                 if (primitive is PdfName) {
@@ -3200,8 +3352,9 @@ class FontStructure {
           primitive = (descendantFontArray[0]! as PdfReferenceHolder).object;
           if (primitive is PdfDictionary) {
             final PdfDictionary descendantDictionary = primitive;
-            if (descendantDictionary
-                .containsKey(PdfDictionaryProperties.subtype)) {
+            if (descendantDictionary.containsKey(
+              PdfDictionaryProperties.subtype,
+            )) {
               primitive = descendantDictionary[PdfDictionaryProperties.subtype];
               if (primitive is PdfName) {
                 final PdfName subtype =
@@ -3304,9 +3457,9 @@ class FontStructure {
         encodedText = unescape(encodedText!);
       } catch (e) {
         if (encodedText != null && encodedText.isNotEmpty) {
-          encodedText = RegExp.escape(encodedText)
-              .replaceAll(r"\'''", r"'''")
-              .replaceAll(r'\\', r'\');
+          encodedText = RegExp.escape(
+            encodedText,
+          ).replaceAll(r"\'''", r"'''").replaceAll(r'\\', r'\');
         } else {
           throw ArgumentError(e.toString());
         }
@@ -3328,7 +3481,8 @@ class FontStructure {
             if (textDecoded.length == 7 &&
                 textDecoded.toLowerCase().startsWith('uni')) {
               textDecoded = String.fromCharCode(
-                  int.parse(textDecoded.substring(3), radix: 16));
+                int.parse(textDecoded.substring(3), radix: 16),
+              );
             }
             decodedText += textDecoded;
           } else {
@@ -3343,8 +3497,9 @@ class FontStructure {
             }
           }
         }
-        if (!reverseDictMapping
-            .containsKey(differencesDictionary[character.toString()])) {
+        if (!reverseDictMapping.containsKey(
+          differencesDictionary[character.toString()],
+        )) {
           reverseDictMapping[differencesDictionary[character.toString()]] =
               character;
         }
@@ -3361,15 +3516,17 @@ class FontStructure {
         if (skip) {
           switch (encodedText[i]) {
             case 'n':
-              if (differencesDictionary
-                  .containsKey('\n'.codeUnitAt(0).toString())) {
+              if (differencesDictionary.containsKey(
+                '\n'.codeUnitAt(0).toString(),
+              )) {
                 decodedText +=
                     differencesDictionary['\n'.codeUnitAt(0).toString()]!;
               }
               break;
             case 'r':
-              if (differencesDictionary
-                  .containsKey('\r'.codeUnitAt(0).toString())) {
+              if (differencesDictionary.containsKey(
+                '\r'.codeUnitAt(0).toString(),
+              )) {
                 decodedText +=
                     differencesDictionary['\r'.codeUnitAt(0).toString()]!;
               }
@@ -4253,8 +4410,9 @@ class FontStructure {
           mappingString = mappingString.replaceAll(mappingString[index], '');
         }
         if (mappingString.isNotEmpty) {
-          if (!cidToGidReverseMapTable
-              .containsKey(mappingString.codeUnitAt(0))) {
+          if (!cidToGidReverseMapTable.containsKey(
+            mappingString.codeUnitAt(0),
+          )) {
             cidToGidReverseMapTable[mappingString.codeUnitAt(0)] = character;
           }
         }
@@ -4363,9 +4521,11 @@ class FontStructure {
         }
         limit = 2;
       }
-      for (int i = octalIndex + 1;
-          i <= octalIndex + limit;
-          i++) //check for octal characters
+      for (
+        int i = octalIndex + 1;
+        i <= octalIndex + limit;
+        i++
+      ) //check for octal characters
       {
         if (i < decodedText.length) {
           int val = 0;
@@ -4398,7 +4558,7 @@ class FontStructure {
             temp = _getWindows1252DecodedText(charbytes);
             List<String> tempchar;
             tempchar = <String>[
-              _getWindows1252DecodedText(<int>[decimalValue.toUnsigned(8)])
+              _getWindows1252DecodedText(<int>[decimalValue.toUnsigned(8)]),
             ];
             int charvalue = 0;
             for (final String tempchar1 in tempchar) {
@@ -4412,7 +4572,7 @@ class FontStructure {
             final List<int> charbytes = <int>[decimalValue.toUnsigned(8)];
             temp = String.fromCharCodes(charbytes);
             final List<String> tempchar = <String>[
-              String.fromCharCodes(<int>[decimalValue.toUnsigned(8)])
+              String.fromCharCodes(<int>[decimalValue.toUnsigned(8)]),
             ];
             int charvalue = 0;
             for (final String tempchar1 in tempchar) {
@@ -4425,8 +4585,11 @@ class FontStructure {
           }
         }
         (charCodes ??= <dynamic>[]).add(decimalValue);
-        decodedText =
-            decodedText.replaceRange(octalIndex, octalIndex + limit + 1, '');
+        decodedText = decodedText.replaceRange(
+          octalIndex,
+          octalIndex + limit + 1,
+          '',
+        );
         final List<String> str = decodedText.split('');
         str.insert(octalIndex, temp);
         octalIndexCollection.add(octalIndex);
@@ -4444,7 +4607,7 @@ class FontStructure {
         'r': '\r',
         't': '\t',
         'v': '\v',
-        "'": "'"
+        "'": "'",
       };
       if (decodedText.contains(r'\')) {
         for (int i = count - 2; i >= 0; i--) {
@@ -4462,12 +4625,15 @@ class FontStructure {
               //Update the octal index collection and char codes,
               //if character map table contains the escape sequence.
               for (int j = 0; j < octalIndexCollection.length; j++) {
-                if (characterMapTable
-                    .containsKey(escapeSequence[sequence]!.codeUnitAt(0))) {
+                if (characterMapTable.containsKey(
+                  escapeSequence[sequence]!.codeUnitAt(0),
+                )) {
                   if (i < octalIndexCollection[j]) {
                     octalIndexCollection.insert(j, i);
-                    charCodes!
-                        .insert(j, escapeSequence[sequence]!.codeUnitAt(0));
+                    charCodes!.insert(
+                      j,
+                      escapeSequence[sequence]!.codeUnitAt(0),
+                    );
                     break;
                   } else if (j == octalIndexCollection.length - 1 &&
                       i > octalIndexCollection[j]) {
@@ -4490,8 +4656,10 @@ class FontStructure {
     for (int i = 0; i < count; i++) {
       if (!octalIndexCollection.contains(i)) {
         if (characterMapTable.containsKey(str[i].codeUnitAt(0))) {
-          (charCodes ??= <dynamic>[])
-              .insert(i + combinedGlyphDiff, str[i].codeUnitAt(0));
+          (charCodes ??= <dynamic>[]).insert(
+            i + combinedGlyphDiff,
+            str[i].codeUnitAt(0),
+          );
         } else {
           (charCodes ??= <dynamic>[]).insert(i + combinedGlyphDiff, 0);
         }
@@ -4572,8 +4740,10 @@ class FontStructure {
   }
 
   /// Decodes the HEX encoded string and returns Decoded string.
-  String getHexaDecimalString(String hexEncodedText,
-      [List<dynamic>? charCodes]) {
+  String getHexaDecimalString(
+    String hexEncodedText, [
+    List<dynamic>? charCodes,
+  ]) {
     String decodedText = '';
     // IsHexaDecimalString = true;
     if (hexEncodedText.isNotEmpty) {
@@ -4595,25 +4765,29 @@ class FontStructure {
         }
         String hexChar = hexEncodedText.substring(0, limit);
 
-        if (fontDictionary
-                .containsKey(PdfDictionaryProperties.descendantFonts) &&
+        if (fontDictionary.containsKey(
+              PdfDictionaryProperties.descendantFonts,
+            ) &&
             !fontDictionary.containsKey(PdfDictionaryProperties.toUnicode)) {
           final IPdfPrimitive? descendantArray =
               fontDictionary[PdfDictionaryProperties.descendantFonts];
           if (descendantArray != null && descendantArray is PdfArray) {
             PdfDictionary? descendantDictionary;
             if (descendantArray[0] is PdfReferenceHolder) {
-              descendantDictionary = (descendantArray[0]! as PdfReferenceHolder)
-                  .object as PdfDictionary?;
+              descendantDictionary =
+                  (descendantArray[0]! as PdfReferenceHolder).object
+                      as PdfDictionary?;
             } else if (descendantArray[0] is PdfDictionary) {
               descendantDictionary = descendantArray[0]! as PdfDictionary;
             }
             if (descendantDictionary != null) {
               PdfDictionary? descriptorDictionary;
-              if (descendantDictionary
-                  .containsKey(PdfDictionaryProperties.fontDescriptor)) {
-                IPdfPrimitive? primitive = descendantDictionary[
-                    PdfDictionaryProperties.fontDescriptor];
+              if (descendantDictionary.containsKey(
+                PdfDictionaryProperties.fontDescriptor,
+              )) {
+                IPdfPrimitive? primitive =
+                    descendantDictionary[PdfDictionaryProperties
+                        .fontDescriptor];
                 if (primitive is PdfReferenceHolder) {
                   primitive = primitive.object;
                   if (primitive != null && primitive is PdfDictionary) {
@@ -4624,10 +4798,12 @@ class FontStructure {
                 }
               }
               if (descriptorDictionary != null) {
-                if (descendantDictionary
-                        .containsKey(PdfDictionaryProperties.subtype) &&
-                    !descriptorDictionary
-                        .containsKey(PdfDictionaryProperties.fontFile2)) {
+                if (descendantDictionary.containsKey(
+                      PdfDictionaryProperties.subtype,
+                    ) &&
+                    !descriptorDictionary.containsKey(
+                      PdfDictionaryProperties.fontFile2,
+                    )) {
                   final PdfName subtype =
                       descendantDictionary[PdfDictionaryProperties.subtype]!
                           as PdfName;
@@ -4637,11 +4813,13 @@ class FontStructure {
                 }
               }
             }
-          } else if (fontDictionary.items!
-              .containsKey(PdfName(PdfDictionaryProperties.descendantFonts))) {
+          } else if (fontDictionary.items!.containsKey(
+            PdfName(PdfDictionaryProperties.descendantFonts),
+          )) {
             final PdfReferenceHolder? descendantFontArrayReference =
-                fontDictionary.items![
-                        PdfName(PdfDictionaryProperties.descendantFonts)]
+                fontDictionary.items![PdfName(
+                      PdfDictionaryProperties.descendantFonts,
+                    )]
                     as PdfReferenceHolder?;
             if (descendantFontArrayReference != null) {
               PdfName? subtype;
@@ -4652,24 +4830,31 @@ class FontStructure {
                     (descendantFontArray[0]! as PdfReferenceHolder).object
                         as PdfDictionary?;
                 if (descendantDictionary != null &&
-                    descendantDictionary
-                        .containsKey(PdfDictionaryProperties.cidSystemInfo) &&
-                    descendantDictionary
-                        .containsKey(PdfDictionaryProperties.subtype)) {
+                    descendantDictionary.containsKey(
+                      PdfDictionaryProperties.cidSystemInfo,
+                    ) &&
+                    descendantDictionary.containsKey(
+                      PdfDictionaryProperties.subtype,
+                    )) {
                   subtype =
                       descendantDictionary[PdfDictionaryProperties.subtype]
                           as PdfName?;
-                  final PdfDictionary? cidSystemInfo = (descendantDictionary[
-                              PdfDictionaryProperties.cidSystemInfo]!
-                          as PdfReferenceHolder)
-                      .object as PdfDictionary?;
+                  final PdfDictionary? cidSystemInfo =
+                      (descendantDictionary[PdfDictionaryProperties
+                                      .cidSystemInfo]!
+                                  as PdfReferenceHolder)
+                              .object
+                          as PdfDictionary?;
                   if (cidSystemInfo != null &&
-                      cidSystemInfo
-                          .containsKey(PdfDictionaryProperties.registry) &&
-                      cidSystemInfo
-                          .containsKey(PdfDictionaryProperties.ordering) &&
-                      cidSystemInfo
-                          .containsKey(PdfDictionaryProperties.supplement)) {
+                      cidSystemInfo.containsKey(
+                        PdfDictionaryProperties.registry,
+                      ) &&
+                      cidSystemInfo.containsKey(
+                        PdfDictionaryProperties.ordering,
+                      ) &&
+                      cidSystemInfo.containsKey(
+                        PdfDictionaryProperties.supplement,
+                      )) {
                     final PdfString pdfRegistry =
                         cidSystemInfo[PdfDictionaryProperties.registry]!
                             as PdfString;
@@ -4709,8 +4894,10 @@ class FontStructure {
               decodedTxt.contains('')) &&
           tempHexEncodedText.length < limit) {
         decodedText = tempDecodedText;
-        final int hexNum =
-            int.parse(tempHexEncodedText, radix: 16).toSigned(32);
+        final int hexNum = int.parse(
+          tempHexEncodedText,
+          radix: 16,
+        ).toSigned(32);
         (charCodes ??= <dynamic>[]).add(hexNum);
         hexEncodedText = String.fromCharCode(hexNum);
         decodedText += hexEncodedText;
@@ -4797,7 +4984,8 @@ class FontStructure {
             characterMapTable.length != reverseMapTable!.length) {
           if (isCancel(mappingString) ||
               isNonPrintableCharacter(
-                  character)) //Contains 'CANCEL' of ASCII value 24
+                character,
+              )) //Contains 'CANCEL' of ASCII value 24
           {
             mappingString = character;
           }

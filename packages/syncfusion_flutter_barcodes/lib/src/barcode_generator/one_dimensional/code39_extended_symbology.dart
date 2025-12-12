@@ -18,5 +18,5 @@ class Code39Extended extends Code39 {
   /// refactored to a smaller methods, but it degrades the performance.Since it
   /// adds character corresponding to this symbology is added in to the list
   Code39Extended({int? module, bool? enableCheckSum})
-      : super(module: module, enableCheckSum: enableCheckSum ?? true);
+    : super(module: module, enableCheckSum: enableCheckSum ?? true);
 }

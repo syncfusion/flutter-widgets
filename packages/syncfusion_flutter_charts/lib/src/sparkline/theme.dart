@@ -14,18 +14,20 @@ class SparkChartThemeData extends SfSparkChartThemeData {
   late final SfColorScheme colorScheme = SfTheme.colorScheme(context);
 
   @override
-  Color? get color => colorScheme.useMaterial3
-      ? colorScheme.brightness == Brightness.light
-          ? const Color.fromRGBO(150, 60, 112, 1)
-          : const Color.fromRGBO(77, 170, 255, 1)
-      : Colors.blue;
+  Color? get color =>
+      colorScheme.useMaterial3
+          ? colorScheme.brightness == Brightness.light
+              ? const Color.fromRGBO(150, 60, 112, 1)
+              : const Color.fromRGBO(77, 170, 255, 1)
+          : Colors.blue;
 
   @override
-  Color? get axisLineColor => colorScheme.useMaterial3
-      ? colorScheme.brightness == Brightness.light
-          ? const Color.fromRGBO(73, 69, 79, 1)
-          : const Color.fromRGBO(202, 196, 208, 1)
-      : Colors.black;
+  Color? get axisLineColor =>
+      colorScheme.useMaterial3
+          ? colorScheme.brightness == Brightness.light
+              ? const Color.fromRGBO(73, 69, 79, 1)
+              : const Color.fromRGBO(202, 196, 208, 1)
+          : Colors.black;
 
   @override
   Color? get markerFillColor => colorScheme.surface[150];

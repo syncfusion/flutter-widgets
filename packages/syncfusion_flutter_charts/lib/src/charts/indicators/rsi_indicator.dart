@@ -56,19 +56,23 @@ class RsiIndicator<T, D> extends TechnicalIndicator<T, D> {
     this.lowerLineWidth = 2,
     super.onRenderDetailsUpdate,
   }) : super(
-          xValueMapper: xValueMapper != null && dataSource != null
-              ? (int index) => xValueMapper(dataSource[index], index)
-              : null,
-          highValueMapper: highValueMapper != null && dataSource != null
-              ? (int index) => highValueMapper(dataSource[index], index)
-              : null,
-          lowValueMapper: lowValueMapper != null && dataSource != null
-              ? (int index) => lowValueMapper(dataSource[index], index)
-              : null,
-          closeValueMapper: closeValueMapper != null && dataSource != null
-              ? (int index) => closeValueMapper(dataSource[index], index)
-              : null,
-        );
+         xValueMapper:
+             xValueMapper != null && dataSource != null
+                 ? (int index) => xValueMapper(dataSource[index], index)
+                 : null,
+         highValueMapper:
+             highValueMapper != null && dataSource != null
+                 ? (int index) => highValueMapper(dataSource[index], index)
+                 : null,
+         lowValueMapper:
+             lowValueMapper != null && dataSource != null
+                 ? (int index) => lowValueMapper(dataSource[index], index)
+                 : null,
+         closeValueMapper:
+             closeValueMapper != null && dataSource != null
+                 ? (int index) => closeValueMapper(dataSource[index], index)
+                 : null,
+       );
 
   /// Show zones boolean value for RSI indicator.
   ///
@@ -315,7 +319,7 @@ class RsiIndicator<T, D> extends TechnicalIndicator<T, D> {
       upperLineColor,
       upperLineWidth,
       lowerLineColor,
-      lowerLineWidth
+      lowerLineWidth,
     ];
     return Object.hashAll(values);
   }
@@ -365,7 +369,9 @@ class RsiIndicatorWidget extends IndicatorWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, RsiIndicatorRenderer renderObject) {
+    BuildContext context,
+    RsiIndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final RsiIndicator rsi = indicator as RsiIndicator;
 
@@ -492,7 +498,7 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         <ChartIndexedValueMapper<num?>?>[
           highValueMapper,
           lowValueMapper,
-          closeValueMapper
+          closeValueMapper,
         ],
         <List<num>>[_highValues, _lowValues, _closeValues],
       );
@@ -648,8 +654,9 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         for (int i = 0; i < length; i++) {
           final num x = _upperLineActualValues[i].dx;
           final num y = _upperLineActualValues[i].dy;
-          _upperLinePoints
-              .add(Offset(pointToPixelX(x, y), pointToPixelY(x, y)));
+          _upperLinePoints.add(
+            Offset(pointToPixelX(x, y), pointToPixelY(x, y)),
+          );
         }
       }
 
@@ -658,8 +665,9 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         for (int i = 0; i < length; i++) {
           final num x = _lowerLineActualValues[i].dx;
           final num y = _lowerLineActualValues[i].dy;
-          _lowerLinePoints
-              .add(Offset(pointToPixelX(x, y), pointToPixelY(x, y)));
+          _lowerLinePoints.add(
+            Offset(pointToPixelX(x, y), pointToPixelY(x, y)),
+          );
         }
       }
     }
@@ -700,8 +708,10 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (showZones) {
       final int upperPointIndex = _findNearestPoint(_upperLinePoints, position);
       if (upperPointIndex != -1) {
-        final CartesianChartPoint<D> upperPoint =
-            _chartPoint(upperPointIndex, 'upper');
+        final CartesianChartPoint<D> upperPoint = _chartPoint(
+          upperPointIndex,
+          'upper',
+        );
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: _upperLinePoints[upperPointIndex],
@@ -719,8 +729,10 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
       final int lowerPointIndex = _findNearestPoint(_lowerLinePoints, position);
       if (lowerPointIndex != -1) {
-        final CartesianChartPoint<D> lowerPoint =
-            _chartPoint(lowerPointIndex, 'lower');
+        final CartesianChartPoint<D> lowerPoint = _chartPoint(
+          lowerPointIndex,
+          'lower',
+        );
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: _lowerLinePoints[lowerPointIndex],
@@ -781,16 +793,19 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
   CartesianChartPoint<D> _chartPoint(int pointIndex, String type) {
     return CartesianChartPoint<D>(
-        x: type == 'rsi'
-            ? xRawValues[pointIndex + period]
-            : xRawValues[pointIndex],
-        xValue:
-            type == 'rsi' ? xValues[pointIndex + period] : xValues[pointIndex],
-        y: type == 'rsi'
-            ? _signalLineActualValues[pointIndex].dy
-            : type == 'upper'
-                ? _upperLineActualValues[pointIndex].dy
-                : _lowerLineActualValues[pointIndex].dy);
+      x:
+          type == 'rsi'
+              ? xRawValues[pointIndex + period]
+              : xRawValues[pointIndex],
+      xValue:
+          type == 'rsi' ? xValues[pointIndex + period] : xValues[pointIndex],
+      y:
+          type == 'rsi'
+              ? _signalLineActualValues[pointIndex].dy
+              : type == 'upper'
+              ? _upperLineActualValues[pointIndex].dy
+              : _lowerLineActualValues[pointIndex].dy,
+    );
   }
 
   @override
@@ -803,8 +818,9 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         signalLineColor,
         dashArray,
       );
-      final TechnicalIndicatorRenderDetails details =
-          onRenderDetailsUpdate!(params);
+      final TechnicalIndicatorRenderDetails details = onRenderDetailsUpdate!(
+        params,
+      );
       strokePaint
         ..color = details.signalLineColor
         ..strokeWidth = details.signalLineWidth;
@@ -822,8 +838,12 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     int length = signalLinePoints.length - 1;
 
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
 
     strokePaint
@@ -850,18 +870,21 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       length = _upperLinePoints.length;
 
       _upperLinePath.moveTo(
-          _upperLinePoints.first.dx, _upperLinePoints.first.dy);
+        _upperLinePoints.first.dx,
+        _upperLinePoints.first.dy,
+      );
       for (int i = 1; i < length; i++) {
         _upperLinePath.lineTo(_upperLinePoints[i].dx, _upperLinePoints[i].dy);
       }
 
       drawDashes(
-          context.canvas,
-          _dashArray,
-          strokePaint
-            ..color = upperLineColor
-            ..strokeWidth = upperLineWidth,
-          path: _upperLinePath);
+        context.canvas,
+        _dashArray,
+        strokePaint
+          ..color = upperLineColor
+          ..strokeWidth = upperLineWidth,
+        path: _upperLinePath,
+      );
     }
 
     if (showZones &&
@@ -872,18 +895,21 @@ class RsiIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       length = _lowerLinePoints.length;
 
       _lowerLinePath.moveTo(
-          _lowerLinePoints.first.dx, _lowerLinePoints.first.dy);
+        _lowerLinePoints.first.dx,
+        _lowerLinePoints.first.dy,
+      );
       for (int i = 1; i < length; i++) {
         _lowerLinePath.lineTo(_lowerLinePoints[i].dx, _lowerLinePoints[i].dy);
       }
 
       drawDashes(
-          context.canvas,
-          _dashArray,
-          strokePaint
-            ..color = lowerLineColor
-            ..strokeWidth = lowerLineWidth,
-          path: _lowerLinePath);
+        context.canvas,
+        _dashArray,
+        strokePaint
+          ..color = lowerLineColor
+          ..strokeWidth = lowerLineWidth,
+        path: _lowerLinePath,
+      );
     }
 
     context.canvas.restore();

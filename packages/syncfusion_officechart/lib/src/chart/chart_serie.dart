@@ -1,4 +1,8 @@
-part of officechart;
+// ignore_for_file: unnecessary_getters_setters
+
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import '../../officechart.dart';
+import 'chartserie_dataformat_impl.dart';
 
 /// This class represents ChartSeries object.
 class ChartSerie {
@@ -48,13 +52,13 @@ class ChartSerie {
   String? linePatternColor;
 
   /// Chart type for the series.
-  ExcelChartType get _serieType {
+  ExcelChartType get serieType {
     return _chart.chartType;
   }
 
   ///Represents chart serie format.
   ChartSerieDataFormat get serieFormat {
-    return _chartSeriesDataFormat ??= _ChartSerieDataFormatImpl(_chart);
+    return _chartSeriesDataFormat ??= ChartSerieDataFormatImpl(_chart);
   }
 
   /// Gets chart text area object.
@@ -88,5 +92,65 @@ class ChartSerie {
   /// ```
   ChartDataLabels get dataLabels {
     return _dataLabels ??= ChartDataLabels(this);
+  }
+
+  // ignore: public_member_api_docs
+  Chart get chart {
+    return _chart;
+  }
+
+  ///Sets the parent chart
+  set chart(Chart value) {
+    _chart = value;
+  }
+
+  // ignore: public_member_api_docs
+  Range? get categoryLabels {
+    return _categoryLabels;
+  }
+
+  ///Set the chart range values
+  set categoryLabels(Range? value) {
+    _categoryLabels = value;
+  }
+
+  // ignore: public_member_api_docs
+  set index(int value) {
+    _index = value;
+  }
+
+  // ignore: public_member_api_docs
+  int get index {
+    return _index;
+  }
+
+  // ignore: public_member_api_docs
+  set nameOrFormula(String value) {
+    _nameOrFormula = value;
+  }
+
+  // ignore: public_member_api_docs
+  String get nameOrFormula {
+    return _nameOrFormula;
+  }
+
+  // ignore: public_member_api_docs
+  set isDefaultName(bool value) {
+    _isDefaultName = value;
+  }
+
+  // ignore: public_member_api_docs
+  bool get isDefaultName {
+    return _isDefaultName;
+  }
+
+  // ignore: public_member_api_docs
+  set values(Range? value) {
+    _values = value;
+  }
+
+  // ignore: public_member_api_docs
+  Range? get values {
+    return _values;
   }
 }

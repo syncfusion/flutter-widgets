@@ -1,11 +1,232 @@
-## [Unreleased]
+## [30.2.6+1] - 20/08/2025 
+
+**Bugs**
+
+* \#GH2400 - Now, the chart no longer throws a layout-phase mutation exception when [autoScrollingDelta](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/autoScrollingDelta.html) is set and the screen is resized.
+
+## [30.2.6] - 19/08/2025 
+
+**Bugs**
+
+* \#GH2371 - Resolved a panning speed inconsistency that occurred when switching between time intervals in chart axes. The panning logic now uses the updated scale value to ensure consistent interaction behavior across interval changes.
+
+## [30.2.5] - 13/08/2025
+
+**Bugs**
+
+* \#GH2404 - Resolved a layout crash by updating the logic to prevent negative height constraints when rendering [SfCartesianChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html) inside very small containers.
+* \#GH2380 - Resolved an issue were updating only one bound of the axis visible range caused fallback to the actual range. The controller now retains the previous visible range value to ensure correct axis rendering.
+
+## [30.1.41] - 22/07/2025 
+
+**Bugs**
+
+* \#BD746428 - Resolved an exception caused by layout-phase mutations in chart elements to ensure compatibility with Flutter SDK 3.32.6.
+
+## [30.1.38] - 02/07/2025
+
+**Bugs**
+
+* \#GH2377 - Now, the [onPointTap](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeries/onPointTap.html) callbacks returns the point index properly for visible data points.
+
+## [30.1.37] - 25/06/2025
+
+**General**
+
+* The compatible version of our Flutter charts widget has been updated to Flutter SDK 3.32.0.
+
+### Features
+
+* Enhanced chart legend customization by introducing chart-specific legend item classes (CartesianLegendItem, CircularLegendItem, FunnelLegendItem, and PyramidLegendItem), enabling direct access to series, seriesIndex, and pointIndex.
+* \#FR57680 - Added directional zooming to Cartesian charts for intuitive zoom control based on finger gestures.
+
+## [29.2.4] - 14/05/2025 
+
+**Bugs**
+
+* \#BD718806 - The legend now toggles properly even when the [offset](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Legend/offset.html) property is set and chart behaviors are enabled.
+
+## [29.1.40] - 29/04/2025 
+
+**Bugs**
+
+* \#GH2334 - Now, the [HistogramSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/HistogramSeries-class.html) will render properly when a single data point is set to the [dataSource](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeries/dataSource.html).
+* \#GH2335 - The [onPointDoubleTap](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeries/onPointDoubleTap.html) callback is now correctly invoked on double-tap in the chart series.
+
+## [29.1.39] - 22/04/2025
+ 
+**General**
+ 
+*  The minimum Dart version has been updated to 3.7.
+
+## [29.1.37+1] - 09/04/2025 
+
+**Bugs**
+
+* \#FB65781 - - Now, the [`labelsExtent`](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/labelsExtent.html) properly specifies the space between the axis line and the axis title.
+
+## [29.1.35] - 01/04/2025 
+
+**Bugs**
+
+* \#BD702563 - Now, the [updateDataSource](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeriesController/updateDataSource.html) method properly clears data points when using removedDataIndexes in charts.
+
+## [29.1.33] - 25/03/2025
+
+**General**
+
+*  The compatible version of our Flutter charts widget has been updated to Flutter SDK 3.29.0.
+*  The Syncfusion<sup>&reg;</sup> Flutter charts example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+*  The Syncfusion<sup>&reg;</sup> Flutter charts example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
+
+
+## [28.2.9] - 04/03/2025
+
+**Bugs**
+
+* \#BD665639 - Now, the [onDataLabelTapped](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCircularChart/onDataLabelTapped.html) callback returns the point index properly for visible data labels.
+
+## [28.2.7] - 25/02/2025
+
+**General**
+
+* The minimum Dart version of our Flutter widgets has been updated to 3.4 from 3.3.
+
+**Bugs**
+
+* \#GH1321 - Now the [trendLine](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Trendline-class.html) tooltip will update properly for all [activationMode](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/TooltipBehavior/activationMode.html).
+
+## [28.2.6] - 18/02/2025
+
+**Bugs**
+
+* \#FR195944 - Now the mouse cursor icon customization is applicable to the entire chart area.
+* \#BD688884 - Now for all activation modes, the crosshair will remains visible for a longer duration when the [shouldAlwaysShow](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CrosshairBehavior/shouldAlwaysShow.html) property is set to true.
+
+## [28.2.5] - 11/02/2025
+
+**Bugs**
+
+* \#BD686856 - Now, the gap is applied between multiple [axes](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/axes.html) in the Cartesian axis.
+* \#BD680484 - Now the tooltip appears instantly without any delay when interacting with the chart using [ActivationMode.singleTap](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ActivationMode.html).
+
+## [28.2.4] - 04/02/2025
+
+**Bugs**
+
+* \#GH2260 - Type casting exception wasn’t thrown when setting double values to the start and end properties of the [plotBands](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/plotBands.html) in the [DatetimeCategoryAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/DateTimeCategoryAxis-class.html).
+* \#BD684087 - Now horizontal axis labels update properly when using [AxisLabelIntersectAction.multipleRows](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/AxisLabelIntersectAction.html) with [LabelRotation](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/labelRotation.html).
+
+## [28.1.40] - 21/01/2025
+
+**Bugs**
+
+* \#FR195717 - The chart zoom in and out is now updated correctly when the chart key is dynamically changed. 
+
+## [28.1.39] - 15/01/2025
+
+**Bugs**
+
+* \#GH2212 - Now the axis labels will render properly when the [edgeLabelPlacement](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/edgeLabelPlacement.html) is set to 'hide'.
+* \#GH2172 - Now the [CartesianSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CartesianSeries-class.html) will render properly with multiple series when an empty data source is set.
+
+## [28.1.38] - 07/01/2025
+
+**Bugs**
+
+* \#GH2218 - Now [trackball](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/TrackballBehavior-class.html) update properly for [DateTimeCategoryAxis](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/DateTimeCategoryAxis-class.html) with multiple series in [CartesianCharts](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html).
+
+## [28.1.37] - 31/12/2024
+
+**Bugs**
+
+* \#GH2171 - Now [LabelIntersectAction.none](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/labelIntersectAction.html) update properly for y axis in [CartesianCharts](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html).
+
+## [28.1.36] - 24/12/2024
+
+**General**
+
+* The compatible version of our Flutter charts widget has been updated to Flutter SDK 3.27.0.
+
+**Bugs**
+
+* \#BD661538 - Resolved a failed assertion exception that occurred when using behaviors in the Chart and attempting to display the behavior before the chart finished loading.
+* \#BD665634 - The data label tooltip now updates properly when long text is used in the data label in [CircularCharts](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CircularSeries-class.html).
+* \#GH2208 - Resolved null exception when the [isVisibleLegend](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Trendline/isVisibleInLegend.html) is set to false for trendlines in [CartesianCharts](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html).
+
+## [28.1.33] - 12/12/2024
+
+**General**
+
+* All of our Syncfusion<sup>&reg;</sup> Flutter widgets have been updated to support [`WebAssembly`](https://docs.flutter.dev/platform-integration/web/wasm) (WASM) as a compilation target for building web applications.
+* The minimum Dart version of our Flutter widgets has been updated to 3.3 from 2.17.
+
+### Features
+
+* \#FB58652 - Added support to enable and disable the trackball behavior for specific series in cartesian charts.
+
+## [27.2.3] - 21/11/2024
+
+**Bugs**
+
+* \#F194931 - Resolved [StackedAreaSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/StackedAreaSeries-class.html) is not rendering properly with negative data points when using multiple stacked series.
+
+## [27.1.54] - 22/10/2024
+
+**Bugs**
+
+* \#BD640641 - Resolved failed assertion exception when the data source had value as zero in [SparkBarChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SfSparkBarChart-class.html).
+* \#BD640555 - Now the [PlotBand](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SparkChartPlotBand-class.html) update properly for different start and end values.
+
+## [27.1.53] - 15/10/2024
+
+**Bugs**
+
+* \#GH2084 - Now the [onDataLabelTapped](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart/onDataLabelTapped.html) callback invoke properly when tap inside data label bounds.
+* \#GH2091 - Resolved no element state exception when the data source had empty data in the [RadialBarSeries](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/RadialBarSeries-class.html) with Legend.
+
+## [27.1.51] - 30/09/2024
+
+**Bugs**
+
+* \#BD626485 - Resolved the range error exception when adding data dynamically in the circular series with [legendItemBuilder](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/Legend/legendItemBuilder.html).
+* \#BD624619 - The trackball builder's position now renders properly in the [groupAllPoints](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/TrackballDisplayMode.html) display mode on transposed charts.
+* \#BD630726 - Resolved the range error exception when updating the data source with the [pointShaderMapper](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/CircularSeries/pointShaderMapper.html) property in the circular series.
+
+## [27.1.48] - 18/09/2024
+
+**General**
+
+* \#GH2008, \#GH2013, \#GH2012, \#BD620212, \#BD620214, \#F192976, \#BD621964, \#BD621021, \#BD620826, \#BD619659, \#BD619610, \#BD620964, \#GH2020, \#F194113, \#GH623599, \#GH1907, \#BD626072, \#BD626410, \#GH2041, \#BD626867, \#GH2045 - The compatible version of our Flutter charts widget has been updated to Flutter SDK 3.24.0.
+
+### Features
+
+* \#FB31997 - Added support for `borderRadius` in the candle series.
+* Added support for customizing `width` and `spacing` of the candle series.
+* Added support for individual plot offset customization for the chart axis.
+* Added `additionalStart`, `additionalEnd`, `roundStart` and `roundEnd` enums to [`rangePadding`](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartAxis/rangePadding.html) property to customize the axis range padding at the start or end of the axis.
+
+**Bugs**
+
+* The [`RadialBarSeries`](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/RadialBarSeries-class.html) animation now updates properly when data points are reset dynamically.
+* The range of the category axis now updates correctly when data points are dynamically replaced.
+* The tooltip position of the trackball builder has been adjusted to inside within the plot area.
+
+## [26.2.9] - 13/08/2024
+
+**Bugs**
+
+* Now, the trackball image marker is updated according to the marker visibility mode set to auto. 
+* Now, the [pointColorMapper](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/ChartSeriesRenderer/pointColorMapper.html) colors are properly updated when the data source is dynamically changed with different lengths.
+
+## [26.1.35] - 11/06/2024
 
 ### Features
 
 Added two new indicators in Cartesian Chart:
 
-* Provided Rate of Change Indicator (ROC) support to technical indicators.
-* Provided Weighted Moving Average Indicator (WMA) support to technical indicators.
+* \#FB15987 - Provided Rate of Change Indicator (ROC) support to technical indicators.
+* \#FB15987 - Provided Weighted Moving Average Indicator (WMA) support to technical indicators.
 
 ## [25.2.5] - 09/04/2024
 

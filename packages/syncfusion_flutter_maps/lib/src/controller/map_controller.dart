@@ -193,47 +193,65 @@ class MapController {
     translation ??= shapeLayerOffset;
     visibleFocalLatLng = getVisibleFocalLatLng(translation, factor);
     visibleBounds = getVisibleBounds(translation, factor, visibleFocalLatLng);
-    visibleLatLngBounds = getVisibleLatLngBounds(visibleBounds!.topRight,
-        visibleBounds!.bottomLeft, translation, factor);
+    visibleLatLngBounds = getVisibleLatLngBounds(
+      visibleBounds!.topRight,
+      visibleBounds!.bottomLeft,
+      translation,
+      factor,
+    );
   }
 
   MapLatLng getVisibleFocalLatLng([Offset? translation, double? factor]) {
     factor ??= shapeLayerSizeFactor;
     translation ??= shapeLayerOffset;
     return pixelToLatLng(
-        Offset(shapeLayerBoxSize.width / 2, shapeLayerBoxSize.height / 2),
-        shapeLayerBoxSize,
-        translation,
-        factor);
+      Offset(shapeLayerBoxSize.width / 2, shapeLayerBoxSize.height / 2),
+      shapeLayerBoxSize,
+      translation,
+      factor,
+    );
   }
 
-  Rect getVisibleBounds(
-      [Offset? translation, double? factor, MapLatLng? focalLatLng]) {
+  Rect getVisibleBounds([
+    Offset? translation,
+    double? factor,
+    MapLatLng? focalLatLng,
+  ]) {
     factor ??= shapeLayerSizeFactor;
     translation ??= shapeLayerOffset;
     focalLatLng ??= getVisibleFocalLatLng(translation, factor);
     return Rect.fromCenter(
-        center: pixelFromLatLng(
-            visibleFocalLatLng!.latitude,
-            visibleFocalLatLng!.longitude,
-            shapeLayerBoxSize,
-            translation,
-            factor),
-        width: shapeLayerBoxSize.width,
-        height: shapeLayerBoxSize.height);
+      center: pixelFromLatLng(
+        visibleFocalLatLng!.latitude,
+        visibleFocalLatLng!.longitude,
+        shapeLayerBoxSize,
+        translation,
+        factor,
+      ),
+      width: shapeLayerBoxSize.width,
+      height: shapeLayerBoxSize.height,
+    );
   }
 
-  MapLatLngBounds getVisibleLatLngBounds(Offset topRight, Offset bottomLeft,
-      [Offset? translation, double? factor]) {
+  MapLatLngBounds getVisibleLatLngBounds(
+    Offset topRight,
+    Offset bottomLeft, [
+    Offset? translation,
+    double? factor,
+  ]) {
     factor ??= shapeLayerSizeFactor;
     translation ??= shapeLayerOffset;
     return MapLatLngBounds(
-        pixelToLatLng(topRight, shapeLayerBoxSize, translation, factor),
-        pixelToLatLng(bottomLeft, shapeLayerBoxSize, translation, factor));
+      pixelToLatLng(topRight, shapeLayerBoxSize, translation, factor),
+      pixelToLatLng(bottomLeft, shapeLayerBoxSize, translation, factor),
+    );
   }
 
-  Offset getZoomingTranslation(
-      {Offset? origin, double? scale, Offset? previousOrigin}) {
+  Offset getZoomingTranslation({
+    Offset? origin,
+    double? scale,
+    Offset? previousOrigin,
+  }) {
     origin ??= pinchCenter;
     scale ??= localScale;
     previousOrigin ??= shapeLayerOffset;
@@ -251,12 +269,17 @@ class MapController {
     return Size.square(256 * pow(2, zoomLevel).toDouble());
   }
 
-  void applyTransform(PaintingContext context, Offset offset,
-      [bool isVectorLayer = false]) {
+  void applyTransform(
+    PaintingContext context,
+    Offset offset, [
+    bool isVectorLayer = false,
+  ]) {
     if (isVectorLayer && layerType == LayerType.tile) {
       context.canvas
-        ..translate(offset.dx + tileCurrentLevelDetails.translatePoint.dx,
-            offset.dy + tileCurrentLevelDetails.translatePoint.dy)
+        ..translate(
+          offset.dx + tileCurrentLevelDetails.translatePoint.dx,
+          offset.dy + tileCurrentLevelDetails.translatePoint.dy,
+        )
         ..scale(tileCurrentLevelDetails.scale);
     } else {
       switch (gesture) {
@@ -264,20 +287,26 @@ class MapController {
           // Translating to the focal point
           // which we got from [ScaleUpdateDetails.localFocalPoint].
           context.canvas
-            ..translate(offset.dx + pinchCenter.dx + normalize.dx,
-                offset.dy + pinchCenter.dy + normalize.dy)
+            ..translate(
+              offset.dx + pinchCenter.dx + normalize.dx,
+              offset.dy + pinchCenter.dy + normalize.dy,
+            )
             ..scale(localScale)
             // Moving back to the original position to draw shapes.
             ..translate(-pinchCenter.dx, -pinchCenter.dy);
           break;
         case Gesture.pan:
           context.canvas.translate(
-              offset.dx + panDistance.dx, offset.dy + panDistance.dy);
+            offset.dx + panDistance.dx,
+            offset.dy + panDistance.dy,
+          );
           break;
         // ignore: no_default_cases
         default:
-          context.canvas
-              .translate(offset.dx + normalize.dx, offset.dy + normalize.dy);
+          context.canvas.translate(
+            offset.dx + normalize.dx,
+            offset.dy + normalize.dy,
+          );
       }
     }
   }

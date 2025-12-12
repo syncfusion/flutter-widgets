@@ -1,4 +1,6 @@
-part of xlsio;
+import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart';
 
 /// Represents the SHA1 Hash Algorithm.
 // ignore: unused_element
@@ -9,11 +11,11 @@ const String _sha1Algorithm = 'SHA-1';
 const String _sha256Alogrithm = 'SHA-256';
 
 /// Represents the SH512 Hash Algorithm.
-const String _sha512Alogrithm = 'SHA-512';
+const String sha512Alogrithm = 'SHA-512';
 
 /// Gets HashAlgorithm from the Algorithm name
 // ignore: unused_element
-Hash _getAlgorithm(String algorithmName) {
+Hash getAlgorithm(String algorithmName) {
   switch (algorithmName) {
     case 'SHA-512':
       return sha512;
@@ -23,7 +25,7 @@ Hash _getAlgorithm(String algorithmName) {
 }
 
 /// Combines two arrays into one.
-List<int> _combineArray(List<int> buffer1, List<int> buffer2) {
+List<int> combineArray(List<int> buffer1, List<int> buffer2) {
   final List<int> arrResult = <int>[];
   arrResult.addAll(buffer1);
   arrResult.addAll(buffer2);
@@ -31,7 +33,7 @@ List<int> _combineArray(List<int> buffer1, List<int> buffer2) {
   return arrResult;
 }
 
-List<int> _getBytes(int value) {
+List<int> getBytes(int value) {
   final Uint8List int32Bytes = Uint8List.fromList(List<int>.filled(4, 0))
     ..buffer.asByteData().setInt32(0, value);
   return int32Bytes.toList().reversed.toList();

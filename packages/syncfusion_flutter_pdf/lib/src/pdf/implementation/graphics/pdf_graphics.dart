@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import '../drawing/drawing.dart';
 import '../general/pdf_collection.dart';
+import '../general/windows1252encoding.dart';
 import '../io/pdf_constants.dart';
 import '../io/pdf_cross_table.dart';
 import '../io/pdf_stream_writer.dart';
@@ -265,7 +266,9 @@ class PdfGraphics {
     } else {
       if (state._graphics != this) {
         throw ArgumentError.value(
-            this, 'The graphics state belongs to another graphics object');
+          this,
+          'The graphics state belongs to another graphics object',
+        );
       }
       if (_graphicsState.contains(state)) {
         while (true) {
@@ -303,8 +306,14 @@ class PdfGraphics {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
-  void drawString(String s, PdfFont font,
-      {PdfPen? pen, PdfBrush? brush, Rect? bounds, PdfStringFormat? format}) {
+  void drawString(
+    String s,
+    PdfFont font, {
+    PdfPen? pen,
+    PdfBrush? brush,
+    Rect? bounds,
+    PdfStringFormat? format,
+  }) {
     PdfRectangle layoutRectangle;
     if (bounds != null) {
       layoutRectangle = PdfRectangle.fromRect(bounds);
@@ -314,11 +323,17 @@ class PdfGraphics {
     if (pen == null && brush == null) {
       brush = PdfSolidBrush(PdfColor(0, 0, 0));
     }
-    _helper.layoutString(s, font,
-        pen: pen,
-        brush: brush,
-        layoutRectangle: layoutRectangle,
-        format: format);
+
+    s = _normalizeText(font, s);
+
+    _helper.layoutString(
+      s,
+      font,
+      pen: pen,
+      brush: brush,
+      layoutRectangle: layoutRectangle,
+      format: format,
+    );
   }
 
   /// Draws a line connecting the two points specified by the coordinate pairs.
@@ -343,8 +358,9 @@ class PdfGraphics {
     _helper.streamWriter!.appendLineSegment(point2.dx, point2.dy);
     _helper.streamWriter!.strokePath();
     _helper.endMarkContent();
-    (_helper._getResources!() as PdfResources)
-        .requireProcset(PdfDictionaryProperties.pdf);
+    (_helper._getResources!() as PdfResources).requireProcset(
+      PdfDictionaryProperties.pdf,
+    );
   }
 
   /// Draws a rectangle specified by a pen, a brush and a Rect structure.
@@ -366,12 +382,17 @@ class PdfGraphics {
   void drawRectangle({PdfPen? pen, PdfBrush? brush, required Rect bounds}) {
     _helper._beginMarkContent();
     _helper._stateControl(pen, brush, null, null);
-    _helper.streamWriter!
-        .appendRectangle(bounds.left, bounds.top, bounds.width, bounds.height);
+    _helper.streamWriter!.appendRectangle(
+      bounds.left,
+      bounds.top,
+      bounds.width,
+      bounds.height,
+    );
     _drawPath(pen, brush, PdfFillMode.winding, false);
     _helper.endMarkContent();
-    (_helper._getResources!() as PdfResources)
-        .requireProcset(PdfDictionaryProperties.pdf);
+    (_helper._getResources!() as PdfResources).requireProcset(
+      PdfDictionaryProperties.pdf,
+    );
   }
 
   /// Draws a template at the specified location and size.
@@ -434,8 +455,11 @@ class PdfGraphics {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
-  void setTransparency(double alpha,
-      {double? alphaBrush, PdfBlendMode mode = PdfBlendMode.normal}) {
+  void setTransparency(
+    double alpha, {
+    double? alphaBrush,
+    PdfBlendMode mode = PdfBlendMode.normal,
+  }) {
     if (alpha < 0 || alpha > 1) {
       ArgumentError.value(alpha, 'alpha', 'invalid alpha value');
     }
@@ -465,12 +489,18 @@ class PdfGraphics {
     if (bounds != null) {
       mode ??= PdfFillMode.winding;
       _helper.streamWriter!.appendRectangle(
-          bounds.left, bounds.top, bounds.width, bounds.height);
+        bounds.left,
+        bounds.top,
+        bounds.width,
+        bounds.height,
+      );
       _helper.streamWriter!.clipPath(mode == PdfFillMode.alternate);
     } else if (path != null) {
       mode ??= PdfPathHelper.getHelper(path).fillMode;
-      _buildUpPath(PdfPathHelper.getHelper(path).points,
-          PdfPathHelper.getHelper(path).pathTypes);
+      _buildUpPath(
+        PdfPathHelper.getHelper(path).points,
+        PdfPathHelper.getHelper(path).pathTypes,
+      );
       _helper.streamWriter!.clipPath(mode == PdfFillMode.alternate);
     }
   }
@@ -492,15 +522,25 @@ class PdfGraphics {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
-  void drawBezier(Offset startPoint, Offset firstControlPoint,
-      Offset secondControlPoint, Offset endPoint,
-      {PdfPen? pen}) {
+  void drawBezier(
+    Offset startPoint,
+    Offset firstControlPoint,
+    Offset secondControlPoint,
+    Offset endPoint, {
+    PdfPen? pen,
+  }) {
     _helper._beginMarkContent();
     _helper._stateControl(pen, null, null, null);
     final PdfStreamWriter sw = _helper.streamWriter!;
     sw.beginPath(startPoint.dx, startPoint.dy);
-    sw.appendBezierSegment(firstControlPoint.dx, firstControlPoint.dy,
-        secondControlPoint.dx, secondControlPoint.dy, endPoint.dx, endPoint.dy);
+    sw.appendBezierSegment(
+      firstControlPoint.dx,
+      firstControlPoint.dy,
+      secondControlPoint.dx,
+      secondControlPoint.dy,
+      endPoint.dx,
+      endPoint.dy,
+    );
     sw.strokePath();
     _helper.endMarkContent();
   }
@@ -528,8 +568,10 @@ class PdfGraphics {
   void drawPath(PdfPath path, {PdfPen? pen, PdfBrush? brush}) {
     _helper._beginMarkContent();
     _helper._stateControl(pen, brush, null, null);
-    _buildUpPath(PdfPathHelper.getHelper(path).points,
-        PdfPathHelper.getHelper(path).pathTypes);
+    _buildUpPath(
+      PdfPathHelper.getHelper(path).points,
+      PdfPathHelper.getHelper(path).pathTypes,
+    );
     _drawPath(pen, brush, PdfPathHelper.getHelper(path).fillMode, false);
     _helper.endMarkContent();
   }
@@ -551,15 +593,28 @@ class PdfGraphics {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
-  void drawPie(Rect bounds, double startAngle, double sweepAngle,
-      {PdfPen? pen, PdfBrush? brush}) {
+  void drawPie(
+    Rect bounds,
+    double startAngle,
+    double sweepAngle, {
+    PdfPen? pen,
+    PdfBrush? brush,
+  }) {
     if (sweepAngle != 0) {
       _helper._beginMarkContent();
       _helper._stateControl(pen, brush, null, null);
-      _constructArcPath(bounds.left, bounds.top, bounds.left + bounds.width,
-          bounds.top + bounds.height, startAngle, sweepAngle);
+      _constructArcPath(
+        bounds.left,
+        bounds.top,
+        bounds.left + bounds.width,
+        bounds.top + bounds.height,
+        startAngle,
+        sweepAngle,
+      );
       _helper.streamWriter!.appendLineSegment(
-          bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+        bounds.left + bounds.width / 2,
+        bounds.top + bounds.height / 2,
+      );
       _drawPath(pen, brush, PdfFillMode.winding, true);
       _helper.endMarkContent();
     }
@@ -585,7 +640,13 @@ class PdfGraphics {
     _helper._beginMarkContent();
     _helper._stateControl(pen, brush, null, null);
     _constructArcPath(
-        bounds.left, bounds.top, bounds.right, bounds.bottom, 0, 360);
+      bounds.left,
+      bounds.top,
+      bounds.right,
+      bounds.bottom,
+      0,
+      360,
+    );
     _drawPath(pen, brush, PdfFillMode.winding, true);
     _helper.endMarkContent();
   }
@@ -606,13 +667,23 @@ class PdfGraphics {
   /// //Dispose the document.
   /// doc.dispose();
   /// ```
-  void drawArc(Rect bounds, double startAngle, double sweepAngle,
-      {PdfPen? pen}) {
+  void drawArc(
+    Rect bounds,
+    double startAngle,
+    double sweepAngle, {
+    PdfPen? pen,
+  }) {
     if (sweepAngle != 0) {
       _helper._beginMarkContent();
       _helper._stateControl(pen, null, null, null);
-      _constructArcPath(bounds.left, bounds.top, bounds.left + bounds.width,
-          bounds.top + bounds.height, startAngle, sweepAngle);
+      _constructArcPath(
+        bounds.left,
+        bounds.top,
+        bounds.left + bounds.width,
+        bounds.top + bounds.height,
+        startAngle,
+        sweepAngle,
+      );
       _drawPath(pen, null, PdfFillMode.winding, false);
       _helper.endMarkContent();
     }
@@ -641,12 +712,16 @@ class PdfGraphics {
       return;
     }
     _helper._stateControl(pen, brush, null, null);
-    _helper.streamWriter!
-        .beginPath(points.elementAt(0).dx, points.elementAt(0).dy);
+    _helper.streamWriter!.beginPath(
+      points.elementAt(0).dx,
+      points.elementAt(0).dy,
+    );
 
     for (int i = 1; i < points.length; ++i) {
-      _helper.streamWriter!
-          .appendLineSegment(points.elementAt(i).dx, points.elementAt(i).dy);
+      _helper.streamWriter!.appendLineSegment(
+        points.elementAt(i).dx,
+        points.elementAt(i).dy,
+      );
     }
     _drawPath(pen, brush, PdfFillMode.winding, true);
     _helper.endMarkContent();
@@ -690,17 +765,23 @@ class PdfGraphics {
     _helper._previousTextScaling = -100.0;
     _helper.clipBounds = PdfRectangle(0, 0, size.width, size.height);
     _graphicsState = <PdfGraphicsState>[];
-    (_helper._getResources!() as PdfResources)
-        .requireProcset(PdfDictionaryProperties.pdf);
+    (_helper._getResources!() as PdfResources).requireProcset(
+      PdfDictionaryProperties.pdf,
+    );
   }
 
   void _drawImage(PdfImage image, Rect rectangle) {
     _helper._beginMarkContent();
     final PdfRectangle bounds = PdfRectangle.fromRect(
-        (rectangle.width <= 0 && rectangle.height <= 0)
-            ? Rect.fromLTWH(rectangle.left, rectangle.top, image.width * 0.75,
-                image.height * 0.75)
-            : rectangle);
+      (rectangle.width <= 0 && rectangle.height <= 0)
+          ? Rect.fromLTWH(
+            rectangle.left,
+            rectangle.top,
+            image.width * 0.75,
+            image.height * 0.75,
+          )
+          : rectangle,
+    );
     PdfGraphicsState? beforeOrientation;
     final int angle = PdfImageHelper.getJpegOrientationAngle(image)!.toInt();
     if (angle > 0) {
@@ -756,21 +837,30 @@ class PdfGraphics {
       restore(beforeOrientation);
     }
     _helper.endMarkContent();
-    (_helper._getResources!() as PdfResources)
-        .requireProcset(PdfDictionaryProperties.grayScaleImage);
-    (_helper._getResources!() as PdfResources)
-        .requireProcset(PdfDictionaryProperties.colorImage);
-    (_helper._getResources!() as PdfResources)
-        .requireProcset(PdfDictionaryProperties.indexedImage);
-    (_helper._getResources!() as PdfResources)
-        .requireProcset(PdfDictionaryProperties.text);
+    (_helper._getResources!() as PdfResources).requireProcset(
+      PdfDictionaryProperties.grayScaleImage,
+    );
+    (_helper._getResources!() as PdfResources).requireProcset(
+      PdfDictionaryProperties.colorImage,
+    );
+    (_helper._getResources!() as PdfResources).requireProcset(
+      PdfDictionaryProperties.indexedImage,
+    );
+    (_helper._getResources!() as PdfResources).requireProcset(
+      PdfDictionaryProperties.text,
+    );
   }
 
   void _drawPath(
-      PdfPen? pen, PdfBrush? brush, PdfFillMode fillMode, bool needClosing) {
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfFillMode fillMode,
+    bool needClosing,
+  ) {
     final bool isPen =
         pen != null && PdfColorHelper.getHelper(pen.color).isFilled;
-    final bool isBrush = brush != null &&
+    final bool isBrush =
+        brush != null &&
         PdfColorHelper.getHelper((brush as PdfSolidBrush).color).isFilled;
     final bool isEvenOdd = fillMode == PdfFillMode.alternate;
     if (isPen && isBrush) {
@@ -803,8 +893,8 @@ class PdfGraphics {
     if (_helper.layer != null &&
         PdfPageHelper.getHelper(_helper.page!).document != null &&
         PdfDocumentHelper.getHelper(
-                    PdfPageHelper.getHelper(_helper.page!).document!)
-                .conformanceLevel !=
+              PdfPageHelper.getHelper(_helper.page!).document!,
+            ).conformanceLevel !=
             PdfConformanceLevel.none &&
         PdfGraphicsHelper.getHelper(template.graphics!)._currentFont != null &&
         (PdfGraphicsHelper.getHelper(template.graphics!)._currentFont
@@ -812,60 +902,72 @@ class PdfGraphics {
             PdfGraphicsHelper.getHelper(template.graphics!)._currentFont
                 is PdfCjkStandardFont)) {
       throw ArgumentError(
-          'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(_helper.page!).document!).conformanceLevel} document.');
+        'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(_helper.page!).document!).conformanceLevel} document.',
+      );
     } else if (_helper.layer != null &&
         PdfPageHelper.getHelper(_helper.page!).document != null &&
         PdfDocumentHelper.getHelper(
-                    PdfPageHelper.getHelper(_helper.page!).document!)
-                .conformanceLevel ==
+              PdfPageHelper.getHelper(_helper.page!).document!,
+            ).conformanceLevel ==
             PdfConformanceLevel.a1b &&
         PdfGraphicsHelper.getHelper(template.graphics!)._currentFont != null &&
         PdfGraphicsHelper.getHelper(template.graphics!)._currentFont
             is PdfTrueTypeFont) {
       PdfTrueTypeFontHelper.getHelper(
-              PdfGraphicsHelper.getHelper(template.graphics!)._currentFont!
-                  as PdfTrueTypeFont)
-          .fontInternal
-          .initializeCidSet();
+        PdfGraphicsHelper.getHelper(template.graphics!)._currentFont!
+            as PdfTrueTypeFont,
+      ).fontInternal.initializeCidSet();
     }
     if ((_helper.layer != null || _helper._documentLayer != null) &&
         PdfTemplateHelper.getHelper(template).isLoadedPageTemplate) {
       PdfCrossTable? crossTable;
       if (PdfPageHelper.getHelper(_helper.page!).isLoadedPage) {
         if (PdfPageHelper.getHelper(_helper.page!).section != null) {
-          crossTable = PdfDocumentHelper.getHelper(PdfSectionHelper.getHelper(
-                      PdfPageHelper.getHelper(_helper.page!).section!)
-                  .document!)
-              .crossTable;
+          crossTable =
+              PdfDocumentHelper.getHelper(
+                PdfSectionHelper.getHelper(
+                  PdfPageHelper.getHelper(_helper.page!).section!,
+                ).document!,
+              ).crossTable;
         } else {
-          crossTable = PdfDocumentHelper.getHelper(
-                  PdfPageHelper.getHelper(_helper.page!).document!)
-              .crossTable;
+          crossTable =
+              PdfDocumentHelper.getHelper(
+                PdfPageHelper.getHelper(_helper.page!).document!,
+              ).crossTable;
         }
       } else {
         if (PdfPageHelper.getHelper(_helper.page!).section != null) {
-          crossTable = (PdfSectionHelper.getHelper(
-                          PdfPageHelper.getHelper(_helper.page!).section!)
-                      .document !=
-                  null)
-              ? PdfDocumentHelper.getHelper(PdfSectionHelper.getHelper(
-                          PdfPageHelper.getHelper(_helper.page!).section!)
-                      .document!)
-                  .crossTable
-              : PdfDocumentHelper.getHelper(PdfSectionHelper.getHelper(
-                          PdfPageHelper.getHelper(_helper.page!).section!)
-                      .pdfDocument!)
-                  .crossTable;
+          crossTable =
+              (PdfSectionHelper.getHelper(
+                        PdfPageHelper.getHelper(_helper.page!).section!,
+                      ).document !=
+                      null)
+                  ? PdfDocumentHelper.getHelper(
+                    PdfSectionHelper.getHelper(
+                      PdfPageHelper.getHelper(_helper.page!).section!,
+                    ).document!,
+                  ).crossTable
+                  : PdfDocumentHelper.getHelper(
+                    PdfSectionHelper.getHelper(
+                      PdfPageHelper.getHelper(_helper.page!).section!,
+                    ).pdfDocument!,
+                  ).crossTable;
         } else {
-          crossTable = PdfDocumentHelper.getHelper(
-                  PdfPageHelper.getHelper(_helper.page!).document!)
-              .crossTable;
+          crossTable =
+              PdfDocumentHelper.getHelper(
+                PdfPageHelper.getHelper(_helper.page!).document!,
+              ).crossTable;
         }
       }
       if ((PdfTemplateHelper.getHelper(template).isReadonly) ||
           (PdfTemplateHelper.getHelper(template).isLoadedPageTemplate)) {
         PdfTemplateHelper.getHelper(template).cloneResources(crossTable);
       }
+    }
+    if (PdfTemplateHelper.getHelper(template).origin.dx > 0 &&
+        PdfTemplateHelper.getHelper(template).origin.dy > 0 &&
+        template.size > size) {
+      size = template.size;
     }
     final double scaleX =
         (template.size.width > 0) ? size.width / template.size.width : 1;
@@ -886,17 +988,21 @@ class PdfGraphics {
         PdfArray? cropBox;
         PdfArray? mediaBox;
         if (dictionary[PdfDictionaryProperties.cropBox] is PdfReferenceHolder) {
-          cropBox = (dictionary[PdfDictionaryProperties.cropBox]!
-                  as PdfReferenceHolder)
-              .object as PdfArray?;
+          cropBox =
+              (dictionary[PdfDictionaryProperties.cropBox]!
+                          as PdfReferenceHolder)
+                      .object
+                  as PdfArray?;
         } else {
           cropBox = dictionary[PdfDictionaryProperties.cropBox] as PdfArray?;
         }
         if (dictionary[PdfDictionaryProperties.mediaBox]
             is PdfReferenceHolder) {
-          mediaBox = (dictionary[PdfDictionaryProperties.mediaBox]!
-                  as PdfReferenceHolder)
-              .object as PdfArray?;
+          mediaBox =
+              (dictionary[PdfDictionaryProperties.mediaBox]!
+                          as PdfReferenceHolder)
+                      .object
+                  as PdfArray?;
         } else {
           mediaBox = dictionary[PdfDictionaryProperties.mediaBox] as PdfArray?;
         }
@@ -910,9 +1016,11 @@ class PdfGraphics {
         PdfArray? mBox;
         if (dictionary[PdfDictionaryProperties.mediaBox]
             is PdfReferenceHolder) {
-          mBox = (dictionary[PdfDictionaryProperties.mediaBox]!
-                  as PdfReferenceHolder)
-              .object as PdfArray?;
+          mBox =
+              (dictionary[PdfDictionaryProperties.mediaBox]!
+                          as PdfReferenceHolder)
+                      .object
+                  as PdfArray?;
         } else {
           mBox = dictionary[PdfDictionaryProperties.mediaBox] as PdfArray?;
         }
@@ -933,7 +1041,17 @@ class PdfGraphics {
         matrix.translate(location.dx, -(location.dy + 0));
       }
     } else {
-      matrix.translate(location.dx, -(location.dy + size.height));
+      if (PdfTemplateHelper.getHelper(template).origin.dx > 0 &&
+          PdfTemplateHelper.getHelper(template).origin.dy > 0 &&
+          location.dx == 0 &&
+          location.dy == 0) {
+        matrix.translate(
+          location.dx - PdfTemplateHelper.getHelper(template).origin.dx,
+          -(location.dy + size.height),
+        );
+      } else {
+        matrix.translate(location.dx, -(location.dy + size.height));
+      }
     }
     if (hasScale) {
       matrix.scale(scaleX, scaleY);
@@ -948,20 +1066,29 @@ class PdfGraphics {
     final PdfGraphics? g = template.graphics;
 
     if (g != null) {
-      for (final Object? fieldInfo in PdfObjectCollectionHelper.getHelper(
-              PdfGraphicsHelper.getHelper(g).autoFields!)
-          .list) {
+      for (final Object? fieldInfo
+          in PdfObjectCollectionHelper.getHelper(
+            PdfGraphicsHelper.getHelper(g).autoFields!,
+          ).list) {
         if (fieldInfo is PdfAutomaticFieldInfo) {
           final PdfPoint newLocation = PdfPoint(
-              fieldInfo.location.x + location.dx,
-              fieldInfo.location.y + location.dy);
+            fieldInfo.location.x + location.dx,
+            fieldInfo.location.y + location.dy,
+          );
           final double scalingX =
               template.size.width == 0 ? 0 : size.width / template.size.width;
-          final double scalingY = template.size.height == 0
-              ? 0
-              : size.height / template.size.height;
-          _helper.autoFields!.add(PdfAutomaticFieldInfo(
-              fieldInfo.field, newLocation, scalingX, scalingY));
+          final double scalingY =
+              template.size.height == 0
+                  ? 0
+                  : size.height / template.size.height;
+          _helper.autoFields!.add(
+            PdfAutomaticFieldInfo(
+              fieldInfo.field,
+              newLocation,
+              scalingX,
+              scalingY,
+            ),
+          );
           PdfPageHelper.getHelper(_helper.page!).dictionary!.modify();
         }
       }
@@ -999,14 +1126,25 @@ class PdfGraphics {
 
         case PathPointType.bezier3:
           Offset? p2, p3;
-          final Map<String, dynamic> returnValue =
-              _getBezierPoints(points, types, i, p2, p3);
+          final Map<String, dynamic> returnValue = _getBezierPoints(
+            points,
+            types,
+            i,
+            p2,
+            p3,
+          );
           i = returnValue['i'] as int;
           final List<Offset> p = returnValue['points'] as List<Offset>;
           p2 = p.first;
           p3 = p.last;
           _helper.streamWriter!.appendBezierSegment(
-              point.dx, point.dy, p2.dx, p2.dy, p3.dx, p3.dy);
+            point.dx,
+            point.dy,
+            p2.dx,
+            p2.dy,
+            p3.dx,
+            p3.dy,
+          );
           break;
 
         case PathPointType.line:
@@ -1016,16 +1154,17 @@ class PdfGraphics {
         case PathPointType.closeSubpath:
           _helper.streamWriter!.closePath();
           break;
-
-        // ignore: no_default_cases
-        default:
-          throw ArgumentError('Incorrect path formation.');
       }
     }
   }
 
-  Map<String, dynamic> _getBezierPoints(List<Offset> points,
-      List<PathPointType> types, int i, Offset? p2, Offset? p3) {
+  Map<String, dynamic> _getBezierPoints(
+    List<Offset> points,
+    List<PathPointType> types,
+    int i,
+    Offset? p2,
+    Offset? p3,
+  ) {
     const String errorMsg = 'Malforming path.';
     ++i;
     if (types[i] == PathPointType.bezier3) {
@@ -1041,14 +1180,26 @@ class PdfGraphics {
     }
     return <String, dynamic>{
       'i': i,
-      'points': <Offset>[p2, p3]
+      'points': <Offset>[p2, p3],
     };
   }
 
-  void _constructArcPath(double x1, double y1, double x2, double y2,
-      double startAng, double sweepAngle) {
-    final List<List<double>> points =
-        _getBezierArcPoints(x1, y1, x2, y2, startAng, sweepAngle);
+  void _constructArcPath(
+    double x1,
+    double y1,
+    double x2,
+    double y2,
+    double startAng,
+    double sweepAngle,
+  ) {
+    final List<List<double>> points = _getBezierArcPoints(
+      x1,
+      y1,
+      x2,
+      y2,
+      startAng,
+      sweepAngle,
+    );
     if (points.isEmpty) {
       return;
     }
@@ -1056,13 +1207,25 @@ class PdfGraphics {
     _helper.streamWriter!.beginPath(pt[0], pt[1]);
     for (int i = 0; i < points.length; ++i) {
       pt = points.elementAt(i);
-      _helper.streamWriter!
-          .appendBezierSegment(pt[2], pt[3], pt[4], pt[5], pt[6], pt[7]);
+      _helper.streamWriter!.appendBezierSegment(
+        pt[2],
+        pt[3],
+        pt[4],
+        pt[5],
+        pt[6],
+        pt[7],
+      );
     }
   }
 
-  static List<List<double>> _getBezierArcPoints(double x1, double y1, double x2,
-      double y2, double startAng, double extent) {
+  static List<List<double>> _getBezierArcPoints(
+    double x1,
+    double y1,
+    double x2,
+    double y2,
+    double startAng,
+    double extent,
+  ) {
     if (x1 > x2) {
       double tmp;
       tmp = x1;
@@ -1109,7 +1272,7 @@ class PdfGraphics {
           xCen + rx * (cos1 + kappa * sin1),
           yCen - ry * (sin1 - kappa * cos1),
           xCen + rx * cos1,
-          yCen - ry * sin1
+          yCen - ry * sin1,
         ]);
       } else {
         pointList.add(<double>[
@@ -1120,7 +1283,7 @@ class PdfGraphics {
           xCen + rx * (cos1 - kappa * sin1),
           yCen - ry * (sin1 + kappa * cos1),
           xCen + rx * cos1,
-          yCen - ry * sin1
+          yCen - ry * sin1,
         ]);
       }
     }
@@ -1128,9 +1291,25 @@ class PdfGraphics {
   }
 
   PdfTransformationMatrix _getSkewTransform(
-      double angleX, double angleY, PdfTransformationMatrix input) {
+    double angleX,
+    double angleY,
+    PdfTransformationMatrix input,
+  ) {
     input.skew(-angleX, -angleY);
     return input;
+  }
+
+  String _normalizeText(PdfFont font, String text) {
+    if (font is PdfStandardFont) {
+      text = _convert(text);
+    }
+    return text;
+  }
+
+  String _convert(String text) {
+    final Windows1252Encoding encoding = Windows1252Encoding();
+    final List<int> encodedBytes = encoding.getBytes(text);
+    return String.fromCharCodes(encodedBytes);
   }
 }
 
@@ -1208,13 +1387,13 @@ class _TextRenderingMode {
   static const int clipFlag = 4;
 }
 
-class _PdfAutomaticFieldInfoCollection extends PdfObjectCollection {
+class PdfAutomaticFieldInfoCollection extends PdfObjectCollection {
   // constructor
-  _PdfAutomaticFieldInfoCollection() : super() {
-    _helper = _PdfAutomaticFieldInfoCollectionHelper(this);
+  PdfAutomaticFieldInfoCollection() : super() {
+    _helper = PdfAutomaticFieldInfoCollectionHelper(this);
   }
 
-  late _PdfAutomaticFieldInfoCollectionHelper _helper;
+  late PdfAutomaticFieldInfoCollectionHelper _helper;
 
   // implementaion
   int add(PdfAutomaticFieldInfo fieldInfo) {
@@ -1222,10 +1401,10 @@ class _PdfAutomaticFieldInfoCollection extends PdfObjectCollection {
   }
 }
 
-class _PdfAutomaticFieldInfoCollectionHelper extends PdfObjectCollectionHelper {
+class PdfAutomaticFieldInfoCollectionHelper extends PdfObjectCollectionHelper {
   // constructor
-  _PdfAutomaticFieldInfoCollectionHelper(this.base) : super(base);
-  _PdfAutomaticFieldInfoCollection base;
+  PdfAutomaticFieldInfoCollectionHelper(this.base) : super(base);
+  PdfAutomaticFieldInfoCollection base;
 
   // implementaion
   int add(PdfAutomaticFieldInfo fieldInfo) {
@@ -1283,7 +1462,7 @@ class PdfGraphicsHelper {
   PdfBrush? _currentBrush;
   PdfTransformationMatrix? _transformationMatrix;
   PdfLayer? _documentLayer;
-  _PdfAutomaticFieldInfoCollection? _automaticFields;
+  PdfAutomaticFieldInfoCollection? _automaticFields;
   Map<_TransparencyData, PdfTransparency>? _trasparencies;
   Function? _getResources;
   double? _previousTextScaling;
@@ -1291,7 +1470,7 @@ class PdfGraphicsHelper {
     PdfColorSpace.rgb: 'RGB',
     PdfColorSpace.cmyk: 'CMYK',
     PdfColorSpace.grayScale: 'GrayScale',
-    PdfColorSpace.indexed: 'Indexed'
+    PdfColorSpace.indexed: 'Indexed',
   };
   PdfPen? _currentPen;
   bool _isItalic = false;
@@ -1312,8 +1491,8 @@ class PdfGraphicsHelper {
   }
 
   /// Gets the automatic fields.
-  _PdfAutomaticFieldInfoCollection? get autoFields {
-    _automaticFields ??= _PdfAutomaticFieldInfoCollection();
+  PdfAutomaticFieldInfoCollection? get autoFields {
+    _automaticFields ??= PdfAutomaticFieldInfoCollection();
     return _automaticFields;
   }
 
@@ -1321,19 +1500,27 @@ class PdfGraphicsHelper {
   void applyTransparency(double alpha, double alphaBrush, PdfBlendMode mode) {
     _trasparencies ??= <_TransparencyData, PdfTransparency>{};
     PdfTransparency? transparency;
-    final _TransparencyData transparencyData =
-        _TransparencyData(alpha, alphaBrush, mode);
+    final _TransparencyData transparencyData = _TransparencyData(
+      alpha,
+      alphaBrush,
+      mode,
+    );
     if (_trasparencies!.containsKey(transparencyData)) {
       transparency = _trasparencies![transparencyData];
     }
     if (transparency == null) {
-      transparency = PdfTransparency(alpha, alphaBrush, mode,
-          conformance: layer != null &&
-              PdfPageHelper.getHelper(page!).document != null &&
-              PdfDocumentHelper.getHelper(
-                          PdfPageHelper.getHelper(page!).document!)
-                      .conformanceLevel ==
-                  PdfConformanceLevel.a1b);
+      transparency = PdfTransparency(
+        alpha,
+        alphaBrush,
+        mode,
+        conformance:
+            layer != null &&
+            PdfPageHelper.getHelper(page!).document != null &&
+            PdfDocumentHelper.getHelper(
+                  PdfPageHelper.getHelper(page!).document!,
+                ).conformanceLevel ==
+                PdfConformanceLevel.a1b,
+      );
       _trasparencies![transparencyData] = transparency;
     }
     final PdfResources resources = _getResources!() as PdfResources;
@@ -1345,18 +1532,30 @@ class PdfGraphicsHelper {
   }
 
   /// internal method
-  void layoutString(String s, PdfFont font,
-      {PdfPen? pen,
-      PdfBrush? brush,
-      required PdfRectangle layoutRectangle,
-      PdfStringFormat? format}) {
+  void layoutString(
+    String s,
+    PdfFont font, {
+    PdfPen? pen,
+    PdfBrush? brush,
+    required PdfRectangle layoutRectangle,
+    PdfStringFormat? format,
+  }) {
     final PdfStringLayouter layouter = PdfStringLayouter();
     PdfStringLayoutResult result;
-    result = layouter.layout(s, font, format,
-        width: layoutRectangle.width, height: layoutRectangle.height);
+    result = layouter.layout(
+      s,
+      font,
+      format,
+      width: layoutRectangle.width,
+      height: layoutRectangle.height,
+    );
     if (!result.isEmpty) {
       final PdfRectangle rectangle = checkCorrectLayoutRectangle(
-          result.size, layoutRectangle.x, layoutRectangle.y, format);
+        result.size,
+        layoutRectangle.x,
+        layoutRectangle.y,
+        format,
+      );
       if (layoutRectangle.width <= 0) {
         layoutRectangle.x = rectangle.x;
         layoutRectangle.width = rectangle.width;
@@ -1370,74 +1569,86 @@ class PdfGraphicsHelper {
       }
       drawStringLayoutResult(result, font, pen, brush, layoutRectangle, format);
       stringLayoutResult = result;
-      (_getResources!() as PdfResources)
-          .requireProcset(PdfDictionaryProperties.text);
+      (_getResources!() as PdfResources).requireProcset(
+        PdfDictionaryProperties.text,
+      );
     }
   }
 
   /// internal method
   void drawStringLayoutResult(
-      PdfStringLayoutResult result,
-      PdfFont font,
-      PdfPen? pen,
-      PdfBrush? brush,
-      PdfRectangle layoutRectangle,
-      PdfStringFormat? format) {
+    PdfStringLayoutResult result,
+    PdfFont font,
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfRectangle layoutRectangle,
+    PdfStringFormat? format,
+  ) {
     if (!result.isEmpty) {
       _beginMarkContent();
       PdfGraphicsState? gState;
       if (font is PdfTrueTypeFont &&
           PdfTrueTypeFontHelper.getHelper(font).fontInternal.ttfMetrics !=
               null &&
-          !PdfTrueTypeFontHelper.getHelper(font)
-              .fontInternal
-              .ttfMetrics!
-              .isItalic &&
+          !PdfTrueTypeFontHelper.getHelper(
+            font,
+          ).fontInternal.ttfMetrics!.isItalic &&
           PdfFontHelper.getHelper(font).isItalic) {
         gState = base.save();
         _isItalic = true;
       }
       _applyStringSettings(font, pen, brush, format, layoutRectangle);
-      final double textScaling = format != null
-          ? PdfStringFormatHelper.getHelper(format).scalingFactor
-          : 100.0;
+      final double textScaling =
+          format != null
+              ? PdfStringFormatHelper.getHelper(format).scalingFactor
+              : 100.0;
       if (textScaling != _previousTextScaling) {
         streamWriter!.setTextScaling(textScaling);
         _previousTextScaling = textScaling;
       }
       double verticalAlignShift = getTextVerticalAlignShift(
-          result.size.height, layoutRectangle.height, format);
+        result.size.height,
+        layoutRectangle.height,
+        format,
+      );
       double? height;
       if (_isItalic) {
-        height = (format == null || format.lineSpacing == 0)
-            ? font.height
-            : format.lineSpacing + font.height;
-        final bool subScript = format != null &&
+        height =
+            (format == null || format.lineSpacing == 0)
+                ? font.height
+                : format.lineSpacing + font.height;
+        final bool subScript =
+            format != null &&
             format.subSuperscript == PdfSubSuperscript.subscript;
-        final double shift = subScript
-            ? height -
-                (font.height +
-                    PdfFontHelper.getHelper(font).metrics!.getDescent(format))
-            : (height -
-                PdfFontHelper.getHelper(font).metrics!.getAscent(format));
-        base.translateTransform(layoutRectangle.left + font.size / 5,
-            layoutRectangle.top - shift + verticalAlignShift);
+        final double shift =
+            subScript
+                ? height -
+                    (font.height +
+                        PdfFontHelper.getHelper(
+                          font,
+                        ).metrics!.getDescent(format))
+                : (height -
+                    PdfFontHelper.getHelper(font).metrics!.getAscent(format));
+        base.translateTransform(
+          layoutRectangle.left + font.size / 5,
+          layoutRectangle.top - shift + verticalAlignShift,
+        );
         base.skewTransform(0, -11);
       }
       if (!_isItalic) {
         final PdfTransformationMatrix matrix = PdfTransformationMatrix();
         matrix.translate(
-            layoutRectangle.x,
-            (-(layoutRectangle.y + font.height) -
-                    (PdfFontHelper.getHelper(font).metrics!.getDescent(format) >
-                            0
-                        ? -PdfFontHelper.getHelper(font)
-                            .metrics!
-                            .getDescent(format)
-                        : PdfFontHelper.getHelper(font)
-                            .metrics!
-                            .getDescent(format))) -
-                verticalAlignShift);
+          layoutRectangle.x,
+          (-(layoutRectangle.y + font.height) -
+                  (PdfFontHelper.getHelper(font).metrics!.getDescent(format) > 0
+                      ? -PdfFontHelper.getHelper(
+                        font,
+                      ).metrics!.getDescent(format)
+                      : PdfFontHelper.getHelper(
+                        font,
+                      ).metrics!.getDescent(format))) -
+              verticalAlignShift,
+        );
         streamWriter!.modifyTransformationMatrix(matrix);
       } else {
         streamWriter!.startNextLine(0, 0);
@@ -1455,8 +1666,10 @@ class PdfGraphicsHelper {
       }
       _drawLayoutResult(result, font, format, layoutRectangle);
       if (verticalAlignShift != 0) {
-        streamWriter!
-            .startNextLine(0, -(verticalAlignShift - result.lineHeight));
+        streamWriter!.startNextLine(
+          0,
+          -(verticalAlignShift - result.lineHeight),
+        );
       }
       streamWriter!.endText();
       if (gState != null) {
@@ -1464,40 +1677,62 @@ class PdfGraphicsHelper {
         _isItalic = false;
       }
       _underlineStrikeoutText(
-          pen, brush, result, font, layoutRectangle, format);
+        pen,
+        brush,
+        result,
+        font,
+        layoutRectangle,
+        format,
+      );
       endMarkContent();
     }
   }
 
-  void _drawLayoutResult(PdfStringLayoutResult result, PdfFont font,
-      PdfStringFormat? format, PdfRectangle layoutRectangle) {
+  void _drawLayoutResult(
+    PdfStringLayoutResult result,
+    PdfFont font,
+    PdfStringFormat? format,
+    PdfRectangle layoutRectangle,
+  ) {
     bool? unicode = false;
     if (font is PdfTrueTypeFont) {
       unicode = PdfTrueTypeFontHelper.getHelper(font).unicode;
     }
     final List<LineInfo> lines = result.lines!;
-    final double height = (format == null || format.lineSpacing == 0)
-        ? font.height
-        : format.lineSpacing + font.height;
+    final double height =
+        (format == null || format.lineSpacing == 0)
+            ? font.height
+            : format.lineSpacing + font.height;
     for (int i = 0; i < lines.length; i++) {
       final LineInfo lineInfo = lines[i];
       final String? line = lineInfo.text;
       final double? lineWidth = lineInfo.width;
       if ((line == null || line.isEmpty) && !_isItalic) {
         final double verticalAlignShift = getTextVerticalAlignShift(
-            result.size.height, layoutRectangle.height, format);
+          result.size.height,
+          layoutRectangle.height,
+          format,
+        );
         final PdfTransformationMatrix matrix = PdfTransformationMatrix();
-        double baseline = (-(layoutRectangle.y + font.height) -
+        double baseline =
+            (-(layoutRectangle.y + font.height) -
                 PdfFontHelper.getHelper(font).metrics!.getDescent(format)) -
             verticalAlignShift;
         baseline -= height * (i + 1);
         matrix.translate(layoutRectangle.x, baseline);
         streamWriter!.modifyTransformationMatrix(matrix);
       } else {
-        double horizontalAlignShift =
-            _getHorizontalAlignShift(lineWidth, layoutRectangle.width, format);
-        final double? lineIndent =
-            _getLineIndent(lineInfo, format, layoutRectangle, i == 0);
+        double horizontalAlignShift = _getHorizontalAlignShift(
+          lineWidth,
+          layoutRectangle.width,
+          format,
+        );
+        final double? lineIndent = _getLineIndent(
+          lineInfo,
+          format,
+          layoutRectangle,
+          i == 0,
+        );
         horizontalAlignShift += (!_rightToLeft(format)) ? lineIndent! : 0;
 
         if (horizontalAlignShift != 0) {
@@ -1514,9 +1749,13 @@ class PdfGraphicsHelper {
         if (i + 1 != lines.length) {
           if (!_isItalic) {
             final double verticalAlignShift = getTextVerticalAlignShift(
-                result.size.height, layoutRectangle.height, format);
+              result.size.height,
+              layoutRectangle.height,
+              format,
+            );
             final PdfTransformationMatrix matrix = PdfTransformationMatrix();
-            double baseline = (-(layoutRectangle.y + font.height) -
+            double baseline =
+                (-(layoutRectangle.y + font.height) -
                     PdfFontHelper.getHelper(font).metrics!.getDescent(format)) -
                 verticalAlignShift;
             baseline -= height * (i + 1);
@@ -1524,14 +1763,17 @@ class PdfGraphicsHelper {
             streamWriter!.modifyTransformationMatrix(matrix);
           } else {
             //tan(11) = 0.19486, theta value for italic skewAngle (11 degree).
-            streamWriter!
-                .startNextLine(font.height * 0.19486 - horizontalAlignShift, 0);
+            streamWriter!.startNextLine(
+              font.height * 0.19486 - horizontalAlignShift,
+              0,
+            );
           }
         }
       }
     }
-    (_getResources!() as PdfResources)
-        .requireProcset(PdfDictionaryProperties.text);
+    (_getResources!() as PdfResources).requireProcset(
+      PdfDictionaryProperties.text,
+    );
   }
 
   bool _rightToLeft(PdfStringFormat? format) {
@@ -1544,7 +1786,10 @@ class PdfGraphicsHelper {
   }
 
   double _getHorizontalAlignShift(
-      double? lineWidth, double boundsWidth, PdfStringFormat? format) {
+    double? lineWidth,
+    double boundsWidth,
+    PdfStringFormat? format,
+  ) {
     double shift = 0;
     if (boundsWidth >= 0 &&
         format != null &&
@@ -1564,16 +1809,24 @@ class PdfGraphicsHelper {
     return shift;
   }
 
-  void _drawAsciiLine(LineInfo lineInfo, PdfRectangle layoutRectangle,
-      PdfFont font, PdfStringFormat? format) {
+  void _drawAsciiLine(
+    LineInfo lineInfo,
+    PdfRectangle layoutRectangle,
+    PdfFont font,
+    PdfStringFormat? format,
+  ) {
     _justifyLine(lineInfo, layoutRectangle.width, format);
     final PdfString str = PdfString(lineInfo.text!);
     str.isAsciiEncode = true;
     streamWriter!.showNextLineText(str);
   }
 
-  void _drawCjkString(LineInfo lineInfo, PdfRectangle layoutRectangle,
-      PdfFont font, PdfStringFormat? format) {
+  void _drawCjkString(
+    LineInfo lineInfo,
+    PdfRectangle layoutRectangle,
+    PdfFont font,
+    PdfStringFormat? format,
+  ) {
     _justifyLine(lineInfo, layoutRectangle.width, format);
     final String line = lineInfo.text!;
     final List<int> str = _getCjkString(line);
@@ -1590,8 +1843,9 @@ class PdfGraphicsHelper {
     if (format != null) {
       internalFont.setSymbols(line, ttfReader.internalUsedChars);
     } else {
-      PdfTrueTypeFontHelper.getHelper(font)
-          .setSymbols(text, ttfReader.internalUsedChars);
+      PdfTrueTypeFontHelper.getHelper(
+        font,
+      ).setSymbols(text, ttfReader.internalUsedChars);
     }
     ttfReader.internalUsedChars = null;
     final List<int> bytes = PdfString.toUnicodeArray(text);
@@ -1599,23 +1853,34 @@ class PdfGraphicsHelper {
     return text;
   }
 
-  void _drawUnicodeLine(LineInfo lineInfo, PdfRectangle layoutRectangle,
-      PdfFont font, PdfStringFormat? format) {
+  void _drawUnicodeLine(
+    LineInfo lineInfo,
+    PdfRectangle layoutRectangle,
+    PdfFont font,
+    PdfStringFormat? format,
+  ) {
     final String? line = lineInfo.text;
-    final bool useWordSpace = format != null &&
+    final bool useWordSpace =
+        format != null &&
         (format.wordSpacing != 0 ||
             format.alignment == PdfTextAlignment.justify);
     final PdfTrueTypeFont ttfFont = font as PdfTrueTypeFont;
-    final double wordSpacing =
-        _justifyLine(lineInfo, layoutRectangle.width, format);
+    final double wordSpacing = _justifyLine(
+      lineInfo,
+      layoutRectangle.width,
+      format,
+    );
     if (format != null && format.textDirection != PdfTextDirection.none) {
       final ArabicShapeRenderer renderer = ArabicShapeRenderer();
       final String txt = renderer.shape(line!.split(''), 0);
       final Bidi bidi = Bidi();
       bidi.isVisualOrder = false;
-      final String result = bidi.getLogicalToVisualString(txt,
-              format.textDirection == PdfTextDirection.rightToLeft)['rtlText']
-          as String;
+      final String result =
+          bidi.getLogicalToVisualString(
+                txt,
+                format.textDirection == PdfTextDirection.rightToLeft,
+              )['rtlText']
+              as String;
       bidi.isVisualOrder = true;
       final List<String> blocks = <String>[];
       if (useWordSpace) {
@@ -1645,8 +1910,13 @@ class PdfGraphicsHelper {
     }
   }
 
-  void _drawUnicodeBlocks(List<String> blocks, List<String> words,
-      PdfTrueTypeFont font, PdfStringFormat? format, double wordSpacing) {
+  void _drawUnicodeBlocks(
+    List<String> blocks,
+    List<String> words,
+    PdfTrueTypeFont font,
+    PdfStringFormat? format,
+    double wordSpacing,
+  ) {
     streamWriter!.startNextLine();
     double x = 0;
     double xShift = 0;
@@ -1662,7 +1932,7 @@ class PdfGraphicsHelper {
       }
       double spaceWidth =
           PdfTrueTypeFontHelper.getHelper(font).getCharWidth(' ', format) +
-              wordSpacing;
+          wordSpacing;
       final double characterSpacing =
           format != null ? format.characterSpacing : 0;
       final double wordSpace =
@@ -1700,7 +1970,10 @@ class PdfGraphicsHelper {
   }
 
   dynamic _breakUnicodeLine(
-      String line, PdfTrueTypeFont ttfFont, List<String>? words) {
+    String line,
+    PdfTrueTypeFont ttfFont,
+    List<String>? words,
+  ) {
     words = line.split(' ');
     final List<String> tokens = <String>[];
     for (int i = 0; i < words.length; i++) {
@@ -1720,7 +1993,10 @@ class PdfGraphicsHelper {
   }
 
   int _getTextRenderingMode(
-      PdfPen? pen, PdfBrush? brush, PdfStringFormat? format) {
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfStringFormat? format,
+  ) {
     int tm = _TextRenderingMode.none;
     if (pen != null && brush != null) {
       tm = _TextRenderingMode.fillStroke;
@@ -1735,16 +2011,20 @@ class PdfGraphicsHelper {
     return tm;
   }
 
-  void _applyStringSettings(PdfFont font, PdfPen? pen, PdfBrush? brush,
-      PdfStringFormat? format, PdfRectangle bounds) {
+  void _applyStringSettings(
+    PdfFont font,
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfStringFormat? format,
+    PdfRectangle bounds,
+  ) {
     int renderingMode = _getTextRenderingMode(pen, brush, format);
     bool setLineWidth = false;
     if (font is PdfTrueTypeFont &&
         PdfTrueTypeFontHelper.getHelper(font).fontInternal.ttfMetrics != null &&
-        !PdfTrueTypeFontHelper.getHelper(font)
-            .fontInternal
-            .ttfMetrics!
-            .isBold &&
+        !PdfTrueTypeFontHelper.getHelper(
+          font,
+        ).fontInternal.ttfMetrics!.isBold &&
         PdfFontHelper.getHelper(font).isBold) {
       if (pen == null && brush != null && brush is PdfSolidBrush) {
         pen = PdfPen(brush.color);
@@ -1775,14 +2055,19 @@ class PdfGraphicsHelper {
   }
 
   void _stateControl(
-      PdfPen? pen, PdfBrush? brush, PdfFont? font, PdfStringFormat? format) {
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfFont? font,
+    PdfStringFormat? format,
+  ) {
     if (brush != null) {
       if (layer != null) {
         if (!PdfPageHelper.getHelper(page!).isLoadedPage &&
-            !PdfDocumentHelper.getHelper(PdfSectionHelper.getHelper(
-                        PdfPageHelper.getHelper(page!).section!)
-                    .pdfDocument!)
-                .isLoadedDocument) {
+            !PdfDocumentHelper.getHelper(
+              PdfSectionHelper.getHelper(
+                PdfPageHelper.getHelper(page!).section!,
+              ).pdfDocument!,
+            ).isLoadedDocument) {
           if (_colorSpaceChanged == false) {
             if (page != null) {
               base.colorSpace =
@@ -1796,10 +2081,11 @@ class PdfGraphicsHelper {
     } else if (pen != null) {
       if (layer != null) {
         if (!PdfPageHelper.getHelper(page!).isLoadedPage &&
-            !PdfDocumentHelper.getHelper(PdfSectionHelper.getHelper(
-                        PdfPageHelper.getHelper(page!).section!)
-                    .pdfDocument!)
-                .isLoadedDocument) {
+            !PdfDocumentHelper.getHelper(
+              PdfSectionHelper.getHelper(
+                PdfPageHelper.getHelper(page!).section!,
+              ).pdfDocument!,
+            ).isLoadedDocument) {
           base.colorSpace = PdfPageHelper.getHelper(page!).document!.colorSpace;
         }
       }
@@ -1813,9 +2099,13 @@ class PdfGraphicsHelper {
   void _initCurrentColorSpace(PdfColorSpace? colorspace) {
     if (!_isColorSpaceInitialized) {
       streamWriter!.setColorSpace(
-          PdfName('Device${_colorSpaces[base.colorSpace]!}'), true);
+        PdfName('Device${_colorSpaces[base.colorSpace]!}'),
+        true,
+      );
       streamWriter!.setColorSpace(
-          PdfName('Device${_colorSpaces[base.colorSpace]!}'), false);
+        PdfName('Device${_colorSpaces[base.colorSpace]!}'),
+        false,
+      );
       _isColorSpaceInitialized = true;
     }
   }
@@ -1824,16 +2114,28 @@ class PdfGraphicsHelper {
     if (pen != null) {
       _currentPen = pen;
       base.colorSpace = PdfColorSpace.rgb;
-      PdfPenHelper.getHelper(pen).monitorChanges(_currentPen, streamWriter!,
-          _getResources, saveState, base.colorSpace, matrix);
+      PdfPenHelper.getHelper(pen).monitorChanges(
+        _currentPen,
+        streamWriter!,
+        _getResources,
+        saveState,
+        base.colorSpace,
+        matrix,
+      );
       _currentPen = pen;
     }
   }
 
   void _brushControl(PdfBrush? brush, bool saveState) {
     if (brush != null) {
-      PdfBrushHelper.monitorChanges(brush as PdfSolidBrush, _currentBrush,
-          streamWriter, _getResources, saveState, base.colorSpace);
+      PdfBrushHelper.monitorChanges(
+        brush as PdfSolidBrush,
+        _currentBrush,
+        streamWriter,
+        _getResources,
+        saveState,
+        base.colorSpace,
+      );
       _currentBrush = brush;
       brush = null;
     }
@@ -1844,30 +2146,37 @@ class PdfGraphicsHelper {
       if ((font is PdfStandardFont || font is PdfCjkStandardFont) &&
           layer != null &&
           PdfPageHelper.getHelper(page!).document != null &&
-          PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!)
-                  .conformanceLevel !=
+          PdfDocumentHelper.getHelper(
+                PdfPageHelper.getHelper(page!).document!,
+              ).conformanceLevel !=
               PdfConformanceLevel.none) {
         throw ArgumentError(
-            'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!).conformanceLevel} document.');
+          'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!).conformanceLevel} document.',
+        );
       } else if (font is PdfTrueTypeFont &&
           layer != null &&
           PdfPageHelper.getHelper(page!).document != null &&
-          PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!)
-                  .conformanceLevel ==
+          PdfDocumentHelper.getHelper(
+                PdfPageHelper.getHelper(page!).document!,
+              ).conformanceLevel ==
               PdfConformanceLevel.a1b) {
         PdfTrueTypeFontHelper.getHelper(font).fontInternal.initializeCidSet();
       }
       final PdfSubSuperscript current =
           format != null ? format.subSuperscript : PdfSubSuperscript.none;
-      final PdfSubSuperscript privious = currentStringFormat != null
-          ? currentStringFormat!.subSuperscript
-          : PdfSubSuperscript.none;
+      final PdfSubSuperscript privious =
+          currentStringFormat != null
+              ? currentStringFormat!.subSuperscript
+              : PdfSubSuperscript.none;
       if (saveState || font != _currentFont || current != privious) {
         final PdfResources resources = _getResources!() as PdfResources;
         _currentFont = font;
         currentStringFormat = format;
-        streamWriter!.setFont(font, resources.getName(font),
-            PdfFontHelper.getHelper(font).metrics!.getSize(format)!);
+        streamWriter!.setFont(
+          font,
+          resources.getName(font),
+          PdfFontHelper.getHelper(font).metrics!.getSize(format)!,
+        );
       }
     }
   }
@@ -1883,9 +2192,11 @@ class PdfGraphicsHelper {
     if (_documentLayer != null) {
       if (PdfLayerHelper.getHelper(_documentLayer!).isEndState &&
           PdfLayerHelper.getHelper(_documentLayer!).parentLayer.isNotEmpty) {
-        for (int i = 0;
-            i < PdfLayerHelper.getHelper(_documentLayer!).parentLayer.length;
-            i++) {
+        for (
+          int i = 0;
+          i < PdfLayerHelper.getHelper(_documentLayer!).parentLayer.length;
+          i++
+        ) {
           streamWriter!.write('EMC\n');
         }
       }
@@ -1897,9 +2208,17 @@ class PdfGraphicsHelper {
 
   /// internal method
   PdfRectangle checkCorrectLayoutRectangle(
-      PdfSize textSize, double? x, double? y, PdfStringFormat? format) {
-    final PdfRectangle layoutedRectangle =
-        PdfRectangle(x!, y!, textSize.width, textSize.width);
+    PdfSize textSize,
+    double? x,
+    double? y,
+    PdfStringFormat? format,
+  ) {
+    final PdfRectangle layoutedRectangle = PdfRectangle(
+      x!,
+      y!,
+      textSize.width,
+      textSize.width,
+    );
     if (format != null) {
       switch (format.alignment) {
         case PdfTextAlignment.center:
@@ -1927,24 +2246,34 @@ class PdfGraphicsHelper {
   }
 
   void _underlineStrikeoutText(
-      PdfPen? pen,
-      PdfBrush? brush,
-      PdfStringLayoutResult result,
-      PdfFont font,
-      PdfRectangle layoutRectangle,
-      PdfStringFormat? format) {
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfStringLayoutResult result,
+    PdfFont font,
+    PdfRectangle layoutRectangle,
+    PdfStringFormat? format,
+  ) {
     if (PdfFontHelper.getHelper(font).isUnderline |
         PdfFontHelper.getHelper(font).isStrikeout) {
-      final PdfPen? linePen =
-          _createUnderlineStikeoutPen(pen, brush, font, format);
+      final PdfPen? linePen = _createUnderlineStikeoutPen(
+        pen,
+        brush,
+        font,
+        format,
+      );
       if (linePen != null) {
         final double verticalShift = getTextVerticalAlignShift(
-            result.size.height, layoutRectangle.height, format);
-        double underlineYOffset = layoutRectangle.y +
+          result.size.height,
+          layoutRectangle.height,
+          format,
+        );
+        double underlineYOffset =
+            layoutRectangle.y +
             verticalShift +
             PdfFontHelper.getHelper(font).metrics!.getAscent(format) +
             1.5 * linePen.width;
-        double strikeoutYOffset = layoutRectangle.y +
+        double strikeoutYOffset =
+            layoutRectangle.y +
             verticalShift +
             PdfFontHelper.getHelper(font).metrics!.getHeight(format) / 2 +
             1.5 * linePen.width;
@@ -1953,9 +2282,16 @@ class PdfGraphicsHelper {
           final LineInfo lineInfo = lines![i];
           final double? lineWidth = lineInfo.width;
           double horizontalShift = _getHorizontalAlignShift(
-              lineWidth, layoutRectangle.width, format);
-          final double? lineIndent =
-              _getLineIndent(lineInfo, format, layoutRectangle, i == 0);
+            lineWidth,
+            layoutRectangle.width,
+            format,
+          );
+          final double? lineIndent = _getLineIndent(
+            lineInfo,
+            format,
+            layoutRectangle,
+            i == 0,
+          );
           horizontalShift += (!_rightToLeft(format)) ? lineIndent! : 0;
           final double x1 = layoutRectangle.x + horizontalShift;
           final double x2 =
@@ -1963,13 +2299,19 @@ class PdfGraphicsHelper {
                   ? x1 + lineWidth! - lineIndent!
                   : x1 + layoutRectangle.width - lineIndent!;
           if (PdfFontHelper.getHelper(font).isUnderline) {
-            base.drawLine(linePen, Offset(x1, underlineYOffset),
-                Offset(x2, underlineYOffset));
+            base.drawLine(
+              linePen,
+              Offset(x1, underlineYOffset),
+              Offset(x2, underlineYOffset),
+            );
             underlineYOffset += result.lineHeight;
           }
           if (PdfFontHelper.getHelper(font).isStrikeout) {
-            base.drawLine(linePen, Offset(x1, strikeoutYOffset),
-                Offset(x2, strikeoutYOffset));
+            base.drawLine(
+              linePen,
+              Offset(x1, strikeoutYOffset),
+              Offset(x2, strikeoutYOffset),
+            );
             strikeoutYOffset += result.lineHeight;
           }
         }
@@ -1978,7 +2320,11 @@ class PdfGraphicsHelper {
   }
 
   PdfPen? _createUnderlineStikeoutPen(
-      PdfPen? pen, PdfBrush? brush, PdfFont font, PdfStringFormat? format) {
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfFont font,
+    PdfStringFormat? format,
+  ) {
     final double lineWidth =
         PdfFontHelper.getHelper(font).metrics!.getSize(format)! / 20;
     PdfPen? linePen;
@@ -2027,7 +2373,11 @@ class PdfGraphicsHelper {
     this.clipBounds = clipBounds;
     streamWriter!.writeComment('Clip margins.');
     streamWriter!.appendRectangle(
-        clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height);
+      clipBounds.x,
+      clipBounds.y,
+      clipBounds.width,
+      clipBounds.height,
+    );
     streamWriter!.closePath();
     streamWriter!.clipPath(false);
     streamWriter!.writeComment('Translate co-ordinate system.');
@@ -2035,14 +2385,28 @@ class PdfGraphicsHelper {
   }
 
   /// internal method
-  void clipTranslateMargins(double x, double y, double left, double top,
-      double right, double bottom) {
-    final PdfRectangle clipArea = PdfRectangle(left, top,
-        base.size.width - left - right, base.size.height - top - bottom);
+  void clipTranslateMargins(
+    double x,
+    double y,
+    double left,
+    double top,
+    double right,
+    double bottom,
+  ) {
+    final PdfRectangle clipArea = PdfRectangle(
+      left,
+      top,
+      base.size.width - left - right,
+      base.size.height - top - bottom,
+    );
     clipBounds = clipArea;
     streamWriter!.writeComment('Clip margins.');
     streamWriter!.appendRectangle(
-        clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height);
+      clipBounds.x,
+      clipBounds.y,
+      clipBounds.width,
+      clipBounds.height,
+    );
     streamWriter!.closePath();
     streamWriter!.clipPath(false);
     streamWriter!.writeComment('Translate co-ordinate system.');
@@ -2066,10 +2430,11 @@ class PdfGraphicsHelper {
               in PdfObjectCollectionHelper.getHelper(_automaticFields!).list) {
             if (fieldInfo is PdfAutomaticFieldInfo) {
               PdfAutomaticFieldHelper.getHelper(fieldInfo.field).performDraw(
-                  base,
-                  fieldInfo.location,
-                  fieldInfo.scalingX,
-                  fieldInfo.scalingY);
+                base,
+                fieldInfo.location,
+                fieldInfo.scalingX,
+                fieldInfo.scalingY,
+              );
             }
           }
         }
@@ -2098,7 +2463,10 @@ class PdfGraphicsHelper {
 
   /// internal method
   double getTextVerticalAlignShift(
-      double? textHeight, double boundsHeight, PdfStringFormat? format) {
+    double? textHeight,
+    double boundsHeight,
+    PdfStringFormat? format,
+  ) {
     double shift = 0;
     if (boundsHeight >= 0 &&
         format != null &&
@@ -2118,20 +2486,35 @@ class PdfGraphicsHelper {
   }
 
   /// internal method
-  Rect getLineBounds(int lineIndex, PdfStringLayoutResult result, PdfFont font,
-      PdfRectangle layoutRectangle, PdfStringFormat? format) {
+  Rect getLineBounds(
+    int lineIndex,
+    PdfStringLayoutResult result,
+    PdfFont font,
+    PdfRectangle layoutRectangle,
+    PdfStringFormat? format,
+  ) {
     PdfRectangle bounds = PdfRectangle.empty;
     if (!result.isEmpty && lineIndex < result.lineCount && lineIndex >= 0) {
       final LineInfo line = result.lines![lineIndex];
       final double verticalShift = getTextVerticalAlignShift(
-          result.size.height, layoutRectangle.height, format);
+        result.size.height,
+        layoutRectangle.height,
+        format,
+      );
       final double y =
           verticalShift + layoutRectangle.y + (result.lineHeight * lineIndex);
       final double? lineWidth = line.width;
-      double horizontalShift =
-          _getHorizontalAlignShift(lineWidth, layoutRectangle.width, format);
-      final double? lineIndent =
-          _getLineIndent(line, format, layoutRectangle, lineIndex == 0);
+      double horizontalShift = _getHorizontalAlignShift(
+        lineWidth,
+        layoutRectangle.width,
+        format,
+      );
+      final double? lineIndent = _getLineIndent(
+        line,
+        format,
+        layoutRectangle,
+        lineIndex == 0,
+      );
       horizontalShift += (!_rightToLeft(format)) ? lineIndent! : 0;
       final double x = layoutRectangle.x + horizontalShift;
       final double width =
@@ -2144,19 +2527,28 @@ class PdfGraphicsHelper {
     return bounds.rect;
   }
 
-  double? _getLineIndent(LineInfo lineInfo, PdfStringFormat? format,
-      PdfRectangle layoutBounds, bool firstLine) {
+  double? _getLineIndent(
+    LineInfo lineInfo,
+    PdfStringFormat? format,
+    PdfRectangle layoutBounds,
+    bool firstLine,
+  ) {
     double? lineIndent = 0;
-    final bool firstParagraphLine = (lineInfo.lineType &
+    final bool firstParagraphLine =
+        (lineInfo.lineType &
             PdfStringLayouter.getLineTypeValue(LineType.firstParagraphLine)!) >
         0;
     if (format != null && firstParagraphLine) {
-      lineIndent = firstLine
-          ? PdfStringFormatHelper.getHelper(format).firstLineIndent
-          : format.paragraphIndent;
-      lineIndent = (layoutBounds.width > 0)
-          ? (layoutBounds.width <= lineIndent ? layoutBounds.width : lineIndent)
-          : lineIndent;
+      lineIndent =
+          firstLine
+              ? PdfStringFormatHelper.getHelper(format).firstLineIndent
+              : format.paragraphIndent;
+      lineIndent =
+          (layoutBounds.width > 0)
+              ? (layoutBounds.width <= lineIndent
+                  ? layoutBounds.width
+                  : lineIndent)
+              : lineIndent;
     }
     return lineIndent;
   }
@@ -2166,8 +2558,9 @@ class PdfGraphicsHelper {
     final TtfReader ttfReader =
         PdfTrueTypeFontHelper.getHelper(font).fontInternal.reader;
     token = ttfReader.convertString(text);
-    PdfTrueTypeFontHelper.getHelper(font)
-        .setSymbols(text, ttfReader.internalUsedChars);
+    PdfTrueTypeFontHelper.getHelper(
+      font,
+    ).setSymbols(text, ttfReader.internalUsedChars);
     ttfReader.internalUsedChars = null;
     final List<int> bytes = PdfString.toUnicodeArray(token);
     token = PdfString.byteToString(bytes);
@@ -2181,13 +2574,18 @@ class PdfGraphicsHelper {
   }
 
   double _justifyLine(
-      LineInfo lineInfo, double boundsWidth, PdfStringFormat? format) {
+    LineInfo lineInfo,
+    double boundsWidth,
+    PdfStringFormat? format,
+  ) {
     final String line = lineInfo.text!;
     double? lineWidth = lineInfo.width;
     final bool shouldJustify = _shouldJustify(lineInfo, boundsWidth, format);
     final bool hasWordSpacing = format != null && format.wordSpacing != 0;
-    final int whitespacesCount =
-        StringTokenizer.getCharacterCount(line, StringTokenizer.spaces);
+    final int whitespacesCount = StringTokenizer.getCharacterCount(
+      line,
+      StringTokenizer.spaces,
+    );
     double wordSpace = 0;
     if (shouldJustify) {
       if (hasWordSpacing) {
@@ -2203,17 +2601,23 @@ class PdfGraphicsHelper {
   }
 
   bool _shouldJustify(
-      LineInfo lineInfo, double boundsWidth, PdfStringFormat? format) {
+    LineInfo lineInfo,
+    double boundsWidth,
+    PdfStringFormat? format,
+  ) {
     final String line = lineInfo.text!;
     final double? lineWidth = lineInfo.width;
     final bool justifyStyle =
         format != null && format.alignment == PdfTextAlignment.justify;
     final bool goodWidth = boundsWidth >= 0 && lineWidth! < boundsWidth;
-    final int whitespacesCount =
-        StringTokenizer.getCharacterCount(line, StringTokenizer.spaces);
+    final int whitespacesCount = StringTokenizer.getCharacterCount(
+      line,
+      StringTokenizer.spaces,
+    );
     final bool hasSpaces =
         whitespacesCount > 0 && line[0] != StringTokenizer.whiteSpace;
-    final bool goodLineBreakStyle = (lineInfo.lineType &
+    final bool goodLineBreakStyle =
+        (lineInfo.lineType &
             PdfStringLayouter.getLineTypeValue(LineType.layoutBreak)!) >
         0;
     final bool shouldJustify =
@@ -2222,8 +2626,14 @@ class PdfGraphicsHelper {
   }
 
   /// internal method
-  static List<List<double>> getBezierArcPoints(double x1, double y1, double x2,
-      double y2, double startAng, double extent) {
+  static List<List<double>> getBezierArcPoints(
+    double x1,
+    double y1,
+    double x2,
+    double y2,
+    double startAng,
+    double extent,
+  ) {
     return PdfGraphics._getBezierArcPoints(x1, y1, x2, y2, startAng, extent);
   }
 }

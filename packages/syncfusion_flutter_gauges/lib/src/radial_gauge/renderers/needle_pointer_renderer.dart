@@ -21,6 +21,9 @@ class NeedlePointerRenderer {
   /// By overriding this method, you can draw the customized marker
   /// pointer using required values.
   ///
-  void drawPointer(Canvas canvas, PointerPaintingDetails pointerPaintingDetails,
-      SfGaugeThemeData gaugeThemeData) {}
+  void drawPointer(
+    Canvas canvas,
+    PointerPaintingDetails pointerPaintingDetails,
+    SfGaugeThemeData gaugeThemeData,
+  ) {}
 }

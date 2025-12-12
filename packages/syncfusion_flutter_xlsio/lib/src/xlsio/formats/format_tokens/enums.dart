@@ -1,7 +1,5 @@
-part of xlsio;
-
 /// Represents possible token types.
-enum _TokenType {
+enum TokenType {
   /// Represents unknown format token.
   unknown,
 

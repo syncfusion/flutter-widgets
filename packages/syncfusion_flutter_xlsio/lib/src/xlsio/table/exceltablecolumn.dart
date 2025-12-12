@@ -1,4 +1,4 @@
-part of xlsio;
+import '../general/enums.dart';
 
 /// Represents a column in the table.
 class ExcelTableColumn {

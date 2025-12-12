@@ -12,10 +12,13 @@ import '../utils/enum.dart';
 ///
 class ConnectorLineSettings {
   /// Creating an argument constructor of ConnectorLineSettings class.
-  const ConnectorLineSettings(
-      {this.length, double? width, ConnectorType? type, this.color})
-      : width = width ?? 1.0,
-        type = type ?? ConnectorType.line;
+  const ConnectorLineSettings({
+    this.length,
+    double? width,
+    ConnectorType? type,
+    this.color,
+  }) : width = width ?? 1.0,
+       type = type ?? ConnectorType.line;
 
   /// Length of the connector line. The value range from 0% to 100%.
   ///

@@ -6,11 +6,14 @@ import 'helper/save_file_mobile.dart'
     if (dart.library.html) 'helper/save_file_web.dart';
 
 void main() {
-  runApp(CreateExcelWidget());
+  runApp(const CreateExcelWidget());
 }
 
 /// Represents the XlsIO widget class.
 class CreateExcelWidget extends StatelessWidget {
+  // Constructor with a named key parameter
+  const CreateExcelWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -23,7 +26,7 @@ class CreateExcelWidget extends StatelessWidget {
 class CreateExcelStatefulWidget extends StatefulWidget {
   /// Initalize the instance of the [CreateExcelStatefulWidget] class.
   const CreateExcelStatefulWidget({Key? key, required this.title})
-      : super(key: key);
+    : super(key: key);
 
   /// title.
   final String title;
@@ -36,9 +39,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      appBar: AppBar(title: Text(widget.title)),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -51,7 +52,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
               ),
               onPressed: generateExcel,
               child: const Text('Generate Excel'),
-            )
+            ),
           ],
         ),
       ),

@@ -51,7 +51,7 @@ class JpegDecoder extends ImageDecoder {
     46,
     48,
     47,
-    0
+    0,
   ];
 
   //Fields
@@ -122,18 +122,23 @@ class JpegDecoder extends ImageDecoder {
     _imageStream!.data = imageData;
     _imageStream!.compress = false;
 
-    _imageStream![PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.xObject);
-    _imageStream![PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.image);
+    _imageStream![PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.xObject,
+    );
+    _imageStream![PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.image,
+    );
     _imageStream![PdfDictionaryProperties.width] = PdfNumber(width);
     _imageStream![PdfDictionaryProperties.height] = PdfNumber(height);
-    _imageStream![PdfDictionaryProperties.bitsPerComponent] =
-        PdfNumber(bitsPerComponent!);
-    _imageStream![PdfDictionaryProperties.filter] =
-        PdfName(PdfDictionaryProperties.dctDecode);
-    _imageStream![PdfDictionaryProperties.colorSpace] =
-        PdfName(_getColorSpace());
+    _imageStream![PdfDictionaryProperties.bitsPerComponent] = PdfNumber(
+      bitsPerComponent!,
+    );
+    _imageStream![PdfDictionaryProperties.filter] = PdfName(
+      PdfDictionaryProperties.dctDecode,
+    );
+    _imageStream![PdfDictionaryProperties.colorSpace] = PdfName(
+      _getColorSpace(),
+    );
     _imageStream![PdfDictionaryProperties.decodeParms] = _getDecodeParams();
 
     return _imageStream;
@@ -145,8 +150,9 @@ class JpegDecoder extends ImageDecoder {
     decodeParams[PdfDictionaryProperties.blackIs1] = PdfBoolean(true);
     decodeParams[PdfDictionaryProperties.k] = PdfNumber(-1);
     decodeParams[PdfDictionaryProperties.predictor] = PdfNumber(15);
-    decodeParams[PdfDictionaryProperties.bitsPerComponent] =
-        PdfNumber(bitsPerComponent!);
+    decodeParams[PdfDictionaryProperties.bitsPerComponent] = PdfNumber(
+      bitsPerComponent!,
+    );
     return decodeParams;
   }
 
@@ -156,7 +162,7 @@ class JpegDecoder extends ImageDecoder {
     if (_convertToUShort(_readJpegBytes(2)) != 0xFFD8) {
       return <String, dynamic>{
         'hasOrientation': false,
-        'imageOrientation': imageOrientation
+        'imageOrientation': imageOrientation,
       };
     }
     int? jpegMarkerStart;
@@ -170,14 +176,14 @@ class JpegDecoder extends ImageDecoder {
       if (offset != jpegPosition || offset > imageData.length) {
         return <String, dynamic>{
           'hasOrientation': false,
-          'imageOrientation': imageOrientation
+          'imageOrientation': imageOrientation,
         };
       }
     }
     if (jpegMarkerStart != 0xFF || jpegMarkerNum != 0xE1) {
       return <String, dynamic>{
         'hasOrientation': false,
-        'imageOrientation': imageOrientation
+        'imageOrientation': imageOrientation,
       };
     } else {
       seek(2);
@@ -185,7 +191,7 @@ class JpegDecoder extends ImageDecoder {
           _convertToUShort(_readJpegBytes(2)) != 0) {
         return <String, dynamic>{
           'hasOrientation': false,
-          'imageOrientation': imageOrientation
+          'imageOrientation': imageOrientation,
         };
       }
       final int tiffTypeHeaderStart = offset;
@@ -194,15 +200,17 @@ class JpegDecoder extends ImageDecoder {
       if (_convertToUShort(_readJpegBytes(2)) != 0x002A) {
         return <String, dynamic>{
           'hasOrientation': false,
-          'imageOrientation': imageOrientation
+          'imageOrientation': imageOrientation,
         };
       }
       offset = _convertToUInt(_readJpegBytes(4)) + tiffTypeHeaderStart;
       final int ifdEntryCount = _convertToUShort(_readJpegBytes(2));
       int orientationPosition = 0;
-      for (int currentIfdEntry = 0;
-          currentIfdEntry < ifdEntryCount;
-          currentIfdEntry++) {
+      for (
+        int currentIfdEntry = 0;
+        currentIfdEntry < ifdEntryCount;
+        currentIfdEntry++
+      ) {
         if (_convertToUShort(_readJpegBytes(2)) == 274) {
           orientationPosition = offset - 2;
         }
@@ -213,7 +221,7 @@ class JpegDecoder extends ImageDecoder {
         if (_convertToUShort(_readJpegBytes(2)) != 274) {
           return <String, dynamic>{
             'hasOrientation': false,
-            'imageOrientation': imageOrientation
+            'imageOrientation': imageOrientation,
           };
         }
         seek(6);
@@ -228,7 +236,7 @@ class JpegDecoder extends ImageDecoder {
         if (orientationAngle == 0) {
           return <String, dynamic>{
             'hasOrientation': false,
-            'imageOrientation': imageOrientation
+            'imageOrientation': imageOrientation,
           };
         } else {
           imageOrientation = orientationAngle;
@@ -237,7 +245,7 @@ class JpegDecoder extends ImageDecoder {
     }
     return <String, dynamic>{
       'hasOrientation': true,
-      'imageOrientation': imageOrientation
+      'imageOrientation': imageOrientation,
     };
   }
 
@@ -263,7 +271,7 @@ class JpegDecoder extends ImageDecoder {
           height = imageData[offset] << 8 | imageData[offset + 1];
           seek(2);
           width = imageData[offset] << 8 | imageData[offset + 1];
-          _noOfComponents = imageData[offset];
+          _noOfComponents = imageData[offset + 2];
           seek(1);
           isContinueReading = false;
           break;
@@ -344,13 +352,16 @@ class JpegDecoder extends ImageDecoder {
         if (jfif == 0xE0FF) {
           while (true) {
             i += step;
-            int markerLength =
-                _convertToUShort(<int>[imageData[i + 1], imageData[i]])
-                    .toSigned(32);
+            int markerLength = _convertToUShort(<int>[
+              imageData[i + 1],
+              imageData[i],
+            ]).toSigned(32);
             markerLength = (markerLength >> 8) | (markerLength << 8) & 0xFFFF;
             i += markerLength;
-            final int marker =
-                _convertToUShort(<int>[imageData[i + 1], imageData[i]]);
+            final int marker = _convertToUShort(<int>[
+              imageData[i + 1],
+              imageData[i],
+            ]);
             if (marker == 0xDAFF) {
               i += step + 2;
               switch (imageData[i]) {

@@ -49,16 +49,16 @@ class PdfUnorderedList extends PdfList {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfUnorderedList(
-      {PdfUnorderedMarker? marker,
-      PdfListItemCollection? items,
-      String? text,
-      PdfFont? font,
-      PdfUnorderedMarkerStyle style = PdfUnorderedMarkerStyle.disk,
-      PdfStringFormat? format,
-      double indent = 10,
-      double textIndent = 5})
-      : super() {
+  PdfUnorderedList({
+    PdfUnorderedMarker? marker,
+    PdfListItemCollection? items,
+    String? text,
+    PdfFont? font,
+    PdfUnorderedMarkerStyle style = PdfUnorderedMarkerStyle.disk,
+    PdfStringFormat? format,
+    double indent = 10,
+    double textIndent = 5,
+  }) : super() {
     final PdfListHelper helper = PdfListHelper(this);
     this.marker = marker ?? _createMarker(style);
     stringFormat = format;

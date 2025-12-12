@@ -82,10 +82,6 @@ class LinearTickStyle {
 
   @override
   int get hashCode {
-    return Object.hash(
-      length,
-      color,
-      thickness,
-    );
+    return Object.hash(length, color, thickness);
   }
 }

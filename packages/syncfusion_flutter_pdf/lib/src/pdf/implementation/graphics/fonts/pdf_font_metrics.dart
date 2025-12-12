@@ -113,7 +113,9 @@ class StandardWidthTable extends WidthTable {
   int? _returnValue(int index) {
     if (index < 0 || index >= _widths!.length) {
       throw ArgumentError.value(
-          index, 'The character is not supported by the font.');
+        index,
+        'The character is not supported by the font.',
+      );
     }
     return _widths![index];
   }
@@ -129,11 +131,11 @@ class StandardWidthTable extends WidthTable {
 class CjkWidthTable extends WidthTable {
   /// Initializes a new instance of the [CjkWidthTable] class.
   CjkWidthTable(this.defaultWidth) {
-    width = <_CjkWidth>[];
+    width = <CjkWidth>[];
   }
 
   /// Local variable to store the width.
-  late List<_CjkWidth> width;
+  late List<CjkWidth> width;
 
   /// Local variable to store the default width.
   int defaultWidth;
@@ -141,7 +143,7 @@ class CjkWidthTable extends WidthTable {
   @override
   int operator [](int index) {
     int newWidth = defaultWidth;
-    for (final _CjkWidth widths in width) {
+    for (final CjkWidth widths in width) {
       if (index >= widths.from && index <= widths.to) {
         newWidth = widths[index];
       }
@@ -150,14 +152,14 @@ class CjkWidthTable extends WidthTable {
   }
 
   /// internal method
-  void add(_CjkWidth widths) {
+  void add(CjkWidth widths) {
     width.add(widths);
   }
 
   @override
   PdfArray toArray() {
     final PdfArray arr = PdfArray();
-    for (final _CjkWidth widths in width) {
+    for (final CjkWidth widths in width) {
       widths.appendToArray(arr);
     }
     return arr;
@@ -165,7 +167,7 @@ class CjkWidthTable extends WidthTable {
 }
 
 /// The base class of CJK widths types.
-abstract class _CjkWidth {
+abstract class CjkWidth {
   /// Gets the starting character.
   int get from;
 
@@ -180,7 +182,7 @@ abstract class _CjkWidth {
 }
 
 /// Implements capabilities to control a range of character with the same width.
-class CjkSameWidth extends _CjkWidth {
+class CjkSameWidth extends CjkWidth {
   /// internal constructor
   CjkSameWidth(this.from, this.to, this.width) {
     if (from > to) {
@@ -217,7 +219,7 @@ class CjkSameWidth extends _CjkWidth {
 
 /// Implements capabilities to control a sequent range of characters
 /// with different width.
-class CjkDifferentWidth extends _CjkWidth {
+class CjkDifferentWidth extends CjkWidth {
   /// internal constructor
   CjkDifferentWidth(this.from, this.width);
 

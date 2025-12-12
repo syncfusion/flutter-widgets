@@ -6,13 +6,14 @@ import '../../linear_gauge/utils/enum.dart';
 @immutable
 class LinearAxisTrackStyle {
   /// Creates a style for axis line.
-  const LinearAxisTrackStyle(
-      {this.thickness = 5.0,
-      this.edgeStyle = LinearEdgeStyle.bothFlat,
-      this.color,
-      this.gradient,
-      this.borderColor,
-      this.borderWidth = 0});
+  const LinearAxisTrackStyle({
+    this.thickness = 5.0,
+    this.edgeStyle = LinearEdgeStyle.bothFlat,
+    this.color,
+    this.gradient,
+    this.borderColor,
+    this.borderWidth = 0,
+  });
 
   /// Specifies the thickness value of an axis track.
   ///

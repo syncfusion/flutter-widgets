@@ -43,14 +43,18 @@ double getRadianToDegree(double radian) {
 /// To get the degree from the point
 Offset getDegreeToPoint(double degree, double radius, Offset center) {
   degree = getDegreeToRadian(degree);
-  return Offset(center.dx + math.cos(degree) * radius,
-      center.dy + math.sin(degree) * radius);
+  return Offset(
+    center.dx + math.cos(degree) * radius,
+    center.dy + math.sin(degree) * radius,
+  );
 }
 
 /// Methods to get the saturation color
 Color getSaturationColor(Color color) {
   final num contrast =
-      ((color.red * 299 + color.green * 587 + color.blue * 114) / 1000).round();
+      (((color.r * 255) * 299 + (color.g * 255) * 587 + (color.b * 255) * 114) /
+              1000)
+          .round();
   final Color saturationColor =
       contrast >= 128 ? const Color(0xFF333333) : const Color(0xFFF5F5F5);
   return saturationColor;
@@ -64,13 +68,15 @@ Size getTextSize(String textValue, GaugeTextStyle textStyle) {
     textAlign: TextAlign.center,
     textDirection: TextDirection.ltr,
     text: TextSpan(
-        text: textValue,
-        style: TextStyle(
-            color: textStyle.color,
-            fontSize: textStyle.fontSize,
-            fontFamily: textStyle.fontFamily,
-            fontStyle: textStyle.fontStyle,
-            fontWeight: textStyle.fontWeight)),
+      text: textValue,
+      style: TextStyle(
+        color: textStyle.color,
+        fontSize: textStyle.fontSize,
+        fontFamily: textStyle.fontFamily,
+        fontStyle: textStyle.fontStyle,
+        fontWeight: textStyle.fontWeight,
+      ),
+    ),
   );
   textPainter.layout();
   size = Size(textPainter.width, textPainter.height);
@@ -79,7 +85,10 @@ Size getTextSize(String textValue, GaugeTextStyle textStyle) {
 
 /// Returns the revised gradient stop
 List<double> calculateGradientStops(
-    List<double?> offsets, bool isInversed, double sweepAngle) {
+  List<double?> offsets,
+  bool isInversed,
+  double sweepAngle,
+) {
   final List<double> gradientStops = List<double>.filled(offsets.length, 0);
 
   // Normalizes the provided offset values to the corresponding sweep angle
@@ -156,8 +165,10 @@ Path dashPath(Path source, {CircularIntervalList<double>? dashArray}) {
       while (distance < measurePath.length) {
         final double length = dashArray.next;
         if (draw) {
-          path.addPath(measurePath.extractPath(distance, distance + length),
-              Offset.zero);
+          path.addPath(
+            measurePath.extractPath(distance, distance + length),
+            Offset.zero,
+          );
         }
         distance += length;
         draw = !draw;
@@ -170,10 +181,12 @@ Path dashPath(Path source, {CircularIntervalList<double>? dashArray}) {
 /// Calculates the corner radius angle
 double cornerRadiusAngle(double totalRadius, double circleRadius) {
   final double perimeter = (totalRadius + totalRadius + circleRadius) / 2;
-  final double area = math.sqrt(perimeter *
-      (perimeter - totalRadius) *
-      (perimeter - totalRadius) *
-      (perimeter - circleRadius));
+  final double area = math.sqrt(
+    perimeter *
+        (perimeter - totalRadius) *
+        (perimeter - totalRadius) *
+        (perimeter - circleRadius),
+  );
   final double cornerRadiusAngle =
       math.asin((2 * area) / (totalRadius * totalRadius)) * (180 / math.pi);
   return cornerRadiusAngle;
@@ -183,6 +196,7 @@ double cornerRadiusAngle(double totalRadius, double circleRadius) {
 class RadialAxisInheritedWidget extends InheritedWidget {
   /// Creates [RadialAxisInheritedWidget].
   const RadialAxisInheritedWidget({
+    super.key,
     required this.minimum,
     required this.maximum,
     required Widget child,

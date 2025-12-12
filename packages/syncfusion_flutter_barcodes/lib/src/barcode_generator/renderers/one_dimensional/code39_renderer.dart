@@ -52,7 +52,7 @@ class Code39Renderer extends SymbologyRenderer {
       '121212111',
       '121211121',
       '121112121',
-      '111212121'
+      '111212121',
     ];
 
     _character = _getCode39Character();
@@ -69,7 +69,8 @@ class Code39Renderer extends SymbologyRenderer {
     for (int i = 0; i < value.length; i++) {
       if (!_character.contains(value[i])) {
         throw ArgumentError(
-            'The provided input cannot be encoded : ${value[i]}');
+          'The provided input cannot be encoded : ${value[i]}',
+        );
       }
     }
     return true;
@@ -93,7 +94,9 @@ class Code39Renderer extends SymbologyRenderer {
 
   /// Returns the pattern collection based on the provided input
   List<String> _getPatternCollection(
-      String providedValue, String code39Characters) {
+    String providedValue,
+    String code39Characters,
+  ) {
     final List<String> code39Values = <String>[];
     for (int i = 0; i < providedValue.length; i++) {
       final int currentIndex = code39Characters.indexOf(providedValue[i]);
@@ -104,24 +107,34 @@ class Code39Renderer extends SymbologyRenderer {
 
   @override
   void renderBarcode(
-      Canvas canvas,
-      Size size,
-      Offset offset,
-      String value,
-      Color foregroundColor,
-      TextStyle textStyle,
-      double textSpacing,
-      TextAlign textAlign,
-      bool showValue) {
+    Canvas canvas,
+    Size size,
+    Offset offset,
+    String value,
+    Color foregroundColor,
+    TextStyle textStyle,
+    double textSpacing,
+    TextAlign textAlign,
+    bool showValue,
+  ) {
     final Paint paint = getBarPaint(foregroundColor);
     final List<String> code = getCodeValues(value);
     final int barTotalLength = _getTotalLength(code);
-    double left = symbology?.module == null
-        ? offset.dx
-        : getLeftPosition(
-            barTotalLength, symbology?.module, size.width, offset.dx);
+    double left =
+        symbology?.module == null
+            ? offset.dx
+            : getLeftPosition(
+              barTotalLength,
+              symbology?.module,
+              size.width,
+              offset.dx,
+            );
     final Rect barCodeRect = Rect.fromLTRB(
-        offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
+      offset.dx,
+      offset.dy,
+      offset.dx + size.width,
+      offset.dy + size.height,
+    );
     double ratio = 0;
     if (symbology?.module != null) {
       ratio = symbology!.module!.toDouble();
@@ -144,8 +157,12 @@ class Code39Renderer extends SymbologyRenderer {
         if (canDraw &&
             (left >= barCodeRect.left &&
                 left + (currentValue * ratio) < barCodeRect.right)) {
-          final Rect individualBarRect = Rect.fromLTRB(left, offset.dy,
-              left + (currentValue * ratio), offset.dy + barHeight);
+          final Rect individualBarRect = Rect.fromLTRB(
+            left,
+            offset.dy,
+            left + (currentValue * ratio),
+            offset.dy + barHeight,
+          );
           canvas.drawRect(individualBarRect, paint);
         }
         left += currentValue * ratio;

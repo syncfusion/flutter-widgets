@@ -10,7 +10,7 @@ enum PdfHighlightMode {
   outline,
 
   /// Pushed highlighting.
-  push
+  push,
 }
 
 /// Specifies the file path type.
@@ -19,7 +19,7 @@ enum PdfFilePathType {
   relative,
 
   /// Specifies the location, including the domain name.
-  absolute
+  absolute,
 }
 
 /// Specifies the annotation types.
@@ -64,7 +64,7 @@ enum PdfAnnotationTypes {
   popupAnnotation,
 
   /// No annotation.
-  noAnnotation
+  noAnnotation,
 }
 
 /// Specifies the annotation export types.
@@ -94,7 +94,7 @@ enum PdfAnnotationExportType {
   squigglyAnnotation,
 
   /// Popup annotation type.
-  popupAnnotation
+  popupAnnotation,
 }
 
 /// Specifies the format of Export or Import data.
@@ -129,7 +129,7 @@ enum PdfBorderStyle {
   underline,
 
   /// A dotted rectangle surrounding the annotation.
-  dot
+  dot,
 }
 
 /// Gets or sets the line intent of the annotation.
@@ -180,7 +180,7 @@ enum PdfLineEndingStyle {
   square,
 
   /// Indicates Slash
-  slash
+  slash,
 }
 
 /// Specifies the available data formats for submitting the form data.
@@ -197,7 +197,6 @@ enum PdfSubmitFormFlags {
   /// Exclude flag are submitted, regardless of whether they have a value.
   /// For fields without a value, only the
   /// field name is transmitted.
-
   includeNoValueFields,
 
   /// Meaningful only if the SubmitPDF and XFDF flags are clear. If set,
@@ -265,7 +264,7 @@ enum PdfSubmitFormFlags {
   /// flags are clear). If set, the F entry of the submitted FDF is a file
   /// specification containing an embedded file stream representing the
   /// PDF file from which the FDF is being submitted.
-  embedForm
+  embedForm,
 }
 
 /// Specifies the enumeration of submit data formats.
@@ -280,7 +279,7 @@ enum SubmitDataFormat {
   fdf,
 
   /// Data should be transmitted as XML Forms Data Format.
-  xfdf
+  xfdf,
 }
 
 /// Specifies Http request method.
@@ -289,7 +288,7 @@ enum HttpMethod {
   getHttp,
 
   /// Data submitted using Http Post method.
-  post
+  post,
 }
 
 /// Specifies the Style of the Text Markup Annotation
@@ -328,7 +327,7 @@ enum PdfPopupIcon {
   newParagraph,
 
   /// Indicates paragraph popup annotation.
-  paragraph
+  paragraph,
 }
 
 /// Specifies the enumeration of the annotation flags.
@@ -361,5 +360,5 @@ enum PdfAnnotationFlags {
   locked,
 
   /// Annotation flag's key with no toggle view.
-  toggleNoView
+  toggleNoView,
 }

@@ -1,9 +1,9 @@
-part of xlsio;
+import '../general/enums.dart';
 
 ///Represents AutoFilter conditions class
 abstract class AutoFilterCondition {
   ///Represent filter data type
-  late _ExcelFilterDataType _dataType;
+  late ExcelFilterDataType dataType;
 
   ///Represents the operator used for the filter.
   late ExcelFilterCondition conditionOperator;

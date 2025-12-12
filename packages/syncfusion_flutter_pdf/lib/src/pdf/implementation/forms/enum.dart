@@ -88,7 +88,7 @@ enum FieldFlags {
   /// device. This option enables applications to perform an action once a selection is
   /// made, without requiring the user to exit the field. If clear, the new value is not
   /// committed until the user exits the field.
-  commitOnSelChange
+  commitOnSelChange,
 }
 
 /// Specifies the style for a check box field.
@@ -109,7 +109,7 @@ enum PdfCheckBoxStyle {
   square,
 
   /// A star is used for the checked state.
-  star
+  star,
 }
 
 /// internal enumerator
@@ -124,7 +124,7 @@ enum PdfCheckFieldState {
   pressedUnchecked,
 
   /// Indicated pressed checked state.
-  pressedChecked
+  pressedChecked,
 }
 
 /// internal enumerator
@@ -151,7 +151,7 @@ enum PdfFieldTypes {
   comboBox,
 
   /// Identify that field has no type.
-  none
+  none,
 }
 
 /// internal enumerator
@@ -171,7 +171,7 @@ enum SignatureFlags {
   /// previous version is safe. Viewer applications can use this flag to present
   /// a user requesting a full save with an additional alert box warning that signatures
   /// will be invalidated and requiring explicit confirmation before continuing with the operation.
-  appendOnly
+  appendOnly,
 }
 
 /// Specifies the format of Export or Import data.
@@ -186,5 +186,5 @@ enum DataFormat {
   json,
 
   /// Specifies  XML file format
-  xml
+  xml,
 }

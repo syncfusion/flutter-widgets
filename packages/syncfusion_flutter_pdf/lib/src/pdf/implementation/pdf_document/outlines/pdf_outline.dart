@@ -40,18 +40,23 @@ import 'enums.dart';
 class PdfBookmark extends PdfBookmarkBase {
   //Constructor
   /// Initializes a new instance of the [PdfBookmark] class.
-  PdfBookmark._internal(String title, PdfBookmarkBase parent,
-      PdfBookmark? previous, PdfBookmark? next,
-      {bool isExpanded = false,
-      PdfColor? color,
-      PdfDestination? destination,
-      PdfNamedDestination? namedDestination,
-      PdfAction? action,
-      List<PdfTextStyle>? textStyle})
-      : super._internal() {
+  PdfBookmark._internal(
+    String title,
+    PdfBookmarkBase parent,
+    PdfBookmark? previous,
+    PdfBookmark? next, {
+    bool isExpanded = false,
+    PdfColor? color,
+    PdfDestination? destination,
+    PdfNamedDestination? namedDestination,
+    PdfAction? action,
+    List<PdfTextStyle>? textStyle,
+  }) : super._internal() {
     _parent = parent;
     _helper.dictionary!.setProperty(
-        PdfDictionaryProperties.parent, PdfReferenceHolder(parent));
+      PdfDictionaryProperties.parent,
+      PdfReferenceHolder(parent),
+    );
     _previous = previous;
     _next = next;
     this.title = title;
@@ -74,7 +79,7 @@ class PdfBookmark extends PdfBookmarkBase {
   }
 
   PdfBookmark._load(super.dictionary, PdfCrossTable super.crossTable)
-      : super._load();
+    : super._load();
 
   //Fields
   /// Internal variable to store destination.
@@ -358,7 +363,7 @@ class PdfBookmark extends PdfBookmarkBase {
     252,
     253,
     254,
-    255
+    255,
   ];
 
   //Properties
@@ -431,11 +436,17 @@ class PdfBookmark extends PdfBookmarkBase {
       _namedDestination = value;
       final PdfDictionary dictionary = PdfDictionary();
       dictionary.setProperty(
-          PdfDictionaryProperties.d, PdfString(_namedDestination!.title));
+        PdfDictionaryProperties.d,
+        PdfString(_namedDestination!.title),
+      );
       dictionary.setProperty(
-          PdfDictionaryProperties.s, PdfName(PdfDictionaryProperties.goTo));
+        PdfDictionaryProperties.s,
+        PdfName(PdfDictionaryProperties.goTo),
+      );
       dictionary.setProperty(
-          PdfDictionaryProperties.a, PdfReferenceHolder(dictionary));
+        PdfDictionaryProperties.a,
+        PdfReferenceHolder(dictionary),
+      );
     }
   }
 
@@ -565,8 +576,10 @@ class PdfBookmark extends PdfBookmarkBase {
   set action(PdfAction? value) {
     if (value != null && _action != value) {
       _action = value;
-      _helper.dictionary!.setProperty(PdfDictionaryProperties.a,
-          PdfReferenceHolder(PdfActionHelper.getHelper(_action!).dictionary));
+      _helper.dictionary!.setProperty(
+        PdfDictionaryProperties.a,
+        PdfReferenceHolder(PdfActionHelper.getHelper(_action!).dictionary),
+      );
     }
   }
 
@@ -603,8 +616,10 @@ class PdfBookmark extends PdfBookmarkBase {
   set _previous(PdfBookmark? value) {
     if (_previousBookmark != value) {
       _previousBookmark = value;
-      _helper.dictionary!
-          .setProperty(PdfDictionaryProperties.prev, PdfReferenceHolder(value));
+      _helper.dictionary!.setProperty(
+        PdfDictionaryProperties.prev,
+        PdfReferenceHolder(value),
+      );
     }
   }
 
@@ -621,8 +636,10 @@ class PdfBookmark extends PdfBookmarkBase {
   set _next(PdfBookmark? value) {
     if (_nextBookmark != value) {
       _nextBookmark = value;
-      _helper.dictionary!
-          .setProperty(PdfDictionaryProperties.next, PdfReferenceHolder(value));
+      _helper.dictionary!.setProperty(
+        PdfDictionaryProperties.next,
+        PdfReferenceHolder(value),
+      );
     }
   }
 
@@ -646,8 +663,9 @@ class PdfBookmark extends PdfBookmarkBase {
     if (array != null && _color.isEmpty) {
       _helper.dictionary!.remove(PdfDictionaryProperties.c);
     } else {
-      _helper.dictionary![PdfDictionaryProperties.c] =
-          PdfColorHelper.toArray(_color);
+      _helper.dictionary![PdfDictionaryProperties.c] = PdfColorHelper.toArray(
+        _color,
+      );
     }
   }
 
@@ -667,17 +685,22 @@ class PdfBookmark extends PdfBookmarkBase {
   String _obtainTitle() {
     String title = '';
     if (_helper.dictionary!.containsKey(PdfDictionaryProperties.title)) {
-      final PdfString? str = PdfCrossTable.dereference(
-          _helper.dictionary![PdfDictionaryProperties.title]) as PdfString?;
+      final PdfString? str =
+          PdfCrossTable.dereference(
+                _helper.dictionary![PdfDictionaryProperties.title],
+              )
+              as PdfString?;
       if (str != null && str.value != null) {
         title = str.value!;
         if (_regex.hasMatch(title)) {
           for (int i = 0; i < title.length; i++) {
             if (_regex.hasMatch(title[i])) {
               title = title.replaceAll(
-                  title[i],
-                  String.fromCharCode(
-                      _pdfEncodingByteToChar[title.codeUnitAt(i) & 0xff]));
+                title[i],
+                String.fromCharCode(
+                  _pdfEncodingByteToChar[title.codeUnitAt(i) & 0xff],
+                ),
+              );
             }
           }
         }
@@ -689,8 +712,11 @@ class PdfBookmark extends PdfBookmarkBase {
   PdfColor _obtainColor() {
     PdfColor color = PdfColor(0, 0, 0);
     if (_helper.dictionary!.containsKey(PdfDictionaryProperties.c)) {
-      final PdfArray? colours = PdfCrossTable.dereference(
-          _helper.dictionary![PdfDictionaryProperties.c]) as PdfArray?;
+      final PdfArray? colours =
+          PdfCrossTable.dereference(
+                _helper.dictionary![PdfDictionaryProperties.c],
+              )
+              as PdfArray?;
       if (colours != null && colours.count > 2) {
         double? red = 0;
         double green = 0;
@@ -717,8 +743,11 @@ class PdfBookmark extends PdfBookmarkBase {
   PdfTextStyle _obtainTextStyle() {
     PdfTextStyle style = PdfTextStyle.regular;
     if (_helper.dictionary!.containsKey(PdfDictionaryProperties.f)) {
-      final PdfNumber? flag = PdfCrossTable.dereference(
-          _helper.dictionary![PdfDictionaryProperties.f]) as PdfNumber?;
+      final PdfNumber? flag =
+          PdfCrossTable.dereference(
+                _helper.dictionary![PdfDictionaryProperties.f],
+              )
+              as PdfNumber?;
       int flagValue = 0;
       if (flag != null) {
         flagValue = flag.value!.toInt() - 1;
@@ -736,9 +765,11 @@ class PdfBookmark extends PdfBookmarkBase {
       nextBookmark = _parent!._list[index] as PdfBookmark?;
     } else {
       if (_helper.dictionary!.containsKey(PdfDictionaryProperties.next)) {
-        final PdfDictionary? next = _helper._crossTable
-                .getObject(_helper.dictionary![PdfDictionaryProperties.next])
-            as PdfDictionary?;
+        final PdfDictionary? next =
+            _helper._crossTable.getObject(
+                  _helper.dictionary![PdfDictionaryProperties.next],
+                )
+                as PdfDictionary?;
         nextBookmark = PdfBookmark._load(next, _helper._crossTable);
       }
     }
@@ -753,9 +784,11 @@ class PdfBookmark extends PdfBookmarkBase {
       prevBookmark = _helper._bookmarkList[index] as PdfBookmark?;
     } else {
       if (_helper.dictionary!.containsKey(PdfDictionaryProperties.prev)) {
-        final PdfDictionary? prev = _helper._crossTable
-                .getObject(_helper.dictionary![PdfDictionaryProperties.prev])
-            as PdfDictionary?;
+        final PdfDictionary? prev =
+            _helper._crossTable.getObject(
+                  _helper.dictionary![PdfDictionaryProperties.prev],
+                )
+                as PdfDictionary?;
         prevBookmark = PdfBookmark._load(prev, _helper._crossTable);
       }
     }
@@ -766,7 +799,7 @@ class PdfBookmark extends PdfBookmarkBase {
     final List<double> rgb = <double>[
       color.r.toDouble(),
       color.g.toDouble(),
-      color.b.toDouble()
+      color.b.toDouble(),
     ];
     final PdfArray colors = PdfArray(rgb);
     _helper.dictionary!.setProperty(PdfDictionaryProperties.c, colors);
@@ -790,16 +823,22 @@ class PdfBookmark extends PdfBookmarkBase {
     IPdfPrimitive? destination;
     if (namedCollection != null) {
       if (_helper.dictionary!.containsKey(PdfDictionaryProperties.a)) {
-        final PdfDictionary? action = PdfCrossTable.dereference(
-            _helper.dictionary![PdfDictionaryProperties.a]) as PdfDictionary?;
+        final PdfDictionary? action =
+            PdfCrossTable.dereference(
+                  _helper.dictionary![PdfDictionaryProperties.a],
+                )
+                as PdfDictionary?;
         if (action != null && action.containsKey(PdfDictionaryProperties.d)) {
-          destination =
-              PdfCrossTable.dereference(action[PdfDictionaryProperties.d]);
+          destination = PdfCrossTable.dereference(
+            action[PdfDictionaryProperties.d],
+          );
         }
-      } else if (_helper.dictionary!
-          .containsKey(PdfDictionaryProperties.dest)) {
-        destination = _helper._crossTable
-            .getObject(_helper.dictionary![PdfDictionaryProperties.dest]);
+      } else if (_helper.dictionary!.containsKey(
+        PdfDictionaryProperties.dest,
+      )) {
+        destination = _helper._crossTable.getObject(
+          _helper.dictionary![PdfDictionaryProperties.dest],
+        );
       }
 
       if (destination != null) {
@@ -828,8 +867,9 @@ class PdfBookmark extends PdfBookmarkBase {
   PdfDestination? _obtainDestination() {
     if (_helper.dictionary!.containsKey(PdfDictionaryProperties.dest) &&
         (_destination == null)) {
-      final IPdfPrimitive? obj = _helper._crossTable
-          .getObject(_helper.dictionary![PdfDictionaryProperties.dest]);
+      final IPdfPrimitive? obj = _helper._crossTable.getObject(
+        _helper.dictionary![PdfDictionaryProperties.dest],
+      );
       PdfArray? array = obj as PdfArray?;
       final PdfName? name = (obj is PdfName) ? obj as PdfName? : null;
       final PdfDocument? ldDoc = _helper._crossTable.document;
@@ -867,17 +907,22 @@ class PdfBookmark extends PdfBookmarkBase {
                 zoom = array[4];
               }
               if (page != null) {
-                final double topValue = (top != null && top is PdfNumber)
-                    ? page.size.height - top.value!
-                    : 0;
-                final double leftValue = (left != null && left is PdfNumber)
-                    ? left.value! as double
-                    : 0;
-                _destination =
-                    PdfDestination(page, Offset(leftValue, topValue));
-                _destination!.zoom = (zoom != null && zoom is PdfNumber)
-                    ? zoom.value!.toDouble()
-                    : 0;
+                final double topValue =
+                    (top != null && top is PdfNumber)
+                        ? page.size.height - top.value!
+                        : 0;
+                final double leftValue =
+                    (left != null && left is PdfNumber)
+                        ? left.value! as double
+                        : 0;
+                _destination = PdfDestination(
+                  page,
+                  Offset(leftValue, topValue),
+                );
+                _destination!.zoom =
+                    (zoom != null && zoom is PdfNumber)
+                        ? zoom.value!.toDouble()
+                        : 0;
               }
             } else {
               if (mode.name == PdfDictionaryProperties.fitR) {
@@ -899,20 +944,22 @@ class PdfBookmark extends PdfBookmarkBase {
                 }
                 if (page != null) {
                   _destination = PdfDestinationHelper.getDestination(
-                      page,
-                      PdfRectangle(
-                          (left != null && left is PdfNumber)
-                              ? left.value!.toDouble()
-                              : 0,
-                          (bottom != null && bottom is PdfNumber)
-                              ? bottom.value!.toDouble()
-                              : 0,
-                          (right != null && right is PdfNumber)
-                              ? right.value!.toDouble()
-                              : 0,
-                          (top != null && top is PdfNumber)
-                              ? top.value!.toDouble()
-                              : 0));
+                    page,
+                    PdfRectangle(
+                      (left != null && left is PdfNumber)
+                          ? left.value!.toDouble()
+                          : 0,
+                      (bottom != null && bottom is PdfNumber)
+                          ? bottom.value!.toDouble()
+                          : 0,
+                      (right != null && right is PdfNumber)
+                          ? right.value!.toDouble()
+                          : 0,
+                      (top != null && top is PdfNumber)
+                          ? top.value!.toDouble()
+                          : 0,
+                    ),
+                  );
                   _destination!.mode = PdfDestinationMode.fitR;
                 }
               } else if (mode.name == PdfDictionaryProperties.fitBH ||
@@ -922,9 +969,10 @@ class PdfBookmark extends PdfBookmarkBase {
                   top = array[2];
                 }
                 if (page != null) {
-                  final double topValue = (top != null && top is PdfNumber)
-                      ? page.size.height - top.value!
-                      : 0;
+                  final double topValue =
+                      (top != null && top is PdfNumber)
+                          ? page.size.height - top.value!
+                          : 0;
                   _destination = PdfDestination(page, Offset(0, topValue));
                   _destination!.mode = PdfDestinationMode.fitH;
                 }
@@ -945,8 +993,9 @@ class PdfBookmark extends PdfBookmarkBase {
       }
     } else if (_helper.dictionary!.containsKey(PdfDictionaryProperties.a) &&
         (_destination == null)) {
-      IPdfPrimitive? obj = _helper._crossTable
-          .getObject(_helper.dictionary![PdfDictionaryProperties.a]);
+      IPdfPrimitive? obj = _helper._crossTable.getObject(
+        _helper.dictionary![PdfDictionaryProperties.a],
+      );
       PdfDictionary? destDic;
       if (obj is PdfDictionary) {
         destDic = obj;
@@ -986,9 +1035,10 @@ class PdfBookmark extends PdfBookmarkBase {
               top = array[2];
             }
             if (page != null) {
-              final double topValue = (top != null && top is PdfNumber)
-                  ? page.size.height - top.value!
-                  : 0;
+              final double topValue =
+                  (top != null && top is PdfNumber)
+                      ? page.size.height - top.value!
+                      : 0;
               _destination = PdfDestination(page, Offset(0, topValue));
               _destination!.mode = PdfDestinationMode.fitH;
             }
@@ -1006,16 +1056,19 @@ class PdfBookmark extends PdfBookmarkBase {
               zoom = array[4];
             }
             if (page != null) {
-              final double topValue = (top != null && top is PdfNumber)
-                  ? page.size.height - top.value!
-                  : 0;
-              final double leftValue = (left != null && left is PdfNumber)
-                  ? left.value! as double
-                  : 0;
+              final double topValue =
+                  (top != null && top is PdfNumber)
+                      ? page.size.height - top.value!
+                      : 0;
+              final double leftValue =
+                  (left != null && left is PdfNumber)
+                      ? left.value! as double
+                      : 0;
               _destination = PdfDestination(page, Offset(leftValue, topValue));
-              _destination!.zoom = (zoom != null && zoom is PdfNumber)
-                  ? zoom.value!.toDouble()
-                  : 0;
+              _destination!.zoom =
+                  (zoom != null && zoom is PdfNumber)
+                      ? zoom.value!.toDouble()
+                      : 0;
             }
           } else {
             if (page != null && mode.name == PdfDictionaryProperties.fit) {
@@ -1169,16 +1222,22 @@ class PdfBookmarkBase implements IPdfWrapper {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfBookmark add(String title,
-      {bool isExpanded = false,
-      PdfColor? color,
-      PdfDestination? destination,
-      PdfNamedDestination? namedDestination,
-      PdfAction? action,
-      List<PdfTextStyle>? textStyle}) {
+  PdfBookmark add(
+    String title, {
+    bool isExpanded = false,
+    PdfColor? color,
+    PdfDestination? destination,
+    PdfNamedDestination? namedDestination,
+    PdfAction? action,
+    List<PdfTextStyle>? textStyle,
+  }) {
     final PdfBookmark? previous = (count < 1) ? null : this[count - 1];
-    final PdfBookmark outline =
-        PdfBookmark._internal(title, this, previous, null);
+    final PdfBookmark outline = PdfBookmark._internal(
+      title,
+      this,
+      previous,
+      null,
+    );
     if (previous != null) {
       previous._next = outline;
     }
@@ -1265,10 +1324,13 @@ class PdfBookmarkBase implements IPdfWrapper {
     }
     final PdfBookmark current = _bookmark![index];
     if (index == 0) {
-      if (current._helper.dictionary!
-          .containsKey(PdfDictionaryProperties.next)) {
-        _helper.dictionary!.setProperty(PdfDictionaryProperties.first,
-            current._helper.dictionary![PdfDictionaryProperties.next]);
+      if (current._helper.dictionary!.containsKey(
+        PdfDictionaryProperties.next,
+      )) {
+        _helper.dictionary!.setProperty(
+          PdfDictionaryProperties.first,
+          current._helper.dictionary![PdfDictionaryProperties.next],
+        );
       } else {
         _helper.dictionary!.remove(PdfDictionaryProperties.first);
         _helper.dictionary!.remove(PdfDictionaryProperties.last);
@@ -1277,19 +1339,23 @@ class PdfBookmarkBase implements IPdfWrapper {
         (current._previous != null) &&
         (current._next != null)) {
       current._previous!._helper.dictionary!.setProperty(
-          PdfDictionaryProperties.next,
-          current._helper.dictionary![PdfDictionaryProperties.next]);
+        PdfDictionaryProperties.next,
+        current._helper.dictionary![PdfDictionaryProperties.next],
+      );
       current._next!._helper.dictionary!.setProperty(
-          PdfDictionaryProperties.prev,
-          current._helper.dictionary![PdfDictionaryProperties.prev]);
+        PdfDictionaryProperties.prev,
+        current._helper.dictionary![PdfDictionaryProperties.prev],
+      );
     } else if ((current._parent != null) &&
         (current._previous != null) &&
         (current._next == null)) {
-      current._previous!._helper.dictionary!
-          .remove(PdfDictionaryProperties.next);
+      current._previous!._helper.dictionary!.remove(
+        PdfDictionaryProperties.next,
+      );
       current._parent!._helper.dictionary!.setProperty(
-          PdfDictionaryProperties.last,
-          current._helper.dictionary![PdfDictionaryProperties.prev]);
+        PdfDictionaryProperties.last,
+        current._helper.dictionary![PdfDictionaryProperties.prev],
+      );
     }
     if (current._parent != null) {
       current._parent!._list.remove(current);
@@ -1362,9 +1428,13 @@ class PdfBookmarkBase implements IPdfWrapper {
       final int newCount = _isExpanded ? _list.length : -_list.length;
       _helper.dictionary![PdfDictionaryProperties.count] = PdfNumber(newCount);
       _helper.dictionary!.setProperty(
-          PdfDictionaryProperties.first, PdfReferenceHolder(this[0]));
+        PdfDictionaryProperties.first,
+        PdfReferenceHolder(this[0]),
+      );
       _helper.dictionary!.setProperty(
-          PdfDictionaryProperties.last, PdfReferenceHolder(this[count - 1]));
+        PdfDictionaryProperties.last,
+        PdfReferenceHolder(this[count - 1]),
+      );
     } else {
       _helper.dictionary!.clear();
     }
@@ -1380,21 +1450,30 @@ class PdfBookmarkBase implements IPdfWrapper {
 /// [PdfBookmark] helper
 class PdfBookmarkHelper {
   /// internal method
-  static PdfBookmark internal(String title, PdfBookmarkBase parent,
-      PdfBookmark? previous, PdfBookmark? next,
-      {bool isExpanded = false,
-      PdfColor? color,
-      PdfDestination? destination,
-      PdfNamedDestination? namedDestination,
-      PdfAction? action,
-      List<PdfTextStyle>? textStyle}) {
-    return PdfBookmark._internal(title, parent, previous, next,
-        isExpanded: isExpanded,
-        color: color,
-        destination: destination,
-        namedDestination: namedDestination,
-        action: action,
-        textStyle: textStyle);
+  static PdfBookmark internal(
+    String title,
+    PdfBookmarkBase parent,
+    PdfBookmark? previous,
+    PdfBookmark? next, {
+    bool isExpanded = false,
+    PdfColor? color,
+    PdfDestination? destination,
+    PdfNamedDestination? namedDestination,
+    PdfAction? action,
+    List<PdfTextStyle>? textStyle,
+  }) {
+    return PdfBookmark._internal(
+      title,
+      parent,
+      previous,
+      next,
+      isExpanded: isExpanded,
+      color: color,
+      destination: destination,
+      namedDestination: namedDestination,
+      action: action,
+      textStyle: textStyle,
+    );
   }
 
   /// internal method
@@ -1439,7 +1518,9 @@ class PdfBookmarkBaseHelper {
 
   /// internal method
   static PdfBookmarkBase loaded(
-      PdfDictionary? dictionary, PdfCrossTable crossTable) {
+    PdfDictionary? dictionary,
+    PdfCrossTable crossTable,
+  ) {
     return PdfBookmarkBase._load(dictionary, crossTable);
   }
 

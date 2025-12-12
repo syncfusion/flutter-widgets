@@ -128,8 +128,13 @@ abstract class PdfFont implements IPdfWrapper {
   Size measureString(String text, {Size? layoutArea, PdfStringFormat? format}) {
     layoutArea ??= Size.zero;
     final PdfStringLayouter layouter = PdfStringLayouter();
-    final PdfStringLayoutResult result = layouter.layout(text, this, format,
-        width: layoutArea.width, height: layoutArea.height);
+    final PdfStringLayoutResult result = layouter.layout(
+      text,
+      this,
+      format,
+      width: layoutArea.width,
+      height: layoutArea.height,
+    );
     return result.size.size;
   }
 
@@ -140,15 +145,20 @@ abstract class PdfFont implements IPdfWrapper {
 
   /// Applies settings to the default line width.
   double _applyFormatSettings(
-      String line, PdfStringFormat? format, double width) {
+    String line,
+    PdfStringFormat? format,
+    double width,
+  ) {
     double realWidth = width;
     if (format != null && width > 0) {
       if (format.characterSpacing != 0) {
         realWidth += (line.length - 1) * format.characterSpacing;
       }
       if (format.wordSpacing != 0) {
-        final int whitespacesCount =
-            StringTokenizer.getCharacterCount(line, StringTokenizer.spaces);
+        final int whitespacesCount = StringTokenizer.getCharacterCount(
+          line,
+          StringTokenizer.spaces,
+        );
         realWidth += whitespacesCount * format.wordSpacing;
       }
     }
@@ -173,7 +183,7 @@ class PdfFontHelper {
     'courier',
     'TimesRoman',
     'Symbol',
-    'ZapfDingbats'
+    'ZapfDingbats',
   ];
 
   /// internal field
@@ -184,7 +194,7 @@ class PdfFontHelper {
     'HeiseiMinchoW3',
     'MonotypeHeiMedium',
     'MonotypeSungLight',
-    'SinoTypeSongLight'
+    'SinoTypeSongLight',
   ];
 
   /// internal field
@@ -220,8 +230,11 @@ class PdfFontHelper {
 
   /// Initializes a new instance of the [PdfFont] class
   /// with font size and style.
-  void initialize(double size,
-      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
+  void initialize(
+    double size, {
+    PdfFontStyle? style,
+    List<PdfFontStyle>? multiStyle,
+  }) {
     setSize(size);
     setStyle(style, multiStyle);
   }
@@ -278,10 +291,14 @@ class PdfFontHelper {
 
   /// internal method
   static double getLineWidth(
-      PdfFont font, String line, PdfStringFormat? format) {
+    PdfFont font,
+    String line,
+    PdfStringFormat? format,
+  ) {
     if (font is PdfCjkStandardFont) {
-      return PdfCjkStandardFontHelper.getHelper(font)
-          .getLineWidth(line, format);
+      return PdfCjkStandardFontHelper.getHelper(
+        font,
+      ).getLineWidth(line, format);
     } else if (font is PdfStandardFont) {
       return PdfStandardFontHelper.getHelper(font).getLineWidth(line, format);
     } else if (font is PdfTrueTypeFont) {
@@ -292,7 +309,11 @@ class PdfFontHelper {
 
   /// internal method
   static double applyFormatSettings(
-      PdfFont font, String line, PdfStringFormat? format, double width) {
+    PdfFont font,
+    String line,
+    PdfStringFormat? format,
+    double width,
+  ) {
     return font._applyFormatSettings(line, format, width);
   }
 }

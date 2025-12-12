@@ -299,7 +299,9 @@ class ErrorBarSeries<T, D> extends XyDataSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, ErrorBarSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    ErrorBarSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..type = type
@@ -458,7 +460,13 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     List<List<Object?>>? fLists,
   ]) {
     super.populateDataSource(
-        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
+      yPaths,
+      chaoticYLists,
+      yLists,
+      fPaths,
+      chaoticFLists,
+      fLists,
+    );
     _xMin = xMin;
     _xMax = xMax;
     _yMin = yMin;
@@ -468,16 +476,28 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }
 
   @override
-  void updateDataPoints(List<int>? removedIndexes, List<int>? addedIndexes,
-      List<int>? replacedIndexes,
-      [List<ChartValueMapper<T, num>>? yPaths,
-      List<List<num>>? chaoticYLists,
-      List<List<num>>? yLists,
-      List<ChartValueMapper<T, Object>>? fPaths,
-      List<List<Object?>>? chaoticFLists,
-      List<List<Object?>>? fLists]) {
-    super.updateDataPoints(removedIndexes, addedIndexes, replacedIndexes,
-        yPaths, chaoticYLists, yLists, fPaths, chaoticFLists, fLists);
+  void updateDataPoints(
+    List<int>? removedIndexes,
+    List<int>? addedIndexes,
+    List<int>? replacedIndexes, [
+    List<ChartValueMapper<T, num>>? yPaths,
+    List<List<num>>? chaoticYLists,
+    List<List<num>>? yLists,
+    List<ChartValueMapper<T, Object>>? fPaths,
+    List<List<Object?>>? chaoticFLists,
+    List<List<Object?>>? fLists,
+  ]) {
+    super.updateDataPoints(
+      removedIndexes,
+      addedIndexes,
+      replacedIndexes,
+      yPaths,
+      chaoticYLists,
+      yLists,
+      fPaths,
+      chaoticFLists,
+      fLists,
+    );
     _xMin = xMin;
     _xMax = xMax;
     _yMin = yMin;
@@ -504,35 +524,43 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         sumOfX += xValues[i];
       }
 
-      verticalMean = (mode == RenderingMode.horizontal)
-          ? verticalMean
-          : sumOfY / dataCount;
-      horizontalMean = (mode == RenderingMode.vertical)
-          ? horizontalMean
-          : sumOfX / dataCount;
+      verticalMean =
+          (mode == RenderingMode.horizontal)
+              ? verticalMean
+              : sumOfY / dataCount;
+      horizontalMean =
+          (mode == RenderingMode.vertical)
+              ? horizontalMean
+              : sumOfX / dataCount;
       for (int i = 0; i < dataCount; i++) {
-        sumOfY = (mode == RenderingMode.horizontal)
-            ? sumOfY
-            : sumOfY + pow(yValues[i] - verticalMean!, 2);
-        sumOfX = (mode == RenderingMode.vertical)
-            ? sumOfX
-            : sumOfX + pow(xValues[i] - horizontalMean!, 2);
+        sumOfY =
+            (mode == RenderingMode.horizontal)
+                ? sumOfY
+                : sumOfY + pow(yValues[i] - verticalMean!, 2);
+        sumOfX =
+            (mode == RenderingMode.vertical)
+                ? sumOfX
+                : sumOfX + pow(xValues[i] - horizontalMean!, 2);
       }
 
       verticalSquareRoot = sqrt(sumOfY / (dataCount - 1));
       horizontalSquareRoot = sqrt(sumOfX / (dataCount - 1));
 
       final ErrorBarMean mean = ErrorBarMean(
-          verticalSquareRoot: verticalSquareRoot,
-          horizontalSquareRoot: horizontalSquareRoot,
-          verticalMean: verticalMean,
-          horizontalMean: horizontalMean);
+        verticalSquareRoot: verticalSquareRoot,
+        horizontalSquareRoot: horizontalSquareRoot,
+        verticalMean: verticalMean,
+        horizontalMean: horizontalMean,
+      );
 
       for (int j = 0; j < dataCount; j++) {
         final num xValue = xValues[j];
         final num yValue = yValues[j];
-        final ErrorValues errorValues =
-            _calculateErrorValues(xValue, yValue, mean: mean);
+        final ErrorValues errorValues = _calculateErrorValues(
+          xValue,
+          yValue,
+          mean: mean,
+        );
 
         errorBarValues = _calculateErrorBarValues(errorValues, xValue, yValue);
         _errorBarValues.add(errorBarValues);
@@ -542,15 +570,8 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       for (int k = 0; k < dataCount; k++) {
         final num xValue = xValues[k];
         final num yValue = yValues[k];
-        final ErrorValues errorValues = _calculateErrorValues(
-          xValue,
-          yValue,
-        );
-        errorBarValues = _calculateErrorBarValues(
-          errorValues,
-          xValue,
-          yValue,
-        );
+        final ErrorValues errorValues = _calculateErrorValues(xValue, yValue);
+        errorBarValues = _calculateErrorBarValues(errorValues, xValue, yValue);
         _errorBarValues.add(errorBarValues);
         _findMinMax(errorBarValues, axesRange);
       }
@@ -564,28 +585,39 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
 
   void _findMinMax(ErrorBarValues errorBarValues, AxesRange axesRange) {
     if (errorBarValues.horizontalNegativeErrorValue != null) {
-      axesRange.xMinimum =
-          min(axesRange.xMinimum, errorBarValues.horizontalNegativeErrorValue!);
+      axesRange.xMinimum = min(
+        axesRange.xMinimum,
+        errorBarValues.horizontalNegativeErrorValue!,
+      );
     }
 
     if (errorBarValues.horizontalPositiveErrorValue != null) {
-      axesRange.xMaximum =
-          max(axesRange.xMaximum, errorBarValues.horizontalPositiveErrorValue!);
+      axesRange.xMaximum = max(
+        axesRange.xMaximum,
+        errorBarValues.horizontalPositiveErrorValue!,
+      );
     }
 
     if (errorBarValues.verticalNegativeErrorValue != null) {
-      axesRange.yMinimum =
-          min(axesRange.yMinimum, errorBarValues.verticalNegativeErrorValue!);
+      axesRange.yMinimum = min(
+        axesRange.yMinimum,
+        errorBarValues.verticalNegativeErrorValue!,
+      );
     }
     if (errorBarValues.verticalPositiveErrorValue != null) {
-      axesRange.yMaximum =
-          max(axesRange.yMaximum, errorBarValues.verticalPositiveErrorValue!);
+      axesRange.yMaximum = max(
+        axesRange.yMaximum,
+        errorBarValues.verticalPositiveErrorValue!,
+      );
     }
   }
 
   /// Calculating error values based on error bar type.
-  ErrorValues _calculateErrorValues(num actualXValue, num actualYValue,
-      {ErrorBarMean? mean}) {
+  ErrorValues _calculateErrorValues(
+    num actualXValue,
+    num actualYValue, {
+    ErrorBarMean? mean,
+  }) {
     num errorX = 0.0;
     num errorY = 0.0;
     num customNegativeErrorX = 0.0;
@@ -604,39 +636,48 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       } else if (type == ErrorBarType.standardDeviation) {
         errorValues = _calculateStandardDeviationValues(errorValues, mean!);
       } else if (type == ErrorBarType.percentage) {
-        errorY = (mode == RenderingMode.horizontal)
-            ? errorY
-            : (errorY / 100) * actualYValue;
-        errorX = (mode == RenderingMode.vertical)
-            ? errorX
-            : (errorX / 100) * actualXValue;
+        errorY =
+            (mode == RenderingMode.horizontal)
+                ? errorY
+                : (errorY / 100) * actualYValue;
+        errorX =
+            (mode == RenderingMode.vertical)
+                ? errorX
+                : (errorX / 100) * actualXValue;
         errorValues = ErrorValues(errorX: errorX, errorY: errorY);
       }
     } else if (type == ErrorBarType.custom) {
-      errorY = (mode == RenderingMode.horizontal)
-          ? errorY
-          : verticalPositiveErrorValue!;
-      customNegativeErrorY = (mode == RenderingMode.horizontal)
-          ? customNegativeErrorY
-          : verticalNegativeErrorValue!;
-      errorX = (mode == RenderingMode.vertical)
-          ? errorX
-          : horizontalPositiveErrorValue!;
-      customNegativeErrorX = (mode == RenderingMode.vertical)
-          ? customNegativeErrorX
-          : horizontalNegativeErrorValue!;
+      errorY =
+          (mode == RenderingMode.horizontal)
+              ? errorY
+              : verticalPositiveErrorValue!;
+      customNegativeErrorY =
+          (mode == RenderingMode.horizontal)
+              ? customNegativeErrorY
+              : verticalNegativeErrorValue!;
+      errorX =
+          (mode == RenderingMode.vertical)
+              ? errorX
+              : horizontalPositiveErrorValue!;
+      customNegativeErrorX =
+          (mode == RenderingMode.vertical)
+              ? customNegativeErrorX
+              : horizontalNegativeErrorValue!;
       errorValues = ErrorValues(
-          errorX: errorX,
-          errorY: errorY,
-          customNegativeX: customNegativeErrorX,
-          customNegativeY: customNegativeErrorY);
+        errorX: errorX,
+        errorY: errorY,
+        customNegativeX: customNegativeErrorX,
+        customNegativeY: customNegativeErrorY,
+      );
     }
     return errorValues!;
   }
 
   /// Calculate the error values of standard error type error bar.
   ErrorValues _calculateStandardErrorValues(
-      ErrorValues errorValues, ErrorBarMean mean) {
+    ErrorValues errorValues,
+    ErrorBarMean mean,
+  ) {
     final num errorX =
         (errorValues.errorX! * mean.horizontalSquareRoot!) / sqrt(dataCount);
     final num errorY =
@@ -646,20 +687,27 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
 
   /// Calculate the error values of standard deviation type error bar.
   ErrorValues _calculateStandardDeviationValues(
-      ErrorValues errorValues, ErrorBarMean mean) {
+    ErrorValues errorValues,
+    ErrorBarMean mean,
+  ) {
     num errorY = errorValues.errorY!, errorX = errorValues.errorX!;
-    errorY = (mode == RenderingMode.horizontal)
-        ? errorY
-        : errorY * (mean.verticalSquareRoot! + mean.verticalMean!);
-    errorX = (mode == RenderingMode.vertical)
-        ? errorX
-        : errorX * (mean.horizontalSquareRoot! + mean.horizontalMean!);
+    errorY =
+        (mode == RenderingMode.horizontal)
+            ? errorY
+            : errorY * (mean.verticalSquareRoot! + mean.verticalMean!);
+    errorX =
+        (mode == RenderingMode.vertical)
+            ? errorX
+            : errorX * (mean.horizontalSquareRoot! + mean.horizontalMean!);
     return ErrorValues(errorX: errorX, errorY: errorY);
   }
 
   /// Calculate the error bar values.
   ErrorBarValues _calculateErrorBarValues(
-      ErrorValues errorValues, num actualXValue, num actualYValue) {
+    ErrorValues errorValues,
+    num actualXValue,
+    num actualYValue,
+  ) {
     final bool isDirectionPlus = direction == Direction.plus;
     final bool isBothDirection = direction == Direction.both;
     final bool isDirectionMinus = direction == Direction.minus;
@@ -674,7 +722,9 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       if (isDirectionPlus || isBothDirection) {
         if (xAxis is RenderDateTimeAxis && isCustomFixedType) {
           horizontalPositiveErrorValue = _updateDateTimeHorizontalErrorValue(
-              actualXValue, errorValues.errorX!);
+            actualXValue,
+            errorValues.errorX!,
+          );
         } else {
           horizontalPositiveErrorValue =
               actualXValue + errorValues.errorX! as double;
@@ -683,15 +733,18 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
       if (isDirectionMinus || isBothDirection) {
         if (xAxis is RenderDateTimeAxis && isCustomFixedType) {
           horizontalNegativeErrorValue = _updateDateTimeHorizontalErrorValue(
-              actualXValue,
-              (type == ErrorBarType.custom)
-                  ? -errorValues.customNegativeX!
-                  : -errorValues.errorX!);
+            actualXValue,
+            (type == ErrorBarType.custom)
+                ? -errorValues.customNegativeX!
+                : -errorValues.errorX!,
+          );
         } else {
-          horizontalNegativeErrorValue = actualXValue -
-              ((type == ErrorBarType.custom)
-                  ? errorValues.customNegativeX!
-                  : errorValues.errorX!) as double;
+          horizontalNegativeErrorValue =
+              actualXValue -
+                      ((type == ErrorBarType.custom)
+                          ? errorValues.customNegativeX!
+                          : errorValues.errorX!)
+                  as double;
         }
       }
     }
@@ -702,23 +755,27 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
             actualYValue + errorValues.errorY! as double;
       }
       if (isDirectionMinus || isBothDirection) {
-        verticalNegativeErrorValue = actualYValue -
-            ((type == ErrorBarType.custom)
-                ? errorValues.customNegativeY!
-                : errorValues.errorY!) as double;
+        verticalNegativeErrorValue =
+            actualYValue -
+                    ((type == ErrorBarType.custom)
+                        ? errorValues.customNegativeY!
+                        : errorValues.errorY!)
+                as double;
       }
     }
     return ErrorBarValues(
-        horizontalPositiveErrorValue,
-        horizontalNegativeErrorValue,
-        verticalPositiveErrorValue,
-        verticalNegativeErrorValue);
+      horizontalPositiveErrorValue,
+      horizontalNegativeErrorValue,
+      verticalPositiveErrorValue,
+      verticalNegativeErrorValue,
+    );
   }
 
   /// Calculate the error values for DateTime axis.
   double _updateDateTimeHorizontalErrorValue(num actualXValue, num errorValue) {
-    DateTime errorXValue =
-        DateTime.fromMillisecondsSinceEpoch(actualXValue.toInt());
+    DateTime errorXValue = DateTime.fromMillisecondsSinceEpoch(
+      actualXValue.toInt(),
+    );
     final int errorX = errorValue.toInt();
 
     final RenderDateTimeAxis dateTimeAxis = xAxis! as RenderDateTimeAxis;
@@ -726,15 +783,24 @@ class ErrorBarSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     switch (type) {
       case DateTimeIntervalType.years:
         errorXValue = DateTime(
-            errorXValue.year + errorX, errorXValue.month, errorXValue.day);
+          errorXValue.year + errorX,
+          errorXValue.month,
+          errorXValue.day,
+        );
         break;
       case DateTimeIntervalType.months:
         errorXValue = DateTime(
-            errorXValue.year, errorXValue.month + errorX, errorXValue.day);
+          errorXValue.year,
+          errorXValue.month + errorX,
+          errorXValue.day,
+        );
         break;
       case DateTimeIntervalType.days:
         errorXValue = DateTime(
-            errorXValue.year, errorXValue.month, errorXValue.day + errorX);
+          errorXValue.year,
+          errorXValue.month,
+          errorXValue.day + errorX,
+        );
         break;
       case DateTimeIntervalType.hours:
         errorXValue = errorXValue.add(Duration(hours: errorX));
@@ -830,7 +896,9 @@ class ErrorBarSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldPoints.clear();
@@ -903,111 +971,151 @@ class ErrorBarSegment<T, D> extends ChartSegment {
         points.add(Offset(_errorBarMidPointX, _errorBarMidPointY));
 
         if (errorBarValues.verticalPositiveErrorValue != null) {
-          verticalPositiveX =
-              transformX(xValue, errorBarValues.verticalPositiveErrorValue!);
-          verticalPositiveY =
-              transformY(xValue, errorBarValues.verticalPositiveErrorValue!);
+          verticalPositiveX = transformX(
+            xValue,
+            errorBarValues.verticalPositiveErrorValue!,
+          );
+          verticalPositiveY = transformY(
+            xValue,
+            errorBarValues.verticalPositiveErrorValue!,
+          );
           points.add(Offset(verticalPositiveX, verticalPositiveY));
         }
 
         if (errorBarValues.verticalNegativeErrorValue != null) {
-          verticalNegativeX =
-              transformX(xValue, errorBarValues.verticalNegativeErrorValue!);
-          verticalNegativeY =
-              transformY(xValue, errorBarValues.verticalNegativeErrorValue!);
+          verticalNegativeX = transformX(
+            xValue,
+            errorBarValues.verticalNegativeErrorValue!,
+          );
+          verticalNegativeY = transformY(
+            xValue,
+            errorBarValues.verticalNegativeErrorValue!,
+          );
           points.add(Offset(verticalNegativeX, verticalNegativeY));
         }
 
         if (errorBarValues.horizontalPositiveErrorValue != null) {
-          horizontalPositiveX =
-              transformX(errorBarValues.horizontalPositiveErrorValue!, yValue);
-          horizontalPositiveY =
-              transformY(errorBarValues.horizontalPositiveErrorValue!, yValue);
+          horizontalPositiveX = transformX(
+            errorBarValues.horizontalPositiveErrorValue!,
+            yValue,
+          );
+          horizontalPositiveY = transformY(
+            errorBarValues.horizontalPositiveErrorValue!,
+            yValue,
+          );
           points.add(Offset(horizontalPositiveX, horizontalPositiveY));
         }
 
         if (errorBarValues.horizontalNegativeErrorValue != null) {
-          horizontalNegativeX =
-              transformX(errorBarValues.horizontalNegativeErrorValue!, yValue);
-          horizontalNegativeY =
-              transformY(errorBarValues.horizontalNegativeErrorValue!, yValue);
+          horizontalNegativeX = transformX(
+            errorBarValues.horizontalNegativeErrorValue!,
+            yValue,
+          );
+          horizontalNegativeY = transformY(
+            errorBarValues.horizontalNegativeErrorValue!,
+            yValue,
+          );
           points.add(Offset(horizontalNegativeX, horizontalNegativeY));
         }
 
         double animatingPoint;
         if (verticalPositiveX != null && verticalPositiveY != null) {
-          animatingPoint = isTransposedChart
-              ? _errorBarMidPointX +
-                  ((verticalPositiveX - _errorBarMidPointX) *
-                      _effectiveAnimationFactor)
-              : _errorBarMidPointY -
-                  ((_errorBarMidPointY - verticalPositiveY) *
-                      _effectiveAnimationFactor);
+          animatingPoint =
+              isTransposedChart
+                  ? _errorBarMidPointX +
+                      ((verticalPositiveX - _errorBarMidPointX) *
+                          _effectiveAnimationFactor)
+                  : _errorBarMidPointY -
+                      ((_errorBarMidPointY - verticalPositiveY) *
+                          _effectiveAnimationFactor);
 
-          _capPointValue = animatingPoint -
+          _capPointValue =
+              animatingPoint -
               ((animatingPoint -
                       (isTransposedChart
                           ? verticalPositiveX
                           : verticalPositiveY)) *
                   animationFactor);
 
-          _calculateVerticalPath(_capPointValue, animationFactor,
-              series.capLength!, isTransposedChart);
+          _calculateVerticalPath(
+            _capPointValue,
+            animationFactor,
+            series.capLength!,
+            isTransposedChart,
+          );
         }
         if (verticalNegativeX != null && verticalNegativeY != null) {
-          animatingPoint = isTransposedChart
-              ? _errorBarMidPointX +
-                  ((verticalNegativeX - _errorBarMidPointX) *
-                      _effectiveAnimationFactor)
-              : _errorBarMidPointY +
-                  ((verticalNegativeY - _errorBarMidPointY) *
-                      _effectiveAnimationFactor);
+          animatingPoint =
+              isTransposedChart
+                  ? _errorBarMidPointX +
+                      ((verticalNegativeX - _errorBarMidPointX) *
+                          _effectiveAnimationFactor)
+                  : _errorBarMidPointY +
+                      ((verticalNegativeY - _errorBarMidPointY) *
+                          _effectiveAnimationFactor);
 
-          _capPointValue = animatingPoint +
+          _capPointValue =
+              animatingPoint +
               (((isTransposedChart ? verticalNegativeX : verticalNegativeY) -
                       animatingPoint) *
                   animationFactor);
 
-          _calculateVerticalPath(_capPointValue, animationFactor,
-              series.capLength!, isTransposedChart);
+          _calculateVerticalPath(
+            _capPointValue,
+            animationFactor,
+            series.capLength!,
+            isTransposedChart,
+          );
         }
         if (horizontalPositiveX != null && horizontalPositiveY != null) {
-          animatingPoint = isTransposedChart
-              ? _errorBarMidPointY -
-                  ((_errorBarMidPointY - horizontalPositiveY) *
-                      _effectiveAnimationFactor)
-              : _errorBarMidPointX +
-                  ((horizontalPositiveX - _errorBarMidPointX) *
-                      _effectiveAnimationFactor);
+          animatingPoint =
+              isTransposedChart
+                  ? _errorBarMidPointY -
+                      ((_errorBarMidPointY - horizontalPositiveY) *
+                          _effectiveAnimationFactor)
+                  : _errorBarMidPointX +
+                      ((horizontalPositiveX - _errorBarMidPointX) *
+                          _effectiveAnimationFactor);
 
-          _capPointValue = animatingPoint +
+          _capPointValue =
+              animatingPoint +
               (((isTransposedChart
                           ? horizontalPositiveY
                           : horizontalPositiveX) -
                       animatingPoint) *
                   animationFactor);
 
-          _calculateHorizontalPath(_capPointValue, animationFactor,
-              series.capLength!, isTransposedChart);
+          _calculateHorizontalPath(
+            _capPointValue,
+            animationFactor,
+            series.capLength!,
+            isTransposedChart,
+          );
         }
         if (horizontalNegativeX != null && horizontalNegativeY != null) {
-          animatingPoint = isTransposedChart
-              ? _errorBarMidPointY +
-                  ((horizontalNegativeY - _errorBarMidPointY) *
-                      _effectiveAnimationFactor)
-              : _errorBarMidPointX -
-                  ((_errorBarMidPointX - horizontalNegativeX) *
-                      _effectiveAnimationFactor);
+          animatingPoint =
+              isTransposedChart
+                  ? _errorBarMidPointY +
+                      ((horizontalNegativeY - _errorBarMidPointY) *
+                          _effectiveAnimationFactor)
+                  : _errorBarMidPointX -
+                      ((_errorBarMidPointX - horizontalNegativeX) *
+                          _effectiveAnimationFactor);
 
-          _capPointValue = animatingPoint -
+          _capPointValue =
+              animatingPoint -
               ((animatingPoint -
                       (isTransposedChart
                           ? horizontalNegativeY
                           : horizontalNegativeX)) *
                   animationFactor);
 
-          _calculateHorizontalPath(_capPointValue, animationFactor,
-              series.capLength!, isTransposedChart);
+          _calculateHorizontalPath(
+            _capPointValue,
+            animationFactor,
+            series.capLength!,
+            isTransposedChart,
+          );
         }
 
         if (points.length > _oldPoints.length) {
@@ -1017,36 +1125,56 @@ class ErrorBarSegment<T, D> extends ChartSegment {
     }
   }
 
-  void _calculateVerticalPath(double capPointValue, double animationFactor,
-      double capLength, bool isTransposedChart) {
+  void _calculateVerticalPath(
+    double capPointValue,
+    double animationFactor,
+    double capLength,
+    bool isTransposedChart,
+  ) {
     if (isTransposedChart) {
       _verticalPath.moveTo(_errorBarMidPointX, _errorBarMidPointY);
       _verticalPath.lineTo(capPointValue, _errorBarMidPointY);
       _verticalCapPath.moveTo(
-          capPointValue, _errorBarMidPointY - (capLength / 2));
+        capPointValue,
+        _errorBarMidPointY - (capLength / 2),
+      );
       _verticalCapPath.lineTo(
-          capPointValue, _errorBarMidPointY + (capLength / 2));
+        capPointValue,
+        _errorBarMidPointY + (capLength / 2),
+      );
     } else {
       _verticalPath.moveTo(_errorBarMidPointX, _errorBarMidPointY);
       _verticalPath.lineTo(_errorBarMidPointX, capPointValue);
       _verticalCapPath.moveTo(
-          _errorBarMidPointX - (capLength / 2), capPointValue);
+        _errorBarMidPointX - (capLength / 2),
+        capPointValue,
+      );
       _verticalCapPath.lineTo(
-          _errorBarMidPointX + (capLength / 2), capPointValue);
+        _errorBarMidPointX + (capLength / 2),
+        capPointValue,
+      );
     }
     _verticalPath.close();
     _verticalCapPath.close();
   }
 
-  void _calculateHorizontalPath(double capPointValue, double animationFactor,
-      double capLength, bool isTransposedChart) {
+  void _calculateHorizontalPath(
+    double capPointValue,
+    double animationFactor,
+    double capLength,
+    bool isTransposedChart,
+  ) {
     if (isTransposedChart) {
       _horizontalPath.moveTo(_errorBarMidPointX, _errorBarMidPointY);
       _horizontalPath.lineTo(_errorBarMidPointX, capPointValue);
       _horizontalCapPath.moveTo(
-          _errorBarMidPointX - (capLength / 2), capPointValue);
+        _errorBarMidPointX - (capLength / 2),
+        capPointValue,
+      );
       _horizontalCapPath.lineTo(
-          _errorBarMidPointX + (capLength / 2), capPointValue);
+        _errorBarMidPointX + (capLength / 2),
+        capPointValue,
+      );
     } else {
       _horizontalPath.moveTo(capPointValue, _errorBarMidPointY);
       _horizontalPath.lineTo(_errorBarMidPointX, _errorBarMidPointY);
@@ -1147,12 +1275,7 @@ class ErrorBarMean {
 
 class AxesRange {
   /// Creates an instance of MinMaxValues.
-  AxesRange(
-    this.xMinimum,
-    this.xMaximum,
-    this.yMinimum,
-    this.yMaximum,
-  );
+  AxesRange(this.xMinimum, this.xMaximum, this.yMinimum, this.yMaximum);
 
   /// Holds the x axis minimum value.
   num xMinimum;

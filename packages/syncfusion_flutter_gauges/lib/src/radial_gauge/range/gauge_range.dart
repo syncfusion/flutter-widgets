@@ -28,27 +28,28 @@ class GaugeRange extends LeafRenderObjectWidget {
   /// Create a range with the default or required properties.
   ///
   /// The arguments [startValue], [endValue], must not be null.
-  GaugeRange(
-      {Key? key,
-      required this.startValue,
-      required this.endValue,
-      double? startWidth,
-      double? endWidth,
-      this.sizeUnit = GaugeSizeUnit.logicalPixel,
-      this.color,
-      this.gradient,
-      this.rangeOffset = 0,
-      this.label,
-      GaugeTextStyle? labelStyle})
-      : startWidth =
-            startWidth = startWidth ?? (label != null ? startWidth : 10),
-        endWidth = endWidth = endWidth ?? (label != null ? endWidth : 10),
-        labelStyle = labelStyle ?? const GaugeTextStyle(),
-        assert(
-            (gradient != null && gradient is SweepGradient) || gradient == null,
-            'The gradient must be null or else the gradient must be equal'
-            ' to sweep gradient.'),
-        super(key: key);
+  GaugeRange({
+    Key? key,
+    required this.startValue,
+    required this.endValue,
+    double? startWidth,
+    double? endWidth,
+    this.sizeUnit = GaugeSizeUnit.logicalPixel,
+    this.color,
+    this.gradient,
+    this.rangeOffset = 0,
+    this.label,
+    GaugeTextStyle? labelStyle,
+  }) : startWidth =
+           startWidth = startWidth ?? (label != null ? startWidth : 10),
+       endWidth = endWidth = endWidth ?? (label != null ? endWidth : 10),
+       labelStyle = labelStyle ?? const GaugeTextStyle(),
+       assert(
+         (gradient != null && gradient is SweepGradient) || gradient == null,
+         'The gradient must be null or else the gradient must be equal'
+         ' to sweep gradient.',
+       ),
+       super(key: key);
 
   /// Specifies the range start value.
   ///
@@ -287,31 +288,34 @@ class GaugeRange extends LeafRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     return RenderGaugeRange(
-        startValue: startValue.clamp(ancestor.minimum, ancestor.maximum),
-        endValue: endValue.clamp(ancestor.minimum, ancestor.maximum),
-        startWidth: startWidth,
-        endWidth: endWidth,
-        sizeUnit: sizeUnit,
-        color: color,
-        gradient: gradient,
-        rangeOffset: rangeOffset,
-        label: label,
-        rangeAnimation: radialAxisScope.animation,
-        labelStyle: labelStyle,
-        repaintNotifier: radialAxisScope.repaintNotifier,
-        gaugeThemeData: gaugeTheme);
+      startValue: startValue.clamp(ancestor.minimum, ancestor.maximum),
+      endValue: endValue.clamp(ancestor.minimum, ancestor.maximum),
+      startWidth: startWidth,
+      endWidth: endWidth,
+      sizeUnit: sizeUnit,
+      color: color,
+      gradient: gradient,
+      rangeOffset: rangeOffset,
+      label: label,
+      rangeAnimation: radialAxisScope.animation,
+      labelStyle: labelStyle,
+      repaintNotifier: radialAxisScope.repaintNotifier,
+      gaugeThemeData: gaugeTheme,
+    );
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderGaugeRange renderObject) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     renderObject
       ..startValue = startValue.clamp(ancestor.minimum, ancestor.maximum)

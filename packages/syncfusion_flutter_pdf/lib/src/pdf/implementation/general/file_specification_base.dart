@@ -30,7 +30,8 @@ class PdfFileSpecificationBaseHelper {
 
   /// internal method
   static PdfFileSpecificationBaseHelper getHelper(
-      PdfFileSpecificationBase base) {
+    PdfFileSpecificationBase base,
+  ) {
     return base._helper;
   }
 
@@ -44,8 +45,10 @@ class PdfFileSpecificationBaseHelper {
 
   void initialize() {
     dictionary = PdfDictionary();
-    dictionary!.setProperty(PdfDictionaryProperties.type,
-        PdfName(PdfDictionaryProperties.filespec));
+    dictionary!.setProperty(
+      PdfDictionaryProperties.type,
+      PdfName(PdfDictionaryProperties.filespec),
+    );
     dictionary!.beginSave = _dictionaryBeginSave;
   }
 

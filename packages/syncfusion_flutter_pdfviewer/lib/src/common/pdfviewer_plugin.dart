@@ -12,10 +12,13 @@ class PdfViewerPlugin {
   String? _documentID;
 
   /// Initialize the PDF renderer.
-  Future<int> initializePdfRenderer(Uint8List documentBytes) async {
+  Future<int> initializePdfRenderer(
+    Uint8List documentBytes,
+    String? password,
+  ) async {
     _documentID = const Uuid().v1();
     final String? pageCount = await PdfViewerPlatform.instance
-        .initializePdfRenderer(documentBytes, _documentID!);
+        .initializePdfRenderer(documentBytes, _documentID!, password);
     _pageCount = int.parse(pageCount!);
     return _pageCount;
   }
@@ -25,15 +28,17 @@ class PdfViewerPlugin {
 
   /// Retrieves original height of PDF pages.
   Future<List<dynamic>?> getPagesHeight() async {
-    _originalHeight =
-        await PdfViewerPlatform.instance.getPagesHeight(_documentID!);
+    _originalHeight = await PdfViewerPlatform.instance.getPagesHeight(
+      _documentID!,
+    );
     return _originalHeight;
   }
 
   /// Retrieves original width of PDF pages.
   Future<List<dynamic>?> getPagesWidth() async {
-    _originalWidth =
-        await PdfViewerPlatform.instance.getPagesWidth(_documentID!);
+    _originalWidth = await PdfViewerPlatform.instance.getPagesWidth(
+      _documentID!,
+    );
     return _originalWidth;
   }
 

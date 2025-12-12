@@ -8,29 +8,29 @@ import 'event_args.dart';
 typedef ValueChangedCallback = void Function();
 
 /// Returns the ValueChangingArgs by used the [onValueChanging] event.
-typedef ValueChangingCallback = void Function(
-    ValueChangingArgs valueChangingArgs);
+typedef ValueChangingCallback =
+    void Function(ValueChangingArgs valueChangingArgs);
 
 /// Returns the PropertyChangedArgs by used the [onPropertyChanged] event.
-typedef PropertyChangedCallback = void Function(
-    PropertyChangedArgs propertyChangedArgs);
+typedef PropertyChangedCallback =
+    void Function(PropertyChangedArgs propertyChangedArgs);
 
 /// Defines an interface that provides all properties to configure a scrollbar.
 class ScrollBarBase extends ChangeNotifier {
   ///
-  ScrollBarBase(
-      {required bool enabled,
-      required double maximum,
-      required double minimum,
-      required double largeChange,
-      required double smallChange,
-      required double value})
-      : _enabled = enabled,
-        _maximum = maximum,
-        _minimum = minimum,
-        _largeChange = largeChange,
-        _smallChange = smallChange,
-        _value = value;
+  ScrollBarBase({
+    required bool enabled,
+    required double maximum,
+    required double minimum,
+    required double largeChange,
+    required double smallChange,
+    required double value,
+  }) : _enabled = enabled,
+       _maximum = maximum,
+       _minimum = minimum,
+       _largeChange = largeChange,
+       _smallChange = smallChange,
+       _value = value;
 
   ///  Gets a value indicating whether the scroll bar is enabled or not.
   ///
@@ -123,13 +123,14 @@ class ScrollBarBase extends ChangeNotifier {
 class ScrollInfo extends ScrollBarBase {
   ///Initializes a new instance of the [ScrollInfo] class.
   ScrollInfo()
-      : super(
-            value: 0,
-            minimum: 0,
-            maximum: 100,
-            smallChange: 1,
-            enabled: true,
-            largeChange: 10) {
+    : super(
+        value: 0,
+        minimum: 0,
+        maximum: 100,
+        smallChange: 1,
+        enabled: true,
+        largeChange: 10,
+      ) {
     _proposedLargeChange = 10;
   }
 
@@ -254,8 +255,9 @@ class ScrollInfo extends ScrollBarBase {
   /// * propertyName - _required_ - Name of the property.
   void onPropertyChanged(String propertyName) {
     if (onPropertyChangedEvent != null) {
-      final PropertyChangedArgs propertyChangedArgs =
-          PropertyChangedArgs(propertyName);
+      final PropertyChangedArgs propertyChangedArgs = PropertyChangedArgs(
+        propertyName,
+      );
       onPropertyChangedEvent!(propertyChangedArgs);
     }
   }

@@ -12,7 +12,8 @@ List<int> getColumnSequences(List<GridColumn> columns, StackedHeaderCell cell) {
   if (cell.columnNames.isNotEmpty) {
     for (final String columnName in cell.columnNames) {
       final GridColumn? column = columns.firstWhereOrNull(
-          (GridColumn column) => column.columnName == columnName);
+        (GridColumn column) => column.columnName == columnName,
+      );
       if (column != null) {
         childSequences.add(columns.indexOf(column));
       }
@@ -49,19 +50,22 @@ List<List<int>> getConsecutiveRanges(List<int> columnIndexes) {
 }
 
 /// Returns the row span to the stacked header and column header row.
-int getRowSpan(
-    {String? columnName,
-    required int rowIndex,
-    required int columnIndex,
-    required bool isStackedHeader,
-    required SfDataGrid dataGrid,
-    StackedHeaderCell? stackedHeaderCell}) {
+int getRowSpan({
+  String? columnName,
+  required int rowIndex,
+  required int columnIndex,
+  required bool isStackedHeader,
+  required SfDataGrid dataGrid,
+  StackedHeaderCell? stackedHeaderCell,
+}) {
   int startIndex = 0, endIndex = 0, rowSpan = 0;
   if (isStackedHeader && stackedHeaderCell != null) {
     final List<List<int>> columnIndexes = getConsecutiveRanges(
-        getColumnSequences(dataGrid.columns, stackedHeaderCell));
-    final List<int>? spannedColumn = columnIndexes
-        .singleWhereOrNull((List<int> column) => column.first == columnIndex);
+      getColumnSequences(dataGrid.columns, stackedHeaderCell),
+    );
+    final List<int>? spannedColumn = columnIndexes.singleWhereOrNull(
+      (List<int> column) => column.first == columnIndex,
+    );
     if (spannedColumn != null) {
       startIndex = spannedColumn.reduce(min);
       endIndex = startIndex + spannedColumn.length - 1;
@@ -78,7 +82,8 @@ int getRowSpan(
     for (final StackedHeaderCell stackedColumn in stackedHeaderRow.cells) {
       if (isStackedHeader) {
         final List<List<int>> columnIndexes = getConsecutiveRanges(
-            getColumnSequences(dataGrid.columns, stackedColumn));
+          getColumnSequences(dataGrid.columns, stackedColumn),
+        );
         for (final List<int> column in columnIndexes) {
           if ((startIndex >= column.first && startIndex <= column.last) ||
               (endIndex >= column.first && endIndex <= column.last)) {
@@ -104,12 +109,13 @@ int getRowSpan(
 
 /// Returns the start and end index of the given spanned columns when the
 /// exclude columns are applied.
-List<int> getSpannedCellStartAndEndIndex(
-    {required int columnSpan,
-    required int columnIndex,
-    required int startColumnIndex,
-    required List<GridColumn> columns,
-    required List<String> excludeColumns}) {
+List<int> getSpannedCellStartAndEndIndex({
+  required int columnSpan,
+  required int columnIndex,
+  required int startColumnIndex,
+  required List<GridColumn> columns,
+  required List<String> excludeColumns,
+}) {
   int excludeColumnsCount = 0;
   int firstColumnIndex = startColumnIndex + columnIndex;
   int lastColumnIndex = firstColumnIndex + columnSpan;
@@ -117,7 +123,8 @@ List<int> getSpannedCellStartAndEndIndex(
 
   for (final String columnName in excludeColumns) {
     final GridColumn? column = columns.firstWhereOrNull(
-        (GridColumn element) => element.columnName == columnName);
+      (GridColumn element) => element.columnName == columnName,
+    );
     if (column != null) {
       excludeColumnIndexes.add(columns.indexOf(column));
     }
@@ -126,19 +133,26 @@ List<int> getSpannedCellStartAndEndIndex(
   if (firstColumnIndex > startColumnIndex) {
     // Updates the first and last column index if any exclude column exists
     // before the `firstColumnIndex`.
-    excludeColumnsCount =
-        excludeColumnIndexes.where((int index) => index < columnIndex).length;
+    excludeColumnsCount = excludeColumnIndexes
+        .where((int index) => index < columnIndex)
+        .length;
 
-    firstColumnIndex =
-        max(startColumnIndex, firstColumnIndex - excludeColumnsCount);
-    lastColumnIndex =
-        max(startColumnIndex, lastColumnIndex - excludeColumnsCount);
+    firstColumnIndex = max(
+      startColumnIndex,
+      firstColumnIndex - excludeColumnsCount,
+    );
+    lastColumnIndex = max(
+      startColumnIndex,
+      lastColumnIndex - excludeColumnsCount,
+    );
   }
 
   // To remove the in-between excluded columns from the `lastColumnIndex`.
   excludeColumnsCount = excludeColumnIndexes
-      .where((int index) =>
-          index >= columnIndex && index <= columnIndex + columnSpan)
+      .where(
+        (int index) =>
+            index >= columnIndex && index <= columnIndex + columnSpan,
+      )
       .length;
   lastColumnIndex -= excludeColumnsCount;
 
@@ -148,8 +162,11 @@ List<int> getSpannedCellStartAndEndIndex(
 /// ----------------- Table summary row helper methods -------------------//
 
 /// Gets title column count of the given summary column.
-int getTitleColumnCount(GridTableSummaryRow summaryRow,
-    List<GridColumn> columns, List<String> excludeColumns) {
+int getTitleColumnCount(
+  GridTableSummaryRow summaryRow,
+  List<GridColumn> columns,
+  List<String> excludeColumns,
+) {
   int currentColumnSpan = 0;
   for (int i = 0; i < summaryRow.titleColumnSpan; i++) {
     if (i <= columns.length) {
@@ -163,7 +180,10 @@ int getTitleColumnCount(GridTableSummaryRow summaryRow,
 
 /// Returns the column index to the summary column.
 int getSummaryColumnIndex(
-    List<GridColumn> columns, String columnName, List<String> excludeColumns) {
+  List<GridColumn> columns,
+  String columnName,
+  List<String> excludeColumns,
+) {
   if (excludeColumns.contains(columnName)) {
     return -1;
   }
@@ -172,6 +192,7 @@ int getSummaryColumnIndex(
       .where((GridColumn column) => !excludeColumns.contains(column.columnName))
       .toList();
   final GridColumn? column = visibleColumns.firstWhereOrNull(
-      (GridColumn element) => element.columnName == columnName);
+    (GridColumn element) => element.columnName == columnName,
+  );
   return column != null ? visibleColumns.indexOf(column) : -1;
 }

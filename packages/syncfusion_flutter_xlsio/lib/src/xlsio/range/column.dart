@@ -1,10 +1,10 @@
-part of xlsio;
+import '../worksheet/worksheet.dart';
 
 /// Represents the colunm class.
 class Column {
   /// Create an instance of column.
   Column(this.worksheet) {
-    _isHidden = false;
+    isHidden = false;
   }
 
   /// Represents the column width.
@@ -17,5 +17,5 @@ class Column {
   late Worksheet worksheet;
 
   ///Represents the indicate wheather column hide or not.
-  late bool _isHidden;
+  late bool isHidden;
 }

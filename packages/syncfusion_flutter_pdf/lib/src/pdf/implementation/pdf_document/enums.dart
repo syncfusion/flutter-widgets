@@ -25,7 +25,7 @@ enum PdfVersion {
   version1_7,
 
   /// PDF version 2.0.
-  version2_0
+  version2_0,
 }
 
 /// Specifies the type of the PDF cross-reference.
@@ -46,7 +46,7 @@ enum PdfCrossReferenceType {
   /// and a data stream. This leads to more compact representation of the file
   /// data especially along with the compression enabled.
   /// This format is supported by PDF 1.5 version and higher only.
-  crossReferenceStream
+  crossReferenceStream,
 }
 
 /// Specifies the PDF document's conformance-level.
@@ -85,7 +85,7 @@ enum PdfAttachmentRelationship {
   supplement,
 
   ///Relationship is not known or cannot be described using one of the other values
-  unspecified
+  unspecified,
 }
 
 /// Compression level.
@@ -106,5 +106,5 @@ enum PdfCompressionLevel {
   aboveNormal,
 
   /// Use best compression, slow enough
-  best
+  best,
 }

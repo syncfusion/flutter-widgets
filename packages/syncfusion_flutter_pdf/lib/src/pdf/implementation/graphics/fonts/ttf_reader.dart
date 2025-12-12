@@ -23,7 +23,7 @@ class TtfReader {
     'hmtx',
     'loca',
     'maxp',
-    'prep'
+    'prep',
   ];
   final List<int> _entrySelectors = <int>[
     0,
@@ -46,7 +46,7 @@ class TtfReader {
     4,
     4,
     4,
-    4
+    4,
   ];
 
   //Fields
@@ -345,18 +345,21 @@ class TtfReader {
   }
 
   void _initializeMetrics(
-      _TtfNameTable nameTable,
-      _TtfHeadTable headTable,
-      _TtfHorizontalHeaderTable horizontalHeadTable,
-      _TtfOS2Table os2Table,
-      _TtfPostTable postTable,
-      List<_TtfCmapSubTable> cmapTables) {
+    _TtfNameTable nameTable,
+    _TtfHeadTable headTable,
+    _TtfHorizontalHeaderTable horizontalHeadTable,
+    _TtfOS2Table os2Table,
+    _TtfPostTable postTable,
+    List<_TtfCmapSubTable> cmapTables,
+  ) {
     _initializeFontName(nameTable);
     bool bSymbol = false;
     for (int i = 0; i < cmapTables.length; i++) {
       final _TtfCmapSubTable subTable = cmapTables[i];
-      final _TtfCmapEncoding encoding =
-          _getCmapEncoding(subTable.platformID, subTable.encodingID);
+      final _TtfCmapEncoding encoding = _getCmapEncoding(
+        subTable.platformID,
+        subTable.encodingID,
+      );
       if (encoding == _TtfCmapEncoding.symbol) {
         bSymbol = true;
         break;
@@ -369,12 +372,14 @@ class TtfReader {
     final double factor = 1000 / headTable.unitsPerEm!;
     metrics!.winAscent = os2Table.sTypoAscender * factor;
     metrics!.macAscent = horizontalHeadTable.ascender * factor;
-    metrics!.capHeight = (os2Table.sCapHeight != 0)
-        ? os2Table.sCapHeight!.toDouble()
-        : 0.7 * headTable.unitsPerEm! * factor;
+    metrics!.capHeight =
+        (os2Table.sCapHeight != 0)
+            ? os2Table.sCapHeight!.toDouble()
+            : 0.7 * headTable.unitsPerEm! * factor;
     metrics!.winDescent = os2Table.sTypoDescender * factor;
     metrics!.macDescent = horizontalHeadTable.descender * factor;
-    metrics!.leading = (os2Table.sTypoAscender -
+    metrics!.leading =
+        (os2Table.sTypoAscender -
             os2Table.sTypoDescender +
             os2Table.sTypoLineGap) *
         factor;
@@ -418,8 +423,10 @@ class TtfReader {
     final _TtfTableInfo tableInfo = _getTable('cmap')!;
     currentOffset = tableInfo.offset! + subTable.offset;
     final _TtfCmapFormat format = _getCmapFormat(_readUInt16(currentOffset!));
-    final _TtfCmapEncoding encoding =
-        _getCmapEncoding(subTable.platformID, subTable.encodingID);
+    final _TtfCmapEncoding encoding = _getCmapEncoding(
+      subTable.platformID,
+      subTable.encodingID,
+    );
     if (encoding != _TtfCmapEncoding.unknown) {
       switch (format) {
         case _TtfCmapFormat.apple:
@@ -439,7 +446,9 @@ class TtfReader {
   }
 
   void _readUCS4CmapTable(
-      _TtfCmapSubTable subTable, _TtfCmapEncoding encoding) {
+    _TtfCmapSubTable subTable,
+    _TtfCmapEncoding encoding,
+  ) {
     final _TtfTableInfo tableInfo = _getTable('cmap')!;
     currentOffset = tableInfo.offset! + subTable.offset + 12;
     final int count = _readInt32(currentOffset!);
@@ -459,7 +468,9 @@ class TtfReader {
   }
 
   void _readAppleCmapTable(
-      _TtfCmapSubTable subTable, _TtfCmapEncoding encoding) {
+    _TtfCmapSubTable subTable,
+    _TtfCmapEncoding encoding,
+  ) {
     final _TtfTableInfo tableInfo = _getTable('cmap')!;
     currentOffset = tableInfo.offset! + subTable.offset;
     final _TtfAppleCmapSubTable table = _TtfAppleCmapSubTable();
@@ -480,7 +491,9 @@ class TtfReader {
   }
 
   void _readMicrosoftCmapTable(
-      _TtfCmapSubTable subTable, _TtfCmapEncoding encoding) {
+    _TtfCmapSubTable subTable,
+    _TtfCmapEncoding encoding,
+  ) {
     final _TtfTableInfo tableInfo = _getTable('cmap')!;
     currentOffset = tableInfo.offset! + subTable.offset;
     final Map<int, TtfGlyphInfo>? collection =
@@ -505,18 +518,21 @@ class TtfReader {
     int codeOffset = 0;
     int index = 0;
     for (int j = 0; j < segCount; j++) {
-      for (int k = table.startCount[j];
-          k <= table.endCount[j] && k != 65535;
-          k++) {
+      for (
+        int k = table.startCount[j];
+        k <= table.endCount[j] && k != 65535;
+        k++
+      ) {
         if (table.idRangeOffset[j] == 0) {
           codeOffset = (k + table.idDelta[j]) & 65535;
         } else {
-          index = (j +
-                  table.idRangeOffset[j] / 2 -
-                  segCount +
-                  k -
-                  table.startCount[j])
-              .toInt();
+          index =
+              (j +
+                      table.idRangeOffset[j] / 2 -
+                      segCount +
+                      k -
+                      table.startCount[j])
+                  .toInt();
           if (index >= table.glyphID.length) {
             continue;
           }
@@ -525,9 +541,10 @@ class TtfReader {
         final TtfGlyphInfo glyph = TtfGlyphInfo();
         glyph.index = codeOffset;
         glyph.width = _getWidth(glyph.index);
-        final int id = (encoding == _TtfCmapEncoding.symbol)
-            ? ((k & 0xff00) == 0xf000 ? k & 0xff : k)
-            : k;
+        final int id =
+            (encoding == _TtfCmapEncoding.symbol)
+                ? ((k & 0xff00) == 0xf000 ? k & 0xff : k)
+                : k;
         glyph.charCode = id;
         collection![id] = glyph;
         _addGlyph(glyph, encoding);
@@ -536,7 +553,9 @@ class TtfReader {
   }
 
   void _readTrimmedCmapTable(
-      _TtfCmapSubTable subTable, _TtfCmapEncoding encoding) {
+    _TtfCmapSubTable subTable,
+    _TtfCmapEncoding encoding,
+  ) {
     final _TtfTableInfo tableInfo = _getTable('cmap')!;
     currentOffset = tableInfo.offset! + subTable.offset;
     final _TtfTrimmedCmapSubTable table = _TtfTrimmedCmapSubTable();
@@ -605,15 +624,19 @@ class TtfReader {
   /// internal method
   double getCharWidth(String code) {
     TtfGlyphInfo? glyphInfo = getGlyph(char: code);
-    glyphInfo = (glyphInfo != null && !glyphInfo.empty)
-        ? glyphInfo
-        : _getDefaultGlyph();
+    glyphInfo =
+        (glyphInfo != null && !glyphInfo.empty)
+            ? glyphInfo
+            : _getDefaultGlyph();
     return (!glyphInfo!.empty) ? glyphInfo.width.toDouble() : 0;
   }
 
   /// internal method
-  TtfGlyphInfo? getGlyph(
-      {int? charCode, String? char, bool? isSetSymbol = false}) {
+  TtfGlyphInfo? getGlyph({
+    int? charCode,
+    String? char,
+    bool? isSetSymbol = false,
+  }) {
     if (charCode != null) {
       TtfGlyphInfo? glyphInfo;
       if (!metrics!.isSymbol && _microsoftGlyphs != null) {
@@ -647,7 +670,8 @@ class TtfReader {
             }
             if (_isLowSurrogate(code)) {
               if (_isSurrogatePair(_surrogateHigh, code)) {
-                code = (((_surrogateHigh >> 6) & ((1 << 5) - 1)) + 1) << 16 |
+                code =
+                    (((_surrogateHigh >> 6) & ((1 << 5) - 1)) + 1) << 16 |
                     ((_surrogateHigh & ((1 << 6) - 1)) << 10 |
                         code & ((1 << 10) - 1));
                 if (_unicodeUCS4GlyphCollection!.containsKey(code)) {
@@ -726,10 +750,18 @@ class TtfReader {
     final _TtfOS2Table os2Table = _readOS2Table();
     final _TtfPostTable postTable = _readPostTable();
     _width = _readWidthTable(
-        horizontalHeadTable.numberOfHMetrics, headTable.unitsPerEm);
+      horizontalHeadTable.numberOfHMetrics,
+      headTable.unitsPerEm,
+    );
     final List<_TtfCmapSubTable> subTables = _readCmapTable();
-    _initializeMetrics(nameTable, headTable, horizontalHeadTable, os2Table,
-        postTable, subTables);
+    _initializeMetrics(
+      nameTable,
+      headTable,
+      horizontalHeadTable,
+      os2Table,
+      postTable,
+      subTables,
+    );
   }
 
   _TtfCmapFormat _getCmapFormat(int format) {
@@ -866,7 +898,11 @@ class TtfReader {
     final int? newLocaSize = result['newLocaSize'] as int?;
     final List<int> newLocaUpdated = result['newLocaUpdated'] as List<int>;
     final List<int>? fontProgram = _getFontProgram(
-        newLocaUpdated, newGlyphTable, glyphTableSize, newLocaSize);
+      newLocaUpdated,
+      newGlyphTable,
+      glyphTableSize,
+      newLocaSize,
+    );
     return fontProgram;
   }
 
@@ -891,7 +927,10 @@ class TtfReader {
   }
 
   dynamic _updateLocaTable(
-      List<int> newLocaTable, bool isLocaShort, List<int>? newLocaTableOut) {
+    List<int> newLocaTable,
+    bool isLocaShort,
+    List<int>? newLocaTableOut,
+  ) {
     final int size =
         isLocaShort ? newLocaTable.length * 2 : newLocaTable.length * 4;
     final int count = _align(size);
@@ -907,7 +946,7 @@ class TtfReader {
     }
     return <String, dynamic>{
       'newLocaUpdated': writer.data,
-      'newLocaSize': size
+      'newLocaSize': size,
     };
   }
 
@@ -926,7 +965,10 @@ class TtfReader {
   }
 
   void _processCompositeGlyph(
-      Map<int, int> glyphChars, int glyph, List<int> offsets) {
+    Map<int, int> glyphChars,
+    int glyph,
+    List<int> offsets,
+  ) {
     if (glyph < offsets.length - 1) {
       final int glyphOffset = offsets[glyph];
       if (glyphOffset != offsets[glyph + 1]) {
@@ -964,8 +1006,12 @@ class TtfReader {
     }
   }
 
-  dynamic _generateGlyphTable(Map<int, int> glyphChars, List<int> offsets,
-      List<int>? newLocaTable, List<int>? newGlyphTable) {
+  dynamic _generateGlyphTable(
+    Map<int, int> glyphChars,
+    List<int> offsets,
+    List<int>? newLocaTable,
+    List<int>? newGlyphTable,
+  ) {
     newLocaTable = <int>[];
     final List<int> activeGlyphs = glyphChars.keys.toList();
     activeGlyphs.sort((int a, int b) => a - b);
@@ -1004,7 +1050,7 @@ class TtfReader {
     return <String, dynamic>{
       'glyphTableSize': glyphSize,
       'newLocaTable': newLocaTable,
-      'newGlyphTable': newGlyphTable
+      'newGlyphTable': newGlyphTable,
     };
   }
 
@@ -1012,10 +1058,17 @@ class TtfReader {
     return (value + 3) & (~3);
   }
 
-  List<int>? _getFontProgram(List<int> newLocaTableOut, List<int> newGlyphTable,
-      int? glyphTableSize, int? locaTableSize) {
-    final dynamic result =
-        _getFontProgramLength(newLocaTableOut, newGlyphTable, 0);
+  List<int>? _getFontProgram(
+    List<int> newLocaTableOut,
+    List<int> newGlyphTable,
+    int? glyphTableSize,
+    int? locaTableSize,
+  ) {
+    final dynamic result = _getFontProgramLength(
+      newLocaTableOut,
+      newGlyphTable,
+      0,
+    );
     final int fontProgramLength = result['fontProgramLength'] as int;
     final int numTables = result['numTables'] as int;
     final BigEndianWriter writer = BigEndianWriter(fontProgramLength);
@@ -1025,14 +1078,23 @@ class TtfReader {
     writer.writeShort((1 << (entrySelector & 31)) * 16);
     writer.writeShort(entrySelector);
     writer.writeShort((numTables - (1 << (entrySelector & 31))) * 16);
-    _writeCheckSums(writer, numTables, newLocaTableOut, newGlyphTable,
-        glyphTableSize, locaTableSize);
+    _writeCheckSums(
+      writer,
+      numTables,
+      newLocaTableOut,
+      newGlyphTable,
+      glyphTableSize,
+      locaTableSize,
+    );
     _writeGlyphs(writer, newLocaTableOut, newGlyphTable);
     return writer.data;
   }
 
   dynamic _getFontProgramLength(
-      List<int> newLocaTableOut, List<int> newGlyphTable, int numTables) {
+    List<int> newLocaTableOut,
+    List<int> newGlyphTable,
+    int numTables,
+  ) {
     numTables = 2;
     final List<String> tableNames = _tableNames;
     int fontProgramLength = 0;
@@ -1052,17 +1114,18 @@ class TtfReader {
     fontProgramLength += usedTablesSize;
     return <String, dynamic>{
       'fontProgramLength': fontProgramLength,
-      'numTables': numTables
+      'numTables': numTables,
     };
   }
 
   void _writeCheckSums(
-      BigEndianWriter writer,
-      int numTables,
-      List<int> newLocaTableOut,
-      List<int> newGlyphTable,
-      int? glyphTableSize,
-      int? locaTableSize) {
+    BigEndianWriter writer,
+    int numTables,
+    List<int> newLocaTableOut,
+    List<int> newGlyphTable,
+    int? glyphTableSize,
+    int? locaTableSize,
+  ) {
     final List<String> tableNames = _tableNames;
     int usedTablesSize = numTables * 16 + (3 * 4);
     int? nextTableSize = 0;
@@ -1107,7 +1170,10 @@ class TtfReader {
   }
 
   void _writeGlyphs(
-      BigEndianWriter writer, List<int> newLocaTable, List<int> newGlyphTable) {
+    BigEndianWriter writer,
+    List<int> newLocaTable,
+    List<int> newGlyphTable,
+  ) {
     final List<String> tableNames = _tableNames;
     for (int i = 0; i < tableNames.length; i++) {
       final String tableName = tableNames[i];
@@ -1230,9 +1296,11 @@ class TtfReader {
     int written = 0;
     int read = 0;
     do {
-      for (int i = 0;
-          i < count - written && currentOffset! + i < _fontData.length;
-          i++) {
+      for (
+        int i = 0;
+        i < count - written && currentOffset! + i < _fontData.length;
+        i++
+      ) {
         buffer[index + i] = _fontData[currentOffset! + i];
       }
       read = count - written;
@@ -1690,7 +1758,7 @@ enum _TtfCmapFormat {
   trimmed,
 
   /// This is the Microsoft standard character-to-glyph-index mapping table for fonts supporting Unicode supplementary-plane characters (U+10000 to U+10FFFF).
-  microsoftExt
+  microsoftExt,
 }
 
 /// Enumerator that implements CMAP encodings.
@@ -1708,7 +1776,7 @@ enum _TtfCmapEncoding {
   macintosh,
 
   /// When building a Unicode font for Windows (plane characters).
-  unicodeUCS4
+  unicodeUCS4,
 }
 
 /// Ttf platform ID.
@@ -1723,7 +1791,7 @@ enum _TtfPlatformID {
   iso,
 
   /// Microsoft platform.
-  microsoft
+  microsoft,
 }
 
 /// Microsoft encoding ID.
@@ -1735,7 +1803,7 @@ enum _TtfMicrosoftEncodingID {
   unicode,
 
   /// Unicode UCS4.
-  unicodeUCS4
+  unicodeUCS4,
 }
 
 /// Macintosh encoding ID.
@@ -1747,5 +1815,5 @@ enum _TtfMacintoshEncodingID {
   japanese,
 
   /// Chinese encoding.
-  chinese
+  chinese,
 }

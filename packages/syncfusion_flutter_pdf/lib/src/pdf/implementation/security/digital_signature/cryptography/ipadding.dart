@@ -1,30 +1,32 @@
-import 'dart:math';
+import 'dart:typed_data';
 
 /// internal class
-class IPadding {
+abstract class IPadding {
   /// internal method
-  void initialize(Random? random) {}
+  void initialize([ICipherParameter? params]) {}
 
   /// internal property
   String? get paddingName => null;
 
   /// internal method
-  int? addPadding(List<int>? bytes, int? offset) => null;
+  int addPadding(Uint8List data, int offset);
 
   /// internal method
-  int? count(List<int>? bytes) => null;
+  int count(Uint8List data);
 }
 
 /// internal class
-class IBufferedCipher {
-  /// internal property
-  String? get algorithmName => null;
+class IBufferedCipher extends ICipher {
+  IPadding? get padding => null;
+
+  ICipher? get cipher => null;
+
+  @override
+  Uint8List? process(Uint8List data) => null;
 
   /// internal method
+  @override
   void initialize(bool forEncryption, ICipherParameter? parameters) {}
-
-  /// internal property
-  int? get blockSize => null;
 
   /// internal method
   int? getOutputSize(int inputLen) => null;
@@ -47,16 +49,29 @@ class IBufferedCipher {
 
   /// internal method
   Map<String, dynamic>? processByteFromValues(
-          List<int> input, List<int> output, int outOff) =>
-      null;
+    List<int> input,
+    List<int> output,
+    int outOff,
+  ) => null;
 
   /// internal method
-  Map<String, dynamic>? processBytes(List<int> input, int inOff, int length,
-          List<int> output, int outOff) =>
-      null;
+  Map<String, dynamic>? processBytes(
+    List<int> input,
+    int inOff,
+    int length,
+    List<int> output,
+    int outOff,
+  ) => null;
 
   /// internal method
   List<int>? doFinal() => null;
+
+  int? doFinalProcess(
+    Uint8List inputBytes,
+    int inputOffset,
+    Uint8List outputBytes,
+    int outputOffset,
+  ) => null;
 
   /// internal method
   List<int>? doFinalFromInput(List<int>? input) => null;
@@ -69,25 +84,31 @@ class IBufferedCipher {
 
   /// internal method
   Map<String, dynamic>? copyFinal(
-          List<int> input, List<int> output, int outOff) =>
-      null;
+    List<int> input,
+    List<int> output,
+    int outOff,
+  ) => null;
 
   /// internal method
-  Map<String, dynamic>? readFinalValues(List<int> input, int inOff, int length,
-          List<int> output, int outOff) =>
-      null;
+  Map<String, dynamic>? readFinalValues(
+    List<int> input,
+    int inOff,
+    int length,
+    List<int> output,
+    int outOff,
+  ) => null;
 
   /// internal method
+  @override
   void reset() {}
 }
 
 /// internal class
-class ICipher {
-  /// internal property
+abstract class ICipher {
   String? get algorithmName => null;
 
-  /// internal method
-  void initialize(bool? isEncryption, ICipherParameter? parameters) {}
+  /// Initialize the cipher
+  void initialize(bool isEncryption, ICipherParameter? parameters);
 
   /// internal property
   int? get blockSize => null;
@@ -95,13 +116,34 @@ class ICipher {
   /// internal property
   bool? get isBlock => null;
 
-  /// internal method
-  Map<String, dynamic>? processBlock(List<int>? inBytes, int inOffset,
-          List<int>? outBytes, int? outOffset) =>
-      null;
+  /// Process a full block
+  int? processingBlock(
+    Uint8List inputBytes,
+    int inputOffset,
+    Uint8List outputBytes,
+    int outputOffset,
+  ) => null;
 
-  /// internal method
-  void reset() {}
+  Map<String, dynamic>? processBlock(
+    List<int>? inBytes,
+    int inOffset,
+    List<int>? outBytes,
+    int? outOffset,
+  ) => null;
+
+  /// Reset cipher
+  void reset();
+
+  Uint8List? process(Uint8List data) => null;
+}
+
+abstract class IBlockCipher extends ICipher {
+  @override
+  Uint8List process(Uint8List data) {
+    final out = Uint8List(blockSize!);
+    final len = processingBlock(data, 0, out, 0);
+    return out.sublist(0, len);
+  }
 }
 
 /// internal class
@@ -123,10 +165,7 @@ class ICipherBlock {
 }
 
 /// internal class
-class ICipherParameter {
-  /// internal field
-  List<int>? keys;
-}
+abstract class ICipherParameter {}
 
 /// internal class
 class ISigner {

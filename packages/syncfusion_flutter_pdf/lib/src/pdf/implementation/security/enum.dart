@@ -7,7 +7,7 @@ enum PdfEncryptionOptions {
   encryptAllContentsExceptMetadata,
 
   /// To encrypt atttachment files only.
-  encryptOnlyAttachments
+  encryptOnlyAttachments,
 }
 
 /// Specifies the type of encryption algorithm.
@@ -25,7 +25,7 @@ enum PdfEncryptionAlgorithm {
   aesx256Bit,
 
   /// AES encryption algorithm - 256-bit key with revision 6.
-  aesx256BitRevision6
+  aesx256BitRevision6,
 }
 
 /// Specifies the type of PDF permissions.
@@ -55,7 +55,7 @@ enum PdfPermissionsFlags {
   assembleDocument,
 
   /// Full quality print.
-  fullQualityPrint
+  fullQualityPrint,
 }
 
 /// Specifies the available permissions on certificated document.
@@ -67,7 +67,7 @@ enum PdfCertificationFlags {
   allowFormFill,
 
   /// Only allow commenting and form fill-in actions on this document.
-  allowComments
+  allowComments,
 }
 
 /// Specifies the cryptographic standard.
@@ -76,7 +76,7 @@ enum CryptographicStandard {
   cms,
 
   /// CMS Advanced Electronic Signatures
-  cades
+  cades,
 }
 
 /// Specifies the digestion algorithm.
@@ -91,5 +91,5 @@ enum DigestAlgorithm {
   sha384,
 
   /// SHA512 message digest algorithm
-  sha512
+  sha512,
 }

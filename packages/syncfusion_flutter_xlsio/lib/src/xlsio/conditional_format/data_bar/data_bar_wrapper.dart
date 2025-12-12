@@ -1,19 +1,25 @@
-part of xlsio;
+import 'dart:ui';
+
+import '../../general/enums.dart';
+import '../condformat_wrapper.dart';
+import '../condition_value.dart';
+import 'data_bar.dart';
+import 'data_bar_impl.dart';
 
 /// Represents a wrapper over data bar conditional formatting rule. Applying
 /// a data bar to a range helps you see the value of a cell relative to other cells.
-class _DataBarWrapper implements DataBar {
+class DataBarWrapper implements DataBar {
   /// Initializes new instance of the wrapper.
-  _DataBarWrapper(_DataBarImpl dataBar, _ConditionalFormatWrapper format) {
+  DataBarWrapper(DataBarImpl dataBar, ConditionalFormatWrapper format) {
     _wrapped = dataBar;
     _format = format;
   }
 
   /// Wrapped data bar object.
-  late _DataBarImpl _wrapped;
+  late DataBarImpl _wrapped;
 
   /// Parent conditional format wrapper.
-  late _ConditionalFormatWrapper _format;
+  late ConditionalFormatWrapper _format;
 
   /// Returns a ConditionValue object which specifies how the shortest bar is evaluated
   /// for a data bar conditional format.
@@ -33,7 +39,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Returns a ConditionValue object which specifies how the longest bar is evaluated
   /// for a data bar conditional format.
   ConditionValue get maxPoint {
@@ -50,7 +55,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets/sets the color of the bars in a data bar conditional format.
   String get barColor {
     {
@@ -66,7 +70,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Returns or sets a value that specifies the length of the longest
   /// data bar as a percentage of cell width.
   int get percentMax {
@@ -83,7 +86,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Returns or sets a value that specifies the length of the shortest
   /// data bar as a percentage of cell width.
   int get percentMin {
@@ -100,7 +102,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Returns or sets a Boolean value that specifies if the value in the cell
   /// is displayed if the data bar conditional format is applied to the range.
   bool get showValue {
@@ -117,7 +118,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the axis color of the data bar.
   /// This element MUST exist if and only if axisPosition does not equal "none".
   String get barAxisColor {
@@ -134,7 +134,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the border color of the data bar.
   /// This element MUST exist if and only if border equals "true".
   String get borderColor {
@@ -151,7 +150,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets whether the data bar has a border.
   bool get hasBorder {
     {
@@ -165,7 +163,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets whether the data bar has a gradient fill.
   bool get hasGradientFill {
     {
@@ -179,7 +176,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the direction of the data bar.
   DataBarDirection get dataBarDirection {
     {
@@ -195,7 +191,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the negative border color of the data bar.
   /// This element MUST exist if and only if negativeBarborderColorSameAsPositive equals "false" and border equals "true".
   String get negativeBorderColor {
@@ -212,7 +207,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gest or sests the negative fill color of the data bar.
   /// This element MUST exist if and only if negativebarColorSameAsPositive equals "false".
   String get negativeFillColor {
@@ -227,7 +221,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the axis position for the data bar.
   DataBarAxisPosition get dataBarAxisPosition {
     {
@@ -244,17 +237,16 @@ class _DataBarWrapper implements DataBar {
 
   /// This method should be called before several updates to the object will take place.
   void _beginUpdate() {
-    _format._beginUpdate();
-    _wrapped = _format._getCondition().dataBar! as _DataBarImpl;
+    _format.beginUpdate();
+    _wrapped = _format.getCondition().dataBar! as DataBarImpl;
   }
 
   /// This method should be called after several updates to the object took place.
   void _endUpdate() {
-    _format._endUpdate();
+    _format.endUpdate();
   }
 
   @override
-
   /// Gets/sets the color of the bars in a data bar conditional format.
   Color get barColorRgb {
     return _wrapped.barColorRgb;
@@ -268,7 +260,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the negative border color of the data bar.
   /// This element MUST exist if and only if negativeBarborderColorSameAsPositive equals "false" and border equals "true".
   Color get negativeBorderColorRgb {
@@ -283,7 +274,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gest or sests the negative fill color of the data bar.
   /// This element MUST exist if and only if negativebarColorSameAsPositive equals "false".
   Color get negativeFillColorRgb {
@@ -298,7 +288,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the axis color of the data bar in Rgb.
   /// This element MUST exist if and only if axisPosition does not equal "none".
   Color get barAxisColorRgb {
@@ -315,7 +304,6 @@ class _DataBarWrapper implements DataBar {
   }
 
   @override
-
   /// Gets or sets the border color of the data bar in Rgb.
   /// This element MUST exist if and only if border equals "true".
   Color get borderColorRgb {

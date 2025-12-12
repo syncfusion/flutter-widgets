@@ -22,9 +22,13 @@ class PdfAppearance implements IPdfWrapper {
   PdfTemplate get normal {
     if (_helper.templateNormal == null) {
       _helper.templateNormal = PdfTemplate(
-          _annotation.bounds.size.width, _annotation.bounds.size.height);
-      _helper.dictionary!.setProperty(PdfDictionaryProperties.n,
-          PdfReferenceHolder(_helper.templateNormal));
+        _annotation.bounds.size.width,
+        _annotation.bounds.size.height,
+      );
+      _helper.dictionary!.setProperty(
+        PdfDictionaryProperties.n,
+        PdfReferenceHolder(_helper.templateNormal),
+      );
     }
     return _helper.templateNormal!;
   }
@@ -33,18 +37,24 @@ class PdfAppearance implements IPdfWrapper {
   set normal(PdfTemplate value) {
     if (_helper.templateNormal != value) {
       _helper.templateNormal = value;
-      _helper.dictionary!.setProperty(PdfDictionaryProperties.n,
-          PdfReferenceHolder(_helper.templateNormal));
+      _helper.dictionary!.setProperty(
+        PdfDictionaryProperties.n,
+        PdfReferenceHolder(_helper.templateNormal),
+      );
     }
   }
 
   /// Gets or sets [PdfTemplate] object which applied to an annotation when mouse button is pressed.
   PdfTemplate get pressed {
     if (_helper.templatePressed == null) {
-      _helper.templatePressed =
-          PdfTemplate(_annotation.bounds.width, _annotation.bounds.height);
-      _helper.dictionary!.setProperty(PdfDictionaryProperties.d,
-          PdfReferenceHolder(_helper.templatePressed));
+      _helper.templatePressed = PdfTemplate(
+        _annotation.bounds.width,
+        _annotation.bounds.height,
+      );
+      _helper.dictionary!.setProperty(
+        PdfDictionaryProperties.d,
+        PdfReferenceHolder(_helper.templatePressed),
+      );
     }
     return _helper.templatePressed!;
   }
@@ -52,8 +62,10 @@ class PdfAppearance implements IPdfWrapper {
   set pressed(PdfTemplate value) {
     if (value != _helper.templatePressed) {
       _helper.templatePressed = value;
-      _helper.dictionary!.setProperty(PdfDictionaryProperties.d,
-          PdfReferenceHolder(_helper.templatePressed));
+      _helper.dictionary!.setProperty(
+        PdfDictionaryProperties.d,
+        PdfReferenceHolder(_helper.templatePressed),
+      );
     }
   }
 }

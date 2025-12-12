@@ -50,6 +50,7 @@ class BubbleSeries<T, D> extends XyDataSeries<T, D> {
     super.initialIsVisible,
     super.name,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     this.borderColor = Colors.transparent,
@@ -165,7 +166,9 @@ class BubbleSeries<T, D> extends XyDataSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, BubbleSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    BubbleSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..maximumRadius = maximumRadius
@@ -186,8 +189,10 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   set maximumRadius(double value) {
     if (_maximumRadius != value) {
       _maximumRadius = value;
-      assert(_maximumRadius >= 0,
-          'The maximum radius should be greater than or equal to 0.');
+      assert(
+        _maximumRadius >= 0,
+        'The maximum radius should be greater than or equal to 0.',
+      );
       canUpdateOrCreateSegments = true;
       markNeedsLayout();
     }
@@ -198,8 +203,10 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   set minimumRadius(double value) {
     if (_minimumRadius != value) {
       _minimumRadius = value;
-      assert(_minimumRadius >= 0,
-          'The minimum radius should be greater than or equal to 0.');
+      assert(
+        _minimumRadius >= 0,
+        'The minimum radius should be greater than or equal to 0.',
+      );
       canUpdateOrCreateSegments = true;
       markNeedsLayout();
     }
@@ -242,7 +249,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         <ChartValueMapper<T, num>>[],
         <List<num>>[],
         <List<num>>[],
-        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <ChartValueMapper<T, Object?>>[_sizeByMapper],
         <List<Object?>>[_sizes],
       );
     } else {
@@ -250,7 +257,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         <ChartValueMapper<T, num>>[],
         <List<num>>[],
         <List<num>>[],
-        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <ChartValueMapper<T, Object?>>[_sizeByMapper],
         <List<Object?>>[_chaoticSizes],
         <List<Object?>>[_sizes],
       );
@@ -285,7 +292,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         <ChartValueMapper<T, num>>[],
         <List<num>>[],
         <List<num>>[],
-        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <ChartValueMapper<T, Object?>>[_sizeByMapper],
         <List<Object?>>[_sizes],
       );
     } else {
@@ -297,7 +304,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         <ChartValueMapper<T, num>>[],
         <List<num>>[],
         <List<num>>[],
-        <ChartValueMapper<T, Object>>[sizeValueMapper ?? _defaultSize],
+        <ChartValueMapper<T, Object?>>[_sizeByMapper],
         <List<Object?>>[_chaoticSizes],
         <List<Object?>>[_sizes],
       );
@@ -311,9 +318,7 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   }) {
     if (yLists == null) {
       yLists = <List<num>>[_sizes];
-      positions = <ChartDataPointType>[
-        ChartDataPointType.bubbleSize,
-      ];
+      positions = <ChartDataPointType>[ChartDataPointType.bubbleSize];
     } else {
       yLists.add(_sizes);
       positions!.add(ChartDataPointType.bubbleSize);
@@ -322,7 +327,13 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     super.populateChartPoints(positions: positions, yLists: yLists);
   }
 
-  num _defaultSize(T type, num value) => minimumRadius;
+  num _sizeByMapper(T type, int value) {
+    if (sizeValueMapper != null) {
+      final num? fValue = sizeValueMapper!(type, value);
+      return fValue ?? minimumRadius;
+    }
+    return minimumRadius;
+  }
 
   @override
   void setData(int index, ChartSegment segment) {
@@ -358,10 +369,12 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
   void customizeSegment(ChartSegment segment) {
     final BubbleSegment<T, D> bubbleSegment = segment as BubbleSegment<T, D>;
     updateSegmentColor(bubbleSegment, borderColor, borderWidth);
-    updateSegmentGradient(bubbleSegment,
-        gradientBounds: bubbleSegment.segmentRect,
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      bubbleSegment,
+      gradientBounds: bubbleSegment.segmentRect,
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
@@ -416,19 +429,28 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
           translationY = -margin.top - size.height / 2;
         }
         return translateTransform(
-            current.x!, current.y!, translationX, translationY);
+          current.x!,
+          current.y!,
+          translationX,
+          translationY,
+        );
 
       case ChartDataLabelAlignment.outer:
       case ChartDataLabelAlignment.top:
         final BubbleSegment<T, D> segment =
             segments[current.dataPointIndex] as BubbleSegment<T, D>;
         translationX = -margin.left;
-        translationY = -(segment.radius +
-            dataLabelPadding +
-            size.height +
-            margin.vertical);
+        translationY =
+            -(segment.radius +
+                dataLabelPadding +
+                size.height +
+                margin.vertical);
         return translateTransform(
-            current.x!, current.y!, translationX, translationY);
+          current.x!,
+          current.y!,
+          translationX,
+          translationY,
+        );
 
       case ChartDataLabelAlignment.bottom:
         final BubbleSegment<T, D> segment =
@@ -436,7 +458,11 @@ class BubbleSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         translationX = -margin.left;
         translationY = segment.radius + dataLabelPadding;
         return translateTransform(
-            current.x!, current.y!, translationX, translationY);
+          current.x!,
+          current.y!,
+          translationX,
+          translationY,
+        );
     }
   }
 
@@ -466,7 +492,9 @@ class BubbleSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldSegmentRect = null;
@@ -474,8 +502,11 @@ class BubbleSegment<T, D> extends ChartSegment {
     }
 
     if (series.animationDuration > 0) {
-      _oldSegmentRect =
-          Rect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
+      _oldSegmentRect = Rect.lerp(
+        _oldSegmentRect,
+        segmentRect,
+        segmentAnimationFactor,
+      );
     } else {
       _oldSegmentRect = segmentRect;
     }
@@ -522,9 +553,10 @@ class BubbleSegment<T, D> extends ChartSegment {
         primaryPosition: series.localToGlobal(segmentRect!.topCenter),
         secondaryPosition: series.localToGlobal(segmentRect!.bottomCenter),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![currentSegmentIndex],
         point: chartPoint,
         series: series.widget,
@@ -576,8 +608,11 @@ class BubbleSegment<T, D> extends ChartSegment {
     if (segmentRect == null) {
       return;
     }
-    final Rect? paintRect =
-        Rect.lerp(_oldSegmentRect, segmentRect, animationFactor);
+    final Rect? paintRect = Rect.lerp(
+      _oldSegmentRect,
+      segmentRect,
+      animationFactor,
+    );
     if (paintRect == null || paintRect.isEmpty) {
       return;
     }
@@ -590,8 +625,8 @@ class BubbleSegment<T, D> extends ChartSegment {
     paint = getStrokePaint();
     final double strokeWidth = paint.strokeWidth;
     if (paint.color != Colors.transparent && strokeWidth > 0) {
-      final Path strokePath = Path()
-        ..addOval(paintRect.deflate(strokeWidth / 2));
+      final Path strokePath =
+          Path()..addOval(paintRect.deflate(strokeWidth / 2));
       drawDashes(canvas, series.dashArray, paint, path: strokePath);
     }
   }

@@ -57,29 +57,29 @@ class TimeSlotViewSettings with Diagnosticable {
   /// Creates a timeslot view settings for calendar.
   ///
   /// The properties allows to customize the timeslot views of [SfCalendar].
-  const TimeSlotViewSettings(
-      {this.startHour = 0,
-      this.endHour = 24,
-      this.nonWorkingDays = const <int>[DateTime.saturday, DateTime.sunday],
-      this.timeFormat = 'h a',
-      this.timeInterval = const Duration(minutes: 60),
-      this.timeIntervalHeight = 40,
-      this.timeIntervalWidth = -2,
-      this.timelineAppointmentHeight = -1,
-      this.minimumAppointmentDuration,
-      this.dateFormat = 'd',
-      this.dayFormat = 'EE',
-      this.timeRulerSize = -1,
-      this.timeTextStyle,
-      this.allDayPanelColor,
-      this.numberOfDaysInView = -1})
-      : assert(startHour >= 0 && startHour <= 24),
-        assert(endHour >= 0 && endHour <= 24),
-        assert(timeIntervalHeight >= -1),
-        assert(timeIntervalWidth >= -2),
-        assert(timelineAppointmentHeight >= -1),
-        assert(timeRulerSize >= -1),
-        assert(numberOfDaysInView >= -1);
+  const TimeSlotViewSettings({
+    this.startHour = 0,
+    this.endHour = 24,
+    this.nonWorkingDays = const <int>[DateTime.saturday, DateTime.sunday],
+    this.timeFormat = 'h a',
+    this.timeInterval = const Duration(minutes: 60),
+    this.timeIntervalHeight = 40,
+    this.timeIntervalWidth = -2,
+    this.timelineAppointmentHeight = -1,
+    this.minimumAppointmentDuration,
+    this.dateFormat = 'd',
+    this.dayFormat = 'EE',
+    this.timeRulerSize = -1,
+    this.timeTextStyle,
+    this.allDayPanelColor,
+    this.numberOfDaysInView = -1,
+  }) : assert(startHour >= 0 && startHour <= 24),
+       assert(endHour >= 0 && endHour <= 24),
+       assert(timeIntervalHeight >= -1),
+       assert(timeIntervalWidth >= -2),
+       assert(timelineAppointmentHeight >= -1),
+       assert(timeRulerSize >= -1),
+       assert(numberOfDaysInView >= -1);
 
   /// The start hour for the time slot views in [SfCalendar].
   ///
@@ -723,8 +723,9 @@ class TimeSlotViewSettings with Diagnosticable {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties
-        .add(DiagnosticsProperty<TextStyle>('timeTextStyle', timeTextStyle));
+    properties.add(
+      DiagnosticsProperty<TextStyle>('timeTextStyle', timeTextStyle),
+    );
     properties.add(DoubleProperty('startHour', startHour));
     properties.add(DoubleProperty('endHour', endHour));
     properties.add(IterableProperty<int>('nonWorkingDays', nonWorkingDays));
@@ -732,9 +733,14 @@ class TimeSlotViewSettings with Diagnosticable {
     properties.add(DoubleProperty('timeIntervalHeight', timeIntervalHeight));
     properties.add(DoubleProperty('timeIntervalWidth', timeIntervalWidth));
     properties.add(
-        DoubleProperty('timelineAppointmentHeight', timelineAppointmentHeight));
-    properties.add(DiagnosticsProperty<Duration>(
-        'minimumAppointmentDuration', minimumAppointmentDuration));
+      DoubleProperty('timelineAppointmentHeight', timelineAppointmentHeight),
+    );
+    properties.add(
+      DiagnosticsProperty<Duration>(
+        'minimumAppointmentDuration',
+        minimumAppointmentDuration,
+      ),
+    );
     properties.add(DoubleProperty('timeRulerSize', timeRulerSize));
     properties.add(StringProperty('timeFormat', timeFormat));
     properties.add(StringProperty('dateFormat', dateFormat));
@@ -745,18 +751,19 @@ class TimeSlotViewSettings with Diagnosticable {
   @override
   int get hashCode {
     return Object.hash(
-        startHour,
-        endHour,
-        Object.hashAll(nonWorkingDays),
-        timeInterval,
-        timeIntervalHeight,
-        timeIntervalWidth,
-        timeFormat,
-        timelineAppointmentHeight,
-        minimumAppointmentDuration,
-        dateFormat,
-        dayFormat,
-        timeRulerSize,
-        timeTextStyle);
+      startHour,
+      endHour,
+      Object.hashAll(nonWorkingDays),
+      timeInterval,
+      timeIntervalHeight,
+      timeIntervalWidth,
+      timeFormat,
+      timelineAppointmentHeight,
+      minimumAppointmentDuration,
+      dateFormat,
+      dayFormat,
+      timeRulerSize,
+      timeTextStyle,
+    );
   }
 }

@@ -1,3 +1,45 @@
+## Unreleased
+
+*  No changes.
+
+## [30.1.37] - 06/25/2025
+
+**General**
+
+*  The compatible version of our Flutter localizations widget has been updated to Flutter SDK 3.32.0.
+
+## [29.1.39] - 22/04/2025
+
+**General**
+
+* The minimum Dart version has been updated to 3.7.
+
+## [29.1.33] - 25/03/2025
+
+**General**
+
+*  The compatible version of our Flutter localizations widget has been updated to Flutter SDK 3.29.0.
+*  The Syncfusion<sup>&reg;</sup> Flutter localizations example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+*  The Syncfusion<sup>&reg;</sup> Flutter localizations example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
+
+## [28.2.7] - 25/02/2025
+
+**General**
+
+* The minimum Dart version of our Flutter widgets has been updated to 3.4 from 3.3.
+
+## [28.1.36] - 12/24/2024
+
+**General**
+
+* The compatible version of our Flutter localizations widget has been updated to Flutter SDK 3.27.0.
+
+## Unreleased
+
+**General**
+
+* The compatible version of our Flutter localizations widget has been updated to Flutter SDK 3.24.0.
+
 ## [24.1.46] - 17/01/2024
 
 **General**

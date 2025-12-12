@@ -1,5 +1,3 @@
-part of xlsio;
-
 ///Specifies the horizontal alignment options for cell formatting.
 enum HAlignType {
   /// Center horizontal alignment.
@@ -15,7 +13,7 @@ enum HAlignType {
   right,
 
   /// General  horizontal alignment.
-  general
+  general,
 }
 
 ///Specifies the vertical alignment options for cell formatting.
@@ -27,7 +25,7 @@ enum VAlignType {
   center,
 
   /// Top vertical alignment.
-  top
+  top,
 }
 
 /// Specifies the excel cell types.
@@ -90,7 +88,7 @@ enum LineStyle {
   mediumDashDotDot,
 
   ///Specifies the slantedDashDot line style for the cell border.
-  slantDashDot
+  slantDashDot,
 }
 
 /// Possible format types.
@@ -111,7 +109,6 @@ enum ExcelFormatType {
   dateTime,
 
   /// Represents percentage number format.
-
   percentage,
 
   /// Represents currency number format.
@@ -281,14 +278,13 @@ enum HyperlinkType {
   url,
 
   /// Represents the File hyperlink type.
-
   file,
 
   /// Represents the Unc hyperlink type.
   unc,
 
   /// Represents the Workbook hyperlink type.
-  workbook
+  workbook,
 }
 
 /// Represents a possible insert options in Excel.
@@ -505,7 +501,7 @@ enum ExcelCFTopBottomType {
   top,
 
   /// Bottom.
-  bottom
+  bottom,
 }
 
 /// Specifies whether the AboveBelowAverage conditional formatting rule looks for cell values above or below the average.
@@ -526,7 +522,7 @@ enum ExcelCFAverageType {
   aboveStdDev,
 
   /// Below standard deviation
-  belowStdDev
+  belowStdDev,
 }
 
 /// Specifies the types of condition values.
@@ -553,7 +549,7 @@ enum ConditionValueType {
   formula,
 
   /// Automatic is used
-  automatic
+  automatic,
 }
 
 /// Specifies the type of conditions that can be used for Icon sets
@@ -562,7 +558,7 @@ enum ConditionalFormatOperator {
   greaterThan,
 
   /// Greater Than or Equal to condition is used [>=].
-  greaterThanorEqualTo
+  greaterThanorEqualTo,
 }
 
 /// Specifies the type of icon set.
@@ -625,7 +621,7 @@ enum ExcelIconSetType {
   threeTriangles,
 
   /// 5 Boxes.
-  fiveBoxes
+  fiveBoxes,
 }
 
 /// Defines the directions of data bar in conditional formatting.
@@ -637,7 +633,7 @@ enum DataBarDirection {
   leftToRight,
 
   /// Represents Right to Left (RTL) direction.
-  rightToLeft
+  rightToLeft,
 }
 
 /// Specifies the axis position for a range of cells with conditional formatting as data bars.
@@ -649,7 +645,7 @@ enum DataBarAxisPosition {
   automatic,
 
   /// Defines the axis position at the mid point.
-  middle
+  middle,
 }
 
 ///Represents a function used for total calculation.
@@ -895,7 +891,7 @@ enum ExcelDataValidationType {
   textLength,
 
   /// Represents Formula data type.
-  formula
+  formula,
 }
 
 /// Specifies comparison operators for data validation.
@@ -922,7 +918,7 @@ enum ExcelDataValidationComparisonOperator {
   greaterOrEqual,
 
   /// Less than or equal to.
-  lessOrEqual
+  lessOrEqual,
 }
 
 /// Represents possible error style values.
@@ -934,11 +930,11 @@ enum ExcelDataValidationErrorStyle {
   warning,
 
   /// Information icon is displayed.
-  information
+  information,
 }
 
 ///Represents filtertype of AutoFilter
-enum _ExcelFilterType {
+enum ExcelFilterType {
   ///Represents the No Filters are used to avoid Exception While Instance Creation
   notUsed,
 
@@ -955,12 +951,12 @@ enum _ExcelFilterType {
   colorFilter,
 
   ///Represents applying Icon Filter for the icons from Conditional Formatting.
-  iconFilter
+  iconFilter,
 }
 
 ///Represents filter data type
 /// Data type for autofilters.
-enum _ExcelFilterDataType {
+enum ExcelFilterDataType {
   /// Represents the filter data type.
   notUsed,
 
@@ -980,7 +976,7 @@ enum _ExcelFilterDataType {
   matchAllBlanks,
 
   ///Represents the MatchAllNonBlanks filter data type.
-  matchAllNonBlanks
+  matchAllNonBlanks,
 }
 
 /// Possible conditions in autofilter.
@@ -1024,7 +1020,7 @@ enum ExcelFilterCondition {
 
 ///used to find Combinatioanal Filter Type
 
-enum _ExcelCombinationFilterType {
+enum ExcelCombinationFilterType {
   /// Represents text value filter.
   textFilter,
 
@@ -1170,7 +1166,7 @@ enum ExcelLogicalOperator {
   or,
 
   /// Represents the logical AND operation.
-  and
+  and,
 }
 
 ///Represents visible/hidden of worksheets.
@@ -1179,7 +1175,7 @@ enum WorksheetVisibility {
   visible,
 
   ///Worksheet is hidden to the user.
-  hidden
+  hidden,
 }
 
 ///Enumeration of page order for sheet in Excel.
@@ -1188,7 +1184,7 @@ enum ExcelPageOrder {
   downThenOver,
 
   ///Represents Over, then down setting.
-  overThenDown
+  overThenDown,
 }
 
 ///Enumeration of page orientation types in Excel.
@@ -1197,7 +1193,7 @@ enum ExcelPageOrientation {
   landscape,
 
   ///Represents portrait orientation.
-  portrait
+  portrait,
 }
 
 ///Enumeration of paper size types in Excel.
@@ -1401,7 +1397,7 @@ enum ExcelPaperSize {
   a3TransversePaper,
 
   /// Represents A3 extra transverse paper (322 mm by 445 mm).
-  a3ExtraTransversePaper
+  a3ExtraTransversePaper,
 }
 
 ///Enumeration of Replace Error Values when printing in Excel.
@@ -1416,11 +1412,11 @@ enum CellErrorPrintOptions {
   displayed,
 
   ///Prints cell errors as #N/A
-  notAvailable
+  notAvailable,
 }
 
 /// Possible values for active pane.
-enum _ActivePane {
+enum ActivePane {
   /// Bottom left pane, when both vertical and horizontal splits are applied.
   /// This value is also used when only a horizontal split has been applied,
   /// dividing the pane into upper and lower regions. In that case, this value
@@ -1442,5 +1438,5 @@ enum _ActivePane {
   /// This value is also used when only a vertical split has been applied,
   /// dividing the pane into right and left regions. In that case, this
   /// value specifies the right pane.
-  topRight
+  topRight,
 }

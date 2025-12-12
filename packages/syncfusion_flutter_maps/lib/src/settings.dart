@@ -183,10 +183,12 @@ class MapColorMapper {
     this.minOpacity,
     this.maxOpacity,
     this.text,
-  })  : assert((from == null && to == null) ||
-            (from != null && to != null && from < to && to > from)),
-        assert(minOpacity == null || minOpacity != 0),
-        assert(maxOpacity == null || maxOpacity != 0);
+  }) : assert(
+         (from == null && to == null) ||
+             (from != null && to != null && from < to && to > from),
+       ),
+       assert(minOpacity == null || minOpacity != 0),
+       assert(maxOpacity == null || maxOpacity != 0);
 
   /// Sets the range start for the color mapping.
   ///
@@ -895,8 +897,9 @@ class MapDataLabelSettings extends DiagnosticableTree {
     if (textStyle != null) {
       properties.add(textStyle!.toDiagnosticsNode(name: 'textStyle'));
     }
-    properties
-        .add(EnumProperty<MapLabelOverflow>('overflowMode', overflowMode));
+    properties.add(
+      EnumProperty<MapLabelOverflow>('overflowMode', overflowMode),
+    );
   }
 }
 

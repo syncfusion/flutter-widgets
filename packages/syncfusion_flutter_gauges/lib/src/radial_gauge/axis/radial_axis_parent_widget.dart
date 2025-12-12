@@ -33,16 +33,19 @@ const double kDefaultRadialGaugeSize = 350.0;
 class RadialAxisParentWidget extends MultiChildRenderObjectWidget {
   /// Creates instance for [RadialGaugeRenderWidget].
   const RadialAxisParentWidget({Key? key, required List<Widget> children})
-      : super(key: key, children: children);
+    : super(key: key, children: children);
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
       RenderRadialAxisParent(
-          gestureSettings: MediaQuery.of(context).gestureSettings);
+        gestureSettings: MediaQuery.of(context).gestureSettings,
+      );
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderRadialAxisParent renderObject) {
+    BuildContext context,
+    RenderRadialAxisParent renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
   }
 
@@ -111,24 +114,25 @@ class RenderRadialAxisParent extends RenderBox
   ///
   /// By default, the non-positioned children of the stack are aligned by their
   /// top left corners.
-  RenderRadialAxisParent({
-    required DeviceGestureSettings gestureSettings,
-  }) : _gestureArenaTeam = GestureArenaTeam() {
-    _verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
-      ..team = _gestureArenaTeam
-      ..onStart = _handleDragStart
-      ..onUpdate = _handleDragUpdate
-      ..onEnd = _handleDragEnd
-      ..gestureSettings = gestureSettings
-      ..dragStartBehavior = DragStartBehavior.start;
+  RenderRadialAxisParent({required DeviceGestureSettings gestureSettings})
+    : _gestureArenaTeam = GestureArenaTeam() {
+    _verticalDragGestureRecognizer =
+        VerticalDragGestureRecognizer()
+          ..team = _gestureArenaTeam
+          ..onStart = _handleDragStart
+          ..onUpdate = _handleDragUpdate
+          ..onEnd = _handleDragEnd
+          ..gestureSettings = gestureSettings
+          ..dragStartBehavior = DragStartBehavior.start;
 
-    _horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
-      ..team = _gestureArenaTeam
-      ..onStart = _handleDragStart
-      ..onUpdate = _handleDragUpdate
-      ..onEnd = _handleDragEnd
-      ..gestureSettings = gestureSettings
-      ..dragStartBehavior = DragStartBehavior.start;
+    _horizontalDragGestureRecognizer =
+        HorizontalDragGestureRecognizer()
+          ..team = _gestureArenaTeam
+          ..onStart = _handleDragStart
+          ..onUpdate = _handleDragUpdate
+          ..onEnd = _handleDragEnd
+          ..gestureSettings = gestureSettings
+          ..dragStartBehavior = DragStartBehavior.start;
 
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUP;
 
@@ -269,14 +273,15 @@ class RenderRadialAxisParent extends RenderBox
 
   void _updateElements() {
     // ignore: always_specify_types
-    _axisElements = [
-      _ranges,
-      _annotations,
-      _markerPointers,
-      _widgetPointers,
-      _rangePointers,
-      _needlePointers
-    ].expand((List<RenderBox> x) => x).toList();
+    _axisElements =
+        [
+          _ranges,
+          _annotations,
+          _markerPointers,
+          _widgetPointers,
+          _rangePointers,
+          _needlePointers,
+        ].expand((List<RenderBox> x) => x).toList();
 
     for (int i = 0; i < _axisElements.length; i++) {
       _axisElements[i].axisRenderer = axis;
@@ -307,25 +312,29 @@ class RenderRadialAxisParent extends RenderBox
 
   @override
   void performLayout() {
-    final double actualHeight = constraints.hasBoundedHeight
-        ? constraints.maxHeight
-        : kDefaultRadialGaugeSize;
-    final double actualWidth = constraints.hasBoundedWidth
-        ? constraints.maxWidth
-        : kDefaultRadialGaugeSize;
+    final double actualHeight =
+        constraints.hasBoundedHeight
+            ? constraints.maxHeight
+            : kDefaultRadialGaugeSize;
+    final double actualWidth =
+        constraints.hasBoundedWidth
+            ? constraints.maxWidth
+            : kDefaultRadialGaugeSize;
 
     if (axis != null) {
       axis!.layout(
-          BoxConstraints(maxHeight: actualHeight, maxWidth: actualWidth),
-          parentUsesSize: true);
+        BoxConstraints(maxHeight: actualHeight, maxWidth: actualWidth),
+        parentUsesSize: true,
+      );
       _updateElements();
     }
 
     if (_axisElements.isNotEmpty) {
       for (int i = 0; i < _axisElements.length; i++) {
         _axisElements[i].layout(
-            BoxConstraints(maxHeight: actualHeight, maxWidth: actualWidth),
-            parentUsesSize: true);
+          BoxConstraints(maxHeight: actualHeight, maxWidth: actualWidth),
+          parentUsesSize: true,
+        );
       }
     }
 
@@ -492,15 +501,17 @@ class RenderRadialAxisParent extends RenderBox
 
   /// Method to update the drag value.
   void _updateDragValue(double x, double y, dynamic pointer) {
-    final double actualCenterX = axis!.canScaleToFit
-        ? axis!.getAxisCenter().dx
-        : size.width * axis!.centerX;
-    final double actualCenterY = axis!.canScaleToFit
-        ? axis!.getAxisCenter().dy
-        : size.height * axis!.centerY;
+    final double actualCenterX =
+        axis!.canScaleToFit
+            ? axis!.getAxisCenter().dx
+            : size.width * axis!.centerX;
+    final double actualCenterY =
+        axis!.canScaleToFit
+            ? axis!.getAxisCenter().dy
+            : size.height * axis!.centerY;
     double angle =
         math.atan2(y - actualCenterY, x - actualCenterX) * (180 / math.pi) +
-            360;
+        360;
     final double endAngle = axis!.startAngle + axis!.getAxisSweepAngle();
 
     if (angle < 360 && angle > 180) {
@@ -516,11 +527,13 @@ class RenderRadialAxisParent extends RenderBox
 
       /// The current pointer value is calculated from the angle
       if (!axis!.isInversed) {
-        dragValue = axis!.minimum +
+        dragValue =
+            axis!.minimum +
             (angle - axis!.startAngle) *
                 ((axis!.maximum - axis!.minimum) / axis!.getAxisSweepAngle());
       } else {
-        dragValue = axis!.maximum -
+        dragValue =
+            axis!.maximum -
             (angle - axis!.startAngle) *
                 ((axis!.maximum - axis!.minimum) / axis!.getAxisSweepAngle());
       }
@@ -566,8 +579,10 @@ class RenderRadialAxisParent extends RenderBox
       pointer.isHovered = false;
       if (pointer.pointerRect!.contains(hoverPosition) &&
           _markerPointers.isNotEmpty &&
-          !_markerPointers.any((RenderMarkerPointer element) =>
-              element.isHovered != null && element.isHovered!)) {
+          !_markerPointers.any(
+            (RenderMarkerPointer element) =>
+                element.isHovered != null && element.isHovered!,
+          )) {
         pointer.isHovered = true;
       }
 

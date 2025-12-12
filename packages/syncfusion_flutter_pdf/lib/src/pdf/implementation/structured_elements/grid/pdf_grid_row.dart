@@ -281,8 +281,9 @@ class PdfGridRow {
     bool isHeader = false;
     double rowHeight = cells[0].rowSpan > 1 ? 0 : cells[0].height;
     double maxHeight = 0;
-    if (PdfGridHeaderCollectionHelper.getHelper(_helper.grid.headers)
-            .indexOf(this) !=
+    if (PdfGridHeaderCollectionHelper.getHelper(
+          _helper.grid.headers,
+        ).indexOf(this) !=
         -1) {
       isHeader = true;
     }

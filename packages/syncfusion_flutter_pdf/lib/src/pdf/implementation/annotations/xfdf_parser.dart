@@ -35,7 +35,10 @@ class XfdfParser {
     _xmlDocument = XmlDocument.parse(xmlString);
     if (_xmlDocument.rootElement.localName.toLowerCase() != 'xfdf') {
       throw ArgumentError.value(
-          _xmlDocument.rootElement.localName, 'xmlString', 'Invalid XFDF data');
+        _xmlDocument.rootElement.localName,
+        'xmlString',
+        'Invalid XFDF data',
+      );
     }
   }
 
@@ -64,11 +67,14 @@ class XfdfParser {
         if (pageIndex >= 0 && pageIndex < _document.pages.count) {
           PdfPageHelper.getHelper(_document.pages[pageIndex]).importAnnotation =
               true;
-          final PdfDictionary annotationDictionary =
-              _getAnnotation(element, pageIndex);
+          final PdfDictionary annotationDictionary = _getAnnotation(
+            element,
+            pageIndex,
+          );
           if (annotationDictionary.count > 0) {
-            final PdfReferenceHolder holder =
-                PdfReferenceHolder(annotationDictionary);
+            final PdfReferenceHolder holder = PdfReferenceHolder(
+              annotationDictionary,
+            );
             if (annotationDictionary.containsKey('NM') ||
                 annotationDictionary.containsKey(PdfDictionaryProperties.irt)) {
               _addReferenceToGroup(holder, annotationDictionary);
@@ -80,7 +86,8 @@ class XfdfParser {
                 pageDictionary[PdfDictionaryProperties.annots] = PdfArray();
               }
               final IPdfPrimitive? annots = PdfCrossTable.dereference(
-                  pageDictionary[PdfDictionaryProperties.annots]);
+                pageDictionary[PdfDictionaryProperties.annots],
+              );
               if (annots != null && annots is PdfArray) {
                 annots.elements.add(holder);
                 _handlePopUp(annots, holder, annotationDictionary);
@@ -93,11 +100,15 @@ class XfdfParser {
     }
   }
 
-  void _handlePopUp(PdfArray annots, PdfReferenceHolder holder,
-      PdfDictionary annotDictionary) {
+  void _handlePopUp(
+    PdfArray annots,
+    PdfReferenceHolder holder,
+    PdfDictionary annotDictionary,
+  ) {
     if (annotDictionary.containsKey(PdfDictionaryProperties.popup)) {
       final IPdfPrimitive? popup = PdfCrossTable.dereference(
-          annotDictionary[PdfDictionaryProperties.popup]);
+        annotDictionary[PdfDictionaryProperties.popup],
+      );
       if (popup != null && popup is PdfDictionary) {
         popup.setProperty(PdfDictionaryProperties.parent, holder);
         annots.add(popup);
@@ -108,13 +119,17 @@ class XfdfParser {
   PdfDictionary _getAnnotation(XmlElement element, int pageIndex) {
     final PdfDictionary annotationDictionary = PdfDictionary();
     annotationDictionary.setName(
-        PdfName(PdfDictionaryProperties.name), PdfDictionaryProperties.annot);
+      PdfName(PdfDictionaryProperties.name),
+      PdfDictionaryProperties.annot,
+    );
     bool isValidType = true;
     if (!isNullOrEmpty(element.localName)) {
       switch (element.localName.toLowerCase()) {
         case 'line':
-          annotationDictionary.setName(PdfName(PdfDictionaryProperties.subtype),
-              PdfDictionaryProperties.line);
+          annotationDictionary.setName(
+            PdfName(PdfDictionaryProperties.subtype),
+            PdfDictionaryProperties.line,
+          );
           final String? start = element.getAttribute('start');
           final String? end = element.getAttribute('end');
           if (start != null && end != null) {
@@ -123,7 +138,9 @@ class XfdfParser {
             _addLinePoints(linePoints, end);
             if (linePoints.length == 4) {
               annotationDictionary.setProperty(
-                  PdfDictionaryProperties.l, PdfArray(linePoints));
+                PdfDictionaryProperties.l,
+                PdfArray(linePoints),
+              );
             }
             linePoints.clear();
           }
@@ -131,20 +148,28 @@ class XfdfParser {
           break;
         case 'circle':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, PdfDictionaryProperties.circle);
+            PdfDictionaryProperties.subtype,
+            PdfDictionaryProperties.circle,
+          );
           break;
         case 'square':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, PdfDictionaryProperties.square);
+            PdfDictionaryProperties.subtype,
+            PdfDictionaryProperties.square,
+          );
           break;
         case 'polyline':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, 'PolyLine');
+            PdfDictionaryProperties.subtype,
+            'PolyLine',
+          );
           _addLineEndStyle(element, annotationDictionary);
           break;
         case 'polygon':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, PdfDictionaryProperties.polygon);
+            PdfDictionaryProperties.subtype,
+            PdfDictionaryProperties.polygon,
+          );
           _addLineEndStyle(element, annotationDictionary);
           break;
         case 'ink':
@@ -152,56 +177,82 @@ class XfdfParser {
           break;
         case 'popup':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, PdfDictionaryProperties.popup);
+            PdfDictionaryProperties.subtype,
+            PdfDictionaryProperties.popup,
+          );
           break;
         case 'text':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, PdfDictionaryProperties.text);
+            PdfDictionaryProperties.subtype,
+            PdfDictionaryProperties.text,
+          );
           break;
         case 'freetext':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, 'FreeText');
+            PdfDictionaryProperties.subtype,
+            'FreeText',
+          );
           _addLineEndStyle(element, annotationDictionary);
           break;
         case 'stamp':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, 'Stamp');
+            PdfDictionaryProperties.subtype,
+            'Stamp',
+          );
           break;
         case 'highlight':
-          annotationDictionary.setName(PdfDictionaryProperties.subtype,
-              PdfDictionaryProperties.highlight);
+          annotationDictionary.setName(
+            PdfDictionaryProperties.subtype,
+            PdfDictionaryProperties.highlight,
+          );
           break;
         case 'squiggly':
-          annotationDictionary.setName(PdfDictionaryProperties.subtype,
-              PdfDictionaryProperties.squiggly);
+          annotationDictionary.setName(
+            PdfDictionaryProperties.subtype,
+            PdfDictionaryProperties.squiggly,
+          );
           break;
         case 'underline':
-          annotationDictionary.setName(PdfDictionaryProperties.subtype,
-              PdfDictionaryProperties.underline);
+          annotationDictionary.setName(
+            PdfDictionaryProperties.subtype,
+            PdfDictionaryProperties.underline,
+          );
           break;
         case 'strikeout':
-          annotationDictionary.setName(PdfDictionaryProperties.subtype,
-              PdfDictionaryProperties.strikeOut);
+          annotationDictionary.setName(
+            PdfDictionaryProperties.subtype,
+            PdfDictionaryProperties.strikeOut,
+          );
           break;
         case 'fileattachment':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, 'FileAttachment');
+            PdfDictionaryProperties.subtype,
+            'FileAttachment',
+          );
           break;
         case 'sound':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, 'Sound');
+            PdfDictionaryProperties.subtype,
+            'Sound',
+          );
           break;
         case 'caret':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, 'Caret');
+            PdfDictionaryProperties.subtype,
+            'Caret',
+          );
           break;
         case 'redact':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, 'Redact');
+            PdfDictionaryProperties.subtype,
+            'Redact',
+          );
           break;
         case 'watermark':
           annotationDictionary.setName(
-              PdfDictionaryProperties.subtype, 'Watermark');
+            PdfDictionaryProperties.subtype,
+            'Watermark',
+          );
           break;
         default:
           isValidType = false;
@@ -215,7 +266,10 @@ class XfdfParser {
   }
 
   void _addAnnotationData(
-      PdfDictionary annotDictionary, XmlElement element, int pageIndex) {
+    PdfDictionary annotDictionary,
+    XmlElement element,
+    int pageIndex,
+  ) {
     _addBorderStyle(annotDictionary, element);
     _applyAttributeValues(annotDictionary, element);
     _parseInnerElements(annotDictionary, element, pageIndex);
@@ -229,7 +283,9 @@ class XfdfParser {
       String? attribute = element.getAttribute('width');
       if (!isNullOrEmpty(attribute)) {
         borderStyleDictionary.setNumber(
-            PdfDictionaryProperties.w, double.parse(attribute!));
+          PdfDictionaryProperties.w,
+          double.parse(attribute!),
+        );
       }
       bool isBasicStyle = true;
       attribute = element.getAttribute('style');
@@ -262,31 +318,41 @@ class XfdfParser {
           attribute = element.getAttribute('intensity');
           if (!isBasicStyle && !isNullOrEmpty(attribute)) {
             borderEffectDictionary.setNumber(
-                PdfDictionaryProperties.i, double.parse(attribute!));
+              PdfDictionaryProperties.i,
+              double.parse(attribute!),
+            );
           } else {
             attribute = element.getAttribute('dashes');
             if (!isNullOrEmpty(attribute)) {
               final List<num> dashPoints = _obtainFloatPoints(attribute!);
               if (dashPoints.isNotEmpty) {
                 borderStyleDictionary.setProperty(
-                    PdfDictionaryProperties.d, PdfArray(dashPoints));
+                  PdfDictionaryProperties.d,
+                  PdfArray(dashPoints),
+                );
               }
             }
           }
         }
       }
       if (borderEffectDictionary.count > 0) {
-        annotDictionary.setProperty(PdfDictionaryProperties.be,
-            PdfReferenceHolder(borderEffectDictionary));
+        annotDictionary.setProperty(
+          PdfDictionaryProperties.be,
+          PdfReferenceHolder(borderEffectDictionary),
+        );
       } else {
         borderEffectDictionary.clear();
         borderEffectDictionary.isSaving = false;
       }
       if (borderStyleDictionary.count > 0) {
-        borderStyleDictionary.setProperty(PdfDictionaryProperties.type,
-            PdfName(PdfDictionaryProperties.border));
-        annotDictionary.setProperty(PdfDictionaryProperties.bs,
-            PdfReferenceHolder(borderStyleDictionary));
+        borderStyleDictionary.setProperty(
+          PdfDictionaryProperties.type,
+          PdfName(PdfDictionaryProperties.border),
+        );
+        annotDictionary.setProperty(
+          PdfDictionaryProperties.bs,
+          PdfReferenceHolder(borderStyleDictionary),
+        );
       } else {
         borderStyleDictionary.clear();
         borderStyleDictionary.isSaving = false;
@@ -321,7 +387,9 @@ class XfdfParser {
   }
 
   void _applyAttributeValues(
-      PdfDictionary annotDictionary, XmlElement element) {
+    PdfDictionary annotDictionary,
+    XmlElement element,
+  ) {
     for (final XmlAttribute attribute in element.attributes) {
       final String value = attribute.value;
       final XmlName name = attribute.name;
@@ -354,7 +422,9 @@ class XfdfParser {
           final List<num> points = _obtainFloatPoints(value);
           if (points.isNotEmpty && points.length == 4) {
             annotDictionary.setProperty(
-                PdfDictionaryProperties.rect, PdfArray(points));
+              PdfDictionaryProperties.rect,
+              PdfArray(points),
+            );
           }
           break;
         case 'color':
@@ -362,7 +432,9 @@ class XfdfParser {
             final PdfArray? colorArray = _getColorArray(value);
             if (colorArray != null) {
               annotDictionary.setProperty(
-                  PdfDictionaryProperties.c, colorArray);
+                PdfDictionaryProperties.c,
+                colorArray,
+              );
             }
           }
           break;
@@ -371,7 +443,9 @@ class XfdfParser {
             final PdfArray? colorArray = _getColorArray(value);
             if (colorArray != null) {
               annotDictionary.setProperty(
-                  PdfDictionaryProperties.ic, colorArray);
+                PdfDictionaryProperties.ic,
+                colorArray,
+              );
             }
           }
           break;
@@ -380,7 +454,10 @@ class XfdfParser {
           break;
         case 'creationdate':
           _addString(
-              annotDictionary, PdfDictionaryProperties.creationDate, value);
+            annotDictionary,
+            PdfDictionaryProperties.creationDate,
+            value,
+          );
           break;
         case 'name':
           _addString(annotDictionary, 'NM', value);
@@ -391,12 +468,18 @@ class XfdfParser {
           }
           break;
         case 'subject':
-          _addString(annotDictionary, PdfDictionaryProperties.subj,
-              _getFormattedString(value));
+          _addString(
+            annotDictionary,
+            PdfDictionaryProperties.subj,
+            _getFormattedString(value),
+          );
           break;
         case 'title':
-          _addString(annotDictionary, PdfDictionaryProperties.t,
-              _getFormattedString(value));
+          _addString(
+            annotDictionary,
+            PdfDictionaryProperties.t,
+            _getFormattedString(value),
+          );
           break;
         case 'rotation':
           _addInt(annotDictionary, PdfDictionaryProperties.rotate, value);
@@ -405,8 +488,11 @@ class XfdfParser {
           _addInt(annotDictionary, PdfDictionaryProperties.q, value);
           break;
         case 'fringe':
-          _addFloatPoints(annotDictionary, _obtainFloatPoints(value),
-              PdfDictionaryProperties.rd);
+          _addFloatPoints(
+            annotDictionary,
+            _obtainFloatPoints(value),
+            PdfDictionaryProperties.rd,
+          );
           break;
         case 'it':
           if (!isNullOrEmpty(value)) {
@@ -421,14 +507,18 @@ class XfdfParser {
             final double? leaderExtend = double.tryParse(value);
             if (leaderExtend != null) {
               annotDictionary.setNumber(
-                  PdfDictionaryProperties.lle, leaderExtend);
+                PdfDictionaryProperties.lle,
+                leaderExtend,
+              );
             }
           }
           break;
         case 'caption':
           if (!isNullOrEmpty(value)) {
             annotDictionary.setBoolean(
-                PdfDictionaryProperties.cap, value.toLowerCase() == 'yes');
+              PdfDictionaryProperties.cap,
+              value.toLowerCase() == 'yes',
+            );
           }
           break;
         case 'caption-style':
@@ -440,12 +530,18 @@ class XfdfParser {
           _addFloatPoints(annotDictionary, _obtainFloatPoints(value), 'CL');
           break;
         case 'coords':
-          _addFloatPoints(annotDictionary, _obtainFloatPoints(value),
-              PdfDictionaryProperties.quadPoints);
+          _addFloatPoints(
+            annotDictionary,
+            _obtainFloatPoints(value),
+            PdfDictionaryProperties.quadPoints,
+          );
           break;
         case 'border':
-          _addFloatPoints(annotDictionary, _obtainFloatPoints(value),
-              PdfDictionaryProperties.border);
+          _addFloatPoints(
+            annotDictionary,
+            _obtainFloatPoints(value),
+            PdfDictionaryProperties.border,
+          );
           break;
         case 'opacity':
           if (!isNullOrEmpty(value)) {
@@ -469,7 +565,8 @@ class XfdfParser {
             int flagValue = 0;
             for (int i = 0; i < annotationFlags.length; i++) {
               flagValue |= PdfAnnotationHelper.getAnnotationFlagsValue(
-                  annotationFlags[i]);
+                annotationFlags[i],
+              );
             }
             if (flagValue > 0) {
               annotDictionary.setNumber(PdfDictionaryProperties.f, flagValue);
@@ -478,8 +575,10 @@ class XfdfParser {
           break;
         case 'open':
           if (!isNullOrEmpty(value)) {
-            annotDictionary.setBoolean(PdfDictionaryProperties.open,
-                value == 'true' || value == 'yes');
+            annotDictionary.setBoolean(
+              PdfDictionaryProperties.open,
+              value == 'true' || value == 'yes',
+            );
           }
           break;
         case 'calibrate':
@@ -493,7 +592,9 @@ class XfdfParser {
           break;
         case 'repeat':
           annotDictionary.setBoolean(
-              'Repeat', value == 'true' || value == 'yes');
+            'Repeat',
+            value == 'true' || value == 'yes',
+          );
           break;
         default:
           break;
@@ -502,7 +603,10 @@ class XfdfParser {
   }
 
   void _parseInnerElements(
-      PdfDictionary annotDictionary, XmlElement element, int pageIndex) {
+    PdfDictionary annotDictionary,
+    XmlElement element,
+    int pageIndex,
+  ) {
     if (element.attributes.isNotEmpty) {
       for (final XmlNode childNode in element.children) {
         if (childNode is XmlElement) {
@@ -510,13 +614,18 @@ class XfdfParser {
           switch (childName.local.toLowerCase()) {
             case 'popup':
               if (childNode.attributes.isNotEmpty) {
-                final PdfDictionary popupDictionary =
-                    _getAnnotation(childNode, pageIndex);
+                final PdfDictionary popupDictionary = _getAnnotation(
+                  childNode,
+                  pageIndex,
+                );
                 if (popupDictionary.count > 0) {
-                  final PdfReferenceHolder holder =
-                      PdfReferenceHolder(popupDictionary);
+                  final PdfReferenceHolder holder = PdfReferenceHolder(
+                    popupDictionary,
+                  );
                   annotDictionary.setProperty(
-                      PdfDictionaryProperties.popup, holder);
+                    PdfDictionaryProperties.popup,
+                    holder,
+                  );
                   if (popupDictionary.containsKey('NM')) {
                     _addReferenceToGroup(holder, popupDictionary);
                   }
@@ -529,7 +638,9 @@ class XfdfParser {
                 contents = contents.replaceAll('&lt;', '<');
                 contents = contents.replaceAll('&gt;', '>');
                 annotDictionary.setString(
-                    PdfDictionaryProperties.contents, contents);
+                  PdfDictionaryProperties.contents,
+                  contents,
+                );
               }
               break;
             case 'contents-richtext':
@@ -539,15 +650,22 @@ class XfdfParser {
                 final String contentText = childNode.innerText;
                 if (!isNullOrEmpty(richTextContents) &&
                     !isNullOrEmpty(contentText) &&
-                    !annotDictionary
-                        .containsKey(PdfDictionaryProperties.contents)) {
+                    !annotDictionary.containsKey(
+                      PdfDictionaryProperties.contents,
+                    )) {
                   annotDictionary.setString(
-                      'RC', '<?xml version="1.0"?>$richTextContents');
+                    'RC',
+                    '<?xml version="1.0"?>$richTextContents',
+                  );
                   annotDictionary.setString(
-                      PdfDictionaryProperties.contents, contentText);
+                    PdfDictionaryProperties.contents,
+                    contentText,
+                  );
                 } else if (!isNullOrEmpty(richTextContents)) {
                   annotDictionary.setString(
-                      'RC', '<?xml version="1.0"?>$richTextContents');
+                    'RC',
+                    '<?xml version="1.0"?>$richTextContents',
+                  );
                 }
               }
               break;
@@ -555,39 +673,47 @@ class XfdfParser {
               _addString(annotDictionary, 'DS', childNode.innerText);
               break;
             case 'defaultappearance':
-              _addString(annotDictionary, PdfDictionaryProperties.da,
-                  childNode.innerText);
+              _addString(
+                annotDictionary,
+                PdfDictionaryProperties.da,
+                childNode.innerText,
+              );
               break;
             case 'vertices':
               if (!isNullOrEmpty(childNode.innerText)) {
-                final String verticesValue =
-                    childNode.innerText.replaceAll(';', ',');
+                final String verticesValue = childNode.innerText.replaceAll(
+                  ';',
+                  ',',
+                );
                 if (verticesValue != '') {
                   final List<num> verticesList = <num>[];
                   _addLinePoints(verticesList, verticesValue);
                   if (verticesList.isNotEmpty && verticesList.length.isEven) {
                     annotDictionary.setProperty(
-                        PdfDictionaryProperties.vertices,
-                        PdfArray(verticesList));
+                      PdfDictionaryProperties.vertices,
+                      PdfArray(verticesList),
+                    );
                   }
                 }
               }
               break;
             case 'appearance':
               if (!isNullOrEmpty(childNode.innerText)) {
-                final List<int> appearanceArray =
-                    base64.decode(childNode.innerText);
+                final List<int> appearanceArray = base64.decode(
+                  childNode.innerText,
+                );
                 if (appearanceArray.isNotEmpty) {
-                  final XmlDocument appearanceDoc =
-                      XmlDocument.parse(utf8.decode(appearanceArray));
+                  final XmlDocument appearanceDoc = XmlDocument.parse(
+                    utf8.decode(appearanceArray),
+                  );
                   final List<XmlNode> childNodes = appearanceDoc.children;
                   for (final XmlNode rootElement in childNodes) {
                     if (rootElement is XmlElement) {
                       if (rootElement.childElements.isNotEmpty) {
                         final XmlName rootName = rootElement.name;
                         if (rootName.local == XfdfProperties.dict) {
-                          final String? rootAttribute =
-                              rootElement.getAttribute(XfdfProperties.key);
+                          final String? rootAttribute = rootElement
+                              .getAttribute(XfdfProperties.key);
                           if (rootAttribute != null &&
                               !isNullOrEmpty(rootAttribute)) {
                             if (rootAttribute == 'AP') {
@@ -600,7 +726,9 @@ class XfdfParser {
                               }
                               if (appearance.count > 0) {
                                 annotDictionary.setProperty(
-                                    PdfDictionaryProperties.ap, appearance);
+                                  PdfDictionaryProperties.ap,
+                                  appearance,
+                                );
                               }
                             }
                           }
@@ -623,8 +751,8 @@ class XfdfParser {
                     final XmlName childNodeName = child.name;
                     if (childNodeName.local.toLowerCase() == 'gesture' &&
                         !isNullOrEmpty(child.innerText)) {
-                      final String pointsArrayValue =
-                          child.innerText.replaceAll(';', ',');
+                      final String pointsArrayValue = child.innerText
+                          .replaceAll(';', ',');
                       if (pointsArrayValue != '') {
                         final PdfArray inkListCollection = PdfArray();
                         final List<num> pointsList = <num>[];
@@ -635,7 +763,9 @@ class XfdfParser {
                         pointsList.clear();
                         if (inkListCollection.count > 0) {
                           annotDictionary.setProperty(
-                              'InkList', inkListCollection);
+                            'InkList',
+                            inkListCollection,
+                          );
                         }
                       }
                     }
@@ -645,26 +775,40 @@ class XfdfParser {
               break;
             case 'data':
               if (!isNullOrEmpty(childNode.innerText)) {
-                final List<int> raw =
-                    List<int>.from(hex.decode(childNode.innerText));
+                final List<int> raw = List<int>.from(
+                  hex.decode(childNode.innerText),
+                );
                 if (raw.isNotEmpty) {
-                  if (annotDictionary
-                      .containsKey(PdfDictionaryProperties.subtype)) {
+                  if (annotDictionary.containsKey(
+                    PdfDictionaryProperties.subtype,
+                  )) {
                     final IPdfPrimitive? subtype = PdfCrossTable.dereference(
-                        annotDictionary[PdfDictionaryProperties.subtype]);
+                      annotDictionary[PdfDictionaryProperties.subtype],
+                    );
                     if (subtype != null && subtype is PdfName) {
                       if (subtype.name == 'FileAttachment') {
                         final PdfDictionary fileDictionary = PdfDictionary();
-                        fileDictionary.setName(PdfDictionaryProperties.type,
-                            PdfDictionaryProperties.filespec);
-                        _addElementStrings(fileDictionary, element, 'file',
-                            PdfDictionaryProperties.f);
-                        _addElementStrings(fileDictionary, element, 'file',
-                            PdfDictionaryProperties.uf);
+                        fileDictionary.setName(
+                          PdfDictionaryProperties.type,
+                          PdfDictionaryProperties.filespec,
+                        );
+                        _addElementStrings(
+                          fileDictionary,
+                          element,
+                          'file',
+                          PdfDictionaryProperties.f,
+                        );
+                        _addElementStrings(
+                          fileDictionary,
+                          element,
+                          'file',
+                          PdfDictionaryProperties.uf,
+                        );
                         final PdfStream fileStream = PdfStream();
                         final PdfDictionary param = PdfDictionary();
-                        final String? sizeAttributes =
-                            element.getAttribute('size');
+                        final String? sizeAttributes = element.getAttribute(
+                          'size',
+                        );
                         if (!isNullOrEmpty(sizeAttributes)) {
                           final int? size = int.tryParse(sizeAttributes!);
                           if (size != null) {
@@ -672,44 +816,79 @@ class XfdfParser {
                             fileStream.setNumber('DL', size);
                           }
                         }
-                        _addElementStrings(param, element, 'modification',
-                            PdfDictionaryProperties.modificationDate);
-                        _addElementStrings(param, element, 'creation',
-                            PdfDictionaryProperties.creationDate);
+                        _addElementStrings(
+                          param,
+                          element,
+                          'modification',
+                          PdfDictionaryProperties.modificationDate,
+                        );
+                        _addElementStrings(
+                          param,
+                          element,
+                          'creation',
+                          PdfDictionaryProperties.creationDate,
+                        );
                         fileStream.setProperty(
-                            PdfDictionaryProperties.params, param);
-                        _addElementStrings(fileStream, element, 'mimetype',
-                            PdfDictionaryProperties.subtype);
+                          PdfDictionaryProperties.params,
+                          param,
+                        );
+                        _addElementStrings(
+                          fileStream,
+                          element,
+                          'mimetype',
+                          PdfDictionaryProperties.subtype,
+                        );
                         fileStream.data = raw;
                         final PdfDictionary embeddedFile = PdfDictionary();
-                        embeddedFile.setProperty(PdfDictionaryProperties.f,
-                            PdfReferenceHolder(fileStream));
+                        embeddedFile.setProperty(
+                          PdfDictionaryProperties.f,
+                          PdfReferenceHolder(fileStream),
+                        );
                         fileDictionary.setProperty(
-                            PdfDictionaryProperties.ef, embeddedFile);
-                        annotDictionary.setProperty(PdfDictionaryProperties.fs,
-                            PdfReferenceHolder(fileDictionary));
+                          PdfDictionaryProperties.ef,
+                          embeddedFile,
+                        );
+                        annotDictionary.setProperty(
+                          PdfDictionaryProperties.fs,
+                          PdfReferenceHolder(fileDictionary),
+                        );
                       } else if (subtype.name == 'Sound') {
                         final PdfStream soundStream = PdfStream();
                         soundStream.setName(
-                            PdfDictionaryProperties.type, 'Sound');
+                          PdfDictionaryProperties.type,
+                          'Sound',
+                        );
                         _addNumber(soundStream, element, 'bits', 'B');
-                        _addNumber(soundStream, element, 'rate',
-                            PdfDictionaryProperties.r);
-                        _addNumber(soundStream, element, 'channels',
-                            PdfDictionaryProperties.c);
+                        _addNumber(
+                          soundStream,
+                          element,
+                          'rate',
+                          PdfDictionaryProperties.r,
+                        );
+                        _addNumber(
+                          soundStream,
+                          element,
+                          'channels',
+                          PdfDictionaryProperties.c,
+                        );
                         String? attribute = element.getAttribute('encoding');
                         if (!isNullOrEmpty(attribute)) {
                           soundStream.setName(
-                              PdfDictionaryProperties.e, attribute);
+                            PdfDictionaryProperties.e,
+                            attribute,
+                          );
                         }
                         soundStream.data = raw;
                         attribute = element.getAttribute('filter');
                         if (!isNullOrEmpty(attribute)) {
-                          soundStream
-                              .addFilter(PdfDictionaryProperties.flateDecode);
+                          soundStream.addFilter(
+                            PdfDictionaryProperties.flateDecode,
+                          );
                         }
                         annotDictionary.setProperty(
-                            'Sound', PdfReferenceHolder(soundStream));
+                          'Sound',
+                          PdfReferenceHolder(soundStream),
+                        );
                       }
                     }
                   }
@@ -722,8 +901,12 @@ class XfdfParser {
     }
   }
 
-  void _addElementStrings(PdfDictionary dictionary, XmlElement element,
-      String attributeName, String key) {
+  void _addElementStrings(
+    PdfDictionary dictionary,
+    XmlElement element,
+    String attributeName,
+    String key,
+  ) {
     if (element.attributes.isNotEmpty) {
       final String? attribute = element.getAttribute(attributeName);
       if (!isNullOrEmpty(attribute)) {
@@ -732,8 +915,12 @@ class XfdfParser {
     }
   }
 
-  void _addNumber(PdfDictionary dictionary, XmlElement element,
-      String attributeName, String key) {
+  void _addNumber(
+    PdfDictionary dictionary,
+    XmlElement element,
+    String attributeName,
+    String key,
+  ) {
     if (element.attributes.isNotEmpty) {
       final String? attribute = element.getAttribute(attributeName);
       if (!isNullOrEmpty(attribute)) {
@@ -750,7 +937,8 @@ class XfdfParser {
     final List<int> appearanceArray = base64.decode(convert);
     final PdfBitmap image = PdfBitmap(appearanceArray);
     final IPdfPrimitive? array = PdfCrossTable.dereference(
-        annotDictionary[PdfDictionaryProperties.rect]);
+      annotDictionary[PdfDictionaryProperties.rect],
+    );
     if (array != null && array is PdfArray) {
       const double x = 0;
       const double y = 0;
@@ -759,23 +947,29 @@ class XfdfParser {
       final Rect rect = Rect.fromLTWH(x, y, width, height);
       final PdfTemplate template = PdfTemplate(width, height);
       _setMatrix(
-          PdfTemplateHelper.getHelper(template).content, annotDictionary);
+        PdfTemplateHelper.getHelper(template).content,
+        annotDictionary,
+      );
       template.graphics!.drawImage(image, rect);
       final PdfReferenceHolder refHolder = PdfReferenceHolder(template);
       final PdfDictionary appearanceDictionary = PdfDictionary();
       appearanceDictionary.setProperty(PdfDictionaryProperties.n, refHolder);
       annotDictionary.setProperty(
-          PdfDictionaryProperties.ap, appearanceDictionary);
+        PdfDictionaryProperties.ap,
+        appearanceDictionary,
+      );
     }
   }
 
   void _setMatrix(PdfDictionary template, PdfDictionary annotDictionary) {
-    final IPdfPrimitive? bbox =
-        PdfCrossTable.dereference(template[PdfDictionaryProperties.bBox]);
+    final IPdfPrimitive? bbox = PdfCrossTable.dereference(
+      template[PdfDictionaryProperties.bBox],
+    );
     if (bbox != null && bbox is PdfArray) {
       if (annotDictionary.containsKey(PdfDictionaryProperties.rotate)) {
         final IPdfPrimitive? rotate = PdfCrossTable.dereference(
-            annotDictionary[PdfDictionaryProperties.rotate]);
+          annotDictionary[PdfDictionaryProperties.rotate],
+        );
         if (rotate is PdfNumber && rotate.value != 0) {
           int rotateAngle = rotate.value!.toInt();
           if (rotateAngle == 0) {
@@ -793,7 +987,7 @@ class XfdfParser {
           0,
           1,
           -(bbox[0]! as PdfNumber).value!,
-          -(bbox[1]! as PdfNumber).value!
+          -(bbox[1]! as PdfNumber).value!,
         ];
         template[PdfDictionaryProperties.matrix] = PdfArray(elements);
       }
@@ -849,7 +1043,8 @@ class XfdfParser {
             bool isImage = false;
             if (appearance.containsKey(PdfDictionaryProperties.subtype)) {
               final IPdfPrimitive? subtype = PdfCrossTable.dereference(
-                  appearance[PdfDictionaryProperties.subtype]);
+                appearance[PdfDictionaryProperties.subtype],
+              );
               if (subtype != null &&
                   subtype is PdfName &&
                   subtype.name == PdfDictionaryProperties.image) {
@@ -875,7 +1070,9 @@ class XfdfParser {
   }
 
   void _addMeasureDictionary(
-      PdfDictionary annotDictionary, XmlElement element) {
+    PdfDictionary annotDictionary,
+    XmlElement element,
+  ) {
     XmlElement? measurement;
     XmlElement? area;
     XmlElement? distance;
@@ -901,7 +1098,9 @@ class XfdfParser {
     measureDictionary.items![PdfName(PdfDictionaryProperties.x)] = xArray;
     if (measurement != null) {
       measureDictionary.setName(
-          PdfDictionaryProperties.type, PdfDictionaryProperties.measure);
+        PdfDictionaryProperties.type,
+        PdfDictionaryProperties.measure,
+      );
       if (measurement.attributes.isNotEmpty) {
         final String? attribute = measurement.getAttribute('rateValue');
         if (!isNullOrEmpty(attribute)) {
@@ -937,8 +1136,9 @@ class XfdfParser {
     }
     if (measureDictionary.items!.isNotEmpty &&
         measureDictionary.containsKey(PdfDictionaryProperties.type)) {
-      annotDictionary.items![PdfName(PdfDictionaryProperties.measure)] =
-          PdfReferenceHolder(measureDictionary);
+      annotDictionary.items![PdfName(
+        PdfDictionaryProperties.measure,
+      )] = PdfReferenceHolder(measureDictionary);
     }
   }
 
@@ -949,7 +1149,9 @@ class XfdfParser {
         final double? d = double.tryParse(attribute);
         if (d != null) {
           dictionary.setProperty(
-              PdfName(PdfDictionaryProperties.d), PdfNumber(d));
+            PdfName(PdfDictionaryProperties.d),
+            PdfNumber(d),
+          );
         }
       }
       attribute = element.getAttribute(PdfDictionaryProperties.c.toLowerCase());
@@ -957,7 +1159,9 @@ class XfdfParser {
         final double? c = double.tryParse(attribute);
         if (c != null) {
           dictionary.setProperty(
-              PdfName(PdfDictionaryProperties.c), PdfNumber(c));
+            PdfName(PdfDictionaryProperties.c),
+            PdfNumber(c),
+          );
         }
       }
       attribute = element.getAttribute('rt');
@@ -966,8 +1170,9 @@ class XfdfParser {
       }
       attribute = element.getAttribute('rd');
       if (attribute != null) {
-        dictionary.items![PdfName(PdfDictionaryProperties.rd)] =
-            PdfString(attribute);
+        dictionary.items![PdfName(PdfDictionaryProperties.rd)] = PdfString(
+          attribute,
+        );
       }
       attribute = element.getAttribute('ss');
       if (attribute != null) {
@@ -975,13 +1180,15 @@ class XfdfParser {
       }
       attribute = element.getAttribute(PdfDictionaryProperties.u.toLowerCase());
       if (attribute != null) {
-        dictionary.items![PdfName(PdfDictionaryProperties.u)] =
-            PdfString(attribute);
+        dictionary.items![PdfName(PdfDictionaryProperties.u)] = PdfString(
+          attribute,
+        );
       }
       attribute = element.getAttribute(PdfDictionaryProperties.f.toLowerCase());
       if (attribute != null) {
-        dictionary.items![PdfName(PdfDictionaryProperties.f)] =
-            PdfName(attribute);
+        dictionary.items![PdfName(PdfDictionaryProperties.f)] = PdfName(
+          attribute,
+        );
       }
       attribute = element.getAttribute('fd');
       if (attribute != null) {
@@ -1003,7 +1210,10 @@ class XfdfParser {
   }
 
   void _addKey(
-      IPdfPrimitive? primitive, PdfDictionary dictionary, XmlElement element) {
+    IPdfPrimitive? primitive,
+    PdfDictionary dictionary,
+    XmlElement element,
+  ) {
     if (primitive != null && element.attributes.isNotEmpty) {
       final String? attribute = element.getAttribute(XfdfProperties.key);
       if (!isNullOrEmpty(attribute)) {
@@ -1171,7 +1381,9 @@ class XfdfParser {
   }
 
   void _addReferenceToGroup(
-      PdfReferenceHolder holder, PdfDictionary dictionary) {
+    PdfReferenceHolder holder,
+    PdfDictionary dictionary,
+  ) {
     IPdfPrimitive? name = PdfCrossTable.dereference(dictionary['NM']);
     if (name != null && name is PdfString && !isNullOrEmpty(name.value)) {
       _groupReferences ??= <String, PdfReferenceHolder>{};
@@ -1182,8 +1394,9 @@ class XfdfParser {
       }
     } else if (name == null) {
       if (dictionary.containsKey(PdfDictionaryProperties.irt)) {
-        name =
-            PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.irt]);
+        name = PdfCrossTable.dereference(
+          dictionary[PdfDictionaryProperties.irt],
+        );
       }
       if (name != null && name is PdfString && !isNullOrEmpty(name.value)) {
         if (_groupReferences != null &&
@@ -1305,7 +1518,9 @@ class XfdfParser {
           lineEndingStyles.add(PdfName(beginLineStyle));
           lineEndingStyles.add(PdfName(endLineStyle));
           annotDictionary.setProperty(
-              PdfDictionaryProperties.le, lineEndingStyles);
+            PdfDictionaryProperties.le,
+            lineEndingStyles,
+          );
         } else {
           annotDictionary.setName(PdfDictionaryProperties.le, beginLineStyle);
         }

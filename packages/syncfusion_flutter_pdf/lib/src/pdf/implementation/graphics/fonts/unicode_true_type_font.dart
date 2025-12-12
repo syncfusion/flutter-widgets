@@ -158,17 +158,20 @@ class UnicodeTrueTypeFont {
 
   void _createDescendantFont() {
     _descendantFont!.beginSave = _descendantFontBeginSave;
-    _descendantFont![PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.font);
-    _descendantFont![PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.cidFontType2);
+    _descendantFont![PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.font,
+    );
+    _descendantFont![PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.cidFontType2,
+    );
     _descendantFont![PdfDictionaryProperties.baseFont] = PdfName(_subsetName);
-    _descendantFont![PdfDictionaryProperties.cidToGIDMap] =
-        PdfName(PdfDictionaryProperties.identity);
+    _descendantFont![PdfDictionaryProperties.cidToGIDMap] = PdfName(
+      PdfDictionaryProperties.identity,
+    );
     _descendantFont![PdfDictionaryProperties.dw] = PdfNumber(1000);
     _fontDescriptor = _createFontDescriptor();
-    _descendantFont![PdfDictionaryProperties.fontDescriptor] =
-        PdfReferenceHolder(_fontDescriptor);
+    _descendantFont![PdfDictionaryProperties
+        .fontDescriptor] = PdfReferenceHolder(_fontDescriptor);
     _descendantFont![PdfDictionaryProperties.cidSystemInfo] =
         _createSystemInfo();
   }
@@ -176,30 +179,42 @@ class UnicodeTrueTypeFont {
   PdfDictionary _createFontDescriptor() {
     final PdfDictionary descriptor = PdfDictionary();
     final TtfMetrics metrics = reader.metrics!;
-    descriptor[PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.fontDescriptor);
+    descriptor[PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.fontDescriptor,
+    );
     descriptor[PdfDictionaryProperties.fontName] = PdfName(_subsetName);
-    descriptor[PdfDictionaryProperties.flags] =
-        PdfNumber(_getDescriptorFlags());
+    descriptor[PdfDictionaryProperties.flags] = PdfNumber(
+      _getDescriptorFlags(),
+    );
     final PdfRectangle rect = reader.metrics!.fontBox;
-    descriptor[PdfDictionaryProperties.fontBBox] = PdfArray(
-        <double?>[rect.x, rect.y + rect.height, rect.width, -rect.height]);
-    descriptor[PdfDictionaryProperties.missingWidth] =
-        PdfNumber(metrics.widthTable[32]);
+    descriptor[PdfDictionaryProperties.fontBBox] = PdfArray(<double?>[
+      rect.x,
+      rect.y + rect.height,
+      rect.width,
+      -rect.height,
+    ]);
+    descriptor[PdfDictionaryProperties.missingWidth] = PdfNumber(
+      metrics.widthTable[32],
+    );
     descriptor[PdfDictionaryProperties.stemV] = PdfNumber(metrics.stemV);
-    descriptor[PdfDictionaryProperties.italicAngle] =
-        PdfNumber(metrics.italicAngle!);
-    descriptor[PdfDictionaryProperties.capHeight] =
-        PdfNumber(metrics.capHeight);
+    descriptor[PdfDictionaryProperties.italicAngle] = PdfNumber(
+      metrics.italicAngle!,
+    );
+    descriptor[PdfDictionaryProperties.capHeight] = PdfNumber(
+      metrics.capHeight,
+    );
     descriptor[PdfDictionaryProperties.ascent] = PdfNumber(metrics.winAscent);
     descriptor[PdfDictionaryProperties.descent] = PdfNumber(metrics.winDescent);
     descriptor[PdfDictionaryProperties.leading] = PdfNumber(metrics.leading);
-    descriptor[PdfDictionaryProperties.avgWidth] =
-        PdfNumber(metrics.widthTable[32]);
-    descriptor[PdfDictionaryProperties.fontFile2] =
-        PdfReferenceHolder(_fontProgram);
-    descriptor[PdfDictionaryProperties.maxWidth] =
-        PdfNumber(metrics.widthTable[32]);
+    descriptor[PdfDictionaryProperties.avgWidth] = PdfNumber(
+      metrics.widthTable[32],
+    );
+    descriptor[PdfDictionaryProperties.fontFile2] = PdfReferenceHolder(
+      _fontProgram,
+    );
+    descriptor[PdfDictionaryProperties.maxWidth] = PdfNumber(
+      metrics.widthTable[32],
+    );
     descriptor[PdfDictionaryProperties.xHeight] = PdfNumber(0);
     descriptor[PdfDictionaryProperties.stemH] = PdfNumber(0);
     return descriptor;
@@ -228,8 +243,9 @@ class UnicodeTrueTypeFont {
   IPdfPrimitive _createSystemInfo() {
     final PdfDictionary systemInfo = PdfDictionary();
     systemInfo[PdfDictionaryProperties.registry] = PdfString('Adobe');
-    systemInfo[PdfDictionaryProperties.ordering] =
-        PdfString(PdfDictionaryProperties.identity);
+    systemInfo[PdfDictionaryProperties.ordering] = PdfString(
+      PdfDictionaryProperties.identity,
+    );
     systemInfo[PdfDictionaryProperties.supplement] = PdfNumber(0);
     return systemInfo;
   }
@@ -251,13 +267,16 @@ class UnicodeTrueTypeFont {
 
   void _createFontDictionary() {
     fontDictionary!.beginSave = _fontDictionaryBeginSave;
-    fontDictionary![PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.font);
+    fontDictionary![PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.font,
+    );
     fontDictionary![PdfDictionaryProperties.baseFont] = PdfName(_subsetName);
-    fontDictionary![PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.type0);
-    fontDictionary![PdfDictionaryProperties.encoding] =
-        PdfName(PdfDictionaryProperties.identityH);
+    fontDictionary![PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.type0,
+    );
+    fontDictionary![PdfDictionaryProperties.encoding] = PdfName(
+      PdfDictionaryProperties.identityH,
+    );
     final PdfArray descFonts = PdfArray();
     final PdfReferenceHolder reference = PdfReferenceHolder(_descendantFont);
     descFonts.add(reference);
@@ -268,8 +287,9 @@ class UnicodeTrueTypeFont {
     if (_usedChars != null &&
         _usedChars!.isNotEmpty &&
         !fontDictionary!.containsKey(PdfDictionaryProperties.toUnicode)) {
-      fontDictionary![PdfDictionaryProperties.toUnicode] =
-          PdfReferenceHolder(_cmap);
+      fontDictionary![PdfDictionaryProperties.toUnicode] = PdfReferenceHolder(
+        _cmap,
+      );
     }
   }
 
@@ -285,8 +305,9 @@ class UnicodeTrueTypeFont {
         }
         glyphInfo.add(glyph);
       }
-      glyphInfo
-          .sort((TtfGlyphInfo a, TtfGlyphInfo b) => a.index.compareTo(b.index));
+      glyphInfo.sort(
+        (TtfGlyphInfo a, TtfGlyphInfo b) => a.index.compareTo(b.index),
+      );
       int firstGlyphIndex = 0;
       int lastGlyphIndex = 0;
       bool firstGlyphIndexWasSet = false;
@@ -327,7 +348,8 @@ class UnicodeTrueTypeFont {
         keys.sort();
         final int first = keys[0];
         final int last = keys[keys.length - 1];
-        final String middlePart = _getHexString(first, false) +
+        final String middlePart =
+            _getHexString(first, false) +
             _getHexString(last, false) +
             PdfOperators.newLine;
         String builder = '';
@@ -433,8 +455,9 @@ class UnicodeTrueTypeFont {
   void _fontDescriptorBeginSave(Object sender, SavePdfPrimitiveArgs? ars) {
     if ((_usedChars != null && _usedChars!.isNotEmpty) &&
         !_fontDescriptor!.containsKey(PdfDictionaryProperties.cidSet)) {
-      _fontDescriptor![PdfDictionaryProperties.cidSet] =
-          PdfReferenceHolder(_cidStream);
+      _fontDescriptor![PdfDictionaryProperties.cidSet] = PdfReferenceHolder(
+        _cidStream,
+      );
     }
   }
 
@@ -448,7 +471,7 @@ class UnicodeTrueTypeFont {
       0x08,
       0x04,
       0x02,
-      0x01
+      0x01,
     ];
     if (_usedChars != null && _usedChars!.isNotEmpty) {
       final Map<int, int> glyphChars = reader.getGlyphChars(_usedChars!);

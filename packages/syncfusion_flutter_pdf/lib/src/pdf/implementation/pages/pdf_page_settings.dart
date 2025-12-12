@@ -248,8 +248,9 @@ class PdfPageSettings {
   void setMargins(double all, [double? top, double? right, double? bottom]) {
     if (!_helper.isPageAdded) {
       if (top != null && right != null && bottom != null) {
-        PdfMarginsHelper.getHelper(margins)
-            .setMarginsAll(all, top, right, bottom);
+        PdfMarginsHelper.getHelper(
+          margins,
+        ).setMarginsAll(all, top, right, bottom);
       } else if (top != null && right == null) {
         PdfMarginsHelper.getHelper(margins).setMarginsLT(all, top);
       } else if (top == null && bottom != null) {
@@ -308,8 +309,10 @@ class PdfPageSettingsHelper {
 
   /// internal method
   Size getActualSize() {
-    return Size(base.width - (base.margins.left + base.margins.right),
-        base.height - (base.margins.top + base.margins.bottom));
+    return Size(
+      base.width - (base.margins.left + base.margins.right),
+      base.height - (base.margins.top + base.margins.bottom),
+    );
   }
 
   /// internal method

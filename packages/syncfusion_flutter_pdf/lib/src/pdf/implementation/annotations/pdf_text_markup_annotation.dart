@@ -54,34 +54,41 @@ class PdfTextMarkupAnnotation extends PdfAnnotation {
   /// final List<int> bytes = document.saveSync();
   /// document.dispose();
   /// ```
-  PdfTextMarkupAnnotation(Rect bounds, String text, PdfColor color,
-      {String? author,
-      String? subject,
-      double? opacity,
-      DateTime? modifiedDate,
-      bool? setAppearance,
-      List<Rect>? boundsCollection,
-      List<PdfAnnotationFlags>? flags,
-      PdfTextMarkupAnnotationType? textMarkupAnnotationType}) {
+  PdfTextMarkupAnnotation(
+    Rect bounds,
+    String text,
+    PdfColor color, {
+    String? author,
+    String? subject,
+    double? opacity,
+    DateTime? modifiedDate,
+    bool? setAppearance,
+    List<Rect>? boundsCollection,
+    List<PdfAnnotationFlags>? flags,
+    PdfTextMarkupAnnotationType? textMarkupAnnotationType,
+  }) {
     _helper = PdfTextMarkupAnnotationHelper(
-        this,
-        bounds,
-        text,
-        color,
-        author,
-        subject,
-        opacity,
-        modifiedDate,
-        setAppearance,
-        flags,
-        textMarkupAnnotationType);
+      this,
+      bounds,
+      text,
+      color,
+      author,
+      subject,
+      opacity,
+      modifiedDate,
+      setAppearance,
+      flags,
+      textMarkupAnnotationType,
+    );
     if (boundsCollection != null) {
       this.boundsCollection = boundsCollection;
     }
   }
 
   PdfTextMarkupAnnotation._(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
     _helper = PdfTextMarkupAnnotationHelper._(this, dictionary, crossTable);
   }
 
@@ -120,37 +127,42 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
   //Constructor
   /// internal constructor
   PdfTextMarkupAnnotationHelper(
-      this.textMarkupAnnotation,
-      Rect bounds,
-      String text,
-      PdfColor color,
-      String? author,
-      String? subject,
-      double? opacity,
-      DateTime? modifiedDate,
-      bool? setAppearance,
-      List<PdfAnnotationFlags>? flags,
-      PdfTextMarkupAnnotationType? textMarkupAnnotationType)
-      : super(textMarkupAnnotation) {
+    this.textMarkupAnnotation,
+    Rect bounds,
+    String text,
+    PdfColor color,
+    String? author,
+    String? subject,
+    double? opacity,
+    DateTime? modifiedDate,
+    bool? setAppearance,
+    List<PdfAnnotationFlags>? flags,
+    PdfTextMarkupAnnotationType? textMarkupAnnotationType,
+  ) : super(textMarkupAnnotation) {
     initializeAnnotation(
-        bounds: bounds,
-        text: text,
-        color: color,
-        author: author,
-        subject: subject,
-        modifiedDate: modifiedDate,
-        opacity: opacity,
-        flags: flags,
-        setAppearance: setAppearance);
+      bounds: bounds,
+      text: text,
+      color: color,
+      author: author,
+      subject: subject,
+      modifiedDate: modifiedDate,
+      opacity: opacity,
+      flags: flags,
+      setAppearance: setAppearance,
+    );
     this.textMarkupAnnotationType =
         textMarkupAnnotationType ?? PdfTextMarkupAnnotationType.highlight;
-    dictionary!.setProperty(PdfDictionaryProperties.subtype,
-        PdfName(getEnumName(this.textMarkupAnnotationType.toString())));
+    dictionary!.setProperty(
+      PdfDictionaryProperties.subtype,
+      PdfName(getEnumName(this.textMarkupAnnotationType.toString())),
+    );
   }
 
-  PdfTextMarkupAnnotationHelper._(this.textMarkupAnnotation,
-      PdfDictionary dictionary, PdfCrossTable crossTable)
-      : super(textMarkupAnnotation) {
+  PdfTextMarkupAnnotationHelper._(
+    this.textMarkupAnnotation,
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) : super(textMarkupAnnotation) {
     initializeExistingAnnotation(dictionary, crossTable);
   }
 
@@ -167,13 +179,16 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
 
   /// internal method
   static PdfTextMarkupAnnotationHelper getHelper(
-      PdfTextMarkupAnnotation annotation) {
+    PdfTextMarkupAnnotation annotation,
+  ) {
     return annotation._helper;
   }
 
   /// internal method
   static PdfTextMarkupAnnotation load(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
     return PdfTextMarkupAnnotation._(dictionary, crossTable);
   }
 
@@ -203,16 +218,18 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
   }
 
   /// Gets text markup annotation Type.
-  PdfTextMarkupAnnotationType get textMarkupAnnotationType => isLoadedAnnotation
-      ? _obtainTextMarkupAnnotationType()
-      : _textMarkupAnnotationType!;
+  PdfTextMarkupAnnotationType get textMarkupAnnotationType =>
+      isLoadedAnnotation
+          ? _obtainTextMarkupAnnotationType()
+          : _textMarkupAnnotationType!;
 
   /// Sets text markup annotation Type.
   set textMarkupAnnotationType(PdfTextMarkupAnnotationType value) {
     _textMarkupAnnotationType = value;
     if (isLoadedAnnotation) {
-      dictionary![PdfDictionaryProperties.subtype] =
-          PdfName(getEnumName(_textMarkupAnnotationType));
+      dictionary![PdfDictionaryProperties.subtype] = PdfName(
+        getEnumName(_textMarkupAnnotationType),
+      );
     }
   }
 
@@ -223,8 +240,12 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
       final double pageHeight = pageSize.height;
       final PdfMargins margins = obtainMargin()!;
       if (bounds.width == 0 && bounds.height == 0) {
-        bounds =
-            Rect.fromLTWH(bounds.left, bounds.top, bounds.width, bounds.height);
+        bounds = Rect.fromLTWH(
+          bounds.left,
+          bounds.top,
+          bounds.width,
+          bounds.height,
+        );
       }
       if (_boundsCollection.isEmpty && !_boundsCollection.contains(bounds)) {
         _boundsCollection.add(bounds);
@@ -250,8 +271,10 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
       points = PdfArray(textQuadLocation);
       dictionary!.setProperty(PdfDictionaryProperties.quadPoints, points);
     } else {
-      final List<double> textQuadLocation =
-          List<double>.filled(_boundsCollection.length * 8, 0);
+      final List<double> textQuadLocation = List<double>.filled(
+        _boundsCollection.length * 8,
+        0,
+      );
       final double pageHeight = pageSize.height;
       for (int i = 0; i < _boundsCollection.length; i++) {
         final double locationX = _boundsCollection[i].left,
@@ -267,7 +290,9 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
         textQuadLocation[7 + (i * 8)] = textQuadLocation[5 + (i * 8)];
       }
       dictionary!.setProperty(
-          PdfDictionaryProperties.quadPoints, PdfArray(textQuadLocation));
+        PdfDictionaryProperties.quadPoints,
+        PdfArray(textQuadLocation),
+      );
     }
   }
 
@@ -275,28 +300,35 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
     final List<Rect> collection = <Rect>[];
     if (dictionary!.containsKey(PdfDictionaryProperties.quadPoints)) {
       final IPdfPrimitive? points = PdfCrossTable.dereference(
-          dictionary![PdfDictionaryProperties.quadPoints]);
+        dictionary![PdfDictionaryProperties.quadPoints],
+      );
       double x, y, width, height;
       if (points != null && points is PdfArray) {
         for (int i = 0; i < (points.count / 8).round(); i++) {
-          x = ((points[4 + (i * 8)]! as PdfNumber).value! -
-                  (points[0 + (i * 8)]! as PdfNumber).value!)
-              .toDouble();
-          y = ((points[5 + (i * 8)]! as PdfNumber).value! -
-                  (points[1 + (i * 8)]! as PdfNumber).value!)
-              .toDouble();
-          height = sqrt((x * x) + (y * y));
-          x = ((points[6 + (i * 8)]! as PdfNumber).value! -
-                  (points[4 + (i * 8)]! as PdfNumber).value!)
-              .toDouble();
-          y = ((points[7 + (i * 8)]! as PdfNumber).value! -
-                  (points[5 + (i * 8)]! as PdfNumber).value!)
-              .toDouble();
-          width = sqrt((x * x) + (y * y));
-          final double m =
+          final double q1 =
               (points[0 + (i * 8)]! as PdfNumber).value!.toDouble();
-          final double n = page!.size.height -
+          final double q2 =
               (points[1 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q3 =
+              (points[2 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q4 =
+              (points[3 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q5 =
+              (points[4 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q6 =
+              (points[5 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q7 =
+              (points[6 + (i * 8)]! as PdfNumber).value!.toDouble();
+          final double q8 =
+              (points[7 + (i * 8)]! as PdfNumber).value!.toDouble();
+          x = q5 - q1;
+          y = q6 - q2;
+          height = sqrt((x * x) + (y * y));
+          x = q7 - q5;
+          y = q8 - q6;
+          width = sqrt((x * x) + (y * y));
+          final double m = [q1, q3, q5, q7].reduce(min);
+          final double n = page!.size.height - [q2, q4, q6, q8].reduce(max);
           final Rect rect = Rect.fromLTWH(m, n, width, height);
           collection.add(rect);
         }
@@ -327,11 +359,12 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
 
   /// internal method
   void save() {
-    final PdfAnnotationHelper helper =
-        PdfAnnotationHelper.getHelper(textMarkupAnnotation);
+    final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(
+      textMarkupAnnotation,
+    );
     if (PdfAnnotationCollectionHelper.getHelper(
-            textMarkupAnnotation.page!.annotations)
-        .flatten) {
+      textMarkupAnnotation.page!.annotations,
+    ).flatten) {
       helper.flatten = true;
     }
     if (!helper.isLoadedAnnotation) {
@@ -363,8 +396,10 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
       } else {
         if (appearance != null) {
           textMarkupAnnotation.appearance.normal = appearance;
-          dictionary!.setProperty(PdfDictionaryProperties.ap,
-              PdfReferenceHolder(textMarkupAnnotation.appearance));
+          dictionary!.setProperty(
+            PdfDictionaryProperties.ap,
+            PdfReferenceHolder(textMarkupAnnotation.appearance),
+          );
         }
       }
     }
@@ -392,7 +427,9 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
 
   void _saveTextMarkUpDictionary() {
     dictionary!.setProperty(
-        PdfDictionaryProperties.subtype, PdfName(_getMarkupAnnotationType()));
+      PdfDictionaryProperties.subtype,
+      PdfName(_getMarkupAnnotationType()),
+    );
   }
 
   PdfTemplate? _createAppearance() {
@@ -412,12 +449,15 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
       } else {
         if (dictionary!.containsKey(PdfDictionaryProperties.quadPoints)) {
           final IPdfPrimitive? mQuadPoints = PdfCrossTable.dereference(
-              dictionary![PdfDictionaryProperties.quadPoints]);
+            dictionary![PdfDictionaryProperties.quadPoints],
+          );
           if (mQuadPoints != null && mQuadPoints is PdfArray) {
             for (int i = 0; i < (mQuadPoints.count / 8); i++) {
               if (isLoadedAnnotation) {
-                final List<Offset> quadPoints =
-                    List<Offset>.filled(mQuadPoints.count ~/ 2, Offset.zero);
+                final List<Offset> quadPoints = List<Offset>.filled(
+                  mQuadPoints.count ~/ 2,
+                  Offset.zero,
+                );
                 int j = 0;
                 for (int k = 0; k < mQuadPoints.count;) {
                   final double x1 =
@@ -434,19 +474,23 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
                 height = rectangle.height;
                 width = rectangle.width;
               } else {
-                x = ((mQuadPoints[4 + (i * 8)]! as PdfNumber).value! -
-                        (mQuadPoints[0 + (i * 8)]! as PdfNumber).value!)
-                    .toDouble();
-                y = ((mQuadPoints[5 + (i * 8)]! as PdfNumber).value! -
-                        (mQuadPoints[1 + (i * 8)]! as PdfNumber).value!)
-                    .toDouble();
+                x =
+                    ((mQuadPoints[4 + (i * 8)]! as PdfNumber).value! -
+                            (mQuadPoints[0 + (i * 8)]! as PdfNumber).value!)
+                        .toDouble();
+                y =
+                    ((mQuadPoints[5 + (i * 8)]! as PdfNumber).value! -
+                            (mQuadPoints[1 + (i * 8)]! as PdfNumber).value!)
+                        .toDouble();
                 height = sqrt((x * x) + (y * y));
-                x = ((mQuadPoints[6 + (i * 8)]! as PdfNumber).value! -
-                        (mQuadPoints[4 + (i * 8)]! as PdfNumber).value!)
-                    .toDouble();
-                y = ((mQuadPoints[7 + (i * 8)]! as PdfNumber).value! -
-                        (mQuadPoints[5 + (i * 8)]! as PdfNumber).value!)
-                    .toDouble();
+                x =
+                    ((mQuadPoints[6 + (i * 8)]! as PdfNumber).value! -
+                            (mQuadPoints[4 + (i * 8)]! as PdfNumber).value!)
+                        .toDouble();
+                y =
+                    ((mQuadPoints[7 + (i * 8)]! as PdfNumber).value! -
+                            (mQuadPoints[5 + (i * 8)]! as PdfNumber).value!)
+                        .toDouble();
                 width = sqrt((x * x) + (y * y));
                 bounds = Rect.fromLTWH(bounds.left, bounds.top, width, height);
               }
@@ -456,7 +500,8 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
       }
       final PdfTemplate template = PdfTemplate(width, height);
       PdfAnnotationHelper.setMatrixToZeroRotation(
-          PdfTemplateHelper.getHelper(template).content);
+        PdfTemplateHelper.getHelper(template).content,
+      );
       final PdfGraphics graphics = template.graphics!;
       graphics.setTransparency(opacity, mode: PdfBlendMode.multiply);
       if (boundsCollection.length > 1) {
@@ -464,82 +509,108 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
           if (textMarkupAnnotationType ==
               PdfTextMarkupAnnotationType.highlight) {
             graphics.drawRectangle(
-                brush: PdfSolidBrush(color),
-                bounds: Rect.fromLTWH(
-                    boundsCollection[i].left - rectangle!.x,
-                    boundsCollection[i].top - rectangle.y,
-                    boundsCollection[i].width,
-                    boundsCollection[i].height));
+              brush: PdfSolidBrush(color),
+              bounds: Rect.fromLTWH(
+                boundsCollection[i].left - rectangle!.x,
+                boundsCollection[i].top - rectangle.y,
+                boundsCollection[i].width,
+                boundsCollection[i].height,
+              ),
+            );
           } else if (textMarkupAnnotationType ==
               PdfTextMarkupAnnotationType.underline) {
             graphics.drawLine(
-                PdfPen(color, width: boundsCollection[i].height * 0.05),
-                Offset(
-                    boundsCollection[i].left - rectangle!.x,
-                    (boundsCollection[i].top - rectangle.y) +
-                        (boundsCollection[i].height -
-                            ((boundsCollection[i].height / 2) / 3))),
-                Offset(
-                    boundsCollection[i].width +
-                        (boundsCollection[i].left - rectangle.x),
-                    (boundsCollection[i].top - rectangle.y) +
-                        (boundsCollection[i].height -
-                            ((boundsCollection[i].height / 2) / 3))));
+              PdfPen(color, width: boundsCollection[i].height * 0.05),
+              Offset(
+                boundsCollection[i].left - rectangle!.x,
+                (boundsCollection[i].top - rectangle.y) +
+                    (boundsCollection[i].height -
+                        ((boundsCollection[i].height / 2) / 3)),
+              ),
+              Offset(
+                boundsCollection[i].width +
+                    (boundsCollection[i].left - rectangle.x),
+                (boundsCollection[i].top - rectangle.y) +
+                    (boundsCollection[i].height -
+                        ((boundsCollection[i].height / 2) / 3)),
+              ),
+            );
           } else if (textMarkupAnnotationType ==
               PdfTextMarkupAnnotationType.strikethrough) {
             graphics.drawLine(
-                PdfPen(color, width: boundsCollection[i].height * 0.05),
-                Offset(
-                    boundsCollection[i].left - rectangle!.x,
-                    (boundsCollection[i].top - rectangle.y) +
-                        (boundsCollection[i].height -
-                            (boundsCollection[i].height / 2))),
-                Offset(
-                    boundsCollection[i].width +
-                        (boundsCollection[i].left - rectangle.x),
-                    (boundsCollection[i].top - rectangle.y) +
-                        (boundsCollection[i].height -
-                            (boundsCollection[i].height / 2))));
+              PdfPen(color, width: boundsCollection[i].height * 0.05),
+              Offset(
+                boundsCollection[i].left - rectangle!.x,
+                (boundsCollection[i].top - rectangle.y) +
+                    (boundsCollection[i].height -
+                        (boundsCollection[i].height / 2)),
+              ),
+              Offset(
+                boundsCollection[i].width +
+                    (boundsCollection[i].left - rectangle.x),
+                (boundsCollection[i].top - rectangle.y) +
+                    (boundsCollection[i].height -
+                        (boundsCollection[i].height / 2)),
+              ),
+            );
           } else if (textMarkupAnnotationType ==
               PdfTextMarkupAnnotationType.squiggly) {
-            final PdfPen pdfPen =
-                PdfPen(color, width: boundsCollection[i].height * 0.02);
+            final PdfPen pdfPen = PdfPen(
+              color,
+              width: boundsCollection[i].height * 0.02,
+            );
             graphics.save();
-            graphics.translateTransform(boundsCollection[i].left - rectangle!.x,
-                boundsCollection[i].top - rectangle.y);
+            graphics.translateTransform(
+              boundsCollection[i].left - rectangle!.x,
+              boundsCollection[i].top - rectangle.y,
+            );
             graphics.setClip(
-                bounds: Rect.fromLTWH(0, 0, boundsCollection[i].width,
-                    boundsCollection[i].height));
+              bounds: Rect.fromLTWH(
+                0,
+                0,
+                boundsCollection[i].width,
+                boundsCollection[i].height,
+              ),
+            );
             graphics.drawPath(
-                _drawSquiggly(
-                    boundsCollection[i].width, boundsCollection[i].height),
-                pen: pdfPen);
+              _drawSquiggly(
+                boundsCollection[i].width,
+                boundsCollection[i].height,
+              ),
+              pen: pdfPen,
+            );
             graphics.restore();
           }
         }
       } else {
         if (textMarkupAnnotationType == PdfTextMarkupAnnotationType.highlight) {
           graphics.drawRectangle(
-              brush: PdfSolidBrush(color),
-              bounds: Rect.fromLTWH(0, 0, width, height));
+            brush: PdfSolidBrush(color),
+            bounds: Rect.fromLTWH(0, 0, width, height),
+          );
         } else if (textMarkupAnnotationType ==
             PdfTextMarkupAnnotationType.underline) {
           graphics.drawLine(
-              PdfPen(color, width: height * 0.05),
-              Offset(0, height - ((height / 2) / 3)),
-              Offset(width, height - ((height / 2) / 3)));
+            PdfPen(color, width: height * 0.05),
+            Offset(0, height - ((height / 2) / 3)),
+            Offset(width, height - ((height / 2) / 3)),
+          );
         } else if (textMarkupAnnotationType ==
             PdfTextMarkupAnnotationType.strikethrough) {
-          graphics.drawLine(PdfPen(color, width: height * 0.05),
-              Offset(0, height / 2), Offset(width, height / 2));
+          graphics.drawLine(
+            PdfPen(color, width: height * 0.05),
+            Offset(0, height / 2),
+            Offset(width, height / 2),
+          );
         } else if (textMarkupAnnotationType ==
             PdfTextMarkupAnnotationType.squiggly) {
           final PdfPen pdfPen = PdfPen(color, width: height * 0.02);
           graphics.drawPath(_drawSquiggly(width, height), pen: pdfPen);
         }
         if (isLoadedAnnotation) {
-          dictionary![PdfDictionaryProperties.rect] =
-              PdfArray.fromRectangle(rectangle!);
+          dictionary![PdfDictionaryProperties.rect] = PdfArray.fromRectangle(
+            rectangle!,
+          );
         }
       }
       return template;
@@ -552,15 +623,19 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
       width = width + 1;
     }
     final PdfPath path = PdfPath();
-    final List<Offset> mPathPoints =
-        List<Offset>.filled(((width / height) * 16).ceil(), Offset.zero);
+    final List<Offset> mPathPoints = List<Offset>.filled(
+      ((width / height) * 16).ceil(),
+      Offset.zero,
+    );
     final double length = width / (mPathPoints.length / 2);
     final double location = (length + length) * 0.6;
     double zigZag = location;
     double x = 0;
     for (int i = 0; i < mPathPoints.length; i++, x += length) {
-      mPathPoints[i] =
-          Offset(x, ((height - location) + zigZag) - (height * 0.02));
+      mPathPoints[i] = Offset(
+        x,
+        ((height - location) + zigZag) - (height * 0.02),
+      );
       if (zigZag == 0) {
         zigZag = location;
       } else {
@@ -575,13 +650,20 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
     if (!isLoadedAnnotation) {
       if (appearance != null) {
         page.graphics.save();
-        final Rect rectangle =
-            calculateTemplateBounds(bounds, page, appearance, true);
+        final Rect rectangle = calculateTemplateBounds(
+          bounds,
+          page,
+          appearance,
+          true,
+        );
         if (opacity < 1) {
           page.graphics.setTransparency(opacity);
         }
         page.graphics.drawPdfTemplate(
-            appearance, Offset(rectangle.left, rectangle.top), rectangle.size);
+          appearance,
+          Offset(rectangle.left, rectangle.top),
+          rectangle.size,
+        );
         page.annotations.remove(textMarkupAnnotation);
         page.graphics.restore();
       }
@@ -589,23 +671,29 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
       if (dictionary != null &&
           dictionary!.containsKey(PdfDictionaryProperties.ap) &&
           appearance == null) {
-        IPdfPrimitive? appearanceDictionary =
-            PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.ap]);
+        IPdfPrimitive? appearanceDictionary = PdfCrossTable.dereference(
+          dictionary![PdfDictionaryProperties.ap],
+        );
         if (appearanceDictionary != null &&
             appearanceDictionary is PdfDictionary) {
           appearanceDictionary = PdfCrossTable.dereference(
-              appearanceDictionary[PdfDictionaryProperties.n]);
+            appearanceDictionary[PdfDictionaryProperties.n],
+          );
           if (appearanceDictionary != null &&
               appearanceDictionary is PdfStream) {
             appearance = PdfTemplateHelper.fromPdfStream(appearanceDictionary);
-            final bool isNormalMatrix =
-                validateTemplateMatrix(appearanceDictionary);
+            final bool isNormalMatrix = validateTemplateMatrix(
+              appearanceDictionary,
+            );
             if (isNormalMatrix &&
                 page.rotation != PdfPageRotateAngle.rotateAngle0) {
               flattenAnnotationTemplate(appearance, isNormalMatrix);
             } else if (isNormalMatrix &&
                 isValidTemplateMatrix(
-                    appearanceDictionary, bounds.topLeft, appearance)) {
+                  appearanceDictionary,
+                  bounds.topLeft,
+                  appearance,
+                )) {
               flattenAnnotationTemplate(appearance, isNormalMatrix);
             }
           } else {
@@ -613,7 +701,8 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
             appearance = _createAppearance();
             if (appearance != null) {
               final bool isNormalMatrix = validateTemplateMatrix(
-                  PdfTemplateHelper.getHelper(appearance).content);
+                PdfTemplateHelper.getHelper(appearance).content,
+              );
               flattenAnnotationTemplate(appearance, isNormalMatrix);
             }
           }
@@ -624,26 +713,30 @@ class PdfTextMarkupAnnotationHelper extends PdfAnnotationHelper {
         appearance = _createAppearance();
         if (appearance != null) {
           final bool isNormalMatrix = validateTemplateMatrix(
-              PdfTemplateHelper.getHelper(appearance).content);
+            PdfTemplateHelper.getHelper(appearance).content,
+          );
           flattenAnnotationTemplate(appearance, isNormalMatrix);
         }
       } else if (!dictionary!.containsKey(PdfDictionaryProperties.ap) &&
           appearance != null) {
         final bool isNormalMatrix = validateTemplateMatrix(
-            PdfTemplateHelper.getHelper(appearance).content);
+          PdfTemplateHelper.getHelper(appearance).content,
+        );
         flattenAnnotationTemplate(appearance, isNormalMatrix);
       } else if (dictionary!.containsKey(PdfDictionaryProperties.ap) &&
           appearance != null) {
         final bool isNormalMatrix = validateTemplateMatrix(
-            PdfTemplateHelper.getHelper(appearance).content);
+          PdfTemplateHelper.getHelper(appearance).content,
+        );
         flattenAnnotationTemplate(appearance, isNormalMatrix);
       }
     }
   }
 
   PdfTextMarkupAnnotationType _obtainTextMarkupAnnotationType() {
-    final IPdfPrimitive? annotType =
-        PdfCrossTable.dereference(dictionary![PdfDictionaryProperties.subtype]);
+    final IPdfPrimitive? annotType = PdfCrossTable.dereference(
+      dictionary![PdfDictionaryProperties.subtype],
+    );
     if (annotType != null && annotType is PdfName) {
       final String aType = annotType.name.toString();
       return _getTextMarkupAnnotation(aType);

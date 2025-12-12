@@ -1,5 +1,5 @@
 {
-"noSelectedDateCalendarLabel" : "কোনো নির্বাচিত তারিখ নেই", 
+"noSelectedDateCalendarLabel" : "কোনো তারিখ নির্বাচিত হয়নি", 
 "noEventsCalendarLabel" : "কোনো ঘটনা নেই", 
 "ofDataPagerLabel" : "এর", 
 "pagesDataPagerLabel" : "পৃষ্ঠাগুলি", 
@@ -71,8 +71,8 @@
 "pdfHyperlinkDialogCancelLabel" : "বাতিল করুন", 
 "afterDataGridFilteringLabel" : "পরে", 
 "afterOrEqualDataGridFilteringLabel" : "পরে বা সমান", 
-"beforeDataGridFilteringLabel" : "আগে বা সমান", 
-"beforeOrEqualDataGridFilteringLabel" : "আগে", 
+"beforeDataGridFilteringLabel" : "আগে",
+"beforeOrEqualDataGridFilteringLabel" : "আগে বা সমান",
 "beginsWithDataGridFilteringLabel" : "সঙ্গে শুরু", 
 "containsDataGridFilteringLabel" : "ধারণ করে", 
 "doesNotBeginWithDataGridFilteringLabel" : "দিয়ে শুরু হয় না", 

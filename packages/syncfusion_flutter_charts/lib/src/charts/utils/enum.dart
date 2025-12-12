@@ -15,7 +15,7 @@ enum LegendPosition {
   right,
 
   /// - `LegendPosition.top`, places the legend at the top of the plot area.
-  top
+  top,
 }
 
 /// Alignment of various elements in chart.
@@ -27,7 +27,7 @@ enum ChartAlignment {
   center,
 
   /// - `ChartAlignment.far` aligns to the far position.
-  far
+  far,
 }
 
 /// Mode to handle the legend items overflow.
@@ -42,7 +42,7 @@ enum LegendItemOverflowMode {
 
   /// - `LegendItemOverflowMode.none`, will simply hides the remaining
   /// legend items.
-  none
+  none,
 }
 
 /// Orientation of legend items.
@@ -56,7 +56,7 @@ enum LegendItemOrientation {
   horizontal,
 
   /// - `LegendItemOrientation.vertical`, will align the legend item vertically.
-  vertical
+  vertical,
 }
 
 /// It used to change the legend icons in different type of series and
@@ -91,7 +91,7 @@ enum LegendIconType {
 
   ///`LegendIconType.invertedTriangle`, icon is changed by invertedTriangle
   // shape.
-  invertedTriangle
+  invertedTriangle,
 }
 
 /// Position of data labels in Cartesian chart.The position of data labels
@@ -117,7 +117,7 @@ enum ChartDataLabelAlignment {
 
   /// - ChartDataLabelAlignment.middle places the data label at the
   /// center position of a point.
-  middle
+  middle,
 }
 
 /// Position of data labels in Circular chart.
@@ -126,7 +126,7 @@ enum CircularLabelPosition {
   inside,
 
   /// - CircularLabelPosition.line places the data label outside the point.
-  outside
+  outside,
 }
 
 /// PyramidMode for pyramid charts.
@@ -137,7 +137,7 @@ enum PyramidMode {
   linear,
 
   /// - PyramidMode.surface, Surface pyramid will be displayed
-  surface
+  surface,
 }
 
 /// Orientation of an axis.
@@ -148,7 +148,7 @@ enum AxisOrientation {
   vertical,
 
   /// - AxisOrientation.horizontal, renders the axis horizontally.
-  horizontal
+  horizontal,
 }
 
 /// Padding for axis ranges.
@@ -170,9 +170,25 @@ enum ChartRangePadding {
   /// maximum of the axis.
   additional,
 
+  /// - ChartRangePadding.additionalStart, will add an interval to the minimum
+  /// value of the axis.
+  additionalStart,
+
+  /// - ChartRangePadding.additionalEnd, will add an interval to the maximum
+  ///  value of the axis.
+  additionalEnd,
+
   /// - ChartRangePadding.round, will round the minimum and maximum values to
   /// the nearest possible value.
-  round
+  round,
+
+  /// - ChartRangePadding.roundStart, will round the minimum value to
+  /// the nearest possible value.
+  roundStart,
+
+  /// - ChartRangePadding.round, will round the maximum value to
+  /// the nearest possible value.
+  roundEnd,
 }
 
 /// Placement of category axis labels.
@@ -181,7 +197,7 @@ enum LabelPlacement {
   betweenTicks,
 
   /// - LabelPlacement.onTicks, places the axis label on the ticks.
-  onTicks
+  onTicks,
 }
 
 /// Action while the axis label intersects. Axis label placements can be
@@ -210,7 +226,7 @@ enum AxisLabelIntersectAction {
   rotate45,
 
   /// - AxisLabelIntersectAction.rotate90, rotates all the axis labels to 90°.
-  rotate90
+  rotate90,
 }
 
 /// Interval type of the DateTime and DateTimeCategory axis.
@@ -249,7 +265,7 @@ enum ChartDataLabelPosition {
 
   /// - ChartDataLabelPosition.outside places the axis label outside the
   /// plot area.
-  outside
+  outside,
 }
 
 /// Renders a variety of splines
@@ -268,7 +284,7 @@ enum SplineType {
   cardinal,
 
   ///- SplineType.clamped, will rendering clamped type spline.
-  clamped
+  clamped,
 }
 
 /// Placement of edge labels in the axis.
@@ -281,7 +297,7 @@ enum EdgeLabelPlacement {
 
   /// - EdgeLabelPlacement.shift, shift the edge labels inside the
   /// plot area bounds.
-  shift
+  shift,
 }
 
 /// Mode of empty data points.
@@ -300,7 +316,7 @@ enum EmptyPointMode {
 
   /// - EmptyPointMode.average, will consider the average value of its previous
   /// and next data points.
-  average
+  average,
 }
 
 /// Sorting order of data points.
@@ -314,7 +330,7 @@ enum SortingOrder {
   descending,
 
   /// - SortingOrder.none renders the points without sorting.
-  none
+  none,
 }
 
 /// Position of the ticks in the axis.
@@ -323,7 +339,7 @@ enum TickPosition {
   inside,
 
   /// - TickPosition.outside, places the ticks outside the plot area.
-  outside
+  outside,
 }
 
 /// Trendline type
@@ -346,7 +362,7 @@ enum TrendlineType {
   polynomial,
 
   /// - TrendlineType.movingAverage, displays movingAverage trendline type.
-  movingAverage
+  movingAverage,
 }
 
 /// Mode to activate a specific interactive user feature.
@@ -364,7 +380,7 @@ enum ActivationMode {
   longPress,
 
   /// - ActivationMode.none, does not activate any feature.
-  none
+  none,
 }
 
 /// Trackball tooltip's display mode.
@@ -384,7 +400,7 @@ enum TrackballDisplayMode {
 
   /// - TrackballDisplayMode.nearestPoint, displays the tooltip of
   /// nearest point.
-  nearestPoint
+  nearestPoint,
 }
 
 /// Crosshair line type.
@@ -399,7 +415,7 @@ enum CrosshairLineType {
   vertical,
 
   /// -  CrosshairLineType.none, will not display crosshair line.
-  none
+  none,
 }
 
 /// Trackball line type.
@@ -408,7 +424,7 @@ enum TrackballLineType {
   vertical,
 
   /// - TrackballLineType.none, will not display trackball line.
-  none
+  none,
 }
 
 /// Zooming mode in [SfCartesianChart]
@@ -420,7 +436,7 @@ enum ZoomMode {
   y,
 
   /// - `ZoomMode.xy`, zooms in both horizontal and vertical direction.
-  xy
+  xy,
 }
 
 /// Data point selection type.
@@ -432,7 +448,7 @@ enum SelectionType {
   series,
 
   /// - SelectionType.cluster, selects the cluster of data points.
-  cluster
+  cluster,
 }
 
 /// Coordinate unit for placing annotations.
@@ -446,7 +462,7 @@ enum CoordinateUnit {
 
   /// - CoordinateUnit.percentage, places the annotation concerning to the
   /// percentage value.
-  percentage
+  percentage,
 }
 
 /// Annotation is a note by way of explanation or comment added to the chart.
@@ -459,7 +475,7 @@ enum AnnotationRegion {
 
   /// - AnnotationRegion.plotArea, places the annotation anywhere in the
   /// plot area.
-  plotArea
+  plotArea,
 }
 
 enum ChartClipBehavior {
@@ -481,7 +497,7 @@ enum BorderDrawMode {
   top,
 
   /// - BorderDrawMode.excludeBottom, renders border except bottom side.
-  excludeBottom
+  excludeBottom,
 }
 
 /// Border mode of range area series.
@@ -491,7 +507,7 @@ enum RangeAreaBorderMode {
 
   /// - RangeAreaBorderMode.excludeSides, renders border except
   /// left and right side.
-  excludeSides
+  excludeSides,
 }
 
 /// Types of text rendering positions.
@@ -503,7 +519,7 @@ enum TextAnchor {
   middle,
 
   /// - TextAnchor.end, anchors the text at the end position.
-  end
+  end,
 }
 
 /// Tooltip positioning.
@@ -513,7 +529,7 @@ enum TooltipPosition {
 
   /// - TooltipPosition.pointer, position of the tooltip will be at the
   /// pointer position.
-  pointer
+  pointer,
 }
 
 /// Macd indicator type.
@@ -525,7 +541,7 @@ enum MacdType {
   line,
 
   /// - MacdType.histogram,  the indicator will have a histogram line only.
-  histogram
+  histogram,
 }
 
 /// Box plot series rendering mode.
@@ -548,7 +564,7 @@ enum BoxPlotMode {
   /// The quartile values are calculated using the formula
   /// (N+1) * P (N count, P percentile), and their index value starts from 1
   /// in the list.
-  exclusive
+  exclusive,
 }
 
 /// Used to align the Cartesian data label positions.
@@ -564,7 +580,7 @@ enum LabelAlignment {
 
   /// `LabelAlignment.center`, data label alignment is center of the
   /// series line.
-  center
+  center,
 }
 
 /// Whether marker should be visible or not when trackball is enabled.
@@ -581,7 +597,7 @@ enum TrackballVisibilityMode {
 
   /// * TrackballVisibilityMode.hidden - Hides the trackball marker for all
   /// the series.
-  hidden
+  hidden,
 }
 
 /// The direction of swiping on the chart.
@@ -594,7 +610,7 @@ enum ChartSwipeDirection {
 
   /// If the swipe happens from right to left direction, the
   /// direction is `ChartSwipeDirection.end`.
-  end
+  end,
 }
 
 /// Determines whether the axis should be scrolled from the start position or
@@ -613,7 +629,7 @@ enum AutoScrollingMode {
 
   /// `AutoScrollingMode.end`, if the chart is scrolled from right to
   /// left direction.
-  end
+  end,
 }
 
 /// Determines the type of the Error Bar.
@@ -636,7 +652,7 @@ enum ErrorBarType {
 
   /// `ErrorBarType.custom` - It determines the positive and negative error
   /// values in both horizontal and vertical direction.
-  custom
+  custom,
 }
 
 /// Determines the error bar direction.
@@ -649,7 +665,7 @@ enum Direction {
 
   /// `Direction.both` - Determines the error bar direction in both positive
   /// and negative sides.
-  both
+  both,
 }
 
 /// Determines mode of the error bar.
@@ -663,7 +679,7 @@ enum RenderingMode {
 
   /// `RenderingMode.both` - Determines both the vertical and horizontal sides
   /// of the error bar.
-  both
+  both,
 }
 
 /// Border type of the chart axis label.
@@ -706,7 +722,7 @@ enum CircularChartGroupMode {
   point,
 
   /// - CircularChartGroupMode.value, groups the points based on the y value.
-  value
+  value,
 }
 
 /// Data label position of range bar series.
@@ -715,7 +731,7 @@ enum Position {
   left,
 
   /// - Position.right, places the data label to the right side.
-  right
+  right,
 }
 
 /// Data labels intersect action.
@@ -731,7 +747,7 @@ enum LabelIntersectAction {
   /// labels smartly. If the labels are moved out of the chart area, then the
   /// labels will be trimmed and the eclipse will be shown for the
   /// trimmed labels.
-  shift
+  shift,
 }
 
 /// Type of connector line.
@@ -741,7 +757,7 @@ enum ConnectorType {
 
   /// - ConnectorType.line, will render the data label connector line
   /// straightly.
-  line
+  line,
 }
 
 /// Corner style of range bar series.
@@ -756,7 +772,7 @@ enum CornerStyle {
   startCurve,
 
   /// - CornerStyle.endCurve, will render ending corner curly.
-  endCurve
+  endCurve,
 }
 
 /// Point Render Mode for circular charts

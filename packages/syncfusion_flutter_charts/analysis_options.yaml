@@ -1,30 +1,5 @@
 include: package:syncfusion_flutter_core/analysis_options.yaml
 
-analyzer:
-  errors:
-    include_file_not_found: ignore
-    lines_longer_than_80_chars: ignore
-    avoid_as: ignore
-    cast_nullable_to_non_nullable: ignore
-    field_initializer_not_assignable: ignore
-    invalid_assignment: ignore
-    unnecessary_null_comparison: ignore
-    unnecessary_nullable_for_final_variable_declarations: ignore
-    must_be_immutable: ignore
-    avoid_equals_and_hash_code_on_mutable_classes: ignore
-    unnecessary_null_checks: ignore
-    noop_primitive_operations: ignore
-    omit_local_variable_types: ignore
-    argument_type_not_assignable: ignore
-    overridden_fields: ignore
-    invalid_dependency: ignore
-    use_key_in_widget_constructors: ignore
-    avoid_dynamic_calls: ignore
-    use_late_for_private_fields_and_variables: ignore
-    public_member_api_docs: ignore
-    always_specify_types: ignore
-    avoid_redundant_argument_values: ignore
-    prefer_const_literals_to_create_immutables: ignore
-    
+analyzer:  
   language:
     strict-raw-types: false

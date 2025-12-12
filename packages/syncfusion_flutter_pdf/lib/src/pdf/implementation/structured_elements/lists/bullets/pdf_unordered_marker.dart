@@ -51,11 +51,12 @@ class PdfUnorderedMarker extends PdfMarker {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfUnorderedMarker(
-      {this.style = PdfUnorderedMarkerStyle.none,
-      PdfFont? font,
-      String? text,
-      PdfTemplate? template}) {
+  PdfUnorderedMarker({
+    this.style = PdfUnorderedMarkerStyle.none,
+    PdfFont? font,
+    String? text,
+    PdfTemplate? template,
+  }) {
     _helper = PdfUnorderedMarkerHelper(this);
     if (font != null) {
       this.font = font;
@@ -177,22 +178,31 @@ class PdfUnorderedMarkerHelper extends PdfMarkerHelper {
   late PdfFont unicodeFont;
 
   /// Draws the specified graphics.
-  void draw(PdfGraphics? graphics, Offset point, PdfBrush? brush, PdfPen? pen,
-      [PdfList? curList]) {
+  void draw(
+    PdfGraphics? graphics,
+    Offset point,
+    PdfBrush? brush,
+    PdfPen? pen, [
+    PdfList? curList,
+  ]) {
     final PdfTemplate templete = PdfTemplate(size!.width, size!.height);
     Offset offset = Offset(point.dx, point.dy);
     switch (base.style) {
       case PdfUnorderedMarkerStyle.customTemplate:
-        templete.graphics!
-            .drawPdfTemplate(base._template!, Offset.zero, size!.size);
+        templete.graphics!.drawPdfTemplate(
+          base._template!,
+          Offset.zero,
+          size!.size,
+        );
         offset = Offset(
-            point.dx,
-            point.dy +
-                ((curList!.font!.height > base.font!.height
-                        ? curList.font!.height
-                        : base.font!.height) /
-                    2) -
-                (size!.height / 2));
+          point.dx,
+          point.dy +
+              ((curList!.font!.height > base.font!.height
+                      ? curList.font!.height
+                      : base.font!.height) /
+                  2) -
+              (size!.height / 2),
+        );
         break;
       case PdfUnorderedMarkerStyle.customImage:
         //  templete.graphics.drawImage(
@@ -205,10 +215,13 @@ class PdfUnorderedMarkerHelper extends PdfMarkerHelper {
           location.x = location.x + pen.width;
           location.y = location.y + pen.width;
         }
-        templete.graphics!.drawString(getStyledText(), unicodeFont,
-            pen: pen,
-            brush: brush,
-            bounds: Rect.fromLTWH(location.x, location.y, 0, 0));
+        templete.graphics!.drawString(
+          getStyledText(),
+          unicodeFont,
+          pen: pen,
+          brush: brush,
+          bounds: Rect.fromLTWH(location.x, location.y, 0, 0),
+        );
         break;
     }
     graphics!.drawPdfTemplate(templete, offset);

@@ -125,10 +125,14 @@ class PdfStreamWriter implements IPdfWriter {
 
   /// internal method
   void setColorAndSpace(
-      PdfColor color, PdfColorSpace? colorSpace, bool forStroking) {
+    PdfColor color,
+    PdfColorSpace? colorSpace,
+    bool forStroking,
+  ) {
     if (!color.isEmpty) {
       stream!.write(
-          PdfColorHelper.getHelper(color).getString(colorSpace, forStroking));
+        PdfColorHelper.getHelper(color).getString(colorSpace, forStroking),
+      );
       stream!.write(PdfOperators.newLine);
     }
   }
@@ -137,9 +141,11 @@ class PdfStreamWriter implements IPdfWriter {
   void setColorSpace(PdfName name, bool forStroking) {
     stream!.write(name.toString());
     stream!.write(PdfOperators.whiteSpace);
-    stream!.write(forStroking
-        ? PdfOperators.selectColorSpaceForStroking
-        : PdfOperators.selectColorSpaceForNonStroking);
+    stream!.write(
+      forStroking
+          ? PdfOperators.selectColorSpaceForStroking
+          : PdfOperators.selectColorSpaceForNonStroking,
+    );
     stream!.write(PdfOperators.newLine);
   }
 
@@ -225,7 +231,10 @@ class PdfStreamWriter implements IPdfWriter {
   void setGraphicsState(PdfName name) {
     if (name.name!.isEmpty) {
       throw ArgumentError.value(
-          name, 'name', 'dictionary name cannot be empty');
+        name,
+        'name',
+        'dictionary name cannot be empty',
+      );
     }
     stream!.write(name.toString());
     stream!.write(PdfOperators.whiteSpace);
@@ -305,7 +314,13 @@ class PdfStreamWriter implements IPdfWriter {
 
   /// internal method
   void appendBezierSegment(
-      double x1, double y1, double x2, double y2, double x3, double y3) {
+    double x1,
+    double y1,
+    double x2,
+    double y2,
+    double x3,
+    double y3,
+  ) {
     writePoint(x1, y1);
     writePoint(x2, y2);
     writePoint(x3, y3);
@@ -325,7 +340,9 @@ class PdfStreamWriter implements IPdfWriter {
   //ignore:unused_element
   set document(PdfDocument? value) {
     throw ArgumentError.value(
-        value, 'The method or operation is not implemented');
+      value,
+      'The method or operation is not implemented',
+    );
   }
 
   @override
@@ -336,7 +353,9 @@ class PdfStreamWriter implements IPdfWriter {
   //ignore:unused_element
   set length(int? value) {
     throw ArgumentError.value(
-        value, 'The method or operation is not implemented');
+      value,
+      'The method or operation is not implemented',
+    );
   }
 
   @override
@@ -346,7 +365,9 @@ class PdfStreamWriter implements IPdfWriter {
   //ignore:unused_element
   set position(int? value) {
     throw ArgumentError.value(
-        value, 'The method or operation is not implemented');
+      value,
+      'The method or operation is not implemented',
+    );
   }
 
   @override
@@ -371,7 +392,9 @@ class PdfStreamWriter implements IPdfWriter {
       stream!.write(pdfObject);
     } else {
       throw ArgumentError.value(
-          pdfObject, 'The method or operation is not implemented');
+        pdfObject,
+        'The method or operation is not implemented',
+      );
     }
   }
 }

@@ -34,23 +34,25 @@ class WidgetPointer extends SingleChildRenderObjectWidget
   /// The arguments [child], [value], [offset], must not be null and
   /// [animationDuration] must be non-negative.
   ///
-  const WidgetPointer(
-      {Key? key,
-      this.value = 0,
-      this.enableDragging = false,
-      this.onValueChanged,
-      this.onValueChangeStart,
-      this.onValueChangeEnd,
-      this.onValueChanging,
-      this.animationType = AnimationType.ease,
-      this.enableAnimation = false,
-      this.animationDuration = 1000,
-      this.offsetUnit = GaugeSizeUnit.logicalPixel,
-      this.offset = 0,
-      required this.child})
-      : assert(animationDuration > 0,
-            'Animation duration must be a non-negative value.'),
-        super(key: key, child: child);
+  const WidgetPointer({
+    Key? key,
+    this.value = 0,
+    this.enableDragging = false,
+    this.onValueChanged,
+    this.onValueChangeStart,
+    this.onValueChangeEnd,
+    this.onValueChanging,
+    this.animationType = AnimationType.ease,
+    this.enableAnimation = false,
+    this.animationDuration = 1000,
+    this.offsetUnit = GaugeSizeUnit.logicalPixel,
+    this.offset = 0,
+    required this.child,
+  }) : assert(
+         animationDuration > 0,
+         'Animation duration must be a non-negative value.',
+       ),
+       super(key: key, child: child);
 
   /// A widget, which is to be used as the pointer.
   ///
@@ -375,32 +377,37 @@ class WidgetPointer extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
     return RenderWidgetPointer(
-        value: value.clamp(ancestor.minimum, ancestor.maximum),
-        enableDragging: enableDragging,
-        onValueChanged: onValueChanged,
-        onValueChangeStart: onValueChangeStart,
-        onValueChangeEnd: onValueChangeEnd,
-        onValueChanging: onValueChanging,
-        offsetUnit: offsetUnit,
-        pointerAnimationController: radialAxisScope.animationController,
-        pointerInterval: radialAxisScope.pointerInterval,
-        enableAnimation: enableAnimation,
-        repaintNotifier: radialAxisScope.repaintNotifier,
-        isRadialGaugeAnimationEnabled:
-            radialAxisScope.isRadialGaugeAnimationEnabled,
-        animationType: animationType,
-        offset: offset);
+      value: value.clamp(ancestor.minimum, ancestor.maximum),
+      enableDragging: enableDragging,
+      onValueChanged: onValueChanged,
+      onValueChangeStart: onValueChangeStart,
+      onValueChangeEnd: onValueChangeEnd,
+      onValueChanging: onValueChanging,
+      offsetUnit: offsetUnit,
+      pointerAnimationController: radialAxisScope.animationController,
+      pointerInterval: radialAxisScope.pointerInterval,
+      enableAnimation: enableAnimation,
+      repaintNotifier: radialAxisScope.repaintNotifier,
+      isRadialGaugeAnimationEnabled:
+          radialAxisScope.isRadialGaugeAnimationEnabled,
+      animationType: animationType,
+      offset: offset,
+    );
   }
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderWidgetPointer renderObject) {
+    BuildContext context,
+    RenderWidgetPointer renderObject,
+  ) {
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     renderObject
       ..enableDragging = enableDragging

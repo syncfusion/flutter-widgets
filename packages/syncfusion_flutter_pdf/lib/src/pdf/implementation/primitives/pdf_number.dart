@@ -72,8 +72,9 @@ class PdfNumber implements IPdfPrimitive {
   @override
   void save(IPdfWriter? writer) {
     if (value is double) {
-      String numberValue =
-          value!.toStringAsFixed(10).replaceAll(RegExp(r'0*$'), '');
+      String numberValue = value!
+          .toStringAsFixed(10)
+          .replaceAll(RegExp(r'0*$'), '');
       if (numberValue.endsWith('.')) {
         numberValue = numberValue.replaceAll('.', '');
       }

@@ -52,7 +52,7 @@ export './src/charts/common/connector_line.dart';
 export './src/charts/common/data_label.dart' show DataLabelSettings;
 export './src/charts/common/empty_points.dart';
 export './src/charts/common/interactive_tooltip.dart';
-export './src/charts/common/legend.dart' hide ChartLegendItem;
+export './src/charts/common/legend.dart';
 export './src/charts/common/marker.dart' hide MarkerContainer, ChartMarker;
 export './src/charts/funnel_chart.dart';
 export './src/charts/indicators/accumulation_distribution_indicator.dart'

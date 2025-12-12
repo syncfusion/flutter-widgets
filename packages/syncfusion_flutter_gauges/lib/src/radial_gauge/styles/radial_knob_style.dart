@@ -21,17 +21,18 @@ class KnobStyle {
   /// Creates the knob style with default or required properties.
   ///
   /// The arguments [knobRadius], [borderWidth] must be non-negative.
-  const KnobStyle(
-      {this.knobRadius = 0.08,
-      this.borderWidth = 0,
-      this.sizeUnit = GaugeSizeUnit.factor,
-      this.borderColor,
-      this.color})
-      : assert(knobRadius >= 0, 'Knob radius must be a non-negative value.'),
-        assert(
-            borderWidth >= 0,
-            'Knob border width must be a '
-            'non-negative value.');
+  const KnobStyle({
+    this.knobRadius = 0.08,
+    this.borderWidth = 0,
+    this.sizeUnit = GaugeSizeUnit.factor,
+    this.borderColor,
+    this.color,
+  }) : assert(knobRadius >= 0, 'Knob radius must be a non-negative value.'),
+       assert(
+         borderWidth >= 0,
+         'Knob border width must be a '
+         'non-negative value.',
+       );
 
   /// Adjusts the knob radius in needle pointer.
   ///
@@ -159,7 +160,7 @@ class KnobStyle {
       borderWidth,
       sizeUnit,
       borderColor,
-      color
+      color,
     ];
     return Object.hashAll(values);
   }

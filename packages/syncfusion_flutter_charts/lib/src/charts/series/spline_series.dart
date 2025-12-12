@@ -44,7 +44,11 @@ mixin _SplineControlPointMixin<T, D> on CartesianSeriesRenderer<T, D> {
   }
 
   void _computeMonotonicSpline(
-      List<num> yValues, List<num?> yCoefficient, List<num?> dx, int length) {
+    List<num> yValues,
+    List<num?> yCoefficient,
+    List<num?> dx,
+    int length,
+  ) {
     final List<num?> slope = List<num?>.filled(length - 1, null);
     final int dxLength = dx.length;
     final int slopeLength = slope.length;
@@ -76,7 +80,8 @@ mixin _SplineControlPointMixin<T, D> on CartesianSeriesRenderer<T, D> {
             final num firstPoint = dx[i]!;
             final num nextPoint = dx[i + 1]!;
             final num interPoint = firstPoint + nextPoint;
-            yCoefficient[++index] = 3 *
+            yCoefficient[++index] =
+                3 *
                 interPoint /
                 (((interPoint + nextPoint) / m) +
                     ((interPoint + firstPoint) / next));
@@ -91,7 +96,9 @@ mixin _SplineControlPointMixin<T, D> on CartesianSeriesRenderer<T, D> {
   }
 
   void _computeCardinalSpline(
-      List<num?> yCoefficient, double cardinalSplineTension) {
+    List<num?> yCoefficient,
+    double cardinalSplineTension,
+  ) {
     if (dataCount <= 2) {
       for (int i = 0; i < dataCount; i++) {
         yCoefficient[i] = 0;
@@ -122,7 +129,10 @@ mixin _SplineControlPointMixin<T, D> on CartesianSeriesRenderer<T, D> {
   }
 
   void _computeNaturalSpline(
-      List<num> yValues, List<num?> yCoefficient, SplineType splineType) {
+    List<num> yValues,
+    List<num?> yCoefficient,
+    SplineType splineType,
+  ) {
     const double a = 6;
     num d1, d2, d3, dy1, dy2, p;
 
@@ -267,10 +277,12 @@ mixin _SplineControlPointMixin<T, D> on CartesianSeriesRenderer<T, D> {
           final num dy2 = y1 + (2 * y2);
 
           controlX1 = dx1 * oneThird;
-          controlY1 = oneThird *
+          controlY1 =
+              oneThird *
               (dy1 - (oneThird * deltaXSquared * (yCoef1 + (0.5 * yCoef2))));
           controlX2 = dx2 * oneThird;
-          controlY2 = oneThird *
+          controlY2 =
+              oneThird *
               (dy2 - (oneThird * deltaXSquared * ((0.5 * yCoef1) + yCoef2)));
           _yMax = max(_yMax, max(controlY1, max(controlY2, max(y1, y2))));
           break;
@@ -368,6 +380,7 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
     super.initialIsVisible,
     super.trendlines,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     super.selectionBehavior,
@@ -445,7 +458,9 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, SplineSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    SplineSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..splineType = splineType
@@ -507,10 +522,12 @@ class SplineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
         final num dy2 = y1 + (2 * y2);
 
         controlX1 = dx1 * oneThird;
-        controlY1 = oneThird *
+        controlY1 =
+            oneThird *
             (dy1 - (oneThird * deltaXSquared * (yCoef1 + (0.5 * yCoef2))));
         controlX2 = dx2 * oneThird;
-        controlY2 = oneThird *
+        controlY2 =
+            oneThird *
             (dy2 - (oneThird * deltaXSquared * ((0.5 * yCoef1) + yCoef2)));
         _yMax = max(_yMax, max(controlY1, max(controlY2, max(y1, y2))));
         break;
@@ -560,7 +577,11 @@ class SplineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     x1 = xValues[index];
     y1 = yValues[index];
     nextIndex = nextIndexConsideringEmptyPointMode(
-        index, emptyPointSettings.mode, yValues, dataCount);
+      index,
+      emptyPointSettings.mode,
+      yValues,
+      dataCount,
+    );
     if (nextIndex != -1) {
       x2 = xValues[nextIndex];
       y2 = yValues[nextIndex];
@@ -604,8 +625,12 @@ class SplineSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
 
   @override
   void onPaint(PaintingContext context, Offset offset) {
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.save();
     context.canvas.clipRect(clip);
     paintSegments(context, offset);
@@ -648,7 +673,9 @@ class SplineSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldStartControlX = null;
@@ -686,14 +713,26 @@ class SplineSegment<T, D> extends ChartSegment {
         }
       }
 
-      _oldStartControlX =
-          lerpDouble(_oldStartControlX, startControlX, segmentAnimationFactor);
-      _oldStartControlY =
-          lerpDouble(_oldStartControlY, startControlY, segmentAnimationFactor);
-      _oldEndControlX =
-          lerpDouble(_oldEndControlX, endControlX, segmentAnimationFactor);
-      _oldEndControlY =
-          lerpDouble(_oldEndControlY, endControlY, segmentAnimationFactor);
+      _oldStartControlX = lerpDouble(
+        _oldStartControlX,
+        startControlX,
+        segmentAnimationFactor,
+      );
+      _oldStartControlY = lerpDouble(
+        _oldStartControlY,
+        startControlY,
+        segmentAnimationFactor,
+      );
+      _oldEndControlX = lerpDouble(
+        _oldEndControlX,
+        endControlX,
+        segmentAnimationFactor,
+      );
+      _oldEndControlY = lerpDouble(
+        _oldEndControlY,
+        endControlY,
+        segmentAnimationFactor,
+      );
     } else {
       _oldPoints.clear();
     }
@@ -729,13 +768,17 @@ class SplineSegment<T, D> extends ChartSegment {
 
   @override
   bool contains(Offset position) {
-    final MarkerSettings marker = series.markerSettings;
-    final int length = points.length;
-    for (int i = 0; i < length; i++) {
-      if (tooltipTouchBounds(points[i], marker.width, marker.height)
-          .contains(position)) {
-        return true;
-      }
+    if (points.isNotEmpty) {
+      final ChartMarker marker = series.markerAt(currentSegmentIndex);
+      return tooltipTouchBounds(
+        // By default, line segments hold current and next point positions.
+        // In a loop, tapping on the 3rd segment might return the 2nd segment's
+        // pointIndex because the 2nd segment includes both the 2nd & 3rd points.
+        // Using points[0] stops this mix-up and gives the correct point index.
+        points[0],
+        marker.width,
+        marker.height,
+      ).contains(position);
     }
     return false;
   }
@@ -767,9 +810,10 @@ class SplineSegment<T, D> extends ChartSegment {
     final int nearestPointIndex =
         position == null ? 0 : _nearestPointIndex(points, position);
     if (nearestPointIndex != -1) {
-      pointIndex ??= (position == null || nearestPointIndex == 0
-          ? currentSegmentIndex
-          : currentSegmentIndex + 1);
+      pointIndex ??=
+          (position == null || nearestPointIndex == 0
+              ? currentSegmentIndex
+              : currentSegmentIndex + 1);
       CartesianChartPoint<D> chartPoint = _chartPoint(pointIndex);
       List<Color?> markerColors = <Color?>[fillPaint.color];
       if (chartPoint.y != null && chartPoint.y!.isNaN) {
@@ -782,14 +826,17 @@ class SplineSegment<T, D> extends ChartSegment {
           series.markerSettings.isVisible ? marker.height / 2 : 0;
       final Offset preferredPos = points[nearestPointIndex];
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -845,8 +892,11 @@ class SplineSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final Offset? start =
-        Offset.lerp(_oldPoints[0], points[0], animationFactor);
+    final Offset? start = Offset.lerp(
+      _oldPoints[0],
+      points[0],
+      animationFactor,
+    );
     final Offset? end = Offset.lerp(_oldPoints[1], points[1], animationFactor);
     final double controlX1 =
         lerpDouble(_oldStartControlX, startControlX, animationFactor)!;
@@ -858,9 +908,17 @@ class SplineSegment<T, D> extends ChartSegment {
         lerpDouble(_oldEndControlY, endControlY, animationFactor)!;
 
     if (start != null && end != null) {
-      final Path path = Path()
-        ..moveTo(start.dx, start.dy)
-        ..cubicTo(controlX1, controlY1, controlX2, controlY2, end.dx, end.dy);
+      final Path path =
+          Path()
+            ..moveTo(start.dx, start.dy)
+            ..cubicTo(
+              controlX1,
+              controlY1,
+              controlX2,
+              controlY2,
+              end.dx,
+              end.dy,
+            );
       final Paint paint = getStrokePaint();
       if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
         drawDashes(canvas, series.dashArray, paint, path: path);
@@ -906,6 +964,7 @@ class SplineAreaSeries<T, D> extends XyDataSeries<T, D> {
     super.dataLabelSettings,
     super.initialIsVisible,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     this.borderColor = Colors.transparent,
@@ -1011,8 +1070,10 @@ class SplineAreaSeries<T, D> extends XyDataSeries<T, D> {
   }
 
   @override
-  void updateRenderObject(BuildContext context,
-      covariant SplineAreaSeriesRenderer<T, D> renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    covariant SplineAreaSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..borderDrawMode = borderDrawMode
@@ -1133,16 +1194,22 @@ class SplineAreaSeriesRenderer<T, D> extends XyDataSeriesRenderer<T, D>
     final SplineAreaSegment<T, D> splineAreaSegment =
         segment as SplineAreaSegment<T, D>;
     updateSegmentColor(splineAreaSegment, borderColor, borderWidth);
-    updateSegmentGradient(splineAreaSegment,
-        gradientBounds: splineAreaSegment._fillPath.getBounds(),
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      splineAreaSegment,
+      gradientBounds: splineAreaSegment._fillPath.getBounds(),
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
   void onPaint(PaintingContext context, Offset offset) {
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
     super.onPaint(context, offset);
   }
@@ -1189,7 +1256,9 @@ class SplineAreaSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _drawIndexes.clear();
@@ -1213,26 +1282,50 @@ class SplineAreaSegment<T, D> extends ChartSegment {
       final int newPointsLength = _highPoints.length;
       if (oldPointsLength == newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, bottom)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, bottom)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
         }
       } else if (oldPointsLength < newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, bottom)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, bottom)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
         }
         _oldHighPoints.addAll(_highPoints.sublist(oldPointsLength));
         _oldLowPoints.addAll(_lowPoints.sublist(oldPointsLength));
       } else {
         for (int i = 0; i < newPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, bottom)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, bottom)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
         }
         _oldHighPoints.removeRange(newPointsLength, oldPointsLength);
         _oldLowPoints.removeRange(newPointsLength, oldPointsLength);
@@ -1242,33 +1335,63 @@ class SplineAreaSegment<T, D> extends ChartSegment {
       final int newControlPointsLength = _startControlHighPoints.length;
       if (oldControlPointsLength == newControlPointsLength) {
         for (int i = 0; i < oldControlPointsLength; i++) {
-          _oldStartControlHighPoints[i] = _oldStartControlHighPoints[i].lerp(
-              _startControlHighPoints[i], segmentAnimationFactor, bottom)!;
-          _oldEndControlHighPoints[i] = _oldEndControlHighPoints[i]
-              .lerp(_endControlHighPoints[i], segmentAnimationFactor, bottom)!;
+          _oldStartControlHighPoints[i] =
+              _oldStartControlHighPoints[i].lerp(
+                _startControlHighPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
+          _oldEndControlHighPoints[i] =
+              _oldEndControlHighPoints[i].lerp(
+                _endControlHighPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
         }
       } else if (oldControlPointsLength < newControlPointsLength) {
         for (int i = 0; i < oldControlPointsLength; i++) {
-          _oldStartControlHighPoints[i] = _oldStartControlHighPoints[i].lerp(
-              _startControlHighPoints[i], segmentAnimationFactor, bottom)!;
-          _oldEndControlHighPoints[i] = _oldEndControlHighPoints[i]
-              .lerp(_endControlHighPoints[i], segmentAnimationFactor, bottom)!;
+          _oldStartControlHighPoints[i] =
+              _oldStartControlHighPoints[i].lerp(
+                _startControlHighPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
+          _oldEndControlHighPoints[i] =
+              _oldEndControlHighPoints[i].lerp(
+                _endControlHighPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
         }
-        _oldStartControlHighPoints
-            .addAll(_startControlHighPoints.sublist(oldControlPointsLength));
-        _oldEndControlHighPoints
-            .addAll(_endControlHighPoints.sublist(oldControlPointsLength));
+        _oldStartControlHighPoints.addAll(
+          _startControlHighPoints.sublist(oldControlPointsLength),
+        );
+        _oldEndControlHighPoints.addAll(
+          _endControlHighPoints.sublist(oldControlPointsLength),
+        );
       } else {
         for (int i = 0; i < newControlPointsLength; i++) {
-          _oldStartControlHighPoints[i] = _oldStartControlHighPoints[i].lerp(
-              _startControlHighPoints[i], segmentAnimationFactor, bottom)!;
-          _oldEndControlHighPoints[i] = _oldEndControlHighPoints[i]
-              .lerp(_endControlHighPoints[i], segmentAnimationFactor, bottom)!;
+          _oldStartControlHighPoints[i] =
+              _oldStartControlHighPoints[i].lerp(
+                _startControlHighPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
+          _oldEndControlHighPoints[i] =
+              _oldEndControlHighPoints[i].lerp(
+                _endControlHighPoints[i],
+                segmentAnimationFactor,
+                bottom,
+              )!;
         }
         _oldStartControlHighPoints.removeRange(
-            newControlPointsLength, oldControlPointsLength);
+          newControlPointsLength,
+          oldControlPointsLength,
+        );
         _oldEndControlHighPoints.removeRange(
-            newControlPointsLength, oldControlPointsLength);
+          newControlPointsLength,
+          oldControlPointsLength,
+        );
       }
     } else {
       _oldHighPoints.clear();
@@ -1294,8 +1417,13 @@ class SplineAreaSegment<T, D> extends ChartSegment {
     }
 
     _calculatePoints(_xValues, _yValues);
-    _createFillPath(_fillPath, _highPoints, _lowPoints, _startControlHighPoints,
-        _endControlHighPoints);
+    _createFillPath(
+      _fillPath,
+      _highPoints,
+      _lowPoints,
+      _startControlHighPoints,
+      _endControlHighPoints,
+    );
   }
 
   void _calculatePoints(List<num> xValues, List<num> yValues) {
@@ -1325,14 +1453,17 @@ class SplineAreaSegment<T, D> extends ChartSegment {
         final num startHighX = _startControlHighXValues[i];
         final num startHighY = _startControlHighYValues[i];
         final Offset startControlHighPoint = Offset(
-            transformX(startHighX, startHighY),
-            transformY(startHighX, startHighY));
+          transformX(startHighX, startHighY),
+          transformY(startHighX, startHighY),
+        );
         _startControlHighPoints.add(startControlHighPoint);
 
         final num endHighX = _endControlHighXValues[i];
         final num endHighY = _endControlHighYValues[i];
         final Offset endControlHighPoint = Offset(
-            transformX(endHighX, endHighY), transformY(endHighX, endHighY));
+          transformX(endHighX, endHighY),
+          transformY(endHighX, endHighY),
+        );
         _endControlHighPoints.add(endControlHighPoint);
       }
     }
@@ -1345,8 +1476,9 @@ class SplineAreaSegment<T, D> extends ChartSegment {
 
     length = _oldStartControlHighPoints.length;
     if (_startControlHighPoints.length > length) {
-      _oldStartControlHighPoints
-          .addAll(_startControlHighPoints.sublist(length));
+      _oldStartControlHighPoints.addAll(
+        _startControlHighPoints.sublist(length),
+      );
       _oldEndControlHighPoints.addAll(_endControlHighPoints.sublist(length));
     }
   }
@@ -1359,15 +1491,26 @@ class SplineAreaSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final List<Offset> lerpHighPoints =
-        _lerpPoints(_oldHighPoints, _highPoints);
+    final List<Offset> lerpHighPoints = _lerpPoints(
+      _oldHighPoints,
+      _highPoints,
+    );
     final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
-    final List<Offset> lerpStartControlHighPoints =
-        _lerpPoints(_oldStartControlHighPoints, _startControlHighPoints);
-    final List<Offset> lerpEndControlHighPoints =
-        _lerpPoints(_oldEndControlHighPoints, _endControlHighPoints);
-    _createFillPath(_fillPath, lerpHighPoints, lerpLowPoints,
-        lerpStartControlHighPoints, lerpEndControlHighPoints);
+    final List<Offset> lerpStartControlHighPoints = _lerpPoints(
+      _oldStartControlHighPoints,
+      _startControlHighPoints,
+    );
+    final List<Offset> lerpEndControlHighPoints = _lerpPoints(
+      _oldEndControlHighPoints,
+      _endControlHighPoints,
+    );
+    _createFillPath(
+      _fillPath,
+      lerpHighPoints,
+      lerpLowPoints,
+      lerpStartControlHighPoints,
+      lerpEndControlHighPoints,
+    );
 
     switch (series.borderDrawMode) {
       case BorderDrawMode.all:
@@ -1399,19 +1542,22 @@ class SplineAreaSegment<T, D> extends ChartSegment {
     final int newPointsLength = newPoints.length;
     if (oldPointsLength == newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
-        lerpPoints
-            .add(oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!);
+        lerpPoints.add(
+          oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!,
+        );
       }
     } else if (oldPointsLength < newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
-        lerpPoints
-            .add(oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!);
+        lerpPoints.add(
+          oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!,
+        );
       }
       lerpPoints.addAll(newPoints.sublist(oldPointsLength));
     } else {
       for (int i = 0; i < newPointsLength; i++) {
-        lerpPoints
-            .add(oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!);
+        lerpPoints.add(
+          oldPoints[i].lerp(newPoints[i], animationFactor, bottom)!,
+        );
       }
     }
 
@@ -1472,8 +1618,14 @@ class SplineAreaSegment<T, D> extends ChartSegment {
       } else {
         final Offset startControlHigh = startControlHighPoints[i - 1];
         final Offset endControlHigh = endControlHighPoints[i - 1];
-        path!.cubicTo(startControlHigh.dx, startControlHigh.dy,
-            endControlHigh.dx, endControlHigh.dy, highPoint.dx, highPoint.dy);
+        path!.cubicTo(
+          startControlHigh.dx,
+          startControlHigh.dy,
+          endControlHigh.dx,
+          endControlHigh.dy,
+          highPoint.dx,
+          highPoint.dy,
+        );
         if (i == lastIndex) {
           for (int j = i; j >= 0; j--) {
             final Offset lowPoint = lowPoints[j];
@@ -1519,8 +1671,14 @@ class SplineAreaSegment<T, D> extends ChartSegment {
         } else {
           final Offset startControlHigh = startControlHighPoints[i - 1];
           final Offset endControlHigh = endControlHighPoints[i - 1];
-          path!.cubicTo(startControlHigh.dx, startControlHigh.dy,
-              endControlHigh.dx, endControlHigh.dy, highPoint.dx, highPoint.dy);
+          path!.cubicTo(
+            startControlHigh.dx,
+            startControlHigh.dy,
+            endControlHigh.dx,
+            endControlHigh.dy,
+            highPoint.dx,
+            highPoint.dy,
+          );
         }
       }
     }
@@ -1583,8 +1741,14 @@ class SplineAreaSegment<T, D> extends ChartSegment {
       } else {
         final Offset startControlHigh = startControlHighPoints[i - 1];
         final Offset endControlHigh = endControlHighPoints[i - 1];
-        path!.cubicTo(startControlHigh.dx, startControlHigh.dy,
-            endControlHigh.dx, endControlHigh.dy, highPoint.dx, highPoint.dy);
+        path!.cubicTo(
+          startControlHigh.dx,
+          startControlHigh.dy,
+          endControlHigh.dx,
+          endControlHigh.dy,
+          highPoint.dx,
+          highPoint.dy,
+        );
         if (i == lastIndex) {
           final Offset lowPoint = lowPoints[i];
           path.lineTo(lowPoint.dx, lowPoint.dy);
@@ -1603,8 +1767,11 @@ class SplineAreaSegment<T, D> extends ChartSegment {
     final MarkerSettings marker = series.markerSettings;
     final int length = points.length;
     for (int i = 0; i < length; i++) {
-      if (tooltipTouchBounds(points[i], marker.width, marker.height)
-          .contains(position)) {
+      if (tooltipTouchBounds(
+        points[i],
+        marker.width,
+        marker.height,
+      ).contains(position)) {
         return true;
       }
     }
@@ -1644,14 +1811,17 @@ class SplineAreaSegment<T, D> extends ChartSegment {
           series.markerSettings.isVisible ? marker.height / 2 : 0;
       final Offset preferredPos = Offset(dx, dy);
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -1669,12 +1839,17 @@ class SplineAreaSegment<T, D> extends ChartSegment {
   @override
   TrackballInfo? trackballInfo(Offset position, int pointIndex) {
     if (pointIndex != -1 && points.isNotEmpty) {
-      final Offset preferredPos = points[pointIndex];
+      final int drawPointIndex = drawIndex(pointIndex, _drawIndexes);
+      if (drawPointIndex == -1) {
+        return null;
+      }
+
+      final Offset preferredPos = points[drawPointIndex];
       if (preferredPos.isNaN) {
         return null;
       }
 
-      final int actualPointIndex = _drawIndexes[pointIndex];
+      final int actualPointIndex = _drawIndexes[drawPointIndex];
       final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       return ChartTrackballInfo<T, D>(
         position: preferredPos,
@@ -1781,6 +1956,7 @@ class SplineRangeAreaSeries<T, D> extends RangeSeriesBase<T, D> {
     super.dataLabelSettings,
     super.initialIsVisible,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     super.borderColor = Colors.transparent,
@@ -1888,8 +2064,9 @@ class SplineRangeAreaSeries<T, D> extends RangeSeriesBase<T, D> {
 
   @override
   SplineRangeAreaSeriesRenderer<T, D> createRenderObject(BuildContext context) {
-    final SplineRangeAreaSeriesRenderer<T, D> renderer = super
-        .createRenderObject(context) as SplineRangeAreaSeriesRenderer<T, D>;
+    final SplineRangeAreaSeriesRenderer<T, D> renderer =
+        super.createRenderObject(context)
+            as SplineRangeAreaSeriesRenderer<T, D>;
     renderer
       ..borderDrawMode = borderDrawMode
       ..splineType = splineType
@@ -1900,7 +2077,9 @@ class SplineRangeAreaSeries<T, D> extends RangeSeriesBase<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, SplineRangeAreaSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    SplineRangeAreaSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..borderDrawMode = borderDrawMode
@@ -1969,9 +2148,10 @@ class SplineRangeAreaSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
       final int nextIndex = index + 1;
       if (nextIndex < dataCount) {
         x2 = xValues[nextIndex];
-        y2 = _isHigh
-            ? nonEmptyHighValues[nextIndex]
-            : nonEmptyLowValues[nextIndex];
+        y2 =
+            _isHigh
+                ? nonEmptyHighValues[nextIndex]
+                : nonEmptyLowValues[nextIndex];
       }
 
       _buildSplineAreaSegment(
@@ -2007,6 +2187,35 @@ class SplineRangeAreaSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
       .._endControlLowYValues = _endControlY2Values;
   }
 
+  @override
+  int segmentPointIndex(Offset position, ChartSegment segment) {
+    final SplineRangeAreaSegment splineRangeAreaSegment =
+        segment as SplineRangeAreaSegment;
+    final int index = _computePointIndex(
+      splineRangeAreaSegment._lowPoints,
+      position,
+    );
+    if (index != -1) {
+      return index;
+    }
+    return _computePointIndex(splineRangeAreaSegment._highPoints, position);
+  }
+
+  int _computePointIndex(List<Offset> points, Offset position) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
+      final Rect bounds = Rect.fromCenter(
+        center: points[i],
+        width: tooltipPadding,
+        height: tooltipPadding,
+      );
+      if (bounds.contains(position)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   /// Creates a segment for a data point in the series.
   @override
   SplineRangeAreaSegment<T, D> createSegment() =>
@@ -2022,17 +2231,23 @@ class SplineRangeAreaSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
     final SplineRangeAreaSegment<T, D> splineRangeAreaSegment =
         segment as SplineRangeAreaSegment<T, D>;
     updateSegmentColor(splineRangeAreaSegment, borderColor, borderWidth);
-    updateSegmentGradient(splineRangeAreaSegment,
-        gradientBounds: splineRangeAreaSegment._fillPath.getBounds(),
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      splineRangeAreaSegment,
+      gradientBounds: splineRangeAreaSegment._fillPath.getBounds(),
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
     paintSegments(context, offset);
     context.canvas.restore();
@@ -2090,7 +2305,9 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _drawIndexes.clear();
@@ -2118,26 +2335,50 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
       final int newPointsLength = _highPoints.length;
       if (oldPointsLength == newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, _highPoints[i].dy)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, _lowPoints[i].dy)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                _highPoints[i].dy,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                _lowPoints[i].dy,
+              )!;
         }
       } else if (oldPointsLength < newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, _highPoints[i].dy)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, _lowPoints[i].dy)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                _highPoints[i].dy,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                _lowPoints[i].dy,
+              )!;
         }
         _oldHighPoints.addAll(_highPoints.sublist(oldPointsLength));
         _oldLowPoints.addAll(_lowPoints.sublist(oldPointsLength));
       } else {
         for (int i = 0; i < newPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, _highPoints[i].dy)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, _lowPoints[i].dy)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                _highPoints[i].dy,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                _lowPoints[i].dy,
+              )!;
         }
         _oldHighPoints.removeRange(newPointsLength, oldPointsLength);
         _oldLowPoints.removeRange(newPointsLength, oldPointsLength);
@@ -2147,79 +2388,115 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
       final int newControlPointsLength = _startControlHighPoints.length;
       if (oldControlPointsLength == newControlPointsLength) {
         for (int i = 0; i < oldControlPointsLength; i++) {
-          _oldStartControlHighPoints[i] = _oldStartControlHighPoints[i].lerp(
-              _startControlHighPoints[i],
-              segmentAnimationFactor,
-              _startControlHighPoints[i].dy)!;
-          _oldEndControlHighPoints[i] = _oldEndControlHighPoints[i].lerp(
-              _endControlHighPoints[i],
-              segmentAnimationFactor,
-              _oldEndControlHighPoints[i].dy)!;
+          _oldStartControlHighPoints[i] =
+              _oldStartControlHighPoints[i].lerp(
+                _startControlHighPoints[i],
+                segmentAnimationFactor,
+                _startControlHighPoints[i].dy,
+              )!;
+          _oldEndControlHighPoints[i] =
+              _oldEndControlHighPoints[i].lerp(
+                _endControlHighPoints[i],
+                segmentAnimationFactor,
+                _oldEndControlHighPoints[i].dy,
+              )!;
 
-          _oldStartControlLowPoints[i] = _oldStartControlLowPoints[i].lerp(
-              _startControlLowPoints[i],
-              segmentAnimationFactor,
-              _startControlLowPoints[i].dy)!;
-          _oldEndControlLowPoints[i] = _oldEndControlLowPoints[i].lerp(
-              _endControlLowPoints[i],
-              segmentAnimationFactor,
-              _oldEndControlLowPoints[i].dy)!;
+          _oldStartControlLowPoints[i] =
+              _oldStartControlLowPoints[i].lerp(
+                _startControlLowPoints[i],
+                segmentAnimationFactor,
+                _startControlLowPoints[i].dy,
+              )!;
+          _oldEndControlLowPoints[i] =
+              _oldEndControlLowPoints[i].lerp(
+                _endControlLowPoints[i],
+                segmentAnimationFactor,
+                _oldEndControlLowPoints[i].dy,
+              )!;
         }
       } else if (oldControlPointsLength < newControlPointsLength) {
         for (int i = 0; i < oldControlPointsLength; i++) {
-          _oldStartControlHighPoints[i] = _oldStartControlHighPoints[i].lerp(
-              _startControlHighPoints[i],
-              segmentAnimationFactor,
-              _startControlHighPoints[i].dy)!;
-          _oldEndControlHighPoints[i] = _oldEndControlHighPoints[i].lerp(
-              _endControlHighPoints[i],
-              segmentAnimationFactor,
-              _oldEndControlHighPoints[i].dy)!;
-          _oldStartControlLowPoints[i] = _oldStartControlLowPoints[i].lerp(
-              _startControlLowPoints[i],
-              segmentAnimationFactor,
-              _startControlLowPoints[i].dy)!;
-          _oldEndControlLowPoints[i] = _oldEndControlLowPoints[i].lerp(
-              _endControlLowPoints[i],
-              segmentAnimationFactor,
-              _oldEndControlLowPoints[i].dy)!;
+          _oldStartControlHighPoints[i] =
+              _oldStartControlHighPoints[i].lerp(
+                _startControlHighPoints[i],
+                segmentAnimationFactor,
+                _startControlHighPoints[i].dy,
+              )!;
+          _oldEndControlHighPoints[i] =
+              _oldEndControlHighPoints[i].lerp(
+                _endControlHighPoints[i],
+                segmentAnimationFactor,
+                _oldEndControlHighPoints[i].dy,
+              )!;
+          _oldStartControlLowPoints[i] =
+              _oldStartControlLowPoints[i].lerp(
+                _startControlLowPoints[i],
+                segmentAnimationFactor,
+                _startControlLowPoints[i].dy,
+              )!;
+          _oldEndControlLowPoints[i] =
+              _oldEndControlLowPoints[i].lerp(
+                _endControlLowPoints[i],
+                segmentAnimationFactor,
+                _oldEndControlLowPoints[i].dy,
+              )!;
         }
-        _oldStartControlHighPoints
-            .addAll(_startControlHighPoints.sublist(oldControlPointsLength));
-        _oldEndControlHighPoints
-            .addAll(_endControlHighPoints.sublist(oldControlPointsLength));
-        _oldStartControlLowPoints
-            .addAll(_startControlLowPoints.sublist(oldControlPointsLength));
-        _oldEndControlLowPoints
-            .addAll(_endControlLowPoints.sublist(oldControlPointsLength));
+        _oldStartControlHighPoints.addAll(
+          _startControlHighPoints.sublist(oldControlPointsLength),
+        );
+        _oldEndControlHighPoints.addAll(
+          _endControlHighPoints.sublist(oldControlPointsLength),
+        );
+        _oldStartControlLowPoints.addAll(
+          _startControlLowPoints.sublist(oldControlPointsLength),
+        );
+        _oldEndControlLowPoints.addAll(
+          _endControlLowPoints.sublist(oldControlPointsLength),
+        );
       } else {
         for (int i = 0; i < newControlPointsLength; i++) {
-          _oldStartControlHighPoints[i] = _oldStartControlHighPoints[i].lerp(
-              _startControlHighPoints[i],
-              segmentAnimationFactor,
-              _startControlHighPoints[i].dy)!;
-          _oldEndControlHighPoints[i] = _oldEndControlHighPoints[i].lerp(
-              _endControlHighPoints[i],
-              segmentAnimationFactor,
-              _oldEndControlHighPoints[i].dy)!;
+          _oldStartControlHighPoints[i] =
+              _oldStartControlHighPoints[i].lerp(
+                _startControlHighPoints[i],
+                segmentAnimationFactor,
+                _startControlHighPoints[i].dy,
+              )!;
+          _oldEndControlHighPoints[i] =
+              _oldEndControlHighPoints[i].lerp(
+                _endControlHighPoints[i],
+                segmentAnimationFactor,
+                _oldEndControlHighPoints[i].dy,
+              )!;
 
-          _oldStartControlLowPoints[i] = _oldStartControlLowPoints[i].lerp(
-              _startControlLowPoints[i],
-              segmentAnimationFactor,
-              _startControlLowPoints[i].dy)!;
-          _oldEndControlLowPoints[i] = _oldEndControlLowPoints[i].lerp(
-              _endControlLowPoints[i],
-              segmentAnimationFactor,
-              _oldEndControlLowPoints[i].dy)!;
+          _oldStartControlLowPoints[i] =
+              _oldStartControlLowPoints[i].lerp(
+                _startControlLowPoints[i],
+                segmentAnimationFactor,
+                _startControlLowPoints[i].dy,
+              )!;
+          _oldEndControlLowPoints[i] =
+              _oldEndControlLowPoints[i].lerp(
+                _endControlLowPoints[i],
+                segmentAnimationFactor,
+                _oldEndControlLowPoints[i].dy,
+              )!;
         }
         _oldStartControlHighPoints.removeRange(
-            newControlPointsLength, oldControlPointsLength);
+          newControlPointsLength,
+          oldControlPointsLength,
+        );
         _oldEndControlHighPoints.removeRange(
-            newControlPointsLength, oldControlPointsLength);
+          newControlPointsLength,
+          oldControlPointsLength,
+        );
         _oldStartControlLowPoints.removeRange(
-            newControlPointsLength, oldControlPointsLength);
+          newControlPointsLength,
+          oldControlPointsLength,
+        );
         _oldEndControlLowPoints.removeRange(
-            newControlPointsLength, oldControlPointsLength);
+          newControlPointsLength,
+          oldControlPointsLength,
+        );
       }
     } else {
       _oldHighPoints.clear();
@@ -2279,8 +2556,10 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
       }
 
       _drawIndexes.add(i);
-      final Offset highPoint =
-          Offset(transformX(x, highY), transformY(x, highY));
+      final Offset highPoint = Offset(
+        transformX(x, highY),
+        transformY(x, highY),
+      );
       _highPoints.add(highPoint);
       final Offset lowPoint = Offset(transformX(x, lowY), transformY(x, lowY));
       _lowPoints.add(lowPoint);
@@ -2290,8 +2569,10 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
       if (i < controlPointsLength) {
         num xValue = _startControlHighXValues[i];
         num yValue = _startControlHighYValues[i];
-        Offset point =
-            Offset(transformX(xValue, yValue), transformY(xValue, yValue));
+        Offset point = Offset(
+          transformX(xValue, yValue),
+          transformY(xValue, yValue),
+        );
         _startControlHighPoints.add(point);
 
         xValue = _endControlHighXValues[i];
@@ -2319,11 +2600,13 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
 
     oldLength = _oldStartControlHighPoints.length;
     if (_startControlHighPoints.length > oldLength) {
-      _oldStartControlHighPoints
-          .addAll(_startControlHighPoints.sublist(oldLength));
+      _oldStartControlHighPoints.addAll(
+        _startControlHighPoints.sublist(oldLength),
+      );
       _oldEndControlHighPoints.addAll(_endControlHighPoints.sublist(oldLength));
-      _oldStartControlLowPoints
-          .addAll(_startControlLowPoints.sublist(oldLength));
+      _oldStartControlLowPoints.addAll(
+        _startControlLowPoints.sublist(oldLength),
+      );
       _oldEndControlLowPoints.addAll(_endControlLowPoints.sublist(oldLength));
     }
   }
@@ -2336,17 +2619,27 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final List<Offset> lerpHighPoints =
-        _lerpPoints(_oldHighPoints, _highPoints);
+    final List<Offset> lerpHighPoints = _lerpPoints(
+      _oldHighPoints,
+      _highPoints,
+    );
     final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
-    final List<Offset> lerpStartControlHighPoints =
-        _lerpPoints(_oldStartControlHighPoints, _startControlHighPoints);
-    final List<Offset> lerpEndControlHighPoints =
-        _lerpPoints(_oldEndControlHighPoints, _endControlHighPoints);
-    final List<Offset> lerpStartControlLowPoints =
-        _lerpPoints(_oldStartControlLowPoints, _startControlLowPoints);
-    final List<Offset> lerpEndControlLowPoints =
-        _lerpPoints(_oldEndControlLowPoints, _endControlLowPoints);
+    final List<Offset> lerpStartControlHighPoints = _lerpPoints(
+      _oldStartControlHighPoints,
+      _startControlHighPoints,
+    );
+    final List<Offset> lerpEndControlHighPoints = _lerpPoints(
+      _oldEndControlHighPoints,
+      _endControlHighPoints,
+    );
+    final List<Offset> lerpStartControlLowPoints = _lerpPoints(
+      _oldStartControlLowPoints,
+      _startControlLowPoints,
+    );
+    final List<Offset> lerpEndControlLowPoints = _lerpPoints(
+      _oldEndControlLowPoints,
+      _endControlLowPoints,
+    );
     _createFillPath(
       _fillPath,
       lerpHighPoints,
@@ -2382,18 +2675,21 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
     if (oldPointsLength == newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
         lerpPoints.add(
-            oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!);
+          oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!,
+        );
       }
     } else if (oldPointsLength < newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
         lerpPoints.add(
-            oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!);
+          oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!,
+        );
       }
       lerpPoints.addAll(newPoints.sublist(oldPointsLength));
     } else {
       for (int i = 0; i < newPointsLength; i++) {
         lerpPoints.add(
-            oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!);
+          oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!,
+        );
       }
     }
 
@@ -2450,8 +2746,14 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
           final Offset lowPoint = lowPoints[j];
           final Offset startLow = startControlLowPoints[j];
           final Offset endLow = endControlLowPoints[j];
-          path!.cubicTo(endLow.dx, endLow.dy, startLow.dx, startLow.dy,
-              lowPoint.dx, lowPoint.dy);
+          path!.cubicTo(
+            endLow.dx,
+            endLow.dy,
+            startLow.dx,
+            startLow.dy,
+            lowPoint.dx,
+            lowPoint.dy,
+          );
         }
         final int controlPointsLength = startControlHighPoints.length;
         if (i < length && i < controlPointsLength) {
@@ -2469,8 +2771,14 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
       } else {
         final Offset startHigh = startControlHighPoints[i - 1];
         final Offset endHigh = endControlHighPoints[i - 1];
-        path!.cubicTo(startHigh.dx, startHigh.dy, endHigh.dx, endHigh.dy,
-            highPoint.dx, highPoint.dy);
+        path!.cubicTo(
+          startHigh.dx,
+          startHigh.dy,
+          endHigh.dx,
+          endHigh.dy,
+          highPoint.dx,
+          highPoint.dy,
+        );
         if (i == lastIndex) {
           for (int j = i; j >= 0; j--) {
             if (j == i) {
@@ -2482,8 +2790,14 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
             final Offset lowPoint = lowPoints[j];
             final Offset startLow = startControlLowPoints[j];
             final Offset endLow = endControlLowPoints[j];
-            path.cubicTo(endLow.dx, endLow.dy, startLow.dx, startLow.dy,
-                lowPoint.dx, lowPoint.dy);
+            path.cubicTo(
+              endLow.dx,
+              endLow.dy,
+              startLow.dx,
+              startLow.dy,
+              lowPoint.dx,
+              lowPoint.dy,
+            );
           }
         }
       }
@@ -2534,13 +2848,25 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
         } else {
           final Offset startHigh = startControlHighPoints[i - 1];
           final Offset endHigh = endControlHighPoints[i - 1];
-          highPath!.cubicTo(startHigh.dx, startHigh.dy, endHigh.dx, endHigh.dy,
-              highPoint.dx, highPoint.dy);
+          highPath!.cubicTo(
+            startHigh.dx,
+            startHigh.dy,
+            endHigh.dx,
+            endHigh.dy,
+            highPoint.dx,
+            highPoint.dy,
+          );
 
           final Offset startLow = startControlLowPoints[i - 1];
           final Offset endLow = endControlLowPoints[i - 1];
-          lowPath!.cubicTo(startLow.dx, startLow.dy, endLow.dx, endLow.dy,
-              lowPoint.dx, lowPoint.dy);
+          lowPath!.cubicTo(
+            startLow.dx,
+            startLow.dy,
+            endLow.dx,
+            endLow.dy,
+            lowPoint.dx,
+            lowPoint.dy,
+          );
         }
       }
     }
@@ -2603,14 +2929,17 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
           series.markerSettings.isVisible ? marker.height / 2 : 0;
       final Offset preferredPos = Offset(dx, dy);
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -2629,12 +2958,16 @@ class SplineRangeAreaSegment<T, D> extends ChartSegment {
   @override
   TrackballInfo? trackballInfo(Offset position, int pointIndex) {
     if (pointIndex != -1 && _highPoints.isNotEmpty) {
-      final Offset preferredPos = _highPoints[pointIndex];
+      final int drawPointIndex = drawIndex(pointIndex, _drawIndexes);
+      if (drawPointIndex == -1) {
+        return null;
+      }
+      final Offset preferredPos = _highPoints[drawPointIndex];
       if (preferredPos.isNaN) {
         return null;
       }
 
-      final int actualPointIndex = _drawIndexes[pointIndex];
+      final int actualPointIndex = _drawIndexes[drawPointIndex];
       final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       return ChartTrackballInfo<T, D>(
         position: preferredPos,

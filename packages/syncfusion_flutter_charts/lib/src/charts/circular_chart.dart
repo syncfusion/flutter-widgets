@@ -589,45 +589,60 @@ class SfCircularChartState extends State<SfCircularChart>
   List<Widget>? _annotations;
 
   SfChartThemeData _updateThemeData(
-      BuildContext context, ChartThemeData effectiveChartThemeData) {
+    BuildContext context,
+    ChartThemeData effectiveChartThemeData,
+  ) {
     SfChartThemeData chartThemeData = SfChartTheme.of(context);
     chartThemeData = chartThemeData.copyWith(
-      backgroundColor: widget.backgroundColor ??
+      backgroundColor:
+          widget.backgroundColor ??
           chartThemeData.backgroundColor ??
           effectiveChartThemeData.backgroundColor,
-      titleBackgroundColor: widget.title.backgroundColor ??
+      titleBackgroundColor:
+          widget.title.backgroundColor ??
           chartThemeData.titleBackgroundColor ??
           effectiveChartThemeData.titleBackgroundColor,
-      legendBackgroundColor: widget.legend.backgroundColor ??
+      legendBackgroundColor:
+          widget.legend.backgroundColor ??
           chartThemeData.legendBackgroundColor ??
           effectiveChartThemeData.legendBackgroundColor,
-      tooltipColor: widget.tooltipBehavior?.color ??
+      tooltipColor:
+          widget.tooltipBehavior?.color ??
           chartThemeData.tooltipColor ??
           effectiveChartThemeData.tooltipColor,
-      plotAreaBackgroundColor: chartThemeData.plotAreaBackgroundColor ??
+      plotAreaBackgroundColor:
+          chartThemeData.plotAreaBackgroundColor ??
           effectiveChartThemeData.plotAreaBackgroundColor,
       titleTextStyle: effectiveChartThemeData.titleTextStyle!
           .copyWith(
-              color: chartThemeData.titleTextColor ??
-                  effectiveChartThemeData.titleTextColor)
+            color:
+                chartThemeData.titleTextColor ??
+                effectiveChartThemeData.titleTextColor,
+          )
           .merge(chartThemeData.titleTextStyle)
           .merge(widget.title.textStyle),
       legendTitleTextStyle: effectiveChartThemeData.legendTitleTextStyle!
           .copyWith(
-              color: chartThemeData.legendTitleColor ??
-                  effectiveChartThemeData.legendTitleColor)
+            color:
+                chartThemeData.legendTitleColor ??
+                effectiveChartThemeData.legendTitleColor,
+          )
           .merge(chartThemeData.legendTitleTextStyle)
           .merge(widget.legend.title?.textStyle),
       legendTextStyle: effectiveChartThemeData.legendTextStyle!
           .copyWith(
-              color: chartThemeData.legendTextColor ??
-                  effectiveChartThemeData.legendTextColor)
+            color:
+                chartThemeData.legendTextColor ??
+                effectiveChartThemeData.legendTextColor,
+          )
           .merge(chartThemeData.legendTextStyle)
           .merge(widget.legend.textStyle),
       tooltipTextStyle: effectiveChartThemeData.tooltipTextStyle!
           .copyWith(
-              color: chartThemeData.tooltipLabelColor ??
-                  effectiveChartThemeData.tooltipLabelColor)
+            color:
+                chartThemeData.tooltipLabelColor ??
+                effectiveChartThemeData.tooltipLabelColor,
+          )
           .merge(chartThemeData.tooltipTextStyle)
           .merge(widget.tooltipBehavior?.textStyle),
     );
@@ -639,27 +654,39 @@ class SfCircularChartState extends State<SfCircularChart>
   }
 
   Widget? _buildTooltipWidget(
-      BuildContext context, TooltipInfo? info, Size maxSize) {
-    return buildTooltipWidget(context, info, maxSize, widget.tooltipBehavior,
-        _chartThemeData, _themeData);
+    BuildContext context,
+    TooltipInfo? info,
+    Size maxSize,
+  ) {
+    return buildTooltipWidget(
+      context,
+      info,
+      maxSize,
+      widget.tooltipBehavior,
+      _chartThemeData,
+      _themeData,
+    );
   }
 
   // ignore: unused_element
   void _handleTouchDown(Offset localPosition) {
-    widget.onChartTouchInteractionDown
-        ?.call(ChartTouchInteractionArgs()..position = localPosition);
+    widget.onChartTouchInteractionDown?.call(
+      ChartTouchInteractionArgs()..position = localPosition,
+    );
   }
 
   // ignore: unused_element
   void _handleTouchMove(Offset localPosition) {
-    widget.onChartTouchInteractionMove
-        ?.call(ChartTouchInteractionArgs()..position = localPosition);
+    widget.onChartTouchInteractionMove?.call(
+      ChartTouchInteractionArgs()..position = localPosition,
+    );
   }
 
   // ignore: unused_element
   void _handleTouchUp(Offset localPosition) {
-    widget.onChartTouchInteractionUp
-        ?.call(ChartTouchInteractionArgs()..position = localPosition);
+    widget.onChartTouchInteractionUp?.call(
+      ChartTouchInteractionArgs()..position = localPosition,
+    );
   }
 
   /// Called when this object is inserted into the tree.
@@ -761,28 +788,36 @@ class SfCircularChartState extends State<SfCircularChart>
     _themeData = Theme.of(context);
     final ChartThemeData effectiveChartThemeData = ChartThemeData(context);
     _chartThemeData = _updateThemeData(context, effectiveChartThemeData);
-    final core.LegendPosition legendPosition =
-        effectiveLegendPosition(widget.legend);
-    final Axis orientation =
-        effectiveLegendOrientation(legendPosition, widget.legend);
+    final core.LegendPosition legendPosition = effectiveLegendPosition(
+      widget.legend,
+    );
+    final Axis orientation = effectiveLegendOrientation(
+      legendPosition,
+      widget.legend,
+    );
     Widget current = core.LegendLayout(
       key: _legendKey,
       padding: EdgeInsets.zero,
       showLegend: widget.legend.isVisible,
       legendPosition: legendPosition,
       legendAlignment: effectiveLegendAlignment(widget.legend.alignment),
-      legendTitleAlignment:
-          effectiveLegendAlignment(widget.legend.title?.alignment),
+      legendTitleAlignment: effectiveLegendAlignment(
+        widget.legend.title?.alignment,
+      ),
       itemIconBorderColor: widget.legend.iconBorderColor,
       itemIconBorderWidth: widget.legend.iconBorderWidth,
       legendBorderColor: widget.legend.borderColor,
       legendBackgroundColor: _chartThemeData.legendBackgroundColor,
       legendBorderWidth: widget.legend.borderWidth,
       itemOpacity: widget.legend.opacity,
-      legendWidthFactor:
-          percentageToWidthFactor(widget.legend.width, legendPosition),
-      legendHeightFactor:
-          percentageToHeightFactor(widget.legend.height, legendPosition),
+      legendWidthFactor: percentageToWidthFactor(
+        widget.legend.width,
+        legendPosition,
+      ),
+      legendHeightFactor: percentageToHeightFactor(
+        widget.legend.height,
+        legendPosition,
+      ),
       itemInnerSpacing: widget.legend.padding,
       itemSpacing: 0.0,
       itemPadding: widget.legend.itemPadding,
@@ -855,8 +890,9 @@ class SfCircularChartState extends State<SfCircularChart>
                     opacity: widget.tooltipBehavior!.opacity,
                     borderColor: widget.tooltipBehavior!.borderColor,
                     borderWidth: widget.tooltipBehavior!.borderWidth,
-                    color: (widget.tooltipBehavior!.color ??
-                        _chartThemeData.tooltipColor)!,
+                    color:
+                        (widget.tooltipBehavior!.color ??
+                            _chartThemeData.tooltipColor)!,
                     showDuration: widget.tooltipBehavior!.duration.toInt(),
                     shadowColor: widget.tooltipBehavior!.shadowColor,
                     elevation: widget.tooltipBehavior!.elevation,
@@ -875,12 +911,13 @@ class SfCircularChartState extends State<SfCircularChart>
     return RepaintBoundary(
       child: Container(
         decoration: BoxDecoration(
-          image: widget.backgroundImage != null
-              ? DecorationImage(
-                  image: widget.backgroundImage!,
-                  fit: BoxFit.fill,
-                )
-              : null,
+          image:
+              widget.backgroundImage != null
+                  ? DecorationImage(
+                    image: widget.backgroundImage!,
+                    fit: BoxFit.fill,
+                  )
+                  : null,
           color: _chartThemeData.backgroundColor,
           border: Border.all(
             color: widget.borderColor,

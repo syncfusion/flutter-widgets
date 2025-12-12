@@ -25,5 +25,5 @@ enum PdfDestinationMode {
   /// top positioned at the top edge of the window and the contents of the page
   /// magnified just enough to fit the entire width of the page
   /// within the window.
-  fitH
+  fitH,
 }

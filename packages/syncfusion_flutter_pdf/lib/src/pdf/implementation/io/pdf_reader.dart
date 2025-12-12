@@ -43,7 +43,7 @@ class PdfReader {
     '\u000b',
     '\u000c',
     '\u000d',
-    '\u0085'
+    '\u0085',
   ];
   late int _peekedByte;
   late bool _bytePeeked;
@@ -65,8 +65,8 @@ class PdfReader {
       int value;
       do {
         value = _read();
-      } while (
-          value != -1 && _spaceCharacters.contains(String.fromCharCode(value)));
+      } while (value != -1 &&
+          _spaceCharacters.contains(String.fromCharCode(value)));
       position = value == -1 ? streamReader.length! : (position - 1);
     }
   }
@@ -185,9 +185,11 @@ class PdfReader {
       throw ArgumentError.value(index, 'Invalid index to read');
     }
     final int pos = position;
-    for (int i = pos;
-        i < length! && i < (pos + count) && index < buffer.length;
-        i++) {
+    for (
+      int i = pos;
+      i < length! && i < (pos + count) && index < buffer.length;
+      i++
+    ) {
       buffer[index] = _read();
       index++;
     }
@@ -263,8 +265,11 @@ class PdfReader {
       if (buf[0] == token.codeUnitAt(0)) {
         if (!isStartXref) {
           pos = position - 1;
-          final Map<String, dynamic> result =
-              copyBytes(buf, 1, token.length - 1);
+          final Map<String, dynamic> result = copyBytes(
+            buf,
+            1,
+            token.length - 1,
+          );
           final int length = result['next'] as int;
           buf = result['buffer'] as List<int>?;
           position = pos;
@@ -281,10 +286,15 @@ class PdfReader {
         pos = position - 1;
         position = pos;
         int newPosition = pos;
-        List<int>? buff =
-            List<int>.filled(PdfOperators.startCrossReference.length, 0);
-        final Map<String, dynamic> result =
-            copyBytes(buff, 1, PdfOperators.startCrossReference.length);
+        List<int>? buff = List<int>.filled(
+          PdfOperators.startCrossReference.length,
+          0,
+        );
+        final Map<String, dynamic> result = copyBytes(
+          buff,
+          1,
+          PdfOperators.startCrossReference.length,
+        );
         buff = result['buffer'] as List<int>?;
         if (PdfOperators.startCrossReference == String.fromCharCodes(buff!)) {
           isStartXref = true;

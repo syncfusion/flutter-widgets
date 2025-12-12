@@ -69,10 +69,7 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
     super.legendIconType,
     super.cornerStyle = CornerStyle.bothFlat,
     super.initialSelectedDataIndexes,
-  }) : super(
-          borderColor: strokeColor,
-          borderWidth: strokeWidth,
-        );
+  }) : super(borderColor: strokeColor, borderWidth: strokeWidth);
 
   /// Enables or disables the explode of slices on tap.
   ///
@@ -179,8 +176,9 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
   final ActivationMode explodeGesture;
 
   @override
-  List<ChartDataPointType> get positions =>
-      <ChartDataPointType>[ChartDataPointType.y];
+  List<ChartDataPointType> get positions => <ChartDataPointType>[
+    ChartDataPointType.y,
+  ];
 
   /// Create the  circular series renderer.
   @override
@@ -209,7 +207,9 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, DoughnutSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    DoughnutSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..explode = explode
@@ -298,9 +298,13 @@ class DoughnutSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
     final double degree =
         (yValue.abs() / (sumOfY != 0 ? sumOfY : 1)) * totalAngle;
     final double pointEndAngle = pointStartAngle + degree;
-    final double outerRadius = pointRadii.isNotEmpty
-        ? percentToValue(pointRadii[index], (min(size.width, size.height)) / 2)!
-        : currentRadius;
+    final double outerRadius =
+        pointRadii.isNotEmpty
+            ? percentToValue(
+              pointRadii[index],
+              (min(size.width, size.height)) / 2,
+            )!
+            : currentRadius;
 
     segment as DoughnutSegment<T, D>
       ..series = this
@@ -311,7 +315,8 @@ class DoughnutSeriesRenderer<T, D> extends CircularSeriesRenderer<T, D> {
       .._outerRadius = outerRadius
       .._center = center
       .._isExploded = explode && (index == explodeIndex || explodeAll)
-      ..isEmpty = (emptyPointSettings.mode != EmptyPointMode.drop &&
+      ..isEmpty =
+          (emptyPointSettings.mode != EmptyPointMode.drop &&
               emptyPointSettings.mode != EmptyPointMode.gap) &&
           isEmpty(index);
 
@@ -478,14 +483,20 @@ class DoughnutSegment<T, D> extends ChartSegment {
 
     double degree = _degree * animationFactor;
     final double angle = calculateAngle(
-        series.animationFactor == 1, series.startAngle, series.endAngle);
-    final double startAngle = lerpDouble(
-        _priorEndAngle.isNaN ? angle : _priorStartAngle,
-        _startAngle,
-        animationFactor)!;
-    final double endAngle = _priorEndAngle.isNaN
-        ? startAngle + degree
-        : lerpDouble(_priorEndAngle, _endAngle, animationFactor)!;
+      series.animationFactor == 1,
+      series.startAngle,
+      series.endAngle,
+    );
+    final double startAngle =
+        lerpDouble(
+          _priorEndAngle.isNaN ? angle : _priorStartAngle,
+          _startAngle,
+          animationFactor,
+        )!;
+    final double endAngle =
+        _priorEndAngle.isNaN
+            ? startAngle + degree
+            : lerpDouble(_priorEndAngle, _endAngle, animationFactor)!;
     degree = _priorEndAngle.isNaN ? degree : endAngle - startAngle;
 
     // If the startAngle and endAngle value is same, then degree will be 0.
@@ -497,7 +508,11 @@ class DoughnutSegment<T, D> extends ChartSegment {
     if (series.explode && _isExploded) {
       final double midAngle = (_startAngle + _endAngle) / 2;
       _center = calculateExplodingCenter(
-          midAngle, _outerRadius, series.center, series.explodeOffset);
+        midAngle,
+        _outerRadius,
+        series.center,
+        series.explodeOffset,
+      );
     } else {
       _center = series.center;
     }
@@ -505,22 +520,39 @@ class DoughnutSegment<T, D> extends ChartSegment {
     final CornerStyle cornerStyle = series.cornerStyle;
     if (cornerStyle == CornerStyle.bothFlat) {
       fillPath = calculateArcPath(
-          _innerRadius, _outerRadius, _center, startAngle, endAngle, degree,
-          isAnimate: true);
+        _innerRadius,
+        _outerRadius,
+        _center,
+        startAngle,
+        endAngle,
+        degree,
+        isAnimate: true,
+      );
     } else {
-      final num angleDeviation =
-          findAngleDeviation(_innerRadius, _outerRadius, 360);
-      final double actualStartAngle = (cornerStyle == CornerStyle.startCurve ||
-              cornerStyle == CornerStyle.bothCurve)
-          ? (startAngle + angleDeviation)
-          : startAngle;
-      final double actualEndAngle = (cornerStyle == CornerStyle.endCurve ||
-              cornerStyle == CornerStyle.bothCurve)
-          ? (endAngle - angleDeviation)
-          : endAngle;
+      final num angleDeviation = findAngleDeviation(
+        _innerRadius,
+        _outerRadius,
+        360,
+      );
+      final double actualStartAngle =
+          (cornerStyle == CornerStyle.startCurve ||
+                  cornerStyle == CornerStyle.bothCurve)
+              ? (startAngle + angleDeviation)
+              : startAngle;
+      final double actualEndAngle =
+          (cornerStyle == CornerStyle.endCurve ||
+                  cornerStyle == CornerStyle.bothCurve)
+              ? (endAngle - angleDeviation)
+              : endAngle;
 
-      fillPath = calculateRoundedCornerArcPath(cornerStyle, _innerRadius,
-          _outerRadius, _center, actualStartAngle, actualEndAngle);
+      fillPath = calculateRoundedCornerArcPath(
+        cornerStyle,
+        _innerRadius,
+        _outerRadius,
+        _center,
+        actualStartAngle,
+        actualEndAngle,
+      );
     }
   }
 
@@ -541,15 +573,20 @@ class DoughnutSegment<T, D> extends ChartSegment {
   @override
   TooltipInfo? tooltipInfo({Offset? position, int? pointIndex}) {
     final ChartPoint<D> point = ChartPoint<D>(
-        x: series.circularXValues[currentSegmentIndex],
-        y: series.circularYValues[currentSegmentIndex]);
-    final Offset location = calculateOffset((_startAngle + _endAngle) / 2,
-        (_innerRadius + _outerRadius) / 2, _center);
+      x: series.circularXValues[currentSegmentIndex],
+      y: series.circularYValues[currentSegmentIndex],
+    );
+    final Offset location = calculateOffset(
+      (_startAngle + _endAngle) / 2,
+      (_innerRadius + _outerRadius) / 2,
+      _center,
+    );
     final TooltipPosition? tooltipPosition =
         series.parent?.tooltipBehavior?.tooltipPosition;
-    final Offset preferredPos = tooltipPosition == TooltipPosition.pointer
-        ? series.localToGlobal(position ?? location)
-        : series.localToGlobal(location);
+    final Offset preferredPos =
+        tooltipPosition == TooltipPosition.pointer
+            ? series.localToGlobal(position ?? location)
+            : series.localToGlobal(location);
     return ChartTooltipInfo<T, D>(
       primaryPosition: preferredPos,
       secondaryPosition: preferredPos,

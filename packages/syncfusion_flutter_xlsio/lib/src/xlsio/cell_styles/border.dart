@@ -1,4 +1,5 @@
-part of xlsio;
+import 'dart:ui';
+import '../general/enums.dart';
 
 /// Represent cell individual border.
 class Border {
@@ -73,8 +74,9 @@ class CellBorder implements Border {
   @override
   set color(String value) {
     _color = value;
-    _colorRgb =
-        Color(int.parse(_color.substring(1, 7), radix: 16) + 0xFF000000);
+    _colorRgb = Color(
+      int.parse(_color.substring(1, 7), radix: 16) + 0xFF000000,
+    );
   }
 
   late Color _colorRgb;
@@ -86,13 +88,21 @@ class CellBorder implements Border {
   @override
   set colorRgb(Color value) {
     _colorRgb = value;
-    _color = _colorRgb.value.toRadixString(16).toUpperCase();
+    _color = rgbValue(_colorRgb).toRadixString(16).toUpperCase();
   }
 
   /// Clone method of Cell Border.
-  CellBorder _clone() {
+  CellBorder clone() {
     final CellBorder cellBorder = CellBorder(lineStyle, color);
     return cellBorder;
+  }
+
+  ///Gets the color Value
+  int rgbValue(Color color) {
+    return ((color.a * 255).toInt() << 24) |
+        ((color.r * 255).toInt() << 16) |
+        ((color.g * 255).toInt() << 8) |
+        (color.b * 255).toInt();
   }
 }
 

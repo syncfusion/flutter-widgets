@@ -1,7 +1,87 @@
 ## Unreleased
 
+* No changes.
+
+## [30.1.37] - 06/25/2025
+
+**General**
+
+* Upgraded the `timezone` package to the latest version 0.10.1.
+
+* The compatible version of our Flutter calendar widget has been updated to Flutter SDK 3.32.0.
+
+## [29.1.39] - 22/04/2025
+
+**General**
+
+*  The minimum Dart version has been updated to 3.7.
+
 **Bugs**
-* \#FB57253 - Now, the appointment details are passed correctly to the [monthCellBuilder](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/monthCellBuilder.html) callback when navigating to the months using the navigation buttons.
+
+* \#FB66714 - Now, the font size is no longer calculated with a negative value in [SfCalendar](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar-class.html) when placed in a constrained space.
+
+* \#FB66695 - Now, the [headerDateFormat](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/headerDateFormat.html) is applied correctly in the resource view of [SfCalendar](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar-class.html), displaying the date in the expected format.
+
+* \#FB66695 - Now, the week number in the resource view of [SfCalendar](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar-class.html), is fully visible and no longer gets cut off when sufficient space is available.
+
+* \#FB66690 - Now, the calendar cell overlay position updates correctly in the month view when the [timeRulerSize](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/TimeSlotViewSettings/timeRulerSize.html) is added in the [timeSlotViewSettings](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/timeSlotViewSettings.html) of SfCalendar.
+
+## [29.1.37] - 08/04/2025
+
+**Bugs**
+
+* \#FB66610 - Now, the interactive widgets will work on the [appointmentBuilder](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/appointmentBuilder.html) in SfCalendar.
+
+## [29.1.33] - 25/03/2025
+
+**General**
+
+*  The compatible version of our Flutter calendar widget has been updated to Flutter SDK 3.29.0.
+*  The Syncfusion<sup>&reg;</sup> Flutter calendar example sample have been updated to support [kotlin build scripts](https://docs.flutter.dev/release/breaking-changes/flutter-gradle-plugin-apply) in Android platform.
+*  The Syncfusion<sup>&reg;</sup> Flutter calendar example sample have been updated to support [Swift package manager](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) in macOS and iOS platforms.
+
+**Features**
+
+* #FR46931 - Provided touch support for the [monthCellBuilder](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/monthCellBuilder.html) in the Calendar.
+
+## [28.2.7] - 25/02/2025
+
+**General**
+
+* The minimum Dart version of our Flutter widgets has been updated to 3.4 from 3.3.
+
+## [28.1.39] - 01/15/2025
+
+**Enhancements**
+
+* Now, improved the spanned appointment rendering behavior in the timelineMonth view when the when a start and end times fall within the same month and end date includes partial 24-hour periods in the Flutter event calendar.
+
+## [28.1.36] - 12/24/2024
+
+**General**
+
+* The compatible version of our Flutter calendar widget has been updated to Flutter SDK 3.27.0.
+
+## [28.1.33] - 12/12/2024
+
+**General**
+
+* All of our Syncfusion<sup>&reg;</sup> Flutter widgets have been updated to support [`WebAssembly`](https://docs.flutter.dev/platform-integration/web/wasm) (WASM) as a compilation target for building web applications.
+* The minimum Dart version of our Flutter widgets has been updated to 3.3 from 2.17.
+
+## [27.1.48] - 09/18/2024
+
+**General**
+
+* The compatible version of our Flutter calendar widget has been updated to Flutter SDK 3.24.0.
+
+**Bug fixes**
+* Now, the horizontal scroll bar is draggable in the timeline view on both web and desktop platforms.
+
+## [25.2.7] - 06/04/2024
+**Bugs**
+* \#FB57253 -
+Now, the appointment details are passed correctly to the [monthCellBuilder](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/monthCellBuilder.html) callback when navigating to the months using the navigation buttons.
 
 ## [25.2.3] - 05/13/2024
 **General**

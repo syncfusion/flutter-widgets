@@ -1,6 +1,8 @@
+export './src/theme/assistview_theme.dart';
 export './src/theme/barcodes_theme.dart';
 export './src/theme/calendar_theme.dart';
 export './src/theme/charts_theme.dart';
+export './src/theme/chat_theme.dart';
 export './src/theme/color_scheme.dart';
 export './src/theme/datagrid_theme.dart';
 export './src/theme/datapager_theme.dart';

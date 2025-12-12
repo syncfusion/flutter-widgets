@@ -68,7 +68,7 @@ class PdfLexer {
   late bool atBool;
 
   /// internal field
-  late _State lexicalState;
+  late State lexicalState;
 
   /// internal field
   List<int> stateTrans = <int>[0, 81, 83];
@@ -119,7 +119,7 @@ class PdfLexer {
     bufferEnd = 0;
     line = 0;
     atBool = true;
-    lexicalState = _State.initial;
+    lexicalState = State.initial;
     accept = <int>[
       notAccept,
       noAnchor,
@@ -208,14 +208,25 @@ class PdfLexer {
       notAccept,
       notAccept,
       notAccept,
-      notAccept
+      notAccept,
     ];
-    cMap = _unpackFromString(1, 258,
-        '3,17:8,3,11,17,3,4,17:18,3,17:4,1,17:2,7,2,17,26,17,26,28,16,27:10,17:2,5,17,6,17:2,13:6,17:11,35,17:8,14,12,15,17:3,23,30,13,33,21,22,17:2,36,31,17,24,34,32,29,17:2,19,25,18,20,17:2,37,17:2,10,17,10,17:128,8,9,0:2')[0];
-    rMap = _unpackFromString(1, 88,
-        '0,1,2,1:2,3,4,1:2,5,6,7,1:3,8,1:18,9,1,10,11,12,13,14,15,16,17,18,19,20,21,7,8:2,22,23,24,25,13,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57')[0];
-    next = _unpackFromString(58, 38,
-        '1,2,3,4:2,5,37,6,3:3,4,3:2,7,8,9,3,42,3:2,44,10,3:2,46,48,11,50,52,3:2,38,3:2,12,3,54,-1:39,2:3,-1,2:6,-1,2:26,-1:5,13,-1:40,36,-1:37,9:2,-1:2,9:2,-1:3,9:21,-1:23,45,-1:41,11,49,-1:36,15,-1:11,35:3,84,35:33,-1:9,55,-1:34,14,-1:51,85,-1:18,63,17,63:8,64,63:26,-1,30:3,82,30:33,-1:20,56,-1:2,57,-1:33,41,-1:51,58,-1:36,43,-1:29,59,-1:31,47,-1:38,86,-1:3,60,-1:45,16,-1:36,51,-1:28,62,-1:35,53,-1:39,18,-1:52,65,-1:26,66,-1:3,67,-1:33,56,-1:31,87,-1:42,19,-1:35,20,-1:16,55:3,-1,55:6,-1,-1:26,-1,64,39,64,63,64:33,-1:24,69,-1:31,70,-1:49,71,-1:30,72,-1:35,74,-1:35,75,-1:49,21,-1:40,22,-1:40,76,-1:19,23,-1:39,77,-1:35,78,-1:41,79,-1:35,80,-1:50,24,-1:25,25,-1:15,1,26:2,27:2,26,28,26:4,27,40,29,26:7,29:3,26:3,29,26:2,29,26:2,29,26:4,-1:11,30,-1:26,1,31,32,31:4,33,31:4,34,31:25,-1:11,35,-1:50,61,-1:34,68,-1:34,73,-1:19');
+    cMap =
+        _unpackFromString(
+          1,
+          258,
+          '3,17:8,3,11,17,3,4,17:18,3,17:4,1,17:2,7,2,17,26,17,26,28,16,27:10,17:2,5,17,6,17:2,13:6,17:11,35,17:8,14,12,15,17:3,23,30,13,33,21,22,17:2,36,31,17,24,34,32,29,17:2,19,25,18,20,17:2,37,17:2,10,17,10,17:128,8,9,0:2',
+        )[0];
+    rMap =
+        _unpackFromString(
+          1,
+          88,
+          '0,1,2,1:2,3,4,1:2,5,6,7,1:3,8,1:18,9,1,10,11,12,13,14,15,16,17,18,19,20,21,7,8:2,22,23,24,25,13,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57',
+        )[0];
+    next = _unpackFromString(
+      58,
+      38,
+      '1,2,3,4:2,5,37,6,3:3,4,3:2,7,8,9,3,42,3:2,44,10,3:2,46,48,11,50,52,3:2,38,3:2,12,3,54,-1:39,2:3,-1,2:6,-1,2:26,-1:5,13,-1:40,36,-1:37,9:2,-1:2,9:2,-1:3,9:21,-1:23,45,-1:41,11,49,-1:36,15,-1:11,35:3,84,35:33,-1:9,55,-1:34,14,-1:51,85,-1:18,63,17,63:8,64,63:26,-1,30:3,82,30:33,-1:20,56,-1:2,57,-1:33,41,-1:51,58,-1:36,43,-1:29,59,-1:31,47,-1:38,86,-1:3,60,-1:45,16,-1:36,51,-1:28,62,-1:35,53,-1:39,18,-1:52,65,-1:26,66,-1:3,67,-1:33,56,-1:31,87,-1:42,19,-1:35,20,-1:16,55:3,-1,55:6,-1,-1:26,-1,64,39,64,63,64:33,-1:24,69,-1:31,70,-1:49,71,-1:30,72,-1:35,74,-1:35,75,-1:49,21,-1:40,22,-1:40,76,-1:19,23,-1:39,77,-1:35,78,-1:41,79,-1:35,80,-1:50,24,-1:25,25,-1:15,1,26:2,27:2,26,28,26:4,27,40,29,26:7,29:3,26:3,29,26:2,29,26:2,29,26:4,-1:11,30,-1:26,1,31,32,31:4,33,31:4,34,31:25,-1:11,35,-1:50,61,-1:34,68,-1:34,73,-1:19',
+    );
   }
 
   List<List<int>> _unpackFromString(int size1, int size2, String text) {
@@ -226,7 +237,9 @@ class PdfLexer {
     int commaIndex;
     String workString;
     final List<List<int>> res = List<List<int>>.generate(
-        size1, (int i) => List<int>.generate(size2, (int j) => 0));
+      size1,
+      (int i) => List<int>.generate(size2, (int j) => 0),
+    );
     for (int i = 0; i < size1; ++i) {
       for (int j = 0; j < size2; ++j) {
         if (sequenceLength != 0) {
@@ -269,7 +282,7 @@ class PdfLexer {
     bufferEnd = 0;
     line = 0;
     atBool = true;
-    lexicalState = _State.initial;
+    lexicalState = State.initial;
   }
 
   void _markStart() {
@@ -363,8 +376,11 @@ class PdfLexer {
   }
 
   int _read() {
-    final int nextRead =
-        _reader.readData(buffer, bufferRead, buffer.length - bufferRead);
+    final int nextRead = _reader.readData(
+      buffer,
+      bufferRead,
+      buffer.length - bufferRead,
+    );
     if (nextRead > 0) {
       bufferRead += nextRead;
     }
@@ -406,7 +422,8 @@ class PdfLexer {
 
   void _toMark() {
     bufferIndex = bufferEnd;
-    atBool = (bufferEnd > bufferStart) &&
+    atBool =
+        (bufferEnd > bufferStart) &&
         (13 == buffer[bufferEnd - 1] ||
             10 == buffer[bufferEnd - 1] ||
             2028 == buffer[bufferEnd - 1] ||
@@ -485,14 +502,14 @@ class PdfLexer {
               break;
             case 5:
               {
-                _begin(_State.hexString);
+                _begin(State.hexString);
                 return PdfTokenType.hexStringStart;
               }
             case -6:
               break;
             case 6:
               {
-                _begin(_State.string);
+                _begin(State.string);
                 stringText = '';
                 break;
               }
@@ -626,7 +643,7 @@ class PdfLexer {
               break;
             case 28:
               {
-                _begin(_State.initial);
+                _begin(State.initial);
                 return PdfTokenType.hexStringEnd;
               }
             case -29:
@@ -656,7 +673,7 @@ class PdfLexer {
                   stringText += _text();
                   --paren;
                 } else {
-                  _begin(_State.initial);
+                  _begin(State.initial);
                   return PdfTokenType.string;
                 }
                 break;
@@ -866,15 +883,17 @@ class PdfLexer {
   }
 
   // ignore: use_setters_to_change_properties
-  void _begin(_State state) {
+  void _begin(State state) {
     lexicalState = state;
   }
 
   void _error(_Error code, bool fatal) {
     if (fatal) {
       if (objectName != null) {
-        throw ArgumentError.value(code,
-            'Fatal Error occurred at $position.\n When reading object type of ${objectName!}');
+        throw ArgumentError.value(
+          code,
+          'Fatal Error occurred at $position.\n When reading object type of ${objectName!}',
+        );
       } else {
         throw ArgumentError.value(code, 'Fatal Error occurred at $position');
       }
@@ -882,6 +901,6 @@ class PdfLexer {
   }
 }
 
-enum _State { initial, hexString, string }
+enum State { initial, hexString, string }
 
 enum _Error { internal, match }

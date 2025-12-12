@@ -19,14 +19,16 @@ class MapsThemeData extends SfMapsThemeData {
   late final SfColorScheme colorScheme = SfTheme.colorScheme(context);
 
   /// Specifies the sub layer color of the maps widgets.
-  Color get subLayerColor => colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(198, 198, 198, 1)
-      : const Color.fromRGBO(71, 71, 71, 1);
+  Color get subLayerColor =>
+      colorScheme.brightness == Brightness.light
+          ? const Color.fromRGBO(198, 198, 198, 1)
+          : const Color.fromRGBO(71, 71, 71, 1);
 
   /// Specifies the sub layer stroke color of the maps widgets.
-  Color get subLayerStrokeColor => colorScheme.brightness == Brightness.light
-      ? const Color.fromRGBO(145, 145, 145, 1)
-      : const Color.fromRGBO(133, 133, 133, 1);
+  Color get subLayerStrokeColor =>
+      colorScheme.brightness == Brightness.light
+          ? const Color.fromRGBO(145, 145, 145, 1)
+          : const Color.fromRGBO(133, 133, 133, 1);
 
   /// Specifies the sub layer width of the maps widgets.
   double get subLayerStrokeWidth =>
@@ -43,11 +45,12 @@ class MapsThemeData extends SfMapsThemeData {
   Color? get markerIconColor => colorScheme.primary[98];
 
   @override
-  Color? get bubbleColor => colorScheme.useMaterial3
-      ? colorScheme.brightness == Brightness.light
-          ? const Color.fromRGBO(255, 180, 0, 0.4)
-          : const Color.fromRGBO(201, 88, 142, 0.4)
-      : colorScheme.brightness == Brightness.light
+  Color? get bubbleColor =>
+      colorScheme.useMaterial3
+          ? colorScheme.brightness == Brightness.light
+              ? const Color.fromRGBO(255, 180, 0, 0.4)
+              : const Color.fromRGBO(201, 88, 142, 0.4)
+          : colorScheme.brightness == Brightness.light
           ? const Color.fromRGBO(98, 0, 238, 0.5)
           : const Color.fromRGBO(187, 134, 252, 0.8);
 

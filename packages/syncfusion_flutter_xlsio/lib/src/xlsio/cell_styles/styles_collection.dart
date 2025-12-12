@@ -1,4 +1,8 @@
-part of xlsio;
+import '../general/culture_info.dart';
+import '../general/enums.dart';
+import '../general/workbook.dart';
+import 'cell_style.dart';
+import 'style.dart';
 
 /// Represents styles collection.
 class StylesCollection {
@@ -44,7 +48,7 @@ class StylesCollection {
     'nl-BE': r'_(€* #,##0.00_)',
     'pl-PL': r'_(#,##0.00_*zł',
     'pt-PT': r'_(#,##0.00_*€',
-    'ru-RU': r'_(#,##0.00_*₽'
+    'ru-RU': r'_(#,##0.00_*₽',
   };
 
   /// Dictionary. Key - Culture, value - Symbols.
@@ -58,7 +62,7 @@ class StylesCollection {
     'nl-BE': '€',
     'pl-PL': 'zł',
     'pt-PT': '€',
-    'ru-RU': '₽'
+    'ru-RU': '₽',
   };
 
   /// Default styles names.
@@ -124,7 +128,8 @@ class StylesCollection {
     if (index is String) {
       if (!_dictStyles.containsKey(index)) {
         throw Exception(
-            'Style with specified name does not exist. Name: $index, value');
+          'Style with specified name does not exist. Name: $index, value',
+        );
       }
       return _dictStyles[index];
     } else {
@@ -174,7 +179,7 @@ class StylesCollection {
     int index = 0;
     if (workbook.styles._defaultStyleNames.contains(style.name)) {
       _initializeStyleCollections(style.name, style);
-      style._builtinId = workbook.styles._defaultStyleNames.indexOf(style.name);
+      style.builtinId = workbook.styles._defaultStyleNames.indexOf(style.name);
     }
     index = workbook.styles._styles.length;
     style.index = index;
@@ -480,15 +485,15 @@ class StylesCollection {
         final CultureInfo culture = _book.cultureInfo;
         String currency = '';
 
-        if (_book._currency != 'USD' &&
-            _book._currency != _symbols[culture._culture]) {
-          currency = '[\$${_book._currency}]';
-          final String? prevFormat = _numberFormat[culture._culture];
-          String? symbol = _symbols[culture._culture];
+        if (_book.currency != 'USD' &&
+            _book.currency != _symbols[culture.culture]) {
+          currency = '[\$${_book.currency}]';
+          final String? prevFormat = _numberFormat[culture.culture];
+          String? symbol = _symbols[culture.culture];
           symbol = symbol!;
           style.numberFormat = prevFormat?.replaceFirst(symbol, currency);
         } else {
-          style.numberFormat = _numberFormat[culture._culture];
+          style.numberFormat = _numberFormat[culture.culture];
         }
         break;
 
@@ -508,9 +513,9 @@ class StylesCollection {
   }
 
   /// clear the cell style.
-  void _clear() {
+  void clear() {
     for (final Style style in _styles) {
-      (style as CellStyle)._clear();
+      (style as CellStyle).clear();
     }
     _styles.clear();
     _dictStyles.clear();

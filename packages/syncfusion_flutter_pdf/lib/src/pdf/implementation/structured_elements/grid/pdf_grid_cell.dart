@@ -118,12 +118,13 @@ class PdfGridCell {
   /// //Dispose the document.
   /// document.dispose();
   /// ```
-  PdfGridCell(
-      {PdfGridCellStyle? style,
-      PdfStringFormat? format,
-      PdfGridRow? row,
-      int? rowSpan,
-      int? columnSpan}) {
+  PdfGridCell({
+    PdfGridCellStyle? style,
+    PdfStringFormat? format,
+    PdfGridRow? row,
+    int? rowSpan,
+    int? columnSpan,
+  }) {
     _helper = PdfGridCellHelper(this);
     _initialize(style, format, row, rowSpan, columnSpan);
   }
@@ -201,8 +202,9 @@ class PdfGridCell {
   /// ```
   double get width {
     if (_width == -1 ||
-        PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(_helper.row!).grid)
-            .isComplete) {
+        PdfGridHelper.getHelper(
+          PdfGridRowHelper.getHelper(_helper.row!).grid,
+        ).isComplete) {
       _width = _measureWidth();
     }
     return double.parse(_width.toStringAsFixed(4));
@@ -316,8 +318,11 @@ class PdfGridCell {
   int get rowSpan => _rowSpan;
   set rowSpan(int value) {
     if (value < 1) {
-      throw ArgumentError.value('value', 'row span',
-          'Invalid span specified, must be greater than or equal to 1');
+      throw ArgumentError.value(
+        'value',
+        'row span',
+        'Invalid span specified, must be greater than or equal to 1',
+      );
     }
     if (value > 1) {
       _rowSpan = value;
@@ -385,8 +390,11 @@ class PdfGridCell {
   int get columnSpan => _columnSpan;
   set columnSpan(int value) {
     if (value < 1) {
-      throw ArgumentError.value('value', 'column span',
-          'Invalid span specified, must be greater than or equal to 1');
+      throw ArgumentError.value(
+        'value',
+        'column span',
+        'Invalid span specified, must be greater than or equal to 1',
+      );
     }
     if (value > 1) {
       _columnSpan = value;
@@ -605,8 +613,13 @@ class PdfGridCell {
   }
 
   //Implementation
-  void _initialize(PdfGridCellStyle? style, PdfStringFormat? format,
-      PdfGridRow? row, int? rowSpan, int? columnSpan) {
+  void _initialize(
+    PdfGridCellStyle? style,
+    PdfStringFormat? format,
+    PdfGridRow? row,
+    int? rowSpan,
+    int? columnSpan,
+  ) {
     if (row != null) {
       _helper.row = row;
     }
@@ -664,8 +677,9 @@ class PdfGridCell {
     return style.font ??
         _helper.row!.style.font ??
         PdfGridRowHelper.getHelper(_helper.row!).grid.style.font ??
-        PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(_helper.row!).grid)
-            .defaultFont;
+        PdfGridHelper.getHelper(
+          PdfGridRowHelper.getHelper(_helper.row!).grid,
+        ).defaultFont;
   }
 
   PdfBrush? _getTextBrush() {
@@ -696,8 +710,12 @@ class PdfGridCell {
         defaultWidth = _getColumnWidth();
       }
       final PdfStringLayoutResult result = layouter.layout(
-          value, _getTextFont()!, stringFormat,
-          width: defaultWidth, height: _maxValue);
+        value,
+        _getTextFont()!,
+        stringFormat,
+        width: defaultWidth,
+        height: _maxValue,
+      );
       width += result.size.width;
       width += (style.borders.left.width + style.borders.right.width) * 2;
     } else if (value is PdfGrid) {
@@ -710,14 +728,19 @@ class PdfGridCell {
       final PdfTextElement element = value as PdfTextElement;
       String? temp = element.text;
       if (!_helper.finished) {
-        temp = (_helper.remainingString != null &&
-                _helper.remainingString!.isNotEmpty)
-            ? _helper.remainingString
-            : value as String;
+        temp =
+            (_helper.remainingString != null &&
+                    _helper.remainingString!.isNotEmpty)
+                ? _helper.remainingString
+                : value as String;
       }
       final PdfStringLayoutResult result = layouter.layout(
-          temp!, element.font, element.stringFormat ?? stringFormat,
-          width: defaultWidth, height: _maxValue);
+        temp!,
+        element.font,
+        element.stringFormat ?? stringFormat,
+        width: defaultWidth,
+        height: _maxValue,
+      );
       width += result.size.width;
       width += (style.borders.left.width + style.borders.right.width) * 2;
     }
@@ -725,22 +748,18 @@ class PdfGridCell {
         PdfGridRowHelper.getHelper(_helper.row!).grid.style.cellSpacing +
         (style.cellPadding != null
             ? (style.cellPadding!.left + style.cellPadding!.right)
-            : (PdfGridRowHelper.getHelper(_helper.row!)
-                    .grid
-                    .style
-                    .cellPadding
-                    .left +
-                PdfGridRowHelper.getHelper(_helper.row!)
-                    .grid
-                    .style
-                    .cellPadding
-                    .right));
+            : (PdfGridRowHelper.getHelper(
+                  _helper.row!,
+                ).grid.style.cellPadding.left +
+                PdfGridRowHelper.getHelper(
+                  _helper.row!,
+                ).grid.style.cellPadding.right));
   }
 
   double _getColumnWidth() {
     double defaultWidth =
         PdfGridCellHelper.getHelper(_parent!)._calculateWidth()! /
-            PdfGridRowHelper.getHelper(_helper.row!).grid.columns.count;
+        PdfGridRowHelper.getHelper(_helper.row!).grid.columns.count;
     if (defaultWidth <= 0) {
       defaultWidth = _maxValue;
     }
@@ -787,7 +806,8 @@ class PdfGridCellHelper {
 
   /// internal method
   double measureHeight() {
-    final double width = _calculateWidth()! -
+    final double width =
+        _calculateWidth()! -
         (base.style.cellPadding == null
             ? (PdfGridRowHelper.getHelper(row!).grid.style.cellPadding.right +
                 PdfGridRowHelper.getHelper(row!).grid.style.cellPadding.left)
@@ -802,27 +822,39 @@ class PdfGridCellHelper {
       final PdfTextElement element = base.value as PdfTextElement;
       String? temp = element.text;
       if (!finished) {
-        temp = (remainingString != null && remainingString!.isNotEmpty)
-            ? remainingString
-            : base.value as String;
+        temp =
+            (remainingString != null && remainingString!.isNotEmpty)
+                ? remainingString
+                : base.value as String;
       }
       final PdfStringLayoutResult result = layouter.layout(
-          temp!, element.font, element.stringFormat ?? base.stringFormat,
-          width: width, height: base._maxValue);
-      height += result.size.height +
+        temp!,
+        element.font,
+        element.stringFormat ?? base.stringFormat,
+        width: width,
+        height: base._maxValue,
+      );
+      height +=
+          result.size.height +
           ((base.style.borders.top.width + base.style.borders.bottom.width) *
               2);
     } else if (base.value is String || remainingString is String) {
       String? currentValue = base.value as String;
       if (!finished) {
-        currentValue = (remainingString != null && remainingString!.isNotEmpty)
-            ? remainingString
-            : base.value as String;
+        currentValue =
+            (remainingString != null && remainingString!.isNotEmpty)
+                ? remainingString
+                : base.value as String;
       }
       final PdfStringLayoutResult result = layouter.layout(
-          currentValue!, base._getTextFont()!, base.stringFormat,
-          width: width, height: base._maxValue);
-      height += result.size.height +
+        currentValue!,
+        base._getTextFont()!,
+        base.stringFormat,
+        width: width,
+        height: base._maxValue,
+      );
+      height +=
+          result.size.height +
           ((base.style.borders.top.width + base.style.borders.bottom.width) *
               2);
     } else if (base.value is PdfGrid) {
@@ -831,10 +863,11 @@ class PdfGridCellHelper {
       final PdfImage img = base._value as PdfImage;
       height = img.height / (96 / 72);
     }
-    height += base.style.cellPadding == null
-        ? (PdfGridRowHelper.getHelper(row!).grid.style.cellPadding.top +
-            PdfGridRowHelper.getHelper(row!).grid.style.cellPadding.bottom)
-        : (base.style.cellPadding!.top + base.style.cellPadding!.bottom);
+    height +=
+        base.style.cellPadding == null
+            ? (PdfGridRowHelper.getHelper(row!).grid.style.cellPadding.top +
+                PdfGridRowHelper.getHelper(row!).grid.style.cellPadding.bottom)
+            : (base.style.cellPadding!.top + base.style.cellPadding!.bottom);
     height += PdfGridRowHelper.getHelper(row!).grid.style.cellSpacing;
     return height;
   }
@@ -849,27 +882,28 @@ class PdfGridCellHelper {
     }
     if (base._parent != null &&
         PdfGridRowHelper.getHelper(
-                    PdfGridCellHelper.getHelper(base._parent!).row!)
-                .getWidth() >
+              PdfGridCellHelper.getHelper(base._parent!).row!,
+            ).getWidth() >
             0 &&
-        PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-            .isChildGrid! &&
+        PdfGridHelper.getHelper(
+          PdfGridRowHelper.getHelper(row!).grid,
+        ).isChildGrid! &&
         (PdfGridRowHelper.getHelper(row!).getWidth() >
             PdfGridRowHelper.getHelper(
-                    PdfGridCellHelper.getHelper(base._parent!).row!)
-                .getWidth())) {
+              PdfGridCellHelper.getHelper(base._parent!).row!,
+            ).getWidth())) {
       width = 0;
       for (int j = 0; j < base._parent!.columnSpan; j++) {
-        width += PdfGridRowHelper.getHelper(
-                PdfGridCellHelper.getHelper(base._parent!).row!)
-            .grid
-            .columns[j]
-            .width;
+        width +=
+            PdfGridRowHelper.getHelper(
+              PdfGridCellHelper.getHelper(base._parent!).row!,
+            ).grid.columns[j].width;
       }
       width = width / row!.cells.count;
     } else if (base._parent != null &&
-        PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-            .isChildGrid! &&
+        PdfGridHelper.getHelper(
+          PdfGridRowHelper.getHelper(row!).grid,
+        ).isChildGrid! &&
         width == -1) {
       width = _findGridColumnWidth(base._parent!);
       width = width / row!.cells.count;
@@ -918,8 +952,10 @@ class PdfGridCellHelper {
       pen = base._style!.borders.right;
       if (bounds.x + bounds.width > graphics.clientSize.width - pen.width / 2) {
         p1 = Offset(graphics.clientSize.width - pen.width / 2, bounds.y);
-        p2 = Offset(graphics.clientSize.width - pen.width / 2,
-            bounds.y + bounds.height);
+        p2 = Offset(
+          graphics.clientSize.width - pen.width / 2,
+          bounds.y + bounds.height,
+        );
       }
       if (base._style!.borders.right.dashStyle == PdfDashStyle.solid &&
           !PdfPenHelper.getHelper(pen).isImmutable) {
@@ -943,8 +979,10 @@ class PdfGridCellHelper {
       pen = base._style!.borders.bottom;
       if (bounds.y + bounds.height >
           graphics.clientSize.height - pen.width / 2) {
-        p1 = Offset(bounds.x + bounds.width,
-            graphics.clientSize.height - pen.width / 2);
+        p1 = Offset(
+          bounds.x + bounds.width,
+          graphics.clientSize.height - pen.width / 2,
+        );
         p2 = Offset(bounds.x, graphics.clientSize.height - pen.width / 2);
       }
       if (base._style!.borders.bottom.dashStyle == PdfDashStyle.solid &&
@@ -965,20 +1003,26 @@ class PdfGridCellHelper {
 
   /// internal method
   PdfStringLayoutResult? draw(
-      PdfGraphics? graphics, PdfRectangle bounds, bool cancelSubsequentSpans) {
+    PdfGraphics? graphics,
+    PdfRectangle bounds,
+    bool cancelSubsequentSpans,
+  ) {
     bool isrowbreak = false;
-    if (!PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-        .isSingleGrid) {
+    if (!PdfGridHelper.getHelper(
+      PdfGridRowHelper.getHelper(row!).grid,
+    ).isSingleGrid) {
       if ((remainingString != null) || (PdfGridLayouter.repeatRowIndex != -1)) {
         _drawParentCells(graphics!, bounds, true);
       } else if (PdfGridRowHelper.getHelper(row!).grid.rows.count > 1) {
-        for (int i = 0;
-            i < PdfGridRowHelper.getHelper(row!).grid.rows.count;
-            i++) {
+        for (
+          int i = 0;
+          i < PdfGridRowHelper.getHelper(row!).grid.rows.count;
+          i++
+        ) {
           if (row == PdfGridRowHelper.getHelper(row!).grid.rows[i]) {
             if (PdfGridRowHelper.getHelper(
-                        PdfGridRowHelper.getHelper(row!).grid.rows[i])
-                    .rowBreakHeight >
+                  PdfGridRowHelper.getHelper(row!).grid.rows[i],
+                ).rowBreakHeight >
                 0) {
               isrowbreak = true;
             }
@@ -992,9 +1036,11 @@ class PdfGridCellHelper {
     PdfStringLayoutResult? result;
     if (cancelSubsequentSpans) {
       final int currentCellIndex = row!.cells.indexOf(base);
-      for (int i = currentCellIndex + 1;
-          i <= currentCellIndex + base._columnSpan;
-          i++) {
+      for (
+        int i = currentCellIndex + 1;
+        i <= currentCellIndex + base._columnSpan;
+        i++
+      ) {
         PdfGridCellHelper.getHelper(row!.cells[i]).isCellMergeContinue = false;
         PdfGridCellHelper.getHelper(row!.cells[i]).isRowMergeContinue = false;
       }
@@ -1026,18 +1072,18 @@ class PdfGridCellHelper {
       if (PdfGridRowHelper.getHelper(row!).grid.allowRowBreakingAcrossPages) {
         innerLayoutArea.height = innerLayoutArea.height - innerLayoutArea.y;
         bounds.height = bounds.height - bounds.y;
-        if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-            .isChildGrid!) {
-          innerLayoutArea.height = innerLayoutArea.height -
-              PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
-                          PdfGridHelper.getHelper(
-                                  PdfGridRowHelper.getHelper(row!).grid)
-                              .parentCell!)
-                      .row!)
-                  .grid
-                  .style
-                  .cellPadding
-                  .bottom;
+        if (PdfGridHelper.getHelper(
+          PdfGridRowHelper.getHelper(row!).grid,
+        ).isChildGrid!) {
+          innerLayoutArea.height =
+              innerLayoutArea.height -
+              PdfGridRowHelper.getHelper(
+                PdfGridCellHelper.getHelper(
+                  PdfGridHelper.getHelper(
+                    PdfGridRowHelper.getHelper(row!).grid,
+                  ).parentCell!,
+                ).row!,
+              ).grid.style.cellPadding.bottom;
         }
       } else {
         innerLayoutArea.height = graphics.clientSize.height;
@@ -1054,11 +1100,14 @@ class PdfGridCellHelper {
       PdfGridHelper.getHelper(childGrid).listOfNavigatePages = <int>[];
       PdfGridLayouter layouter = PdfGridLayouter(childGrid);
       PdfLayoutFormat? format = PdfLayoutFormat();
-      if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-              .layoutFormat !=
+      if (PdfGridHelper.getHelper(
+            PdfGridRowHelper.getHelper(row!).grid,
+          ).layoutFormat !=
           null) {
-        format = PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-            .layoutFormat;
+        format =
+            PdfGridHelper.getHelper(
+              PdfGridRowHelper.getHelper(row!).grid,
+            ).layoutFormat;
       } else {
         format.layoutType = PdfLayoutType.paginate;
       }
@@ -1087,12 +1136,14 @@ class PdfGridCellHelper {
       final String textElementString = textelement.text;
       PdfTextLayoutResult? textlayoutresult;
       if (finished) {
-        textlayoutresult = textelement.draw(
-            page: page, bounds: innerLayoutArea.rect) as PdfTextLayoutResult?;
+        textlayoutresult =
+            textelement.draw(page: page, bounds: innerLayoutArea.rect)
+                as PdfTextLayoutResult?;
       } else {
         textelement.text = remainingString!;
-        textlayoutresult = textelement.draw(
-            page: page, bounds: innerLayoutArea.rect) as PdfTextLayoutResult?;
+        textlayoutresult =
+            textelement.draw(page: page, bounds: innerLayoutArea.rect)
+                as PdfTextLayoutResult?;
       }
       if (textlayoutresult!.remainder != null &&
           textlayoutresult.remainder!.isNotEmpty) {
@@ -1107,69 +1158,68 @@ class PdfGridCellHelper {
       String? temp;
       PdfRectangle layoutRectangle;
       if (innerLayoutArea.height < font!.height) {
-        layoutRectangle = PdfRectangle(innerLayoutArea.x, innerLayoutArea.y,
-            innerLayoutArea.width, font.height);
+        layoutRectangle = PdfRectangle(
+          innerLayoutArea.x,
+          innerLayoutArea.y,
+          innerLayoutArea.width,
+          font.height,
+        );
       } else {
         layoutRectangle = innerLayoutArea;
       }
       if (innerLayoutArea.height < font.height &&
-          PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-              .isChildGrid! &&
-          PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-                  .parentCell !=
+          PdfGridHelper.getHelper(
+            PdfGridRowHelper.getHelper(row!).grid,
+          ).isChildGrid! &&
+          PdfGridHelper.getHelper(
+                PdfGridRowHelper.getHelper(row!).grid,
+              ).parentCell !=
               null) {
-        final double height = layoutRectangle.height -
-            PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
-                        PdfGridHelper.getHelper(
-                                PdfGridRowHelper.getHelper(row!).grid)
-                            .parentCell!)
-                    .row!)
-                .grid
-                .style
-                .cellPadding
-                .bottom -
+        final double height =
+            layoutRectangle.height -
+            PdfGridRowHelper.getHelper(
+              PdfGridCellHelper.getHelper(
+                PdfGridHelper.getHelper(
+                  PdfGridRowHelper.getHelper(row!).grid,
+                ).parentCell!,
+              ).row!,
+            ).grid.style.cellPadding.bottom -
             PdfGridRowHelper.getHelper(row!).grid.style.cellPadding.bottom;
         if (height > 0 && height < font.height) {
           layoutRectangle.height = height;
         } else if (height +
-                    PdfGridRowHelper.getHelper(row!)
-                        .grid
-                        .style
-                        .cellPadding
-                        .bottom >
+                    PdfGridRowHelper.getHelper(
+                      row!,
+                    ).grid.style.cellPadding.bottom >
                 0 &&
             height +
-                    PdfGridRowHelper.getHelper(row!)
-                        .grid
-                        .style
-                        .cellPadding
-                        .bottom <
+                    PdfGridRowHelper.getHelper(
+                      row!,
+                    ).grid.style.cellPadding.bottom <
                 font.height) {
-          layoutRectangle.height = height +
+          layoutRectangle.height =
+              height +
               PdfGridRowHelper.getHelper(row!).grid.style.cellPadding.bottom;
         } else if (bounds.height < font.height) {
           layoutRectangle.height = bounds.height;
         } else if (bounds.height -
-                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
-                            PdfGridHelper.getHelper(
-                                    PdfGridRowHelper.getHelper(row!).grid)
-                                .parentCell!)
-                        .row!)
-                    .grid
-                    .style
-                    .cellPadding
-                    .bottom <
+                PdfGridRowHelper.getHelper(
+                  PdfGridCellHelper.getHelper(
+                    PdfGridHelper.getHelper(
+                      PdfGridRowHelper.getHelper(row!).grid,
+                    ).parentCell!,
+                  ).row!,
+                ).grid.style.cellPadding.bottom <
             font.height) {
-          layoutRectangle.height = bounds.height -
-              PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
-                          PdfGridHelper.getHelper(
-                                  PdfGridRowHelper.getHelper(row!).grid)
-                              .parentCell!)
-                      .row!)
-                  .grid
-                  .style
-                  .cellPadding
-                  .bottom;
+          layoutRectangle.height =
+              bounds.height -
+              PdfGridRowHelper.getHelper(
+                PdfGridCellHelper.getHelper(
+                  PdfGridHelper.getHelper(
+                    PdfGridRowHelper.getHelper(row!).grid,
+                  ).parentCell!,
+                ).row!,
+              ).grid.style.cellPadding.bottom;
         }
       }
       if (base.style.cellPadding != null &&
@@ -1177,41 +1227,49 @@ class PdfGridCellHelper {
           base.style.cellPadding!.left == 0 &&
           base.style.cellPadding!.right == 0 &&
           base.style.cellPadding!.top == 0) {
-        layoutRectangle.width = layoutRectangle.width -
+        layoutRectangle.width =
+            layoutRectangle.width -
             base.style.borders.left.width +
             base.style.borders.right.width;
       }
       if (finished) {
-        temp = remainingString != null && remainingString!.isEmpty
-            ? remainingString
-            : base.value as String;
-        graphics.drawString(temp!, font,
-            pen: textPen,
-            brush: textBrush,
-            bounds: layoutRectangle.rect,
-            format: strFormat);
+        temp =
+            remainingString != null && remainingString!.isEmpty
+                ? remainingString
+                : base.value as String;
+        graphics.drawString(
+          temp!,
+          font,
+          pen: textPen,
+          brush: textBrush,
+          bounds: layoutRectangle.rect,
+          format: strFormat,
+        );
       } else {
-        graphics.drawString(remainingString!, font,
-            pen: textPen,
-            brush: textBrush,
-            bounds: layoutRectangle.rect,
-            format: strFormat);
+        graphics.drawString(
+          remainingString!,
+          font,
+          pen: textPen,
+          brush: textBrush,
+          bounds: layoutRectangle.rect,
+          format: strFormat,
+        );
       }
       result = PdfGraphicsHelper.getHelper(graphics).stringLayoutResult;
-      if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-              .isChildGrid! &&
+      if (PdfGridHelper.getHelper(
+            PdfGridRowHelper.getHelper(row!).grid,
+          ).isChildGrid! &&
           PdfGridRowHelper.getHelper(row!).rowBreakHeight > 0 &&
           result != null) {
-        bounds.height = bounds.height -
-            PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(
-                        PdfGridHelper.getHelper(
-                                PdfGridRowHelper.getHelper(row!).grid)
-                            .parentCell!)
-                    .row!)
-                .grid
-                .style
-                .cellPadding
-                .bottom;
+        bounds.height =
+            bounds.height -
+            PdfGridRowHelper.getHelper(
+              PdfGridCellHelper.getHelper(
+                PdfGridHelper.getHelper(
+                  PdfGridRowHelper.getHelper(row!).grid,
+                ).parentCell!,
+              ).row!,
+            ).grid.style.cellPadding.bottom;
       }
     } else if (base._value is PdfImage) {
       if (base.style.cellPadding != null &&
@@ -1219,19 +1277,21 @@ class PdfGridCellHelper {
               PdfPaddings(left: 0, right: 0, top: 0, bottom: 0)) {
         final PdfPaddings padding = base.style.cellPadding!;
         bounds = PdfRectangle(
-            bounds.x + padding.left,
-            bounds.y + padding.top,
-            bounds.width - (padding.left + padding.right),
-            bounds.height - (padding.top + padding.bottom));
+          bounds.x + padding.left,
+          bounds.y + padding.top,
+          bounds.width - (padding.left + padding.right),
+          bounds.height - (padding.top + padding.bottom),
+        );
       } else if (PdfGridRowHelper.getHelper(row!).grid.style.cellPadding !=
           PdfPaddings(left: 0, right: 0, top: 0, bottom: 0)) {
         final PdfPaddings padding =
             PdfGridRowHelper.getHelper(row!).grid.style.cellPadding;
         bounds = PdfRectangle(
-            bounds.x + padding.left,
-            bounds.y + padding.top,
-            bounds.width - (padding.left + padding.right),
-            bounds.height - (padding.top + padding.bottom));
+          bounds.x + padding.left,
+          bounds.y + padding.top,
+          bounds.width - (padding.left + padding.right),
+          bounds.height - (padding.top + padding.bottom),
+        );
       }
       final PdfImage img = base.value as PdfImage;
       double? imgWidth = img.width.toDouble();
@@ -1285,14 +1345,21 @@ class PdfGridCellHelper {
         final PdfPage graphicsPage =
             PdfGraphicsHelper.getHelper(graphics).page!;
         final PdfGraphicsState st = graphicsPage.graphics.save();
-        graphicsPage.graphics
-            .setClip(bounds: bounds.rect, mode: PdfFillMode.winding);
+        graphicsPage.graphics.setClip(
+          bounds: bounds.rect,
+          mode: PdfFillMode.winding,
+        );
         graphicsPage.graphics.drawImage(
-            img, Rect.fromLTWH(bounds.x, bounds.y, imgWidth, imgHeight));
+          img,
+          Rect.fromLTWH(bounds.x, bounds.y, imgWidth, imgHeight),
+        );
         graphicsPage.graphics.restore(st);
       } else {
-        graphics = _setImagePosition(graphics, img,
-            PdfRectangle(bounds.x, bounds.y, imgWidth, imgHeight));
+        graphics = _setImagePosition(
+          graphics,
+          img,
+          PdfRectangle(bounds.x, bounds.y, imgWidth, imgHeight),
+        );
       }
       graphics!.save();
     }
@@ -1302,56 +1369,57 @@ class PdfGridCellHelper {
 
   void _drawParentCells(PdfGraphics graphics, PdfRectangle bounds, bool b) {
     final PdfPoint location = PdfPoint(
-        PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-                .defaultBorder
-                .right
-                .width /
-            2,
-        PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-                .defaultBorder
-                .top
-                .width /
-            2);
+      PdfGridHelper.getHelper(
+            PdfGridRowHelper.getHelper(row!).grid,
+          ).defaultBorder.right.width /
+          2,
+      PdfGridHelper.getHelper(
+            PdfGridRowHelper.getHelper(row!).grid,
+          ).defaultBorder.top.width /
+          2,
+    );
     if ((bounds.height < graphics.clientSize.height) && (b == true)) {
       bounds.height = bounds.height + bounds.y - location.y;
     }
-    final PdfRectangle rect =
-        PdfRectangle(location.x, location.y, bounds.width, bounds.height);
+    final PdfRectangle rect = PdfRectangle(
+      location.x,
+      location.y,
+      bounds.width,
+      bounds.height,
+    );
     if (b == false) {
       rect.y = bounds.y;
       rect.height = bounds.height;
     }
     PdfGridCell? c = base;
     if (base._parent != null) {
-      if ((PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(c).row!)
-                  .grid
-                  .rows
-                  .count ==
+      if ((PdfGridRowHelper.getHelper(
+                PdfGridCellHelper.getHelper(c).row!,
+              ).grid.rows.count ==
               1) &&
-          (PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(c).row!)
-                  .grid
-                  .rows[0]
-                  .cells
-                  .count ==
+          (PdfGridRowHelper.getHelper(
+                PdfGridCellHelper.getHelper(c).row!,
+              ).grid.rows[0].cells.count ==
               1)) {
         PdfGridCellHelper.getHelper(
-                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(c).row!)
-                    .grid
-                    .rows[0]
-                    .cells[0])
-            .present = true;
+              PdfGridRowHelper.getHelper(
+                PdfGridCellHelper.getHelper(c).row!,
+              ).grid.rows[0].cells[0],
+            ).present =
+            true;
       } else {
-        for (int rowIndex = 0;
-            rowIndex <
-                PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(c).row!)
-                    .grid
-                    .rows
-                    .count;
-            rowIndex++) {
+        for (
+          int rowIndex = 0;
+          rowIndex <
+              PdfGridRowHelper.getHelper(
+                PdfGridCellHelper.getHelper(c).row!,
+              ).grid.rows.count;
+          rowIndex++
+        ) {
           final PdfGridRow r =
-              PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(c).row!)
-                  .grid
-                  .rows[rowIndex];
+              PdfGridRowHelper.getHelper(
+                PdfGridCellHelper.getHelper(c).row!,
+              ).grid.rows[rowIndex];
           if (r == PdfGridCellHelper.getHelper(c).row) {
             for (int cellIndex = 0; cellIndex < row!.cells.count; cellIndex++) {
               final PdfGridCell cell = row!.cells[cellIndex];
@@ -1366,12 +1434,11 @@ class PdfGridCellHelper {
       while (c!._parent != null) {
         c = c._parent;
         PdfGridCellHelper.getHelper(c!).present = true;
-        rect.x = rect.x +
-            PdfGridRowHelper.getHelper(PdfGridCellHelper.getHelper(c).row!)
-                .grid
-                .style
-                .cellPadding
-                .left;
+        rect.x =
+            rect.x +
+            PdfGridRowHelper.getHelper(
+              PdfGridCellHelper.getHelper(c).row!,
+            ).grid.style.cellPadding.left;
       }
     }
     if (bounds.x >= rect.x) {
@@ -1397,13 +1464,14 @@ class PdfGridCellHelper {
             }
             rect.width =
                 PdfGridRowHelper.getHelper(pdfGrid.rows[i]).getWidth() -
-                    cellwidth;
+                cellwidth;
             final PdfGrid? grid = pdfGrid.rows[i].cells[j].value as PdfGrid?;
             if (grid != null) {
               for (int l = 0; l < grid.rows.count; l++) {
                 for (int m = 0; m < grid.rows[l].cells.count; m++) {
-                  if ((PdfGridCellHelper.getHelper(grid.rows[l].cells[m])
-                          .present) &&
+                  if ((PdfGridCellHelper.getHelper(
+                        grid.rows[l].cells[m],
+                      ).present) &&
                       m > 0) {
                     rect.width = grid.rows[l].cells[m].width;
                     cellcount = m;
@@ -1463,19 +1531,21 @@ class PdfGridCellHelper {
               PdfPaddings(left: 0, right: 0, top: 0, bottom: 0)) {
         final PdfPaddings padding = base.style.cellPadding!;
         bounds = PdfRectangle(
-            bounds.x + padding.left,
-            bounds.y + padding.top,
-            bounds.width - (padding.left + padding.right),
-            bounds.height - (padding.top + padding.bottom));
+          bounds.x + padding.left,
+          bounds.y + padding.top,
+          bounds.width - (padding.left + padding.right),
+          bounds.height - (padding.top + padding.bottom),
+        );
       } else if (PdfGridRowHelper.getHelper(row!).grid.style.cellPadding !=
           PdfPaddings(left: 0, right: 0, top: 0, bottom: 0)) {
         final PdfPaddings padding =
             PdfGridRowHelper.getHelper(row!).grid.style.cellPadding;
         bounds = PdfRectangle(
-            bounds.x + padding.left,
-            bounds.y + padding.top,
-            bounds.width - (padding.left + padding.right),
-            bounds.height - (padding.top + padding.bottom));
+          bounds.x + padding.left,
+          bounds.y + padding.top,
+          bounds.width - (padding.left + padding.right),
+          bounds.height - (padding.top + padding.bottom),
+        );
       }
       return _setImagePosition(graphics, image, bounds);
     }
@@ -1543,8 +1613,12 @@ class PdfGridCellHelper {
     final double cellSpacing =
         PdfGridRowHelper.getHelper(row!).grid.style.cellSpacing;
     if (cellSpacing > 0) {
-      bounds = PdfRectangle(bounds.x + cellSpacing, bounds.y + cellSpacing,
-          bounds.width - cellSpacing, bounds.height - cellSpacing);
+      bounds = PdfRectangle(
+        bounds.x + cellSpacing,
+        bounds.y + cellSpacing,
+        bounds.width - cellSpacing,
+        bounds.height - cellSpacing,
+      );
     }
     final int currentColIndex = row!.cells.indexOf(base);
     if (base.columnSpan > 1 ||
@@ -1554,9 +1628,11 @@ class PdfGridCellHelper {
             isCellMergeContinue)) {
       int span = base.columnSpan;
       if (span == 1 && isCellMergeContinue) {
-        for (int j = currentColIndex + 1;
-            j < PdfGridRowHelper.getHelper(row!).grid.columns.count;
-            j++) {
+        for (
+          int j = currentColIndex + 1;
+          j < PdfGridRowHelper.getHelper(row!).grid.columns.count;
+          j++
+        ) {
           if (PdfGridCellHelper.getHelper(row!.cells[j]).isCellMergeContinue) {
             span++;
           } else {
@@ -1566,29 +1642,30 @@ class PdfGridCellHelper {
       }
       double totalWidth = 0;
       for (int i = currentColIndex; i < currentColIndex + span; i++) {
-        if (PdfGridRowHelper.getHelper(row!)
-            .grid
-            .style
-            .allowHorizontalOverflow) {
+        if (PdfGridRowHelper.getHelper(
+          row!,
+        ).grid.style.allowHorizontalOverflow) {
           double width;
-          final double compWidth = PdfGridHelper.getHelper(
-                          PdfGridRowHelper.getHelper(row!).grid)
-                      .size
-                      .width <
-                  g!.clientSize.width
-              ? PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-                  .size
-                  .width
-              : g.clientSize.width;
-          if (PdfGridHelper.getHelper(PdfGridRowHelper.getHelper(row!).grid)
-                  .size
-                  .width >
+          final double compWidth =
+              PdfGridHelper.getHelper(
+                        PdfGridRowHelper.getHelper(row!).grid,
+                      ).size.width <
+                      g!.clientSize.width
+                  ? PdfGridHelper.getHelper(
+                    PdfGridRowHelper.getHelper(row!).grid,
+                  ).size.width
+                  : g.clientSize.width;
+          if (PdfGridHelper.getHelper(
+                PdfGridRowHelper.getHelper(row!).grid,
+              ).size.width >
               g.clientSize.width) {
-            width = bounds.x +
+            width =
+                bounds.x +
                 totalWidth +
                 PdfGridRowHelper.getHelper(row!).grid.columns[i].width;
           } else {
-            width = totalWidth +
+            width =
+                totalWidth +
                 PdfGridRowHelper.getHelper(row!).grid.columns[i].width;
           }
           if (width > compWidth) {
@@ -1603,30 +1680,34 @@ class PdfGridCellHelper {
     if (base.rowSpan > 1 || PdfGridRowHelper.getHelper(row!).rowSpanExists) {
       int span = base.rowSpan;
       int currentRowIndex = PdfGridRowCollectionHelper.indexOf(
-          PdfGridRowHelper.getHelper(row!).grid.rows, row);
+        PdfGridRowHelper.getHelper(row!).grid.rows,
+        row,
+      );
       if (currentRowIndex == -1) {
         currentRowIndex = PdfGridHeaderCollectionHelper.getHelper(
-                PdfGridRowHelper.getHelper(row!).grid.headers)
-            .indexOf(row!);
+          PdfGridRowHelper.getHelper(row!).grid.headers,
+        ).indexOf(row!);
         if (currentRowIndex != -1) {
           isHeader = true;
         }
       }
       if (span == 1 && isCellMergeContinue) {
-        for (int j = currentRowIndex + 1;
-            j < PdfGridRowHelper.getHelper(row!).grid.rows.count;
-            j++) {
+        for (
+          int j = currentRowIndex + 1;
+          j < PdfGridRowHelper.getHelper(row!).grid.rows.count;
+          j++
+        ) {
           if (isHeader
-              ? PdfGridCellHelper.getHelper(PdfGridRowHelper.getHelper(row!)
-                      .grid
-                      .headers[j]
-                      .cells[currentColIndex])
-                  .isCellMergeContinue
-              : PdfGridCellHelper.getHelper(PdfGridRowHelper.getHelper(row!)
-                      .grid
-                      .rows[j]
-                      .cells[currentColIndex])
-                  .isCellMergeContinue) {
+              ? PdfGridCellHelper.getHelper(
+                PdfGridRowHelper.getHelper(
+                  row!,
+                ).grid.headers[j].cells[currentColIndex],
+              ).isCellMergeContinue
+              : PdfGridCellHelper.getHelper(
+                PdfGridRowHelper.getHelper(
+                  row!,
+                ).grid.rows[j].cells[currentColIndex],
+              ).isCellMergeContinue) {
             span++;
           } else {
             break;
@@ -1645,42 +1726,50 @@ class PdfGridCellHelper {
       } else {
         for (int i = currentRowIndex; i < currentRowIndex + span; i++) {
           if (!PdfGridRowHelper.getHelper(
-                  PdfGridRowHelper.getHelper(row!).grid.rows[i])
-              .isRowSpanRowHeightSet) {
+            PdfGridRowHelper.getHelper(row!).grid.rows[i],
+          ).isRowSpanRowHeightSet) {
             PdfGridRowHelper.getHelper(
-                    PdfGridRowHelper.getHelper(row!).grid.rows[i])
-                .isRowHeightSet = false;
+                  PdfGridRowHelper.getHelper(row!).grid.rows[i],
+                ).isRowHeightSet =
+                false;
           }
-          totalHeight += isHeader
-              ? PdfGridRowHelper.getHelper(row!).grid.headers[i].height
-              : PdfGridRowHelper.getHelper(row!).grid.rows[i].height;
+          totalHeight +=
+              isHeader
+                  ? PdfGridRowHelper.getHelper(row!).grid.headers[i].height
+                  : PdfGridRowHelper.getHelper(row!).grid.rows[i].height;
           final PdfGridRow gridRow =
               PdfGridRowHelper.getHelper(row!).grid.rows[i];
           final int rowIndex = PdfGridRowCollectionHelper.indexOf(
-              PdfGridRowHelper.getHelper(row!).grid.rows, gridRow);
+            PdfGridRowHelper.getHelper(row!).grid.rows,
+            gridRow,
+          );
           if (base.rowSpan > 1) {
-            for (int cellIndex = 0;
-                cellIndex < gridRow.cells.count;
-                cellIndex++) {
+            for (
+              int cellIndex = 0;
+              cellIndex < gridRow.cells.count;
+              cellIndex++
+            ) {
               final PdfGridCell cell = gridRow.cells[cellIndex];
               if (cell.rowSpan > 1) {
                 double tempHeight = 0;
                 for (int j = i; j < i + cell.rowSpan; j++) {
                   if (!PdfGridRowHelper.getHelper(
-                          PdfGridRowHelper.getHelper(row!).grid.rows[j])
-                      .isRowSpanRowHeightSet) {
+                    PdfGridRowHelper.getHelper(row!).grid.rows[j],
+                  ).isRowSpanRowHeightSet) {
                     PdfGridRowHelper.getHelper(
-                            PdfGridRowHelper.getHelper(row!).grid.rows[j])
-                        .isRowHeightSet = false;
+                          PdfGridRowHelper.getHelper(row!).grid.rows[j],
+                        ).isRowHeightSet =
+                        false;
                   }
                   tempHeight +=
                       PdfGridRowHelper.getHelper(row!).grid.rows[j].height;
                   if (!PdfGridRowHelper.getHelper(
-                          PdfGridRowHelper.getHelper(row!).grid.rows[j])
-                      .isRowSpanRowHeightSet) {
+                    PdfGridRowHelper.getHelper(row!).grid.rows[j],
+                  ).isRowSpanRowHeightSet) {
                     PdfGridRowHelper.getHelper(
-                            PdfGridRowHelper.getHelper(row!).grid.rows[j])
-                        .isRowHeightSet = true;
+                          PdfGridRowHelper.getHelper(row!).grid.rows[j],
+                        ).isRowHeightSet =
+                        true;
                   }
                 }
                 if (cell.height > tempHeight) {
@@ -1691,43 +1780,47 @@ class PdfGridCellHelper {
                       max += base._tempRowSpanRemainingHeight;
                     }
                     final int index = gridRow.cells.indexOf(cell);
-                    PdfGridCellHelper.getHelper(PdfGridRowHelper.getHelper(row!)
-                            .grid
-                            .rows[(rowIndex + cell.rowSpan) - 1]
-                            .cells[index])
-                        .rowSpanRemainingHeight = max;
+                    PdfGridCellHelper.getHelper(
+                          PdfGridRowHelper.getHelper(row!)
+                              .grid
+                              .rows[(rowIndex + cell.rowSpan) - 1]
+                              .cells[index],
+                        ).rowSpanRemainingHeight =
+                        max;
                     base._tempRowSpanRemainingHeight =
                         PdfGridCellHelper.getHelper(
-                                PdfGridRowHelper.getHelper(row!)
-                                    .grid
-                                    .rows[(rowIndex + cell.rowSpan) - 1]
-                                    .cells[index])
-                            .rowSpanRemainingHeight;
+                          PdfGridRowHelper.getHelper(row!)
+                              .grid
+                              .rows[(rowIndex + cell.rowSpan) - 1]
+                              .cells[index],
+                        ).rowSpanRemainingHeight;
                   }
                 }
               }
             }
           }
           if (!PdfGridRowHelper.getHelper(
-                  PdfGridRowHelper.getHelper(row!).grid.rows[i])
-              .isRowSpanRowHeightSet) {
+            PdfGridRowHelper.getHelper(row!).grid.rows[i],
+          ).isRowSpanRowHeightSet) {
             PdfGridRowHelper.getHelper(
-                    PdfGridRowHelper.getHelper(row!).grid.rows[i])
-                .isRowHeightSet = true;
+                  PdfGridRowHelper.getHelper(row!).grid.rows[i],
+                ).isRowHeightSet =
+                true;
           }
         }
         final int cellIndex = row!.cells.indexOf(base);
         totalHeight -= PdfGridRowHelper.getHelper(row!).grid.style.cellSpacing;
         if (row!.cells[cellIndex].height > totalHeight &&
-            (!PdfGridRowHelper.getHelper(PdfGridRowHelper.getHelper(row!)
-                    .grid
-                    .rows[(currentRowIndex + span) - 1])
-                .isRowHeightSet)) {
-          PdfGridCellHelper.getHelper(PdfGridRowHelper.getHelper(row!)
-                      .grid
-                      .rows[(currentRowIndex + span) - 1]
-                      .cells[cellIndex])
-                  .rowSpanRemainingHeight =
+            (!PdfGridRowHelper.getHelper(
+              PdfGridRowHelper.getHelper(
+                row!,
+              ).grid.rows[(currentRowIndex + span) - 1],
+            ).isRowHeightSet)) {
+          PdfGridCellHelper.getHelper(
+                PdfGridRowHelper.getHelper(
+                  row!,
+                ).grid.rows[(currentRowIndex + span) - 1].cells[cellIndex],
+              ).rowSpanRemainingHeight =
               row!.cells[cellIndex].height - totalHeight;
           totalHeight = row!.cells[cellIndex].height;
           bounds.height = totalHeight;
@@ -1743,7 +1836,10 @@ class PdfGridCellHelper {
   }
 
   PdfGraphics? _setImagePosition(
-      PdfGraphics? graphics, PdfImage? image, PdfRectangle bounds) {
+    PdfGraphics? graphics,
+    PdfImage? image,
+    PdfRectangle bounds,
+  ) {
     if (base._imagePosition == PdfGridImagePosition.stretch) {
       graphics!.drawImage(image!, bounds.rect);
     } else if (base._imagePosition == PdfGridImagePosition.center) {
@@ -1752,9 +1848,14 @@ class PdfGridCellHelper {
       gridCentreX = bounds.x + (bounds.width / 4);
       gridCentreY = bounds.y + (bounds.height / 4);
       graphics!.drawImage(
-          image!,
-          Rect.fromLTWH(
-              gridCentreX, gridCentreY, bounds.width / 2, bounds.height / 2));
+        image!,
+        Rect.fromLTWH(
+          gridCentreX,
+          gridCentreY,
+          bounds.width / 2,
+          bounds.height / 2,
+        ),
+      );
     } else if (base._imagePosition == PdfGridImagePosition.fit) {
       final double imageWidth = image!.physicalDimension.width;
       final double imageHeight = image.physicalDimension.height;
@@ -1764,12 +1865,16 @@ class PdfGridCellHelper {
         y = bounds.y;
         x = bounds.x + bounds.width / 4;
         graphics!.drawImage(
-            image, Rect.fromLTWH(x, y, bounds.width / 2, bounds.height));
+          image,
+          Rect.fromLTWH(x, y, bounds.width / 2, bounds.height),
+        );
       } else {
         x = bounds.x;
         y = bounds.y + (bounds.height / 4);
         graphics!.drawImage(
-            image, Rect.fromLTWH(x, y, bounds.width, bounds.height / 2));
+          image,
+          Rect.fromLTWH(x, y, bounds.width, bounds.height / 2),
+        );
       }
     } else if (base._imagePosition == PdfGridImagePosition.tile) {
       final double cellLeft = bounds.x;
@@ -1781,8 +1886,10 @@ class PdfGridCellHelper {
       for (; y < bounds.bottom;) {
         for (x = cellLeft; x! < bounds.right;) {
           if (x + pWidth > bounds.right && y + pHeight > bounds.bottom) {
-            final PdfTemplate template =
-                PdfTemplate(bounds.right - x, bounds.bottom - y);
+            final PdfTemplate template = PdfTemplate(
+              bounds.right - x,
+              bounds.bottom - y,
+            );
             template.graphics!.drawImage(image!, Rect.zero);
             graphics!.drawPdfTemplate(template, Offset(x, y));
           } else if (x + pWidth > bounds.right) {

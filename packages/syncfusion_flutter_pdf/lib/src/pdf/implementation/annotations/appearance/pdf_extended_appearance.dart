@@ -21,8 +21,10 @@ class PdfExtendedAppearance implements IPdfWrapper {
   PdfAppearanceState get normal {
     if (_normal == null) {
       _normal = PdfAppearanceState();
-      _dictionary!
-          .setProperty(PdfDictionaryProperties.n, PdfReferenceHolder(_normal));
+      _dictionary!.setProperty(
+        PdfDictionaryProperties.n,
+        PdfReferenceHolder(_normal),
+      );
     }
     return _normal!;
   }
@@ -32,7 +34,9 @@ class PdfExtendedAppearance implements IPdfWrapper {
     if (_mouseHover == null) {
       _mouseHover = PdfAppearanceState();
       _dictionary!.setProperty(
-          PdfDictionaryProperties.r, PdfReferenceHolder(_mouseHover));
+        PdfDictionaryProperties.r,
+        PdfReferenceHolder(_mouseHover),
+      );
     }
     return _mouseHover!;
   }
@@ -41,8 +45,10 @@ class PdfExtendedAppearance implements IPdfWrapper {
   PdfAppearanceState get pressed {
     if (_pressed == null) {
       _pressed = PdfAppearanceState();
-      _dictionary!
-          .setProperty(PdfDictionaryProperties.d, PdfReferenceHolder(_pressed));
+      _dictionary!.setProperty(
+        PdfDictionaryProperties.d,
+        PdfReferenceHolder(_pressed),
+      );
     }
     return _pressed!;
   }

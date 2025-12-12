@@ -92,8 +92,10 @@ class X509Extension {
 /// internal class
 class X509Extensions extends Asn1Encode {
   /// internal constructor
-  X509Extensions(Map<DerObjectID, X509Extension> extensions,
-      [List<DerObjectID?>? ordering]) {
+  X509Extensions(
+    Map<DerObjectID, X509Extension> extensions, [
+    List<DerObjectID?>? ordering,
+  ]) {
     _extensions = <DerObjectID?, X509Extension?>{};
     if (ordering == null) {
       final List<DerObjectID?> der = <DerObjectID?>[];
@@ -120,13 +122,17 @@ class X509Extensions extends Asn1Encode {
       final Asn1Sequence s = Asn1Sequence.getSequence(ae.getAsn1())!;
       if (s.count < 2 || s.count > 3) {
         throw ArgumentError.value(
-            seq, 'count', 'Bad sequence size: ${s.count}');
+          seq,
+          'count',
+          'Bad sequence size: ${s.count}',
+        );
       }
       final DerObjectID? oid = DerObjectID.getID(s[0]!.getAsn1());
       final bool isCritical =
           s.count == 3 && (s[1]!.getAsn1()! as DerBoolean).isTrue;
-      final Asn1Octet? octets =
-          Asn1Octet.getOctetStringFromObject(s[s.count - 1]!.getAsn1());
+      final Asn1Octet? octets = Asn1Octet.getOctetStringFromObject(
+        s[s.count - 1]!.getAsn1(),
+      );
       _extensions[oid] = X509Extension(isCritical, octets);
       _ordering.add(oid);
     }
@@ -194,12 +200,16 @@ class X509Certificate extends X509ExtensionBase {
     try {
       final Asn1Octet? str = getExtension(DerObjectID('2.5.29.15'));
       if (str != null) {
-        final DerBitString bits = DerBitString.getDetBitString(
-            Asn1Stream(PdfStreamReader(str.getOctets())).readAsn1())!;
+        final DerBitString bits =
+            DerBitString.getDetBitString(
+              Asn1Stream(PdfStreamReader(str.getOctets())).readAsn1(),
+            )!;
         final List<int> bytes = bits.getBytes()!;
         final int length = (bytes.length * 8) - bits.extra!;
-        _keyUsage =
-            List<bool>.generate((length < 9) ? 9 : length, (int i) => false);
+        _keyUsage = List<bool>.generate(
+          (length < 9) ? 9 : length,
+          (int i) => false,
+        );
         for (int i = 0; i != length; i++) {
           _keyUsage![i] = (bytes[i ~/ 8] & (0x80 >> (i % 8))) != 0;
         }
@@ -208,7 +218,10 @@ class X509Certificate extends X509ExtensionBase {
       }
     } catch (e) {
       throw ArgumentError.value(
-          e, 'ArgumentError', 'cannot construct KeyUsage');
+        e,
+        'ArgumentError',
+        'cannot construct KeyUsage',
+      );
     }
   }
   //Fields
@@ -248,7 +261,10 @@ class X509Certificate extends X509ExtensionBase {
       result = RsaKeyParam(false, pubKey.modulus, pubKey.publicExponent);
     } else {
       throw ArgumentError.value(
-          keyInfo, 'keyInfo', 'algorithm identifier in key not recognised');
+        keyInfo,
+        'keyInfo',
+        'algorithm identifier in key not recognised',
+      );
     }
     return result;
   }
@@ -373,11 +389,14 @@ class SingnedCertificate extends Asn1Encode {
     _startDate = X509Time.getTime(dates[0]);
     _endDate = X509Time.getTime(dates[1]);
     _subject = X509Name.getName(sequence[seqStart + 5]);
-    _publicKeyInformation =
-        PublicKeyInformation.getPublicKeyInformation(sequence[seqStart + 6]);
-    for (int extras = sequence.count - (seqStart + 6) - 1;
-        extras > 0;
-        extras--) {
+    _publicKeyInformation = PublicKeyInformation.getPublicKeyInformation(
+      sequence[seqStart + 6],
+    );
+    for (
+      int extras = sequence.count - (seqStart + 6) - 1;
+      extras > 0;
+      extras--
+    ) {
       final Asn1Tag extra = sequence[seqStart + 6 + extras]! as Asn1Tag;
       switch (extra.tagNumber) {
         case 1:
@@ -469,7 +488,10 @@ class PublicKeyInformation extends Asn1Encode {
   PublicKeyInformation.fromSequence(Asn1Sequence sequence) {
     if (sequence.count != 2) {
       throw ArgumentError.value(
-          sequence, 'sequence', 'Invalid length in sequence');
+        sequence,
+        'sequence',
+        'Invalid length in sequence',
+      );
     }
     _algorithms = Algorithms.getAlgorithms(sequence[0]);
     _publicKey = DerBitString.getDetBitString(sequence[1]);
@@ -543,10 +565,12 @@ class RsaPublicKey extends Asn1Encode {
 
   @override
   Asn1 getAsn1() {
-    return DerSequence(array: <Asn1Encode>[
-      DerInteger.fromNumber(modulus),
-      DerInteger.fromNumber(publicExponent)
-    ]);
+    return DerSequence(
+      array: <Asn1Encode>[
+        DerInteger.fromNumber(modulus),
+        DerInteger.fromNumber(publicExponent),
+      ],
+    );
   }
 }
 
@@ -615,7 +639,8 @@ class X509CertificateParser {
         _sDataObjectCount = _sDataObjectCount! + 1;
         if (obj is Asn1Sequence) {
           return createX509Certificate(
-              X509CertificateStructure.getInstance(obj));
+            X509CertificateStructure.getInstance(obj),
+          );
         }
       }
     }
@@ -657,7 +682,8 @@ class X509CertificateParser {
         _sDataObjectCount = _sDataObjectCount! + 1;
         if (obj is Asn1Sequence) {
           certList.add(
-              createX509Certificate(X509CertificateStructure.getInstance(obj)));
+            createX509Certificate(X509CertificateStructure.getInstance(obj)),
+          );
         }
       }
     }
@@ -689,7 +715,7 @@ class X509CertificateParser {
       }
     }
     return <X509Certificate?>[
-      createX509Certificate(X509CertificateStructure.getInstance(seq))
+      createX509Certificate(X509CertificateStructure.getInstance(seq)),
     ];
   }
 

@@ -71,12 +71,13 @@ class XObjectElement {
 
   /// internal method
   Map<String, dynamic> renderTextElement(
-      GraphicsObject? g,
-      PdfPageResources? resources,
-      GraphicStateCollection? graphicsStates,
-      GraphicObjectDataCollection? objects,
-      double? currentPageHeight,
-      List<Glyph>? glyphList) {
+    GraphicsObject? g,
+    PdfPageResources? resources,
+    GraphicStateCollection? graphicsStates,
+    GraphicObjectDataCollection? objects,
+    double? currentPageHeight,
+    List<Glyph>? glyphList,
+  ) {
     glyphList = <Glyph>[];
     List<TextElement>? extractTextElement;
     if (_objectType != null &&
@@ -102,9 +103,13 @@ class XObjectElement {
           pageDictionary = primitive;
         }
         childResource = resourceLoader.updatePageResources(
-            childResource, resourceLoader.getFontResources(pageDictionary));
+          childResource,
+          resourceLoader.getFontResources(pageDictionary),
+        );
         childResource = resourceLoader.updatePageResources(
-            childResource, resourceLoader.getFormResources(pageDictionary));
+          childResource,
+          resourceLoader.getFormResources(pageDictionary),
+        );
       }
       MatrixHelper xFormsMatrix = MatrixHelper(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
       if (xobjects.containsKey(PdfDictionaryProperties.matrix)) {
@@ -142,20 +147,25 @@ class XObjectElement {
           }
         }
       }
-      final ImageRenderer renderer =
-          ImageRenderer(contentTree, childResource, currentPageHeight, g);
+      final ImageRenderer renderer = ImageRenderer(
+        contentTree,
+        childResource,
+        currentPageHeight,
+        g,
+      );
       renderer.isExtractLineCollection = isExtractTextLine!;
       renderer.graphicsObjects = objects;
       final MatrixHelper parentMatrix =
           objects!.last.currentTransformationMatrix!;
       final MatrixHelper newMatrix = xFormsMatrix * parentMatrix;
       objects.last.drawing2dMatrixCTM = MatrixHelper(
-          newMatrix.m11,
-          newMatrix.m12,
-          newMatrix.m21,
-          newMatrix.m22,
-          newMatrix.offsetX,
-          newMatrix.offsetY);
+        newMatrix.m11,
+        newMatrix.m12,
+        newMatrix.m21,
+        newMatrix.m22,
+        newMatrix.offsetX,
+        newMatrix.offsetY,
+      );
       objects.last.currentTransformationMatrix = newMatrix;
       renderer.selectablePrintDocument = isPrintSelected;
       renderer.pageHeight = pageHeight;
@@ -174,7 +184,7 @@ class XObjectElement {
       'graphicStates': graphicsStates,
       'glyphList': glyphList,
       'objects': objects,
-      'extractTextElement': extractTextElement
+      'extractTextElement': extractTextElement,
     };
   }
 }

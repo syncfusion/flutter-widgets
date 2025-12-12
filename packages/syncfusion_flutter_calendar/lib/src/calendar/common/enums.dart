@@ -8,7 +8,7 @@ enum MonthNavigationDirection {
   vertical,
 
   /// - MonthNavigationDirection.horizontal, Navigates in left and top direction
-  horizontal
+  horizontal,
 }
 
 /// Available views for [SfCalendar].
@@ -46,7 +46,7 @@ enum CalendarView {
   timelineMonth,
 
   /// - CalendarView.schedule, displays the schedule view.
-  schedule
+  schedule,
 }
 
 /// Available appointment display mode for [SfCalendar] month cell.
@@ -60,7 +60,7 @@ enum MonthAppointmentDisplayMode {
   appointment,
 
   /// - MonthAppointmentDisplayMode.none, doesn't display appointment on view.
-  none
+  none,
 }
 
 /// Available recurrence types for [Appointment] in [SfCalendar]
@@ -94,7 +94,7 @@ enum RecurrenceRange {
 
   /// - RecurrenceRange.count, indicates the appointment occurrence repeated
   /// with specified count times.
-  count
+  count,
 }
 
 /// The week days occurrence of [Appointment].
@@ -118,7 +118,7 @@ enum WeekDays {
   friday,
 
   /// - WeekDays.saturday, indicates the appointment occurred in saturday.
-  saturday
+  saturday,
 }
 
 /// The available calendar elements for the [CalendarTapDetails] in [SfCalendar]
@@ -167,7 +167,7 @@ enum CalendarElement {
   ///
   /// _Note: _This element applies to the timeline views with resource assigned
   /// to the calendar data source.
-  resourceHeader
+  resourceHeader,
 }
 
 /// Action performed in data source
@@ -208,7 +208,7 @@ enum CalendarDataSourceAction {
   /// the resource collection will be reset.
   ///
   /// _Note:_ This is applicable only when the resource collection reset.
-  resetResource
+  resetResource,
 }
 
 /// Available view navigation modes for [SfCalendar].
@@ -227,7 +227,7 @@ enum ViewNavigationMode {
   /// It will not impact scrolling timeslot views,
   /// [controller.forward], [controller.backward]
   /// and [showNavigationArrow].
-  none
+  none,
 }
 
 /// Available Appointment types for [Appointment]
@@ -247,5 +247,5 @@ enum AppointmentType {
   /// - AppointmentType.pattern, this specifies the pattern appointment
   /// which has the RRule value and it is the pattern for the
   /// occurrence appointment in the recurrence series.
-  pattern
+  pattern,
 }

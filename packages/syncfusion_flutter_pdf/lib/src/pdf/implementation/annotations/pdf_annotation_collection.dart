@@ -73,9 +73,11 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
   /// internal constructor
   PdfAnnotationCollectionHelper(this.base, this.page) : super(base);
   PdfAnnotationCollectionHelper._(this.base, this.page) : super(base) {
-    for (int i = 0;
-        i < PdfPageHelper.getHelper(page).terminalAnnotation.length;
-        ++i) {
+    for (
+      int i = 0;
+      i < PdfPageHelper.getHelper(page).terminalAnnotation.length;
+      ++i
+    ) {
       final PdfAnnotation? annot = _getAnnotation(i);
       if (annot != null) {
         final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(annot);
@@ -111,17 +113,20 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
 
   /// internal method
   PdfArray? rearrange(PdfReference reference, int tabIndex, int index) {
-    final PdfArray? annots = PdfPageHelper.getHelper(page)
-        .crossTable!
-        .getObject(PdfPageHelper.getHelper(page)
-            .dictionary![PdfDictionaryProperties.annots]) as PdfArray?;
+    final PdfArray? annots =
+        PdfPageHelper.getHelper(page).crossTable!.getObject(
+              PdfPageHelper.getHelper(page).dictionary![PdfDictionaryProperties
+                  .annots],
+            )
+            as PdfArray?;
     if (annots != null) {
       if (tabIndex > annots.count) {
         tabIndex = 0;
       }
       if (index >= annots.count) {
-        index =
-            PdfPageHelper.getHelper(page).annotsReference.indexOf(reference);
+        index = PdfPageHelper.getHelper(
+          page,
+        ).annotsReference.indexOf(reference);
       }
       final IPdfPrimitive? annotReference = annots.elements[index];
       if (annotReference != null && annotReference is PdfReferenceHolder) {
@@ -153,11 +158,16 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
     if (flatten && PdfPageHelper.getHelper(page).document != null) {
       final PdfCrossTable? cross = PdfPageHelper.getHelper(page).crossTable;
       if (cross != null &&
-          PdfPageHelper.getHelper(page)
-              .dictionary!
-              .containsKey(PdfDictionaryProperties.annots)) {
-        final PdfArray? annots = cross.getObject(PdfPageHelper.getHelper(page)
-            .dictionary![PdfDictionaryProperties.annots]) as PdfArray?;
+          PdfPageHelper.getHelper(
+            page,
+          ).dictionary!.containsKey(PdfDictionaryProperties.annots)) {
+        final PdfArray? annots =
+            cross.getObject(
+                  PdfPageHelper.getHelper(
+                    page,
+                  ).dictionary![PdfDictionaryProperties.annots],
+                )
+                as PdfArray?;
         if (annots != null) {
           for (int count = 0; count < annots.count; ++count) {
             final PdfDictionary? annotDicrionary =
@@ -207,12 +217,16 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
       final PdfDictionary dictionary =
           PdfPageHelper.getHelper(page).dictionary!;
       if (dictionary.containsKey(PdfDictionaryProperties.annots)) {
-        array = PdfCrossTable.dereference(
-            dictionary[PdfDictionaryProperties.annots]) as PdfArray?;
+        array =
+            PdfCrossTable.dereference(
+                  dictionary[PdfDictionaryProperties.annots],
+                )
+                as PdfArray?;
       }
       array ??= PdfArray();
-      final PdfReferenceHolder reference =
-          PdfReferenceHolder(PdfAnnotationHelper.getHelper(annot).dictionary);
+      final PdfReferenceHolder reference = PdfReferenceHolder(
+        PdfAnnotationHelper.getHelper(annot).dictionary,
+      );
       if (!PdfAnnotationHelper.getHelper(annot).isOldAnnotation &&
           !_checkPresence(array, reference)) {
         array.add(reference);
@@ -222,7 +236,9 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
     final IPdfPrimitive? tempElement = IPdfWrapper.getElement(annot);
     if (tempElement == null) {
       IPdfWrapper.setElement(
-          annot, PdfAnnotationHelper.getHelper(annot).dictionary);
+        annot,
+        PdfAnnotationHelper.getHelper(annot).dictionary,
+      );
     }
     annotations.add(PdfReferenceHolder(annot));
     list.add(annot);
@@ -260,25 +276,30 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
     final PdfDictionary pageDic = PdfPageHelper.getHelper(page).dictionary!;
     PdfArray? annots;
     if (pageDic.containsKey(PdfDictionaryProperties.annots)) {
-      annots = PdfPageHelper.getHelper(page)
-          .crossTable!
-          .getObject(pageDic[PdfDictionaryProperties.annots]) as PdfArray?;
+      annots =
+          PdfPageHelper.getHelper(
+                page,
+              ).crossTable!.getObject(pageDic[PdfDictionaryProperties.annots])
+              as PdfArray?;
     } else {
       annots = PdfArray();
     }
-    if (PdfAnnotationHelper.getHelper(annot)
-        .dictionary!
-        .containsKey(PdfDictionaryProperties.popup)) {
+    if (PdfAnnotationHelper.getHelper(
+      annot,
+    ).dictionary!.containsKey(PdfDictionaryProperties.popup)) {
       final IPdfPrimitive? popUpDictionary =
-          (PdfAnnotationHelper.getHelper(annot)
-                      .dictionary![PdfName(PdfDictionaryProperties.popup)]
+          (PdfAnnotationHelper.getHelper(annot).dictionary![PdfName(
+                    PdfDictionaryProperties.popup,
+                  )]
                   is PdfReferenceHolder)
-              ? (PdfAnnotationHelper.getHelper(annot)
-                          .dictionary![PdfName(PdfDictionaryProperties.popup)]!
+              ? (PdfAnnotationHelper.getHelper(annot).dictionary![PdfName(
+                        PdfDictionaryProperties.popup,
+                      )]!
                       as PdfReferenceHolder)
                   .object
-              : PdfAnnotationHelper.getHelper(annot)
-                  .dictionary![PdfName(PdfDictionaryProperties.popup)];
+              : PdfAnnotationHelper.getHelper(annot).dictionary![PdfName(
+                PdfDictionaryProperties.popup,
+              )];
       if (popUpDictionary is PdfDictionary) {
         for (int i = 0; i < annots!.count; i++) {
           if (popUpDictionary ==
@@ -289,22 +310,22 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
             break;
           }
         }
-        final IPdfPrimitive popUpObj = PdfPageHelper.getHelper(page)
-            .crossTable!
-            .getObject(popUpDictionary)!;
-        final int? popUpIndex =
-            PdfPageHelper.getHelper(page).crossTable!.items!.lookFor(popUpObj);
+        final IPdfPrimitive popUpObj =
+            PdfPageHelper.getHelper(
+              page,
+            ).crossTable!.getObject(popUpDictionary)!;
+        final int? popUpIndex = PdfPageHelper.getHelper(
+          page,
+        ).crossTable!.items!.lookFor(popUpObj);
         if (popUpIndex != null && popUpIndex != -1) {
-          PdfPageHelper.getHelper(page)
-              .crossTable!
-              .items!
-              .objectCollection!
-              .removeAt(popUpIndex);
+          PdfPageHelper.getHelper(
+            page,
+          ).crossTable!.items!.objectCollection!.removeAt(popUpIndex);
         }
         _removeAllReference(popUpObj);
-        PdfPageHelper.getHelper(page)
-            .terminalAnnotation
-            .remove(popUpDictionary);
+        PdfPageHelper.getHelper(
+          page,
+        ).terminalAnnotation.remove(popUpDictionary);
       }
     }
     for (int i = 0; i < annots!.count; i++) {
@@ -317,9 +338,9 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
       }
     }
     PdfAnnotationHelper.getHelper(annot).dictionary!.changed = false;
-    PdfPageHelper.getHelper(page)
-        .dictionary!
-        .setProperty(PdfDictionaryProperties.annots, annots);
+    PdfPageHelper.getHelper(
+      page,
+    ).dictionary!.setProperty(PdfDictionaryProperties.annots, annots);
   }
 
   void _removeAllReference(IPdfPrimitive obj) {
@@ -332,14 +353,13 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
             k.name != PdfDictionaryProperties.parent) {
           final IPdfPrimitive newobj =
               PdfPageHelper.getHelper(page).crossTable!.getObject(v)!;
-          final int? index =
-              PdfPageHelper.getHelper(page).crossTable!.items!.lookFor(newobj);
+          final int? index = PdfPageHelper.getHelper(
+            page,
+          ).crossTable!.items!.lookFor(newobj);
           if (index != null && index != -1) {
-            PdfPageHelper.getHelper(page)
-                .crossTable!
-                .items!
-                .objectCollection!
-                .removeAt(index);
+            PdfPageHelper.getHelper(
+              page,
+            ).crossTable!.items!.objectCollection!.removeAt(index);
           }
           _removeAllReference(v!);
           (PdfCrossTable.dereference(v)! as PdfStream)
@@ -357,11 +377,19 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
     final PdfCrossTable? crossTable = PdfPageHelper.getHelper(page).crossTable;
     PdfAnnotation? annot;
     if (dictionary.containsKey(PdfDictionaryProperties.subtype)) {
-      final PdfName name = PdfAnnotationHelper.getValue(
-              dictionary, crossTable, PdfDictionaryProperties.subtype, true)!
-          as PdfName;
-      final PdfAnnotationTypes type =
-          getAnnotationType(name, dictionary, crossTable);
+      final PdfName name =
+          PdfAnnotationHelper.getValue(
+                dictionary,
+                crossTable,
+                PdfDictionaryProperties.subtype,
+                true,
+              )!
+              as PdfName;
+      final PdfAnnotationTypes type = getAnnotationType(
+        name,
+        dictionary,
+        crossTable,
+      );
       final PdfArray? rectValue =
           PdfCrossTable.dereference(dictionary[PdfDictionaryProperties.rect])
               as PdfArray?;
@@ -369,7 +397,8 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
         String text = '';
         if (dictionary.containsKey(PdfDictionaryProperties.contents)) {
           final IPdfPrimitive? str = PdfCrossTable.dereference(
-              dictionary[PdfDictionaryProperties.contents]);
+            dictionary[PdfDictionaryProperties.contents],
+          );
           if (str != null && str is PdfString) {
             text = str.value.toString();
           }
@@ -380,13 +409,19 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
             break;
           case PdfAnnotationTypes.linkAnnotation:
             if (dictionary.containsKey(PdfDictionaryProperties.a)) {
-              final PdfDictionary? remoteLinkDic = PdfCrossTable.dereference(
-                  dictionary[PdfDictionaryProperties.a]) as PdfDictionary?;
+              final PdfDictionary? remoteLinkDic =
+                  PdfCrossTable.dereference(
+                        dictionary[PdfDictionaryProperties.a],
+                      )
+                      as PdfDictionary?;
               if (remoteLinkDic != null &&
                   remoteLinkDic.containsKey(PdfDictionaryProperties.s)) {
                 PdfName? gotor;
-                gotor = PdfCrossTable.dereference(
-                    remoteLinkDic[PdfDictionaryProperties.s]) as PdfName?;
+                gotor =
+                    PdfCrossTable.dereference(
+                          remoteLinkDic[PdfDictionaryProperties.s],
+                        )
+                        as PdfName?;
                 if (gotor != null && gotor.name == 'URI') {
                   annot = _createLinkAnnotation(dictionary, crossTable!, text);
                 }
@@ -436,7 +471,10 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
 
   /// Gets the type of the annotation.
   static PdfAnnotationTypes getAnnotationType(
-      PdfName name, PdfDictionary dictionary, PdfCrossTable? crossTable) {
+    PdfName name,
+    PdfDictionary dictionary,
+    PdfCrossTable? crossTable,
+  ) {
     final String str = name.name!;
     PdfAnnotationTypes type = PdfAnnotationTypes.noAnnotation;
     switch (str.toLowerCase()) {
@@ -448,13 +486,19 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
                   as PdfDictionary?;
         }
         if (linkDic != null && linkDic.containsKey(PdfDictionaryProperties.s)) {
-          name = PdfCrossTable.dereference(linkDic[PdfDictionaryProperties.s])!
-              as PdfName;
-          final PdfArray? border = (PdfCrossTable.dereference(
-                  dictionary[PdfDictionaryProperties.border]) is PdfArray)
-              ? PdfCrossTable.dereference(
-                  dictionary[PdfDictionaryProperties.border]) as PdfArray?
-              : null;
+          name =
+              PdfCrossTable.dereference(linkDic[PdfDictionaryProperties.s])!
+                  as PdfName;
+          final PdfArray? border =
+              (PdfCrossTable.dereference(
+                        dictionary[PdfDictionaryProperties.border],
+                      )
+                      is PdfArray)
+                  ? PdfCrossTable.dereference(
+                        dictionary[PdfDictionaryProperties.border],
+                      )
+                      as PdfArray?
+                  : null;
           final bool mType = _findAnnotation(border);
           if (name.name == 'URI') {
             type = PdfAnnotationTypes.linkAnnotation;
@@ -469,8 +513,11 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
             type = PdfAnnotationTypes.documentLinkAnnotation;
           }
         } else if (dictionary.containsKey(PdfDictionaryProperties.subtype)) {
-          final PdfName? strText = PdfCrossTable.dereference(
-              dictionary[PdfDictionaryProperties.subtype]) as PdfName?;
+          final PdfName? strText =
+              PdfCrossTable.dereference(
+                    dictionary[PdfDictionaryProperties.subtype],
+                  )
+                  as PdfName?;
           if (strText != null) {
             switch (strText.name) {
               case 'Link':
@@ -520,27 +567,43 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
 
   // Creates the file link annotation.
   PdfAnnotation _createDocumentLinkAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
-    final PdfAnnotation annot =
-        PdfDocumentLinkAnnotationHelper.load(dictionary, crossTable);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
+    final PdfAnnotation annot = PdfDocumentLinkAnnotationHelper.load(
+      dictionary,
+      crossTable,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     PdfAnnotationHelper.getHelper(annot).page = page;
     return annot;
   }
 
   PdfAnnotation _createLinkAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
-    final PdfAnnotation annot =
-        PdfUriAnnotationHelper.load(dictionary, crossTable, text);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
+    final PdfAnnotation annot = PdfUriAnnotationHelper.load(
+      dictionary,
+      crossTable,
+      text,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     return annot;
   }
 
   // Creates the Line Annotation.
   PdfAnnotation _createLineAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
-    final PdfAnnotation annot =
-        PdfLineAnnotationHelper.load(dictionary, crossTable, text);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
+    final PdfAnnotation annot = PdfLineAnnotationHelper.load(
+      dictionary,
+      crossTable,
+      text,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     PdfAnnotationHelper.getHelper(annot).page = page;
     return annot;
@@ -548,9 +611,15 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
 
   // Creates the Ellipse Annotation.
   PdfAnnotation _createEllipseAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
-    final PdfAnnotation annot =
-        PdfEllipseAnnotationHelper.load(dictionary, crossTable, text);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
+    final PdfAnnotation annot = PdfEllipseAnnotationHelper.load(
+      dictionary,
+      crossTable,
+      text,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     PdfAnnotationHelper.getHelper(annot).page = page;
     return annot;
@@ -558,9 +627,15 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
 
   // Creates the Rectangle Annotation.
   PdfAnnotation _createRectangleAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
-    final PdfAnnotation annot =
-        PdfRectangleAnnotationHelper.load(dictionary, crossTable, text);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
+    final PdfAnnotation annot = PdfRectangleAnnotationHelper.load(
+      dictionary,
+      crossTable,
+      text,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     PdfAnnotationHelper.getHelper(annot).page = page;
     return annot;
@@ -568,44 +643,70 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
 
   // Creates the Polygon Annotation.
   PdfAnnotation _createPolygonAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
-    final PdfAnnotation annot =
-        PdfPolygonAnnotationHelper.load(dictionary, crossTable, text);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
+    final PdfAnnotation annot = PdfPolygonAnnotationHelper.load(
+      dictionary,
+      crossTable,
+      text,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     PdfAnnotationHelper.getHelper(annot).page = page;
     return annot;
   }
 
   PdfAnnotation _createTextWebLinkAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
-    final PdfAnnotation annot =
-        PdfTextWebLinkHelper.load(dictionary, crossTable, text);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
+    final PdfAnnotation annot = PdfTextWebLinkHelper.load(
+      dictionary,
+      crossTable,
+      text,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     return annot;
   }
 
   //Creates the widget annotation.
   PdfAnnotation _createWidgetAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
-    final PdfAnnotation annot =
-        WidgetAnnotationHelper.load(dictionary, crossTable);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
+    final PdfAnnotation annot = WidgetAnnotationHelper.load(
+      dictionary,
+      crossTable,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     return annot;
   }
 
   /// Creates the Markup Annotation.
   PdfAnnotation _createMarkupAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
-    final PdfAnnotation annot =
-        PdfTextMarkupAnnotationHelper.load(dictionary, crossTable);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
+    final PdfAnnotation annot = PdfTextMarkupAnnotationHelper.load(
+      dictionary,
+      crossTable,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     return annot;
   }
 
   PdfAnnotation _createPopupAnnotation(
-      PdfDictionary dictionary, PdfCrossTable crossTable, String text) {
-    final PdfAnnotation annot =
-        PdfPopupAnnotationHelper.load(dictionary, crossTable, text);
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    String text,
+  ) {
+    final PdfAnnotation annot = PdfPopupAnnotationHelper.load(
+      dictionary,
+      crossTable,
+      text,
+    );
     PdfAnnotationHelper.getHelper(annot).setPage(page);
     return annot;
   }
@@ -622,7 +723,7 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
               (temp[j] is PdfNumber) ? temp[j] as PdfNumber? : null;
           int? val = 0;
           if (value != null) {
-            val = value.value as int?;
+            val = value.value?.toInt();
           }
           if (val! > 0) {
             return false;
@@ -650,7 +751,8 @@ class PdfAnnotationCollectionHelper extends PdfObjectCollectionHelper {
 
   /// internal method
   static PdfAnnotationCollectionHelper getHelper(
-      PdfAnnotationCollection annotationCollection) {
+    PdfAnnotationCollection annotationCollection,
+  ) {
     return annotationCollection._helper;
   }
 

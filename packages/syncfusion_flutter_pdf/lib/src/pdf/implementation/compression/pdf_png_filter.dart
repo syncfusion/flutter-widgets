@@ -16,8 +16,10 @@ class PdfPngFilter {
   /// internal method
   List<int> decompress(List<int> data, int bytesPerRow) {
     if (bytesPerRow <= 0) {
-      throw ArgumentError.value(bytesPerRow,
-          'There cannot be less or equal to zero bytes in a line.');
+      throw ArgumentError.value(
+        bytesPerRow,
+        'There cannot be less or equal to zero bytes in a line.',
+      );
     }
     return _modify(data, bytesPerRow + 1, _decompressFilter, false);
   }
@@ -40,39 +42,78 @@ class PdfPngFilter {
     return result;
   }
 
-  List<int> _decompressData(List<int> data, int inIndex, int inBPR,
-      List<int> result, int resIndex, int resBPR) {
+  List<int> _decompressData(
+    List<int> data,
+    int inIndex,
+    int inBPR,
+    List<int> result,
+    int resIndex,
+    int resBPR,
+  ) {
     final _Type type = _getType(data[inIndex]);
     switch (type) {
       case _Type.none:
-        result =
-            _decompressNone(data, inIndex + 1, inBPR, result, resIndex, resBPR);
+        result = _decompressNone(
+          data,
+          inIndex + 1,
+          inBPR,
+          result,
+          resIndex,
+          resBPR,
+        );
         break;
       case _Type.sub:
-        result =
-            _deompressSub(data, inIndex + 1, inBPR, result, resIndex, resBPR);
+        result = _deompressSub(
+          data,
+          inIndex + 1,
+          inBPR,
+          result,
+          resIndex,
+          resBPR,
+        );
         break;
       case _Type.up:
-        result =
-            _decompressUp(data, inIndex + 1, inBPR, result, resIndex, resBPR);
+        result = _decompressUp(
+          data,
+          inIndex + 1,
+          inBPR,
+          result,
+          resIndex,
+          resBPR,
+        );
         break;
       case _Type.average:
         result = _decompressAverage(
-            data, inIndex + 1, inBPR, result, resIndex, resBPR);
+          data,
+          inIndex + 1,
+          inBPR,
+          result,
+          resIndex,
+          resBPR,
+        );
         break;
       case _Type.paeth:
         result = _decompressPaeth(
-            data, inIndex + 1, inBPR, result, resIndex, resBPR);
+          data,
+          inIndex + 1,
+          inBPR,
+          result,
+          resIndex,
+          resBPR,
+        );
         break;
-      // ignore: no_default_cases
-      default:
-        throw ArgumentError.value(type, 'Unsupported PNG filter');
     }
     return result;
   }
 
-  List<int> _decompressNone(List<int> data, int inIndex, int inBPR,
-      List<int> result, int resIndex, int resBPR) {
+  List<int> _decompressNone(
+    List<int> data,
+    int inIndex,
+    int inBPR,
+    List<int> result,
+    int resIndex,
+    int resBPR,
+  ) {
     for (int i = 1; i < inBPR; ++i) {
       result[resIndex] = data[inIndex];
       ++resIndex;
@@ -81,24 +122,36 @@ class PdfPngFilter {
     return result;
   }
 
-  List<int> _deompressSub(List<int> data, int inIndex, int inBPR,
-      List<int> result, int resIndex, int resBPR) {
+  List<int> _deompressSub(
+    List<int> data,
+    int inIndex,
+    int inBPR,
+    List<int> result,
+    int resIndex,
+    int resBPR,
+  ) {
     for (int i = 0; i < resBPR; ++i) {
-      result[resIndex] =
-          (data[inIndex] + ((i > 0) ? result[resIndex - 1] : 0)).toUnsigned(8);
+      result[resIndex] = (data[inIndex] + ((i > 0) ? result[resIndex - 1] : 0))
+          .toUnsigned(8);
       ++resIndex;
       ++inIndex;
     }
     return result;
   }
 
-  List<int> _decompressUp(List<int> data, int inIndex, int inBPR,
-      List<int> result, int resIndex, int resBPR) {
+  List<int> _decompressUp(
+    List<int> data,
+    int inIndex,
+    int inBPR,
+    List<int> result,
+    int resIndex,
+    int resBPR,
+  ) {
     int prevIndex = resIndex - resBPR;
     for (int i = 0; i < resBPR; ++i) {
-      result[resIndex] =
-          (data[inIndex] + ((prevIndex < 0) ? 0 : result[prevIndex]))
-              .toUnsigned(8);
+      result[resIndex] = (data[inIndex] +
+              ((prevIndex < 0) ? 0 : result[prevIndex]))
+          .toUnsigned(8);
       ++resIndex;
       ++inIndex;
       ++prevIndex;
@@ -106,8 +159,14 @@ class PdfPngFilter {
     return result;
   }
 
-  List<int> _decompressAverage(List<int> data, int inIndex, int inBPR,
-      List<int> result, int resIndex, int resBPR) {
+  List<int> _decompressAverage(
+    List<int> data,
+    int inIndex,
+    int inBPR,
+    List<int> result,
+    int resIndex,
+    int resBPR,
+  ) {
     int prevIndex = resIndex - resBPR;
     final List<int> previous = List<int>.filled(resBPR, 0, growable: true);
     for (int i = 0; i < resBPR; i++) {
@@ -117,8 +176,9 @@ class PdfPngFilter {
       if (prevIndex < 0) {
         result[resIndex] = (data[inIndex] + previous[resIndex]).toUnsigned(8);
       } else {
-        result[resIndex] =
-            (data[inIndex] + (result[prevIndex] / 2)).toInt().toUnsigned(8);
+        result[resIndex] = (data[inIndex] + (result[prevIndex] / 2))
+            .toInt()
+            .toUnsigned(8);
       }
       ++prevIndex;
       ++resIndex;
@@ -144,8 +204,14 @@ class PdfPngFilter {
     return result;
   }
 
-  List<int> _decompressPaeth(List<int> data, int inIndex, int inBPR,
-      List<int> result, int resIndex, int resBPR) {
+  List<int> _decompressPaeth(
+    List<int> data,
+    int inIndex,
+    int inBPR,
+    List<int> result,
+    int resIndex,
+    int resBPR,
+  ) {
     int prevIndex = resIndex - resBPR;
     for (int i = 0; i < resBPR; i++) {
       result[resIndex + i] = data[inIndex + i];
@@ -159,8 +225,8 @@ class PdfPngFilter {
       final int a = result[resIndex - bytesPerPixel] & 0xff;
       final int b = result[prevIndex] & 0xff;
       final int c = result[prevIndex - bytesPerPixel] & 0xff;
-      result[resIndex] =
-          (result[resIndex] + _paethPredictor(a, b, c)).toUnsigned(8);
+      result[resIndex] = (result[resIndex] + _paethPredictor(a, b, c))
+          .toUnsigned(8);
       ++resIndex;
       ++inIndex;
       ++prevIndex;
@@ -202,8 +268,15 @@ class PdfPngFilter {
 }
 
 //Delegates
-typedef _RowFilter = List<int> Function(List<int> data, int inIndex, int inBPR,
-    List<int> result, int resIndex, int resBPR);
+typedef _RowFilter =
+    List<int> Function(
+      List<int> data,
+      int inIndex,
+      int inBPR,
+      List<int> result,
+      int resIndex,
+      int resBPR,
+    );
 
 //Enum
 enum _Type { none, sub, up, average, paeth }

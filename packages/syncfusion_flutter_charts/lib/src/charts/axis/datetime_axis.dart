@@ -44,6 +44,8 @@ class DateTimeAxis extends ChartAxis {
     super.minorTicksPerInterval,
     super.maximumLabels,
     super.plotOffset,
+    super.plotOffsetStart,
+    super.plotOffsetEnd,
     super.majorTickLines,
     super.minorTickLines,
     super.majorGridLines,
@@ -79,9 +81,10 @@ class DateTimeAxis extends ChartAxis {
     super.axisLabelFormatter,
     this.onRendererCreated,
   }) : assert(
-            (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
-                autoScrollingDelta == null,
-            'Both properties have the same behavior to display the visible data points, use any one of the properties');
+         (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
+             autoScrollingDelta == null,
+         'Both properties have the same behavior to display the visible data points, use any one of the properties',
+       );
 
   /// Formats the date-time axis labels. The default data-time axis label can be
   /// formatted with various built-in date formats.
@@ -352,7 +355,9 @@ class DateTimeAxis extends ChartAxis {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderDateTimeAxis renderObject) {
+    BuildContext context,
+    RenderDateTimeAxis renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..dateFormat = dateFormat
@@ -515,11 +520,13 @@ class RenderDateTimeAxis extends RenderChartAxis {
     dynamic end = rangeController!.end;
     if (rangeController!.start is! DateTime) {
       start = DateTime.fromMillisecondsSinceEpoch(
-          (rangeController!.start as num).toInt());
+        (rangeController!.start as num).toInt(),
+      );
     }
     if (rangeController!.end is! DateTime) {
       end = DateTime.fromMillisecondsSinceEpoch(
-          (rangeController!.end as num).toInt());
+        (rangeController!.end as num).toInt(),
+      );
     }
     _updateVisibleMinMax(min: start, max: end);
   }
@@ -535,10 +542,12 @@ class RenderDateTimeAxis extends RenderChartAxis {
 
   @override
   void updateRangeControllerValues(DoubleRange newVisibleRange) {
-    final DateTime start =
-        DateTime.fromMillisecondsSinceEpoch(newVisibleRange.minimum.toInt());
-    final DateTime end =
-        DateTime.fromMillisecondsSinceEpoch(newVisibleRange.maximum.toInt());
+    final DateTime start = DateTime.fromMillisecondsSinceEpoch(
+      newVisibleRange.minimum.toInt(),
+    );
+    final DateTime end = DateTime.fromMillisecondsSinceEpoch(
+      newVisibleRange.maximum.toInt(),
+    );
     if (rangeController!.start != start) {
       rangeController!.start = start;
     }
@@ -551,11 +560,15 @@ class RenderDateTimeAxis extends RenderChartAxis {
   DoubleRange calculateActualRange() {
     if (minimum != null && maximum != null) {
       if (minimum == maximum) {
-        return DoubleRange(minimum!.millisecondsSinceEpoch - defaultTimeStamp,
-            maximum!.millisecondsSinceEpoch + defaultTimeStamp);
+        return DoubleRange(
+          minimum!.millisecondsSinceEpoch - defaultTimeStamp,
+          maximum!.millisecondsSinceEpoch + defaultTimeStamp,
+        );
       }
       return DoubleRange(
-          minimum!.millisecondsSinceEpoch, maximum!.millisecondsSinceEpoch);
+        minimum!.millisecondsSinceEpoch,
+        maximum!.millisecondsSinceEpoch,
+      );
     }
 
     final DoubleRange range = super.calculateActualRange();
@@ -575,9 +588,9 @@ class RenderDateTimeAxis extends RenderChartAxis {
 
   @override
   DoubleRange defaultRange() => DoubleRange(
-        DateTime(1970, 2).millisecondsSinceEpoch,
-        DateTime(1970, 6).millisecondsSinceEpoch,
-      );
+    DateTime(1970, 2).millisecondsSinceEpoch,
+    DateTime(1970, 6).millisecondsSinceEpoch,
+  );
 
   @override
   num calculateActualInterval(DoubleRange range, Size availableSize) {
@@ -587,8 +600,10 @@ class RenderDateTimeAxis extends RenderChartAxis {
   @override
   num calculateNiceInterval(num delta, Size availableSize) {
     if (intervalType == DateTimeIntervalType.auto) {
-      final num typeBasedInterval =
-          _calculateIntervalAndType(delta, availableSize);
+      final num typeBasedInterval = _calculateIntervalAndType(
+        delta,
+        availableSize,
+      );
       return interval ?? typeBasedInterval;
     }
 
@@ -636,8 +651,10 @@ class RenderDateTimeAxis extends RenderChartAxis {
     final num totalDays = (delta / perDay).abs();
 
     // For years.
-    num niceInterval =
-        super.calculateNiceInterval(totalDays / 365, availableSize);
+    num niceInterval = super.calculateNiceInterval(
+      totalDays / 365,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.years;
       return niceInterval.floor();
@@ -658,16 +675,20 @@ class RenderDateTimeAxis extends RenderChartAxis {
     }
 
     // For hours.
-    niceInterval =
-        super.calculateNiceInterval(totalDays * hours, availableSize);
+    niceInterval = super.calculateNiceInterval(
+      totalDays * hours,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.hours;
       return niceInterval.floor();
     }
 
     // For minutes.
-    niceInterval =
-        super.calculateNiceInterval(totalDays * hours * minutes, availableSize);
+    niceInterval = super.calculateNiceInterval(
+      totalDays * hours * minutes,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.minutes;
       return niceInterval.floor();
@@ -675,7 +696,9 @@ class RenderDateTimeAxis extends RenderChartAxis {
 
     // For seconds.
     niceInterval = super.calculateNiceInterval(
-        totalDays * hours * minutes * seconds, availableSize);
+      totalDays * hours * minutes * seconds,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.seconds;
       return niceInterval.floor();
@@ -683,7 +706,9 @@ class RenderDateTimeAxis extends RenderChartAxis {
 
     // For milliseconds.
     niceInterval = super.calculateNiceInterval(
-        totalDays * hours * minutes * seconds * milliseconds, availableSize);
+      totalDays * hours * minutes * seconds * milliseconds,
+      availableSize,
+    );
     if (niceInterval >= 1) {
       _visibleIntervalType = DateTimeIntervalType.milliseconds;
       return niceInterval.floor();
@@ -694,7 +719,10 @@ class RenderDateTimeAxis extends RenderChartAxis {
 
   @override
   DoubleRange updateAutoScrollingDelta(
-      int scrollingDelta, DoubleRange actualRange, DoubleRange visibleRange) {
+    int scrollingDelta,
+    DoubleRange actualRange,
+    DoubleRange visibleRange,
+  ) {
     if (initialVisibleMaximum != null || initialVisibleMinimum != null) {
       return visibleRange;
     }
@@ -702,32 +730,35 @@ class RenderDateTimeAxis extends RenderChartAxis {
         autoScrollingDeltaType == DateTimeIntervalType.auto
             ? _visibleIntervalType
             : autoScrollingDeltaType;
-    DateTime dateTime =
-        DateTime.fromMillisecondsSinceEpoch(visibleRange.maximum.toInt());
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
+      visibleRange.maximum.toInt(),
+    );
     switch (intervalType) {
       case DateTimeIntervalType.years:
         dateTime = DateTime(
-            dateTime.year - autoScrollingDelta!,
-            dateTime.month,
-            dateTime.day,
-            dateTime.hour,
-            dateTime.minute,
-            dateTime.second,
-            dateTime.millisecond,
-            dateTime.microsecond);
+          dateTime.year - autoScrollingDelta!,
+          dateTime.month,
+          dateTime.day,
+          dateTime.hour,
+          dateTime.minute,
+          dateTime.second,
+          dateTime.millisecond,
+          dateTime.microsecond,
+        );
         scrollingDelta =
             visibleRange.maximum.toInt() - dateTime.millisecondsSinceEpoch;
         break;
       case DateTimeIntervalType.months:
         dateTime = DateTime(
-            dateTime.year,
-            dateTime.month - autoScrollingDelta!,
-            dateTime.day,
-            dateTime.hour,
-            dateTime.minute,
-            dateTime.second,
-            dateTime.millisecond,
-            dateTime.microsecond);
+          dateTime.year,
+          dateTime.month - autoScrollingDelta!,
+          dateTime.day,
+          dateTime.hour,
+          dateTime.minute,
+          dateTime.second,
+          dateTime.millisecond,
+          dateTime.microsecond,
+        );
         scrollingDelta =
             visibleRange.maximum.toInt() - dateTime.millisecondsSinceEpoch;
         break;
@@ -751,18 +782,28 @@ class RenderDateTimeAxis extends RenderChartAxis {
         scrollingDelta = autoScrollingDelta!;
         break;
     }
-    return super
-        .updateAutoScrollingDelta(scrollingDelta, actualRange, visibleRange);
+    return super.updateAutoScrollingDelta(
+      scrollingDelta,
+      actualRange,
+      visibleRange,
+    );
   }
 
   @override
   DoubleRange applyRangePadding(
-      DoubleRange range, num interval, Size availableSize) {
+    DoubleRange range,
+    num interval,
+    Size availableSize,
+  ) {
     if (minimum == null && maximum == null) {
       final ChartRangePadding padding = effectiveRangePadding();
-      if (padding == ChartRangePadding.additional) {
+      if (padding == ChartRangePadding.additional ||
+          padding == ChartRangePadding.additionalStart ||
+          padding == ChartRangePadding.additionalEnd) {
         _addAdditionalRange(range, interval.toInt());
-      } else if (padding == ChartRangePadding.round) {
+      } else if (padding == ChartRangePadding.round ||
+          padding == ChartRangePadding.roundStart ||
+          padding == ChartRangePadding.roundEnd) {
         _roundRange(range, interval.toInt());
       }
     }
@@ -806,117 +847,219 @@ class RenderDateTimeAxis extends RenderChartAxis {
   }
 
   void _addAdditionalYear(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startYear = startDate.year;
     final int endYear = endDate.year;
-    range.minimum = DateTime(startYear - interval).millisecondsSinceEpoch;
-    range.maximum = DateTime(endYear + interval).millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalStart) {
+      range.minimum = DateTime(startYear - interval).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalEnd) {
+      range.maximum = DateTime(endYear + interval).millisecondsSinceEpoch;
+    }
   }
 
   void _addAdditionalMonth(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startMonth = startDate.month;
     final int endMonth = endDate.month;
-    range.minimum =
-        DateTime(startDate.year, startMonth - interval).millisecondsSinceEpoch;
-    range.maximum =
-        // TODO(Natrayan): Revisit the end month calculation.
-        DateTime(endDate.year, endMonth + interval, endMonth == 2 ? 28 : 30)
-            .millisecondsSinceEpoch;
+
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalStart) {
+      range.minimum =
+          DateTime(
+            startDate.year,
+            startMonth - interval,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalEnd) {
+      range.maximum =
+          // TODO(Natrayan): Revisit the end month calculation.
+          DateTime(
+            endDate.year,
+            endMonth + interval,
+            endMonth == 2 ? 28 : 30,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _addAdditionalDays(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startDay = startDate.day;
     final int endDay = endDate.day;
-    range.minimum =
-        DateTime(startDate.year, startDate.month, startDay - interval)
-            .millisecondsSinceEpoch;
-    range.maximum = DateTime(endDate.year, endDate.month, endDay + interval)
-        .millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.additionalStart ||
+        rangePadding == ChartRangePadding.additional) {
+      range.minimum =
+          DateTime(
+            startDate.year,
+            startDate.month,
+            startDay - interval,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalEnd) {
+      range.maximum =
+          DateTime(
+            endDate.year,
+            endDate.month,
+            endDay + interval,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _addAdditionalHours(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startHour = ((startDate.hour / interval) * interval).toInt();
     final int endHour = endDate.hour + (startDate.hour - startHour);
-    range.minimum = DateTime(startDate.year, startDate.month, startDate.day,
-            startHour - interval)
-        .millisecondsSinceEpoch;
-    range.maximum =
-        DateTime(endDate.year, endDate.month, endDate.day, endHour + interval)
-            .millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalStart) {
+      range.minimum =
+          DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+            startHour - interval,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalEnd) {
+      range.maximum =
+          DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            endHour + interval,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _addAdditionalMinutes(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startMinute = ((startDate.minute / interval) * interval).toInt();
     final int endMinute = endDate.minute + (startDate.minute - startMinute);
-    range.minimum = DateTime(startDate.year, startDate.month, startDate.day,
-            startDate.hour, startMinute - interval)
-        .millisecondsSinceEpoch;
-    range.maximum = DateTime(endDate.year, endDate.month, endDate.day,
-            endDate.hour, endMinute + interval)
-        .millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.additionalStart ||
+        rangePadding == ChartRangePadding.additional) {
+      range.minimum =
+          DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+            startDate.hour,
+            startMinute - interval,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalEnd) {
+      range.maximum =
+          DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            endDate.hour,
+            endMinute + interval,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _addAdditionalSeconds(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startSecond = ((startDate.second / interval) * interval).toInt();
     final int endSecond = endDate.second + (startDate.second - startSecond);
-    range.minimum = DateTime(startDate.year, startDate.month, startDate.day,
-            startDate.hour, startDate.minute, startSecond - interval)
-        .millisecondsSinceEpoch;
-    range.maximum = DateTime(endDate.year, endDate.month, endDate.day,
-            endDate.hour, endDate.minute, endSecond + interval)
-        .millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalStart) {
+      range.minimum =
+          DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+            startDate.hour,
+            startDate.minute,
+            startSecond - interval,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalEnd) {
+      range.maximum =
+          DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            endDate.hour,
+            endDate.minute,
+            endSecond + interval,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _addAdditionalMilliseconds(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startMilliSecond =
         ((startDate.millisecond / interval) * interval).toInt();
     final int endMilliSecond =
         endDate.millisecond + (startDate.millisecond - startMilliSecond);
-    range.minimum = DateTime(
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalStart) {
+      range.minimum =
+          DateTime(
             startDate.year,
             startDate.month,
             startDate.day,
             startDate.hour,
             startDate.minute,
             startDate.second,
-            startMilliSecond - interval)
-        .millisecondsSinceEpoch;
-    range.maximum = DateTime(
+            startMilliSecond - interval,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.additional ||
+        rangePadding == ChartRangePadding.additionalEnd) {
+      range.maximum =
+          DateTime(
             endDate.year,
             endDate.month,
             endDate.day,
             endDate.hour,
             endDate.minute,
             endDate.second,
-            endMilliSecond + interval)
-        .millisecondsSinceEpoch;
+            endMilliSecond + interval,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _roundRange(DoubleRange range, int interval) {
@@ -955,109 +1098,223 @@ class RenderDateTimeAxis extends RenderChartAxis {
   }
 
   void _roundYears(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startYear = startDate.year;
     final int endYear = endDate.year;
-    range.minimum = DateTime(startYear, 0, 0).millisecondsSinceEpoch;
-    range.maximum =
-        DateTime(endYear, 11, 30, 23, 59, 59).millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundStart) {
+      range.minimum = DateTime(startYear, 0, 0).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundEnd) {
+      range.maximum =
+          DateTime(endYear, 11, 30, 23, 59, 59).millisecondsSinceEpoch;
+    }
   }
 
   void _roundMonths(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startMonth = startDate.month;
     final int endMonth = endDate.month;
-    range.minimum =
-        DateTime(startDate.year, startMonth, 0).millisecondsSinceEpoch;
-    range.maximum = DateTime(endDate.year, endMonth,
-            DateTime(endDate.year, endDate.month, 0).day, 23, 59, 59)
-        .millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundStart) {
+      range.minimum =
+          DateTime(startDate.year, startMonth, 0).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundEnd) {
+      range.maximum =
+          DateTime(
+            endDate.year,
+            endMonth,
+            DateTime(endDate.year, endDate.month, 0).day,
+            23,
+            59,
+            59,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _roundDays(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startDay = startDate.day;
     final int endDay = endDate.day;
-    range.minimum = DateTime(startDate.year, startDate.month, startDay)
-        .millisecondsSinceEpoch;
-    range.maximum = DateTime(endDate.year, endDate.month, endDay, 23, 59, 59)
-        .millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundStart) {
+      range.minimum =
+          DateTime(
+            startDate.year,
+            startDate.month,
+            startDay,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundEnd) {
+      range.maximum =
+          DateTime(
+            endDate.year,
+            endDate.month,
+            endDay,
+            23,
+            59,
+            59,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _roundHours(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startHour = ((startDate.hour / interval) * interval).toInt();
-    range.minimum =
-        DateTime(startDate.year, startDate.month, startDate.day, startHour)
-            .millisecondsSinceEpoch;
-    range.maximum =
-        DateTime(endDate.year, endDate.month, endDate.day, startHour, 59, 59)
-            .millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundStart) {
+      range.minimum =
+          DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+            startHour,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundEnd) {
+      range.maximum =
+          DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            startHour,
+            59,
+            59,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _roundMinutes(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startMinute = ((startDate.minute / interval) * interval).toInt();
     final int endMinute = endDate.minute + (startDate.minute - startMinute);
-    range.minimum = DateTime(startDate.year, startDate.month, startDate.day,
-            startDate.hour, startMinute)
-        .millisecondsSinceEpoch;
-    range.maximum = DateTime(endDate.year, endDate.month, endDate.day,
-            endDate.hour, endMinute, 59)
-        .millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundStart) {
+      range.minimum =
+          DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+            startDate.hour,
+            startMinute,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundEnd) {
+      range.maximum =
+          DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            endDate.hour,
+            endMinute,
+            59,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _roundSeconds(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startSecond = ((startDate.second / interval) * interval).toInt();
     final int endSecond = endDate.second + (startDate.second - startSecond);
-    range.minimum = DateTime(startDate.year, startDate.month, startDate.day,
-            startDate.hour, startDate.minute, startSecond)
-        .millisecondsSinceEpoch;
-    range.maximum = DateTime(startDate.year, startDate.month, startDate.day,
-            startDate.hour, startDate.minute, endSecond)
-        .millisecondsSinceEpoch;
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundStart) {
+      range.minimum =
+          DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+            startDate.hour,
+            startDate.minute,
+            startSecond,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundEnd) {
+      range.maximum =
+          DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+            startDate.hour,
+            startDate.minute,
+            endSecond,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   void _roundMilliseconds(DoubleRange range, int interval) {
-    final DateTime startDate =
-        DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
-    final DateTime endDate =
-        DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+    final DateTime startDate = DateTime.fromMillisecondsSinceEpoch(
+      range.minimum.toInt(),
+    );
+    final DateTime endDate = DateTime.fromMillisecondsSinceEpoch(
+      range.maximum.toInt(),
+    );
     final int startMilliSecond =
         ((startDate.millisecond / interval) * interval).toInt();
     final int endMilliSecond =
         endDate.millisecond + (startDate.millisecond - startMilliSecond);
-    range.minimum = DateTime(
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundStart) {
+      range.minimum =
+          DateTime(
             startDate.year,
             startDate.month,
             startDate.day,
             startDate.hour,
             startDate.minute,
             startDate.second,
-            startMilliSecond)
-        .millisecondsSinceEpoch;
-    range.maximum = DateTime(endDate.year, endDate.month, endDate.day,
-            endDate.hour, endDate.minute, endDate.second, endMilliSecond)
-        .millisecondsSinceEpoch;
+            startMilliSecond,
+          ).millisecondsSinceEpoch;
+    }
+    if (rangePadding == ChartRangePadding.round ||
+        rangePadding == ChartRangePadding.roundEnd) {
+      range.maximum =
+          DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            endDate.hour,
+            endDate.minute,
+            endDate.second,
+            endMilliSecond,
+          ).millisecondsSinceEpoch;
+    }
   }
 
   @override
@@ -1067,8 +1324,7 @@ class RenderDateTimeAxis extends RenderChartAxis {
       return;
     }
 
-    final double extent =
-        labelsExtent ?? (maximumLabelWidth ?? double.maxFinite);
+    final double extent = maximumLabelWidth ?? double.maxFinite;
     final bool isRtl = textDirection == TextDirection.rtl;
     num current = visibleRange!.minimum;
     current = _niceStart(current);
@@ -1078,25 +1334,38 @@ class RenderDateTimeAxis extends RenderChartAxis {
     while (current <= visibleMaximum) {
       if (current < visibleMinimum ||
           !effectiveVisibleRange!.contains(current)) {
-        current = _nextDate(current, visibleInterval, visibleIntervalType)
-            .millisecondsSinceEpoch;
+        current =
+            _nextDate(
+              current,
+              visibleInterval,
+              visibleIntervalType,
+            ).millisecondsSinceEpoch;
         continue;
       }
 
-      final DateFormat niceDateFormat = dateFormat ??
+      final DateFormat niceDateFormat =
+          dateFormat ??
           dateTimeAxisLabelFormat(this, current, previous.toInt());
-      String text = niceDateFormat
-          .format(DateTime.fromMillisecondsSinceEpoch(current.toInt()));
+      String text = niceDateFormat.format(
+        DateTime.fromMillisecondsSinceEpoch(current.toInt()),
+      );
       if (labelFormat != null && labelFormat != '') {
         text = labelFormat!.replaceAll(RegExp('{value}'), text);
       }
 
       String callbackText = text;
-      TextStyle callbackTextStyle =
-          chartThemeData!.axisLabelTextStyle!.merge(labelStyle);
+      TextStyle callbackTextStyle = chartThemeData!.axisLabelTextStyle!.merge(
+        labelStyle,
+      );
       if (axisLabelFormatter != null) {
-        final AxisLabelRenderDetails details = AxisLabelRenderDetails(current,
-            callbackText, callbackTextStyle, this, visibleIntervalType, text);
+        final AxisLabelRenderDetails details = AxisLabelRenderDetails(
+          current,
+          callbackText,
+          callbackTextStyle,
+          this,
+          visibleIntervalType,
+          text,
+        );
         final ChartAxisLabel label = axisLabelFormatter!(details);
         callbackText = label.text;
         callbackTextStyle = callbackTextStyle.merge(label.textStyle);
@@ -1114,8 +1383,11 @@ class RenderDateTimeAxis extends RenderChartAxis {
         );
       }
 
-      textSize =
-          measureText(textAfterTrimming, callbackTextStyle, labelRotation);
+      textSize = measureText(
+        textAfterTrimming,
+        callbackTextStyle,
+        labelRotation,
+      );
       final bool isTextTrimmed = callbackText != textAfterTrimming;
       final AxisLabel label = AxisLabel(
         callbackTextStyle,
@@ -1130,8 +1402,12 @@ class RenderDateTimeAxis extends RenderChartAxis {
       if (isTextTrimmed) {
         hasTrimmedAxisLabel = true;
       }
-      current = _nextDate(current, visibleInterval, visibleIntervalType)
-          .millisecondsSinceEpoch;
+      current =
+          _nextDate(
+            current,
+            visibleInterval,
+            visibleIntervalType,
+          ).millisecondsSinceEpoch;
       if (previous == current) {
         return;
       }
@@ -1177,15 +1453,28 @@ class RenderDateTimeAxis extends RenderChartAxis {
         final int second =
             ((date.second / visibleInterval).floor() * visibleInterval).floor();
         date = DateTime(
-            date.year, date.month, date.day, date.hour, date.minute, second);
+          date.year,
+          date.month,
+          date.day,
+          date.hour,
+          date.minute,
+          second,
+        );
         break;
 
       case DateTimeIntervalType.milliseconds:
         final int millisecond =
             ((date.millisecond / visibleInterval).floor() * visibleInterval)
                 .floor();
-        date = DateTime(date.year, date.month, date.day, date.hour, date.minute,
-            date.second, millisecond);
+        date = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          date.hour,
+          date.minute,
+          date.second,
+          millisecond,
+        );
         break;
 
       case DateTimeIntervalType.auto:
@@ -1196,19 +1485,34 @@ class RenderDateTimeAxis extends RenderChartAxis {
   }
 
   DateTime _nextDate(
-      num current, num interval, DateTimeIntervalType intervalType) {
+    num current,
+    num interval,
+    DateTimeIntervalType intervalType,
+  ) {
     DateTime date = DateTime.fromMillisecondsSinceEpoch(current.toInt());
     final bool hasDecimalInterval = interval % 1 == 0;
     if (hasDecimalInterval) {
       final int effectiveInterval = interval.floor();
       switch (intervalType) {
         case DateTimeIntervalType.years:
-          return date = DateTime(date.year + effectiveInterval, date.month,
-              date.day, date.hour, date.minute, date.second);
+          return date = DateTime(
+            date.year + effectiveInterval,
+            date.month,
+            date.day,
+            date.hour,
+            date.minute,
+            date.second,
+          );
 
         case DateTimeIntervalType.months:
-          return date = DateTime(date.year, date.month + effectiveInterval,
-              date.day, date.hour, date.minute, date.second);
+          return date = DateTime(
+            date.year,
+            date.month + effectiveInterval,
+            date.day,
+            date.hour,
+            date.minute,
+            date.second,
+          );
 
         case DateTimeIntervalType.days:
           return date.add(Duration(days: effectiveInterval));
@@ -1232,12 +1536,13 @@ class RenderDateTimeAxis extends RenderChartAxis {
       switch (intervalType) {
         case DateTimeIntervalType.years:
           return date = DateTime(
-              date.year,
-              date.month + (interval * 12).floor(),
-              date.day,
-              date.hour,
-              date.minute,
-              date.second);
+            date.year,
+            date.month + (interval * 12).floor(),
+            date.day,
+            date.hour,
+            date.minute,
+            date.second,
+          );
 
         case DateTimeIntervalType.months:
           return date.add(Duration(days: (interval * 30).floor()));
@@ -1330,22 +1635,29 @@ class RenderDateTimeAxis extends RenderChartAxis {
 
     for (int i = 0; i < length; i++) {
       final DateTimeMultiLevelLabel label = multiLevelLabels![i];
-      assert(label.start.millisecondsSinceEpoch <=
-          label.end.millisecondsSinceEpoch);
-      _multilevelLabels.add(AxisMultilevelLabel(
+      assert(
+        label.start.millisecondsSinceEpoch <= label.end.millisecondsSinceEpoch,
+      );
+      _multilevelLabels.add(
+        AxisMultilevelLabel(
           label.text,
           label.level,
           label.start.millisecondsSinceEpoch,
-          label.end.millisecondsSinceEpoch));
+          label.end.millisecondsSinceEpoch,
+        ),
+      );
     }
 
-    _multilevelLabels.sort((AxisMultilevelLabel a, AxisMultilevelLabel b) =>
-        a.level.compareTo(b.level));
+    _multilevelLabels.sort(
+      (AxisMultilevelLabel a, AxisMultilevelLabel b) =>
+          a.level.compareTo(b.level),
+    );
 
-    final void Function(AxisMultilevelLabel label) add = invertElementsOrder
-        ? (AxisMultilevelLabel label) =>
-            visibleMultilevelLabels.insert(0, label)
-        : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
+    final void Function(AxisMultilevelLabel label) add =
+        invertElementsOrder
+            ? (AxisMultilevelLabel label) =>
+                visibleMultilevelLabels.insert(0, label)
+            : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
 
     final int labelsLength = _multilevelLabels.length;
     final TextStyle textStyle = chartThemeData!.axisMultiLevelLabelTextStyle!
@@ -1358,7 +1670,12 @@ class RenderDateTimeAxis extends RenderChartAxis {
         if (multiLevelLabelFormatter != null) {
           final MultiLevelLabelRenderDetails details =
               MultiLevelLabelRenderDetails(
-                  current.level, desiredText, desiredTextStyle, i, name);
+                current.level,
+                desiredText,
+                desiredTextStyle,
+                i,
+                name,
+              );
           final ChartAxisLabel label = multiLevelLabelFormatter!(details);
           desiredText = label.text;
           desiredTextStyle = textStyle.merge(label.textStyle);

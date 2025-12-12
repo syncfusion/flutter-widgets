@@ -21,9 +21,10 @@ class RadialGaugeScope extends InheritedWidget {
   static RadialGaugeScope of(BuildContext context) {
     late RadialGaugeScope scope;
 
-    final Widget widget = context
-        .getElementForInheritedWidgetOfExactType<RadialGaugeScope>()!
-        .widget;
+    final Widget widget =
+        context
+            .getElementForInheritedWidgetOfExactType<RadialGaugeScope>()!
+            .widget;
 
     if (widget is RadialGaugeScope) {
       scope = widget;

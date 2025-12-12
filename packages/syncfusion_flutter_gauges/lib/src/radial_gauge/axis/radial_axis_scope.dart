@@ -36,9 +36,10 @@ class RadialAxisScope extends InheritedWidget {
   static RadialAxisScope of(BuildContext context) {
     late RadialAxisScope scope;
 
-    final Widget widget = context
-        .getElementForInheritedWidgetOfExactType<RadialAxisScope>()!
-        .widget;
+    final Widget widget =
+        context
+            .getElementForInheritedWidgetOfExactType<RadialAxisScope>()!
+            .widget;
 
     if (widget is RadialAxisScope) {
       scope = widget;

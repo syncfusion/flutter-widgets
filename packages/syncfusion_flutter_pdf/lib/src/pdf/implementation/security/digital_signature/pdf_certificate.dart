@@ -82,16 +82,21 @@ class PdfCertificate {
   }
 
   void _loadDetails(X509Certificate certificate) {
-    _issuerName =
-        _getDistinguishedAttributes(certificate.c!.issuer.toString(), 'CN');
-    _subjectName =
-        _getDistinguishedAttributes(certificate.c!.subject.toString(), 'CN');
+    _issuerName = _getDistinguishedAttributes(
+      certificate.c!.issuer.toString(),
+      'CN',
+    );
+    _subjectName = _getDistinguishedAttributes(
+      certificate.c!.subject.toString(),
+      'CN',
+    );
     _validFrom = certificate.c!.startDate!.toDateTime();
     _validTo = certificate.c!.endDate!.toDateTime();
     _version = certificate.c!.version;
-    final List<int> serialNumber = <int>[]
-      // ignore: prefer_spread_collections
-      ..addAll(certificate.c!.serialNumber!.intValue!.reversed.toList());
+    final List<int> serialNumber =
+        <int>[]
+          // ignore: prefer_spread_collections
+          ..addAll(certificate.c!.serialNumber!.intValue!.reversed.toList());
     _serialNumber = serialNumber;
   }
 
@@ -144,8 +149,10 @@ class PdfCertificate {
   void _addStringToDictionary(String name, Map<String?, String?>? dictionary) {
     int index = name.indexOf('=');
     if (index > 0) {
-      final List<String?> keyNameArray =
-          List<String?>.generate(2, (int i) => null);
+      final List<String?> keyNameArray = List<String?>.generate(
+        2,
+        (int i) => null,
+      );
       keyNameArray[0] = name.substring(0, index).trimLeft().trimRight();
       index++;
       keyNameArray[1] =
@@ -172,7 +179,9 @@ class PdfCertificateHelper {
 
   /// internal method
   static void setPkcsCertificate(
-      PdfCertificate certificate, PdfPKCSCertificate pkcsCertificate) {
+    PdfCertificate certificate,
+    PdfPKCSCertificate pkcsCertificate,
+  ) {
     certificate._pkcsCertificate = pkcsCertificate;
   }
 }

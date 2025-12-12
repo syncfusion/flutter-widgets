@@ -654,7 +654,7 @@ class PlotBand {
       associatedAxisEnd,
       verticalTextAlignment,
       horizontalTextAlignment,
-      gradient
+      gradient,
     ];
     return Object.hashAll(values);
   }

@@ -40,8 +40,11 @@ class PdfZlibCompressor {
         int? numRead = 0;
         outputStream = <int>[];
         do {
-          final Map<String, dynamic> result =
-              deflateStream.read(buffer, 0, buffer.length);
+          final Map<String, dynamic> result = deflateStream.read(
+            buffer,
+            0,
+            buffer.length,
+          );
           numRead = result['count'] as int?;
           buffer = result['data'] as List<int>;
           for (int i = 0; i < numRead!; i++) {
@@ -84,8 +87,11 @@ class PdfAscii85Compressor {
       switch (c) {
         case 'z':
           if (count != 0) {
-            throw ArgumentError.value(c, 'c',
-                'The character "z" is invalid inside an ASCII85 block.');
+            throw ArgumentError.value(
+              c,
+              'c',
+              'The character "z" is invalid inside an ASCII85 block.',
+            );
           }
           _decodedBlock = List<int>.filled(4, 0, growable: true);
           for (int i = 0; i < _decodedBlock.length; i++) {

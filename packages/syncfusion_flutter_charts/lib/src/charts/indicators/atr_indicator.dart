@@ -46,19 +46,23 @@ class AtrIndicator<T, D> extends TechnicalIndicator<T, D> {
     this.period = 14,
     super.onRenderDetailsUpdate,
   }) : super(
-          xValueMapper: xValueMapper != null && dataSource != null
-              ? (int index) => xValueMapper(dataSource[index], index)
-              : null,
-          highValueMapper: highValueMapper != null && dataSource != null
-              ? (int index) => highValueMapper(dataSource[index], index)
-              : null,
-          lowValueMapper: lowValueMapper != null && dataSource != null
-              ? (int index) => lowValueMapper(dataSource[index], index)
-              : null,
-          closeValueMapper: closeValueMapper != null && dataSource != null
-              ? (int index) => closeValueMapper(dataSource[index], index)
-              : null,
-        );
+         xValueMapper:
+             xValueMapper != null && dataSource != null
+                 ? (int index) => xValueMapper(dataSource[index], index)
+                 : null,
+         highValueMapper:
+             highValueMapper != null && dataSource != null
+                 ? (int index) => highValueMapper(dataSource[index], index)
+                 : null,
+         lowValueMapper:
+             lowValueMapper != null && dataSource != null
+                 ? (int index) => lowValueMapper(dataSource[index], index)
+                 : null,
+         closeValueMapper:
+             closeValueMapper != null && dataSource != null
+                 ? (int index) => closeValueMapper(dataSource[index], index)
+                 : null,
+       );
 
   /// Period determines the start point for the rendering of
   /// technical indicators.
@@ -130,7 +134,7 @@ class AtrIndicator<T, D> extends TechnicalIndicator<T, D> {
       legendItemText,
       signalLineColor,
       signalLineWidth,
-      period
+      period,
     ];
     return Object.hashAll(values);
   }
@@ -172,7 +176,9 @@ class AtrIndicatorWidget extends IndicatorWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, AtrIndicatorRenderer renderObject) {
+    BuildContext context,
+    AtrIndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final AtrIndicator atr = indicator as AtrIndicator;
 
@@ -218,7 +224,7 @@ class AtrIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         <ChartIndexedValueMapper<num?>?>[
           lowValueMapper,
           highValueMapper,
-          closeValueMapper
+          closeValueMapper,
         ],
         <List<num>>[_lowValues, _highValues, _closeValues],
       );
@@ -278,7 +284,8 @@ class AtrIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       final num trueRange = max(range, lowClose);
       sum += trueRange;
       if (i >= period && period > 0) {
-        average = (averageOffsetValues[averageOffsetValues.length - 1].dy *
+        average =
+            (averageOffsetValues[averageOffsetValues.length - 1].dy *
                     (period - 1) +
                 trueRange) /
             period;
@@ -360,7 +367,7 @@ class AtrIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           text: trackballText(chartPoint, text),
           color: signalLineColor,
           segmentIndex: nearestPointIndex,
-        )
+        ),
       ];
     }
     return null;
@@ -423,8 +430,9 @@ class AtrIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         signalLineColor,
         dashArray,
       );
-      final TechnicalIndicatorRenderDetails details =
-          onRenderDetailsUpdate!(params);
+      final TechnicalIndicatorRenderDetails details = onRenderDetailsUpdate!(
+        params,
+      );
       strokePaint
         ..color = details.signalLineColor
         ..strokeWidth = details.signalLineWidth;
@@ -441,8 +449,12 @@ class AtrIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   void onPaint(PaintingContext context, Offset offset) {
     if (signalLinePoints.isNotEmpty) {
       context.canvas.save();
-      final Rect clip = clipRect(paintBounds, animationFactor,
-          isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+      final Rect clip = clipRect(
+        paintBounds,
+        animationFactor,
+        isInversed: xAxis!.isInversed,
+        isTransposed: isTransposed,
+      );
       context.canvas.clipRect(clip);
 
       final int length = signalLinePoints.length - 1;

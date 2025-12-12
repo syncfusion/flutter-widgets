@@ -6,8 +6,8 @@ typedef SparkChartIndexedValueMapper<R> = R Function(int index);
 /// Signature for the callback that returns the string value to override the
 /// default text format of trackball tooltip label.
 ///
-typedef SparkChartTooltipCallback<String> = String Function(
-    TooltipFormatterDetails details);
+typedef SparkChartTooltipCallback<String> =
+    String Function(TooltipFormatterDetails details);
 
 /// Displays the marker on the spark chart widget in different modes.
 enum SparkChartMarkerDisplayMode {
@@ -33,7 +33,7 @@ enum SparkChartMarkerDisplayMode {
 
   /// SparkChartMarkerDisplayMode.last allows displaying marker only on the last data
   /// points in the spark chart widget.
-  last
+  last,
 }
 
 /// Displays the marker in different types of shape.
@@ -52,7 +52,7 @@ enum SparkChartMarkerShape {
 
   /// SparkChartMarkerShape.invertedTriangle displays the marker in an inverted
   /// triangle shape
-  invertedTriangle
+  invertedTriangle,
 }
 
 /// Activates the trackball in different gestures.
@@ -93,7 +93,7 @@ enum SparkChartLabelDisplayMode {
 
   /// SparkChartLabelDisplayMode.first allows displaying data label only on the
   /// last data points in the spark chart widget.
-  last
+  last,
 }
 
 /// Passes as the argument in the `tooltipFormatter` callback of trackball.

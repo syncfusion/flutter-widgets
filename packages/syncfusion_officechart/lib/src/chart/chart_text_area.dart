@@ -1,4 +1,6 @@
-part of officechart;
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+
+import '../../officechart.dart';
 
 /// Represent the Chart Text Area.
 class ChartTextArea {
@@ -8,11 +10,11 @@ class ChartTextArea {
     if (_parent is Chart) {
       _chart = _parent as Chart;
     } else if (_parent is ChartCategoryAxis) {
-      _chart = (_parent as ChartCategoryAxis)._chart;
+      _chart = (_parent as ChartCategoryAxis).chart;
     } else if (_parent is ChartValueAxis) {
-      _chart = (_parent as ChartValueAxis)._chart;
+      _chart = (_parent as ChartValueAxis).chart;
     } else if (_parent is ChartSerie) {
-      _chart = (_parent as ChartSerie)._chart;
+      _chart = (_parent as ChartSerie).chart;
     }
     _createFont();
   }
@@ -85,6 +87,16 @@ class ChartTextArea {
   /// Indicates whether text area contains text.
   bool get _hasText {
     return text != null;
+  }
+
+  // ignore: public_member_api_docs
+  bool get hasText {
+    return _hasText;
+  }
+
+  // ignore: public_member_api_docs
+  bool get overlay {
+    return _overlay;
   }
 
   /// Create a new font.

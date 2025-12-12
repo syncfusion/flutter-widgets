@@ -58,22 +58,27 @@ class StochasticIndicator<T, D> extends TechnicalIndicator<T, D> {
     this.dPeriod = 5,
     super.onRenderDetailsUpdate,
   }) : super(
-          xValueMapper: xValueMapper != null && dataSource != null
-              ? (int index) => xValueMapper(dataSource[index], index)
-              : null,
-          highValueMapper: highValueMapper != null && dataSource != null
-              ? (int index) => highValueMapper(dataSource[index], index)
-              : null,
-          lowValueMapper: lowValueMapper != null && dataSource != null
-              ? (int index) => lowValueMapper(dataSource[index], index)
-              : null,
-          openValueMapper: openValueMapper != null && dataSource != null
-              ? (int index) => openValueMapper(dataSource[index], index)
-              : null,
-          closeValueMapper: closeValueMapper != null && dataSource != null
-              ? (int index) => closeValueMapper(dataSource[index], index)
-              : null,
-        );
+         xValueMapper:
+             xValueMapper != null && dataSource != null
+                 ? (int index) => xValueMapper(dataSource[index], index)
+                 : null,
+         highValueMapper:
+             highValueMapper != null && dataSource != null
+                 ? (int index) => highValueMapper(dataSource[index], index)
+                 : null,
+         lowValueMapper:
+             lowValueMapper != null && dataSource != null
+                 ? (int index) => lowValueMapper(dataSource[index], index)
+                 : null,
+         openValueMapper:
+             openValueMapper != null && dataSource != null
+                 ? (int index) => openValueMapper(dataSource[index], index)
+                 : null,
+         closeValueMapper:
+             closeValueMapper != null && dataSource != null
+                 ? (int index) => closeValueMapper(dataSource[index], index)
+                 : null,
+       );
 
   /// Show zones boolean value for stochastic indicator.
   ///
@@ -422,7 +427,7 @@ class StochasticIndicator<T, D> extends TechnicalIndicator<T, D> {
       periodLineColor,
       periodLineWidth,
       kPeriod,
-      dPeriod
+      dPeriod,
     ];
     return Object.hashAll(values);
   }
@@ -476,7 +481,9 @@ class StochasticIndicatorWidget extends IndicatorWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, StochasticIndicatorRenderer renderObject) {
+    BuildContext context,
+    StochasticIndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final StochasticIndicator stochastic = indicator as StochasticIndicator;
 
@@ -652,7 +659,7 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           highValueMapper,
           lowValueMapper,
           openValueMapper,
-          closeValueMapper
+          closeValueMapper,
         ],
         <List<num>>[_highValues, _lowValues, _openValues, _closeValues],
       );
@@ -717,18 +724,27 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   void _calculateStochasticIndicatorValues() {
     final List<Offset> source = _calculatePeriodValues(period, kPeriod.toInt());
     if (periodLineWidth > 0) {
-      _periodLineActualValues
-          .addAll(_calculateStochasticValues(period, kPeriod.toInt(), source));
+      _periodLineActualValues.addAll(
+        _calculateStochasticValues(period, kPeriod.toInt(), source),
+      );
     }
 
     if (signalLineWidth > 0) {
-      _signalLineActualValues.addAll(_calculateStochasticValues(
-          (period + kPeriod - 1).toInt(), dPeriod.toInt(), source));
+      _signalLineActualValues.addAll(
+        _calculateStochasticValues(
+          (period + kPeriod - 1).toInt(),
+          dPeriod.toInt(),
+          source,
+        ),
+      );
     }
   }
 
   List<Offset> _calculateStochasticValues(
-      int period, int kPeriod, List<Offset> data) {
+    int period,
+    int kPeriod,
+    List<Offset> data,
+  ) {
     final List<Offset> points = <Offset>[];
     final int dataLength = data.length;
     if (dataLength >= period + kPeriod && kPeriod > 0) {
@@ -842,11 +858,15 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   @override
   List<TrackballInfo>? trackballInfo(Offset position) {
     final List<TrackballInfo> trackballInfo = [];
-    final int stocasticPointIndex =
-        _findNearestPoint(signalLinePoints, position);
+    final int stocasticPointIndex = _findNearestPoint(
+      signalLinePoints,
+      position,
+    );
     if (stocasticPointIndex != -1) {
-      final CartesianChartPoint<D> stocasticPoint =
-          _chartPoint(stocasticPointIndex, 'stocastic');
+      final CartesianChartPoint<D> stocasticPoint = _chartPoint(
+        stocasticPointIndex,
+        'stocastic',
+      );
       final String stocasticText = defaultLegendItemText();
       trackballInfo.add(
         ChartTrackballInfo<T, D>(
@@ -865,8 +885,10 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     }
     final int periodPointIndex = _findNearestPoint(_periodLinePoints, position);
     if (periodPointIndex != -1) {
-      final CartesianChartPoint<D> periodPoint =
-          _chartPoint(periodPointIndex, 'periodLine');
+      final CartesianChartPoint<D> periodPoint = _chartPoint(
+        periodPointIndex,
+        'periodLine',
+      );
       trackballInfo.add(
         ChartTrackballInfo<T, D>(
           position: _periodLinePoints[periodPointIndex],
@@ -885,8 +907,10 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (showZones) {
       final int upperPointIndex = _findNearestPoint(_upperLinePoints, position);
       if (upperPointIndex != -1) {
-        final CartesianChartPoint<D> upperPoint =
-            _chartPoint(upperPointIndex, 'upperLine');
+        final CartesianChartPoint<D> upperPoint = _chartPoint(
+          upperPointIndex,
+          'upperLine',
+        );
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: _upperLinePoints[upperPointIndex],
@@ -904,8 +928,10 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       }
       final int lowerPointIndex = _findNearestPoint(_lowerLinePoints, position);
       if (lowerPointIndex != -1) {
-        final CartesianChartPoint<D> lowerPoint =
-            _chartPoint(lowerPointIndex, 'lowerLine');
+        final CartesianChartPoint<D> lowerPoint = _chartPoint(
+          lowerPointIndex,
+          'lowerLine',
+        );
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: _lowerLinePoints[lowerPointIndex],
@@ -966,27 +992,31 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
   CartesianChartPoint<D> _chartPoint(int pointIndex, String type) {
     return CartesianChartPoint<D>(
-        x: type == 'stocastic'
-            ? xRawValues[pointIndex +
-                (signalLinePoints.length - xRawValues.length).abs()]
-            : type == 'periodLine'
-                ? xRawValues[pointIndex +
-                    (_periodLinePoints.length - xRawValues.length).abs()]
-                : xRawValues[pointIndex],
-        xValue: type == 'stocastic'
-            ? xValues[pointIndex +
-                (signalLinePoints.length - xRawValues.length).abs()]
-            : type == 'periodLine'
-                ? xValues[pointIndex +
-                    (_periodLinePoints.length - xValues.length).abs()]
-                : xValues[pointIndex],
-        y: type == 'stocastic'
-            ? _signalLineActualValues[pointIndex].dy
-            : type == 'periodLine'
-                ? _periodLineActualValues[pointIndex].dy
-                : type == 'upperLine'
-                    ? _upperLineActualValues[pointIndex].dy
-                    : _lowerLineActualValues[pointIndex].dy);
+      x:
+          type == 'stocastic'
+              ? xRawValues[pointIndex +
+                  (signalLinePoints.length - xRawValues.length).abs()]
+              : type == 'periodLine'
+              ? xRawValues[pointIndex +
+                  (_periodLinePoints.length - xRawValues.length).abs()]
+              : xRawValues[pointIndex],
+      xValue:
+          type == 'stocastic'
+              ? xValues[pointIndex +
+                  (signalLinePoints.length - xRawValues.length).abs()]
+              : type == 'periodLine'
+              ? xValues[pointIndex +
+                  (_periodLinePoints.length - xValues.length).abs()]
+              : xValues[pointIndex],
+      y:
+          type == 'stocastic'
+              ? _signalLineActualValues[pointIndex].dy
+              : type == 'periodLine'
+              ? _periodLineActualValues[pointIndex].dy
+              : type == 'upperLine'
+              ? _upperLineActualValues[pointIndex].dy
+              : _lowerLineActualValues[pointIndex].dy,
+    );
   }
 
   @override
@@ -1020,8 +1050,10 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     for (int i = 0; i < dataCount; i++) {
       final num xValue = xValues[i];
-      final CartesianChartPoint<D> point =
-          CartesianChartPoint<D>(x: xRawValues[i], xValue: xValue);
+      final CartesianChartPoint<D> point = CartesianChartPoint<D>(
+        x: xRawValues[i],
+        xValue: xValue,
+      );
       for (int j = 0; j < yLength; j++) {
         point[positions[j]] = yLists[j][i];
       }
@@ -1060,8 +1092,9 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         for (int i = 0; i < length; i++) {
           final num x = _upperLineActualValues[i].dx;
           final num y = _upperLineActualValues[i].dy;
-          _upperLinePoints
-              .add(Offset(pointToPixelX(x, y), pointToPixelY(x, y)));
+          _upperLinePoints.add(
+            Offset(pointToPixelX(x, y), pointToPixelY(x, y)),
+          );
         }
       }
 
@@ -1070,8 +1103,9 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         for (int i = 0; i < length; i++) {
           final num x = _lowerLineActualValues[i].dx;
           final num y = _lowerLineActualValues[i].dy;
-          _lowerLinePoints
-              .add(Offset(pointToPixelX(x, y), pointToPixelY(x, y)));
+          _lowerLinePoints.add(
+            Offset(pointToPixelX(x, y), pointToPixelY(x, y)),
+          );
         }
       }
     }
@@ -1100,15 +1134,16 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (onRenderDetailsUpdate != null) {
       final StochasticIndicatorRenderParams params =
           StochasticIndicatorRenderParams(
-        _periodChartPoints,
-        chartPoints,
-        legendItemText ?? name ?? defaultLegendItemText(),
-        signalLineWidth,
-        signalLineColor,
-        dashArray,
+            _periodChartPoints,
+            chartPoints,
+            legendItemText ?? name ?? defaultLegendItemText(),
+            signalLineWidth,
+            signalLineColor,
+            dashArray,
+          );
+      final TechnicalIndicatorRenderDetails details = onRenderDetailsUpdate!(
+        params,
       );
-      final TechnicalIndicatorRenderDetails details =
-          onRenderDetailsUpdate!(params);
       strokePaint
         ..color = details.signalLineColor
         ..strokeWidth = details.signalLineWidth;
@@ -1126,8 +1161,12 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     int length = signalLinePoints.length - 1;
 
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
 
     strokePaint
@@ -1173,18 +1212,21 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       length = _upperLinePoints.length;
 
       _upperLinePath.moveTo(
-          _upperLinePoints.first.dx, _upperLinePoints.first.dy);
+        _upperLinePoints.first.dx,
+        _upperLinePoints.first.dy,
+      );
       for (int i = 1; i < length; i++) {
         _upperLinePath.lineTo(_upperLinePoints[i].dx, _upperLinePoints[i].dy);
       }
 
       drawDashes(
-          context.canvas,
-          _dashArray,
-          strokePaint
-            ..color = upperLineColor
-            ..strokeWidth = upperLineWidth,
-          path: _upperLinePath);
+        context.canvas,
+        _dashArray,
+        strokePaint
+          ..color = upperLineColor
+          ..strokeWidth = upperLineWidth,
+        path: _upperLinePath,
+      );
     }
 
     // Draw lower line.
@@ -1196,18 +1238,21 @@ class StochasticIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       length = _lowerLinePoints.length;
 
       _lowerLinePath.moveTo(
-          _lowerLinePoints.first.dx, _lowerLinePoints.first.dy);
+        _lowerLinePoints.first.dx,
+        _lowerLinePoints.first.dy,
+      );
       for (int i = 1; i < length; i++) {
         _lowerLinePath.lineTo(_lowerLinePoints[i].dx, _lowerLinePoints[i].dy);
       }
 
       drawDashes(
-          context.canvas,
-          _dashArray,
-          strokePaint
-            ..color = lowerLineColor
-            ..strokeWidth = lowerLineWidth,
-          path: _lowerLinePath);
+        context.canvas,
+        _dashArray,
+        strokePaint
+          ..color = lowerLineColor
+          ..strokeWidth = lowerLineWidth,
+        path: _lowerLinePath,
+      );
     }
 
     context.canvas.restore();

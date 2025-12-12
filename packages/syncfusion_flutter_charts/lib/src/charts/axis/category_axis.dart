@@ -46,6 +46,8 @@ class CategoryAxis extends ChartAxis {
     super.majorGridLines,
     super.labelStyle,
     super.plotOffset,
+    super.plotOffsetStart,
+    super.plotOffsetEnd,
     super.initialZoomFactor,
     super.initialZoomPosition,
     super.interactiveTooltip,
@@ -73,9 +75,10 @@ class CategoryAxis extends ChartAxis {
     super.axisLabelFormatter,
     this.onRendererCreated,
   }) : assert(
-            (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
-                autoScrollingDelta == null,
-            'Both properties have the same behavior to display the visible data points, use any one of the properties');
+         (initialVisibleMaximum == null && initialVisibleMinimum == null) ||
+             autoScrollingDelta == null,
+         'Both properties have the same behavior to display the visible data points, use any one of the properties',
+       );
 
   /// Position of the category axis labels.
   ///
@@ -319,7 +322,9 @@ class CategoryAxis extends ChartAxis {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderCategoryAxis renderObject) {
+    BuildContext context,
+    RenderCategoryAxis renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..labelPlacement = labelPlacement
@@ -460,8 +465,9 @@ class RenderCategoryAxis extends RenderChartAxis {
   @override
   num actualValue(Object value) {
     if (value is String) {
-      return super
-          .actualValue(_toIndex(value, defaultIndex: visibleRange!.minimum));
+      return super.actualValue(
+        _toIndex(value, defaultIndex: visibleRange!.minimum),
+      );
     }
 
     return super.actualValue(value);
@@ -490,12 +496,18 @@ class RenderCategoryAxis extends RenderChartAxis {
 
   @override
   DoubleRange updateAutoScrollingDelta(
-      int scrollingDelta, DoubleRange actualRange, DoubleRange visibleRange) {
+    int scrollingDelta,
+    DoubleRange actualRange,
+    DoubleRange visibleRange,
+  ) {
     if (initialVisibleMaximum != null || initialVisibleMinimum != null) {
       return visibleRange;
     }
-    return super
-        .updateAutoScrollingDelta(scrollingDelta, actualRange, visibleRange);
+    return super.updateAutoScrollingDelta(
+      scrollingDelta,
+      actualRange,
+      visibleRange,
+    );
   }
 
   @override
@@ -510,7 +522,10 @@ class RenderCategoryAxis extends RenderChartAxis {
 
   @override
   DoubleRange applyRangePadding(
-      DoubleRange range, num interval, Size availableSize) {
+    DoubleRange range,
+    num interval,
+    Size availableSize,
+  ) {
     if (labelPlacement == LabelPlacement.betweenTicks) {
       range.minimum -= 0.5;
       range.maximum += 0.5;
@@ -564,8 +579,7 @@ class RenderCategoryAxis extends RenderChartAxis {
       return;
     }
 
-    final double extent =
-        labelsExtent ?? (maximumLabelWidth ?? double.maxFinite);
+    final double extent = maximumLabelWidth ?? double.maxFinite;
     labels.clear();
     for (final AxisDependent dependent in dependents) {
       if (dependent is CartesianSeriesRenderer) {
@@ -625,18 +639,28 @@ class RenderCategoryAxis extends RenderChartAxis {
       }
 
       String callbackText = text;
-      TextStyle callbackTextStyle =
-          chartThemeData!.axisLabelTextStyle!.merge(labelStyle);
+      TextStyle callbackTextStyle = chartThemeData!.axisLabelTextStyle!.merge(
+        labelStyle,
+      );
       if (axisLabelFormatter != null) {
         final AxisLabelRenderDetails details = AxisLabelRenderDetails(
-            current, callbackText, callbackTextStyle, this, null, null);
+          current,
+          callbackText,
+          callbackTextStyle,
+          this,
+          null,
+          null,
+        );
         final ChartAxisLabel label = axisLabelFormatter!(details);
         callbackText = label.text;
         callbackTextStyle = callbackTextStyle.merge(label.textStyle);
       }
 
-      Size textSize =
-          measureText(callbackText, callbackTextStyle, labelRotation);
+      Size textSize = measureText(
+        callbackText,
+        callbackTextStyle,
+        labelRotation,
+      );
       String textAfterTrimming = callbackText;
       if (extent.isFinite && textSize.width > extent) {
         textAfterTrimming = trimmedText(
@@ -648,8 +672,11 @@ class RenderCategoryAxis extends RenderChartAxis {
         );
       }
 
-      textSize =
-          measureText(textAfterTrimming, callbackTextStyle, labelRotation);
+      textSize = measureText(
+        textAfterTrimming,
+        callbackTextStyle,
+        labelRotation,
+      );
       final bool isTextTrimmed = callbackText != textAfterTrimming;
       final AxisLabel label = AxisLabel(
         callbackTextStyle,
@@ -721,22 +748,30 @@ class RenderCategoryAxis extends RenderChartAxis {
         if (plotBand.isVisible) {
           final dynamic actualStart = plotBand.start;
           final dynamic actualEnd = plotBand.end;
-          final num min = actualStart != null
-              ? actualValue(
-                  _toIndex(actualStart, defaultIndex: visibleRange!.minimum))
-              : visibleRange!.minimum;
-          num max = actualEnd != null
-              ? actualValue(
-                  _toIndex(actualEnd, defaultIndex: visibleRange!.maximum))
-              : visibleRange!.maximum;
+          final num min =
+              actualStart != null
+                  ? actualValue(
+                    _toIndex(actualStart, defaultIndex: visibleRange!.minimum),
+                  )
+                  : visibleRange!.minimum;
+          num max =
+              actualEnd != null
+                  ? actualValue(
+                    _toIndex(actualEnd, defaultIndex: visibleRange!.maximum),
+                  )
+                  : visibleRange!.maximum;
 
           num extent;
           if (plotBand.isRepeatable) {
             extent = plotBand.repeatEvery;
             final dynamic actualRepeatUntil = plotBand.repeatUntil;
             if (actualRepeatUntil != null) {
-              max = actualValue(_toIndex(actualRepeatUntil,
-                  defaultIndex: visibleRange!.maximum));
+              max = actualValue(
+                _toIndex(
+                  actualRepeatUntil,
+                  defaultIndex: visibleRange!.maximum,
+                ),
+              );
               if (max > actualRange!.maximum) {
                 max = actualRange!.maximum;
               }
@@ -750,8 +785,13 @@ class RenderCategoryAxis extends RenderChartAxis {
           num current = min;
           if (plotBand.isRepeatable) {
             while (current < max) {
-              current =
-                  formPlotBandFrame(plotBand, current, extent, max, bounds);
+              current = formPlotBandFrame(
+                plotBand,
+                current,
+                extent,
+                max,
+                bounds,
+              );
             }
           } else {
             formPlotBandFrame(plotBand, current, extent, max, bounds);
@@ -783,17 +823,26 @@ class RenderCategoryAxis extends RenderChartAxis {
 
     for (int i = 0; i < length; i++) {
       final CategoricalMultiLevelLabel label = multiLevelLabels![i];
-      _multilevelLabels.add(AxisMultilevelLabel(label.text, label.level,
-          labels.indexOf(label.start), labels.indexOf(label.end)));
+      _multilevelLabels.add(
+        AxisMultilevelLabel(
+          label.text,
+          label.level,
+          labels.indexOf(label.start),
+          labels.indexOf(label.end),
+        ),
+      );
     }
 
-    _multilevelLabels.sort((AxisMultilevelLabel a, AxisMultilevelLabel b) =>
-        a.level.compareTo(b.level));
+    _multilevelLabels.sort(
+      (AxisMultilevelLabel a, AxisMultilevelLabel b) =>
+          a.level.compareTo(b.level),
+    );
 
-    final void Function(AxisMultilevelLabel label) add = invertElementsOrder
-        ? (AxisMultilevelLabel label) =>
-            visibleMultilevelLabels.insert(0, label)
-        : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
+    final void Function(AxisMultilevelLabel label) add =
+        invertElementsOrder
+            ? (AxisMultilevelLabel label) =>
+                visibleMultilevelLabels.insert(0, label)
+            : (AxisMultilevelLabel label) => visibleMultilevelLabels.add(label);
 
     final int labelsLength = _multilevelLabels.length;
     final TextStyle textStyle = chartThemeData!.axisMultiLevelLabelTextStyle!
@@ -806,7 +855,12 @@ class RenderCategoryAxis extends RenderChartAxis {
         if (multiLevelLabelFormatter != null) {
           final MultiLevelLabelRenderDetails details =
               MultiLevelLabelRenderDetails(
-                  current.level, desiredText, desiredTextStyle, i, name);
+                current.level,
+                desiredText,
+                desiredTextStyle,
+                i,
+                name,
+              );
           final ChartAxisLabel label = multiLevelLabelFormatter!(details);
           desiredText = label.text;
           desiredTextStyle = textStyle.merge(label.textStyle);

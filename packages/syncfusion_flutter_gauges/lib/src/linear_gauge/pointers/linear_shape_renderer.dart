@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/core.dart' as core;
@@ -31,29 +33,30 @@ class RenderLinearShapePointer extends RenderLinearPointerBase {
     VoidCallback? onAnimationCompleted,
     required LinearMarkerDragBehavior dragBehavior,
     AnimationController? animationController,
-  })  : _color = color,
-        _borderColor = borderColor,
-        _borderWidth = borderWidth,
-        _shapeType = shapeType,
-        _elevation = elevation,
-        _orientation = orientation,
-        _elevationColor = elevationColor,
-        _width = width,
-        _height = height,
-        super(
-            value: value,
-            onChanged: onChanged,
-            onChangeStart: onChangeStart,
-            onChangeEnd: onChangeEnd,
-            offset: offset,
-            position: position,
-            dragBehavior: dragBehavior,
-            markerAlignment: markerAlignment,
-            isMirrored: isMirrored,
-            isAxisInversed: isAxisInversed,
-            pointerAnimation: pointerAnimation,
-            animationController: animationController,
-            onAnimationCompleted: onAnimationCompleted) {
+  }) : _color = color,
+       _borderColor = borderColor,
+       _borderWidth = borderWidth,
+       _shapeType = shapeType,
+       _elevation = elevation,
+       _orientation = orientation,
+       _elevationColor = elevationColor,
+       _width = width,
+       _height = height,
+       super(
+         value: value,
+         onChanged: onChanged,
+         onChangeStart: onChangeStart,
+         onChangeEnd: onChangeEnd,
+         offset: offset,
+         position: position,
+         dragBehavior: dragBehavior,
+         markerAlignment: markerAlignment,
+         isMirrored: isMirrored,
+         isAxisInversed: isAxisInversed,
+         pointerAnimation: pointerAnimation,
+         animationController: animationController,
+         onAnimationCompleted: onAnimationCompleted,
+       ) {
     _shapePaint = Paint();
     _borderPaint = Paint();
   }
@@ -230,7 +233,10 @@ class RenderLinearShapePointer extends RenderLinearPointerBase {
 
   @override
   void performLayout() {
-    size = Size(width, height);
+    size = Size(
+      min(width, constraints.maxWidth),
+      min(height, constraints.maxHeight),
+    );
   }
 
   @override
@@ -243,10 +249,11 @@ class RenderLinearShapePointer extends RenderLinearPointerBase {
     if (pointerAnimation == null ||
         (pointerAnimation != null && pointerAnimation!.value > 0)) {
       _shapeRect = Rect.fromLTWH(
-          offset.dx + borderWidth / 2,
-          offset.dy + borderWidth / 2,
-          size.width - borderWidth,
-          size.height - borderWidth);
+        offset.dx + borderWidth / 2,
+        offset.dy + borderWidth / 2,
+        size.width - borderWidth,
+        size.height - borderWidth,
+      );
 
       _shapePaint.style = PaintingStyle.fill;
       _shapePaint.color = color;
@@ -294,19 +301,17 @@ class RenderLinearShapePointer extends RenderLinearPointerBase {
         case LinearShapePointerType.diamond:
           markerType = core.ShapeMarkerType.diamond;
           break;
-        // ignore: no_default_cases
-        default:
-          break;
       }
 
       core.paint(
-          canvas: canvas,
-          rect: _shapeRect,
-          elevation: elevation,
-          shapeType: markerType,
-          elevationColor: elevationColor,
-          paint: _shapePaint,
-          borderPaint: _borderPaint);
+        canvas: canvas,
+        rect: _shapeRect,
+        elevation: elevation,
+        shapeType: markerType,
+        elevationColor: elevationColor,
+        paint: _shapePaint,
+        borderPaint: _borderPaint,
+      );
     }
   }
 }

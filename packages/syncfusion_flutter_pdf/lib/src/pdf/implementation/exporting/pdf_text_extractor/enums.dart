@@ -7,5 +7,5 @@ enum TextSearchOption {
   caseSensitive,
 
   /// Searches words with both the case sensitive and whole word.
-  both
+  both,
 }

@@ -4,6 +4,7 @@ import '../../../interfaces/pdf_interface.dart';
 import '../../drawing/drawing.dart';
 import '../../io/pdf_constants.dart';
 import '../../io/pdf_cross_table.dart';
+import '../../pages/pdf_page.dart';
 import '../../primitives/pdf_array.dart';
 import '../../primitives/pdf_dictionary.dart';
 import '../../primitives/pdf_name.dart';
@@ -47,50 +48,71 @@ class PdfTemplate implements IPdfWrapper {
     _helper = PdfTemplateHelper(this);
     _helper.content = PdfStream();
     _setSize(width, height);
-    _helper.content[PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.xObject);
-    _helper.content[PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.form);
+    _helper.content[PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.xObject,
+    );
+    _helper.content[PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.form,
+    );
   }
 
   PdfTemplate._fromRect(Rect bounds) {
     _helper = PdfTemplateHelper(this);
     _helper.content = PdfStream();
     _setBounds(bounds);
-    _helper.content[PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.xObject);
-    _helper.content[PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.form);
+    _helper.content[PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.xObject,
+    );
+    _helper.content[PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.form,
+    );
   }
 
   PdfTemplate._fromPdfStream(PdfStream template) {
     _helper = PdfTemplateHelper(this);
     _helper.content = template;
-    final IPdfPrimitive obj = PdfCrossTable.dereference(
-        _helper.content[PdfDictionaryProperties.bBox])!;
+    final IPdfPrimitive obj =
+        PdfCrossTable.dereference(
+          _helper.content[PdfDictionaryProperties.bBox],
+        )!;
     final PdfRectangle rect = (obj as PdfArray).toRectangle();
     _size = rect.size;
     _helper.isReadonly = true;
   }
 
-  PdfTemplate._(Offset origin, Size size, List<int> stream,
-      PdfDictionary resources, bool isLoadedPage)
-      : super() {
+  PdfTemplate._(
+    Offset origin,
+    Size size,
+    List<int> stream,
+    PdfDictionary resources,
+    bool isLoadedPage,
+    PdfPageHelper page,
+  ) : super() {
     _helper = PdfTemplateHelper(this);
     if (size == Size.zero) {
       throw ArgumentError.value(
-          size, 'size', 'The size of the new PdfTemplate cannot be empty.');
+        size,
+        'size',
+        'The size of the new PdfTemplate cannot be empty.',
+      );
     }
     _helper.content = PdfStream();
-    if (origin.dx < 0 || origin.dy < 0) {
-      _setSize(size.width, size.height, origin);
+    if (page.cropBox.left > 0 && page.cropBox.top > 0) {
+      _setBounds(page.cropBox);
+      _helper._origin = Offset(page.cropBox.left, page.cropBox.top);
+      _setSize(page.cropBox.right, page.cropBox.bottom, _helper._origin);
     } else {
-      _setSize(size.width, size.height);
+      if (origin.dx < 0 || origin.dy < 0) {
+        _setSize(size.width, size.height, origin);
+      } else {
+        _setSize(size.width, size.height);
+      }
     }
     _initialize();
     _helper.content.dataStream!.addAll(stream);
-    _helper.content[PdfDictionaryProperties.resources] =
-        PdfDictionary(resources);
+    _helper.content[PdfDictionaryProperties.resources] = PdfDictionary(
+      resources,
+    );
     _helper._resources = PdfResources(resources);
     _helper.isLoadedPageTemplate = isLoadedPage;
     _helper.isReadonly = true;
@@ -207,14 +229,19 @@ class PdfTemplate implements IPdfWrapper {
 
   void _setSize(double width, double height, [Offset? origin]) {
     if (origin != null) {
-      final PdfArray array =
-          PdfArray(<double>[origin.dx, origin.dy, width, height]);
+      final PdfArray array = PdfArray(<double>[
+        origin.dx,
+        origin.dy,
+        width,
+        height,
+      ]);
       _helper.content[PdfDictionaryProperties.bBox] = array;
       _size = PdfSize(width, height);
     } else {
       final PdfRectangle rectangle = PdfRectangle(0, 0, width, height);
-      _helper.content[PdfDictionaryProperties.bBox] =
-          PdfArray.fromRectangle(rectangle);
+      _helper.content[PdfDictionaryProperties.bBox] = PdfArray.fromRectangle(
+        rectangle,
+      );
       _size = PdfSize(width, height);
     }
   }
@@ -227,10 +254,12 @@ class PdfTemplate implements IPdfWrapper {
   }
 
   void _initialize() {
-    _helper.content[PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.xObject);
-    _helper.content[PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.form);
+    _helper.content[PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.xObject,
+    );
+    _helper.content[PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.form,
+    );
   }
 }
 
@@ -254,6 +283,7 @@ class PdfTemplateHelper {
   /// internal field
   bool isLoadedPageTemplate = false;
   PdfResources? _resources;
+  Offset _origin = Offset.zero;
 
   /// internal method
   static PdfTemplateHelper getHelper(PdfTemplate template) {
@@ -269,6 +299,8 @@ class PdfTemplateHelper {
     }
   }
 
+  Offset get origin => _origin;
+
   /// internal method
   static PdfTemplate fromRect(Rect bounds) {
     return PdfTemplate._fromRect(bounds);
@@ -280,9 +312,15 @@ class PdfTemplateHelper {
   }
 
   /// internal method
-  static PdfTemplate internal(Offset origin, Size size, List<int> stream,
-      PdfDictionary resources, bool isLoadedPage) {
-    return PdfTemplate._(origin, size, stream, resources, isLoadedPage);
+  static PdfTemplate internal(
+    Offset origin,
+    Size size,
+    List<int> stream,
+    PdfDictionary resources,
+    bool isLoadedPage,
+    PdfPageHelper page,
+  ) {
+    return PdfTemplate._(origin, size, stream, resources, isLoadedPage, page);
   }
 
   /// internal method

@@ -1,4 +1,25 @@
-part of xlsio;
+import 'package:intl/intl.dart';
+
+import '../calculate/calc_engine.dart';
+import '../calculate/formula_info.dart';
+import '../cell_styles/cell_style.dart';
+import '../cell_styles/cell_style_wrapper.dart';
+import '../cell_styles/style.dart';
+import '../conditional_format/conditionalformat_collections.dart';
+import '../datavalidation/datavalidation.dart';
+import '../datavalidation/datavalidation_impl.dart';
+import '../datavalidation/datavalidation_table.dart';
+import '../datavalidation/datavalidation_wrapper.dart';
+import '../formats/format.dart';
+import '../formats/format_parser.dart';
+import '../general/autofit_manager.dart';
+import '../general/culture_info.dart';
+import '../general/enums.dart';
+import '../general/workbook.dart';
+import '../range/column.dart';
+import '../range/row.dart';
+import '../range/row_collection.dart';
+import '../worksheet/worksheet.dart';
 
 /// Represent the Range
 class Range {
@@ -27,7 +48,7 @@ class Range {
   CellType type = CellType.blank;
 
   /// Represents the save type.
-  String _saveType = '';
+  String saveType = '';
   String? _formula;
   double? _number;
   String? _text;
@@ -36,24 +57,24 @@ class Range {
   Style? _cellStyle;
 
   /// Represent the index of the Range.
-  late int _index;
-  int _textIndex = -1;
+  late int index;
+  int textIndex = -1;
   late Worksheet _worksheet;
   // ignore: prefer_final_fields
-  int _styleIndex = -1;
+  int styleIndex = -1;
   BuiltInStyles? _builtInStyle;
   String _styleName = '';
   List<Range> _cells = <Range>[];
   bool _bCells = false;
-  String _boolean = '';
-  String _errorValue = '';
-  late String _cfValue;
+  String boolean = '';
+  String errorValue = '';
+  late String conditionalFormatValue;
 
   /// Represents the variable store single and multiple range values
-  late String _dvValue;
+  late String dataValidationValue;
 
   /// Represents a variable used for checking whether dataValidation wrapper is null
-  _DataValidationWrapper? _dataValidationWrapper;
+  DataValidationWrapper? _dataValidationWrapper;
 
   /// Represents the row span.
   int _rowSpan = 0;
@@ -74,14 +95,14 @@ class Range {
   static const String _defaultOpenBrace = '(';
 
   ///Equivalent symbol for formula.
-  static const String _defaultEquivalent = '=';
+  static const String equalsSign = '=';
 
   /// A boolean variable that indicates if display text of this range is called from AutoFitColumns().
   // ignore: prefer_final_fields
-  bool _bAutofitText = false;
+  bool isAutoFitText = false;
 
   /// Checks whether Range is a part of merged Range.
-  bool get _isMerged {
+  bool get isMerged {
     return rowSpan != 0 || columnSpan != 0;
   }
 
@@ -273,8 +294,12 @@ class Range {
     if (formula != null) {
       if (worksheet.calcEngine != null) {
         final String cellRef = _getAddressLocalFromCalculatedValue(
-            row, column, lastRow, lastColumn);
-        return worksheet.calcEngine!._pullUpdatedValue(cellRef);
+          row,
+          column,
+          lastRow,
+          lastColumn,
+        );
+        return worksheet.calcEngine!.pullUpdatedValue(cellRef);
       }
       return null;
     } else {
@@ -286,10 +311,11 @@ class Range {
   String? get numberFormat {
     String? format;
     if (isSingleRange) {
-      if (!workbook._saving)
+      if (!workbook.isSaving) {
         format = (cellStyle as CellStyle).numberFormat;
-      else if (_cellStyle != null)
+      } else if (_cellStyle != null) {
         format = (_cellStyle! as CellStyle).numberFormat;
+      }
     }
 
     if (format == null) {
@@ -318,7 +344,7 @@ class Range {
       }
 
       format = _checkForAccountingString(format);
-      format.replaceAllMapped(_FormatParser._numberFormatRegex, (Match match) {
+      format.replaceAllMapped(FormatParser.numberFormatRegex, (Match match) {
         return '';
       });
     }
@@ -348,9 +374,11 @@ class Range {
       // ignore: prefer_final_locals
       for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
         // ignore: prefer_final_locals
-        for (int iCol = column, iLastCol = lastColumn;
-            iCol <= iLastCol;
-            iCol++) {
+        for (
+          int iCol = column, iLastCol = lastColumn;
+          iCol <= iLastCol;
+          iCol++
+        ) {
           worksheet.getRangeByIndex(iRow, iCol).numberFormat = value;
         }
       }
@@ -358,10 +386,10 @@ class Range {
   }
 
   /// Gets number format object corresponding to this Range. Read-only.
-  _Format get _innerNumberFormat {
+  Format get _innerNumberFormat {
     int iFormatIndex = cellStyle.numberFormatIndex;
     if (workbook.innerFormats.count > 14 &&
-        !workbook.innerFormats._contains(iFormatIndex)) {
+        !workbook.innerFormats.contains(iFormatIndex)) {
       iFormatIndex = 14;
     }
     return workbook.innerFormats[iFormatIndex];
@@ -390,17 +418,25 @@ class Range {
   /// ```
   Style get cellStyle {
     if (isSingleRange) {
-      if (_cellStyle == null && !workbook._saving) {
+      if (_cellStyle == null && !workbook.isSaving) {
         _cellStyle = CellStyle(workbook);
         _setRange();
       } else if (_cellStyle != null &&
-          !workbook._saving &&
+          !workbook.isSaving &&
           (_cellStyle! as CellStyle).isGlobalStyle) {
-        _cellStyle = (_cellStyle! as CellStyle)._clone();
+        _cellStyle = (_cellStyle! as CellStyle).clone();
       }
       return _cellStyle!;
     }
     return CellStyleWrapper(this);
+  }
+
+  // ignore: public_member_api_docs
+  bool get hasCellStyle {
+    if (_cellStyle != null) {
+      return true;
+    }
+    return false;
   }
 
   /// Sets the cell style.
@@ -419,15 +455,17 @@ class Range {
   /// ```
   set cellStyle(Style value) {
     if (isSingleRange) {
-      _cellStyle = (value as CellStyle)._clone();
+      _cellStyle = (value as CellStyle).clone();
       _setRange();
     } else {
       // ignore: prefer_final_locals
       for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
         // ignore: prefer_final_locals
-        for (int iCol = column, iLastCol = lastColumn;
-            iCol <= iLastCol;
-            iCol++) {
+        for (
+          int iCol = column, iLastCol = lastColumn;
+          iCol <= iLastCol;
+          iCol++
+        ) {
           final Range range = worksheet.getRangeByIndex(iRow, iCol);
           range._cellStyle = value;
           range._setRange();
@@ -519,9 +557,11 @@ class Range {
       // ignore: prefer_final_locals
       for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
         // ignore: prefer_final_locals
-        for (int iCol = column, iLastCol = lastColumn;
-            iCol <= iLastCol;
-            iCol++) {
+        for (
+          int iCol = column, iLastCol = lastColumn;
+          iCol <= iLastCol;
+          iCol++
+        ) {
           worksheet.getRangeByIndex(iRow, iCol).rowHeight = value;
         }
       }
@@ -561,16 +601,18 @@ class Range {
       // ignore: prefer_final_locals
       for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
         // ignore: prefer_final_locals
-        for (int iCol = column, iLastCol = lastColumn;
-            iCol <= iLastCol;
-            iCol++) {
+        for (
+          int iCol = column, iLastCol = lastColumn;
+          iCol <= iLastCol;
+          iCol++
+        ) {
           worksheet.getRangeByIndex(iRow, iCol).columnWidth = value;
         }
       }
     }
   }
 
-  /// Gets a <see cref='Range'/> object that represents the cells in the Range.Read-only.
+  /// Gets a see cref='Range object that represents the cells in the Range.Read-only.
   ///
   /// ```dart
   /// Workbook workbook = new Workbook();
@@ -599,7 +641,7 @@ class Range {
     final RowCollection rows = worksheet.rows;
     if (rows[row] != null) {
       currRow = rows[row];
-      currRow!.ranges[column] = this;
+      currRow?.ranges[column] = this;
     } else {
       currRow = Row(worksheet);
       currRow.index = row;
@@ -627,7 +669,7 @@ class Range {
         row1.index = row;
         worksheet.rows[row] = row1;
       }
-      row1._isHidden = !isVisible!;
+      row1.isHidden = !isVisible!;
     } else {
       for (int rowIndex = row; rowIndex <= lastRow; rowIndex++) {
         Row? row1 = _worksheet.rows[rowIndex];
@@ -636,7 +678,7 @@ class Range {
           row1.index = rowIndex;
           worksheet.rows[rowIndex] = row1;
         }
-        row1._isHidden = !isVisible!;
+        row1.isHidden = !isVisible!;
       }
     }
   }
@@ -660,7 +702,7 @@ class Range {
         column1.index = column;
         worksheet.columns[column] = column1;
       }
-      column1._isHidden = !isVisible!;
+      column1.isHidden = !isVisible!;
     } else {
       for (int columnIndex = column; columnIndex <= lastColumn; columnIndex++) {
         Column? column1 = _worksheet.columns[columnIndex];
@@ -669,7 +711,7 @@ class Range {
           column1.index = column;
           worksheet.columns[columnIndex] = column1;
         }
-        column1._isHidden = !isVisible!;
+        column1.isHidden = !isVisible!;
       }
     }
   }
@@ -705,15 +747,17 @@ class Range {
     if (isSingleRange) {
       _number = number;
       type = CellType.number;
-      _saveType = 'n';
+      saveType = 'n';
       _setRange();
     } else {
       // ignore: prefer_final_locals
       for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
         // ignore: prefer_final_locals
-        for (int iCol = column, iLastCol = lastColumn;
-            iCol <= iLastCol;
-            iCol++) {
+        for (
+          int iCol = column, iLastCol = lastColumn;
+          iCol <= iLastCol;
+          iCol++
+        ) {
           worksheet.getRangeByIndex(iRow, iCol).number = number;
         }
       }
@@ -753,18 +797,18 @@ class Range {
   void setText(String? text) {
     if (text != null) {
       int sharedStringIndex = 0;
-      if (workbook._sharedStrings.containsKey(text)) {
-        sharedStringIndex = workbook._sharedStrings[text]!;
+      if (workbook.sharedStrings.containsKey(text)) {
+        sharedStringIndex = workbook.sharedStrings[text]!;
       } else {
-        sharedStringIndex = workbook._sharedStrings.length;
-        workbook._sharedStrings[text] = sharedStringIndex;
-        workbook._sharedStringCount++;
+        sharedStringIndex = workbook.sharedStrings.length;
+        workbook.sharedStrings[text] = sharedStringIndex;
+        workbook.sharedStringCount++;
       }
       if (isSingleRange) {
         _text = text;
         type = CellType.text;
-        _saveType = 's';
-        _textIndex = sharedStringIndex;
+        saveType = 's';
+        textIndex = sharedStringIndex;
         _setRange();
         if (text.contains('\n')) {
           worksheet.getRangeByIndex(row, column).cellStyle.wrapText = true;
@@ -773,9 +817,11 @@ class Range {
         // ignore: prefer_final_locals
         for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
           // ignore: prefer_final_locals
-          for (int iCol = column, iLastCol = lastColumn;
-              iCol <= iLastCol;
-              iCol++) {
+          for (
+            int iCol = column, iLastCol = lastColumn;
+            iCol <= iLastCol;
+            iCol++
+          ) {
             worksheet.getRangeByIndex(iRow, iCol).text = text;
             if (text.contains('\n')) {
               worksheet.getRangeByIndex(iRow, iCol).cellStyle.wrapText = true;
@@ -816,19 +862,18 @@ class Range {
   /// workbook.dispose();
   /// ```
   void freezePanes() {
-    worksheet._isfreezePane = true;
-    worksheet._horizontalSplit = row - 1;
-    worksheet._verticalSplit = column - 1;
-    worksheet._topLeftCell =
-        worksheet.getRangeByIndex(row, column).addressLocal;
+    worksheet.isFreezePane = true;
+    worksheet.horizontalSplit = row - 1;
+    worksheet.verticalSplit = column - 1;
+    worksheet.topLeftCell = worksheet.getRangeByIndex(row, column).addressLocal;
     if (row > 1 && column > 1) {
-      worksheet._activePane = _ActivePane.bottomRight;
+      worksheet.activePane = ActivePane.bottomRight;
     } else if (row > 1 && column <= 1) {
-      worksheet._activePane = _ActivePane.bottomLeft;
+      worksheet.activePane = ActivePane.bottomLeft;
     } else if (row <= 1 && column > 1) {
-      worksheet._activePane = _ActivePane.topRight;
+      worksheet.activePane = ActivePane.topRight;
     } else {
-      worksheet._activePane = _ActivePane.topLeft;
+      worksheet.activePane = ActivePane.topLeft;
     }
   }
 
@@ -863,19 +908,21 @@ class Range {
         _cellStyle!.numberFormatIndex = 14;
       }
       if (isSingleRange) {
-        _number = _toOADate(dateTime);
+        _number = toOADate(dateTime);
         _dateTime = dateTime;
         type = CellType.dateTime;
         _cellStyle = _cellStyle;
-        _saveType = 'n';
+        saveType = 'n';
         _setRange();
       } else {
         // ignore: prefer_final_locals
         for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
           // ignore: prefer_final_locals
-          for (int iCol = column, iLastCol = lastColumn;
-              iCol <= iLastCol;
-              iCol++) {
+          for (
+            int iCol = column, iLastCol = lastColumn;
+            iCol <= iLastCol;
+            iCol++
+          ) {
             worksheet.getRangeByIndex(iRow, iCol).dateTime = dateTime;
           }
         }
@@ -937,9 +984,11 @@ class Range {
         // ignore: prefer_final_locals
         for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
           // ignore: prefer_final_locals
-          for (int iCol = column, iLastCol = lastColumn;
-              iCol <= iLastCol;
-              iCol++) {
+          for (
+            int iCol = column, iLastCol = lastColumn;
+            iCol <= iLastCol;
+            iCol++
+          ) {
             worksheet.getRangeByIndex(iRow, iCol).formula = formula;
           }
         }
@@ -990,9 +1039,11 @@ class Range {
         // ignore: prefer_final_locals
         for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
           // ignore: prefer_final_locals
-          for (int iCol = column, iLastCol = lastColumn;
-              iCol <= iLastCol;
-              iCol++) {
+          for (
+            int iCol = column, iLastCol = lastColumn;
+            iCol <= iLastCol;
+            iCol++
+          ) {
             worksheet.getRangeByIndex(iRow, iCol).value = value;
           }
         }
@@ -1002,20 +1053,20 @@ class Range {
 
   /// Set formula number value to the range.
   // ignore: use_setters_to_change_properties
-  void _setFormulaNumberValue(double number) {
+  void setFormulaNumberValue(double number) {
     _number = number;
   }
 
   /// Set formula string value to the range.
-  void _setFormulaStringValue(String text) {
+  void setFormulaStringValue(String text) {
     _text = text;
-    _saveType = 'str';
+    saveType = 'str';
   }
 
   /// Set formula DateTime value to the range.
-  void _setFormulaDateValue(DateTime dateTime) {
+  void setFormulaDateValue(DateTime dateTime) {
     _dateTime = dateTime;
-    _number = _toOADate(dateTime);
+    _number = toOADate(dateTime);
     if (_cellStyle != null) {
       _cellStyle = CellStyle(workbook);
     }
@@ -1023,19 +1074,19 @@ class Range {
   }
 
   /// Set formula boolean value.
-  void _setFormulaBooleanValue(String value) {
+  void setFormulaBooleanValue(String value) {
     if (value == 'TRUE') {
-      _boolean = '1';
+      boolean = '1';
     } else {
-      _boolean = '0';
+      boolean = '0';
     }
-    _saveType = 'b';
+    saveType = 'b';
   }
 
   /// Set formula error string value.
-  void _setFormulaErrorStringValue(String eValue) {
-    _errorValue = eValue.split(' ').toList().removeAt(1);
-    _saveType = 'e';
+  void setFormulaErrorStringValue(String eValue) {
+    errorValue = eValue.split(' ').toList().removeAt(1);
+    saveType = 'e';
   }
 
   String _getAddressLocal(int row, int column, int lastRow, int lastColumn) {
@@ -1049,7 +1100,11 @@ class Range {
   }
 
   String _getAddressLocalFromCalculatedValue(
-      int row, int column, int lastRow, int lastColumn) {
+    int row,
+    int column,
+    int lastRow,
+    int lastColumn,
+  ) {
     final String cell0 = _getCellName(row, column);
     if (row == lastRow || column == lastColumn) {
       return cell0;
@@ -1061,16 +1116,21 @@ class Range {
 
   /// Get cell name from row and column.
   static String _getCellName(int row, int column) {
-    return _getColumnName(column) + row.toString();
+    return getColumnName(column) + row.toString();
+  }
+
+  /// Get cell name from row and column.
+  static String getCellName(int row, int column) {
+    return getColumnName(column) + row.toString();
   }
 
   /// Get cell name from row and column.
   static String _getCellNameWithSymbol(int row, int column) {
-    return _getColumnName(column) + r'$' + row.toString();
+    return getColumnName(column) + r'$' + row.toString();
   }
 
   /// Get column name from column.
-  static String _getColumnName(int col) {
+  static String getColumnName(int col) {
     col--;
     String strColumnName = '';
     do {
@@ -1122,11 +1182,13 @@ class Range {
   String _checkForAccountingString(String inputFormat) {
     if (inputFormat.contains('"')) {
       final String currencySymbol =
-          workbook.cultureInfo.numberFormat._currencySymbol;
+          workbook.cultureInfo.numberFormat.currencySymbol;
       final int currencyIndex = inputFormat.indexOf(currencySymbol);
       if (currencyIndex != -1) {
-        inputFormat =
-            inputFormat.replaceAll('"$currencySymbol"', currencySymbol);
+        inputFormat = inputFormat.replaceAll(
+          '"$currencySymbol"',
+          currencySymbol,
+        );
       }
     }
     return inputFormat;
@@ -1147,7 +1209,7 @@ class Range {
       case CellType.formula:
         final bool bUpdate = _updateNumberFormat();
         _updateCellValue(worksheet, column, row, true);
-        _Format formatImpl;
+        Format formatImpl;
         if (bUpdate) {
           formatImpl =
               worksheet.workbook.innerFormats[_cellStyle!.numberFormatIndex];
@@ -1167,9 +1229,13 @@ class Range {
 
   /// Gets the number or date time.
   String _getNumberOrDateTime(
-      _Format formatImpl, double? dValue, int row, int column) {
+    Format formatImpl,
+    double? dValue,
+    int row,
+    int column,
+  ) {
     String displayText = '';
-    final ExcelFormatType formatType1 = formatImpl._getFormatTypeFromDouble(0);
+    final ExcelFormatType formatType1 = formatImpl.getFormatTypeFromDouble(0);
 
     switch (formatType1) {
       case ExcelFormatType.number:
@@ -1183,8 +1249,10 @@ class Range {
             } else if (dValue.isInfinite) {
               return '#DIV/0!';
             } else if (numberFormat != 'General' && numberFormat != '@') {
-              final NumberFormat formatter =
-                  NumberFormat(numberFormat, workbook._culture);
+              final NumberFormat formatter = NumberFormat(
+                numberFormat,
+                workbook.culture,
+              );
               String displayText = formatter.format(dValue);
               if (displayText.contains(r'$') || displayText.endsWith('*')) {
                 if (displayText.startsWith('_(')) {
@@ -1213,12 +1281,13 @@ class Range {
             dValue++;
           }
           if (dValue >
-                  _toOADate(workbook
-                      .cultureInfo.dateTimeFormat._maxSupportedDateTime) ||
+                  toOADate(
+                    workbook.cultureInfo.dateTimeFormat.maxSupportedDateTime,
+                  ) ||
               (dValue < 0)) {
             displayText = '######';
           } else {
-            displayText = formatImpl._applyFormat(dValue, false);
+            displayText = formatImpl.applyFormat(dValue, false);
           }
         }
         return displayText;
@@ -1234,10 +1303,14 @@ class Range {
 
   /// Update the cell value when calc engine is enabled.
   static void _updateCellValue(
-      Worksheet worksheet, int column, int row, bool updateCellVaue) {
+    Worksheet worksheet,
+    int column,
+    int row,
+    bool updateCellVaue,
+  ) {
     if (worksheet.calcEngine != null && updateCellVaue) {
-      final String cellRef = _getAlphaLabel(column) + row.toString();
-      worksheet.calcEngine!._pullUpdatedValue(cellRef);
+      final String cellRef = getAlphaLabel(column) + row.toString();
+      worksheet.calcEngine!.pullUpdatedValue(cellRef);
     }
   }
 
@@ -1282,7 +1355,7 @@ class Range {
   /// Returns the formula function name.
   static String? _getFormulaWithoutSymbol(String? formula) {
     if (formula != null) {
-      formula = formula.replaceAll(_defaultEquivalent, _defaultEmptyDigit);
+      formula = formula.replaceAll(equalsSign, _defaultEmptyDigit);
       formula = formula.trim();
       final int position = formula.indexOf(_defaultOpenBrace);
       if (position > 0) {
@@ -1308,7 +1381,7 @@ class Range {
       273,
       304,
       334,
-      365
+      365,
     ];
     final List<int> daysToMonth366 = <int>[
       0,
@@ -1323,13 +1396,14 @@ class Range {
       274,
       305,
       335,
-      366
+      366,
     ];
     if (year >= 1 && year <= 9999 && month >= 1 && month <= 12) {
       final List<int> days =
           _isLeapYear(year) ? daysToMonth366 : daysToMonth365;
       final int y = year - 1;
-      final int n = y * 365 +
+      final int n =
+          y * 365 +
           ((y ~/ 4) | 0) -
           ((y ~/ 100) | 0) +
           ((y ~/ 400) | 0) +
@@ -1361,15 +1435,17 @@ class Range {
   }
 
   /// Convert date to OA value.
-  static double _toOADate(DateTime date) {
+  static double toOADate(DateTime date) {
     int ticks = 0;
-    ticks = _dateToTicks(date.year, date.month, date.day) +
+    ticks =
+        _dateToTicks(date.year, date.month, date.day) +
         _timeToTicks(date.hour, date.minute, date.second);
     if (ticks == 0) {
       return 0.0;
     }
     const int ticksPerDay = 10000 * 1000 * 60 * 60 * 24;
-    const int daysTo1899 = (((365 * 4 + 1) * 25 - 1) * 4 + 1) * 4 +
+    const int daysTo1899 =
+        (((365 * 4 + 1) * 25 - 1) * 4 + 1) * 4 +
         ((365 * 4 + 1) * 25 - 1) * 3 -
         367;
     const int doubleDateOffset = daysTo1899 * ticksPerDay;
@@ -1382,7 +1458,7 @@ class Range {
   }
 
   /// Returns a DateTime equivalent to the specified OLE Automation Date.
-  static DateTime _fromOADate(double doubleOLEValue) {
+  static DateTime fromOADate(double doubleOLEValue) {
     if (doubleOLEValue < -657435.0 || doubleOLEValue > 2958465.99999999) {
       throw Exception('Not an valid OLE value.');
     }
@@ -1395,8 +1471,9 @@ class Range {
         (mantisaPart * doubleSecondsPerDay * 1000).toInt();
     final DateTime minOLEDate = DateTime.parse('1899-12-30 00:00:00');
     DateTime oleDateFromValue = minOLEDate.add(Duration(days: integralPart));
-    oleDateFromValue =
-        oleDateFromValue.add(Duration(milliseconds: totalMilliseconds));
+    oleDateFromValue = oleDateFromValue.add(
+      Duration(milliseconds: totalMilliseconds),
+    );
     return oleDateFromValue;
   }
 
@@ -1412,9 +1489,11 @@ class Range {
         // ignore: prefer_final_locals
         for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
           // ignore: prefer_final_locals
-          for (int iCol = column, iLastCol = lastColumn;
-              iCol <= iLastCol;
-              iCol++) {
+          for (
+            int iCol = column, iLastCol = lastColumn;
+            iCol <= iLastCol;
+            iCol++
+          ) {
             worksheet.getRangeByIndex(iRow, iCol).cellStyle = globalStyle;
           }
         }
@@ -1527,7 +1606,7 @@ class Range {
   ///  workbook.dispose();
   /// ```
   void autoFitColumns() {
-    _autoFitToColumn(column, lastColumn);
+    autoFitToColumn(column, lastColumn);
   }
 
   /// Changes the height of the rows in the Range to achieve the best fit.
@@ -1545,33 +1624,38 @@ class Range {
   /// ```
   void autoFitRows() {
     for (int i = row; i <= lastRow; i++) {
-      _worksheet._autoFitToRow(i, column, lastColumn);
+      _worksheet.autoFitToRow(i, column, lastColumn);
     }
   }
 
   /// Auto fits the column from specified first to last column.
-  void _autoFitToColumn(int firstColumn, int lastColumn) {
+  void autoFitToColumn(int firstColumn, int lastColumn) {
     final int iFirstRow = row;
     final int iLastRow = lastRow;
     if (iFirstRow == 0 || iLastRow == 0 || iFirstRow > iLastRow) {
       return;
     }
 
-    if (firstColumn < 1 || firstColumn > workbook._maxColumnCount) {
+    if (firstColumn < 1 || firstColumn > workbook.maxColumnCount) {
       throw Exception('firstColumn');
     }
 
-    if (lastColumn < 1 || lastColumn > workbook._maxColumnCount) {
+    if (lastColumn < 1 || lastColumn > workbook.maxColumnCount) {
       throw Exception('lastColumn');
     }
 
-    final _AutoFitManager autoFitManager =
-        _AutoFitManager(iFirstRow, firstColumn, iLastRow, lastColumn, this);
-    autoFitManager._measureToFitColumn();
+    final AutoFitManager autoFitManager = AutoFitManager(
+      iFirstRow,
+      firstColumn,
+      iLastRow,
+      lastColumn,
+      this,
+    );
+    autoFitManager.measureToFitColumn();
   }
 
   /// Determines whether the Range is Merged or not.
-  static List<dynamic> _isMergedCell(Range range, bool isRow, int num4) {
+  static List<dynamic> isMergedCell(Range range, bool isRow, int num4) {
     if (range._rowSpan != 0 && range._colSpan != 0) {
       if (isRow && range._rowSpan == 1) {
         num4 = range._colSpan;
@@ -1584,19 +1668,19 @@ class Range {
   }
 
   /// Sets row height.
-  void _setRowHeight(double value, bool bIsBadFontHeight) {
-    if (value < 0 || value > _worksheet._defaultMaxHeight) {
+  void setRowHeight(double value, bool bIsBadFontHeight) {
+    if (value < 0 || value > _worksheet.defaultMaxHeight) {
       throw Exception('Row Height must be in range from 0 to 409.5');
     }
     int firstRowValue = row;
     int lastRowValue = lastRow;
-    if (((lastRow - row) > (workbook._maxRowCount - (lastRow - row))) &&
-        lastRow == workbook._maxRowCount) {
+    if (((lastRow - row) > (workbook.maxRowCount - (lastRow - row))) &&
+        lastRow == workbook.maxRowCount) {
       firstRowValue = 1;
       lastRowValue = row - 1;
     }
     for (int i = firstRowValue; i <= lastRowValue; i++) {
-      _worksheet._innerSetRowHeight(i, value, bIsBadFontHeight, 6);
+      _worksheet.setRowHeight(i, value, bIsBadFontHeight, 6);
     }
   }
 
@@ -1631,18 +1715,21 @@ class Range {
   /// ```
   ConditionalFormats get conditionalFormats {
     if (isSingleRange) {
-      _cfValue = _getColumnName(column) + row.toString();
+      conditionalFormatValue = getColumnName(column) + row.toString();
     } else {
-      _cfValue =
-          '${_getColumnName(column)}$row:${_getColumnName(lastColumn)}$lastRow';
+      conditionalFormatValue =
+          '${getColumnName(column)}$row:${getColumnName(lastColumn)}$lastRow';
     }
-    return _worksheet._createCondFormatCollectionWrapper(this, _cfValue);
+    return _worksheet.createConditionalFormatWrapper(
+      this,
+      conditionalFormatValue,
+    );
   }
 
   /// Releases the unmanaged resources used by the XmlReader and optionally releases the managed resources.
-  void _clear() {
+  void clear() {
     if (_cellStyle != null) {
-      (_cellStyle! as CellStyle)._clear();
+      (_cellStyle! as CellStyle).clear();
       _cellStyle = null;
     }
   }
@@ -1675,29 +1762,29 @@ class Range {
   DataValidation get dataValidation {
     if (isSingleRange) {
       if (_dataValidationWrapper == null) {
-        final _DataValidationImpl? dv = _findDataValidation();
-        _dataValidationWrapper = _DataValidationWrapper(this, dv);
+        final DataValidationImpl? dv = _findDataValidation();
+        _dataValidationWrapper = DataValidationWrapper(this, dv);
       }
       return _dataValidationWrapper!;
     } else {
       if (_dataValidationWrapper == null) {
-        final _DataValidationImpl? dv = _findDataValidation();
-        _dataValidationWrapper = _DataValidationWrapper(this, dv);
+        final DataValidationImpl? dv = _findDataValidation();
+        _dataValidationWrapper = DataValidationWrapper(this, dv);
       }
       return _dataValidationWrapper!;
     }
   }
 
   ///Represents the method to find whether the datavalidation exists for both single and multiple range
-  _DataValidationImpl? _findDataValidation() {
-    final _DataValidationTable dvtable = _worksheet._dvTable;
+  DataValidationImpl? _findDataValidation() {
+    final DataValidationTable dvtable = _worksheet.dataValidationTable;
     if (isSingleRange) {
-      _dvValue = _getColumnName(column) + row.toString();
+      dataValidationValue = getColumnName(column) + row.toString();
     } else {
-      _dvValue =
+      dataValidationValue =
           // ignore: noop_primitive_operations
-          '${_getColumnName(column)}${row.toString()}:${_getColumnName(lastColumn)}${lastRow.toString()}';
+          '${getColumnName(column)}${row.toString()}:${getColumnName(lastColumn)}${lastRow.toString()}';
     }
-    return dvtable._findDataValidation(_dvValue);
+    return dvtable.findDataValidation(dataValidationValue);
   }
 }

@@ -111,7 +111,10 @@ class PdfPaddings {
   set all(double value) {
     if (value < 0) {
       ArgumentError.value(
-          value, 'all', 'value should greater than or equal to zero');
+        value,
+        'all',
+        'value should greater than or equal to zero',
+      );
     }
     _left = _right = _bottom = _top = value;
   }
@@ -123,7 +126,10 @@ class PdfPaddings {
   set left(double value) {
     if (value < 0) {
       ArgumentError.value(
-          value, 'left', 'value should greater than or equal to zero');
+        value,
+        'left',
+        'value should greater than or equal to zero',
+      );
     }
     _left = value;
   }
@@ -135,7 +141,10 @@ class PdfPaddings {
   set right(double value) {
     if (value < 0) {
       ArgumentError.value(
-          value, 'right', 'value should greater than or equal to zero');
+        value,
+        'right',
+        'value should greater than or equal to zero',
+      );
     }
     _right = value;
   }
@@ -147,7 +156,10 @@ class PdfPaddings {
   set top(double value) {
     if (value < 0) {
       ArgumentError.value(
-          value, 'top', 'value should greater than or equal to zero');
+        value,
+        'top',
+        'value should greater than or equal to zero',
+      );
     }
     _top = value;
   }
@@ -159,7 +171,10 @@ class PdfPaddings {
   set bottom(double value) {
     if (value < 0) {
       ArgumentError.value(
-          value, 'bottom', 'value should greater than or equal to zero');
+        value,
+        'bottom',
+        'value should greater than or equal to zero',
+      );
     }
     _bottom = value;
   }

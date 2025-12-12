@@ -1,4 +1,5 @@
-part of xlsio;
+import '../../general/enums.dart';
+import '../condition_value.dart';
 
 /// Represents a set of icons that are used in an icon set conditional formatting rule.
 abstract class IconSet {

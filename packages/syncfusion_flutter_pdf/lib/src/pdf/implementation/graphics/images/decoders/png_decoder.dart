@@ -231,7 +231,8 @@ class PngDecoder extends ImageDecoder {
   }
 
   void _decodeImageData() {
-    isDecode = (_header.interlace == 1) ||
+    isDecode =
+        (_header.interlace == 1) ||
         (_header.bitDepth == 16) ||
         ((_header.colorType & 4) != 0) ||
         _shades;
@@ -267,8 +268,11 @@ class PngDecoder extends ImageDecoder {
     int? numRead = 0;
     final List<int> outputData = <int>[];
     do {
-      final Map<String, dynamic> result =
-          deflateStream.read(buffer, 0, buffer.length);
+      final Map<String, dynamic> result = deflateStream.read(
+        buffer,
+        0,
+        buffer.length,
+      );
       numRead = result['count'] as int?;
       buffer = result['data'] as List<int>;
       for (int i = 0; i < numRead!; i++) {
@@ -293,7 +297,13 @@ class PngDecoder extends ImageDecoder {
   }
 
   void _decodeData(
-      int xOffset, int yOffset, int xStep, int yStep, int? width, int? height) {
+    int xOffset,
+    int yOffset,
+    int xStep,
+    int yStep,
+    int? width,
+    int? height,
+  ) {
     if ((width == 0) || (height == 0)) {
       return;
     } else {
@@ -301,13 +311,19 @@ class PngDecoder extends ImageDecoder {
           (_inputBands * width! * _header.bitDepth + 7) ~/ 8;
       List<int> current = List<int>.filled(bytesPerRow, 0);
       List<int> prior = List<int>.filled(bytesPerRow, 0);
-      for (int sourceY = 0, destinationY = yOffset;
-          sourceY < height!;
-          sourceY++, destinationY += yStep) {
+      for (
+        int sourceY = 0, destinationY = yOffset;
+        sourceY < height!;
+        sourceY++, destinationY += yStep
+      ) {
         final int filter = _dataStream[_dataStreamOffset!];
         _dataStreamOffset = _dataStreamOffset! + 1;
-        _dataStreamOffset =
-            _readStream(_dataStream, _dataStreamOffset, current, bytesPerRow);
+        _dataStreamOffset = _readStream(
+          _dataStream,
+          _dataStreamOffset,
+          current,
+          bytesPerRow,
+        );
         switch (_getFilterType(filter)) {
           case _PngFilterTypes.none:
             break;
@@ -323,9 +339,6 @@ class PngDecoder extends ImageDecoder {
           case _PngFilterTypes.paeth:
             _decompressPaeth(current, prior, bytesPerRow, _bitsPerPixel);
             break;
-          // ignore: no_default_cases
-          default:
-            throw Exception('Unknown PNG filter');
         }
         _processPixels(current, xOffset, xStep, destinationY, width);
         final List<int> tmp = prior;
@@ -336,7 +349,11 @@ class PngDecoder extends ImageDecoder {
   }
 
   int? _readStream(
-      List<int> stream, int? streamOffset, List<int>? data, int count) {
+    List<int> stream,
+    int? streamOffset,
+    List<int>? data,
+    int count,
+  ) {
     final dynamic result = read(stream, streamOffset, data, count);
     data = result['outputBuffer'] as List<int>?;
     streamOffset = result['offset'] as int?;
@@ -362,8 +379,16 @@ class PngDecoder extends ImageDecoder {
       final int depth = (_header.bitDepth == 16) ? 8 : _header.bitDepth;
       final int yStep = (size * width! * depth + 7) ~/ 8;
       for (sourceX = 0; sourceX < width; sourceX++) {
-        _decodedImageData = _setPixel(_decodedImageData, pixel,
-            _inputBands * sourceX, size, destX, y, _header.bitDepth, yStep);
+        _decodedImageData = _setPixel(
+          _decodedImageData,
+          pixel,
+          _inputBands * sourceX,
+          size,
+          destX,
+          y,
+          _header.bitDepth,
+          yStep,
+        );
         destX += step;
       }
     }
@@ -379,8 +404,16 @@ class PngDecoder extends ImageDecoder {
         final int? yStep = width;
         destX = x;
         for (sourceX = 0; sourceX < width!; sourceX++) {
-          _maskData = _setPixel(_maskData, pixel, _inputBands * sourceX + size,
-              1, destX, y, 8, yStep);
+          _maskData = _setPixel(
+            _maskData,
+            pixel,
+            _inputBands * sourceX + size,
+            1,
+            destX,
+            y,
+            8,
+            yStep,
+          );
           destX += step;
         }
       } else {
@@ -409,16 +442,21 @@ class PngDecoder extends ImageDecoder {
       }
       return pixel;
     } else if (_header.bitDepth == 16) {
-      final List<int> pixel =
-          List<int>.filled(data.length ~/ 2, 0, growable: true);
+      final List<int> pixel = List<int>.filled(
+        data.length ~/ 2,
+        0,
+        growable: true,
+      );
       for (int i = 0; i < pixel.length; ++i) {
         pixel[i] = ((data[i * 2] & 0xff) << 8) + (data[i * 2 + 1] & 0xff);
       }
       return pixel;
     } else {
       final List<int> pixel = List<int>.filled(
-          data.length * 8 ~/ _header.bitDepth, 0,
-          growable: true);
+        data.length * 8 ~/ _header.bitDepth,
+        0,
+        growable: true,
+      );
       int index = 0;
       final int p = 8 ~/ _header.bitDepth;
       final int mask = (1 << _header.bitDepth) - 1;
@@ -434,8 +472,16 @@ class PngDecoder extends ImageDecoder {
     }
   }
 
-  List<int>? _setPixel(List<int>? imageData, List<int> data, int offset,
-      int size, int x, int y, int? bitDepth, int? bpr) {
+  List<int>? _setPixel(
+    List<int>? imageData,
+    List<int> data,
+    int offset,
+    int size,
+    int x,
+    int y,
+    int? bitDepth,
+    int? bpr,
+  ) {
     if (bitDepth == 8) {
       final int position = bpr! * y + size * x;
       for (int i = 0; i < size; ++i) {
@@ -448,7 +494,8 @@ class PngDecoder extends ImageDecoder {
       }
     } else {
       final int position = bpr! * y + x ~/ (8 / bitDepth!);
-      final int t = data[offset] <<
+      final int t =
+          data[offset] <<
           (8 - bitDepth * (x % (8 / bitDepth)) - bitDepth).toInt();
       imageData![position] = imageData[position] | t.toUnsigned(8);
     }
@@ -571,21 +618,25 @@ class PngDecoder extends ImageDecoder {
         const double greenY = 0.6;
         const double bX = 0.15;
         const double bY = 0.06;
-        const double t = wpY *
+        const double t =
+            wpY *
             ((greenX - bX) * redY -
                 (redX - bX) * greenY +
                 (redX - greenX) * bY);
-        const double alphaY = redY *
+        const double alphaY =
+            redY *
             ((greenX - bX) * wpY - (wpX - bX) * greenY + (wpX - greenX) * bY) /
             t;
         const double alphaX = alphaY * redX / redY;
         const double alphaZ = alphaY * ((1 - redX) / redY - 1);
-        const double blueY = -greenY *
+        const double blueY =
+            -greenY *
             ((redX - bX) * wpY - (wpX - bX) * redY + (wpX - redX) * bY) /
             t;
         const double blueX = blueY * greenX / greenY;
         const double blueZ = blueY * ((1 - greenX) / greenY - 1);
-        const double colorY = bY *
+        const double colorY =
+            bY *
             ((redX - greenX) * wpY -
                 (wpX - greenX) * wpY +
                 (wpX - redX) * greenY) /
@@ -613,7 +664,9 @@ class PngDecoder extends ImageDecoder {
         calRGB.setProperty(PdfName(PdfDictionaryProperties.matrix), matrix);
       }
       calRGB.setProperty(
-          PdfName(PdfDictionaryProperties.whitePoint), whitePoint);
+        PdfName(PdfDictionaryProperties.whitePoint),
+        whitePoint,
+      );
       colorspace.add(PdfName(PdfDictionaryProperties.calRGB));
       colorspace.add(calRGB);
       return colorspace;
@@ -624,22 +677,28 @@ class PngDecoder extends ImageDecoder {
     if (_maskData != null && _maskData!.isNotEmpty) {
       final PdfStream stream = PdfStream();
       stream.data = _maskData;
-      stream[PdfDictionaryProperties.type] =
-          PdfName(PdfDictionaryProperties.xObject);
-      stream[PdfDictionaryProperties.subtype] =
-          PdfName(PdfDictionaryProperties.image);
+      stream[PdfDictionaryProperties.type] = PdfName(
+        PdfDictionaryProperties.xObject,
+      );
+      stream[PdfDictionaryProperties.subtype] = PdfName(
+        PdfDictionaryProperties.image,
+      );
       stream[PdfDictionaryProperties.width] = PdfNumber(width);
       stream[PdfDictionaryProperties.height] = PdfNumber(height);
       if (bitsPerComponent == 16) {
         stream[PdfDictionaryProperties.bitsPerComponent] = PdfNumber(8);
       } else {
-        stream[PdfDictionaryProperties.bitsPerComponent] =
-            PdfNumber(bitsPerComponent!);
+        stream[PdfDictionaryProperties.bitsPerComponent] = PdfNumber(
+          bitsPerComponent!,
+        );
       }
-      stream[PdfDictionaryProperties.colorSpace] =
-          PdfName(PdfDictionaryProperties.deviceGray);
+      stream[PdfDictionaryProperties.colorSpace] = PdfName(
+        PdfDictionaryProperties.deviceGray,
+      );
       imageStream.setProperty(
-          PdfName(PdfDictionaryProperties.sMask), PdfReferenceHolder(stream));
+        PdfName(PdfDictionaryProperties.sMask),
+        PdfReferenceHolder(stream),
+      );
     }
   }
 
@@ -648,8 +707,9 @@ class PngDecoder extends ImageDecoder {
     decodeParams[PdfDictionaryProperties.columns] = PdfNumber(width);
     decodeParams[PdfDictionaryProperties.colors] = PdfNumber(_colors);
     decodeParams[PdfDictionaryProperties.predictor] = PdfNumber(15);
-    decodeParams[PdfDictionaryProperties.bitsPerComponent] =
-        PdfNumber(bitsPerComponent!);
+    decodeParams[PdfDictionaryProperties.bitsPerComponent] = PdfNumber(
+      bitsPerComponent!,
+    );
     return decodeParams;
   }
 
@@ -680,28 +740,34 @@ class PngDecoder extends ImageDecoder {
     } else {
       imageStream.compress = false;
     }
-    imageStream[PdfDictionaryProperties.type] =
-        PdfName(PdfDictionaryProperties.xObject);
-    imageStream[PdfDictionaryProperties.subtype] =
-        PdfName(PdfDictionaryProperties.image);
+    imageStream[PdfDictionaryProperties.type] = PdfName(
+      PdfDictionaryProperties.xObject,
+    );
+    imageStream[PdfDictionaryProperties.subtype] = PdfName(
+      PdfDictionaryProperties.image,
+    );
     imageStream[PdfDictionaryProperties.width] = PdfNumber(width);
     imageStream[PdfDictionaryProperties.height] = PdfNumber(height);
     if (bitsPerComponent == 16) {
       imageStream[PdfDictionaryProperties.bitsPerComponent] = PdfNumber(8);
     } else {
-      imageStream[PdfDictionaryProperties.bitsPerComponent] =
-          PdfNumber(bitsPerComponent!);
+      imageStream[PdfDictionaryProperties.bitsPerComponent] = PdfNumber(
+        bitsPerComponent!,
+      );
     }
     if (!isDecode || !_ideateDecode) {
-      imageStream[PdfDictionaryProperties.filter] =
-          PdfName(PdfDictionaryProperties.flateDecode);
+      imageStream[PdfDictionaryProperties.filter] = PdfName(
+        PdfDictionaryProperties.flateDecode,
+      );
     }
     if ((_header.colorType & 2) == 0) {
-      imageStream[PdfDictionaryProperties.colorSpace] =
-          PdfName(PdfDictionaryProperties.deviceGray);
+      imageStream[PdfDictionaryProperties.colorSpace] = PdfName(
+        PdfDictionaryProperties.deviceGray,
+      );
     } else {
-      imageStream[PdfDictionaryProperties.colorSpace] =
-          PdfName(PdfDictionaryProperties.deviceRGB);
+      imageStream[PdfDictionaryProperties.colorSpace] = PdfName(
+        PdfDictionaryProperties.deviceRGB,
+      );
     }
     if (!isDecode || _shades && !_ideateDecode) {
       imageStream[PdfDictionaryProperties.decodeParms] = _getDecodeParams();
@@ -748,7 +814,7 @@ enum _PngChunkTypes {
   sRGB,
   iCCP,
   iTXt,
-  unknown
+  unknown,
 }
 
 enum _PngFilterTypes { none, sub, up, average, paeth }

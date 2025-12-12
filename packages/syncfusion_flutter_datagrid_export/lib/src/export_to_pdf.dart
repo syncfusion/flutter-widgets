@@ -14,16 +14,18 @@ import 'helper.dart';
 
 extension DataGridPdfExportExtensions on SfDataGridState {
   // Initializes the properties to the converter.
-  void _initializeProperties(DataGridToPdfConverter converter,
-      {required bool canRepeatHeaders,
-      required bool exportStackedHeaders,
-      required bool fitAllColumnsInOnePage,
-      required List<String> excludeColumns,
-      required bool autoColumnWidth,
-      required bool exportTableSummaries,
-      int rowIndex = 0,
-      DataGridCellPdfExportCallback? cellExport,
-      DataGridPdfHeaderFooterExportCallback? headerFooterExport}) {
+  void _initializeProperties(
+    DataGridToPdfConverter converter, {
+    required bool canRepeatHeaders,
+    required bool exportStackedHeaders,
+    required bool fitAllColumnsInOnePage,
+    required List<String> excludeColumns,
+    required bool autoColumnWidth,
+    required bool exportTableSummaries,
+    int rowIndex = 0,
+    DataGridCellPdfExportCallback? cellExport,
+    DataGridPdfHeaderFooterExportCallback? headerFooterExport,
+  }) {
     converter
       ..canRepeatHeaders = canRepeatHeaders
       ..exportStackedHeaders = exportStackedHeaders
@@ -133,27 +135,30 @@ extension DataGridPdfExportExtensions on SfDataGridState {
   ///   );
   /// }
   /// ```
-  PdfDocument exportToPdfDocument(
-      {List<DataGridRow>? rows,
-      bool exportStackedHeaders = true,
-      bool canRepeatHeaders = true,
-      bool fitAllColumnsInOnePage = false,
-      bool autoColumnWidth = true,
-      bool exportTableSummaries = true,
-      List<String> excludeColumns = const <String>[],
-      DataGridToPdfConverter? converter,
-      DataGridCellPdfExportCallback? cellExport,
-      DataGridPdfHeaderFooterExportCallback? headerFooterExport}) {
+  PdfDocument exportToPdfDocument({
+    List<DataGridRow>? rows,
+    bool exportStackedHeaders = true,
+    bool canRepeatHeaders = true,
+    bool fitAllColumnsInOnePage = false,
+    bool autoColumnWidth = true,
+    bool exportTableSummaries = true,
+    List<String> excludeColumns = const <String>[],
+    DataGridToPdfConverter? converter,
+    DataGridCellPdfExportCallback? cellExport,
+    DataGridPdfHeaderFooterExportCallback? headerFooterExport,
+  }) {
     converter ??= DataGridToPdfConverter();
-    _initializeProperties(converter,
-        autoColumnWidth: autoColumnWidth,
-        fitAllColumnsInOnePage: fitAllColumnsInOnePage,
-        canRepeatHeaders: canRepeatHeaders,
-        exportStackedHeaders: exportStackedHeaders,
-        cellExport: cellExport,
-        headerFooterExport: headerFooterExport,
-        excludeColumns: excludeColumns,
-        exportTableSummaries: exportTableSummaries);
+    _initializeProperties(
+      converter,
+      autoColumnWidth: autoColumnWidth,
+      fitAllColumnsInOnePage: fitAllColumnsInOnePage,
+      canRepeatHeaders: canRepeatHeaders,
+      exportStackedHeaders: exportStackedHeaders,
+      cellExport: cellExport,
+      headerFooterExport: headerFooterExport,
+      excludeColumns: excludeColumns,
+      exportTableSummaries: exportTableSummaries,
+    );
 
     return converter.exportToPdfDocument(widget, rows);
   }
@@ -256,25 +261,28 @@ extension DataGridPdfExportExtensions on SfDataGridState {
   ///   );
   /// }
   /// ```
-  PdfGrid exportToPdfGrid(
-      {List<DataGridRow>? rows,
-      bool exportStackedHeaders = true,
-      bool canRepeatHeaders = true,
-      bool fitAllColumnsInOnePage = false,
-      bool autoColumnWidth = true,
-      bool exportTableSummaries = true,
-      List<String> excludeColumns = const <String>[],
-      DataGridToPdfConverter? converter,
-      DataGridCellPdfExportCallback? cellExport}) {
+  PdfGrid exportToPdfGrid({
+    List<DataGridRow>? rows,
+    bool exportStackedHeaders = true,
+    bool canRepeatHeaders = true,
+    bool fitAllColumnsInOnePage = false,
+    bool autoColumnWidth = true,
+    bool exportTableSummaries = true,
+    List<String> excludeColumns = const <String>[],
+    DataGridToPdfConverter? converter,
+    DataGridCellPdfExportCallback? cellExport,
+  }) {
     converter ??= DataGridToPdfConverter();
-    _initializeProperties(converter,
-        autoColumnWidth: autoColumnWidth,
-        fitAllColumnsInOnePage: fitAllColumnsInOnePage,
-        canRepeatHeaders: canRepeatHeaders,
-        cellExport: cellExport,
-        exportStackedHeaders: exportStackedHeaders,
-        excludeColumns: excludeColumns,
-        exportTableSummaries: exportTableSummaries);
+    _initializeProperties(
+      converter,
+      autoColumnWidth: autoColumnWidth,
+      fitAllColumnsInOnePage: fitAllColumnsInOnePage,
+      canRepeatHeaders: canRepeatHeaders,
+      cellExport: cellExport,
+      exportStackedHeaders: exportStackedHeaders,
+      excludeColumns: excludeColumns,
+      exportTableSummaries: exportTableSummaries,
+    );
 
     return converter.exportToPdfGrid(widget, rows);
   }
@@ -335,7 +343,10 @@ class DataGridToPdfConverter {
   /// Exports the column headers to Pdf.
   @protected
   void exportColumnHeaders(
-      SfDataGrid dataGrid, List<GridColumn> columns, PdfGrid pdfGrid) {
+    SfDataGrid dataGrid,
+    List<GridColumn> columns,
+    PdfGrid pdfGrid,
+  ) {
     if (columns.isEmpty) {
       return;
     }
@@ -348,19 +359,24 @@ class DataGridToPdfConverter {
 
   /// Exports a column header to Pdf
   @protected
-  void exportColumnHeader(SfDataGrid dataGrid, GridColumn column,
-      String columnName, PdfGrid pdfGrid) {
+  void exportColumnHeader(
+    SfDataGrid dataGrid,
+    GridColumn column,
+    String columnName,
+    PdfGrid pdfGrid,
+  ) {
     int rowSpan = 0;
     PdfGridRow columnHeader = pdfGrid.headers[rowIndex];
     PdfGridCell pdfCell = columnHeader.cells[_columnIndex];
 
     if (dataGrid.stackedHeaderRows.isNotEmpty && exportStackedHeaders) {
       rowSpan = getRowSpan(
-          dataGrid: dataGrid,
-          isStackedHeader: false,
-          columnName: column.columnName,
-          rowIndex: rowIndex - 1,
-          columnIndex: dataGrid.columns.indexOf(column));
+        dataGrid: dataGrid,
+        isStackedHeader: false,
+        columnName: column.columnName,
+        rowIndex: rowIndex - 1,
+        columnIndex: dataGrid.columns.indexOf(column),
+      );
     }
     if (rowSpan > 0) {
       // Retrieve the header cell at the given index by subtracting the number of rows
@@ -374,13 +390,20 @@ class DataGridToPdfConverter {
     }
     pdfCell.style.borders.all = _pdfPen;
     _exportCellToPdf(
-        DataGridExportCellType.columnHeader, pdfCell, columnName, column);
+      DataGridExportCellType.columnHeader,
+      pdfCell,
+      columnName,
+      column,
+    );
   }
 
   /// Exports all the data rows to Pdf.
   @protected
   void exportRows(
-      List<GridColumn> columns, List<DataGridRow> rows, PdfGrid pdfGrid) {
+    List<GridColumn> columns,
+    List<DataGridRow> rows,
+    PdfGrid pdfGrid,
+  ) {
     for (final DataGridRow row in rows) {
       exportRow(columns, row, pdfGrid);
       rowIndex++;
@@ -407,7 +430,9 @@ class DataGridToPdfConverter {
   ///
   /// If the `rows` is set, the given list of DataGridRow collection is exported. Typically, you can set this property to export
   PdfDocument exportToPdfDocument(
-      SfDataGrid dataGrid, List<DataGridRow>? rows) {
+    SfDataGrid dataGrid,
+    List<DataGridRow>? rows,
+  ) {
     final PdfDocument pdfDocument = PdfDocument();
 
     //adding page into pdf document
@@ -443,7 +468,8 @@ class DataGridToPdfConverter {
     //final List<GridColumn> columns = dataGrid.columns;
     _columns = dataGrid.columns
         .where(
-            (GridColumn column) => !excludeColumns.contains(column.columnName))
+          (GridColumn column) => !excludeColumns.contains(column.columnName),
+        )
         .toList();
 
     //if fit all columns in one page is false then horizontal overflow is true and type is next page
@@ -480,7 +506,10 @@ class DataGridToPdfConverter {
     // Exports the top table summary rows.
     if (exportTableSummaries) {
       exportTableSummaryRows(
-          dataGrid, GridTableSummaryRowPosition.top, pdfGrid);
+        dataGrid,
+        GridTableSummaryRowPosition.top,
+        pdfGrid,
+      );
     }
 
     //Export the rows
@@ -489,7 +518,10 @@ class DataGridToPdfConverter {
     // Exports the bottom table summary rows.
     if (exportTableSummaries) {
       exportTableSummaryRows(
-          dataGrid, GridTableSummaryRowPosition.bottom, pdfGrid);
+        dataGrid,
+        GridTableSummaryRowPosition.bottom,
+        pdfGrid,
+      );
     }
 
     //Can Repeate header for all pages
@@ -520,30 +552,48 @@ class DataGridToPdfConverter {
   /// Exports a stacked header row to Pdf.
   @protected
   void exportStackedHeaderRow(
-      SfDataGrid dataGrid, StackedHeaderRow stackedHeaderRow, PdfGrid pdfGrid) {
+    SfDataGrid dataGrid,
+    StackedHeaderRow stackedHeaderRow,
+    PdfGrid pdfGrid,
+  ) {
     for (final StackedHeaderCell column in stackedHeaderRow.cells) {
       int columnSpanValue = 0;
-      final List<int> columnSequences =
-          getColumnSequences(dataGrid.columns, column);
+      final List<int> columnSequences = getColumnSequences(
+        dataGrid.columns,
+        column,
+      );
       for (final List<int> indexes in getConsecutiveRanges(columnSequences)) {
         _columnIndex = indexes.reduce(min);
         columnSpanValue = indexes.length;
         final int rowSpan = getRowSpan(
-            dataGrid: dataGrid,
-            isStackedHeader: true,
-            columnIndex: _columnIndex,
-            stackedHeaderCell: column,
-            rowIndex: rowIndex - 1);
+          dataGrid: dataGrid,
+          isStackedHeader: true,
+          columnIndex: _columnIndex,
+          stackedHeaderCell: column,
+          rowIndex: rowIndex - 1,
+        );
 
         _exportStackedHeaderCell(
-            dataGrid, column, _columnIndex, columnSpanValue, rowSpan, pdfGrid);
+          dataGrid,
+          column,
+          _columnIndex,
+          columnSpanValue,
+          rowSpan,
+          pdfGrid,
+        );
       }
     }
   }
 
   /// Exports a stacked header cell to Pdf.
-  void _exportStackedHeaderCell(SfDataGrid dataGrid, StackedHeaderCell column,
-      int columnIndex, int columnSpan, int rowSpan, PdfGrid pdfGrid) {
+  void _exportStackedHeaderCell(
+    SfDataGrid dataGrid,
+    StackedHeaderCell column,
+    int columnIndex,
+    int columnSpan,
+    int rowSpan,
+    PdfGrid pdfGrid,
+  ) {
     PdfGridRow stakedHeaderRow = pdfGrid.headers[rowIndex];
 
     int firstColumnIndex = columnIndex;
@@ -551,11 +601,12 @@ class DataGridToPdfConverter {
 
     if (excludeColumns.isNotEmpty) {
       final List<int> startAndEndIndex = getSpannedCellStartAndEndIndex(
-          columnSpan: columnSpan - 1,
-          columnIndex: columnIndex,
-          columns: dataGrid.columns,
-          excludeColumns: excludeColumns,
-          startColumnIndex: 0);
+        columnSpan: columnSpan - 1,
+        columnIndex: columnIndex,
+        columns: dataGrid.columns,
+        excludeColumns: excludeColumns,
+        startColumnIndex: 0,
+      );
 
       firstColumnIndex = startAndEndIndex[0];
       lastColumnIndex = startAndEndIndex[1];
@@ -576,15 +627,20 @@ class DataGridToPdfConverter {
     }
     pdfCell.style.borders.all = _pdfPen;
 
-    _exportCellToPdf(DataGridExportCellType.stackedHeader, pdfCell,
-        pdfCell.value, dataGrid.columns[firstColumnIndex]);
+    _exportCellToPdf(
+      DataGridExportCellType.stackedHeader,
+      pdfCell,
+      pdfCell.value,
+      dataGrid.columns[firstColumnIndex],
+    );
   }
 
   /// Gets the cell value required for data rows.
   @protected
   Object? getCellValue(GridColumn column, DataGridRow row) {
     final DataGridCell cellValue = row.getCells().firstWhereOrNull(
-        (DataGridCell element) => element.columnName == column.columnName)!;
+      (DataGridCell element) => element.columnName == column.columnName,
+    )!;
     return cellValue.value;
   }
 
@@ -596,13 +652,19 @@ class DataGridToPdfConverter {
   ) {
     if (cellExport != null) {
       final DataGridCellPdfExportDetails details = DataGridCellPdfExportDetails(
-          cellType, pdfCell, cellValue, column.columnName);
+        cellType,
+        pdfCell,
+        cellValue,
+        column.columnName,
+      );
       cellExport!(details);
     }
   }
 
   void _exportHeaderFooter(
-      PdfPage pdfPage, PdfDocumentTemplate pdfDocumentTemplate) {
+    PdfPage pdfPage,
+    PdfDocumentTemplate pdfDocumentTemplate,
+  ) {
     if (headerFooterExport != null) {
       final DataGridPdfHeaderFooterExportDetails details =
           DataGridPdfHeaderFooterExportDetails(pdfPage, pdfDocumentTemplate);
@@ -612,8 +674,11 @@ class DataGridToPdfConverter {
 
   /// Export table summary rows to the Excel.
   @protected
-  void exportTableSummaryRows(SfDataGrid dataGrid,
-      GridTableSummaryRowPosition position, PdfGrid pdfGrid) {
+  void exportTableSummaryRows(
+    SfDataGrid dataGrid,
+    GridTableSummaryRowPosition position,
+    PdfGrid pdfGrid,
+  ) {
     if (dataGrid.tableSummaryRows.isEmpty) {
       return;
     }
@@ -636,40 +701,52 @@ class DataGridToPdfConverter {
   /// Export table summary row to the Excel.
   @protected
   void exportTableSummaryRow(
-      SfDataGrid dataGrid, GridTableSummaryRow summaryRow, PdfGrid pdfGrid) {
+    SfDataGrid dataGrid,
+    GridTableSummaryRow summaryRow,
+    PdfGrid pdfGrid,
+  ) {
     final PdfGridRow tableSummaryRow = pdfGrid.rows.add();
     // Resets the column index when creating a new row.
     _columnIndex = 0;
     if (summaryRow.showSummaryInRow) {
       _exportTableSummaryCell(
-          pdfGrid: pdfGrid,
-          dataGrid: dataGrid,
-          summaryRow: summaryRow,
-          columnSpan: columns.length,
-          tableSummaryRow: tableSummaryRow);
+        pdfGrid: pdfGrid,
+        dataGrid: dataGrid,
+        summaryRow: summaryRow,
+        columnSpan: columns.length,
+        tableSummaryRow: tableSummaryRow,
+      );
     } else {
       int titleColumnCount = summaryRow.titleColumnSpan;
       if (titleColumnCount > 0) {
         // To consider the exclude columns in the `titleColumnCount`.
-        titleColumnCount =
-            getTitleColumnCount(summaryRow, dataGrid.columns, excludeColumns);
+        titleColumnCount = getTitleColumnCount(
+          summaryRow,
+          dataGrid.columns,
+          excludeColumns,
+        );
 
         if (titleColumnCount > 0) {
           _exportTableSummaryCell(
-              pdfGrid: pdfGrid,
-              dataGrid: dataGrid,
-              summaryRow: summaryRow,
-              columnSpan: titleColumnCount,
-              tableSummaryRow: tableSummaryRow);
+            pdfGrid: pdfGrid,
+            dataGrid: dataGrid,
+            summaryRow: summaryRow,
+            columnSpan: titleColumnCount,
+            tableSummaryRow: tableSummaryRow,
+          );
         }
       }
 
       for (final GridSummaryColumn summaryColumn in summaryRow.columns) {
         final GridColumn? column = dataGrid.columns.firstWhereOrNull(
-            (GridColumn element) =>
-                element.columnName == summaryColumn.columnName);
+          (GridColumn element) =>
+              element.columnName == summaryColumn.columnName,
+        );
         final int summaryColumnIndex = getSummaryColumnIndex(
-            dataGrid.columns, summaryColumn.columnName, excludeColumns);
+          dataGrid.columns,
+          summaryColumn.columnName,
+          excludeColumns,
+        );
 
         // Restricts if the column doesn't exist or its column index is less
         // than the `titleColumnCount`. because the `titleColumn` summary cell
@@ -679,33 +756,41 @@ class DataGridToPdfConverter {
         }
 
         _exportTableSummaryCell(
-            column: column,
-            pdfGrid: pdfGrid,
-            dataGrid: dataGrid,
-            summaryRow: summaryRow,
-            startColumnIndex: summaryColumnIndex,
-            summaryColumn: summaryColumn,
-            tableSummaryRow: tableSummaryRow);
+          column: column,
+          pdfGrid: pdfGrid,
+          dataGrid: dataGrid,
+          summaryRow: summaryRow,
+          startColumnIndex: summaryColumnIndex,
+          summaryColumn: summaryColumn,
+          tableSummaryRow: tableSummaryRow,
+        );
       }
     }
   }
 
-  void _exportTableSummaryCell(
-      {int columnSpan = 0,
-      int startColumnIndex = 0,
-      GridColumn? column,
-      required PdfGrid pdfGrid,
-      required SfDataGrid dataGrid,
-      GridSummaryColumn? summaryColumn,
-      PdfGridRow? tableSummaryRow,
-      required GridTableSummaryRow summaryRow}) {
+  void _exportTableSummaryCell({
+    int columnSpan = 0,
+    int startColumnIndex = 0,
+    GridColumn? column,
+    required PdfGrid pdfGrid,
+    required SfDataGrid dataGrid,
+    GridSummaryColumn? summaryColumn,
+    PdfGridRow? tableSummaryRow,
+    required GridTableSummaryRow summaryRow,
+  }) {
     final GridColumn? column = dataGrid.columns.firstWhereOrNull(
-        (GridColumn column) => column.columnName == summaryColumn?.columnName);
+      (GridColumn column) => column.columnName == summaryColumn?.columnName,
+    );
     final RowColumnIndex rowColumnIndex = RowColumnIndex(
-        rowIndex, column != null ? dataGrid.columns.indexOf(column) : 0);
+      rowIndex,
+      column != null ? dataGrid.columns.indexOf(column) : 0,
+    );
 
     final String summaryValue = dataGrid.source.calculateSummaryValue(
-        summaryRow, summaryColumn ?? summaryRow.columns.first, rowColumnIndex);
+      summaryRow,
+      summaryColumn ?? summaryRow.columns.first,
+      rowColumnIndex,
+    );
 
     PdfGridCell pdfCell = tableSummaryRow!.cells[startColumnIndex];
     if (columnSpan > 0) {
@@ -720,8 +805,12 @@ class DataGridToPdfConverter {
     for (int i = 0; i < tableSummaryRow.cells.count; i++) {
       tableSummaryRow.cells[i].style.borders.all = _pdfPen;
     }
-    _exportCellToPdf(DataGridExportCellType.tableSummaryRow, pdfCell,
-        pdfCell.value, column ?? dataGrid.columns[0]);
+    _exportCellToPdf(
+      DataGridExportCellType.tableSummaryRow,
+      pdfCell,
+      pdfCell.value,
+      column ?? dataGrid.columns[0],
+    );
   }
 }
 
@@ -729,7 +818,11 @@ class DataGridToPdfConverter {
 class DataGridCellPdfExportDetails {
   ///the callback event [DataGridCellPdfExportDetails]
   const DataGridCellPdfExportDetails(
-      this.cellType, this.pdfCell, this.cellValue, this.columnName);
+    this.cellType,
+    this.pdfCell,
+    this.cellValue,
+    this.columnName,
+  );
 
   /// The type of the cell.
   final DataGridExportCellType cellType;
@@ -758,10 +851,10 @@ class DataGridPdfHeaderFooterExportDetails {
 
 /// Signature for `cellExport` callback which is passed as an argument in
 /// `exportToPdfGrid` and `exportToPdfDocument` methods.
-typedef DataGridCellPdfExportCallback = void Function(
-    DataGridCellPdfExportDetails details);
+typedef DataGridCellPdfExportCallback =
+    void Function(DataGridCellPdfExportDetails details);
 
 /// Signature for `headerFooterExport` callback which is passed as an argument
 /// `exportToPdfGrid` and `exportToPdfDocument` methods.
-typedef DataGridPdfHeaderFooterExportCallback = void Function(
-    DataGridPdfHeaderFooterExportDetails details);
+typedef DataGridPdfHeaderFooterExportCallback =
+    void Function(DataGridPdfHeaderFooterExportDetails details);

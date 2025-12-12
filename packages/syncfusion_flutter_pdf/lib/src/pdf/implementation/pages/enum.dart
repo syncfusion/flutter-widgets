@@ -20,7 +20,7 @@ enum PdfPageRotateAngle {
   rotateAngle180,
 
   /// The page is rotated as 270 angle.
-  rotateAngle270
+  rotateAngle270,
 }
 
 /// Specifies the docking style of the page template.
@@ -41,7 +41,7 @@ enum PdfDockStyle {
   right,
 
   /// The page template stretch on full page.
-  fill
+  fill,
 }
 
 /// Specifies how the page template is aligned relative to the template area.
@@ -95,7 +95,7 @@ enum PdfNumberStyle {
   upperLatin,
 
   /// Uppercase roman numerals.
-  upperRoman
+  upperRoman,
 }
 
 /// Specifies tab order types for form fields
@@ -131,5 +131,5 @@ enum TemplateType {
   left,
 
   /// Page template is used as Right.
-  right
+  right,
 }

@@ -9,10 +9,14 @@ class MethodChannelPdfViewer extends PdfViewerPlatform {
   /// If success, returns page count else returns error message from respective platform
   @override
   Future<String?> initializePdfRenderer(
-      Uint8List documentBytes, String documentID) async {
+    Uint8List documentBytes,
+    String documentID, [
+    String? password,
+  ]) async {
     return _channel.invokeMethod('initializePdfRenderer', <String, dynamic>{
       'documentBytes': documentBytes,
-      'documentID': documentID
+      'documentID': documentID,
+      'password': password,
     });
   }
 
@@ -31,19 +35,30 @@ class MethodChannelPdfViewer extends PdfViewerPlatform {
   /// Gets the image bytes of the specified page from the document at the specified width and height.
   @override
   Future<Uint8List?> getPage(
-      int pageNumber, int width, int height, String documentID) async {
+    int pageNumber,
+    int width,
+    int height,
+    String documentID,
+  ) async {
     return _channel.invokeMethod<Uint8List>('getPage', <String, dynamic>{
       'index': pageNumber,
       'width': width,
       'height': height,
-      'documentID': documentID
+      'documentID': documentID,
     });
   }
 
   /// Gets the image's bytes information of the specified portion of the page
   @override
-  Future<Uint8List?> getTileImage(int pageNumber, double currentScale, double x,
-      double y, double width, double height, String documentID) async {
+  Future<Uint8List?> getTileImage(
+    int pageNumber,
+    double currentScale,
+    double x,
+    double y,
+    double width,
+    double height,
+    String documentID,
+  ) async {
     return _channel.invokeMethod<Uint8List>('getTileImage', <String, dynamic>{
       'pageNumber': pageNumber,
       'scale': currentScale,
@@ -51,7 +66,7 @@ class MethodChannelPdfViewer extends PdfViewerPlatform {
       'y': y,
       'width': width,
       'height': height,
-      'documentID': documentID
+      'documentID': documentID,
     });
   }
 

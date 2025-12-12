@@ -1,4 +1,5 @@
-part of xlsio;
+import '../general/enums.dart';
+import '../range/range.dart';
 
 /// Represents data validation for a worksheet range.
 class DataValidation {

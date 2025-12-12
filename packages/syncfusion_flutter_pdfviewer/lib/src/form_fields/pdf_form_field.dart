@@ -39,6 +39,9 @@ abstract class PdfFormFieldHelper {
   /// Gets the bounds of the form field.
   late Rect bounds;
 
+  /// Gets the global bounds of the form field.
+  Rect globalRect = Rect.zero;
+
   /// The callback which is called when the form field value changed.
   VoidCallback? onChanged;
 
@@ -66,5 +69,36 @@ abstract class PdfFormFieldHelper {
   /// Disposes the form field.
   void dispose() {
     onChanged = null;
+  }
+}
+
+/// Converts PdfTextAlignment value to respective TextAlign value.
+extension PdfTextAlignmentExtension on PdfTextAlignment {
+  TextAlign get textAlign {
+    switch (this) {
+      case PdfTextAlignment.left:
+        return TextAlign.left;
+      case PdfTextAlignment.center:
+        return TextAlign.center;
+      case PdfTextAlignment.right:
+        return TextAlign.right;
+      case PdfTextAlignment.justify:
+        return TextAlign.left;
+    }
+  }
+}
+
+/// Converts PdfTextAlignment value to respective Alignment value.
+extension TextAlignmentExtension on PdfTextAlignment {
+  AlignmentGeometry get alignmentGeometry {
+    switch (this) {
+      case PdfTextAlignment.left:
+      case PdfTextAlignment.justify:
+        return Alignment.centerLeft;
+      case PdfTextAlignment.right:
+        return Alignment.centerRight;
+      case PdfTextAlignment.center:
+        return Alignment.center;
+    }
   }
 }

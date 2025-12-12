@@ -12,9 +12,9 @@ class PdfEmbeddedFileSpecification extends PdfFileSpecificationBase {
   /// Initializes a new instance of the [PdfEmbeddedFileSpecification] class
   PdfEmbeddedFileSpecification(String fileName, List<int> data) : super() {
     _helper = PdfEmbeddedFileSpecificationHelper(this);
-    PdfFileSpecificationBaseHelper.getHelper(this)
-        .dictionary!
-        .setProperty(PdfDictionaryProperties.ef, _helper._dict);
+    PdfFileSpecificationBaseHelper.getHelper(
+      this,
+    ).dictionary!.setProperty(PdfDictionaryProperties.ef, _helper._dict);
     _helper.embeddedFile = EmbeddedFile(fileName, data);
     _helper.description = fileName;
   }
@@ -33,7 +33,8 @@ class PdfEmbeddedFileSpecificationHelper {
 
   /// internal method
   static PdfEmbeddedFileSpecificationHelper getHelper(
-      PdfEmbeddedFileSpecification base) {
+    PdfEmbeddedFileSpecification base,
+  ) {
     return base._helper;
   }
 
@@ -53,9 +54,9 @@ class PdfEmbeddedFileSpecificationHelper {
   set description(String value) {
     if (_desc != value) {
       _desc = value;
-      PdfFileSpecificationBaseHelper.getHelper(base)
-          .dictionary!
-          .setString(PdfDictionaryProperties.description, _desc);
+      PdfFileSpecificationBaseHelper.getHelper(
+        base,
+      ).dictionary!.setString(PdfDictionaryProperties.description, _desc);
     }
   }
 
@@ -70,13 +71,15 @@ class PdfEmbeddedFileSpecificationHelper {
   void save() {
     _dict[PdfDictionaryProperties.f] = PdfReferenceHolder(embeddedFile);
     final PdfString str = PdfString(
-        PdfFileSpecificationBaseHelper.getHelper(base)
-            .formatFileName(embeddedFile.fileName, false));
-    PdfFileSpecificationBaseHelper.getHelper(base)
-        .dictionary!
-        .setProperty(PdfDictionaryProperties.f, str);
-    PdfFileSpecificationBaseHelper.getHelper(base)
-        .dictionary!
-        .setProperty(PdfDictionaryProperties.uf, str);
+      PdfFileSpecificationBaseHelper.getHelper(
+        base,
+      ).formatFileName(embeddedFile.fileName, false),
+    );
+    PdfFileSpecificationBaseHelper.getHelper(
+      base,
+    ).dictionary!.setProperty(PdfDictionaryProperties.f, str);
+    PdfFileSpecificationBaseHelper.getHelper(
+      base,
+    ).dictionary!.setProperty(PdfDictionaryProperties.uf, str);
   }
 }

@@ -25,10 +25,11 @@ class PdfCatalog extends PdfDictionary {
 
   /// internal constructor
   PdfCatalog.fromDocument(PdfDocument this.document, PdfDictionary? catalog)
-      : super(catalog) {
+    : super(catalog) {
     if (containsKey(PdfDictionaryProperties.names)) {
-      final IPdfPrimitive? obj =
-          PdfCrossTable.dereference(this[PdfDictionaryProperties.names]);
+      final IPdfPrimitive? obj = PdfCrossTable.dereference(
+        this[PdfDictionaryProperties.names],
+      );
       if (obj is PdfDictionary) {
         _catalogNames = PdfCatalogNames(obj);
       }
@@ -60,8 +61,9 @@ class PdfCatalog extends PdfDictionary {
   PdfDictionary? get destinations {
     PdfDictionary? dests;
     if (containsKey(PdfDictionaryProperties.dests)) {
-      dests = PdfCrossTable.dereference(this[PdfDictionaryProperties.dests])
-          as PdfDictionary?;
+      dests =
+          PdfCrossTable.dereference(this[PdfDictionaryProperties.dests])
+              as PdfDictionary?;
     }
     return dests;
   }

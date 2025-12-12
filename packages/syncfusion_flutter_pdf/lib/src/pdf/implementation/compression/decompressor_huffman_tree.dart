@@ -60,26 +60,42 @@ class DecompressorHuffmanTree {
       _distanceTree = DecompressorHuffmanTree(lengths);
     } catch (e) {
       throw ArgumentError.value(
-          e, 'DecompressorHuffmanTree: fixed trees generation failed');
+        e,
+        'DecompressorHuffmanTree: fixed trees generation failed',
+      );
     }
   }
 
   void _buildTree(List<int> lengths) {
-    final List<int> blCount =
-        List<int>.filled(_maxBitLength + 1, 0, growable: true);
-    final List<int> nextCode =
-        List<int>.filled(_maxBitLength + 1, 0, growable: true);
+    final List<int> blCount = List<int>.filled(
+      _maxBitLength + 1,
+      0,
+      growable: true,
+    );
+    final List<int> nextCode = List<int>.filled(
+      _maxBitLength + 1,
+      0,
+      growable: true,
+    );
     int? treeSize;
     int? code = 0;
-    final Map<String, dynamic> result =
-        _prepareData(blCount, nextCode, lengths, treeSize);
+    final Map<String, dynamic> result = _prepareData(
+      blCount,
+      nextCode,
+      lengths,
+      treeSize,
+    );
     treeSize = result['treeSize'] as int?;
     code = result['code'] as int;
     _tree = _treeFromData(blCount, nextCode, lengths, code, treeSize!);
   }
 
   Map<String, dynamic> _prepareData(
-      List<int> blCount, List<int> nextCode, List<int> lengths, int? treeSize) {
+    List<int> blCount,
+    List<int> nextCode,
+    List<int> lengths,
+    int? treeSize,
+  ) {
     int code = 0;
     treeSize = 512;
     for (int i = 0; i < lengths.length; i++) {
@@ -101,8 +117,13 @@ class DecompressorHuffmanTree {
     return <String, dynamic>{'treeSize': treeSize, 'code': code};
   }
 
-  List<int> _treeFromData(List<int> blCount, List<int> nextCode,
-      List<int> lengths, int? code, int treeSize) {
+  List<int> _treeFromData(
+    List<int> blCount,
+    List<int> nextCode,
+    List<int> lengths,
+    int? code,
+    int treeSize,
+  ) {
     final List<int> tree = List<int>.filled(treeSize, 0, growable: true);
     int pointer = 512;
     const int increment = 1 << 7;
@@ -111,8 +132,8 @@ class DecompressorHuffmanTree {
       code -= blCount[bits] << (16 - bits);
       final int start = code & 0x1ff80;
       for (int i = start; i < end; i += increment) {
-        tree[CompressedStreamWriter.bitReverse(i)] =
-            ((-pointer << 4) | bits).toSigned(16);
+        tree[CompressedStreamWriter.bitReverse(i)] = ((-pointer << 4) | bits)
+            .toSigned(16);
         pointer += 1 << (bits - 9);
       }
     }

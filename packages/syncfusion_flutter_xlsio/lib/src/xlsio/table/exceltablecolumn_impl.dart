@@ -1,12 +1,19 @@
 // ignore_for_file: unused_local_variable
-
-part of xlsio;
+import '../general/enums.dart';
+import '../general/workbook.dart';
+import '../range/range.dart';
+import 'exceltable_impl.dart';
+import 'exceltablecolumn.dart';
 
 ///Represents Implementation of List Object Column
-class _ExcelTableColumnImpl implements ExcelTableColumn {
+class ExcelTableColumnImpl implements ExcelTableColumn {
   /// Initializes new instance of the class.
-  _ExcelTableColumnImpl(
-      String name, int index, _ExcelTableImpl parentTable, int id) {
+  ExcelTableColumnImpl(
+    String name,
+    int index,
+    ExcelTableImpl parentTable,
+    int id,
+  ) {
     _name = name;
     _index = index;
     _parentTable = parentTable;
@@ -31,10 +38,10 @@ class _ExcelTableColumnImpl implements ExcelTableColumn {
   late int _index;
 
   /// Represent the parent table
-  late _ExcelTableImpl _parentTable;
+  late ExcelTableImpl _parentTable;
 
   /// Gets column id of current column. Read-only.
-  int get _columnId {
+  int get columnId {
     return _id;
   }
 
@@ -53,16 +60,18 @@ class _ExcelTableColumnImpl implements ExcelTableColumn {
     final List<String> colNames = <String>[];
     final int firstColumn = tableRange.column - tableColumnIndex;
     final int lastColumn = tableRange.lastColumn - tableColumnIndex;
-    for (int columnIndex = firstColumn;
-        columnIndex <= lastColumn;
-        columnIndex++) {
+    for (
+      int columnIndex = firstColumn;
+      columnIndex <= lastColumn;
+      columnIndex++
+    ) {
       colNames.add(_parentTable.columns[columnIndex].columnName);
     }
     colNames.removeAt(setIndex);
     colNames.insert(setIndex, value);
-    _parentTable._updateColumnNames(colNames);
+    _parentTable.updateColumnNames(colNames);
     value = colNames[setIndex];
-    _setName(value);
+    setName(value);
   }
 
   /// Gets column index of current column. Read-only.
@@ -73,8 +82,10 @@ class _ExcelTableColumnImpl implements ExcelTableColumn {
   /// Get the total cell for the column.
   Range get totalCell {
     final Range location = _parentTable.dataRange;
-    return location.worksheet
-        .getRangeByIndex(location.lastRow, location.column + _columnIndex - 1);
+    return location.worksheet.getRangeByIndex(
+      location.lastRow,
+      location.column + _columnIndex - 1,
+    );
   }
 
   /// Gets or sets the function used for totals calculation.
@@ -93,7 +104,7 @@ class _ExcelTableColumnImpl implements ExcelTableColumn {
     const String strComma = ',';
     if (value != ExcelTableTotalFormula.none) {
       cell.formula =
-          '=SUBTOTAL(${_getTotalsCalculation(value)}$strComma${_parentTable._tableName}[$columnName])';
+          '=SUBTOTAL(${_getTotalsCalculation(value)}$strComma${_parentTable.tableName}[$columnName])';
       if (value == ExcelTableTotalFormula.count ||
           value == ExcelTableTotalFormula.countNums) {
         cell.numberFormat = 'General';
@@ -157,16 +168,16 @@ class _ExcelTableColumnImpl implements ExcelTableColumn {
   }
 
   /// sets Name
-  void _setName(String value) {
+  void setName(String value) {
     final Range tableRange = _parentTable.dataRange;
     final int iRow = tableRange.row;
     final int iColumn = _getColumnIndex(tableRange);
 
     if (_parentTable.showHeaderRow &&
-        (_parentTable._worksheet.getRangeByIndex(iRow, iColumn).text == null ||
-            !(_parentTable._worksheet.getRangeByIndex(iRow, iColumn).text ==
+        (_parentTable.worksheet.getRangeByIndex(iRow, iColumn).text == null ||
+            !(_parentTable.worksheet.getRangeByIndex(iRow, iColumn).text ==
                 value))) {
-      _parentTable._worksheet.getRangeByIndex(iRow, iColumn).text = value;
+      _parentTable.worksheet.getRangeByIndex(iRow, iColumn).text = value;
     }
     _name = value;
   }

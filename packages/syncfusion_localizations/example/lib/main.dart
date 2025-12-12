@@ -17,7 +17,7 @@ class CalendarApp extends StatelessWidget {
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         // ... app-specific localization delegate[s] here
-        SfGlobalLocalizations.delegate
+        SfGlobalLocalizations.delegate,
       ],
       //ignore: always_specify_types
       supportedLocales: const [
@@ -43,23 +43,38 @@ class _MyHomePageState extends State<_MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SfCalendar(
-      view: CalendarView.month,
-      dataSource: _MeetingDataSource(_getDataSource()),
-      monthViewSettings: MonthViewSettings(
+      body: SfCalendar(
+        view: CalendarView.month,
+        dataSource: _MeetingDataSource(_getDataSource()),
+        monthViewSettings: MonthViewSettings(
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-          showAgenda: true),
-    ));
+          showAgenda: true,
+        ),
+      ),
+    );
   }
 
   List<_Meeting> _getDataSource() {
     final List<_Meeting> meetings = <_Meeting>[];
     final DateTime today = DateTime.now();
-    final DateTime startTime =
-        DateTime(today.year, today.month, today.day, 9, 0, 0);
+    final DateTime startTime = DateTime(
+      today.year,
+      today.month,
+      today.day,
+      9,
+      0,
+      0,
+    );
     final DateTime endTime = startTime.add(const Duration(hours: 2));
-    meetings.add(_Meeting(
-        'Conference', startTime, endTime, const Color(0xFF0F8644), false));
+    meetings.add(
+      _Meeting(
+        'Conference',
+        startTime,
+        endTime,
+        const Color(0xFF0F8644),
+        false,
+      ),
+    );
     return meetings;
   }
 }

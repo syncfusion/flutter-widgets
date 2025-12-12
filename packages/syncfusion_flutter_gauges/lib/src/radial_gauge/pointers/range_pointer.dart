@@ -28,32 +28,32 @@ class RangePointer extends LeafRenderObjectWidget implements GaugePointer {
   ///
   /// The arguments [value], [pointerOffset], must not be null and
   /// [animationDuration], [width], must be non-negative.
-  const RangePointer(
-      {Key? key,
-      this.value = 0,
-      this.enableDragging = false,
-      this.onValueChanged,
-      this.onValueChangeStart,
-      this.onValueChangeEnd,
-      this.onValueChanging,
-      this.animationType = AnimationType.ease,
-      this.enableAnimation = false,
-      this.animationDuration = 1000,
-      this.cornerStyle = CornerStyle.bothFlat,
-      this.gradient,
-      this.pointerOffset = 0,
-      this.sizeUnit = GaugeSizeUnit.logicalPixel,
-      this.width = 10,
-      this.dashArray,
-      this.color})
-      : assert(
-            animationDuration > 0, 'Animation duration must be non-negative'),
-        assert(width >= 0, 'Width must be a non-negative value.'),
-        assert(
-            (gradient != null && gradient is SweepGradient) || gradient == null,
-            'The gradient must be null or else the gradient must be equal to '
-            'sweep gradient.'),
-        super(key: key);
+  const RangePointer({
+    Key? key,
+    this.value = 0,
+    this.enableDragging = false,
+    this.onValueChanged,
+    this.onValueChangeStart,
+    this.onValueChangeEnd,
+    this.onValueChanging,
+    this.animationType = AnimationType.ease,
+    this.enableAnimation = false,
+    this.animationDuration = 1000,
+    this.cornerStyle = CornerStyle.bothFlat,
+    this.gradient,
+    this.pointerOffset = 0,
+    this.sizeUnit = GaugeSizeUnit.logicalPixel,
+    this.width = 10,
+    this.dashArray,
+    this.color,
+  }) : assert(animationDuration > 0, 'Animation duration must be non-negative'),
+       assert(width >= 0, 'Width must be a non-negative value.'),
+       assert(
+         (gradient != null && gradient is SweepGradient) || gradient == null,
+         'The gradient must be null or else the gradient must be equal to '
+         'sweep gradient.',
+       ),
+       super(key: key);
 
   /// Adjusts the range pointer position.
   ///
@@ -451,8 +451,9 @@ class RangePointer extends LeafRenderObjectWidget implements GaugePointer {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final ThemeData themeData = Theme.of(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     return RenderRangePointer(
       value: value.clamp(ancestor.minimum, ancestor.maximum),
@@ -482,12 +483,15 @@ class RangePointer extends LeafRenderObjectWidget implements GaugePointer {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderRangePointer renderObject) {
+    BuildContext context,
+    RenderRangePointer renderObject,
+  ) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
     final ThemeData themeData = Theme.of(context);
     final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
-    final RadialAxisInheritedWidget ancestor = context
-        .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
+    final RadialAxisInheritedWidget ancestor =
+        context
+            .dependOnInheritedWidgetOfExactType<RadialAxisInheritedWidget>()!;
 
     renderObject
       ..enableDragging = enableDragging

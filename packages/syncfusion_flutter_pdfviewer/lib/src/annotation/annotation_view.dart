@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../common/pdfviewer_helper.dart';
 import 'annotation.dart';
 
 /// The default stroke color for annotations.
@@ -12,10 +11,10 @@ const Color defaultStrokeColor = Colors.red;
 const double defaultOpacity = 1;
 
 /// The default selection border margin for annotations.
-double selectionBorderMargin = 5;
+double selectionBorderMargin = 2;
 
 /// The default selection border thickness for annotations.
-double selectionBorderThickness = kIsDesktop ? 3 : 1.5;
+const double selectionBorderThickness = 1.5;
 
 /// The default color for the annotation selector.
 const Color defaultSelectorColor = Color(0xFF6750A4);
@@ -23,8 +22,14 @@ const Color defaultSelectorColor = Color(0xFF6750A4);
 /// The default color for the annotation selector when the annotation is locked.
 const Color defaultLockedSelectorColor = Colors.grey;
 
+/// Signature for annotation moved callback.
+typedef AnnotationMoveEndedCallback = void Function(Annotation, Offset);
+
+/// Signature for annotation moving callback.
+typedef AnnotationMovingCallback = void Function(Annotation, Offset);
+
 /// A widget representing an annotation.
-abstract class AnnotationView {
+mixin AnnotationView {
   /// [Annotation] instance.
   late final Annotation annotation;
 }
@@ -39,7 +44,9 @@ class InteractiveGraphicsView extends LeafRenderObjectWidget {
     this.fillColor,
     this.strokeWidth = 5,
     this.isSelected = false,
+    this.canMove = true,
     this.selectorColor = defaultSelectorColor,
+    this.selectorStorkeWidth = selectionBorderThickness,
   }) : super(key: key);
 
   /// The color of the annotation.
@@ -57,8 +64,14 @@ class InteractiveGraphicsView extends LeafRenderObjectWidget {
   /// Whether the annotation is selected.
   final bool isSelected;
 
+  /// Whether the annotation can be moved.
+  final bool canMove;
+
   /// The color of the annotation selector.
   final Color selectorColor;
+
+  /// The stroke width of the annotation selector.
+  final double selectorStorkeWidth;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -68,20 +81,26 @@ class InteractiveGraphicsView extends LeafRenderObjectWidget {
       fillColor: fillColor,
       strokeWidth: strokeWidth,
       isSelected: isSelected,
+      canMove: canMove,
       selectorColor: selectorColor,
+      selectorStorkeWidth: selectorStorkeWidth,
     );
   }
 
   @override
-  void updateRenderObject(BuildContext context,
-      covariant RenderInteractiveGraphicsView renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderInteractiveGraphicsView renderObject,
+  ) {
     renderObject
       ..color = color
       ..opacity = opacity
       ..fillColor = fillColor
       ..strokeWidth = strokeWidth
       ..isSelected = isSelected
-      ..selectorColor = selectorColor;
+      ..canEdit = canMove
+      ..selectorColor = selectorColor
+      ..selectorStorkeWidth = selectorStorkeWidth;
   }
 }
 
@@ -95,26 +114,33 @@ class RenderInteractiveGraphicsView extends RenderBox {
     required int strokeWidth,
     required bool isSelected,
     required Color selectorColor,
+    bool canMove = true,
+    double selectorStorkeWidth = selectionBorderThickness,
   }) {
     _color = strokeColor;
     _opacity = opacity;
     _fillColor = fillColor;
     _strokeWidth = strokeWidth;
     _isSelected = isSelected;
+    _canMove = canMove;
     _selectorColor = selectorColor;
+    _selectorStorkeWidth = selectorStorkeWidth;
 
-    tapGestureRecognizer = TapGestureRecognizer()
-      ..onTap = onTap
-      ..onTapDown = onTapDown
-      ..onTapUp = onTapUp
-      ..onTapCancel = onTapCancel;
+    tapGestureRecognizer =
+        TapGestureRecognizer()
+          ..onTap = onTap
+          ..onTapDown = onTapDown
+          ..onTapUp = onTapUp
+          ..onTapCancel = onTapCancel;
 
-    panGestureRecognizer = PanGestureRecognizer()
-      ..onDown = onDragDown
-      ..onStart = onDragStart
-      ..onEnd = onDragEnd
-      ..onUpdate = onDragUpdate
-      ..onCancel = onDragCancel;
+    panGestureRecognizer =
+        PanGestureRecognizer()
+          ..onDown = onDragDown
+          ..onStart = onDragStart
+          ..onEnd = onDragEnd
+          ..onUpdate = onDragUpdate
+          ..onCancel = onDragCancel
+          ..gestureSettings = const DeviceGestureSettings(touchSlop: 0.0);
   }
 
   late Color _color;
@@ -122,7 +148,9 @@ class RenderInteractiveGraphicsView extends RenderBox {
   late Color? _fillColor;
   late int _strokeWidth;
   late bool _isSelected;
+  late bool _canMove;
   late Color _selectorColor;
+  late double _selectorStorkeWidth;
 
   /// The color of the annotation.
   Color get color => _color;
@@ -174,6 +202,15 @@ class RenderInteractiveGraphicsView extends RenderBox {
     markNeedsPaint();
   }
 
+  /// Whether the annotation can be moved.
+  bool get canEdit => _canMove;
+  set canEdit(bool value) {
+    if (_canMove == value) {
+      return;
+    }
+    _canMove = value;
+  }
+
   /// The color of the annotation selector.
   Color get selectorColor => _selectorColor;
   set selectorColor(Color value) {
@@ -184,8 +221,15 @@ class RenderInteractiveGraphicsView extends RenderBox {
     markNeedsPaint();
   }
 
-  /// Whether the annotation can be moved.
-  bool canMove = true;
+  /// The stroke width of the annotation selector.
+  double get selectorStorkeWidth => _selectorStorkeWidth;
+  set selectorStorkeWidth(double value) {
+    if (_selectorStorkeWidth == value) {
+      return;
+    }
+    _selectorStorkeWidth = value;
+    markNeedsPaint();
+  }
 
   /// The tap gesture recognizer.
   late TapGestureRecognizer tapGestureRecognizer;
@@ -200,7 +244,7 @@ class RenderInteractiveGraphicsView extends RenderBox {
   void handleEvent(PointerEvent event, covariant BoxHitTestEntry entry) {
     if (event is PointerDownEvent) {
       tapGestureRecognizer.addPointer(event);
-      if (canMove) {
+      if (canEdit) {
         panGestureRecognizer.addPointer(event);
       }
     }
@@ -224,12 +268,17 @@ class RenderInteractiveGraphicsView extends RenderBox {
   /// Draws the selection bounds for the annotation.
   void drawSelectionBounds(PaintingContext context, Offset offset) {
     final Canvas canvas = context.canvas;
-    final Rect selectorBounds =
-        Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
-    final Paint selectorPaint = Paint()
-      ..color = selectorColor
-      ..strokeWidth = selectionBorderThickness
-      ..style = PaintingStyle.stroke;
+    final Rect selectorBounds = Rect.fromLTWH(
+      offset.dx,
+      offset.dy,
+      size.width,
+      size.height,
+    );
+    final Paint selectorPaint =
+        Paint()
+          ..color = selectorColor
+          ..strokeWidth = selectorStorkeWidth
+          ..style = PaintingStyle.stroke;
     canvas.drawRect(selectorBounds, selectorPaint);
   }
 

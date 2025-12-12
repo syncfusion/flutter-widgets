@@ -9,16 +9,26 @@ import 'enums.dart';
 class PdfTransparency implements IPdfWrapper {
   //Constructor
   /// internal constructor
-  PdfTransparency(double stroke, double fill, PdfBlendMode mode,
-      {bool conformance = false}) {
+  PdfTransparency(
+    double stroke,
+    double fill,
+    PdfBlendMode mode, {
+    bool conformance = false,
+  }) {
     dictionary = PdfDictionary();
     if (stroke < 0) {
       throw ArgumentError.value(
-          stroke, 'stroke', 'The value cannot be less then zero.');
+        stroke,
+        'stroke',
+        'The value cannot be less then zero.',
+      );
     }
     if (fill < 0) {
       throw ArgumentError.value(
-          fill, 'fill', 'The value cannot be less then zero.');
+        fill,
+        'fill',
+        'The value cannot be less then zero.',
+      );
     }
     //NOTE : This is needed to attain PDF/A conformance. Since PDF/A1B
     //does not support transparency key.

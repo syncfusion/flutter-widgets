@@ -25,17 +25,22 @@ abstract class PdfGridStyleBase {
 /// Provides customization of the appearance for the [PdfGridRow].
 class PdfGridRowStyle extends PdfGridStyleBase {
   /// Initializes a new instance of the [PdfGridRowStyle] class.
-  PdfGridRowStyle(
-      {PdfBrush? backgroundBrush,
-      PdfBrush? textBrush,
-      PdfPen? textPen,
-      PdfFont? font}) {
+  PdfGridRowStyle({
+    PdfBrush? backgroundBrush,
+    PdfBrush? textBrush,
+    PdfPen? textPen,
+    PdfFont? font,
+  }) {
     _initializeRowStyle(backgroundBrush, textBrush, textPen, font);
   }
 
   //Implementation
-  void _initializeRowStyle(PdfBrush? backgroundBrush, PdfBrush? textBrush,
-      PdfPen? textPen, PdfFont? font) {
+  void _initializeRowStyle(
+    PdfBrush? backgroundBrush,
+    PdfBrush? textBrush,
+    PdfPen? textPen,
+    PdfFont? font,
+  ) {
     super.backgroundBrush = backgroundBrush;
     super.textBrush = textBrush;
     super.textPen = textPen;
@@ -43,18 +48,19 @@ class PdfGridRowStyle extends PdfGridStyleBase {
   }
 }
 
-/// Provides customization of the appearance for the <see cref="PdfGridCell"/>
+/// Provides customization of the appearance for the [PdfGridCell].
 class PdfGridCellStyle extends PdfGridRowStyle {
   /// Initializes a new instance of the [PdfGridCellStyle] class.
-  PdfGridCellStyle(
-      {PdfBorders? borders,
-      PdfStringFormat? format,
-      PdfImage? backgroundImage,
-      PdfPaddings? cellPadding,
-      super.backgroundBrush,
-      super.textBrush,
-      super.textPen,
-      super.font}) {
+  PdfGridCellStyle({
+    PdfBorders? borders,
+    PdfStringFormat? format,
+    PdfImage? backgroundImage,
+    PdfPaddings? cellPadding,
+    super.backgroundBrush,
+    super.textBrush,
+    super.textPen,
+    super.font,
+  }) {
     _initializeCellStyle(borders, format, backgroundImage, cellPadding);
   }
 
@@ -82,8 +88,12 @@ class PdfGridCellStyle extends PdfGridRowStyle {
   }
 
   //Implementation
-  void _initializeCellStyle(PdfBorders? borders, PdfStringFormat? format,
-      PdfImage? backgroundImage, PdfPaddings? cellPadding) {
+  void _initializeCellStyle(
+    PdfBorders? borders,
+    PdfStringFormat? format,
+    PdfImage? backgroundImage,
+    PdfPaddings? cellPadding,
+  ) {
     this.borders = borders ?? PdfBorders();
     stringFormat = format;
     this.backgroundImage = backgroundImage;
@@ -111,16 +121,24 @@ class PdfGridCellStyleHelper {
 class PdfGridStyle extends PdfGridStyleBase {
   //Constructor
   /// Initializes a new instance of the [PdfGridStyle] class.
-  PdfGridStyle(
-      {double? cellSpacing,
-      PdfPaddings? cellPadding,
-      PdfBorderOverlapStyle? borderOverlapStyle,
-      PdfBrush? backgroundBrush,
-      PdfBrush? textBrush,
-      PdfPen? textPen,
-      PdfFont? font}) {
-    _initializeStyle(cellSpacing, cellPadding, borderOverlapStyle,
-        backgroundBrush, textBrush, textPen, font);
+  PdfGridStyle({
+    double? cellSpacing,
+    PdfPaddings? cellPadding,
+    PdfBorderOverlapStyle? borderOverlapStyle,
+    PdfBrush? backgroundBrush,
+    PdfBrush? textBrush,
+    PdfPen? textPen,
+    PdfFont? font,
+  }) {
+    _initializeStyle(
+      cellSpacing,
+      cellPadding,
+      borderOverlapStyle,
+      backgroundBrush,
+      textBrush,
+      textPen,
+      font,
+    );
   }
   //Fields
   /// Gets or sets the cell spacing of the [PdfGrid].
@@ -152,13 +170,14 @@ class PdfGridStyle extends PdfGridStyleBase {
 
   //Implementation
   void _initializeStyle(
-      double? cellSpacing,
-      PdfPaddings? cellPadding,
-      PdfBorderOverlapStyle? borderOverlapStyle,
-      PdfBrush? backgroundBrush,
-      PdfBrush? textBrush,
-      PdfPen? textPen,
-      PdfFont? font) {
+    double? cellSpacing,
+    PdfPaddings? cellPadding,
+    PdfBorderOverlapStyle? borderOverlapStyle,
+    PdfBrush? backgroundBrush,
+    PdfBrush? textBrush,
+    PdfPen? textPen,
+    PdfFont? font,
+  ) {
     super.backgroundBrush = backgroundBrush;
     super.textBrush = textBrush;
     super.textPen = textPen;

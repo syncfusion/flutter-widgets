@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // ignore_for_file: public_member_api_docs
 
@@ -41,3 +42,36 @@ enum ChildElements {
 }
 
 enum SliderType { horizontal, vertical }
+
+enum SliderKeyType { right, left, up, down }
+
+class SliderKeyIntent extends Intent {
+  const SliderKeyIntent({required this.type});
+
+  const SliderKeyIntent.right() : type = SliderKeyType.right;
+
+  const SliderKeyIntent.left() : type = SliderKeyType.left;
+
+  const SliderKeyIntent.up() : type = SliderKeyType.up;
+
+  const SliderKeyIntent.down() : type = SliderKeyType.down;
+
+  final SliderKeyType type;
+}
+
+// Keyboard mapping for a focused slider.
+const Map<ShortcutActivator, Intent> KeyboardNavShortcutMap =
+    <ShortcutActivator, Intent>{
+      SingleActivator(LogicalKeyboardKey.arrowUp): SliderKeyIntent.up(),
+      SingleActivator(LogicalKeyboardKey.arrowDown): SliderKeyIntent.down(),
+      SingleActivator(LogicalKeyboardKey.arrowLeft): SliderKeyIntent.left(),
+      SingleActivator(LogicalKeyboardKey.arrowRight): SliderKeyIntent.right(),
+    };
+
+// Keyboard mapping for a focused slider when using directional navigation.
+// The vertical inputs are not handled to allow navigating out of the slider.
+const Map<ShortcutActivator, Intent> KeyboardDirectionalNavShortcutMap =
+    <ShortcutActivator, Intent>{
+      SingleActivator(LogicalKeyboardKey.arrowLeft): SliderKeyIntent.left(),
+      SingleActivator(LogicalKeyboardKey.arrowRight): SliderKeyIntent.right(),
+    };

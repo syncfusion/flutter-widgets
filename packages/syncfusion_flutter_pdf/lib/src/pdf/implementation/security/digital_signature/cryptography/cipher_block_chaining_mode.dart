@@ -1,73 +1,91 @@
+import 'dart:typed_data';
 import 'ipadding.dart';
 
 /// internal class
-class CipherBlockChainingMode implements ICipher {
+class CipherBlockChainingMode extends IBlockCipher {
   //Constructor
   /// internal constructor
   CipherBlockChainingMode(ICipher? cipher) {
     _cipher = cipher;
     _size = _cipher!.blockSize;
-    _bytes = List<int>.filled(_size!, 0, growable: true);
-    _cbcBytes = List<int>.filled(_size!, 0, growable: true);
-    _cbcNextBytes = List<int>.filled(_size!, 0, growable: true);
+
+    _bytes = Uint8List(_size!);
+    _cbcBytes = Uint8List(_size!);
+    _cbcNextBytes = Uint8List(_size!);
+
     _isEncryption = false;
   }
 
   //Fields
   ICipher? _cipher;
   int? _size;
-  late List<int> _bytes;
-  List<int>? _cbcBytes;
-  List<int>? _cbcNextBytes;
+  late Uint8List _bytes;
+  Uint8List? _cbcBytes;
+  Uint8List? _cbcNextBytes;
   bool? _isEncryption;
 
   //Fields
   @override
   int? get blockSize => _cipher!.blockSize;
   @override
-  String get algorithmName => '${_cipher!.algorithmName!}/CBC';
+  String get algorithmName => '${_cipher!.algorithmName}/CBC';
   @override
   bool get isBlock => false;
 
   //Implementation
   @override
-  void initialize(bool? isEncryption, ICipherParameter? parameters) {
+  void initialize(bool isEncryption, ICipherParameter? parameters) {
     final bool? oldEncryption = _isEncryption;
     _isEncryption = isEncryption;
-    if (parameters is InvalidParameter) {
-      final List<int> bytes = parameters.keys;
-      if (bytes.length != _size) {
-        throw ArgumentError.value(parameters, 'Invalid size in block');
-      }
-      List.copyRange(_bytes, 0, bytes, 0, bytes.length);
-      parameters = parameters.parameters;
-    }
-    reset();
     if (parameters != null) {
-      _cipher!.initialize(_isEncryption, parameters);
+      if (parameters is InvalidParameter) {
+        final List<int> iv = parameters.keys!;
+        if (iv.length != blockSize) {
+          throw ArgumentError.value(
+            iv,
+            'Initialization vector must be the same length as block size',
+          );
+        }
+        _bytes.setAll(0, iv);
+        _cipher!.initialize(isEncryption, parameters.parameters);
+      } else {
+        _cipher!.initialize(isEncryption, parameters);
+      }
+      reset();
     } else if (oldEncryption != _isEncryption) {
-      throw ArgumentError.value(oldEncryption,
-          'cannot change encrypting state without providing key.');
+      throw ArgumentError.value(
+        oldEncryption,
+        'cannot change encrypting state without providing key.',
+      );
     }
   }
 
   @override
   void reset() {
-    _cbcBytes = List<int>.from(_bytes);
-    _cbcNextBytes = List<int>.filled(_size!, 0, growable: true);
+    _cbcBytes!.setAll(0, _bytes);
+    _cbcNextBytes!.fillRange(0, _cbcNextBytes!.length, 0);
+    _cipher!.reset();
   }
 
   @override
-  Map<String, dynamic> processBlock(List<int>? inputBytes, int inputOffset,
-      List<int>? outputBytes, int? outputOffset) {
+  Map<String, dynamic> processBlock(
+    List<int>? inBytes,
+    int inOffset,
+    List<int>? outBytes,
+    int? outOffset,
+  ) {
     return _isEncryption!
-        ? encryptBlock(inputBytes!, inputOffset, outputBytes, outputOffset!)
-        : decryptBlock(inputBytes!, inputOffset, outputBytes, outputOffset);
+        ? encryptionBlock(inBytes!, inOffset, outBytes, outOffset!)
+        : decryptionBlock(inBytes!, inOffset, outBytes, outOffset);
   }
 
   /// internal method
-  Map<String, dynamic> encryptBlock(List<int> inputBytes, int inputOffset,
-      List<int>? outputBytes, int outputOffset) {
+  Map<String, dynamic> encryptionBlock(
+    List<int> inputBytes,
+    int inputOffset,
+    List<int>? outputBytes,
+    int outputOffset,
+  ) {
     if ((inputOffset + _size!) > inputBytes.length) {
       throw ArgumentError.value('Invalid length in input bytes');
     }
@@ -77,90 +95,162 @@ class CipherBlockChainingMode implements ICipher {
     final Map<String, dynamic> result =
         _cipher!.processBlock(_cbcBytes, 0, outputBytes, outputOffset)!;
     outputBytes = result['output'] as List<int>?;
-    List.copyRange(_cbcBytes!, 0, outputBytes!, outputOffset,
-        outputOffset + _cbcBytes!.length);
+    List.copyRange(
+      _cbcBytes!,
+      0,
+      outputBytes!,
+      outputOffset,
+      outputOffset + _cbcBytes!.length,
+    );
     return result;
   }
 
   /// internal method
-  Map<String, dynamic> decryptBlock(List<int> inputBytes, int inputOffset,
-      List<int>? outputBytes, int? outputOffset) {
+  Map<String, dynamic> decryptionBlock(
+    List<int> inputBytes,
+    int inputOffset,
+    List<int>? outputBytes,
+    int? outputOffset,
+  ) {
     if ((inputOffset + _size!) > inputBytes.length) {
       throw ArgumentError.value('Invalid length in input bytes');
     }
     List.copyRange(
-        _cbcNextBytes!, 0, inputBytes, inputOffset, inputOffset + _size!);
-    final Map<String, dynamic> result = _cipher!
-        .processBlock(inputBytes, inputOffset, outputBytes, outputOffset)!;
-    outputBytes = result['output'] as List<int>?;
+      _cbcNextBytes!,
+      0,
+      inputBytes,
+      inputOffset,
+      inputOffset + _size!,
+    );
+    final Map<String, dynamic>? result = _cipher!.processBlock(
+      inputBytes,
+      inputOffset,
+      outputBytes,
+      outputOffset,
+    );
+    outputBytes = result!['output'] as List<int>?;
     for (int i = 0; i < _size!; i++) {
       outputBytes![outputOffset! + i] ^= _cbcBytes![i];
     }
-    final List<int>? tempBytes = _cbcBytes;
+    final Uint8List? tempBytes = _cbcBytes;
     _cbcBytes = _cbcNextBytes;
     _cbcNextBytes = tempBytes;
     return <String, dynamic>{'length': result['length'], 'output': outputBytes};
   }
+
+  @override
+  int processingBlock(
+    Uint8List inputBytes,
+    int inputOffset,
+    Uint8List outputBytes,
+    int outputOffset,
+  ) {
+    return _isEncryption!
+        ? encryptBlock(inputBytes, inputOffset, outputBytes, outputOffset)
+        : decryptBlock(inputBytes, inputOffset, outputBytes, outputOffset);
+  }
+
+  /// internal method
+  int encryptBlock(
+    Uint8List? inputBytes,
+    int inputOffset,
+    Uint8List? outputBytes,
+    int outputOffset,
+  ) {
+    if ((inputOffset + _size!) > inputBytes!.length) {
+      throw ArgumentError.value('Invalid length in input bytes');
+    }
+    for (int i = 0; i < _size!; i++) {
+      _cbcBytes![i] ^= inputBytes[inputOffset + i];
+    }
+    final result = _cipher!.processingBlock(
+      _cbcBytes!,
+      0,
+      outputBytes!,
+      outputOffset,
+    );
+    _cbcBytes!.setRange(
+      0,
+      _size!,
+      Uint8List.view(
+        outputBytes.buffer,
+        outputBytes.offsetInBytes + outputOffset,
+        _size,
+      ),
+    );
+    return result!;
+  }
+
+  /// internal method
+  int decryptBlock(
+    Uint8List inputBytes,
+    int inputOffset,
+    Uint8List outputBytes,
+    int outputOffset,
+  ) {
+    if ((inputOffset + _size!) > inputBytes.length) {
+      throw ArgumentError.value('Invalid length in input bytes');
+    }
+    _cbcNextBytes!.setRange(
+      0,
+      _size!,
+      Uint8List.view(
+        inputBytes.buffer,
+        inputBytes.offsetInBytes + inputOffset,
+        blockSize,
+      ),
+    );
+    final result = _cipher!.processingBlock(
+      inputBytes,
+      inputOffset,
+      outputBytes,
+      outputOffset,
+    );
+    for (int i = 0; i < _size!; i++) {
+      outputBytes[outputOffset + i] ^= _cbcBytes![i];
+    }
+    final Uint8List? tempBytes = _cbcBytes;
+    _cbcBytes = _cbcNextBytes;
+    _cbcNextBytes = tempBytes;
+    return result!;
+  }
 }
 
 /// internal class
-class InvalidParameter implements ICipherParameter {
+class InvalidParameter<UnderlyingKeyParameters extends ICipherParameter?>
+    implements ICipherParameter {
   //Constructor
   /// internal constructor
-  InvalidParameter(this.parameters, List<int> bytes,
-      [int? offset, int? length]) {
-    length ??= bytes.length;
-    offset ??= 0;
-    this.bytes = List<int>.filled(length, 0, growable: true);
-    List.copyRange(this.bytes!, 0, bytes, offset, offset + length);
-  }
+  InvalidParameter(this.parameters, this.keys);
 
   //Fields
   /// internal field
-  ICipherParameter? parameters;
+  UnderlyingKeyParameters? parameters;
 
   /// internal field
-  List<int>? bytes;
-
-  //Properties
-  @override
-  List<int> get keys => List<int>.from(bytes!);
-  @override
-  set keys(List<int>? value) {
-    bytes = value;
-  }
+  Uint8List? keys;
 }
 
 /// internal class
-class KeyParameter implements ICipherParameter {
-  //Constructor
-  /// internal constructor
-  KeyParameter(List<int> bytes) {
-    this.bytes = List<int>.from(bytes);
+class KeyParameter extends ICipherParameter {
+  KeyParameter(this.keys);
+
+  KeyParameter.fromLengthValue(Uint8List keys, int keyOff, int keyLen) {
+    this.keys = Uint8List(keyLen);
+    copyArray(keys, keyOff, this.keys, 0, keyLen);
   }
+  late Uint8List keys;
+}
 
-  /// internal constructor
-  KeyParameter.fromLengthValue(List<int> bytes, int offset, int length) {
-    if (offset < 0 || offset > bytes.length) {
-      throw ArgumentError.value(offset, 'offset', 'Out of range');
-    }
-    if (length < 0 || (offset + length) > bytes.length) {
-      throw ArgumentError.value(length, 'length', 'Out of range');
-    }
-    this.bytes = List<int>.generate(length, (int i) => 0);
-    List.copyRange(this.bytes!, 0, bytes, offset, offset + length);
-  }
-
-  //Fields
-  /// internal field
-  List<int>? bytes;
-
-  //Properties
-  @override
-  List<int> get keys => List<int>.from(bytes!);
-  @override
-  set keys(List<int>? value) {
-    bytes = value;
+void copyArray(
+  Uint8List? sourceArr,
+  int sourcePos,
+  Uint8List? outArr,
+  int outPos,
+  int len,
+) {
+  for (var i = 0; i < len; i++) {
+    outArr![outPos + i] = sourceArr![sourcePos + i];
   }
 }
 
@@ -175,9 +265,7 @@ class CipherParameter implements ICipherParameter {
 
   /// internal property
   bool? get isPrivate => _privateKey;
-  @override
   List<int>? get keys => null;
-  @override
   set keys(List<int>? value) {}
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
@@ -236,9 +324,16 @@ class RsaKeyParam extends CipherParameter {
 /// internal class
 class RsaPrivateKeyParam extends RsaKeyParam {
   /// internal constructor
-  RsaPrivateKeyParam(BigInt? modulus, this.publicExponent,
-      BigInt? privateExponent, this.p, this.q, this.dP, this.dQ, this.inverse)
-      : super(true, modulus, privateExponent) {
+  RsaPrivateKeyParam(
+    BigInt? modulus,
+    this.publicExponent,
+    BigInt? privateExponent,
+    this.p,
+    this.q,
+    this.dP,
+    this.dQ,
+    this.inverse,
+  ) : super(true, modulus, privateExponent) {
     validateValue(publicExponent!);
     validateValue(p!);
     validateValue(q!);

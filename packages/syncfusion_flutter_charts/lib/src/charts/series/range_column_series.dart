@@ -58,6 +58,7 @@ class RangeColumnSeries<T, D> extends RangeSeriesBase<T, D> {
     super.borderGradient,
     this.borderRadius = BorderRadius.zero,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.animationDuration,
     this.trackColor = Colors.grey,
     this.trackBorderColor = Colors.transparent,
@@ -249,7 +250,9 @@ class RangeColumnSeries<T, D> extends RangeSeriesBase<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, RangeColumnSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    RangeColumnSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..trackColor = trackColor
@@ -382,12 +385,18 @@ class RangeColumnSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
     final RangeColumnSegment<T, D> rangeColumnSegment =
         segment as RangeColumnSegment<T, D>;
     updateSegmentTrackerStyle(
-        rangeColumnSegment, trackColor, trackBorderColor, trackBorderWidth);
+      rangeColumnSegment,
+      trackColor,
+      trackBorderColor,
+      trackBorderWidth,
+    );
     updateSegmentColor(rangeColumnSegment, borderColor, borderWidth);
-    updateSegmentGradient(rangeColumnSegment,
-        gradientBounds: rangeColumnSegment.segmentRect?.outerRect,
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      rangeColumnSegment,
+      gradientBounds: rangeColumnSegment.segmentRect?.outerRect,
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 }
 
@@ -403,7 +412,9 @@ class RangeColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _oldSegmentRect = null;
@@ -412,8 +423,11 @@ class RangeColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
     }
 
     if (series.animationDuration > 0) {
-      _oldSegmentRect =
-          RRect.lerp(_oldSegmentRect, segmentRect, segmentAnimationFactor);
+      _oldSegmentRect = RRect.lerp(
+        _oldSegmentRect,
+        segmentRect,
+        segmentAnimationFactor,
+      );
     } else {
       _oldSegmentRect = segmentRect;
     }
@@ -486,18 +500,22 @@ class RangeColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       final ChartMarker marker = series.markerAt(pointIndex);
       final double markerHeight =
           series.markerSettings.isVisible ? marker.height / 2 : 0;
-      final Offset preferredPos = tooltipPosition == TooltipPosition.pointer
-          ? position ?? segmentRect!.outerRect.topCenter
-          : segmentRect!.outerRect.topCenter;
+      final Offset preferredPos =
+          tooltipPosition == TooltipPosition.pointer
+              ? position ?? segmentRect!.outerRect.topCenter
+              : segmentRect!.outerRect.topCenter;
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -517,8 +535,10 @@ class RangeColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
   TrackballInfo? trackballInfo(Offset position, int pointIndex) {
     if (pointIndex != -1 && segmentRect != null) {
       final CartesianChartPoint<D> chartPoint = _chartPoint();
-      final Offset preferredPos =
-          Offset(series.pointToPixelX(x, top), series.pointToPixelY(x, top));
+      final Offset preferredPos = Offset(
+        series.pointToPixelX(x, top),
+        series.pointToPixelY(x, top),
+      );
       return ChartTrackballInfo<T, D>(
         position: preferredPos,
         highXPos: preferredPos.dx,
@@ -560,14 +580,17 @@ class RangeColumnSegment<T, D> extends ChartSegment with BarSeriesTrackerMixin {
       return;
     }
 
-    final RRect? paintRRect =
-        RRect.lerp(_oldSegmentRect, segmentRect, animationFactor);
-    if (paintRRect == null || paintRRect.isEmpty) {
+    final RRect? paintRRect = RRect.lerp(
+      _oldSegmentRect,
+      segmentRect,
+      animationFactor,
+    );
+    if (paintRRect == null) {
       return;
     }
 
     Paint paint = getFillPaint();
-    if (paint.color != Colors.transparent) {
+    if (paint.color != Colors.transparent && !paintRRect.isEmpty) {
       canvas.drawRRect(paintRRect, paint);
     }
 

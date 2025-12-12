@@ -50,8 +50,10 @@ class EmbeddedFile implements IPdfWrapper {
 
   //Implementations.
   void _initialize() {
-    _stream.setProperty(PdfDictionaryProperties.type,
-        PdfName(PdfDictionaryProperties.embeddedFile));
+    _stream.setProperty(
+      PdfDictionaryProperties.type,
+      PdfName(PdfDictionaryProperties.embeddedFile),
+    );
     _stream.setProperty(PdfDictionaryProperties.params, params);
     _stream.beginSave = _streamBeginSave;
   }

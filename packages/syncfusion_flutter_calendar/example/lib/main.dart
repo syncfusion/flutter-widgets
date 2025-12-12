@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 void main() {
-  return runApp(CalendarApp());
+  return runApp(const CalendarApp());
 }
 
 /// The app which hosts the home page which contains the calendar on it.
 class CalendarApp extends StatelessWidget {
+  const CalendarApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(title: 'Calendar Demo', home: MyHomePage());
@@ -27,15 +29,17 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SfCalendar(
-      view: CalendarView.month,
-      dataSource: MeetingDataSource(_getDataSource()),
-      // by default the month appointment display mode set as Indicator, we can
-      // change the display mode as appointment using the appointment display
-      // mode property
-      monthViewSettings: const MonthViewSettings(
-          appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
-    ));
+      body: SfCalendar(
+        view: CalendarView.month,
+        dataSource: MeetingDataSource(_getDataSource()),
+        // by default the month appointment display mode set as Indicator, we can
+        // change the display mode as appointment using the appointment display
+        // mode property
+        monthViewSettings: const MonthViewSettings(
+          appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
+        ),
+      ),
+    );
   }
 
   List<Meeting> _getDataSource() {
@@ -43,8 +47,9 @@ class _MyHomePageState extends State<MyHomePage> {
     final DateTime today = DateTime.now();
     final DateTime startTime = DateTime(today.year, today.month, today.day, 9);
     final DateTime endTime = startTime.add(const Duration(hours: 2));
-    meetings.add(Meeting(
-        'Conference', startTime, endTime, const Color(0xFF0F8644), false));
+    meetings.add(
+      Meeting('Conference', startTime, endTime, const Color(0xFF0F8644), false),
+    );
     return meetings;
   }
 }

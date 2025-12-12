@@ -350,8 +350,10 @@ class PdfColorHelper {
   }
 
   /// internal method
-  static PdfArray toArray(PdfColor color,
-      [PdfColorSpace colorSpace = PdfColorSpace.rgb]) {
+  static PdfArray toArray(
+    PdfColor color, [
+    PdfColorSpace colorSpace = PdfColorSpace.rgb,
+  ]) {
     return color._toArray(colorSpace);
   }
 

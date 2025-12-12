@@ -1,32 +1,35 @@
-part of xlsio;
+import '../general/enums.dart';
+import 'format_parser.dart';
+import 'format_section_collection.dart';
+import 'formats_collection.dart';
 
 /// Represents the format Impl class.
-class _Format {
+class Format {
   /// Initializes new instance of the format.
-  _Format(FormatsCollection parent, [int index = 0, String strFormat = '']) {
+  Format(FormatsCollection parent, [int index = 0, String strFormat = '']) {
     _parent = parent;
-    _index = index;
-    _formatString = strFormat;
+    index = index;
+    formatString = strFormat;
   }
 
   late FormatsCollection _parent;
 
   /// Format index used in other records.
-  int _index = 0;
+  int index = 0;
 
   /// Format string.
-  String? _formatString;
+  String? formatString;
 
   /// Parsed format.
-  _FormatSectionCollection? _parsedFormat;
+  FormatSectionCollection? _parsedFormat;
 
   /// Reference to the format parser.
-  final _FormatParser _parser = _FormatParser();
+  final FormatParser _parser = FormatParser();
 
   /// Returns format type for a specified value.
-  ExcelFormatType _getFormatTypeFromDouble(double value) {
+  ExcelFormatType getFormatTypeFromDouble(double value) {
     _prepareFormat();
-    return _parsedFormat!._getFormatTypeFromDouble(value);
+    return _parsedFormat!.getFormatTypeFromDouble(value);
   }
 
   /// Checks whether format is already parsed, if it isn't than parses it.
@@ -35,22 +38,22 @@ class _Format {
       return;
     }
 
-    final String? formatString = _formatString;
-    _parsedFormat = _parser._parse(_parent.parent, formatString);
+    final String? formatStr = formatString;
+    _parsedFormat = _parser.parse(_parent.parent, formatStr);
   }
 
   /// Applies format to the value.
-  String _applyFormat(double value, bool bShowHiddenSymbols) {
+  String applyFormat(double value, bool bShowHiddenSymbols) {
     _prepareFormat();
-    return _parsedFormat!._applyFormat(value, bShowHiddenSymbols);
+    return _parsedFormat!.applyFormat(value, bShowHiddenSymbols);
   }
 
   /// clear the format.
-  void _clear() {
-    _parser._clear();
+  void clear() {
+    _parser.clear();
     if (_parsedFormat != null) {
-      _parsedFormat!._dispose();
-      _parsedFormat!._innerList.clear();
+      _parsedFormat!.dispose();
+      _parsedFormat!.innerList.clear();
     }
     _parsedFormat = null;
   }

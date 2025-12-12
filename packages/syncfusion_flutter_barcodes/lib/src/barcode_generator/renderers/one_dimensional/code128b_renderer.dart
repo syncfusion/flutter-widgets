@@ -11,7 +11,8 @@ class Code128BRenderer extends Code128Renderer {
     for (int i = 0; i < value.length; i++) {
       if (!code128BCharacterSets.contains(value[i])) {
         throw ArgumentError(
-            'The provided input cannot be encoded : ${value[i]}');
+          'The provided input cannot be encoded : ${value[i]}',
+        );
       }
     }
     return true;

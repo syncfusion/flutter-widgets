@@ -1,9 +1,7 @@
-part of xlsio;
-
 /// Represents merged cell.
 class MergeCell {
   /// Represent merged cell reference.
-  late String _reference;
+  late String reference;
 
   /// Represents left cell index value.
   late int x;
@@ -20,10 +18,10 @@ class MergeCell {
 
 /// Represents the extended format cell
 
-class _ExtendCell {
+class ExtendCell {
   /// Gets/Sets X value.
-  late int _x;
+  late int x;
 
   /// Gets/Sets Y value.
-  late int _y;
+  late int y;
 }

@@ -542,8 +542,9 @@ class TooltipBehavior extends ChartBehavior {
       if (child is ChartSeriesRenderer) {
         final bool isHit = child.hitInsideSegment(primaryLocalPosition);
         if (isHit) {
-          final TooltipInfo? info =
-              child.tooltipInfo(position: primaryLocalPosition);
+          final TooltipInfo? info = child.tooltipInfo(
+            position: primaryLocalPosition,
+          );
           if (info != null) {
             parent.raiseTooltip(info);
           }
@@ -553,10 +554,12 @@ class TooltipBehavior extends ChartBehavior {
       child = childParentData.previousSibling;
     }
 
-    parent.raiseTooltip(TooltipInfo(
-      primaryPosition: primaryPosition,
-      secondaryPosition: primaryPosition,
-    ));
+    parent.raiseTooltip(
+      TooltipInfo(
+        primaryPosition: primaryPosition,
+        secondaryPosition: primaryPosition,
+      ),
+    );
   }
 
   /// Displays the tooltip at the specified x and y-values.
@@ -575,8 +578,13 @@ class TooltipBehavior extends ChartBehavior {
           xAxisName != null ? parent.axisFromName(xAxisName) : parent.xAxis;
       final RenderChartAxis? yAxis =
           yAxisName != null ? parent.axisFromName(yAxisName) : parent.yAxis;
-      final Offset position =
-          rawValueToPixelPoint(x, y, xAxis, yAxis, parent.isTransposed);
+      final Offset position = rawValueToPixelPoint(
+        x,
+        y,
+        xAxis,
+        yAxis,
+        parent.isTransposed,
+      );
       showByPixel(position.dx, position.dy);
     }
   }
@@ -606,8 +614,9 @@ class TooltipBehavior extends ChartBehavior {
           if (series is CartesianSeriesRenderer &&
               series.isVisible() &&
               series.enableTooltip) {
-            final ChartTooltipInfo? info = series
-                .tooltipInfoFromPointIndex(pointIndex) as ChartTooltipInfo?;
+            final ChartTooltipInfo? info =
+                series.tooltipInfoFromPointIndex(pointIndex)
+                    as ChartTooltipInfo?;
             if (info != null && series.index == seriesIndex) {
               baseXValue = (info.point as CartesianChartPoint).xValue;
               break;
@@ -624,8 +633,9 @@ class TooltipBehavior extends ChartBehavior {
           if (child is ChartSeriesRenderer &&
               child.isVisible() &&
               child.enableTooltip) {
-            final ChartTooltipInfo? info = child
-                .tooltipInfoFromPointIndex(pointIndex) as ChartTooltipInfo?;
+            final ChartTooltipInfo? info =
+                child.tooltipInfoFromPointIndex(pointIndex)
+                    as ChartTooltipInfo?;
             if (info != null && info.text != null) {
               if (child.index == seriesIndex) {
                 tooltipInfo ??= info;
@@ -641,8 +651,12 @@ class TooltipBehavior extends ChartBehavior {
             } else {
               // It specifies for cartesian series renderer.
               if (child.canFindLinearVisibleIndexes) {
-                final int binaryIndex = binarySearch(child.xValues,
-                    baseXValue.toDouble(), 0, child.dataCount - 1);
+                final int binaryIndex = binarySearch(
+                  child.xValues,
+                  baseXValue.toDouble(),
+                  0,
+                  child.dataCount - 1,
+                );
                 if (binaryIndex >= 0) {
                   final ChartTooltipInfo? info =
                       child.tooltipInfoFromPointIndex(binaryIndex)
@@ -658,8 +672,9 @@ class TooltipBehavior extends ChartBehavior {
               } else {
                 final int index = child.xValues.indexOf(baseXValue);
                 if (index >= 0) {
-                  final ChartTooltipInfo? info = child
-                      .tooltipInfoFromPointIndex(index) as ChartTooltipInfo?;
+                  final ChartTooltipInfo? info =
+                      child.tooltipInfoFromPointIndex(index)
+                          as ChartTooltipInfo?;
                   if (info != null && info.text != null) {
                     tooltipInfoList.add(info);
                   }
@@ -684,22 +699,24 @@ class TooltipBehavior extends ChartBehavior {
         }
 
         if (tooltipInfo != null && text != null && position != null) {
-          parent.showTooltip(ChartTooltipInfo(
-            primaryPosition: position,
-            secondaryPosition: tooltipInfo.secondaryPosition,
-            text: text,
-            data: tooltipInfo.data,
-            point: tooltipInfo.point,
-            series: tooltipInfo.series,
-            renderer: tooltipInfo.renderer,
-            header: header ?? tooltipInfo.header,
-            seriesIndex: seriesIndex,
-            pointIndex: pointIndex,
-            segmentIndex: tooltipInfo.segmentIndex,
-            markerColors: markerColors,
-            markerBorderColor: tooltipInfo.markerBorderColor,
-            markerType: tooltipInfo.markerType,
-          ));
+          parent.showTooltip(
+            ChartTooltipInfo(
+              primaryPosition: position,
+              secondaryPosition: tooltipInfo.secondaryPosition,
+              text: text,
+              data: tooltipInfo.data,
+              point: tooltipInfo.point,
+              series: tooltipInfo.series,
+              renderer: tooltipInfo.renderer,
+              header: header ?? tooltipInfo.header,
+              seriesIndex: seriesIndex,
+              pointIndex: pointIndex,
+              segmentIndex: tooltipInfo.segmentIndex,
+              markerColors: markerColors,
+              markerBorderColor: tooltipInfo.markerBorderColor,
+              markerType: tooltipInfo.markerType,
+            ),
+          );
         }
       } else {
         parent.plotArea?.visitChildren((RenderObject child) {
@@ -707,8 +724,9 @@ class TooltipBehavior extends ChartBehavior {
               child.isVisible() &&
               child.enableTooltip) {
             if (child.index == seriesIndex) {
-              final TooltipInfo? info =
-                  child.tooltipInfoFromPointIndex(pointIndex);
+              final TooltipInfo? info = child.tooltipInfoFromPointIndex(
+                pointIndex,
+              );
               if (info != null) {
                 parent.showTooltip(info);
               }

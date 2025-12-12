@@ -35,11 +35,13 @@ class PdfPen {
   /// //Close the document.
   /// doc.dispose();
   /// ```
-  PdfPen(PdfColor pdfColor,
-      {double width = 1.0,
-      PdfDashStyle dashStyle = PdfDashStyle.solid,
-      PdfLineCap lineCap = PdfLineCap.flat,
-      PdfLineJoin lineJoin = PdfLineJoin.miter}) {
+  PdfPen(
+    PdfColor pdfColor, {
+    double width = 1.0,
+    PdfDashStyle dashStyle = PdfDashStyle.solid,
+    PdfLineCap lineCap = PdfLineCap.flat,
+    PdfLineJoin lineJoin = PdfLineJoin.miter,
+  }) {
     _helper = PdfPenHelper(this);
     _color = pdfColor;
     _initialize(width, dashStyle, lineCap, lineJoin);
@@ -59,11 +61,13 @@ class PdfPen {
   /// //Close the document.
   /// doc.dispose();
   /// ```
-  PdfPen.fromBrush(PdfBrush brush,
-      {double width = 1.0,
-      PdfDashStyle dashStyle = PdfDashStyle.solid,
-      PdfLineCap lineCap = PdfLineCap.flat,
-      PdfLineJoin lineJoin = PdfLineJoin.miter}) {
+  PdfPen.fromBrush(
+    PdfBrush brush, {
+    double width = 1.0,
+    PdfDashStyle dashStyle = PdfDashStyle.solid,
+    PdfLineCap lineCap = PdfLineCap.flat,
+    PdfLineJoin lineJoin = PdfLineJoin.miter,
+  }) {
     _helper = PdfPenHelper(this);
     _setBrush(brush);
     _width = width;
@@ -179,7 +183,8 @@ class PdfPen {
   set dashPattern(List<double> value) {
     if (dashStyle == PdfDashStyle.solid) {
       UnsupportedError(
-          'This operation is not allowed. Set Custom dash style to change the pattern.');
+        'This operation is not allowed. Set Custom dash style to change the pattern.',
+      );
     }
     _checkImmutability();
     _dashPattern = value;
@@ -344,8 +349,12 @@ class PdfPen {
     }
   }
 
-  void _initialize(double width, PdfDashStyle dashStyle, PdfLineCap lineCap,
-      PdfLineJoin lineJoin) {
+  void _initialize(
+    double width,
+    PdfDashStyle dashStyle,
+    PdfLineCap lineCap,
+    PdfLineJoin lineJoin,
+  ) {
     _width = width;
     _colorSpace = PdfColorSpace.rgb;
     _dashOffset = 0;
@@ -390,12 +399,13 @@ class PdfPenHelper {
 
   /// internal method
   bool monitorChanges(
-      PdfPen? currentPen,
-      PdfStreamWriter streamWriter,
-      Function? getResources,
-      bool saveState,
-      PdfColorSpace? currentColorSpace,
-      PdfTransformationMatrix? matrix) {
+    PdfPen? currentPen,
+    PdfStreamWriter streamWriter,
+    Function? getResources,
+    bool saveState,
+    PdfColorSpace? currentColorSpace,
+    PdfTransformationMatrix? matrix,
+  ) {
     bool diff = false;
     saveState = true;
     if (currentPen == null) {

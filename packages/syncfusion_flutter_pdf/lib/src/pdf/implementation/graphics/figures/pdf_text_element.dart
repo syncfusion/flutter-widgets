@@ -16,12 +16,13 @@ import 'base/text_layouter.dart';
 class PdfTextElement extends PdfLayoutElement {
   //Constructors
   /// Initializes a new instance of the [PdfTextElement] class.
-  PdfTextElement(
-      {String text = '',
-      PdfFont? font,
-      PdfPen? pen,
-      PdfBrush? brush,
-      PdfStringFormat? format}) {
+  PdfTextElement({
+    String text = '',
+    PdfFont? font,
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfStringFormat? format,
+  }) {
     _helper = PdfTextElementHelper(this);
     _initialize(text, font, pen, brush, format);
   }
@@ -48,8 +49,13 @@ class PdfTextElement extends PdfLayoutElement {
   PdfStringFormat? stringFormat;
 
   //Implementation
-  void _initialize(String text, PdfFont? font, PdfPen? pen, PdfBrush? brush,
-      PdfStringFormat? format) {
+  void _initialize(
+    String text,
+    PdfFont? font,
+    PdfPen? pen,
+    PdfBrush? brush,
+    PdfStringFormat? format,
+  ) {
     this.text = text;
     if (font != null) {
       this.font = font;
@@ -101,10 +107,13 @@ class PdfTextElementHelper {
 
   /// internal method
   void drawInternal(PdfGraphics graphics, PdfRectangle bounds) {
-    graphics.drawString(base.text, base.font,
-        pen: base.pen,
-        brush: obtainBrush(),
-        bounds: bounds.rect,
-        format: base.stringFormat);
+    graphics.drawString(
+      base.text,
+      base.font,
+      pen: base.pen,
+      brush: obtainBrush(),
+      bounds: bounds.rect,
+      format: base.stringFormat,
+    );
   }
 }

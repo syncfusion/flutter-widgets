@@ -1,4 +1,5 @@
-part of xlsio;
+import '../worksheet/worksheet.dart';
+import 'column.dart';
 
 /// Reprsents the colunm collection.
 class ColumnCollection {
@@ -56,8 +57,11 @@ class ColumnCollection {
 
       _iCount = (iCount >= iBufCount) ? iCount : iBufCount;
 
-      final List<Column?> list =
-          List<Column?>.filled(_iCount, null, growable: true);
+      final List<Column?> list = List<Column?>.filled(
+        _iCount,
+        null,
+        growable: true,
+      );
 
       list.setAll(0, _innerList);
 
@@ -74,7 +78,7 @@ class ColumnCollection {
   }
 
   /// clear the column.
-  void _clear() {
+  void clear() {
     _innerList.clear();
   }
 }

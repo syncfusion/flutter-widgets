@@ -50,6 +50,7 @@ class RangeAreaSeries<T, D> extends RangeSeriesBase<T, D> {
     super.dataLabelSettings,
     super.initialIsVisible,
     super.enableTooltip = true,
+    super.enableTrackball = true,
     super.dashArray,
     super.animationDuration,
     super.borderColor = Colors.transparent,
@@ -113,7 +114,9 @@ class RangeAreaSeries<T, D> extends RangeSeriesBase<T, D> {
 
   @override
   void updateRenderObject(
-      BuildContext context, RangeAreaSeriesRenderer<T, D> renderObject) {
+    BuildContext context,
+    RangeAreaSeriesRenderer<T, D> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..borderDrawMode = borderDrawMode
@@ -156,6 +159,31 @@ class RangeAreaSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
       .._highValues = highValues;
   }
 
+  @override
+  int segmentPointIndex(Offset position, ChartSegment segment) {
+    final RangeAreaSegment rangeAreaSegment = segment as RangeAreaSegment;
+    final int index = _computePointIndex(rangeAreaSegment._lowPoints, position);
+    if (index != -1) {
+      return index;
+    }
+    return _computePointIndex(rangeAreaSegment._highPoints, position);
+  }
+
+  int _computePointIndex(List<Offset> points, Offset position) {
+    final int length = points.length;
+    for (int i = 0; i < length; i++) {
+      final Rect bounds = Rect.fromCenter(
+        center: points[i],
+        width: tooltipPadding,
+        height: tooltipPadding,
+      );
+      if (bounds.contains(position)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   /// Creates a segment for a data point in the series.
   @override
   RangeAreaSegment<T, D> createSegment() => RangeAreaSegment<T, D>();
@@ -169,17 +197,23 @@ class RangeAreaSeriesRenderer<T, D> extends RangeSeriesRendererBase<T, D>
     final RangeAreaSegment<T, D> rangeAreaSegment =
         segment as RangeAreaSegment<T, D>;
     updateSegmentColor(rangeAreaSegment, borderColor, borderWidth);
-    updateSegmentGradient(rangeAreaSegment,
-        gradientBounds: rangeAreaSegment._fillPath.getBounds(),
-        gradient: gradient,
-        borderGradient: borderGradient);
+    updateSegmentGradient(
+      rangeAreaSegment,
+      gradientBounds: rangeAreaSegment._fillPath.getBounds(),
+      gradient: gradient,
+      borderGradient: borderGradient,
+    );
   }
 
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
     paintSegments(context, offset);
     context.canvas.restore();
@@ -207,7 +241,9 @@ class RangeAreaSegment<T, D> extends ChartSegment {
 
   @override
   void copyOldSegmentValues(
-      double seriesAnimationFactor, double segmentAnimationFactor) {
+    double seriesAnimationFactor,
+    double segmentAnimationFactor,
+  ) {
     if (series.animationType == AnimationType.loading) {
       points.clear();
       _drawIndexes.clear();
@@ -227,26 +263,50 @@ class RangeAreaSegment<T, D> extends ChartSegment {
       final int newPointsLength = _highPoints.length;
       if (oldPointsLength == newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, _highPoints[i].dy)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, _lowPoints[i].dy)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                _highPoints[i].dy,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                _lowPoints[i].dy,
+              )!;
         }
       } else if (oldPointsLength < newPointsLength) {
         for (int i = 0; i < oldPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, _highPoints[i].dy)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, _lowPoints[i].dy)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                _highPoints[i].dy,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                _lowPoints[i].dy,
+              )!;
         }
         _oldHighPoints.addAll(_highPoints.sublist(oldPointsLength));
         _oldLowPoints.addAll(_lowPoints.sublist(oldPointsLength));
       } else {
         for (int i = 0; i < newPointsLength; i++) {
-          _oldHighPoints[i] = _oldHighPoints[i]
-              .lerp(_highPoints[i], segmentAnimationFactor, _highPoints[i].dy)!;
-          _oldLowPoints[i] = _oldLowPoints[i]
-              .lerp(_lowPoints[i], segmentAnimationFactor, _lowPoints[i].dy)!;
+          _oldHighPoints[i] =
+              _oldHighPoints[i].lerp(
+                _highPoints[i],
+                segmentAnimationFactor,
+                _highPoints[i].dy,
+              )!;
+          _oldLowPoints[i] =
+              _oldLowPoints[i].lerp(
+                _lowPoints[i],
+                segmentAnimationFactor,
+                _lowPoints[i].dy,
+              )!;
         }
         _oldHighPoints.removeRange(newPointsLength, oldPointsLength);
         _oldLowPoints.removeRange(newPointsLength, oldPointsLength);
@@ -281,18 +341,21 @@ class RangeAreaSegment<T, D> extends ChartSegment {
     if (oldPointsLength == newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
         lerpPoints.add(
-            oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!);
+          oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!,
+        );
       }
     } else if (oldPointsLength < newPointsLength) {
       for (int i = 0; i < oldPointsLength; i++) {
         lerpPoints.add(
-            oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!);
+          oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!,
+        );
       }
       lerpPoints.addAll(newPoints.sublist(oldPointsLength));
     } else {
       for (int i = 0; i < newPointsLength; i++) {
         lerpPoints.add(
-            oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!);
+          oldPoints[i].lerp(newPoints[i], animationFactor, newPoints[i].dy)!,
+        );
       }
     }
 
@@ -300,7 +363,10 @@ class RangeAreaSegment<T, D> extends ChartSegment {
   }
 
   void _calculatePoints(
-      List<num> xValues, List<num> highValues, List<num> lowValues) {
+    List<num> xValues,
+    List<num> highValues,
+    List<num> lowValues,
+  ) {
     final PointToPixelCallback transformX = series.pointToPixelX;
     final PointToPixelCallback transformY = series.pointToPixelY;
 
@@ -321,8 +387,10 @@ class RangeAreaSegment<T, D> extends ChartSegment {
       _drawIndexes.add(i);
       final Offset highPoint = Offset(transformX(x, topY), transformY(x, topY));
       _highPoints.add(highPoint);
-      final Offset lowPoint =
-          Offset(transformX(x, bottomY), transformY(x, bottomY));
+      final Offset lowPoint = Offset(
+        transformX(x, bottomY),
+        transformY(x, bottomY),
+      );
       _lowPoints.add(lowPoint);
       points.add(lowPoint);
       points.add(highPoint);
@@ -343,8 +411,10 @@ class RangeAreaSegment<T, D> extends ChartSegment {
       return;
     }
 
-    final List<Offset> lerpHighPoints =
-        _lerpPoints(_oldHighPoints, _highPoints);
+    final List<Offset> lerpHighPoints = _lerpPoints(
+      _oldHighPoints,
+      _highPoints,
+    );
     final List<Offset> lerpLowPoints = _lerpPoints(_oldLowPoints, _lowPoints);
     _createFillPath(_fillPath, lerpHighPoints, lerpLowPoints);
 
@@ -354,13 +424,19 @@ class RangeAreaSegment<T, D> extends ChartSegment {
         break;
       case RangeAreaBorderMode.excludeSides:
         _createStrokePathForExcludeSides(
-            _strokePath, lerpHighPoints, lerpLowPoints);
+          _strokePath,
+          lerpHighPoints,
+          lerpLowPoints,
+        );
         break;
     }
   }
 
   Path _createFillPath(
-      Path source, List<Offset> highPoints, List<Offset> lowPoints) {
+    Path source,
+    List<Offset> highPoints,
+    List<Offset> lowPoints,
+  ) {
     Path? path;
     final int lastIndex = highPoints.length - 1;
     for (int i = 0; i <= lastIndex; i++) {
@@ -368,7 +444,10 @@ class RangeAreaSegment<T, D> extends ChartSegment {
         final Offset lowPoint = lowPoints[i];
         if (lowPoint.isNaN) {
           _createFillPath(
-              source, highPoints.sublist(i + 1), lowPoints.sublist(i + 1));
+            source,
+            highPoints.sublist(i + 1),
+            lowPoints.sublist(i + 1),
+          );
 
           break;
         } else {
@@ -403,7 +482,10 @@ class RangeAreaSegment<T, D> extends ChartSegment {
   }
 
   Path _createStrokePathForExcludeSides(
-      Path source, List<Offset> highPoints, List<Offset> lowPoints) {
+    Path source,
+    List<Offset> highPoints,
+    List<Offset> lowPoints,
+  ) {
     Path? highPath;
     Path? lowPath;
     final int lastIndex = highPoints.length - 1;
@@ -412,7 +494,10 @@ class RangeAreaSegment<T, D> extends ChartSegment {
       final Offset lowPoint = lowPoints[i];
       if (highPoint.isNaN) {
         _createStrokePathForExcludeSides(
-            source, highPoints.sublist(i + 1), lowPoints.sublist(i + 1));
+          source,
+          highPoints.sublist(i + 1),
+          lowPoints.sublist(i + 1),
+        );
         break;
       } else {
         if (i == 0) {
@@ -485,14 +570,17 @@ class RangeAreaSegment<T, D> extends ChartSegment {
           series.markerSettings.isVisible ? marker.height / 2 : 0;
       final Offset preferredPos = Offset(dx, dy);
       return ChartTooltipInfo<T, D>(
-        primaryPosition:
-            series.localToGlobal(preferredPos.translate(0, -markerHeight)),
-        secondaryPosition:
-            series.localToGlobal(preferredPos.translate(0, markerHeight)),
+        primaryPosition: series.localToGlobal(
+          preferredPos.translate(0, -markerHeight),
+        ),
+        secondaryPosition: series.localToGlobal(
+          preferredPos.translate(0, markerHeight),
+        ),
         text: series.tooltipText(chartPoint),
-        header: series.parent!.tooltipBehavior!.shared
-            ? series.tooltipHeaderText(chartPoint)
-            : series.name,
+        header:
+            series.parent!.tooltipBehavior!.shared
+                ? series.tooltipHeaderText(chartPoint)
+                : series.name,
         data: series.dataSource![pointIndex],
         point: chartPoint,
         series: series.widget,
@@ -511,12 +599,16 @@ class RangeAreaSegment<T, D> extends ChartSegment {
   @override
   TrackballInfo? trackballInfo(Offset position, int pointIndex) {
     if (pointIndex != -1 && _highPoints.isNotEmpty) {
-      final Offset preferredPos = _highPoints[pointIndex];
+      final int drawPointIndex = drawIndex(pointIndex, _drawIndexes);
+      if (drawPointIndex == -1) {
+        return null;
+      }
+      final Offset preferredPos = _highPoints[drawPointIndex];
       if (preferredPos.isNaN) {
         return null;
       }
 
-      final int actualPointIndex = _drawIndexes[pointIndex];
+      final int actualPointIndex = _drawIndexes[drawPointIndex];
       final CartesianChartPoint<D> chartPoint = _chartPoint(actualPointIndex);
       return ChartTrackballInfo<T, D>(
         position: preferredPos,

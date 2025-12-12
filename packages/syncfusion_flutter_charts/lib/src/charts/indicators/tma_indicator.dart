@@ -46,22 +46,27 @@ class TmaIndicator<T, D> extends TechnicalIndicator<T, D> {
     this.valueField = 'close',
     super.onRenderDetailsUpdate,
   }) : super(
-          xValueMapper: xValueMapper != null && dataSource != null
-              ? (int index) => xValueMapper(dataSource[index], index)
-              : null,
-          highValueMapper: highValueMapper != null && dataSource != null
-              ? (int index) => highValueMapper(dataSource[index], index)
-              : null,
-          lowValueMapper: lowValueMapper != null && dataSource != null
-              ? (int index) => lowValueMapper(dataSource[index], index)
-              : null,
-          openValueMapper: openValueMapper != null && dataSource != null
-              ? (int index) => openValueMapper(dataSource[index], index)
-              : null,
-          closeValueMapper: closeValueMapper != null && dataSource != null
-              ? (int index) => closeValueMapper(dataSource[index], index)
-              : null,
-        );
+         xValueMapper:
+             xValueMapper != null && dataSource != null
+                 ? (int index) => xValueMapper(dataSource[index], index)
+                 : null,
+         highValueMapper:
+             highValueMapper != null && dataSource != null
+                 ? (int index) => highValueMapper(dataSource[index], index)
+                 : null,
+         lowValueMapper:
+             lowValueMapper != null && dataSource != null
+                 ? (int index) => lowValueMapper(dataSource[index], index)
+                 : null,
+         openValueMapper:
+             openValueMapper != null && dataSource != null
+                 ? (int index) => openValueMapper(dataSource[index], index)
+                 : null,
+         closeValueMapper:
+             closeValueMapper != null && dataSource != null
+                 ? (int index) => closeValueMapper(dataSource[index], index)
+                 : null,
+       );
 
   /// ValueField value for tma indicator.
   ///
@@ -163,7 +168,7 @@ class TmaIndicator<T, D> extends TechnicalIndicator<T, D> {
       signalLineColor,
       signalLineWidth,
       valueField,
-      period
+      period,
     ];
     return Object.hashAll(values);
   }
@@ -207,7 +212,9 @@ class TmaIndicatorWidget extends IndicatorWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, TmaIndicatorRenderer renderObject) {
+    BuildContext context,
+    TmaIndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final TmaIndicator tma = indicator as TmaIndicator;
 
@@ -266,7 +273,7 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           highValueMapper,
           lowValueMapper,
           openValueMapper,
-          closeValueMapper
+          closeValueMapper,
         ],
         <List<num>>[_highValues, _lowValues, _openValues, _closeValues],
       );
@@ -396,7 +403,7 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
           header: tooltipHeaderText(chartPoint),
           text: trackballText(chartPoint, text),
           color: signalLineColor,
-        )
+        ),
       ];
     }
     return null;
@@ -493,8 +500,9 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         signalLineColor,
         dashArray,
       );
-      final TechnicalIndicatorRenderDetails details =
-          onRenderDetailsUpdate!(params);
+      final TechnicalIndicatorRenderDetails details = onRenderDetailsUpdate!(
+        params,
+      );
       strokePaint
         ..color = details.signalLineColor
         ..strokeWidth = details.signalLineWidth;
@@ -514,8 +522,12 @@ class TmaIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
       if (strokePaint.color != Colors.transparent &&
           strokePaint.strokeWidth > 0) {
         context.canvas.save();
-        final Rect clip = clipRect(paintBounds, animationFactor,
-            isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+        final Rect clip = clipRect(
+          paintBounds,
+          animationFactor,
+          isInversed: xAxis!.isInversed,
+          isTransposed: isTransposed,
+        );
         context.canvas.clipRect(clip);
 
         for (int i = 0; i < length; i++) {

@@ -60,17 +60,21 @@ import 'pdf_text_box_field.dart';
 abstract class PdfField implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [PdfField] class with the specific page and name.
-  void _internal(PdfPage? page, String? name, Rect bounds,
-      {PdfFont? font,
-      PdfTextAlignment? alignment,
-      PdfColor? borderColor,
-      PdfColor? foreColor,
-      PdfColor? backColor,
-      int? borderWidth,
-      PdfHighlightMode? highlightMode,
-      PdfBorderStyle? borderStyle,
-      String? tooltip,
-      PdfFieldHelper? helper}) {
+  void _internal(
+    PdfPage? page,
+    String? name,
+    Rect bounds, {
+    PdfFont? font,
+    PdfTextAlignment? alignment,
+    PdfColor? borderColor,
+    PdfColor? foreColor,
+    PdfColor? backColor,
+    int? borderWidth,
+    PdfHighlightMode? highlightMode,
+    PdfBorderStyle? borderStyle,
+    String? tooltip,
+    PdfFieldHelper? helper,
+  }) {
     _fieldHelper = helper!;
     if (this is PdfSignatureField) {
       if (page != null && PdfPageHelper.getHelper(page).document != null) {
@@ -84,8 +88,10 @@ abstract class PdfField implements IPdfWrapper {
     this.bounds = bounds;
     if (name != null) {
       _fieldHelper.name = name;
-      _fieldHelper.dictionary!
-          .setProperty(PdfDictionaryProperties.t, PdfString(name));
+      _fieldHelper.dictionary!.setProperty(
+        PdfDictionaryProperties.t,
+        PdfString(name),
+      );
     }
     if (font != null) {
       _fieldHelper.font = font;
@@ -120,8 +126,11 @@ abstract class PdfField implements IPdfWrapper {
   }
 
   /// internal constructor
-  void _load(PdfDictionary dictionary, PdfCrossTable crossTable,
-      PdfFieldHelper helper) {
+  void _load(
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+    PdfFieldHelper helper,
+  ) {
     _fieldHelper = helper;
     _fieldHelper.dictionary = dictionary;
     _fieldHelper.crossTable = crossTable;
@@ -192,10 +201,11 @@ abstract class PdfField implements IPdfWrapper {
     if (_fieldHelper.isLoadedField &&
         (_mappingName == null || _mappingName!.isEmpty)) {
       final IPdfPrimitive? str = PdfFieldHelper.getValue(
-          _fieldHelper.dictionary!,
-          _fieldHelper.crossTable,
-          PdfDictionaryProperties.tm,
-          false);
+        _fieldHelper.dictionary!,
+        _fieldHelper.crossTable,
+        PdfDictionaryProperties.tm,
+        false,
+      );
       if (str != null && str is PdfString) {
         _mappingName = str.value;
       }
@@ -206,8 +216,10 @@ abstract class PdfField implements IPdfWrapper {
   set mappingName(String value) {
     if (_mappingName != value) {
       _mappingName = value;
-      _fieldHelper.dictionary!
-          .setString(PdfDictionaryProperties.tm, _mappingName);
+      _fieldHelper.dictionary!.setString(
+        PdfDictionaryProperties.tm,
+        _mappingName,
+      );
     }
     if (_fieldHelper.isLoadedField) {
       _fieldHelper.changed = true;
@@ -218,10 +230,11 @@ abstract class PdfField implements IPdfWrapper {
   String get tooltip {
     if (_fieldHelper.isLoadedField && (_tooltip == null || _tooltip!.isEmpty)) {
       final IPdfPrimitive? str = PdfFieldHelper.getValue(
-          _fieldHelper.dictionary!,
-          _fieldHelper.crossTable,
-          PdfDictionaryProperties.tu,
-          false);
+        _fieldHelper.dictionary!,
+        _fieldHelper.crossTable,
+        PdfDictionaryProperties.tu,
+        false,
+      );
       if (str != null && str is PdfString) {
         _tooltip = str.value;
       }
@@ -244,8 +257,9 @@ abstract class PdfField implements IPdfWrapper {
   /// The default value is true.
   bool get canExport {
     if (_fieldHelper.isLoadedField) {
-      _export = !(_fieldHelper.isFlagPresent(FieldFlags.noExport) ||
-          _fieldHelper.flags.contains(FieldFlags.noExport));
+      _export =
+          !(_fieldHelper.isFlagPresent(FieldFlags.noExport) ||
+              _fieldHelper.flags.contains(FieldFlags.noExport));
     }
     return _export;
   }
@@ -292,9 +306,14 @@ abstract class PdfField implements IPdfWrapper {
         } else if (dictionary.containsKey(PdfDictionaryProperties.mediaBox)) {
           PdfArray? mediaBox;
           if (PdfCrossTable.dereference(
-              dictionary[PdfDictionaryProperties.mediaBox]) is PdfArray) {
-            mediaBox = PdfCrossTable.dereference(
-                dictionary[PdfDictionaryProperties.mediaBox]) as PdfArray?;
+                dictionary[PdfDictionaryProperties.mediaBox],
+              )
+              is PdfArray) {
+            mediaBox =
+                PdfCrossTable.dereference(
+                      dictionary[PdfDictionaryProperties.mediaBox],
+                    )
+                    as PdfArray?;
           }
           if ((mediaBox![0]! as PdfNumber).value! > 0 ||
               (mediaBox[1]! as PdfNumber).value! > 0 ||
@@ -311,8 +330,12 @@ abstract class PdfField implements IPdfWrapper {
       } else {
         y = rect.top + rect.height;
       }
-      return Rect.fromLTWH(x == 0 ? rect.left : x, y == 0 ? rect.top : y,
-          rect.width, rect.height);
+      return Rect.fromLTWH(
+        x == 0 ? rect.left : x,
+        y == 0 ? rect.top : y,
+        rect.width,
+        rect.height,
+      );
     } else {
       return _fieldHelper.widget!.bounds;
     }
@@ -329,12 +352,14 @@ abstract class PdfField implements IPdfWrapper {
         PdfNumber(rect.left),
         PdfNumber(height - (rect.top + rect.height)),
         PdfNumber(rect.left + rect.width),
-        PdfNumber(height - rect.top)
+        PdfNumber(height - rect.top),
       ];
       PdfDictionary dic = _fieldHelper.dictionary!;
       if (!dic.containsKey(PdfDictionaryProperties.rect)) {
         dic = _fieldHelper.getWidgetAnnotation(
-            _fieldHelper.dictionary!, _fieldHelper.crossTable);
+          _fieldHelper.dictionary!,
+          _fieldHelper.crossTable,
+        );
       }
       dic.setArray(PdfDictionaryProperties.rect, values);
       _fieldHelper.changed = true;
@@ -350,11 +375,15 @@ abstract class PdfField implements IPdfWrapper {
     if (_fieldHelper.isLoadedField) {
       if (page != null) {
         final PdfDictionary annotDic = _fieldHelper.getWidgetAnnotation(
-            _fieldHelper.dictionary!, _fieldHelper.crossTable);
-        final PdfReference reference =
-            PdfPageHelper.getHelper(page!).crossTable!.getReference(annotDic);
-        _tabIndex =
-            PdfPageHelper.getHelper(page!).annotsReference.indexOf(reference);
+          _fieldHelper.dictionary!,
+          _fieldHelper.crossTable,
+        );
+        final PdfReference reference = PdfPageHelper.getHelper(
+          page!,
+        ).crossTable!.getReference(annotDic);
+        _tabIndex = PdfPageHelper.getHelper(
+          page!,
+        ).annotsReference.indexOf(reference);
       }
     }
     return _tabIndex;
@@ -366,21 +395,24 @@ abstract class PdfField implements IPdfWrapper {
         page != null &&
         page!.formFieldsTabOrder == PdfFormFieldsTabOrder.manual) {
       final PdfAnnotation annotationReference = WidgetAnnotationHelper.load(
-          _fieldHelper.dictionary!, _fieldHelper.crossTable!);
-      final PdfReference reference = PdfPageHelper.getHelper(page!)
-          .crossTable!
-          .getReference(IPdfWrapper.getElement(annotationReference));
-      int index =
-          PdfPageHelper.getHelper(page!).annotsReference.indexOf(reference);
+        _fieldHelper.dictionary!,
+        _fieldHelper.crossTable!,
+      );
+      final PdfReference reference = PdfPageHelper.getHelper(
+        page!,
+      ).crossTable!.getReference(IPdfWrapper.getElement(annotationReference));
+      int index = PdfPageHelper.getHelper(
+        page!,
+      ).annotsReference.indexOf(reference);
       if (index < 0) {
         index = _fieldHelper.annotationIndex;
       }
-      final PdfArray? annots =
-          PdfAnnotationCollectionHelper.getHelper(page!.annotations)
-              .rearrange(reference, _tabIndex, index);
-      PdfPageHelper.getHelper(page!)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.annots, annots);
+      final PdfArray? annots = PdfAnnotationCollectionHelper.getHelper(
+        page!.annotations,
+      ).rearrange(reference, _tabIndex, index);
+      PdfPageHelper.getHelper(
+        page!,
+      ).dictionary!.setProperty(PdfDictionaryProperties.annots, annots);
     }
   }
 
@@ -392,9 +424,10 @@ abstract class PdfField implements IPdfWrapper {
 
   //Implementations
   void _initialize() {
-    _fieldHelper.dictionary!.beginSave = this is PdfSignatureField
-        ? _fieldHelper.dictionaryBeginSave
-        : _dictBeginSave;
+    _fieldHelper.dictionary!.beginSave =
+        this is PdfSignatureField
+            ? _fieldHelper.dictionaryBeginSave
+            : _dictBeginSave;
     _fieldHelper.widget = WidgetAnnotation();
     if (this is PdfSignatureField && form!.fieldAutoNaming) {
       _fieldHelper._createBorderPen();
@@ -405,15 +438,18 @@ abstract class PdfField implements IPdfWrapper {
       _fieldHelper.widget!.parent = this;
       if (this is! PdfSignatureField) {
         _fieldHelper.format = PdfStringFormat(
-            alignment: _fieldHelper.widget!.alignment!,
-            lineAlignment: PdfVerticalAlignment.middle);
+          alignment: _fieldHelper.widget!.alignment!,
+          lineAlignment: PdfVerticalAlignment.middle,
+        );
         _fieldHelper._createBorderPen();
         _fieldHelper._createBackBrush();
       }
       final PdfArray array = PdfArray();
       array.add(PdfReferenceHolder(_fieldHelper.widget));
-      _fieldHelper.dictionary!
-          .setProperty(PdfDictionaryProperties.kids, PdfArray(array));
+      _fieldHelper.dictionary!.setProperty(
+        PdfDictionaryProperties.kids,
+        PdfArray(array),
+      );
     }
     _fieldHelper.widget!.defaultAppearance.fontName = 'TiRo';
   }
@@ -426,50 +462,74 @@ abstract class PdfField implements IPdfWrapper {
     String? name;
     PdfString? str;
     if (!_fieldHelper.dictionary!.containsKey(PdfDictionaryProperties.parent)) {
-      str = PdfFieldHelper.getValue(
-          _fieldHelper.dictionary!,
-          _fieldHelper.crossTable,
-          PdfDictionaryProperties.t,
-          false) as PdfString?;
+      str =
+          PdfFieldHelper.getValue(
+                _fieldHelper.dictionary!,
+                _fieldHelper.crossTable,
+                PdfDictionaryProperties.t,
+                false,
+              )
+              as PdfString?;
     } else {
-      IPdfPrimitive? dic = _fieldHelper.crossTable!
-          .getObject(_fieldHelper.dictionary![PdfDictionaryProperties.parent]);
+      IPdfPrimitive? dic = _fieldHelper.crossTable!.getObject(
+        _fieldHelper.dictionary![PdfDictionaryProperties.parent],
+      );
       while (dic != null &&
           dic is PdfDictionary &&
           dic.containsKey(PdfDictionaryProperties.parent)) {
         if (dic.containsKey(PdfDictionaryProperties.t)) {
-          name = name == null
-              ? (PdfFieldHelper.getValue(dic, _fieldHelper.crossTable,
-                      PdfDictionaryProperties.t, false)! as PdfString)
-                  .value
-              : '${(PdfFieldHelper.getValue(dic, _fieldHelper.crossTable, PdfDictionaryProperties.t, false)! as PdfString).value!}.$name';
+          name =
+              name == null
+                  ? (PdfFieldHelper.getValue(
+                            dic,
+                            _fieldHelper.crossTable,
+                            PdfDictionaryProperties.t,
+                            false,
+                          )!
+                          as PdfString)
+                      .value
+                  : '${(PdfFieldHelper.getValue(dic, _fieldHelper.crossTable, PdfDictionaryProperties.t, false)! as PdfString).value!}.$name';
         }
-        dic = _fieldHelper.crossTable!
-            .getObject(dic[PdfDictionaryProperties.parent]) as PdfDictionary?;
+        dic =
+            _fieldHelper.crossTable!.getObject(
+                  dic[PdfDictionaryProperties.parent],
+                )
+                as PdfDictionary?;
       }
       if (dic != null &&
           dic is PdfDictionary &&
           dic.containsKey(PdfDictionaryProperties.t)) {
-        name = name == null
-            ? (PdfFieldHelper.getValue(dic, _fieldHelper.crossTable,
-                    PdfDictionaryProperties.t, false)! as PdfString)
-                .value
-            : '${(PdfFieldHelper.getValue(dic, _fieldHelper.crossTable, PdfDictionaryProperties.t, false)! as PdfString).value!}.$name';
+        name =
+            name == null
+                ? (PdfFieldHelper.getValue(
+                          dic,
+                          _fieldHelper.crossTable,
+                          PdfDictionaryProperties.t,
+                          false,
+                        )!
+                        as PdfString)
+                    .value
+                : '${(PdfFieldHelper.getValue(dic, _fieldHelper.crossTable, PdfDictionaryProperties.t, false)! as PdfString).value!}.$name';
         final IPdfPrimitive? strName = PdfFieldHelper.getValue(
-            _fieldHelper.dictionary!,
-            _fieldHelper.crossTable,
-            PdfDictionaryProperties.t,
-            false);
+          _fieldHelper.dictionary!,
+          _fieldHelper.crossTable,
+          PdfDictionaryProperties.t,
+          false,
+        );
         if (strName != null && strName is PdfString) {
           name = '${name!}.${strName.value!}';
         }
-      } else if (_fieldHelper.dictionary!
-          .containsKey(PdfDictionaryProperties.t)) {
-        str = PdfFieldHelper.getValue(
-            _fieldHelper.dictionary!,
-            _fieldHelper.crossTable,
-            PdfDictionaryProperties.t,
-            false) as PdfString?;
+      } else if (_fieldHelper.dictionary!.containsKey(
+        PdfDictionaryProperties.t,
+      )) {
+        str =
+            PdfFieldHelper.getValue(
+                  _fieldHelper.dictionary!,
+                  _fieldHelper.crossTable,
+                  PdfDictionaryProperties.t,
+                  false,
+                )
+                as PdfString?;
       }
     }
     if (str != null) {
@@ -485,18 +545,21 @@ abstract class PdfField implements IPdfWrapper {
             _fieldHelper.crossTable != null) {
       final PdfDocument? doc = _fieldHelper.crossTable!.document;
       final PdfDictionary widget = _fieldHelper.getWidgetAnnotation(
-          _fieldHelper.dictionary!, _fieldHelper.crossTable);
+        _fieldHelper.dictionary!,
+        _fieldHelper.crossTable,
+      );
       if (widget.containsKey(PdfDictionaryProperties.p) &&
           PdfCrossTable.dereference(widget[PdfDictionaryProperties.p])
               is! PdfNull) {
-        final IPdfPrimitive? pageRef = _fieldHelper.crossTable!
-            .getObject(widget[PdfDictionaryProperties.p]);
+        final IPdfPrimitive? pageRef = _fieldHelper.crossTable!.getObject(
+          widget[PdfDictionaryProperties.p],
+        );
         if (pageRef != null && pageRef is PdfDictionary) {
           page = PdfPageCollectionHelper.getHelper(doc!.pages).getPage(pageRef);
         }
       } else {
-        final PdfReference widgetReference =
-            _fieldHelper.crossTable!.getReference(widget);
+        final PdfReference widgetReference = _fieldHelper.crossTable!
+            .getReference(widget);
         for (int j = 0; j < doc!.pages.count; j++) {
           final PdfPage loadedPage = doc.pages[j];
           final PdfArray? lAnnots =
@@ -527,17 +590,17 @@ abstract class PdfField implements IPdfWrapper {
       }
     }
     if (page != null &&
-        PdfPageHelper.getHelper(page)
-            .dictionary!
-            .containsKey(PdfDictionaryProperties.tabs)) {
+        PdfPageHelper.getHelper(
+          page,
+        ).dictionary!.containsKey(PdfDictionaryProperties.tabs)) {
       final IPdfPrimitive? tabName = PdfCrossTable.dereference(
-          PdfPageHelper.getHelper(page)
-              .dictionary![PdfDictionaryProperties.tabs]);
+        PdfPageHelper.getHelper(page).dictionary![PdfDictionaryProperties.tabs],
+      );
       if (tabName != null &&
           ((tabName is PdfName && tabName.name == '') ||
               (tabName is PdfString && tabName.value == ''))) {
-        PdfPageHelper.getHelper(page)
-            .dictionary![PdfDictionaryProperties.tabs] = PdfName(' ');
+        PdfPageHelper.getHelper(page).dictionary![PdfDictionaryProperties
+            .tabs] = PdfName(' ');
       }
     }
     return page;
@@ -546,40 +609,50 @@ abstract class PdfField implements IPdfWrapper {
   void _addAnnotationToPage(PdfPage? page, PdfAnnotation? widget) {
     if (page != null && !PdfPageHelper.getHelper(page).isLoadedPage) {
       PdfAnnotationHelper.getHelper(widget!).dictionary!.setProperty(
-          PdfDictionaryProperties.t, PdfString(_fieldHelper.name!));
+        PdfDictionaryProperties.t,
+        PdfString(_fieldHelper.name!),
+      );
     } else {
       final PdfDictionary pageDic = PdfPageHelper.getHelper(page!).dictionary!;
       PdfArray? annots;
       if (pageDic.containsKey(PdfDictionaryProperties.annots)) {
-        final IPdfPrimitive? obj = PdfPageHelper.getHelper(page)
-            .crossTable!
-            .getObject(pageDic[PdfDictionaryProperties.annots]);
+        final IPdfPrimitive? obj = PdfPageHelper.getHelper(
+          page,
+        ).crossTable!.getObject(pageDic[PdfDictionaryProperties.annots]);
         if (obj != null && obj is PdfArray) {
           annots = obj;
         }
       }
       annots ??= PdfArray();
-      PdfAnnotationHelper.getHelper(widget!)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.p, PdfReferenceHolder(page));
+      PdfAnnotationHelper.getHelper(widget!).dictionary!.setProperty(
+        PdfDictionaryProperties.p,
+        PdfReferenceHolder(page),
+      );
       form!.fieldAutoNaming
           ? PdfAnnotationHelper.getHelper(widget).dictionary!.setProperty(
-              PdfDictionaryProperties.t, PdfString(_fieldHelper.name!))
+            PdfDictionaryProperties.t,
+            PdfString(_fieldHelper.name!),
+          )
           : _fieldHelper.dictionary!.setProperty(
-              PdfDictionaryProperties.t, PdfString(_fieldHelper.name!));
+            PdfDictionaryProperties.t,
+            PdfString(_fieldHelper.name!),
+          );
       annots.add(PdfReferenceHolder(widget));
-      PdfPageHelper.getHelper(page)
-          .dictionary!
-          .setProperty(PdfDictionaryProperties.annots, annots);
+      PdfPageHelper.getHelper(
+        page,
+      ).dictionary!.setProperty(PdfDictionaryProperties.annots, annots);
     }
   }
 
   List<PdfDictionary> _getWidgetAnnotations(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
     final List<PdfDictionary> widgetAnnotationCollection = <PdfDictionary>[];
     if (dictionary.containsKey(PdfDictionaryProperties.kids)) {
-      final IPdfPrimitive? array =
-          crossTable.getObject(dictionary[PdfDictionaryProperties.kids]);
+      final IPdfPrimitive? array = crossTable.getObject(
+        dictionary[PdfDictionaryProperties.kids],
+      );
       if (array != null && array is PdfArray && array.count > 0) {
         for (int i = 0; i < array.count; i++) {
           final IPdfPrimitive item = array[i]!;
@@ -591,8 +664,9 @@ abstract class PdfField implements IPdfWrapper {
         }
       }
     } else if (dictionary.containsKey(PdfDictionaryProperties.subtype)) {
-      final IPdfPrimitive? type =
-          crossTable.getObject(dictionary[PdfDictionaryProperties.subtype]);
+      final IPdfPrimitive? type = crossTable.getObject(
+        dictionary[PdfDictionaryProperties.subtype],
+      );
       if (type != null &&
           type is PdfName &&
           type.name == PdfDictionaryProperties.widget) {
@@ -620,27 +694,35 @@ class PdfFieldHelper {
   }
 
   /// internal method
-  void internal(PdfPage? page, String? name, Rect bounds,
-      {PdfFont? font,
-      PdfTextAlignment? alignment,
-      PdfColor? borderColor,
-      PdfColor? foreColor,
-      PdfColor? backColor,
-      int? borderWidth,
-      PdfHighlightMode? highlightMode,
-      PdfBorderStyle? borderStyle,
-      String? tooltip}) {
-    field._internal(page, name, bounds,
-        font: font,
-        alignment: alignment,
-        borderColor: borderColor,
-        foreColor: foreColor,
-        backColor: backColor,
-        borderWidth: borderWidth,
-        highlightMode: highlightMode,
-        borderStyle: borderStyle,
-        tooltip: tooltip,
-        helper: this);
+  void internal(
+    PdfPage? page,
+    String? name,
+    Rect bounds, {
+    PdfFont? font,
+    PdfTextAlignment? alignment,
+    PdfColor? borderColor,
+    PdfColor? foreColor,
+    PdfColor? backColor,
+    int? borderWidth,
+    PdfHighlightMode? highlightMode,
+    PdfBorderStyle? borderStyle,
+    String? tooltip,
+  }) {
+    field._internal(
+      page,
+      name,
+      bounds,
+      font: font,
+      alignment: alignment,
+      borderColor: borderColor,
+      foreColor: foreColor,
+      backColor: backColor,
+      borderWidth: borderWidth,
+      highlightMode: highlightMode,
+      borderStyle: borderStyle,
+      tooltip: tooltip,
+      helper: this,
+    );
   }
 
   /// internal field
@@ -735,7 +817,7 @@ class PdfFieldHelper {
   }
 
   /// internal field
-  late _BeforeNameChangesEventHandler beforeNameChanges;
+  late BeforeNameChangesEventHandler beforeNameChanges;
 
   /// Gets or sets a value indicating whether to flatten this [PdfField].
   bool get flattenField {
@@ -756,8 +838,9 @@ class PdfFieldHelper {
       final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
       PdfColor bc = PdfColor.empty;
       if (widget.containsKey(PdfDictionaryProperties.mk)) {
-        final IPdfPrimitive? getObject =
-            crossTable!.getObject(widget[PdfDictionaryProperties.mk]);
+        final IPdfPrimitive? getObject = crossTable!.getObject(
+          widget[PdfDictionaryProperties.mk],
+        );
         if (getObject != null &&
             getObject is PdfDictionary &&
             getObject.containsKey(PdfDictionaryProperties.bc)) {
@@ -768,9 +851,9 @@ class PdfFieldHelper {
       }
       return bc;
     } else {
-      return WidgetAnnotationHelper.getHelper(widget!)
-          .widgetAppearance!
-          .borderColor;
+      return WidgetAnnotationHelper.getHelper(
+        widget!,
+      ).widgetAppearance!.borderColor;
     }
   }
 
@@ -789,9 +872,12 @@ class PdfFieldHelper {
   }
 
   /// Gets or sets the color of the background.
-  PdfColor get backColor => isLoadedField
-      ? getBackColor()
-      : WidgetAnnotationHelper.getHelper(widget!).widgetAppearance!.backColor;
+  PdfColor get backColor =>
+      isLoadedField
+          ? getBackColor()
+          : WidgetAnnotationHelper.getHelper(
+            widget!,
+          ).widgetAppearance!.backColor;
 
   set backColor(PdfColor value) {
     if (isLoadedField) {
@@ -825,12 +911,15 @@ class PdfFieldHelper {
       final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
       PdfColor color = PdfColor(0, 0, 0);
       if (widget.containsKey(PdfDictionaryProperties.da)) {
-        final PdfString defaultAppearance = crossTable!
-            .getObject(widget[PdfDictionaryProperties.da])! as PdfString;
+        final PdfString defaultAppearance =
+            crossTable!.getObject(widget[PdfDictionaryProperties.da])!
+                as PdfString;
         color = _getForeColor(defaultAppearance.value);
       } else {
         final IPdfPrimitive? defaultAppearance = widget.getValue(
-            PdfDictionaryProperties.da, PdfDictionaryProperties.parent);
+          PdfDictionaryProperties.da,
+          PdfDictionaryProperties.parent,
+        );
         if (defaultAppearance != null && defaultAppearance is PdfString) {
           color = _getForeColor(defaultAppearance.value);
         }
@@ -863,15 +952,17 @@ class PdfFieldHelper {
         defaultAppearance.fontName = name;
         defaultAppearance.fontSize = height;
         defaultAppearance.foreColor = value;
-        widget[PdfDictionaryProperties.da] =
-            PdfString(defaultAppearance.getString());
+        widget[PdfDictionaryProperties.da] = PdfString(
+          defaultAppearance.getString(),
+        );
       } else if (font != null) {
         final PdfDefaultAppearance defaultAppearance = PdfDefaultAppearance();
         defaultAppearance.fontName = font!.name;
         defaultAppearance.fontSize = font!.size;
         defaultAppearance.foreColor = value;
-        widget[PdfDictionaryProperties.da] =
-            PdfString(defaultAppearance.getString());
+        widget[PdfDictionaryProperties.da] = PdfString(
+          defaultAppearance.getString(),
+        );
       }
       PdfFormHelper.getHelper(field.form!).setAppearanceDictionary = true;
     } else {
@@ -883,9 +974,10 @@ class PdfFieldHelper {
   }
 
   /// Gets or sets the width of the border.
-  int get borderWidth => isLoadedField
-      ? _obtainBorderWidth()
-      : widget!.widgetBorder!.width.toInt();
+  int get borderWidth =>
+      isLoadedField
+          ? _obtainBorderWidth()
+          : widget!.widgetBorder!.width.toInt();
   set borderWidth(int value) {
     if (widget!.widgetBorder!.width != value) {
       widget!.widgetBorder!.width = value.toDouble();
@@ -893,9 +985,9 @@ class PdfFieldHelper {
         _assignBorderWidth(value);
       } else {
         value == 0
-            ? WidgetAnnotationHelper.getHelper(widget!)
-                .widgetAppearance!
-                .borderColor = PdfColor(255, 255, 255)
+            ? WidgetAnnotationHelper.getHelper(
+              widget!,
+            ).widgetAppearance!.borderColor = PdfColor(255, 255, 255)
             : _createBorderPen();
       }
     }
@@ -904,9 +996,10 @@ class PdfFieldHelper {
   /// Gets or sets the highlighting mode.
   PdfHighlightMode get highlightMode =>
       isLoadedField ? _obtainHighlightMode() : widget!.highlightMode!;
-  set highlightMode(PdfHighlightMode value) => isLoadedField
-      ? _assignHighlightMode(value)
-      : widget!.highlightMode = value;
+  set highlightMode(PdfHighlightMode value) =>
+      isLoadedField
+          ? _assignHighlightMode(value)
+          : widget!.highlightMode = value;
 
   /// Gets or sets the border style.
   PdfBorderStyle get borderStyle =>
@@ -928,8 +1021,9 @@ class PdfFieldHelper {
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
     PdfBorderStyle style = PdfBorderStyle.solid;
     if (widget.containsKey(PdfDictionaryProperties.bs)) {
-      final PdfDictionary bs = crossTable!
-          .getObject(widget[PdfDictionaryProperties.bs])! as PdfDictionary;
+      final PdfDictionary bs =
+          crossTable!.getObject(widget[PdfDictionaryProperties.bs])!
+              as PdfDictionary;
       style = _createBorderStyle(bs);
     }
     return style;
@@ -938,8 +1032,9 @@ class PdfFieldHelper {
   PdfBorderStyle _createBorderStyle(PdfDictionary bs) {
     PdfBorderStyle style = PdfBorderStyle.solid;
     if (bs.containsKey(PdfDictionaryProperties.s)) {
-      final IPdfPrimitive? name =
-          crossTable!.getObject(bs[PdfDictionaryProperties.s]);
+      final IPdfPrimitive? name = crossTable!.getObject(
+        bs[PdfDictionaryProperties.s],
+      );
       if (name != null && name is PdfName) {
         switch (name.name!.toLowerCase()) {
           case 'd':
@@ -971,10 +1066,12 @@ class PdfFieldHelper {
       final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
       if (widget.containsKey(PdfDictionaryProperties.da) ||
           dictionary!.containsKey(PdfDictionaryProperties.da)) {
-        IPdfPrimitive? defaultAppearance =
-            crossTable!.getObject(widget[PdfDictionaryProperties.da]);
-        defaultAppearance ??=
-            crossTable!.getObject(dictionary![PdfDictionaryProperties.da]);
+        IPdfPrimitive? defaultAppearance = crossTable!.getObject(
+          widget[PdfDictionaryProperties.da],
+        );
+        defaultAppearance ??= crossTable!.getObject(
+          dictionary![PdfDictionaryProperties.da],
+        );
         String? fontName;
         if (defaultAppearance != null && defaultAppearance is PdfString) {
           final Map<String, dynamic> value = _getFont(defaultAppearance.value!);
@@ -983,9 +1080,9 @@ class PdfFieldHelper {
           fontName = value['fontName'] as String?;
           if (!isCorrectFont! && fontName != null) {
             widget.setProperty(
-                PdfDictionaryProperties.da,
-                PdfString(
-                    defaultAppearance.value!.replaceAll(fontName, '/Helv')));
+              PdfDictionaryProperties.da,
+              PdfString(defaultAppearance.value!.replaceAll(fontName, '/Helv')),
+            );
           }
         }
       }
@@ -1006,21 +1103,26 @@ class PdfFieldHelper {
         defaultAppearance.fontSize = _internalFont!.size;
         defaultAppearance.foreColor = foreColor;
         final IPdfPrimitive? fontDictionary = PdfCrossTable.dereference(
-            PdfFormHelper.getHelper(form!)
-                .resources[PdfDictionaryProperties.font]);
+          PdfFormHelper.getHelper(form!).resources[PdfDictionaryProperties
+              .font],
+        );
         if (fontDictionary != null &&
             fontDictionary is PdfDictionary &&
             !fontDictionary.containsKey(defaultAppearance.fontName)) {
           final IPdfWrapper fontWrapper = _internalFont!;
           final PdfDictionary? fontElement =
               IPdfWrapper.getElement(fontWrapper) as PdfDictionary?;
-          fontDictionary.items![PdfName(defaultAppearance.fontName)] =
-              PdfReferenceHolder(fontElement);
+          fontDictionary.items![PdfName(
+            defaultAppearance.fontName,
+          )] = PdfReferenceHolder(fontElement);
         }
-        final PdfDictionary widget =
-            getWidgetAnnotation(dictionary!, crossTable);
-        widget[PdfDictionaryProperties.da] =
-            PdfString(defaultAppearance.getString());
+        final PdfDictionary widget = getWidgetAnnotation(
+          dictionary!,
+          crossTable,
+        );
+        widget[PdfDictionaryProperties.da] = PdfString(
+          defaultAppearance.getString(),
+        );
       } else {
         _defineDefaultAppearance();
       }
@@ -1038,7 +1140,9 @@ class PdfFieldHelper {
     } else if (widget!.textAlignment != value) {
       widget!.textAlignment = value;
       format = PdfStringFormat(
-          alignment: value, lineAlignment: PdfVerticalAlignment.middle);
+        alignment: value,
+        lineAlignment: PdfVerticalAlignment.middle,
+      );
     }
   }
 
@@ -1106,8 +1210,9 @@ class PdfFieldHelper {
       final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
       PdfColor c = PdfColor.empty;
       if (widget.containsKey(PdfDictionaryProperties.mk)) {
-        final IPdfPrimitive? bs =
-            crossTable!.getObject(widget[PdfDictionaryProperties.mk]);
+        final IPdfPrimitive? bs = crossTable!.getObject(
+          widget[PdfDictionaryProperties.mk],
+        );
         if (bs is PdfDictionary) {
           IPdfPrimitive? array;
           if (bs.containsKey(PdfDictionaryProperties.bg)) {
@@ -1170,7 +1275,8 @@ class PdfFieldHelper {
     int flagValue = isLoadedField ? this.flagValue : 0;
     // ignore: avoid_function_literals_in_foreach_calls
     value.forEach(
-        (FieldFlags element) => flagValue |= _getFieldFlagsValue(element));
+      (FieldFlags element) => flagValue |= _getFieldFlagsValue(element),
+    );
     flagValues = flagValue;
     dictionary!.setNumber(PdfDictionaryProperties.fieldFlags, flagValues);
   }
@@ -1183,25 +1289,33 @@ class PdfFieldHelper {
   /// internal method
   int getFlagValue() {
     final IPdfPrimitive? number = PdfFieldHelper.getValue(
-        dictionary!, crossTable, PdfDictionaryProperties.fieldFlags, true);
+      dictionary!,
+      crossTable,
+      PdfDictionaryProperties.fieldFlags,
+      true,
+    );
     return number != null && number is PdfNumber ? number.value!.toInt() : 0;
   }
 
   void _defineDefaultAppearance() {
     if (field.form != null && _internalFont != null) {
       if (isLoadedField) {
-        final PdfDictionary widget =
-            getWidgetAnnotation(dictionary!, crossTable);
-        final PdfName name =
-            PdfFormHelper.getHelper(form!).resources.getName(font!);
+        final PdfDictionary widget = getWidgetAnnotation(
+          dictionary!,
+          crossTable,
+        );
+        final PdfName name = PdfFormHelper.getHelper(
+          form!,
+        ).resources.getName(font!);
         PdfFormHelper.getHelper(form!).resources.add(_internalFont, name);
         PdfFormHelper.getHelper(form!).needAppearances = true;
         final PdfDefaultAppearance defaultAppearance = PdfDefaultAppearance();
         defaultAppearance.fontName = name.name;
         defaultAppearance.fontSize = _internalFont!.size;
         defaultAppearance.foreColor = foreColor;
-        widget[PdfDictionaryProperties.da] =
-            PdfString(defaultAppearance.getString());
+        widget[PdfDictionaryProperties.da] = PdfString(
+          defaultAppearance.getString(),
+        );
         if (field is PdfRadioButtonListField) {
           final PdfRadioButtonListField radioButtonListField =
               field as PdfRadioButtonListField;
@@ -1209,18 +1323,20 @@ class PdfFieldHelper {
             final PdfRadioButtonListItem item = radioButtonListField.items[i];
             if (PdfFieldHelper.getHelper(item).font != null) {
               PdfFormHelper.getHelper(field.form!).resources.add(
-                  PdfFieldHelper.getHelper(radioButtonListField.items[i]).font,
-                  PdfName(WidgetAnnotationHelper.getHelper(
-                          PdfFieldHelper.getHelper(item).widget!)
-                      .pdfDefaultAppearance!
-                      .fontName));
+                PdfFieldHelper.getHelper(radioButtonListField.items[i]).font,
+                PdfName(
+                  WidgetAnnotationHelper.getHelper(
+                    PdfFieldHelper.getHelper(item).widget!,
+                  ).pdfDefaultAppearance!.fontName,
+                ),
+              );
             }
           }
         }
       } else {
-        final PdfName name = PdfFormHelper.getHelper(field.form!)
-            .resources
-            .getName(_internalFont!);
+        final PdfName name = PdfFormHelper.getHelper(
+          field.form!,
+        ).resources.getName(_internalFont!);
         widget!.defaultAppearance.fontName = name.name;
         widget!.defaultAppearance.fontSize = _internalFont!.size;
       }
@@ -1266,14 +1382,18 @@ class PdfFieldHelper {
 
   /// Gets the widget annotation.
   PdfDictionary getWidgetAnnotation(
-      PdfDictionary dictionary, PdfCrossTable? crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable? crossTable,
+  ) {
     PdfDictionary? dic;
     if (dictionary.containsKey(PdfDictionaryProperties.kids)) {
-      final IPdfPrimitive? array =
-          crossTable!.getObject(dictionary[PdfDictionaryProperties.kids]);
+      final IPdfPrimitive? array = crossTable!.getObject(
+        dictionary[PdfDictionaryProperties.kids],
+      );
       if (array is PdfArray && array.count > 0) {
-        final IPdfPrimitive reference =
-            crossTable.getReference(array[defaultIndex]);
+        final IPdfPrimitive reference = crossTable.getReference(
+          array[defaultIndex],
+        );
         if (reference is PdfReference) {
           dic = crossTable.getObject(reference) as PdfDictionary?;
         }
@@ -1288,19 +1408,22 @@ class PdfFieldHelper {
       if ((font is PdfStandardFont || font is PdfCjkStandardFont) &&
           page != null &&
           PdfPageHelper.getHelper(page!).document != null &&
-          PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!)
-                  .conformanceLevel !=
+          PdfDocumentHelper.getHelper(
+                PdfPageHelper.getHelper(page!).document!,
+              ).conformanceLevel !=
               PdfConformanceLevel.none) {
         throw ArgumentError(
-            'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!).conformanceLevel} document.');
+          'All the fonts must be embedded in ${PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!).conformanceLevel} document.',
+        );
       } else if (font is PdfTrueTypeFont &&
           PdfPageHelper.getHelper(page!).document != null &&
-          PdfDocumentHelper.getHelper(PdfPageHelper.getHelper(page!).document!)
-                  .conformanceLevel ==
+          PdfDocumentHelper.getHelper(
+                PdfPageHelper.getHelper(page!).document!,
+              ).conformanceLevel ==
               PdfConformanceLevel.a1b) {
-        PdfTrueTypeFontHelper.getHelper(font! as PdfTrueTypeFont)
-            .fontInternal
-            .initializeCidSet();
+        PdfTrueTypeFontHelper.getHelper(
+          font! as PdfTrueTypeFont,
+        ).fontInternal.initializeCidSet();
       }
     }
   }
@@ -1317,8 +1440,9 @@ class PdfFieldHelper {
     double height = fontNameDic['height'] as double;
     PdfFont font = PdfStandardFont(PdfFontFamily.helvetica, height);
     IPdfPrimitive? fontDictionary = crossTable!.getObject(
-        PdfFormHelper.getHelper(field.form!)
-            .resources[PdfDictionaryProperties.font]);
+      PdfFormHelper.getHelper(field.form!).resources[PdfDictionaryProperties
+          .font],
+    );
     if (height == 0) {
       if (font is PdfStandardFont) {
         height = getFontHeight(font.fontFamily);
@@ -1336,17 +1460,23 @@ class PdfFieldHelper {
       if (fontDictionary != null &&
           fontDictionary is PdfDictionary &&
           fontDictionary.containsKey(PdfDictionaryProperties.subtype)) {
-        final PdfName fontSubtype = crossTable!
-                .getObject(fontDictionary[PdfDictionaryProperties.subtype])!
-            as PdfName;
+        final PdfName fontSubtype =
+            crossTable!.getObject(
+                  fontDictionary[PdfDictionaryProperties.subtype],
+                )!
+                as PdfName;
         if (fontSubtype.name == PdfDictionaryProperties.type1) {
-          final PdfName baseFont = crossTable!
-                  .getObject(fontDictionary[PdfDictionaryProperties.baseFont])!
-              as PdfName;
-          final List<PdfFontStyle> fontStyle =
-              _getFontStyle(PdfName.decodeName(baseFont.name)!);
-          final dynamic fontFamilyDic =
-              _getFontFamily(PdfName.decodeName(baseFont.name)!);
+          final PdfName baseFont =
+              crossTable!.getObject(
+                    fontDictionary[PdfDictionaryProperties.baseFont],
+                  )!
+                  as PdfName;
+          final List<PdfFontStyle> fontStyle = _getFontStyle(
+            PdfName.decodeName(baseFont.name)!,
+          );
+          final dynamic fontFamilyDic = _getFontFamily(
+            PdfName.decodeName(baseFont.name)!,
+          );
           final PdfFontFamily? fontFamily =
               fontFamilyDic['fontFamily'] as PdfFontFamily?;
           final String? standardName = fontFamilyDic['standardName'] as String?;
@@ -1371,15 +1501,17 @@ class PdfFieldHelper {
                       final PdfReferenceHolder kids =
                           kidsArray[i]! as PdfReferenceHolder;
                       final IPdfPrimitive? dictionary = kids.object;
-                      appearanceDictionary = dictionary != null &&
-                              dictionary is PdfDictionary &&
-                              dictionary
-                                  .containsKey(PdfDictionaryProperties.ap) &&
-                              dictionary[PdfDictionaryProperties.ap]
-                                  is PdfDictionary
-                          ? dictionary[PdfDictionaryProperties.ap]
-                              as PdfDictionary?
-                          : null;
+                      appearanceDictionary =
+                          dictionary != null &&
+                                  dictionary is PdfDictionary &&
+                                  dictionary.containsKey(
+                                    PdfDictionaryProperties.ap,
+                                  ) &&
+                                  dictionary[PdfDictionaryProperties.ap]
+                                      is PdfDictionary
+                              ? dictionary[PdfDictionaryProperties.ap]
+                                  as PdfDictionary?
+                              : null;
                       break;
                     }
                   }
@@ -1388,12 +1520,14 @@ class PdfFieldHelper {
               if (appearanceDictionary != null &&
                   appearanceDictionary.containsKey(PdfDictionaryProperties.n)) {
                 final IPdfPrimitive? dic = PdfCrossTable.dereference(
-                    appearanceDictionary[PdfDictionaryProperties.n]);
+                  appearanceDictionary[PdfDictionaryProperties.n],
+                );
                 if (dic != null && dic is PdfStream) {
                   final PdfStream stream = dic;
                   stream.decompress();
-                  final dynamic fontNameDict =
-                      _fontName(utf8.decode(stream.dataStream!.toList()));
+                  final dynamic fontNameDict = _fontName(
+                    utf8.decode(stream.dataStream!.toList()),
+                  );
                   height = fontNameDict['height'] as double;
                 }
               }
@@ -1404,45 +1538,66 @@ class PdfFieldHelper {
               font = PdfStandardFont.prototype(stdf, height);
             }
             if (fontStyle != <PdfFontStyle>[PdfFontStyle.regular]) {
-              font = PdfStandardFont(PdfFontFamily.helvetica, height,
-                  multiStyle: fontStyle);
+              font = PdfStandardFont(
+                PdfFontFamily.helvetica,
+                height,
+                multiStyle: fontStyle,
+              );
             }
             if (standardName != getEnumName(fontFamily)) {
               font = _updateFontEncoding(font, fontDictionary);
             }
-            PdfFontHelper.getHelper(font).metrics =
-                _createFont(fontDictionary, height, baseFont);
+            PdfFontHelper.getHelper(font).metrics = _createFont(
+              fontDictionary,
+              height,
+              baseFont,
+            );
             PdfFontHelper.getHelper(font).fontInternals = fontDictionary;
           }
         } else if (fontSubtype.name == 'TrueType') {
-          final PdfName baseFont = crossTable!
-                  .getObject(fontDictionary[PdfDictionaryProperties.baseFont])!
-              as PdfName;
+          final PdfName baseFont =
+              crossTable!.getObject(
+                    fontDictionary[PdfDictionaryProperties.baseFont],
+                  )!
+                  as PdfName;
           final List<PdfFontStyle> fontStyle = _getFontStyle(baseFont.name!);
           font = PdfStandardFont.prototype(
-              PdfStandardFont(PdfFontFamily.helvetica, 8), height,
-              multiStyle: fontStyle);
+            PdfStandardFont(PdfFontFamily.helvetica, 8),
+            height,
+            multiStyle: fontStyle,
+          );
           font = _createFontFromFontStream(
-              font, fontDictionary, height, fontStyle);
+            font,
+            fontDictionary,
+            height,
+            fontStyle,
+          );
           final IPdfPrimitive? tempName =
               fontDictionary[PdfDictionaryProperties.name];
           if (tempName != null && tempName is PdfName) {
             if (font is PdfStandardFont && font.name != tempName.name) {
               final PdfFontHelper fontHelper = PdfFontHelper.getHelper(font);
               final WidthTable? widthTable = fontHelper.metrics!.widthTable;
-              fontHelper.metrics =
-                  _createFont(fontDictionary, height, baseFont);
+              fontHelper.metrics = _createFont(
+                fontDictionary,
+                height,
+                baseFont,
+              );
               fontHelper.metrics!.widthTable = widthTable;
             }
           }
         } else if (fontSubtype.name == PdfDictionaryProperties.type0) {
-          final IPdfPrimitive? baseFont = crossTable!
-              .getObject(fontDictionary[PdfDictionaryProperties.baseFont]);
+          final IPdfPrimitive? baseFont = crossTable!.getObject(
+            fontDictionary[PdfDictionaryProperties.baseFont],
+          );
           if (baseFont != null &&
               baseFont is PdfName &&
               _isCjkFont(baseFont.name)) {
-            font = PdfCjkStandardFont(_getCjkFontFamily(baseFont.name)!, height,
-                multiStyle: _getFontStyle(baseFont.name!));
+            font = PdfCjkStandardFont(
+              _getCjkFontFamily(baseFont.name)!,
+              height,
+              multiStyle: _getFontStyle(baseFont.name!),
+            );
           } else {
             IPdfPrimitive? descendantFontsArray;
             IPdfPrimitive? descendantFontsDic;
@@ -1450,13 +1605,15 @@ class PdfFieldHelper {
             IPdfPrimitive? fontDescriptorDic;
             IPdfPrimitive? fontName;
             descendantFontsArray = crossTable!.getObject(
-                fontDictionary[PdfDictionaryProperties.descendantFonts]);
+              fontDictionary[PdfDictionaryProperties.descendantFonts],
+            );
             if (descendantFontsArray != null &&
                 descendantFontsArray is PdfArray &&
                 descendantFontsArray.count > 0) {
-              descendantFontsDic = descendantFontsArray[0] is PdfDictionary
-                  ? descendantFontsArray[0]
-                  : (descendantFontsArray[0]! as PdfReferenceHolder).object;
+              descendantFontsDic =
+                  descendantFontsArray[0] is PdfDictionary
+                      ? descendantFontsArray[0]
+                      : (descendantFontsArray[0]! as PdfReferenceHolder).object;
             }
             if (descendantFontsDic != null &&
                 descendantFontsDic is PdfDictionary) {
@@ -1472,12 +1629,14 @@ class PdfFieldHelper {
               fontName = fontDescriptorDic[PdfDictionaryProperties.fontName];
             }
             if (fontName != null && fontName is PdfName) {
-              String fontNameStr =
-                  fontName.name!.substring(fontName.name!.indexOf('+') + 1);
+              String fontNameStr = fontName.name!.substring(
+                fontName.name!.indexOf('+') + 1,
+              );
               final PdfFontMetrics fontMetrics = _createFont(
-                  descendantFontsDic! as PdfDictionary,
-                  height,
-                  PdfName(fontNameStr));
+                descendantFontsDic! as PdfDictionary,
+                height,
+                PdfName(fontNameStr),
+              );
               if (fontNameStr.contains('PSMT')) {
                 fontNameStr = fontNameStr.replaceAll('PSMT', '');
               }
@@ -1504,28 +1663,36 @@ class PdfFieldHelper {
     return <String, dynamic>{
       'font': font,
       'isCorrectFont': isCorrectFont,
-      'FontName': name
+      'FontName': name,
     };
   }
 
-  PdfFont _createFontFromFontStream(PdfFont font, PdfDictionary fontDictionary,
-      double height, List<PdfFontStyle> fontStyle) {
+  PdfFont _createFontFromFontStream(
+    PdfFont font,
+    PdfDictionary fontDictionary,
+    double height,
+    List<PdfFontStyle> fontStyle,
+  ) {
     if (fontDictionary.containsKey(PdfDictionaryProperties.fontDescriptor)) {
       IPdfPrimitive? fontDescriptor = PdfCrossTable.dereference(
-          fontDictionary[PdfDictionaryProperties.fontDescriptor]);
+        fontDictionary[PdfDictionaryProperties.fontDescriptor],
+      );
       if (fontDescriptor == null &&
           fontDescriptor is PdfDictionary &&
           fontDictionary.containsKey(PdfDictionaryProperties.descendantFonts)) {
         final IPdfPrimitive? descendFonts = PdfCrossTable.dereference(
-            fontDictionary[PdfDictionaryProperties.descendantFonts]);
+          fontDictionary[PdfDictionaryProperties.descendantFonts],
+        );
         if (descendFonts != null && descendFonts is PdfArray) {
-          final IPdfPrimitive? descendDict =
-              PdfCrossTable.dereference(descendFonts[0]);
+          final IPdfPrimitive? descendDict = PdfCrossTable.dereference(
+            descendFonts[0],
+          );
           if (descendDict != null &&
               descendDict is PdfDictionary &&
               descendDict.containsKey(PdfDictionaryProperties.fontDescriptor)) {
             fontDescriptor = PdfCrossTable.dereference(
-                descendDict[PdfDictionaryProperties.fontDescriptor]);
+              descendDict[PdfDictionaryProperties.fontDescriptor],
+            );
           }
         }
       }
@@ -1533,7 +1700,8 @@ class PdfFieldHelper {
       if (fontDescriptor != null && fontDescriptor is PdfDictionary) {
         if (fontDescriptor.containsKey(PdfDictionaryProperties.fontFile2)) {
           fontFile = PdfCrossTable.dereference(
-              fontDescriptor[PdfDictionaryProperties.fontFile2]);
+            fontDescriptor[PdfDictionaryProperties.fontFile2],
+          );
         }
         if (fontDescriptor.containsKey('FontFile3')) {
           fontFile = PdfCrossTable.dereference(fontDescriptor['FontFile3']);
@@ -1545,8 +1713,11 @@ class PdfFieldHelper {
         try {
           fontFile.position = 0;
           if (fontFile.dataStream != null) {
-            font = PdfTrueTypeFont(fontFile.dataStream!, height,
-                multiStyle: fontStyle);
+            font = PdfTrueTypeFont(
+              fontFile.dataStream!,
+              height,
+              multiStyle: fontStyle,
+            );
           }
         } catch (e) {
           return font;
@@ -1557,7 +1728,10 @@ class PdfFieldHelper {
   }
 
   PdfFontMetrics _createFont(
-      PdfDictionary fontDictionary, double? height, PdfName baseFont) {
+    PdfDictionary fontDictionary,
+    double? height,
+    PdfName baseFont,
+  ) {
     final PdfFontMetrics fontMetrics = PdfFontMetrics();
     if (fontDictionary.containsKey(PdfDictionaryProperties.fontDescriptor)) {
       IPdfPrimitive? createFontDictionary;
@@ -1574,11 +1748,13 @@ class PdfFieldHelper {
           createFontDictionary is PdfDictionary) {
         fontMetrics.ascent =
             (createFontDictionary[PdfDictionaryProperties.ascent]! as PdfNumber)
-                .value! as double;
+                    .value!
+                as double;
         fontMetrics.descent =
             (createFontDictionary[PdfDictionaryProperties.descent]!
-                    as PdfNumber)
-                .value! as double;
+                        as PdfNumber)
+                    .value!
+                as double;
         fontMetrics.size = height!;
         fontMetrics.height = fontMetrics.ascent - fontMetrics.descent;
         fontMetrics.postScriptName = baseFont.name;
@@ -1588,8 +1764,9 @@ class PdfFieldHelper {
     if (fontDictionary.containsKey(PdfDictionaryProperties.widths)) {
       if (fontDictionary[PdfDictionaryProperties.widths]
           is PdfReferenceHolder) {
-        final PdfReferenceHolder tableReference =
-            PdfReferenceHolder(fontDictionary[PdfDictionaryProperties.widths]);
+        final PdfReferenceHolder tableReference = PdfReferenceHolder(
+          fontDictionary[PdfDictionaryProperties.widths],
+        );
         final PdfReferenceHolder tableArray =
             tableReference.object! as PdfReferenceHolder;
         array = tableArray.object as PdfArray?;
@@ -1615,56 +1792,92 @@ class PdfFieldHelper {
     PdfFont? font;
     switch (name) {
       case 'CoBO': //"Courier-BoldOblique"
-        font = PdfStandardFont(PdfFontFamily.courier, height,
-            multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic]);
+        font = PdfStandardFont(
+          PdfFontFamily.courier,
+          height,
+          multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic],
+        );
         break;
       case 'CoBo': //"Courier-Bold"
-        font = PdfStandardFont(PdfFontFamily.courier, height,
-            style: PdfFontStyle.bold);
+        font = PdfStandardFont(
+          PdfFontFamily.courier,
+          height,
+          style: PdfFontStyle.bold,
+        );
         break;
       case 'CoOb': //"Courier-Oblique"
-        font = PdfStandardFont(PdfFontFamily.courier, height,
-            style: PdfFontStyle.italic);
+        font = PdfStandardFont(
+          PdfFontFamily.courier,
+          height,
+          style: PdfFontStyle.italic,
+        );
         break;
       case 'Courier':
       case 'Cour': //"Courier"
-        font = PdfStandardFont(PdfFontFamily.courier, height,
-            style: PdfFontStyle.regular);
+        font = PdfStandardFont(
+          PdfFontFamily.courier,
+          height,
+          style: PdfFontStyle.regular,
+        );
         break;
       case 'HeBO': //"Helvetica-BoldOblique"
-        font = PdfStandardFont(PdfFontFamily.helvetica, height,
-            multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic]);
+        font = PdfStandardFont(
+          PdfFontFamily.helvetica,
+          height,
+          multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic],
+        );
         break;
       case 'HeBo': //"Helvetica-Bold"
-        font = PdfStandardFont(PdfFontFamily.helvetica, height,
-            style: PdfFontStyle.bold);
+        font = PdfStandardFont(
+          PdfFontFamily.helvetica,
+          height,
+          style: PdfFontStyle.bold,
+        );
         break;
       case 'HeOb': //"Helvetica-Oblique"
-        font = PdfStandardFont(PdfFontFamily.helvetica, height,
-            style: PdfFontStyle.italic);
+        font = PdfStandardFont(
+          PdfFontFamily.helvetica,
+          height,
+          style: PdfFontStyle.italic,
+        );
         break;
       case 'Helv': //"Helvetica"
-        font = PdfStandardFont(PdfFontFamily.helvetica, height,
-            style: PdfFontStyle.regular);
+        font = PdfStandardFont(
+          PdfFontFamily.helvetica,
+          height,
+          style: PdfFontStyle.regular,
+        );
         break;
       case 'Symb': // "Symbol"
         font = PdfStandardFont(PdfFontFamily.symbol, height);
         break;
       case 'TiBI': // "Times-BoldItalic"
-        font = PdfStandardFont(PdfFontFamily.timesRoman, height,
-            multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic]);
+        font = PdfStandardFont(
+          PdfFontFamily.timesRoman,
+          height,
+          multiStyle: <PdfFontStyle>[PdfFontStyle.bold, PdfFontStyle.italic],
+        );
         break;
       case 'TiBo': // "Times-Bold"
-        font = PdfStandardFont(PdfFontFamily.timesRoman, height,
-            style: PdfFontStyle.bold);
+        font = PdfStandardFont(
+          PdfFontFamily.timesRoman,
+          height,
+          style: PdfFontStyle.bold,
+        );
         break;
       case 'TiIt': // "Times-Italic"
-        font = PdfStandardFont(PdfFontFamily.timesRoman, height,
-            style: PdfFontStyle.italic);
+        font = PdfStandardFont(
+          PdfFontFamily.timesRoman,
+          height,
+          style: PdfFontStyle.italic,
+        );
         break;
       case 'TiRo': // "Times-Roman"
-        font = PdfStandardFont(PdfFontFamily.timesRoman, height,
-            style: PdfFontStyle.regular);
+        font = PdfStandardFont(
+          PdfFontFamily.timesRoman,
+          height,
+          style: PdfFontStyle.regular,
+        );
         break;
       case 'ZaDb': // "ZapfDingbats"
         font = PdfStandardFont(PdfFontFamily.zapfDingbats, height);
@@ -1696,22 +1909,22 @@ class PdfFieldHelper {
           colour = PdfColorHelper.fromGray(_parseFloatColour(operands.last!));
         } else if (token == 'rg') {
           colour = PdfColor(
-              (_parseFloatColour(operands.elementAt(operands.length - 3)!) *
-                      255)
-                  .toInt()
-                  .toUnsigned(8),
-              (_parseFloatColour(operands.elementAt(operands.length - 2)!) *
-                      255)
-                  .toInt()
-                  .toUnsigned(8),
-              (_parseFloatColour(operands.last!) * 255).toInt().toUnsigned(8));
+            (_parseFloatColour(operands.elementAt(operands.length - 3)!) * 255)
+                .toInt()
+                .toUnsigned(8),
+            (_parseFloatColour(operands.elementAt(operands.length - 2)!) * 255)
+                .toInt()
+                .toUnsigned(8),
+            (_parseFloatColour(operands.last!) * 255).toInt().toUnsigned(8),
+          );
           operands.clear();
         } else if (token == 'k') {
           colour = PdfColor.fromCMYK(
-              _parseFloatColour(operands.elementAt(operands.length - 4)!),
-              _parseFloatColour(operands.elementAt(operands.length - 3)!),
-              _parseFloatColour(operands.elementAt(operands.length - 2)!),
-              _parseFloatColour(operands.last!));
+            _parseFloatColour(operands.elementAt(operands.length - 4)!),
+            _parseFloatColour(operands.elementAt(operands.length - 3)!),
+            _parseFloatColour(operands.elementAt(operands.length - 2)!),
+            _parseFloatColour(operands.last!),
+          );
           operands.clear();
         } else {
           operands.add(token);
@@ -1775,7 +1988,7 @@ class PdfFieldHelper {
       'HYSMyeongJo-Medium',
       'MSung-Light',
       'MHei-Medium',
-      'HYGoThic-Medium'
+      'HYGoThic-Medium',
     ];
     for (int i = 0; i < 7; i++) {
       if (fontName!.contains(fontString[i])) {
@@ -1793,7 +2006,7 @@ class PdfFieldHelper {
       'HYSMyeongJo-Medium',
       'MSung-Light',
       'MHei-Medium',
-      'HYGoThic-Medium'
+      'HYGoThic-Medium',
     ];
     String? value;
     for (int i = 0; i < 7; i++) {
@@ -1898,7 +2111,7 @@ class PdfFieldHelper {
       'Courier',
       'TimesRoman',
       'Symbol',
-      'ZapfDingbats'
+      'ZapfDingbats',
     ];
     if (standardName != null && fontFamilyList.contains(standardName)) {
       fontFamily = PdfFontFamily.values[fontFamilyList.indexOf(standardName)];
@@ -1906,15 +2119,16 @@ class PdfFieldHelper {
     }
     return <String, dynamic>{
       'fontFamily': fontFamily,
-      'standardName': standardName
+      'standardName': standardName,
     };
   }
 
   PdfFont _updateFontEncoding(PdfFont font, PdfDictionary fontDictionary) {
     final PdfDictionary? fontInternalDictionary =
         PdfFontHelper.getHelper(font).fontInternals as PdfDictionary?;
-    if (fontDictionary.items!
-        .containsKey(PdfName(PdfDictionaryProperties.encoding))) {
+    if (fontDictionary.items!.containsKey(
+      PdfName(PdfDictionaryProperties.encoding),
+    )) {
       final PdfName encodingName = PdfName(PdfDictionaryProperties.encoding);
       final IPdfPrimitive? encodingReferenceHolder =
           fontDictionary.items![PdfName(PdfDictionaryProperties.encoding)];
@@ -1922,10 +2136,12 @@ class PdfFieldHelper {
           encodingReferenceHolder is PdfReferenceHolder) {
         final IPdfPrimitive? dictionary = encodingReferenceHolder.object;
         if (dictionary != null && dictionary is PdfDictionary) {
-          if (fontInternalDictionary!.items!
-              .containsKey(PdfName(PdfDictionaryProperties.encoding))) {
-            fontInternalDictionary.items!
-                .remove(PdfName(PdfDictionaryProperties.encoding));
+          if (fontInternalDictionary!.items!.containsKey(
+            PdfName(PdfDictionaryProperties.encoding),
+          )) {
+            fontInternalDictionary.items!.remove(
+              PdfName(PdfDictionaryProperties.encoding),
+            );
           }
           fontInternalDictionary.items![encodingName] = dictionary;
         }
@@ -1933,10 +2149,12 @@ class PdfFieldHelper {
         final IPdfPrimitive? encodingDictionary =
             fontDictionary.items![PdfName(PdfDictionaryProperties.encoding)];
         if (encodingDictionary != null && encodingDictionary is PdfDictionary) {
-          if (fontInternalDictionary!.items!
-              .containsKey(PdfName(PdfDictionaryProperties.encoding))) {
-            fontInternalDictionary.items!
-                .remove(PdfName(PdfDictionaryProperties.encoding));
+          if (fontInternalDictionary!.items!.containsKey(
+            PdfName(PdfDictionaryProperties.encoding),
+          )) {
+            fontInternalDictionary.items!.remove(
+              PdfName(PdfDictionaryProperties.encoding),
+            );
           }
           fontInternalDictionary.items![encodingName] = encodingDictionary;
         }
@@ -1947,12 +2165,16 @@ class PdfFieldHelper {
 
   /// internal method
   void setFittingFontSize(
-      GraphicsProperties gp, PaintParams prms, String text) {
+    GraphicsProperties gp,
+    PaintParams prms,
+    String text,
+  ) {
     double fontSize = 0;
-    final double width = prms.style == PdfBorderStyle.beveled ||
-            prms.style == PdfBorderStyle.inset
-        ? gp.bounds!.width - 8 * prms.borderWidth!
-        : gp.bounds!.width - 4 * prms.borderWidth!;
+    final double width =
+        prms.style == PdfBorderStyle.beveled ||
+                prms.style == PdfBorderStyle.inset
+            ? gp.bounds!.width - 8 * prms.borderWidth!
+            : gp.bounds!.width - 4 * prms.borderWidth!;
     final double height = gp.bounds!.height - 2 * gp.borderWidth!;
     const double minimumFontSize = 0.248;
     if (text.endsWith(' ')) {
@@ -1966,8 +2188,11 @@ class PdfFieldHelper {
         do {
           fontSize = fontSize - 0.001;
           PdfFontHelper.getHelper(gp.font!).setSize(fontSize);
-          final double textWidth =
-              PdfFontHelper.getLineWidth(gp.font!, text, gp.stringFormat);
+          final double textWidth = PdfFontHelper.getLineWidth(
+            gp.font!,
+            text,
+            gp.stringFormat,
+          );
           if (fontSize < minimumFontSize) {
             PdfFontHelper.getHelper(gp.font!).setSize(minimumFontSize);
             break;
@@ -2005,11 +2230,15 @@ class PdfFieldHelper {
 
   /// internal method
   void drawStateItem(
-      PdfGraphics graphics, PdfCheckFieldState state, PdfCheckFieldBase? item,
-      [PdfFieldItem? fieldItem]) {
-    final GraphicsProperties gp = item != null
-        ? GraphicsProperties(item)
-        : GraphicsProperties.fromFieldItem(fieldItem!);
+    PdfGraphics graphics,
+    PdfCheckFieldState state,
+    PdfCheckFieldBase? item, [
+    PdfFieldItem? fieldItem,
+  ]) {
+    final GraphicsProperties gp =
+        item != null
+            ? GraphicsProperties(item)
+            : GraphicsProperties.fromFieldItem(fieldItem!);
     if (!flattenField) {
       gp.bounds = Rect.fromLTWH(0, 0, gp.bounds!.width, gp.bounds!.height);
     }
@@ -2018,41 +2247,45 @@ class PdfFieldHelper {
     }
     graphics.save();
     final PaintParams prms = PaintParams(
-        bounds: gp.bounds,
-        backBrush: gp.backBrush,
-        foreBrush: gp.foreBrush,
-        borderPen: gp.borderPen,
-        style: gp.style,
-        borderWidth: gp.borderWidth,
-        shadowBrush: gp.shadowBrush);
+      bounds: gp.bounds,
+      backBrush: gp.backBrush,
+      foreBrush: gp.foreBrush,
+      borderPen: gp.borderPen,
+      style: gp.style,
+      borderWidth: gp.borderWidth,
+      shadowBrush: gp.shadowBrush,
+    );
     if (fieldChanged == true) {
       _drawFields(graphics, gp, prms, state);
     } else {
-      PdfGraphicsHelper.getHelper(graphics)
-          .streamWriter!
-          .setTextRenderingMode(0);
+      PdfGraphicsHelper.getHelper(
+        graphics,
+      ).streamWriter!.setTextRenderingMode(0);
       final PdfTemplate? stateTemplate = _getStateTemplate(
-          state,
-          item != null
-              ? PdfFieldHelper.getHelper(item).dictionary!
-              : PdfFieldItemHelper.getHelper(fieldItem!).dictionary!);
+        state,
+        item != null
+            ? PdfFieldHelper.getHelper(item).dictionary!
+            : PdfFieldItemHelper.getHelper(fieldItem!).dictionary!,
+      );
       if (stateTemplate != null) {
-        final Rect bounds = item == null && fieldItem == null
-            ? field.bounds
-            : item != null
+        final Rect bounds =
+            item == null && fieldItem == null
+                ? field.bounds
+                : item != null
                 ? item.bounds
                 : fieldItem!.bounds;
         bool encryptedContent = false;
         if (crossTable != null &&
             crossTable!.document != null &&
-            PdfDocumentHelper.getHelper(crossTable!.document!)
-                .isLoadedDocument) {
+            PdfDocumentHelper.getHelper(
+              crossTable!.document!,
+            ).isLoadedDocument) {
           final PdfDocument? loadedDocument = crossTable!.document;
           if (loadedDocument != null &&
               PdfDocumentHelper.getHelper(loadedDocument).isEncrypted) {
-            if (PdfSecurityHelper.getHelper(loadedDocument.security)
-                    .encryptor
-                    .isEncrypt! &&
+            if (PdfSecurityHelper.getHelper(
+                  loadedDocument.security,
+                ).encryptor.isEncrypt! &&
                 loadedDocument.security.encryptionOptions ==
                     PdfEncryptionOptions.encryptAllContents) {
               encryptedContent = true;
@@ -2067,12 +2300,14 @@ class PdfFieldHelper {
             field is PdfCheckBoxField) {
           gp.font = null;
           FieldPainter().drawCheckBox(
-              graphics,
-              prms,
-              PdfCheckFieldBaseHelper.getHelper(field as PdfCheckBoxField)
-                  .styleToString((field as PdfCheckBoxField).style),
-              state,
-              gp.font);
+            graphics,
+            prms,
+            PdfCheckFieldBaseHelper.getHelper(
+              field as PdfCheckBoxField,
+            ).styleToString((field as PdfCheckBoxField).style),
+            state,
+            gp.font,
+          );
         } else {
           graphics.drawPdfTemplate(stateTemplate, bounds.topLeft, bounds.size);
         }
@@ -2084,18 +2319,23 @@ class PdfFieldHelper {
   }
 
   PdfTemplate? _getStateTemplate(
-      PdfCheckFieldState state, PdfDictionary? itemDictionary) {
+    PdfCheckFieldState state,
+    PdfDictionary? itemDictionary,
+  ) {
     final PdfDictionary dic = itemDictionary ?? dictionary!;
-    final String? value = state == PdfCheckFieldState.checked
-        ? getItemValue(dic, crossTable)
-        : PdfDictionaryProperties.off;
+    final String? value =
+        state == PdfCheckFieldState.checked
+            ? getItemValue(dic, crossTable)
+            : PdfDictionaryProperties.off;
     PdfTemplate? template;
     if (dic.containsKey(PdfDictionaryProperties.ap)) {
-      final IPdfPrimitive? appearance =
-          PdfCrossTable.dereference(dic[PdfDictionaryProperties.ap]);
+      final IPdfPrimitive? appearance = PdfCrossTable.dereference(
+        dic[PdfDictionaryProperties.ap],
+      );
       if (appearance != null && appearance is PdfDictionary) {
-        final IPdfPrimitive? norm =
-            PdfCrossTable.dereference(appearance[PdfDictionaryProperties.n]);
+        final IPdfPrimitive? norm = PdfCrossTable.dereference(
+          appearance[PdfDictionaryProperties.n],
+        );
         if (value != null &&
             value.isNotEmpty &&
             norm != null &&
@@ -2116,34 +2356,45 @@ class PdfFieldHelper {
     return template;
   }
 
-  void _drawFields(PdfGraphics graphics, GraphicsProperties gp,
-      PaintParams params, PdfCheckFieldState state) {
+  void _drawFields(
+    PdfGraphics graphics,
+    GraphicsProperties gp,
+    PaintParams params,
+    PdfCheckFieldState state,
+  ) {
     if (gp.font!.size >= 0) {
       gp.font = null;
     }
     if (field is PdfCheckBoxField) {
       FieldPainter().drawCheckBox(
-          graphics,
-          params,
-          PdfCheckBoxFieldHelper.getHelper(field as PdfCheckBoxField)
-              .styleToString((field as PdfCheckBoxField).style),
-          state,
-          gp.font);
+        graphics,
+        params,
+        PdfCheckBoxFieldHelper.getHelper(
+          field as PdfCheckBoxField,
+        ).styleToString((field as PdfCheckBoxField).style),
+        state,
+        gp.font,
+      );
     } else if (field is PdfRadioButtonListItem) {
       FieldPainter().drawRadioButton(
-          graphics,
-          params,
-          PdfRadioButtonListItemHelper.getHelper(
-                  field as PdfRadioButtonListItem)
-              .styleToString((field as PdfRadioButtonListItem).style),
-          state);
+        graphics,
+        params,
+        PdfRadioButtonListItemHelper.getHelper(
+          field as PdfRadioButtonListItem,
+        ).styleToString((field as PdfRadioButtonListItem).style),
+        state,
+      );
     }
   }
 
   /// internal method
   void importFieldValue(Object fieldValue) {
     final IPdfPrimitive? primitive = PdfFieldHelper.getValue(
-        dictionary!, crossTable, PdfDictionaryProperties.ft, true);
+      dictionary!,
+      crossTable,
+      PdfDictionaryProperties.ft,
+      true,
+    );
     String? value;
     if (fieldValue is String) {
       value = fieldValue;
@@ -2177,15 +2428,17 @@ class PdfFieldHelper {
                 value.toUpperCase() == 'YES') {
               field1.isChecked = true;
             } else if (_containsExportValue(
-                value, field1._fieldHelper.dictionary!)) {
+              value,
+              field1._fieldHelper.dictionary!,
+            )) {
               field1.isChecked = true;
             } else if (field1.items != null && field1.items!.count > 0) {
               bool isChecked = false;
               for (int i = 0; i < field1.items!.count; i++) {
                 if (_containsExportValue(
-                    value,
-                    PdfFieldItemHelper.getHelper(field1.items![i])
-                        .dictionary!)) {
+                  value,
+                  PdfFieldItemHelper.getHelper(field1.items![i]).dictionary!,
+                )) {
                   (field1.items![i] as PdfCheckBoxItem).checked = true;
                   isChecked = true;
                 }
@@ -2228,8 +2481,9 @@ class PdfFieldHelper {
           break;
       }
       if (widget[PdfDictionaryProperties.bs] is PdfReferenceHolder) {
-        final PdfDictionary widgetDict = crossTable!
-            .getObject(widget[PdfDictionaryProperties.bs])! as PdfDictionary;
+        final PdfDictionary widgetDict =
+            crossTable!.getObject(widget[PdfDictionaryProperties.bs])!
+                as PdfDictionary;
         if (widgetDict.containsKey(PdfDictionaryProperties.s)) {
           widgetDict[PdfDictionaryProperties.s] = PdfName(style);
         } else {
@@ -2249,9 +2503,11 @@ class PdfFieldHelper {
       if (!widget.containsKey(PdfDictionaryProperties.bs)) {
         this.widget!.widgetBorder!.borderStyle = borderStyle!;
         widget.setProperty(
-            PdfDictionaryProperties.bs,
-            PdfAnnotationBorderHelper.getHelper(this.widget!.widgetBorder!)
-                .dictionary);
+          PdfDictionaryProperties.bs,
+          PdfAnnotationBorderHelper.getHelper(
+            this.widget!.widgetBorder!,
+          ).dictionary,
+        );
       }
     }
     if (widget.containsKey(PdfDictionaryProperties.mk) &&
@@ -2265,12 +2521,14 @@ class PdfFieldHelper {
             .dictionary!
             .items!
             .forEach((PdfName? key, IPdfPrimitive? value) {
-          mkDict.setProperty(key, value);
-        });
+              mkDict.setProperty(key, value);
+            });
       }
     } else {
-      widget.setProperty(PdfDictionaryProperties.mk,
-          WidgetAnnotationHelper.getHelper(this.widget!).widgetAppearance);
+      widget.setProperty(
+        PdfDictionaryProperties.mk,
+        WidgetAnnotationHelper.getHelper(this.widget!).widgetAppearance,
+      );
     }
   }
 
@@ -2299,16 +2557,20 @@ class PdfFieldHelper {
 
   bool _containsExportValue(String value, PdfDictionary dictionary) {
     bool result = false;
-    final PdfDictionary widgetDictionary =
-        getWidgetAnnotation(dictionary, crossTable);
+    final PdfDictionary widgetDictionary = getWidgetAnnotation(
+      dictionary,
+      crossTable,
+    );
     if (widgetDictionary.containsKey(PdfDictionaryProperties.ap)) {
-      final IPdfPrimitive? appearance =
-          crossTable!.getObject(widgetDictionary[PdfDictionaryProperties.ap]);
+      final IPdfPrimitive? appearance = crossTable!.getObject(
+        widgetDictionary[PdfDictionaryProperties.ap],
+      );
       if (appearance != null &&
           appearance is PdfDictionary &&
           appearance.containsKey(PdfDictionaryProperties.n)) {
-        final IPdfPrimitive? normalTemplate =
-            PdfCrossTable.dereference(appearance[PdfDictionaryProperties.n]);
+        final IPdfPrimitive? normalTemplate = PdfCrossTable.dereference(
+          appearance[PdfDictionaryProperties.n],
+        );
         if (normalTemplate != null &&
             normalTemplate is PdfDictionary &&
             normalTemplate.containsKey(value)) {
@@ -2327,27 +2589,40 @@ class PdfFieldHelper {
       kids = crossTable!.getObject(dictionary![PdfDictionaryProperties.kids]);
       if (kids != null && kids is PdfArray) {
         for (int i = 0; i < kids.count; i++) {
-          flag = flag ||
+          flag =
+              flag ||
               (kids[i] is PdfField &&
                   (kids[i]! as PdfField)._fieldHelper.isLoadedField);
         }
       }
     }
     final IPdfPrimitive? name = PdfFieldHelper.getValue(
-        dictionary!, crossTable, PdfDictionaryProperties.ft, true);
+      dictionary!,
+      crossTable,
+      PdfDictionaryProperties.ft,
+      true,
+    );
     String? strValue = '';
     if (name != null && name is PdfName) {
       switch (name.name) {
         case 'Tx':
           final IPdfPrimitive? tempName = PdfFieldHelper.getValue(
-              dictionary!, crossTable, PdfDictionaryProperties.v, true);
+            dictionary!,
+            crossTable,
+            PdfDictionaryProperties.v,
+            true,
+          );
           if (tempName != null && tempName is PdfString) {
             strValue = tempName.value;
           }
           break;
         case 'Ch':
           final IPdfPrimitive? checkBoxPrimitive = PdfFieldHelper.getValue(
-              dictionary!, crossTable, PdfDictionaryProperties.v, true);
+            dictionary!,
+            crossTable,
+            PdfDictionaryProperties.v,
+            true,
+          );
           if (checkBoxPrimitive != null) {
             final String? value = getExportValue(field, checkBoxPrimitive);
             if (value != null && value.isNotEmpty) {
@@ -2357,7 +2632,11 @@ class PdfFieldHelper {
           break;
         case 'Btn':
           final IPdfPrimitive? buttonFieldPrimitive = PdfFieldHelper.getValue(
-              dictionary!, crossTable, PdfDictionaryProperties.v, true);
+            dictionary!,
+            crossTable,
+            PdfDictionaryProperties.v,
+            true,
+          );
           if (buttonFieldPrimitive != null) {
             final String? value = getExportValue(field, buttonFieldPrimitive);
             if (value != null && value.isNotEmpty) {
@@ -2372,8 +2651,10 @@ class PdfFieldHelper {
             if (field is PdfRadioButtonListField) {
               strValue = getAppearanceStateValue(field);
             } else {
-              final PdfDictionary holder =
-                  getWidgetAnnotation(dictionary!, crossTable);
+              final PdfDictionary holder = getWidgetAnnotation(
+                dictionary!,
+                crossTable,
+              );
               final IPdfPrimitive? holderName =
                   holder[PdfDictionaryProperties.usageApplication];
               if (holderName != null && holderName is PdfName) {
@@ -2393,8 +2674,8 @@ class PdfFieldHelper {
                 field is PdfField &&
                 (field as PdfField)._fieldHelper.isLoadedField &&
                 (field as PdfField).canExport) {
-              final Map<String, dynamic> out =
-                  (field as PdfField)._fieldHelper.exportField(bytes, objectID);
+              final Map<String, dynamic> out = (field as PdfField)._fieldHelper
+                  .exportField(bytes, objectID);
               bytes = out['bytes'] as List<int>;
               objectID = out['objectID'] as int;
             }
@@ -2405,7 +2686,8 @@ class PdfFieldHelper {
             ..encode = ForceEncoding.ascii;
           final StringBuffer buffer = StringBuffer();
           buffer.write(
-              '$objID 0 obj<</T <${PdfString.bytesToHex(stringValue.value!.codeUnits)}> /Kids [');
+            '$objID 0 obj<</T <${PdfString.bytesToHex(stringValue.value!.codeUnits)}> /Kids [',
+          );
 
           for (int i = 0; i < kids.count; i++) {
             final PdfField field = kids[i]! as PdfField;
@@ -2433,8 +2715,8 @@ class PdfFieldHelper {
           final PdfString stringFieldName = PdfString(this.name!)
             ..encode = ForceEncoding.ascii;
           final PdfString buildString = PdfString(
-              '$objID 0 obj<</T <${PdfString.bytesToHex(stringFieldName.value!.codeUnits)}> /V $strValue >>endobj\n')
-            ..encode = ForceEncoding.ascii;
+            '$objID 0 obj<</T <${PdfString.bytesToHex(stringFieldName.value!.codeUnits)}> /V $strValue >>endobj\n',
+          )..encode = ForceEncoding.ascii;
           bytes.addAll(buildString.value!.codeUnits);
         }
       }
@@ -2484,7 +2766,9 @@ class PdfFieldHelper {
   /// internal method
   String getAppearanceStateValue(PdfField field) {
     final List<PdfDictionary> holders = field._getWidgetAnnotations(
-        field._fieldHelper.dictionary!, field._fieldHelper.crossTable!);
+      field._fieldHelper.dictionary!,
+      field._fieldHelper.crossTable!,
+    );
     String? value;
     for (int i = 0; i < holders.length; i++) {
       final IPdfPrimitive? pdfName =
@@ -2504,7 +2788,11 @@ class PdfFieldHelper {
   /// internal method
   XmlElement? exportFieldForXml() {
     final IPdfPrimitive? name = PdfFieldHelper.getValue(
-        dictionary!, crossTable, PdfDictionaryProperties.ft, true);
+      dictionary!,
+      crossTable,
+      PdfDictionaryProperties.ft,
+      true,
+    );
     String fieldName = this.name!.replaceAll(' ', '_x0020_');
     fieldName = fieldName
         .replaceAll(r'\', '_x005C_')
@@ -2522,7 +2810,11 @@ class PdfFieldHelper {
       switch (name.name) {
         case 'Tx':
           final IPdfPrimitive? str = PdfFieldHelper.getValue(
-              dictionary!, crossTable, PdfDictionaryProperties.v, true);
+            dictionary!,
+            crossTable,
+            PdfDictionaryProperties.v,
+            true,
+          );
           if ((str != null && str is PdfString) || exportEmptyField) {
             element = XmlElement(XmlName(fieldName));
             if (str != null && str is PdfString) {
@@ -2534,7 +2826,11 @@ class PdfFieldHelper {
           break;
         case 'Ch':
           final IPdfPrimitive? str = PdfFieldHelper.getValue(
-              dictionary!, crossTable, PdfDictionaryProperties.v, true);
+            dictionary!,
+            crossTable,
+            PdfDictionaryProperties.v,
+            true,
+          );
           if (str != null && str is PdfName) {
             final XmlElement element = XmlElement(XmlName(fieldName));
             element.innerText = str.name!;
@@ -2549,7 +2845,11 @@ class PdfFieldHelper {
           break;
         case 'Btn':
           final IPdfPrimitive? buttonFieldPrimitive = PdfFieldHelper.getValue(
-              dictionary!, crossTable, PdfDictionaryProperties.v, true);
+            dictionary!,
+            crossTable,
+            PdfDictionaryProperties.v,
+            true,
+          );
           if (buttonFieldPrimitive != null) {
             final String? value = getExportValue(field, buttonFieldPrimitive);
             if ((value != null && value.isNotEmpty) || exportEmptyField) {
@@ -2571,11 +2871,14 @@ class PdfFieldHelper {
           } else {
             if (field is PdfRadioButtonListField) {
               element = XmlElement(XmlName(fieldName));
-              element.innerText =
-                  getAppearanceStateValue(field as PdfRadioButtonListField);
+              element.innerText = getAppearanceStateValue(
+                field as PdfRadioButtonListField,
+              );
             } else {
-              final PdfDictionary holder =
-                  getWidgetAnnotation(dictionary!, crossTable);
+              final PdfDictionary holder = getWidgetAnnotation(
+                dictionary!,
+                crossTable,
+              );
               if ((holder[PdfDictionaryProperties.usageApplication]
                       is PdfName) ||
                   exportEmptyField) {
@@ -2614,12 +2917,12 @@ class PdfFieldHelper {
     if (page != null &&
         page!.formFieldsTabOrder == PdfFormFieldsTabOrder.manual) {
       page!.annotations.remove(widget!);
-      PdfAnnotationCollectionHelper.getHelper(page!.annotations)
-          .annotations
-          .insert(field.tabIndex, PdfReferenceHolder(widget));
-      PdfObjectCollectionHelper.getHelper(page!.annotations)
-          .list
-          .insert(field.tabIndex, widget!);
+      PdfAnnotationCollectionHelper.getHelper(
+        page!.annotations,
+      ).annotations.insert(field.tabIndex, PdfReferenceHolder(widget));
+      PdfObjectCollectionHelper.getHelper(
+        page!.annotations,
+      ).list.insert(field.tabIndex, widget!);
     }
     if (form != null &&
         !PdfFormHelper.getHelper(form!).needAppearances! &&
@@ -2634,9 +2937,11 @@ class PdfFieldHelper {
     String? value = '';
     PdfName? name;
     if (dictionary.containsKey(PdfDictionaryProperties.usageApplication)) {
-      name = crossTable!
-              .getObject(dictionary[PdfDictionaryProperties.usageApplication])
-          as PdfName?;
+      name =
+          crossTable!.getObject(
+                dictionary[PdfDictionaryProperties.usageApplication],
+              )
+              as PdfName?;
       if (name != null && name.name != PdfDictionaryProperties.off) {
         value = PdfName.decodeName(name.name);
       }
@@ -2647,8 +2952,9 @@ class PdfFieldHelper {
             crossTable!.getObject(dictionary[PdfDictionaryProperties.ap])!
                 as PdfDictionary;
         if (dic.containsKey(PdfDictionaryProperties.n)) {
-          final PdfReference reference =
-              crossTable.getReference(dic[PdfDictionaryProperties.n]);
+          final PdfReference reference = crossTable.getReference(
+            dic[PdfDictionaryProperties.n],
+          );
           final PdfDictionary normalAppearance =
               crossTable.getObject(reference)! as PdfDictionary;
           final List<Object?> list = <Object?>[];
@@ -2676,16 +2982,20 @@ class PdfFieldHelper {
         page.annotations.remove(widget!);
       } else {
         final PdfDictionary pageDic = PdfPageHelper.getHelper(page).dictionary!;
-        final PdfArray annots = pageDic
-                .containsKey(PdfDictionaryProperties.annots)
-            ? PdfPageHelper.getHelper(page)
-                .crossTable!
-                .getObject(pageDic[PdfDictionaryProperties.annots])! as PdfArray
-            : PdfArray();
-        final PdfAnnotationHelper helper =
-            PdfAnnotationHelper.getHelper(widget!);
-        helper.dictionary!
-            .setProperty(PdfDictionaryProperties.p, PdfReferenceHolder(page));
+        final PdfArray annots =
+            pageDic.containsKey(PdfDictionaryProperties.annots)
+                ? PdfPageHelper.getHelper(page).crossTable!.getObject(
+                      pageDic[PdfDictionaryProperties.annots],
+                    )!
+                    as PdfArray
+                : PdfArray();
+        final PdfAnnotationHelper helper = PdfAnnotationHelper.getHelper(
+          widget!,
+        );
+        helper.dictionary!.setProperty(
+          PdfDictionaryProperties.p,
+          PdfReferenceHolder(page),
+        );
         for (int i = 0; i < annots.count; i++) {
           final IPdfPrimitive? obj = annots[i];
           if (obj != null &&
@@ -2696,9 +3006,9 @@ class PdfFieldHelper {
             break;
           }
         }
-        PdfPageHelper.getHelper(page)
-            .dictionary!
-            .setProperty(PdfDictionaryProperties.annots, annots);
+        PdfPageHelper.getHelper(
+          page,
+        ).dictionary!.setProperty(PdfDictionaryProperties.annots, annots);
       }
     }
   }
@@ -2707,8 +3017,9 @@ class PdfFieldHelper {
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
     PdfPen? pen;
     if (widget.containsKey(PdfDictionaryProperties.mk)) {
-      final IPdfPrimitive? mk =
-          crossTable!.getObject(widget[PdfDictionaryProperties.mk]);
+      final IPdfPrimitive? mk = crossTable!.getObject(
+        widget[PdfDictionaryProperties.mk],
+      );
       if (mk is PdfDictionary && mk.containsKey(PdfDictionaryProperties.bc)) {
         final PdfArray array =
             crossTable!.getObject(mk[PdfDictionaryProperties.bc])! as PdfArray;
@@ -2735,8 +3046,9 @@ class PdfFieldHelper {
     if (borderStyle == PdfBorderStyle.dashed) {
       final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
       if (widget.containsKey(PdfDictionaryProperties.d)) {
-        final IPdfPrimitive? dashes =
-            crossTable!.getObject(widget[PdfDictionaryProperties.d]);
+        final IPdfPrimitive? dashes = crossTable!.getObject(
+          widget[PdfDictionaryProperties.d],
+        );
         if (dashes != null && dashes is PdfArray) {
           if (dashes.count == 2) {
             array = <double>[0, 0];
@@ -2765,9 +3077,11 @@ class PdfFieldHelper {
   void _assignHighlightMode(PdfHighlightMode? highlightMode) {
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
     widget.setName(
-        PdfName(PdfDictionaryProperties.h),
-        WidgetAnnotationHelper.getHelper(this.widget!)
-            .highlightModeToString(highlightMode));
+      PdfName(PdfDictionaryProperties.h),
+      WidgetAnnotationHelper.getHelper(
+        this.widget!,
+      ).highlightModeToString(highlightMode),
+    );
     changed = true;
   }
 
@@ -2790,35 +3104,49 @@ class PdfFieldHelper {
           if (parentDictionary.containsKey(PdfDictionaryProperties.ft) &&
               (parentDictionary[PdfDictionaryProperties.ft]! as PdfName).name ==
                   PdfDictionaryProperties.btn) {
-            final PdfDictionary widget =
-                getWidgetAnnotation(parentDictionary, crossTable);
+            final PdfDictionary widget = getWidgetAnnotation(
+              parentDictionary,
+              crossTable,
+            );
             if (widget.containsKey(PdfDictionaryProperties.rect)) {
-              array =
-                  crossTable!.getObject(widget[PdfDictionaryProperties.rect]);
+              array = crossTable!.getObject(
+                widget[PdfDictionaryProperties.rect],
+              );
             }
           }
         }
       }
       if (array == null &&
           dictionary!.containsKey(PdfDictionaryProperties.rect)) {
-        array =
-            crossTable!.getObject(dictionary![PdfDictionaryProperties.rect]);
+        array = crossTable!.getObject(
+          dictionary![PdfDictionaryProperties.rect],
+        );
       }
     }
     Rect bounds;
     if (array != null && array is PdfArray) {
       bounds = array.toRectangle().rect;
-      double? y = 0;
-      if ((PdfCrossTable.dereference(array[1])! as PdfNumber).value! < 0) {
-        y = (PdfCrossTable.dereference(array[1])! as PdfNumber).value
-            as double?;
-        if ((PdfCrossTable.dereference(array[1])! as PdfNumber).value! >
-            (PdfCrossTable.dereference(array[3])! as PdfNumber).value!) {
-          y = y! - bounds.height;
+      double y = 0.0;
+
+      final value1 = (PdfCrossTable.dereference(array[1])! as PdfNumber).value!;
+      final value3 = (PdfCrossTable.dereference(array[3])! as PdfNumber).value!;
+
+      final value1Double = value1.toDouble();
+      final value3Double = value3.toDouble();
+
+      if (value1Double < 0) {
+        y = value1Double;
+
+        if (value1Double > value3Double) {
+          y = y - bounds.height;
         }
       }
       bounds = Rect.fromLTWH(
-          bounds.left, y! <= 0 ? bounds.top : y, bounds.width, bounds.height);
+        bounds.left,
+        y <= 0 ? bounds.top : y,
+        bounds.width,
+        bounds.height,
+      );
     } else {
       bounds = Rect.zero;
     }
@@ -2830,8 +3158,9 @@ class PdfFieldHelper {
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
     PdfColor c = PdfColor.empty;
     if (widget.containsKey(PdfDictionaryProperties.mk)) {
-      final IPdfPrimitive? bs =
-          crossTable!.getObject(widget[PdfDictionaryProperties.mk]);
+      final IPdfPrimitive? bs = crossTable!.getObject(
+        widget[PdfDictionaryProperties.mk],
+      );
       if (bs is PdfDictionary) {
         IPdfPrimitive? array;
         if (bs.containsKey(PdfDictionaryProperties.bg)) {
@@ -2857,35 +3186,42 @@ class PdfFieldHelper {
     }
     switch (dim) {
       case 1:
-        color = (colors[0] > 0.0) && (colors[0] <= 1.0)
-            ? PdfColorHelper.fromGray(colors[0])
-            : PdfColorHelper.fromGray(
-                colors[0].toInt().toUnsigned(8).toDouble());
+        color =
+            (colors[0] > 0.0) && (colors[0] <= 1.0)
+                ? PdfColorHelper.fromGray(colors[0])
+                : PdfColorHelper.fromGray(
+                  colors[0].toInt().toUnsigned(8).toDouble(),
+                );
         break;
       case 3:
-        color = ((colors[0] > 0.0) && (colors[0] <= 1.0)) ||
-                ((colors[1] > 0.0) && (colors[1] <= 1.0)) ||
-                ((colors[2] > 0.0) && (colors[2] <= 1.0))
-            ? PdfColor(
-                (colors[0] * 255).toInt().toUnsigned(8),
-                (colors[1] * 255).toInt().toUnsigned(8),
-                (colors[2] * 255).toInt().toUnsigned(8))
-            : PdfColor(
-                colors[0].toInt().toUnsigned(8),
-                colors[1].toInt().toUnsigned(8),
-                colors[2].toInt().toUnsigned(8));
+        color =
+            ((colors[0] > 0.0) && (colors[0] <= 1.0)) ||
+                    ((colors[1] > 0.0) && (colors[1] <= 1.0)) ||
+                    ((colors[2] > 0.0) && (colors[2] <= 1.0))
+                ? PdfColor(
+                  (colors[0] * 255).toInt().toUnsigned(8),
+                  (colors[1] * 255).toInt().toUnsigned(8),
+                  (colors[2] * 255).toInt().toUnsigned(8),
+                )
+                : PdfColor(
+                  colors[0].toInt().toUnsigned(8),
+                  colors[1].toInt().toUnsigned(8),
+                  colors[2].toInt().toUnsigned(8),
+                );
         break;
       case 4:
-        color = ((colors[0] > 0.0) && (colors[0] <= 1.0)) ||
-                ((colors[1] > 0.0) && (colors[1] <= 1.0)) ||
-                ((colors[2] > 0.0) && (colors[2] <= 1.0)) ||
-                ((colors[3] > 0.0) && (colors[3] <= 1.0))
-            ? PdfColor.fromCMYK(colors[0], colors[1], colors[2], colors[3])
-            : PdfColor.fromCMYK(
-                colors[0].toInt().toUnsigned(8).toDouble(),
-                colors[1].toInt().toUnsigned(8).toDouble(),
-                colors[2].toInt().toUnsigned(8).toDouble(),
-                colors[3].toInt().toUnsigned(8).toDouble());
+        color =
+            ((colors[0] > 0.0) && (colors[0] <= 1.0)) ||
+                    ((colors[1] > 0.0) && (colors[1] <= 1.0)) ||
+                    ((colors[2] > 0.0) && (colors[2] <= 1.0)) ||
+                    ((colors[3] > 0.0) && (colors[3] <= 1.0))
+                ? PdfColor.fromCMYK(colors[0], colors[1], colors[2], colors[3])
+                : PdfColor.fromCMYK(
+                  colors[0].toInt().toUnsigned(8).toDouble(),
+                  colors[1].toInt().toUnsigned(8).toDouble(),
+                  colors[2].toInt().toUnsigned(8).toDouble(),
+                  colors[3].toInt().toUnsigned(8).toDouble(),
+                );
         break;
     }
     return color;
@@ -2895,10 +3231,13 @@ class PdfFieldHelper {
   void assignBackColor(PdfColor? value) {
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
     if (widget.containsKey(PdfDictionaryProperties.mk)) {
-      final PdfDictionary mk = (crossTable != null
-              ? crossTable!.getObject(widget[PdfDictionaryProperties.mk])
-              : PdfCrossTable.dereference(widget[PdfDictionaryProperties.mk]))!
-          as PdfDictionary;
+      final PdfDictionary mk =
+          (crossTable != null
+                  ? crossTable!.getObject(widget[PdfDictionaryProperties.mk])
+                  : PdfCrossTable.dereference(
+                    widget[PdfDictionaryProperties.mk],
+                  ))!
+              as PdfDictionary;
       final PdfArray array = PdfColorHelper.toArray(value!);
       mk[PdfDictionaryProperties.bg] = array;
     } else {
@@ -2913,17 +3252,22 @@ class PdfFieldHelper {
   /// internal method
   void assignBorderColor(PdfColor borderColor) {
     if (dictionary!.containsKey(PdfDictionaryProperties.kids)) {
-      final IPdfPrimitive? kids =
-          crossTable!.getObject(dictionary![PdfDictionaryProperties.kids]);
+      final IPdfPrimitive? kids = crossTable!.getObject(
+        dictionary![PdfDictionaryProperties.kids],
+      );
       if (kids != null && kids is PdfArray) {
         for (int i = 0; i < kids.count; i++) {
           final IPdfPrimitive? widget = PdfCrossTable.dereference(kids[i]);
           if (widget != null && widget is PdfDictionary) {
             if (widget.containsKey(PdfDictionaryProperties.mk)) {
-              final IPdfPrimitive? mk = crossTable != null
-                  ? crossTable!.getObject(widget[PdfDictionaryProperties.mk])
-                  : PdfCrossTable.dereference(
-                      widget[PdfDictionaryProperties.mk]);
+              final IPdfPrimitive? mk =
+                  crossTable != null
+                      ? crossTable!.getObject(
+                        widget[PdfDictionaryProperties.mk],
+                      )
+                      : PdfCrossTable.dereference(
+                        widget[PdfDictionaryProperties.mk],
+                      );
               if (mk != null && mk is PdfDictionary) {
                 final PdfArray array = PdfColorHelper.toArray(borderColor);
                 if (PdfColorHelper.getHelper(borderColor).alpha == 0) {
@@ -2948,9 +3292,10 @@ class PdfFieldHelper {
     } else {
       final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
       if (widget.containsKey(PdfDictionaryProperties.mk)) {
-        final IPdfPrimitive? mk = crossTable != null
-            ? crossTable!.getObject(widget[PdfDictionaryProperties.mk])
-            : PdfCrossTable.dereference(widget[PdfDictionaryProperties.mk]);
+        final IPdfPrimitive? mk =
+            crossTable != null
+                ? crossTable!.getObject(widget[PdfDictionaryProperties.mk])
+                : PdfCrossTable.dereference(widget[PdfDictionaryProperties.mk]);
         if (mk != null && mk is PdfDictionary) {
           final PdfArray array = PdfColorHelper.toArray(borderColor);
           if (PdfColorHelper.getHelper(borderColor).alpha == 0) {
@@ -2975,14 +3320,17 @@ class PdfFieldHelper {
   int _obtainBorderWidth() {
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
     int width = 0;
-    final IPdfPrimitive? name =
-        crossTable!.getObject(widget[PdfDictionaryProperties.ft]);
+    final IPdfPrimitive? name = crossTable!.getObject(
+      widget[PdfDictionaryProperties.ft],
+    );
     if (widget.containsKey(PdfDictionaryProperties.bs)) {
       width = 1;
-      final PdfDictionary bs = crossTable!
-          .getObject(widget[PdfDictionaryProperties.bs])! as PdfDictionary;
-      final IPdfPrimitive? number =
-          crossTable!.getObject(bs[PdfDictionaryProperties.w]);
+      final PdfDictionary bs =
+          crossTable!.getObject(widget[PdfDictionaryProperties.bs])!
+              as PdfDictionary;
+      final IPdfPrimitive? number = crossTable!.getObject(
+        bs[PdfDictionaryProperties.w],
+      );
       if (number != null && number is PdfNumber) {
         width = number.value!.toInt();
       }
@@ -2996,8 +3344,9 @@ class PdfFieldHelper {
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
     if (widget.containsKey(PdfDictionaryProperties.bs)) {
       if (widget[PdfDictionaryProperties.bs] is PdfReferenceHolder) {
-        final PdfDictionary widgetDict = crossTable!
-            .getObject(widget[PdfDictionaryProperties.bs])! as PdfDictionary;
+        final PdfDictionary widgetDict =
+            crossTable!.getObject(widget[PdfDictionaryProperties.bs])!
+                as PdfDictionary;
         if (widgetDict.containsKey(PdfDictionaryProperties.w)) {
           widgetDict[PdfDictionaryProperties.w] = PdfNumber(width);
         } else {
@@ -3011,11 +3360,15 @@ class PdfFieldHelper {
     } else {
       if (!widget.containsKey(PdfDictionaryProperties.bs)) {
         widget.setProperty(
-            PdfDictionaryProperties.bs,
-            PdfAnnotationBorderHelper.getHelper(this.widget!.widgetBorder!)
-                .dictionary);
-        (widget[PdfDictionaryProperties.bs]! as PdfDictionary)
-            .setProperty(PdfDictionaryProperties.w, PdfNumber(width));
+          PdfDictionaryProperties.bs,
+          PdfAnnotationBorderHelper.getHelper(
+            this.widget!.widgetBorder!,
+          ).dictionary,
+        );
+        (widget[PdfDictionaryProperties.bs]! as PdfDictionary).setProperty(
+          PdfDictionaryProperties.w,
+          PdfNumber(width),
+        );
         _createBorderPen();
       }
     }
@@ -3025,8 +3378,9 @@ class PdfFieldHelper {
   void _createBorderPen() {
     final double width = widget!.widgetBorder!.width;
     borderPen = PdfPen(
-        WidgetAnnotationHelper.getHelper(widget!).widgetAppearance!.borderColor,
-        width: width);
+      WidgetAnnotationHelper.getHelper(widget!).widgetAppearance!.borderColor,
+      width: width,
+    );
     if (widget!.widgetBorder!.borderStyle == PdfBorderStyle.dashed ||
         widget!.widgetBorder!.borderStyle == PdfBorderStyle.dot) {
       borderPen!.dashStyle = PdfDashStyle.custom;
@@ -3057,7 +3411,9 @@ class PdfFieldHelper {
                   dictionary![PdfDictionaryProperties.tu];
               if (toolTip != null && toolTip is PdfString) {
                 widgetAnnot.setString(
-                    PdfDictionaryProperties.tu, toolTip.value);
+                  PdfDictionaryProperties.tu,
+                  toolTip.value,
+                );
               }
             }
           }
@@ -3067,8 +3423,12 @@ class PdfFieldHelper {
   }
 
   /// Gets the value.
-  static IPdfPrimitive? getValue(PdfDictionary dictionary,
-      PdfCrossTable? crossTable, String value, bool inheritable) {
+  static IPdfPrimitive? getValue(
+    PdfDictionary dictionary,
+    PdfCrossTable? crossTable,
+    String value,
+    bool inheritable,
+  ) {
     IPdfPrimitive? primitive;
     if (dictionary.containsKey(value)) {
       primitive = crossTable!.getObject(dictionary[value]);
@@ -3080,17 +3440,21 @@ class PdfFieldHelper {
 
   /// Searches the in parents.
   static IPdfPrimitive? searchInParents(
-      PdfDictionary dictionary, PdfCrossTable? crossTable, String value) {
+    PdfDictionary dictionary,
+    PdfCrossTable? crossTable,
+    String value,
+  ) {
     IPdfPrimitive? primitive;
     PdfDictionary? dic = dictionary;
     while (primitive == null && dic != null) {
       if (dic.containsKey(value)) {
         primitive = crossTable!.getObject(dic[value]);
       } else {
-        dic = dic.containsKey(PdfDictionaryProperties.parent)
-            ? (crossTable!.getObject(dic[PdfDictionaryProperties.parent])
-                as PdfDictionary?)!
-            : null;
+        dic =
+            dic.containsKey(PdfDictionaryProperties.parent)
+                ? (crossTable!.getObject(dic[PdfDictionaryProperties.parent])
+                    as PdfDictionary?)!
+                : null;
       }
     }
     return primitive;
@@ -3113,8 +3477,11 @@ class GraphicsProperties {
     if ((!field._fieldHelper.isLoadedField) &&
         field.page != null &&
         field.page!.rotation != PdfPageRotateAngle.rotateAngle0) {
-      bounds =
-          _rotateTextbox(field.bounds, field.page!.size, field.page!.rotation);
+      bounds = _rotateTextbox(
+        field.bounds,
+        field.page!.size,
+        field.page!.rotation,
+      );
     }
   }
 
@@ -3133,8 +3500,11 @@ class GraphicsProperties {
     if ((!helper.field._fieldHelper.isLoadedField) &&
         item.page != null &&
         item.page!.rotation != PdfPageRotateAngle.rotateAngle0) {
-      bounds =
-          _rotateTextbox(item.bounds, item.page!.size, item.page!.rotation);
+      bounds = _rotateTextbox(
+        item.bounds,
+        item.page!.size,
+        item.page!.rotation,
+      );
     }
   }
 
@@ -3170,20 +3540,32 @@ class GraphicsProperties {
   Rect _rotateTextbox(Rect rect, Size? size, PdfPageRotateAngle angle) {
     Rect rectangle = rect;
     if (angle == PdfPageRotateAngle.rotateAngle180) {
-      rectangle = Rect.fromLTWH(size!.width - rect.left - rect.width,
-          size.height - rect.top - rect.height, rect.width, rect.height);
+      rectangle = Rect.fromLTWH(
+        size!.width - rect.left - rect.width,
+        size.height - rect.top - rect.height,
+        rect.width,
+        rect.height,
+      );
     }
     if (angle == PdfPageRotateAngle.rotateAngle270) {
-      rectangle = Rect.fromLTWH(rect.top, size!.width - rect.left - rect.width,
-          rect.height, rect.width);
+      rectangle = Rect.fromLTWH(
+        rect.top,
+        size!.width - rect.left - rect.width,
+        rect.height,
+        rect.width,
+      );
     }
     if (angle == PdfPageRotateAngle.rotateAngle90) {
-      rectangle = Rect.fromLTWH(size!.height - rect.top - rect.height,
-          rect.left, rect.height, rect.width);
+      rectangle = Rect.fromLTWH(
+        size!.height - rect.top - rect.height,
+        rect.left,
+        rect.height,
+        rect.width,
+      );
     }
     return rectangle;
   }
 }
 
 //typedef for NameChanged event handler.
-typedef _BeforeNameChangesEventHandler = void Function(String name);
+typedef BeforeNameChangesEventHandler = void Function(String name);

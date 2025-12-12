@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
@@ -44,8 +45,9 @@ class PdfPKCSCertificate {
 
   //Implementation
   void _loadCertificate(List<int> certificateBytes, String password) {
-    final Asn1Sequence sequence = Asn1Stream(PdfStreamReader(certificateBytes))
-        .readAsn1()! as Asn1Sequence;
+    final Asn1Sequence sequence =
+        Asn1Stream(PdfStreamReader(certificateBytes)).readAsn1()!
+            as Asn1Sequence;
     final _PfxData pfxData = _PfxData(sequence);
     final _ContentInformation information = pfxData._contentInformation!;
     bool isUnmarkedKey = false;
@@ -59,8 +61,9 @@ class PdfPKCSCertificate {
       final List<_ContentInformation?> contentInformation =
           <_ContentInformation?>[];
       for (int i = 0; i < asn1Sequence.count; i++) {
-        contentInformation
-            .add(_ContentInformation.getInformation(asn1Sequence[i]));
+        contentInformation.add(
+          _ContentInformation.getInformation(asn1Sequence[i]),
+        );
       }
       // ignore: avoid_function_literals_in_foreach_calls
       contentInformation.forEach((_ContentInformation? entry) {
@@ -76,29 +79,36 @@ class PdfPKCSCertificate {
                   Asn1SequenceCollection(subSequence);
               if (subSequenceCollection.id!.id ==
                   PkcsObjectId.pkcs8ShroudedKeyBag.id) {
-                final _EncryptedPrivateKey encryptedInformation =
-                    _EncryptedPrivateKey.getEncryptedPrivateKeyInformation(
-                        subSequenceCollection.value);
-                final _KeyInformation privateKeyInformation =
+                final EncryptedPrivateKey encryptedInformation =
+                    EncryptedPrivateKey.getEncryptedPrivateKeyInformation(
+                      subSequenceCollection.value,
+                    );
+                final KeyInformation privateKeyInformation =
                     createPrivateKeyInfo(
-                        password, isInvalidPassword, encryptedInformation)!;
+                      password,
+                      isInvalidPassword,
+                      encryptedInformation,
+                    )!;
                 RsaPrivateKeyParam? rsaparam;
                 if (privateKeyInformation._algorithms!.id!.id ==
                         PkcsObjectId.rsaEncryption.id ||
                     privateKeyInformation._algorithms!.id!.id ==
                         X509Objects.idEARsa.id) {
                   final _RsaKey keyStructure = _RsaKey.fromSequence(
-                      Asn1Sequence.getSequence(
-                          privateKeyInformation._privateKey)!);
+                    Asn1Sequence.getSequence(
+                      privateKeyInformation._privateKey,
+                    )!,
+                  );
                   rsaparam = RsaPrivateKeyParam(
-                      keyStructure._modulus,
-                      keyStructure._publicExponent,
-                      keyStructure._privateExponent,
-                      keyStructure._prime1,
-                      keyStructure._prime2,
-                      keyStructure._exponent1,
-                      keyStructure._exponent2,
-                      keyStructure._coefficient);
+                    keyStructure._modulus,
+                    keyStructure._publicExponent,
+                    keyStructure._privateExponent,
+                    keyStructure._prime1,
+                    keyStructure._prime2,
+                    keyStructure._exponent1,
+                    keyStructure._exponent2,
+                    keyStructure._coefficient,
+                  );
                 }
                 final CipherParameter? privateKey = rsaparam;
                 final Map<String?, dynamic> attributes = <String?, dynamic>{};
@@ -110,16 +120,20 @@ class PdfPKCSCertificate {
                   for (int i = 0; i < sq.objects.length; i++) {
                     final Asn1Encode? entry = sq.objects[i] as Asn1Encode?;
                     if (entry is Asn1Sequence) {
-                      final DerObjectID? algorithmId =
-                          DerObjectID.getID(entry[0]);
+                      final DerObjectID? algorithmId = DerObjectID.getID(
+                        entry[0],
+                      );
                       final Asn1Set attributeSet = entry[1]! as Asn1Set;
                       Asn1Encode? attribute;
                       if (attributeSet.objects.isNotEmpty) {
                         attribute = attributeSet[0];
                         if (attributes.containsKey(algorithmId!.id)) {
                           if (attributes[algorithmId.id] != attribute) {
-                            throw ArgumentError.value(attributes, 'attributes',
-                                'attempt to add existing attribute with different value');
+                            throw ArgumentError.value(
+                              attributes,
+                              'attributes',
+                              'attempt to add existing attribute with different value',
+                            );
                           }
                         } else {
                           attributes[algorithmId.id] = attribute;
@@ -138,8 +152,9 @@ class PdfPKCSCertificate {
                   }
                 }
                 if (localId != null) {
-                  final String name =
-                      PdfString.bytesToHex(localId.getOctets()!);
+                  final String name = PdfString.bytesToHex(
+                    localId.getOctets()!,
+                  );
                   if (localIdentifier == null) {
                     _keys.setValue(name, key);
                   } else {
@@ -159,13 +174,19 @@ class PdfPKCSCertificate {
           final Asn1Sequence sequence1 = entry._content! as Asn1Sequence;
           if (sequence1.count != 2) {
             throw ArgumentError.value(
-                entry, 'sequence', 'Invalid length of the sequence');
+              entry,
+              'sequence',
+              'Invalid length of the sequence',
+            );
           }
           final int version =
               (sequence1[0]! as DerInteger).value.toSigned(32).toInt();
           if (version != 0) {
             throw ArgumentError.value(
-                version, 'version', 'Invalid sequence version');
+              version,
+              'version',
+              'Invalid sequence version',
+            );
           }
           final Asn1Sequence data = sequence1[1]! as Asn1Sequence;
           Asn1Octet? content;
@@ -174,11 +195,12 @@ class PdfPKCSCertificate {
             content = Asn1Octet.getOctetString(taggedObject, false);
           }
           final List<int>? octets = getCryptographicData(
-              false,
-              Algorithms.getAlgorithms(data[1])!,
-              password,
-              isInvalidPassword,
-              content!.getOctets());
+            false,
+            Algorithms.getAlgorithms(data[1])!,
+            password,
+            isInvalidPassword,
+            content!.getOctets(),
+          );
           final Asn1Sequence seq =
               Asn1Stream(PdfStreamReader(octets)).readAsn1()! as Asn1Sequence;
           // ignore: avoid_function_literals_in_foreach_calls
@@ -189,27 +211,34 @@ class PdfPKCSCertificate {
               certificateChain.add(subSequenceCollection);
             } else if (subSequenceCollection.id!.id ==
                 PkcsObjectId.pkcs8ShroudedKeyBag.id) {
-              final _EncryptedPrivateKey encryptedPrivateKeyInformation =
-                  _EncryptedPrivateKey.getEncryptedPrivateKeyInformation(
-                      subSequenceCollection.value);
-              final _KeyInformation privateInformation = createPrivateKeyInfo(
-                  password, isInvalidPassword, encryptedPrivateKeyInformation)!;
+              final EncryptedPrivateKey encryptedPrivateKeyInformation =
+                  EncryptedPrivateKey.getEncryptedPrivateKeyInformation(
+                    subSequenceCollection.value,
+                  );
+              final KeyInformation privateInformation =
+                  createPrivateKeyInfo(
+                    password,
+                    isInvalidPassword,
+                    encryptedPrivateKeyInformation,
+                  )!;
               RsaPrivateKeyParam? rsaParameter;
               if (privateInformation._algorithms!.id!.id ==
                       PkcsObjectId.rsaEncryption.id ||
                   privateInformation._algorithms!.id!.id ==
                       X509Objects.idEARsa.id) {
                 final _RsaKey keyStructure = _RsaKey.fromSequence(
-                    Asn1Sequence.getSequence(privateInformation._privateKey)!);
+                  Asn1Sequence.getSequence(privateInformation._privateKey)!,
+                );
                 rsaParameter = RsaPrivateKeyParam(
-                    keyStructure._modulus,
-                    keyStructure._publicExponent,
-                    keyStructure._privateExponent,
-                    keyStructure._prime1,
-                    keyStructure._prime2,
-                    keyStructure._exponent1,
-                    keyStructure._exponent2,
-                    keyStructure._coefficient);
+                  keyStructure._modulus,
+                  keyStructure._publicExponent,
+                  keyStructure._privateExponent,
+                  keyStructure._prime1,
+                  keyStructure._prime2,
+                  keyStructure._exponent1,
+                  keyStructure._exponent2,
+                  keyStructure._coefficient,
+                );
               }
               final CipherParameter? privateKey = rsaParameter;
               final Map<dynamic, dynamic> attributes = <dynamic, dynamic>{};
@@ -225,8 +254,11 @@ class PdfPKCSCertificate {
                   attribute = attributeSet.objects[0] as Asn1Encode?;
                   if (attributes.containsKey(asn1Id!.id)) {
                     if (!(attributes[asn1Id.id] == attribute)) {
-                      throw ArgumentError.value(attributes, 'attributes',
-                          'attempt to add existing attribute with different value');
+                      throw ArgumentError.value(
+                        attributes,
+                        'attributes',
+                        'attempt to add existing attribute with different value',
+                      );
                     }
                   } else {
                     attributes[asn1Id.id] = attribute;
@@ -239,33 +271,35 @@ class PdfPKCSCertificate {
                   }
                 }
               });
-              final String name =
-                  PdfString.bytesToHex(localIdentity!.getOctets()!);
+              final String name = PdfString.bytesToHex(
+                localIdentity!.getOctets()!,
+              );
               if (key == null) {
                 _keys.setValue(name, keyEntry);
               } else {
                 _localIdentifiers[key] = name;
               }
             } else if (subSequenceCollection.id!.id == PkcsObjectId.keyBag.id) {
-              final _KeyInformation privateKeyInformation =
-                  _KeyInformation.getInformation(subSequenceCollection.value)!;
+              final KeyInformation privateKeyInformation =
+                  KeyInformation.getInformation(subSequenceCollection.value)!;
               RsaPrivateKeyParam? rsaParameter;
               if (privateKeyInformation._algorithms!.id!.id ==
                       PkcsObjectId.rsaEncryption.id ||
                   privateKeyInformation._algorithms!.id!.id ==
                       X509Objects.idEARsa.id) {
                 final _RsaKey keyStructure = _RsaKey.fromSequence(
-                    Asn1Sequence.getSequence(
-                        privateKeyInformation._privateKey)!);
+                  Asn1Sequence.getSequence(privateKeyInformation._privateKey)!,
+                );
                 rsaParameter = RsaPrivateKeyParam(
-                    keyStructure._modulus,
-                    keyStructure._publicExponent,
-                    keyStructure._privateExponent,
-                    keyStructure._prime1,
-                    keyStructure._prime2,
-                    keyStructure._exponent1,
-                    keyStructure._exponent2,
-                    keyStructure._coefficient);
+                  keyStructure._modulus,
+                  keyStructure._publicExponent,
+                  keyStructure._privateExponent,
+                  keyStructure._prime1,
+                  keyStructure._prime2,
+                  keyStructure._exponent1,
+                  keyStructure._exponent2,
+                  keyStructure._coefficient,
+                );
               }
               final CipherParameter? privateKey = rsaParameter;
               String? key;
@@ -282,8 +316,11 @@ class PdfPKCSCertificate {
                   if (attributes.containsKey(id!.id)) {
                     final Asn1Encode? attr = attributes[id.id] as Asn1Encode?;
                     if (attr != null && attr != attribute) {
-                      throw ArgumentError.value(sq, 'sequence',
-                          'attempt to add existing attribute with different value');
+                      throw ArgumentError.value(
+                        sq,
+                        'sequence',
+                        'attempt to add existing attribute with different value',
+                      );
                     }
                   } else {
                     attributes[id.id] = attribute;
@@ -330,8 +367,11 @@ class PdfPKCSCertificate {
             final Asn1Encode? attr = attrSet[0];
             if (attributes.containsKey(aOid!.id)) {
               if (attributes[aOid.id] != attr) {
-                throw ArgumentError.value(attributes, 'attributes',
-                    'attempt to add existing attribute with different value');
+                throw ArgumentError.value(
+                  attributes,
+                  'attributes',
+                  'attempt to add existing attribute with different value',
+                );
               }
             } else {
               attributes[aOid.id] = attr;
@@ -344,10 +384,12 @@ class PdfPKCSCertificate {
           }
         }
       }
-      final _CertificateIdentifier certId =
-          _CertificateIdentifier(pubKey: certificate.getPublicKey());
-      final X509Certificates certificateCollection =
-          X509Certificates(certificate);
+      final _CertificateIdentifier certId = _CertificateIdentifier(
+        pubKey: certificate.getPublicKey(),
+      );
+      final X509Certificates certificateCollection = X509Certificates(
+        certificate,
+      );
       _chainCertificates[certId] = certificateCollection;
       if (isUnmarkedKey) {
         if (_keyCertificates.isEmpty) {
@@ -370,8 +412,13 @@ class PdfPKCSCertificate {
   }
 
   /// internal method
-  static List<int>? getCryptographicData(bool forEncryption, Algorithms id,
-      String password, bool isZero, List<int>? data) {
+  static List<int>? getCryptographicData(
+    bool forEncryption,
+    Algorithms id,
+    String password,
+    bool isZero,
+    List<int>? data,
+  ) {
     final _PasswordUtility utility = _PasswordUtility();
     final IBufferedCipher? cipher =
         utility.createEncoder(id.id) as IBufferedCipher?;
@@ -381,38 +428,54 @@ class PdfPKCSCertificate {
     final _Pkcs12PasswordParameter parameter =
         _Pkcs12PasswordParameter.getPbeParameter(id.parameters);
     final ICipherParameter? parameters = utility.generateCipherParameters(
-        id.id!.id!, password, isZero, parameter);
+      id.id!.id!,
+      password,
+      isZero,
+      parameter,
+    );
     cipher.initialize(forEncryption, parameters);
     return cipher.doFinalFromInput(data);
   }
 
   /// internal method
-  _KeyInformation? createPrivateKeyInfo(
-      String passPhrase, bool isPkcs12empty, _EncryptedPrivateKey encInfo) {
+  KeyInformation? createPrivateKeyInfo(
+    String passPhrase,
+    bool isPkcs12empty,
+    EncryptedPrivateKey encInfo,
+  ) {
     final Algorithms algID = encInfo._algorithms!;
     final _PasswordUtility pbeU = _PasswordUtility();
     final IBufferedCipher? cipher =
         pbeU.createEncoder(algID) as IBufferedCipher?;
     if (cipher == null) {
       throw ArgumentError.value(
-          cipher, 'cipher', 'Unknown encryption algorithm');
+        cipher,
+        'cipher',
+        'Unknown encryption algorithm',
+      );
     }
     final ICipherParameter? cipherParameters = pbeU.generateCipherParameters(
-        algID.id!.id!, passPhrase, isPkcs12empty, algID.parameters);
+      algID.id!.id!,
+      passPhrase,
+      isPkcs12empty,
+      algID.parameters,
+    );
     cipher.initialize(false, cipherParameters);
-    final List<int>? keyBytes =
-        cipher.doFinalFromInput(encInfo._octet!.getOctets());
-    return _KeyInformation.getInformation(keyBytes);
+    final List<int>? keyBytes = cipher.doFinalFromInput(
+      encInfo._octet!.getOctets(),
+    );
+    return KeyInformation.getInformation(keyBytes);
   }
 
   /// internal method
-  static _SubjectKeyID createSubjectKeyID(CipherParameter publicKey) {
-    _SubjectKeyID result;
+  static SubjectKeyID createSubjectKeyID(CipherParameter publicKey) {
+    SubjectKeyID result;
     if (publicKey is RsaKeyParam) {
       final PublicKeyInformation information = PublicKeyInformation(
-          Algorithms(PkcsObjectId.rsaEncryption, DerNull.value),
-          RsaPublicKey(publicKey.modulus, publicKey.exponent).getAsn1());
-      result = _SubjectKeyID(information);
+        Algorithms(PkcsObjectId.rsaEncryption, DerNull.value),
+        RsaPublicKey(publicKey.modulus, publicKey.exponent).getAsn1(),
+      );
+      result = SubjectKeyID(information);
     } else {
       throw ArgumentError.value(publicKey, 'publicKey', 'Invalid Key');
     }
@@ -473,15 +536,17 @@ class PdfPKCSCertificate {
       }
       if (id != null) {
         if (_keyCertificates.containsKey(id)) {
-          certificates = _keyCertificates[id] is X509Certificates
-              ? _keyCertificates[id]
-              : null;
+          certificates =
+              _keyCertificates[id] is X509Certificates
+                  ? _keyCertificates[id]
+                  : null;
         }
       } else {
         if (_keyCertificates.containsKey(key)) {
-          certificates = _keyCertificates[key] is X509Certificates
-              ? _keyCertificates[key]
-              : null;
+          certificates =
+              _keyCertificates[key] is X509Certificates
+                  ? _keyCertificates[key]
+                  : null;
         }
       }
       return certificates as X509Certificates?;
@@ -500,15 +565,17 @@ class PdfPKCSCertificate {
       }
       if (id != null) {
         if (_keyCertificates.containsKey(id)) {
-          certificates = _keyCertificates[id] is X509Certificates
-              ? _keyCertificates[id]
-              : null;
+          certificates =
+              _keyCertificates[id] is X509Certificates
+                  ? _keyCertificates[id]
+                  : null;
         }
       } else {
         if (_keyCertificates.containsKey(key)) {
-          certificates = _keyCertificates[key] is X509Certificates
-              ? _keyCertificates[key]
-              : null;
+          certificates =
+              _keyCertificates[key] is X509Certificates
+                  ? _keyCertificates[key]
+                  : null;
         }
       }
       return certificates as X509Certificates?;
@@ -527,15 +594,17 @@ class PdfPKCSCertificate {
       while (certificates != null) {
         final X509Certificate x509Certificate = certificates.certificate!;
         X509Certificates? nextCertificate;
-        final Asn1Octet? x509Extension =
-            x509Certificate.getExtension(X509Extensions.authorityKeyIdentifier);
+        final Asn1Octet? x509Extension = x509Certificate.getExtension(
+          X509Extensions.authorityKeyIdentifier,
+        );
         if (x509Extension != null) {
           final _KeyIdentifier id = _KeyIdentifier.getKeyIdentifier(
-              Asn1Stream(PdfStreamReader(x509Extension.getOctets()))
-                  .readAsn1());
+            Asn1Stream(PdfStreamReader(x509Extension.getOctets())).readAsn1(),
+          );
           if (id.keyID != null) {
-            if (_chainCertificates
-                .containsKey(_CertificateIdentifier(id: id.keyID))) {
+            if (_chainCertificates.containsKey(
+              _CertificateIdentifier(id: id.keyID),
+            )) {
               nextCertificate =
                   _chainCertificates[_CertificateIdentifier(id: id.keyID)];
             }
@@ -575,7 +644,9 @@ class PdfPKCSCertificate {
         }
       }
       return List<X509Certificates>.generate(
-          certificateList.length, (int i) => certificateList[i]);
+        certificateList.length,
+        (int i) => certificateList[i],
+      );
     }
     return null;
   }
@@ -593,15 +664,17 @@ class PdfPKCSCertificate {
         while (certificates != null) {
           final X509Certificate x509Certificate = certificates.certificate!;
           X509Certificates? nextCertificate;
-          final Asn1Octet? x509Extension = x509Certificate
-              .getExtension(X509Extensions.authorityKeyIdentifier);
+          final Asn1Octet? x509Extension = x509Certificate.getExtension(
+            X509Extensions.authorityKeyIdentifier,
+          );
           if (x509Extension != null) {
             final _KeyIdentifier id = _KeyIdentifier.getKeyIdentifier(
-                Asn1Stream(PdfStreamReader(x509Extension.getOctets()))
-                    .readAsn1());
+              Asn1Stream(PdfStreamReader(x509Extension.getOctets())).readAsn1(),
+            );
             if (id.keyID != null) {
-              if (_chainCertificates
-                  .containsKey(_CertificateIdentifier(id: id.keyID))) {
+              if (_chainCertificates.containsKey(
+                _CertificateIdentifier(id: id.keyID),
+              )) {
                 nextCertificate =
                     _chainCertificates[_CertificateIdentifier(id: id.keyID)];
               }
@@ -641,7 +714,9 @@ class PdfPKCSCertificate {
           }
         }
         x509Certificates = List<X509Certificates>.generate(
-            certificateList.length, (int i) => certificateList[i]);
+          certificateList.length,
+          (int i) => certificateList[i],
+        );
       }
     });
     return x509Certificates;
@@ -721,9 +796,10 @@ class _CertificateTable {
 
 class _CertificateIdentifier {
   _CertificateIdentifier({CipherParameter? pubKey, List<int>? id}) {
-    this.id = pubKey != null
-        ? PdfPKCSCertificate.createSubjectKeyID(pubKey)._bytes
-        : id;
+    this.id =
+        pubKey != null
+            ? PdfPKCSCertificate.createSubjectKeyID(pubKey)._bytes
+            : id;
   }
   //Fields
   List<int>? id;
@@ -873,8 +949,12 @@ class _PasswordUtility {
     return result;
   }
 
-  ICipherParameter? generateCipherParameters(String algorithm, String password,
-      bool isWrong, Asn1Encode? pbeParameters) {
+  ICipherParameter? generateCipherParameters(
+    String algorithm,
+    String password,
+    bool isWrong,
+    Asn1Encode? pbeParameters,
+  ) {
     final String mechanism = getAlgorithmFromUpeerInvariant(algorithm)!;
     late List<int> keyBytes;
     List<int>? salt;
@@ -889,8 +969,14 @@ class _PasswordUtility {
     ICipherParameter? parameters;
     _PasswordGenerator generator;
     if (mechanism.startsWith('PBEwithSHA-1')) {
-      generator = getEncoder(_type[mechanism], DigestAlgorithms.sha1, keyBytes,
-          salt!, iterationCount, password);
+      generator = getEncoder(
+        _type[mechanism],
+        DigestAlgorithms.sha1,
+        keyBytes,
+        salt!,
+        iterationCount,
+        password,
+      );
       if (mechanism == 'PBEwithSHA-1and128bitAES-CBC-BC') {
         parameters = generator.generateParam(128, 'AES', 128);
       } else if (mechanism == 'PBEwithSHA-1and192bitAES-CBC-BC') {
@@ -915,8 +1001,14 @@ class _PasswordUtility {
         parameters = generator.generateParam(64, 'RC2', 64);
       }
     } else if (mechanism.startsWith('PBEwithSHA-256')) {
-      generator = getEncoder(_type[mechanism], DigestAlgorithms.sha256,
-          keyBytes, salt!, iterationCount, password);
+      generator = getEncoder(
+        _type[mechanism],
+        DigestAlgorithms.sha256,
+        keyBytes,
+        salt!,
+        iterationCount,
+        password,
+      );
       if (mechanism == 'PBEwithSHA-256and128bitAES-CBC-BC') {
         parameters = generator.generateParam(128, 'AES', 128);
       } else if (mechanism == 'PBEwithSHA-256and192bitAES-CBC-BC') {
@@ -925,10 +1017,17 @@ class _PasswordUtility {
         parameters = generator.generateParam(256, 'AES', 128);
       }
     } else if (mechanism.startsWith('PBEwithHmac')) {
-      final String digest =
-          getDigest(mechanism.substring('PBEwithHmac'.length));
+      final String digest = getDigest(
+        mechanism.substring('PBEwithHmac'.length),
+      );
       generator = getEncoder(
-          _type[mechanism], digest, keyBytes, salt!, iterationCount, password);
+        _type[mechanism],
+        digest,
+        keyBytes,
+        salt!,
+        iterationCount,
+        password,
+      );
       final int? bitLen = getBlockSize(digest);
       parameters = generator.generateParam(bitLen);
     }
@@ -964,14 +1063,17 @@ class _PasswordUtility {
   }
 
   ICipherParameter? fixDataEncryptionParity(
-      String mechanism, ICipherParameter? parameters) {
+    String mechanism,
+    ICipherParameter? parameters,
+  ) {
     if (!mechanism.endsWith('DES-CBC') & !mechanism.endsWith('DESEDE-CBC')) {
       return parameters;
     }
     if (parameters is InvalidParameter) {
       return InvalidParameter(
-          fixDataEncryptionParity(mechanism, parameters.parameters),
-          parameters.bytes!);
+        fixDataEncryptionParity(mechanism, parameters.parameters),
+        parameters.keys,
+      );
     }
     final KeyParameter kParam = parameters! as KeyParameter;
     final List<int> keyBytes = kParam.keys;
@@ -989,7 +1091,7 @@ class _PasswordUtility {
                   0x01))
           .toUnsigned(8);
     }
-    return KeyParameter(keyBytes);
+    return KeyParameter(Uint8List.fromList(keyBytes));
   }
 
   bool isPkcs12(String algorithm) {
@@ -1020,14 +1122,23 @@ class _PasswordUtility {
     return digest;
   }
 
-  _PasswordGenerator getEncoder(String? type, String digest, List<int> key,
-      List<int> salt, int iterationCount, String password) {
+  _PasswordGenerator getEncoder(
+    String? type,
+    String digest,
+    List<int> key,
+    List<int> salt,
+    int iterationCount,
+    String password,
+  ) {
     _PasswordGenerator generator;
     if (type == _pkcs12) {
       generator = _Pkcs12AlgorithmGenerator(digest, password);
     } else {
       throw ArgumentError.value(
-          type, 'type', 'Invalid Password Based Encryption type');
+        type,
+        'type',
+        'Invalid Password Based Encryption type',
+      );
     }
     generator.init(key, salt, iterationCount);
     return generator;
@@ -1062,8 +1173,10 @@ abstract class _PasswordGenerator {
     if (password.isEmpty) {
       return isWrong ? List<int>.generate(2, (int i) => 0) : <int>[];
     }
-    final List<int> bytes =
-        List<int>.generate((password.length + 1) * 2, (int i) => 0);
+    final List<int> bytes = List<int>.generate(
+      (password.length + 1) * 2,
+      (int i) => 0,
+    );
     final List<int> tempBytes = encodeBigEndian(password);
     int i = 0;
     // ignore: avoid_function_literals_in_foreach_calls
@@ -1120,10 +1233,14 @@ class _Pkcs12AlgorithmGenerator extends _PasswordGenerator {
       keySize = keySize! ~/ 8;
       final List<int> bytes = generateDerivedKey(_keyMaterial, keySize);
       final _ParamUtility util = _ParamUtility();
-      final KeyParameter key =
-          util.createKeyParameter(algorithm!, bytes, 0, keySize);
+      final KeyParameter key = util.createKeyParameter(
+        algorithm!,
+        bytes,
+        0,
+        keySize,
+      );
       final List<int> iv = generateDerivedKey(_invaidMaterial, size);
-      return InvalidParameter(key, iv, 0, size);
+      return InvalidParameter(key, Uint8List.fromList(iv));
     } else if (algorithm != null) {
       keySize = keySize! ~/ 8;
       final List<int> bytes = generateDerivedKey(_keyMaterial, keySize);
@@ -1132,7 +1249,11 @@ class _Pkcs12AlgorithmGenerator extends _PasswordGenerator {
     } else {
       keySize = keySize! ~/ 8;
       final List<int> bytes = generateDerivedKey(_keyMaterial, keySize);
-      return KeyParameter.fromLengthValue(bytes, 0, keySize);
+      return KeyParameter.fromLengthValue(
+        Uint8List.fromList(bytes),
+        0,
+        keySize,
+      );
     }
   }
 
@@ -1145,8 +1266,9 @@ class _Pkcs12AlgorithmGenerator extends _PasswordGenerator {
     List<int> s;
     if (_value != null && _value!.isNotEmpty) {
       s = List<int>.generate(
-          _length * ((_value!.length + _length - 1) ~/ _length),
-          (int index) => 0);
+        _length * ((_value!.length + _length - 1) ~/ _length),
+        (int index) => 0,
+      );
       for (int index = 0; index != s.length; index++) {
         s[index] = _value![index % _value!.length];
       }
@@ -1156,16 +1278,19 @@ class _Pkcs12AlgorithmGenerator extends _PasswordGenerator {
     List<int> password;
     if (_password != null && _password!.isNotEmpty) {
       password = List<int>.generate(
-          _length * ((_password!.length + _length - 1) ~/ _length),
-          (int index) => 0);
+        _length * ((_password!.length + _length - 1) ~/ _length),
+        (int index) => 0,
+      );
       for (int index = 0; index != password.length; index++) {
         password[index] = _password![index % _password!.length];
       }
     } else {
       password = <int>[];
     }
-    List<int> tempBytes =
-        List<int>.generate(s.length + password.length, (int index) => 0);
+    List<int> tempBytes = List<int>.generate(
+      s.length + password.length,
+      (int index) => 0,
+    );
     List.copyRange(tempBytes, 0, s, 0, s.length);
     List.copyRange(tempBytes, s.length, password, 0, password.length);
     final List<int> b = List<int>.generate(_length, (int index) => 0);
@@ -1188,8 +1313,13 @@ class _Pkcs12AlgorithmGenerator extends _PasswordGenerator {
         tempBytes = adjust(tempBytes, j * _length, b);
       }
       if (i == c) {
-        List.copyRange(derivedKey, (i - 1) * _size!, a!, 0,
-            derivedKey.length - ((i - 1) * _size!));
+        List.copyRange(
+          derivedKey,
+          (i - 1) * _size!,
+          a!,
+          0,
+          derivedKey.length - ((i - 1) * _size!),
+        );
       } else {
         List.copyRange(derivedKey, (i - 1) * _size!, a!, 0, a.length);
       }
@@ -1214,7 +1344,10 @@ class _Pkcs12PasswordParameter extends Asn1Encode {
   _Pkcs12PasswordParameter(Asn1Sequence sequence) {
     if (sequence.count != 2) {
       throw ArgumentError.value(
-          sequence, 'sequence', 'Invalid length in sequence');
+        sequence,
+        'sequence',
+        'Invalid length in sequence',
+      );
     }
     _octet = Asn1Octet.getOctetStringFromObject(sequence[0]);
     _iterations = DerInteger.getNumber(sequence[1]);
@@ -1248,11 +1381,13 @@ class _ParamUtility {
       'DESEDEWRAP',
       'TDEA',
       DerObjectID('1.3.14.3.2.17'),
-      PkcsObjectId.idAlgCms3DesWrap
+      PkcsObjectId.idAlgCms3DesWrap,
     ]);
     addAlgorithm('DESEDE3', <dynamic>[PkcsObjectId.desEde3Cbc]);
-    addAlgorithm(
-        'RC2', <dynamic>[PkcsObjectId.rc2Cbc, PkcsObjectId.idAlgCmsRC2Wrap]);
+    addAlgorithm('RC2', <dynamic>[
+      PkcsObjectId.rc2Cbc,
+      PkcsObjectId.idAlgCmsRC2Wrap,
+    ]);
   }
 
   //Fields
@@ -1272,7 +1407,11 @@ class _ParamUtility {
   }
 
   KeyParameter createKeyParameter(
-      String algorithm, List<int> bytes, int offset, int? length) {
+    String algorithm,
+    List<int> bytes,
+    int offset,
+    int? length,
+  ) {
     String? name;
     final String lower = algorithm.toLowerCase();
     _algorithms.forEach((String key, String value) {
@@ -1282,7 +1421,10 @@ class _ParamUtility {
     });
     if (name == null) {
       throw ArgumentError.value(
-          algorithm, 'algorithm', 'Invalid entry. Algorithm');
+        algorithm,
+        'algorithm',
+        'Invalid entry. Algorithm',
+      );
     }
     if (name == 'DES') {
       return _DataEncryptionParameter.fromLengthValue(bytes, offset, length!);
@@ -1290,23 +1432,35 @@ class _ParamUtility {
     if (name == 'DESEDE' || name == 'DESEDE3') {
       return _DesedeAlgorithmParameter(bytes, offset, length);
     }
-    return KeyParameter.fromLengthValue(bytes, offset, length!);
+    return KeyParameter.fromLengthValue(
+      Uint8List.fromList(bytes),
+      offset,
+      length!,
+    );
   }
 }
 
 class _DataEncryptionParameter extends KeyParameter {
-  _DataEncryptionParameter(List<int> keys) : super(keys) {
+  _DataEncryptionParameter(List<int> keys) : super(Uint8List.fromList(keys)) {
     if (checkKey(keys, 0)) {
       throw ArgumentError.value(
-          keys, 'keys', 'Invalid Data Encryption keys creation');
+        keys,
+        'keys',
+        'Invalid Data Encryption keys creation',
+      );
     }
   }
   _DataEncryptionParameter.fromLengthValue(
-      List<int> keys, int offset, int length)
-      : super.fromLengthValue(keys, offset, length) {
+    List<int> keys,
+    int offset,
+    int length,
+  ) : super.fromLengthValue(Uint8List.fromList(keys), offset, length) {
     if (checkKey(keys, 0)) {
       throw ArgumentError.value(
-          keys, 'keys', 'Invalid Data Encryption keys creation');
+        keys,
+        'keys',
+        'Invalid Data Encryption keys creation',
+      );
     }
   }
   static List<int> dataEncryptionWeekKeys = <int>[
@@ -1437,7 +1591,7 @@ class _DataEncryptionParameter extends KeyParameter {
     254,
     241,
     254,
-    241
+    241,
   ];
 
   static bool checkKey(List<int> bytes, int offset) {
@@ -1458,18 +1612,11 @@ class _DataEncryptionParameter extends KeyParameter {
     }
     return false;
   }
-
-  @override
-  List<int> get keys => List<int>.from(bytes!);
-  @override
-  set keys(List<int>? value) {
-    bytes = value;
-  }
 }
 
 class _DesedeAlgorithmParameter extends _DataEncryptionParameter {
   _DesedeAlgorithmParameter(List<int> key, int keyOffset, int? keyLength)
-      : super(fixKey(key, keyOffset, keyLength));
+    : super(fixKey(key, keyOffset, keyLength));
   //Implementation
   static List<int> fixKey(List<int> key, int keyOffset, int? keyLength) {
     final List<int> tmp = List<int>.generate(24, (int i) => 0);
@@ -1483,11 +1630,17 @@ class _DesedeAlgorithmParameter extends _DataEncryptionParameter {
         break;
       default:
         throw ArgumentError.value(
-            keyLength, 'keyLen', 'Bad length for DESede key');
+          keyLength,
+          'keyLen',
+          'Bad length for DESede key',
+        );
     }
     if (checkKeyValue(tmp, 0, tmp.length)) {
       throw ArgumentError.value(
-          key, 'key', 'Attempt to create weak DESede key');
+        key,
+        'key',
+        'Attempt to create weak DESede key',
+      );
     }
     return tmp;
   }
@@ -1499,13 +1652,6 @@ class _DesedeAlgorithmParameter extends _DataEncryptionParameter {
       }
     }
     return false;
-  }
-
-  @override
-  List<int> get keys => List<int>.from(bytes!);
-  @override
-  set keys(List<int>? value) {
-    bytes = value;
   }
 }
 
@@ -1548,10 +1694,6 @@ class _CipherUtils {
       case _CipherAlgorithm.rsa:
         asymBlockCipher = RsaAlgorithm();
         break;
-      // ignore: no_default_cases
-      default:
-        throw ArgumentError.value(
-            cipherAlgorithm, 'algorithm', 'Invalid cipher algorithm');
     }
     bool isPadded = true;
     IPadding? padding;
@@ -1584,8 +1726,11 @@ class _CipherUtils {
           break;
         // ignore: no_default_cases
         default:
-          throw ArgumentError.value(cipherPadding, 'cpiher padding algorithm',
-              'Invalid cipher algorithm');
+          throw ArgumentError.value(
+            cipherPadding,
+            'cpiher padding algorithm',
+            'Invalid cipher algorithm',
+          );
       }
     }
     String mode = '';
@@ -1612,10 +1757,6 @@ class _CipherUtils {
         case _CipherMode.cts:
           blockCipher = CipherBlockChainingMode(blockCipher);
           break;
-        // ignore: no_default_cases
-        default:
-          throw ArgumentError.value(
-              cipherMode, 'CipherMode', 'Invalid cipher algorithm');
       }
     }
     if (blockCipher != null) {
@@ -1628,7 +1769,10 @@ class _CipherUtils {
       return BufferedBlockPadding(blockCipher);
     }
     throw ArgumentError.value(
-        blockCipher, 'Cipher Algorithm', 'Invalid cipher algorithm');
+      blockCipher,
+      'Cipher Algorithm',
+      'Invalid cipher algorithm',
+    );
   }
 
   _CipherAlgorithm getAlgorithm(String name) {
@@ -1731,7 +1875,7 @@ enum _CipherPaddingType {
   pkcs7,
   pkcs7Padding,
   withCipherTextStealing,
-  x923Padding
+  x923Padding,
 }
 
 class _KeyIdentifier extends Asn1Encode {
@@ -1750,7 +1894,10 @@ class _KeyIdentifier extends Asn1Encode {
             break;
           default:
             throw ArgumentError.value(
-                sequence, 'sequence', 'Invalid entry in sequence');
+              sequence,
+              'sequence',
+              'Invalid entry in sequence',
+            );
         }
       }
     });
@@ -1813,8 +1960,11 @@ class _DesEdeAlogorithm extends _DataEncryption {
     }
     final List<int> keyMaster = parameters.keys;
     if (keyMaster.length != 24 && keyMaster.length != 16) {
-      throw ArgumentError.value(parameters, 'parameters',
-          'Invalid key size. Size must be 16 or 24 bytes.');
+      throw ArgumentError.value(
+        parameters,
+        'parameters',
+        'Invalid key size. Size must be 16 or 24 bytes.',
+      );
     }
     _isEncryption = forEncryption;
     final List<int> key1 = List<int>.generate(8, (int i) => 0);
@@ -1833,19 +1983,26 @@ class _DesEdeAlogorithm extends _DataEncryption {
   }
 
   @override
-  Map<String, dynamic> processBlock(
-      [List<int>? inputBytes,
-      int? inOffset,
-      List<int>? outputBytes,
-      int? outOffset]) {
+  Map<String, dynamic> processBlock([
+    List<int>? inputBytes,
+    int? inOffset,
+    List<int>? outputBytes,
+    int? outOffset,
+  ]) {
     ArgumentError.checkNotNull(_key1);
     if ((inOffset! + _blockSize!) > inputBytes!.length) {
       throw ArgumentError.value(
-          inOffset, 'inOffset', 'Invalid length in input bytes');
+        inOffset,
+        'inOffset',
+        'Invalid length in input bytes',
+      );
     }
     if ((outOffset! + _blockSize!) > outputBytes!.length) {
       throw ArgumentError.value(
-          inOffset, 'inOffset', 'Invalid length in output bytes');
+        inOffset,
+        'inOffset',
+        'Invalid length in output bytes',
+      );
     }
     final List<int> tempBytes = List<int>.generate(_blockSize!, (int i) => 0);
     if (_isEncryption!) {
@@ -1864,7 +2021,7 @@ class _DesEdeAlogorithm extends _DataEncryption {
   void reset() {}
 }
 
-class _DataEncryption implements ICipher {
+class _DataEncryption extends ICipher {
   _DataEncryption() {
     _blockSize = 8;
     byteBit = <int>[128, 64, 32, 16, 8, 4, 2, 1];
@@ -1892,7 +2049,7 @@ class _DataEncryption implements ICipher {
       0x8,
       0x4,
       0x2,
-      0x1
+      0x1,
     ];
     pc1 = <int>[
       56,
@@ -1950,7 +2107,7 @@ class _DataEncryption implements ICipher {
       27,
       19,
       11,
-      3
+      3,
     ];
     toTrot = <int>[1, 2, 4, 6, 8, 10, 12, 14, 15, 17, 19, 21, 23, 25, 27, 28];
     pc2 = <int>[
@@ -2001,7 +2158,7 @@ class _DataEncryption implements ICipher {
       49,
       35,
       28,
-      31
+      31,
     ];
     sp1 = <int>[
       0x01010400,
@@ -2067,7 +2224,7 @@ class _DataEncryption implements ICipher {
       0x00010004,
       0x00010400,
       0x00000000,
-      0x01010004
+      0x01010004,
     ];
     sp2 = <int>[
       0x80108020,
@@ -2133,7 +2290,7 @@ class _DataEncryption implements ICipher {
       0x80000000,
       0x80100020,
       0x80108020,
-      0x00108000
+      0x00108000,
     ];
     sp3 = <int>[
       0x00000208,
@@ -2199,7 +2356,7 @@ class _DataEncryption implements ICipher {
       0x00020208,
       0x00000008,
       0x08020008,
-      0x00020200
+      0x00020200,
     ];
     sp4 = <int>[
       0x00802001,
@@ -2265,7 +2422,7 @@ class _DataEncryption implements ICipher {
       0x00000080,
       0x00800000,
       0x00002000,
-      0x00802080
+      0x00802080,
     ];
     sp5 = <int>[
       0x00000100,
@@ -2331,7 +2488,7 @@ class _DataEncryption implements ICipher {
       0x00000000,
       0x40080000,
       0x02080100,
-      0x40000100
+      0x40000100,
     ];
     sp6 = <int>[
       0x20000010,
@@ -2397,7 +2554,7 @@ class _DataEncryption implements ICipher {
       0x20404000,
       0x20000000,
       0x00400010,
-      0x20004010
+      0x20004010,
     ];
     sp7 = <int>[
       0x00200000,
@@ -2463,7 +2620,7 @@ class _DataEncryption implements ICipher {
       0x04000002,
       0x04000800,
       0x00000800,
-      0x00200002
+      0x00200002,
     ];
     sp8 = <int>[
       0x10001040,
@@ -2529,7 +2686,7 @@ class _DataEncryption implements ICipher {
       0x00001040,
       0x00040040,
       0x10000000,
-      0x10041000
+      0x10041000,
     ];
   }
 
@@ -2570,15 +2727,25 @@ class _DataEncryption implements ICipher {
 
   @override
   Map<String, dynamic> processBlock(
-      List<int>? inBytes, int inOffset, List<int>? outBytes, int? outOffset) {
+    List<int>? inBytes,
+    int inOffset,
+    List<int>? outBytes,
+    int? outOffset,
+  ) {
     ArgumentError.checkNotNull(_keys);
     if ((inOffset + _blockSize!) > inBytes!.length) {
       throw ArgumentError.value(
-          inOffset, 'inOffset', 'Invalid length in input bytes');
+        inOffset,
+        'inOffset',
+        'Invalid length in input bytes',
+      );
     }
     if ((outOffset! + _blockSize!) > outBytes!.length) {
       throw ArgumentError.value(
-          outOffset, 'outOffset', 'Invalid length in output bytes');
+        outOffset,
+        'outOffset',
+        'Invalid length in output bytes',
+      );
     }
     encryptData(_keys, inBytes, inOffset, outBytes, outOffset);
     return <String, dynamic>{'length': _blockSize, 'output': outBytes};
@@ -2649,8 +2816,13 @@ class _DataEncryption implements ICipher {
     return newKeys;
   }
 
-  void encryptData(List<int>? keys, List<int> inputBytes, int inOffset,
-      List<int> outBytes, int outOffset) {
+  void encryptData(
+    List<int>? keys,
+    List<int> inputBytes,
+    int inOffset,
+    List<int> outBytes,
+    int outOffset,
+  ) {
     int left = Asn1.beToUInt32(inputBytes, inOffset);
     int right = Asn1.beToUInt32(inputBytes, inOffset + 4);
     int data = (((left >> 4) ^ right) & 0x0f0f0f0f).toUnsigned(32);
@@ -2718,7 +2890,7 @@ class _DataEncryption implements ICipher {
   }
 }
 
-class _Rc2Algorithm implements ICipher {
+class _Rc2Algorithm extends ICipher {
   _Rc2Algorithm() {
     _piTable = <int>[
       217,
@@ -2976,7 +3148,7 @@ class _Rc2Algorithm implements ICipher {
       254,
       127,
       193,
-      173
+      173,
     ];
     _blockSize = 8;
   }
@@ -3038,7 +3210,11 @@ class _Rc2Algorithm implements ICipher {
 
   @override
   Map<String, dynamic> processBlock(
-      List<int>? input, int inOff, List<int>? output, int? outOff) {
+    List<int>? input,
+    int inOff,
+    List<int>? output,
+    int? outOff,
+  ) {
     if (_isEncrypt!) {
       encryptBlock(input!, inOff, output!, outOff!);
     } else {
@@ -3053,7 +3229,11 @@ class _Rc2Algorithm implements ICipher {
   }
 
   void encryptBlock(
-      List<int> input, int inOff, List<int> outBytes, int outOff) {
+    List<int> input,
+    int inOff,
+    List<int> outBytes,
+    int outOff,
+  ) {
     int x76 = ((input[inOff + 7] & 0xff) << 8) + (input[inOff + 6] & 0xff);
     int x54 = ((input[inOff + 5] & 0xff) << 8) + (input[inOff + 4] & 0xff);
     int x32 = ((input[inOff + 3] & 0xff) << 8) + (input[inOff + 2] & 0xff);
@@ -3095,7 +3275,11 @@ class _Rc2Algorithm implements ICipher {
   }
 
   void decryptBlock(
-      List<int> input, int inOff, List<int> outBytes, int outOff) {
+    List<int> input,
+    int inOff,
+    List<int> outBytes,
+    int outOff,
+  ) {
     int x76 = ((input[inOff + 7] & 0xff) << 8) + (input[inOff + 6] & 0xff);
     int x54 = ((input[inOff + 5] & 0xff) << 8) + (input[inOff + 4] & 0xff);
     int x32 = ((input[inOff + 3] & 0xff) << 8) + (input[inOff + 2] & 0xff);
@@ -3159,7 +3343,7 @@ class _PfxData extends Asn1Encode {
   Asn1 getAsn1() {
     final Asn1EncodeCollection collection = Asn1EncodeCollection(<Asn1Encode?>[
       DerInteger(bigIntToBytes(BigInt.from(3))),
-      _contentInformation
+      _contentInformation,
     ]);
     if (_macInformation != null) {
       collection.encodableObjects.add(_macInformation);
@@ -3172,7 +3356,10 @@ class _ContentInformation extends Asn1Encode {
   _ContentInformation(Asn1Sequence sequence) {
     if (sequence.count < 1 || sequence.count > 2) {
       throw ArgumentError.value(
-          sequence, 'sequence', 'Invalid length in sequence');
+        sequence,
+        'sequence',
+        'Invalid length in sequence',
+      );
     }
     _contentType = sequence[0] as DerObjectID?;
     if (sequence.count > 1) {
@@ -3201,8 +3388,9 @@ class _ContentInformation extends Asn1Encode {
 
   @override
   Asn1 getAsn1() {
-    final Asn1EncodeCollection collection =
-        Asn1EncodeCollection(<Asn1Encode?>[_contentType]);
+    final Asn1EncodeCollection collection = Asn1EncodeCollection(<Asn1Encode?>[
+      _contentType,
+    ]);
     if (_content != null) {
       collection.encodableObjects.add(DerTag(0, _content));
     }
@@ -3239,8 +3427,10 @@ class _MacInformation extends Asn1Encode {
 
   @override
   Asn1 getAsn1() {
-    final Asn1EncodeCollection collection =
-        Asn1EncodeCollection(<Asn1Encode?>[_digest, DerOctet(_value!)]);
+    final Asn1EncodeCollection collection = Asn1EncodeCollection(<Asn1Encode?>[
+      _digest,
+      DerOctet(_value!),
+    ]);
     if (_count != BigInt.one) {
       collection.encodableObjects.add(DerInteger.fromNumber(_count));
     }
@@ -3248,11 +3438,14 @@ class _MacInformation extends Asn1Encode {
   }
 }
 
-class _EncryptedPrivateKey extends Asn1Encode {
-  _EncryptedPrivateKey(Asn1Sequence sequence) {
+class EncryptedPrivateKey extends Asn1Encode {
+  EncryptedPrivateKey(Asn1Sequence sequence) {
     if (sequence.count != 2) {
       throw ArgumentError.value(
-          sequence, 'sequence', 'Invalid length in sequence');
+        sequence,
+        'sequence',
+        'Invalid length in sequence',
+      );
     }
     _algorithms = Algorithms.getAlgorithms(sequence[0]);
     _octet = Asn1Octet.getOctetStringFromObject(sequence[1]);
@@ -3268,35 +3461,40 @@ class _EncryptedPrivateKey extends Asn1Encode {
     return DerSequence(array: <Asn1Encode?>[_algorithms, _octet]);
   }
 
-  static _EncryptedPrivateKey getEncryptedPrivateKeyInformation(dynamic obj) {
-    if (obj is _EncryptedPrivateKey) {
+  static EncryptedPrivateKey getEncryptedPrivateKeyInformation(dynamic obj) {
+    if (obj is EncryptedPrivateKey) {
       return obj;
     }
     if (obj is Asn1Sequence) {
-      return _EncryptedPrivateKey(obj);
+      return EncryptedPrivateKey(obj);
     }
     throw ArgumentError.value(obj, 'obj', 'Invalid entry in sequence');
   }
 }
 
-class _KeyInformation extends Asn1Encode {
-  _KeyInformation(Algorithms algorithms, Asn1 privateKey,
-      [Asn1Set? attributes]) {
+class KeyInformation extends Asn1Encode {
+  KeyInformation(
+    Algorithms algorithms,
+    Asn1 privateKey, [
+    Asn1Set? attributes,
+  ]) {
     _privateKey = privateKey;
     _algorithms = algorithms;
     if (attributes != null) {
       _attributes = attributes;
     }
   }
-  _KeyInformation.fromSequence(Asn1Sequence? sequence) {
+  KeyInformation.fromSequence(Asn1Sequence? sequence) {
     if (sequence != null) {
       final List<dynamic> objects = sequence.objects!;
       if (objects.length >= 3) {
         _algorithms = Algorithms.getAlgorithms(objects[1]);
         final dynamic privateKeyValue = objects[2];
         try {
-          _privateKey = Asn1Stream(PdfStreamReader(privateKeyValue.getOctets()))
-              .readAsn1();
+          _privateKey =
+              Asn1Stream(
+                PdfStreamReader(privateKeyValue.getOctets()),
+              ).readAsn1();
         } catch (e) {
           throw ArgumentError.value(sequence, 'sequence', 'Invalid sequence');
         }
@@ -3315,12 +3513,12 @@ class _KeyInformation extends Asn1Encode {
   Asn1Set? _attributes;
 
   //Implementation
-  static _KeyInformation? getInformation(dynamic obj) {
-    if (obj is _KeyInformation) {
+  static KeyInformation? getInformation(dynamic obj) {
+    if (obj is KeyInformation) {
       return obj;
     }
     if (obj != null) {
-      return _KeyInformation.fromSequence(Asn1Sequence.getSequence(obj));
+      return KeyInformation.fromSequence(Asn1Sequence.getSequence(obj));
     }
     return null;
   }
@@ -3330,7 +3528,7 @@ class _KeyInformation extends Asn1Encode {
     final Asn1EncodeCollection v = Asn1EncodeCollection(<Asn1Encode?>[
       DerInteger.fromNumber(BigInt.from(0)),
       _algorithms,
-      DerOctet.fromObject(_privateKey!)
+      DerOctet.fromObject(_privateKey!),
     ]);
     if (_attributes != null) {
       v.encodableObjects.add(DerTag(0, _attributes, false));
@@ -3341,14 +3539,15 @@ class _KeyInformation extends Asn1Encode {
 
 class _RsaKey extends Asn1Encode {
   _RsaKey(
-      BigInt modulus,
-      BigInt publicExponent,
-      BigInt privateExponent,
-      BigInt prime1,
-      BigInt prime2,
-      BigInt exponent1,
-      BigInt exponent2,
-      BigInt coefficient) {
+    BigInt modulus,
+    BigInt publicExponent,
+    BigInt privateExponent,
+    BigInt prime1,
+    BigInt prime2,
+    BigInt exponent1,
+    BigInt exponent2,
+    BigInt coefficient,
+  ) {
     _modulus = modulus;
     _publicExponent = publicExponent;
     _privateExponent = privateExponent;
@@ -3382,22 +3581,24 @@ class _RsaKey extends Asn1Encode {
   BigInt? _coefficient;
   @override
   Asn1 getAsn1() {
-    return DerSequence(array: <Asn1Encode>[
-      DerInteger.fromNumber(BigInt.from(0)),
-      DerInteger.fromNumber(_modulus),
-      DerInteger.fromNumber(_publicExponent),
-      DerInteger.fromNumber(_privateExponent),
-      DerInteger.fromNumber(_prime1),
-      DerInteger.fromNumber(_prime2),
-      DerInteger.fromNumber(_exponent1),
-      DerInteger.fromNumber(_exponent2),
-      DerInteger.fromNumber(_coefficient)
-    ]);
+    return DerSequence(
+      array: <Asn1Encode>[
+        DerInteger.fromNumber(BigInt.from(0)),
+        DerInteger.fromNumber(_modulus),
+        DerInteger.fromNumber(_publicExponent),
+        DerInteger.fromNumber(_privateExponent),
+        DerInteger.fromNumber(_prime1),
+        DerInteger.fromNumber(_prime2),
+        DerInteger.fromNumber(_exponent1),
+        DerInteger.fromNumber(_exponent2),
+        DerInteger.fromNumber(_coefficient),
+      ],
+    );
   }
 }
 
-class _SubjectKeyID extends Asn1Encode {
-  _SubjectKeyID(dynamic obj) {
+class SubjectKeyID extends Asn1Encode {
+  SubjectKeyID(dynamic obj) {
     if (obj is Asn1Octet) {
       _bytes = obj.getOctets();
     } else if (obj is PublicKeyInformation) {
@@ -3415,8 +3616,9 @@ class _SubjectKeyID extends Asn1Encode {
   static PublicKeyInformation createSubjectKeyID(CipherParameter publicKey) {
     if (publicKey is RsaKeyParam) {
       final PublicKeyInformation information = PublicKeyInformation(
-          Algorithms(PkcsObjectId.rsaEncryption, DerNull.value),
-          RsaPublicKey(publicKey.modulus, publicKey.exponent).getAsn1());
+        Algorithms(PkcsObjectId.rsaEncryption, DerNull.value),
+        RsaPublicKey(publicKey.modulus, publicKey.exponent).getAsn1(),
+      );
       return information;
     } else {
       throw ArgumentError.value(publicKey, 'publicKey', 'Invalid Key');
@@ -3432,29 +3634,41 @@ class _SubjectKeyID extends Asn1Encode {
 /// Internal class
 class CertificateIdentity {
   /// Internal constructor
-  CertificateIdentity(String hashAlgorithm, X509Certificate issuerCert,
-      DerInteger serialNumber) {
-    final Algorithms algorithms =
-        Algorithms(DerObjectID(hashAlgorithm), DerNull.value);
+  CertificateIdentity(
+    String hashAlgorithm,
+    X509Certificate issuerCert,
+    DerInteger serialNumber,
+  ) {
+    final Algorithms algorithms = Algorithms(
+      DerObjectID(hashAlgorithm),
+      DerNull.value,
+    );
     try {
       final String algorithm = algorithms.id!.id!;
-      final X509Name? issuerName = SingnedCertificate.getCertificate(
-              Asn1.fromByteArray(issuerCert.getTbsCertificate()!))!
-          .subject;
+      final X509Name? issuerName =
+          SingnedCertificate.getCertificate(
+            Asn1.fromByteArray(issuerCert.getTbsCertificate()!),
+          )!.subject;
       MessageDigestFinder utilities = MessageDigestFinder();
-      final List<int> issuerNameHash =
-          utilities.getDigest(algorithm, issuerName!.getEncoded()!);
+      final List<int> issuerNameHash = utilities.getDigest(
+        algorithm,
+        issuerName!.getEncoded()!,
+      );
       final CipherParameter issuerKey = issuerCert.getPublicKey();
-      final PublicKeyInformation info =
-          _SubjectKeyID.createSubjectKeyID(issuerKey);
+      final PublicKeyInformation info = SubjectKeyID.createSubjectKeyID(
+        issuerKey,
+      );
       utilities = MessageDigestFinder();
-      final List<int> issuerKeyHash =
-          utilities.getDigest(algorithm, info.publicKey!.getBytes()!);
+      final List<int> issuerKeyHash = utilities.getDigest(
+        algorithm,
+        info.publicKey!.getBytes()!,
+      );
       id = CertificateIdentityHelper(
-          hash: algorithms,
-          issuerName: DerOctet(issuerNameHash),
-          issuerKey: DerOctet(issuerKeyHash),
-          serialNumber: serialNumber);
+        hash: algorithms,
+        issuerName: DerOctet(issuerNameHash),
+        issuerKey: DerOctet(issuerKeyHash),
+        serialNumber: serialNumber,
+      );
     } catch (e) {
       throw Exception('Invalid certificate ID');
     }
@@ -3470,11 +3684,12 @@ class CertificateIdentity {
 /// Internal class
 class CertificateIdentityHelper extends Asn1Encode {
   /// Internal constructor
-  CertificateIdentityHelper(
-      {Algorithms? hash,
-      Asn1Octet? issuerName,
-      Asn1Octet? issuerKey,
-      DerInteger? serialNumber}) {
+  CertificateIdentityHelper({
+    Algorithms? hash,
+    Asn1Octet? issuerName,
+    Asn1Octet? issuerKey,
+    DerInteger? serialNumber,
+  }) {
     _hash = hash;
     _issuerName = issuerName;
     _issuerKey = issuerKey;
@@ -3490,6 +3705,7 @@ class CertificateIdentityHelper extends Asn1Encode {
   @override
   Asn1 getAsn1() {
     return DerSequence(
-        array: <Asn1Encode>[_hash!, _issuerName!, _issuerKey!, _serialNumber!]);
+      array: <Asn1Encode>[_hash!, _issuerName!, _issuerKey!, _serialNumber!],
+    );
   }
 }

@@ -10,7 +10,7 @@ enum CodeType {
   doubleDigit,
 
   ///CodeType.fnc1 represents the input symbol is special character.
-  fnc1
+  fnc1,
 }
 
 /// Versions that is used to encode the amount of data.
@@ -136,7 +136,7 @@ enum QRCodeVersion {
   version39,
 
   ///QRCodeVersion.version40 specifies the qr code version is 40.
-  version40
+  version40,
 }
 
 /// Encode recovery capacity of the barcode.
@@ -152,7 +152,7 @@ enum ErrorCorrectionLevel {
   quartile,
 
   ///ErrorCorrectionLevel.high is recover approximately 30% of the codewords.
-  high
+  high,
 }
 
 /// Specific set of input mode characters.
@@ -164,7 +164,7 @@ enum QRInputMode {
   alphaNumeric,
 
   ///QRInputMode.binary represents the input data as binary.
-  binary
+  binary,
 }
 
 /// Encoding type for the [DataMatrix] code.
@@ -179,7 +179,7 @@ enum DataMatrixEncoding {
   asciiNumeric,
 
   /// DataMatrixEncoding.base256 represents the base256 encoding.
-  base256
+  base256,
 }
 
 /// Sizes that is used to encode the amount of [DataMatrix] data.
@@ -275,5 +275,5 @@ enum DataMatrixSize {
   size16x36,
 
   /// DataMatrixSize.size16x48 represents the 16x48 matrix.
-  size16x48
+  size16x48,
 }

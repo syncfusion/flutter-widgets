@@ -41,8 +41,9 @@ abstract class PdfShapeElement extends PdfLayoutElement {
 
   PdfRectangle? _getBoundsInternal() {
     if (this is PdfBezierCurve) {
-      return PdfBezierCurveHelper.getHelper(this as PdfBezierCurve)
-          .getBoundsInternal();
+      return PdfBezierCurveHelper.getHelper(
+        this as PdfBezierCurve,
+      ).getBoundsInternal();
     } else if (this is PdfPath) {
       return PdfPathHelper.getHelper(this as PdfPath).getBoundsInternal();
     } else if (this is PdfImage) {
@@ -75,7 +76,9 @@ class PdfShapeElementHelper {
 
   /// internal method
   static PdfLayoutResult? layout(
-      PdfShapeElement element, PdfLayoutParams param) {
+    PdfShapeElement element,
+    PdfLayoutParams param,
+  ) {
     return element._layout(param);
   }
 

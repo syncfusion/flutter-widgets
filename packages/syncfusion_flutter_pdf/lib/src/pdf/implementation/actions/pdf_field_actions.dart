@@ -11,11 +11,13 @@ class PdfFieldActions implements IPdfWrapper {
   //Constructor
   /// Initializes a new instance of the [PdfFieldActions] class with
   /// the [PdfAnnotationActions]
-  PdfFieldActions(PdfAnnotationActions annotationActions,
-      {PdfJavaScriptAction? keyPressed,
-      PdfJavaScriptAction? format,
-      PdfJavaScriptAction? validate,
-      PdfJavaScriptAction? calculate}) {
+  PdfFieldActions(
+    PdfAnnotationActions annotationActions, {
+    PdfJavaScriptAction? keyPressed,
+    PdfJavaScriptAction? format,
+    PdfJavaScriptAction? validate,
+    PdfJavaScriptAction? calculate,
+  }) {
     _helper.annotationActions = annotationActions;
     _initValues(keyPressed, format, validate, calculate);
   }
@@ -198,10 +200,13 @@ class PdfJavaScriptAction extends PdfAction {
   PdfJavaScriptAction(String javaScript) : super() {
     _initValue(javaScript);
     PdfActionHelper.getHelper(this).dictionary.setProperty(
-        PdfDictionaryProperties.s, PdfName(PdfDictionaryProperties.javaScript));
-    PdfActionHelper.getHelper(this)
-        .dictionary
-        .setProperty(PdfDictionaryProperties.js, PdfString(_javaScript));
+      PdfDictionaryProperties.s,
+      PdfName(PdfDictionaryProperties.javaScript),
+    );
+    PdfActionHelper.getHelper(this).dictionary.setProperty(
+      PdfDictionaryProperties.js,
+      PdfString(_javaScript),
+    );
   }
 
   //Fields
@@ -214,9 +219,9 @@ class PdfJavaScriptAction extends PdfAction {
   set javaScript(String value) {
     if (_javaScript != value) {
       _javaScript = value;
-      PdfActionHelper.getHelper(this)
-          .dictionary
-          .setString(PdfDictionaryProperties.js, _javaScript);
+      PdfActionHelper.getHelper(
+        this,
+      ).dictionary.setString(PdfDictionaryProperties.js, _javaScript);
     }
   }
 

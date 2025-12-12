@@ -10,29 +10,29 @@ import '../utils/helper.dart';
 @immutable
 abstract class SfSparkChartRenderObjectWidget extends LeafRenderObjectWidget {
   /// Creates the render object for spark chart.
-  const SfSparkChartRenderObjectWidget(
-      {Key? key,
-      this.data,
-      this.dataCount,
-      this.xValueMapper,
-      this.yValueMapper,
-      this.isInversed,
-      this.axisCrossesAt,
-      this.axisLineColor,
-      this.axisLineWidth,
-      this.axisLineDashArray,
-      this.firstPointColor,
-      this.lowPointColor,
-      this.highPointColor,
-      this.lastPointColor,
-      this.negativePointColor,
-      this.color,
-      this.plotBand,
-      this.sparkChartDataDetails,
-      this.themeData,
-      this.dataPoints,
-      this.coordinatePoints})
-      : super(key: key);
+  const SfSparkChartRenderObjectWidget({
+    Key? key,
+    this.data,
+    this.dataCount,
+    this.xValueMapper,
+    this.yValueMapper,
+    this.isInversed,
+    this.axisCrossesAt,
+    this.axisLineColor,
+    this.axisLineWidth,
+    this.axisLineDashArray,
+    this.firstPointColor,
+    this.lowPointColor,
+    this.highPointColor,
+    this.lastPointColor,
+    this.negativePointColor,
+    this.color,
+    this.plotBand,
+    this.sparkChartDataDetails,
+    this.themeData,
+    this.dataPoints,
+    this.coordinatePoints,
+  }) : super(key: key);
 
   /// Specifies the data source for the series.
   final List<dynamic>? data;
@@ -98,50 +98,49 @@ abstract class SfSparkChartRenderObjectWidget extends LeafRenderObjectWidget {
 /// Represents the RenderSparkChart class.
 abstract class RenderSparkChart extends RenderBox {
   /// Creates the render object widget.
-  RenderSparkChart(
-      {
-      //ignore: avoid_unused_constructor_parameters
-      Widget? child,
-      List<dynamic>? data,
-      int? dataCount,
-      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
-      SparkChartIndexedValueMapper<num>? yValueMapper,
-      bool? isInversed,
-      double? axisCrossesAt,
-      double? axisLineWidth,
-      Color? axisLineColor,
-      List<double>? axisLineDashArray,
-      Color? color,
-      Color? firstPointColor,
-      Color? lastPointColor,
-      Color? highPointColor,
-      Color? lowPointColor,
-      Color? negativePointColor,
-      SparkChartPlotBand? plotBand,
-      SparkChartDataDetails? sparkChartDataDetails,
-      SfSparkChartThemeData? themeData,
-      List<Offset>? coordinatePoints,
-      List<SparkChartPoint>? dataPoints})
-      : _data = data,
-        _dataCount = dataCount,
-        _xValueMapper = xValueMapper,
-        _yValueMapper = yValueMapper,
-        _isInversed = isInversed,
-        _axisCrossesAt = axisCrossesAt,
-        _axisLineWidth = axisLineWidth,
-        _axisLineDashArray = axisLineDashArray,
-        _axisLineColor = axisLineColor,
-        _color = color,
-        _firstPointColor = firstPointColor,
-        _lastPointColor = lastPointColor,
-        _highPointColor = highPointColor,
-        _lowPointColor = lowPointColor,
-        _negativePointColor = negativePointColor,
-        _plotBand = plotBand,
-        _sparkChartDataDetails = sparkChartDataDetails,
-        _themeData = themeData,
-        _dataPoints = dataPoints,
-        _coordinatePoints = coordinatePoints {
+  RenderSparkChart({
+    //ignore: avoid_unused_constructor_parameters
+    Widget? child,
+    List<dynamic>? data,
+    int? dataCount,
+    SparkChartIndexedValueMapper<dynamic>? xValueMapper,
+    SparkChartIndexedValueMapper<num>? yValueMapper,
+    bool? isInversed,
+    double? axisCrossesAt,
+    double? axisLineWidth,
+    Color? axisLineColor,
+    List<double>? axisLineDashArray,
+    Color? color,
+    Color? firstPointColor,
+    Color? lastPointColor,
+    Color? highPointColor,
+    Color? lowPointColor,
+    Color? negativePointColor,
+    SparkChartPlotBand? plotBand,
+    SparkChartDataDetails? sparkChartDataDetails,
+    SfSparkChartThemeData? themeData,
+    List<Offset>? coordinatePoints,
+    List<SparkChartPoint>? dataPoints,
+  }) : _data = data,
+       _dataCount = dataCount,
+       _xValueMapper = xValueMapper,
+       _yValueMapper = yValueMapper,
+       _isInversed = isInversed,
+       _axisCrossesAt = axisCrossesAt,
+       _axisLineWidth = axisLineWidth,
+       _axisLineDashArray = axisLineDashArray,
+       _axisLineColor = axisLineColor,
+       _color = color,
+       _firstPointColor = firstPointColor,
+       _lastPointColor = lastPointColor,
+       _highPointColor = highPointColor,
+       _lowPointColor = lowPointColor,
+       _negativePointColor = negativePointColor,
+       _plotBand = plotBand,
+       _sparkChartDataDetails = sparkChartDataDetails,
+       _themeData = themeData,
+       _dataPoints = dataPoints,
+       _coordinatePoints = coordinatePoints {
     processDataSource();
     if (isInversed ?? false) {
       inverseDataPoints();
@@ -523,8 +522,9 @@ abstract class RenderSparkChart extends RenderBox {
             xValue = i.toDouble();
           } else if (xValue is DateTime) {
             xValue = xValue.millisecondsSinceEpoch;
-            labelX = DateFormat.yMd()
-                .format(DateTime.fromMillisecondsSinceEpoch(xValue));
+            labelX = DateFormat.yMd().format(
+              DateTime.fromMillisecondsSinceEpoch(xValue),
+            );
           } else if (xValue is num) {
             labelX = _getDataLabel(xValue);
           }
@@ -563,16 +563,20 @@ abstract class RenderSparkChart extends RenderBox {
   /// Method to calculate axis height.
   double? getAxisHeight() {
     final double value = axisCrossesAt!;
-    double? axisLineHeight =
-        areaSize!.height - ((areaSize!.height / diffY!) * (-minY!));
-    axisLineHeight = minY! < 0 && maxY! <= 0
-        ? 0
-        : (minY! < 0 && maxY! > 0)
+    final double areaHeight = areaSize!.height;
+    double? axisLineHeight = areaHeight - ((areaHeight / diffY!) * (-minY!));
+    axisLineHeight =
+        minY! < value && maxY! <= value
+            ? 0
+            : (minY! < value && maxY! > value)
             ? axisHeight
-            : areaSize!.height;
+            : areaHeight;
     if (value >= minY! && value <= maxY!) {
-      axisLineHeight = areaSize!.height -
-          (areaSize!.height * ((value - minY!) / diffY!)).roundToDouble();
+      axisLineHeight =
+          (minY! == maxY!)
+              ? 0
+              : areaHeight -
+                  (areaHeight * ((value - minY!) / diffY!)).roundToDouble();
     }
     return axisLineHeight;
   }
@@ -592,40 +596,67 @@ abstract class RenderSparkChart extends RenderBox {
 
   /// Methods to calculate the visible points.
   void calculateRenderingPoints() {
-    if (minX != null && maxX != null && minY != null && maxY != null) {
-      diffX = maxX! - minX!;
-      diffY = maxY! - minY!;
-      axisHeight = getAxisHeight();
-      if (coordinatePoints!.isNotEmpty) {
-        coordinatePoints!.clear();
-      }
-
-      double x;
-      double y;
-      Offset visiblePoint;
-
-      for (int i = 0; i < dataPoints!.length; i++) {
-        x = dataPoints![i].x.toDouble();
-        y = dataPoints![i].y.toDouble();
-        visiblePoint = transformToCoordinatePoint(minX!, maxX!, minY!, maxY!,
-            diffX!, diffY!, areaSize!, x, y, dataPoints!.length);
-        coordinatePoints!.add(visiblePoint);
-      }
-      coordinatePoints = sortScreenCoordinatePoints(coordinatePoints!);
+    if (minX == null ||
+        maxX == null ||
+        minY == null ||
+        maxY == null ||
+        dataPoints == null ||
+        areaSize == null) {
+      return;
     }
+
+    diffX = maxX! - minX!;
+    diffY = maxY! - minY!;
+    axisHeight = getAxisHeight();
+    if (coordinatePoints!.isNotEmpty) {
+      coordinatePoints!.clear();
+    }
+
+    double x;
+    double y;
+    Offset visiblePoint;
+
+    for (int i = 0; i < dataPoints!.length; i++) {
+      x = dataPoints![i].x.toDouble();
+      y = dataPoints![i].y.toDouble();
+      visiblePoint = transformToCoordinatePoint(
+        minX!,
+        maxX!,
+        minY!,
+        maxY!,
+        diffX!,
+        diffY!,
+        areaSize!,
+        x,
+        y,
+        dataPoints!.length,
+      );
+      coordinatePoints!.add(visiblePoint);
+    }
+    coordinatePoints = sortScreenCoordinatePoints(coordinatePoints!);
   }
 
   /// Method to calculate the plot band position.
   void calculatePlotBandPosition() {
+    if (minX == null ||
+        maxX == null ||
+        minY == null ||
+        maxY == null ||
+        areaSize == null) {
+      return;
+    }
+
     final double height = areaSize!.height;
-    final double? start = plotBand == null
-        ? 0
-        : (plotBand!.start ?? minY!) < minY!
+    final double? start =
+        plotBand == null
+            ? 0
+            : (plotBand!.start ?? minY!) < minY!
             ? minY
             : (plotBand!.start ?? minY);
-    final double? end = plotBand == null
-        ? 0
-        : (plotBand!.end ?? maxY!) > maxY!
+    final double? end =
+        plotBand == null
+            ? 0
+            : (plotBand!.end ?? maxY!) > maxY!
             ? maxY
             : (plotBand!.end ?? maxY);
     plotBandStartHeight = height - ((height / diffY!) * (start! - minY!));
@@ -634,16 +665,17 @@ abstract class RenderSparkChart extends RenderBox {
 
   /// Method to render axis line.
   void renderAxisline(Canvas canvas, Offset offset) {
-    if (axisLineWidth! > 0 && axisHeight != null) {
+    if (axisLineWidth! > 0 && axisHeight != null && !axisHeight!.isNaN) {
       final double x1 = offset.dx;
       final double y1 = offset.dy + axisHeight!;
       final double x2 = offset.dx + areaSize!.width;
       final Offset point1 = Offset(x1, y1);
       final Offset point2 = Offset(x2, y1);
-      final Paint paint = Paint()
-        ..strokeWidth = axisLineWidth!
-        ..style = PaintingStyle.stroke
-        ..color = axisLineColor!;
+      final Paint paint =
+          Paint()
+            ..strokeWidth = axisLineWidth!
+            ..style = PaintingStyle.stroke
+            ..color = axisLineColor!;
       if (axisLineDashArray != null && axisLineDashArray!.isNotEmpty) {
         drawDashedPath(canvas, paint, point1, point2, axisLineDashArray);
       } else {
@@ -654,33 +686,44 @@ abstract class RenderSparkChart extends RenderBox {
 
   /// Method to render plot band.
   void renderPlotBand(Canvas canvas, Offset offset) {
+    if (plotBandStartHeight == null ||
+        plotBandEndHeight == null ||
+        areaSize == null) {
+      return;
+    }
+
     if (plotBandStartHeight != plotBandEndHeight) {
       final Paint paint = Paint()..color = plotBand!.color;
       final Rect plotBandRect = Rect.fromLTRB(
-          offset.dx,
-          offset.dy + plotBandStartHeight!,
-          offset.dx + areaSize!.width,
-          offset.dy + plotBandEndHeight!);
+        offset.dx,
+        offset.dy + plotBandStartHeight!,
+        offset.dx + areaSize!.width,
+        offset.dy + plotBandEndHeight!,
+      );
       if (plotBandRect.top >= sparkChartAreaRect!.top &&
-          plotBandRect.bottom >= sparkChartAreaRect!.bottom) {
+          plotBandRect.bottom <= sparkChartAreaRect!.bottom) {
         canvas.drawRect(plotBandRect, paint);
         if (plotBand!.borderColor != Colors.transparent &&
             plotBand!.borderWidth > 0) {
-          final Paint borderPaint = Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = plotBand!.borderWidth
-            ..color = plotBand!.borderColor!;
+          final Paint borderPaint =
+              Paint()
+                ..style = PaintingStyle.stroke
+                ..strokeWidth = plotBand!.borderWidth
+                ..color = plotBand!.borderColor!;
           canvas.drawRect(plotBandRect, borderPaint);
         }
       }
     } else {
-      final Paint paint = Paint()
-        ..color = plotBand!.color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3;
+      final Paint paint =
+          Paint()
+            ..color = plotBand!.color
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 3;
       final Offset point1 = Offset(offset.dx, offset.dy + plotBandStartHeight!);
-      final Offset point2 =
-          Offset(offset.dx + areaSize!.width, offset.dy + plotBandStartHeight!);
+      final Offset point2 = Offset(
+        offset.dx + areaSize!.width,
+        offset.dy + plotBandStartHeight!,
+      );
       canvas.drawLine(point1, point2, paint);
     }
   }

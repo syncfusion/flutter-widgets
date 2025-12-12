@@ -1,9 +1,12 @@
-part of xlsio;
+import '../general/enums.dart';
+import '../named_range/name_impl.dart';
+import '../worksheet/worksheet.dart';
+import 'page_setup.dart';
 
 /// Represents implementations of pagesetup in a worksheet.
-class _PageSetupImpl implements PageSetup {
+class PageSetupImpl implements PageSetup {
   /// Create a instances of tables collection.
-  _PageSetupImpl(Worksheet sheet) {
+  PageSetupImpl(Worksheet sheet) {
     _sheet = sheet;
     _showGridlines = false;
     _isFitToPage = false;
@@ -28,7 +31,7 @@ class _PageSetupImpl implements PageSetup {
     _order = ExcelPageOrder.downThenOver;
     _printErrors = CellErrorPrintOptions.displayed;
     _paperSize = ExcelPaperSize.paperA4;
-    _paperHight = <ExcelPaperSize, double>{
+    paperHight = <ExcelPaperSize, double>{
       ExcelPaperSize.a2Paper: _convertUnits(594, 'MMtoInch'),
       ExcelPaperSize.paperDsheet: 34,
       ExcelPaperSize.paperEnvelope10: 9.5,
@@ -94,9 +97,9 @@ class _PageSetupImpl implements PageSetup {
       ExcelPaperSize.a5ExtraPpaper: _convertUnits(235, 'MMtoInch'),
       ExcelPaperSize.iSOB5ExtraPaper: _convertUnits(276, 'MMtoInch'),
       ExcelPaperSize.a3TransversePaper: _convertUnits(297, 'MMtoInch'),
-      ExcelPaperSize.a3ExtraTransversePaper: _convertUnits(445, 'MMtoInch')
+      ExcelPaperSize.a3ExtraTransversePaper: _convertUnits(445, 'MMtoInch'),
     };
-    _paperWidth = <ExcelPaperSize, double>{
+    paperWidth = <ExcelPaperSize, double>{
       ExcelPaperSize.a2Paper: _convertUnits(420, 'MMtoInch'),
       ExcelPaperSize.paperDsheet: 22,
       ExcelPaperSize.paperEnvelope10: 4.125,
@@ -162,7 +165,7 @@ class _PageSetupImpl implements PageSetup {
       ExcelPaperSize.a5ExtraPpaper: _convertUnits(174, 'MMtoInch'),
       ExcelPaperSize.iSOB5ExtraPaper: _convertUnits(210, 'MMtoInch'),
       ExcelPaperSize.a3TransversePaper: _convertUnits(420, 'MMtoInch'),
-      ExcelPaperSize.a3ExtraTransversePaper: _convertUnits(322, 'MMtoInch')
+      ExcelPaperSize.a3ExtraTransversePaper: _convertUnits(322, 'MMtoInch'),
     };
   }
 
@@ -251,10 +254,10 @@ class _PageSetupImpl implements PageSetup {
   late String _printArea;
 
   /// Map which stores Max paper hight
-  late Map<ExcelPaperSize, double> _paperHight;
+  late Map<ExcelPaperSize, double> paperHight;
 
   /// Map which stores Max paper width
-  late Map<ExcelPaperSize, double> _paperWidth;
+  late Map<ExcelPaperSize, double> paperWidth;
 
   @override
   bool get isBlackAndWhite {
@@ -439,12 +442,12 @@ class _PageSetupImpl implements PageSetup {
   @override
   set printArea(String value) {
     value = '${_sheet.name}!$value';
-    final _NameImpl nameImpl = _NameImpl(_sheet.workbook);
+    final NameImpl nameImpl = NameImpl(_sheet.workbook);
     nameImpl.name = '_xlnm.Print_Area';
-    nameImpl._isLocal = true;
-    nameImpl._worksheet = _sheet;
-    nameImpl._scope = _sheet._name;
-    nameImpl._value = value;
+    nameImpl.isLocal = true;
+    nameImpl.worksheet = _sheet;
+    nameImpl.scope = _sheet.name;
+    nameImpl.value = value;
     _sheet.workbook.innerNamesCollection.add(nameImpl);
     _printArea = value;
   }
@@ -498,12 +501,12 @@ class _PageSetupImpl implements PageSetup {
   set printTitleColumns(String value) {
     _isprintTitleColumns = true;
     value = _convertToRangeName(value);
-    final _NameImpl nameImpl = _NameImpl(_sheet.workbook);
+    final NameImpl nameImpl = NameImpl(_sheet.workbook);
     nameImpl.name = '_xlnm.Print_Titles';
-    nameImpl._isLocal = true;
-    nameImpl._worksheet = _sheet;
-    nameImpl._scope = _sheet._name;
-    nameImpl._value = value;
+    nameImpl.isLocal = true;
+    nameImpl.worksheet = _sheet;
+    nameImpl.scope = _sheet.name;
+    nameImpl.value = value;
     _sheet.workbook.innerNamesCollection.add(nameImpl);
     _printTitleColumns = value;
   }
@@ -517,12 +520,12 @@ class _PageSetupImpl implements PageSetup {
   set printTitleRows(String value) {
     _isprintTitleRows = true;
     value = _convertToRangeName(value);
-    final _NameImpl nameImpl = _NameImpl(_sheet.workbook);
+    final NameImpl nameImpl = NameImpl(_sheet.workbook);
     nameImpl.name = '_xlnm.Print_Titles';
-    nameImpl._isLocal = true;
-    nameImpl._worksheet = _sheet;
-    nameImpl._scope = _sheet._name;
-    nameImpl._value = value;
+    nameImpl.isLocal = true;
+    nameImpl.worksheet = _sheet;
+    nameImpl.scope = _sheet.name;
+    nameImpl.value = value;
     _sheet.workbook.innerNamesCollection.add(nameImpl);
     _printTitleRows = value;
   }
@@ -550,7 +553,8 @@ class _PageSetupImpl implements PageSetup {
   /// Converts cell range to Range name.
   String _convertToRangeName(String input) {
     final RegExp exp = RegExp(
-        r'(?<Column1>[\$]?[A-Za-z]{1,3})(?<Row1>[\$]?\d+):(?<Column2>[\$]?[A-Za-z]{1,3})(?<Row2>[\$]?\d+)');
+      r'(?<Column1>[\$]?[A-Za-z]{1,3})(?<Row1>[\$]?\d+):(?<Column2>[\$]?[A-Za-z]{1,3})(?<Row2>[\$]?\d+)',
+    );
     final RegExpMatch? output = exp.firstMatch(input);
     final String column1 = output![1].toString();
     final String row1 = output[2].toString();

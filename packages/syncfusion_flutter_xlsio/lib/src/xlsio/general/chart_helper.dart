@@ -1,4 +1,6 @@
-part of xlsio;
+import 'package:xml/xml.dart';
+
+import '../worksheet/worksheet.dart';
 
 /// Base class for charts
 abstract class ChartHelper {

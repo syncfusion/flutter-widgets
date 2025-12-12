@@ -1,5 +1,3 @@
-part of xlsio;
-
 /// Represents worksheet protection options.
 class ExcelSheetProtectionOption {
   /// Create instances of class for sheet protection;

@@ -31,6 +31,8 @@ import '../utils/helper.dart';
 ///
 /// Provide options for activation mode, line type, line color, line width,
 /// hide delay for customizing the behavior of the crosshair.
+@immutable
+// ignore: must_be_immutable
 class CrosshairBehavior extends ChartBehavior {
   /// Creating an argument constructor of [CrosshairBehavior] class.
   CrosshairBehavior({
@@ -283,7 +285,7 @@ class CrosshairBehavior extends ChartBehavior {
       lineColor,
       lineWidth,
       shouldAlwaysShow,
-      hideDelay
+      hideDelay,
     ];
     return Object.hashAll(values);
   }
@@ -306,20 +308,30 @@ class CrosshairBehavior extends ChartBehavior {
     assert(!y.isNaN);
     if (coordinateUnit == 'point') {
       _position = rawValueToPixelPoint(
-          x, y, parent.xAxis, parent.yAxis, parent.isTransposed);
+        x,
+        y,
+        parent.xAxis,
+        parent.yAxis,
+        parent.isTransposed,
+      );
     } else if (coordinateUnit == 'pixel') {
       if (x is num) {
         _position = Offset(x.toDouble(), y);
       } else {
         _position = Offset(
-            rawValueToPixelPoint(
-                    x, y, parent.xAxis, parent.yAxis, parent.isTransposed)
-                .dx,
-            y);
+          rawValueToPixelPoint(
+            x,
+            y,
+            parent.xAxis,
+            parent.yAxis,
+            parent.isTransposed,
+          ).dx,
+          y,
+        );
       }
     }
 
-    _show();
+    _show(parent);
   }
 
   /// Displays the crosshair at the specified point index.
@@ -331,7 +343,7 @@ class CrosshairBehavior extends ChartBehavior {
         parent.plotArea != null &&
         parent.plotArea!.firstChild != null) {
       final CartesianSeriesRenderer seriesRenderer =
-          parent.plotArea!.firstChild as CartesianSeriesRenderer;
+          parent.plotArea!.firstChild! as CartesianSeriesRenderer;
       final List<num> visibleIndexes = seriesRenderer.visibleIndexes;
       if (visibleIndexes.isNotEmpty &&
           visibleIndexes.first <= pointIndex &&
@@ -355,23 +367,37 @@ class CrosshairBehavior extends ChartBehavior {
   /// (e.g., CrosshairBehavior, TrackballBehavior, ZoomingBehavior).
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
-    if (event is PointerMoveEvent) {
+    if (parentBox == null) {
+      return;
+    }
+
+    if (event is PointerDownEvent) {
+      _handlePointerDown(event);
+    } else if (event is PointerMoveEvent) {
       _handlePointerMove(event);
     } else if (event is PointerHoverEvent) {
       _handlePointerHover(event);
-    } else if (event is PointerCancelEvent || event is PointerUpEvent) {
+    } else if (event is PointerCancelEvent) {
       _hideCrosshair(immediately: true);
+    } else if (event is PointerUpEvent) {
+      _hideCrosshair();
+    }
+  }
+
+  void _handlePointerDown(PointerDownEvent details) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
+      _showCrosshair(parentBox!.globalToLocal(details.position));
     }
   }
 
   void _handlePointerMove(PointerMoveEvent details) {
-    if (activationMode == ActivationMode.singleTap) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
       _showCrosshair(parentBox!.globalToLocal(details.position));
     }
   }
 
   void _handlePointerHover(PointerHoverEvent details) {
-    if (activationMode == ActivationMode.singleTap) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
       _showCrosshair(parentBox!.globalToLocal(details.position));
     }
   }
@@ -379,7 +405,7 @@ class CrosshairBehavior extends ChartBehavior {
   /// Called when a pointer or mouse enter on the screen.
   @override
   void handlePointerEnter(PointerEnterEvent details) {
-    if (activationMode == ActivationMode.singleTap) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
       _showCrosshair(parentBox!.globalToLocal(details.position));
     }
   }
@@ -394,7 +420,7 @@ class CrosshairBehavior extends ChartBehavior {
   /// recognized in behavior.
   @override
   void handleLongPressStart(LongPressStartDetails details) {
-    if (activationMode == ActivationMode.longPress) {
+    if (parentBox != null && activationMode == ActivationMode.longPress) {
       _showCrosshair(parentBox!.globalToLocal(details.globalPosition));
     }
   }
@@ -403,7 +429,7 @@ class CrosshairBehavior extends ChartBehavior {
   /// recognized in behavior.
   @override
   void handleLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
-    if (activationMode == ActivationMode.longPress) {
+    if (parentBox != null && activationMode == ActivationMode.longPress) {
       _showCrosshair(parentBox!.globalToLocal(details.globalPosition));
     }
   }
@@ -418,7 +444,7 @@ class CrosshairBehavior extends ChartBehavior {
   /// Called when the pointer tap has contacted the screen in behavior.
   @override
   void handleTapDown(TapDownDetails details) {
-    if (activationMode == ActivationMode.singleTap) {
+    if (parentBox != null && activationMode == ActivationMode.singleTap) {
       _showCrosshair(parentBox!.globalToLocal(details.globalPosition));
     }
   }
@@ -432,7 +458,7 @@ class CrosshairBehavior extends ChartBehavior {
   /// Called when pointer tap has contacted the screen double time in behavior.
   @override
   void handleDoubleTap(Offset position) {
-    if (activationMode == ActivationMode.doubleTap) {
+    if (parentBox != null && activationMode == ActivationMode.doubleTap) {
       _showCrosshair(parentBox!.globalToLocal(position));
       _hideCrosshair(doubleTapHideDelay: 200);
     }
@@ -451,11 +477,13 @@ class CrosshairBehavior extends ChartBehavior {
       final int hideDelayDuration =
           hideDelay > 0 ? hideDelay.toInt() : doubleTapHideDelay;
       _crosshairHideTimer?.cancel();
-      _crosshairHideTimer =
-          Timer(Duration(milliseconds: hideDelayDuration), () {
-        _crosshairHideTimer = null;
-        hide();
-      });
+      _crosshairHideTimer = Timer(
+        Duration(milliseconds: hideDelayDuration),
+        () {
+          _crosshairHideTimer = null;
+          hide();
+        },
+      );
     }
   }
 
@@ -468,14 +496,9 @@ class CrosshairBehavior extends ChartBehavior {
     _horizontalLabelPositions.clear();
   }
 
-  void _show() {
-    final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
-    if (_position == null || parent == null) {
-      return;
-    }
-
+  void _show(RenderBehaviorArea parent) {
     final RenderCartesianAxes? cartesianAxes = parent.cartesianAxes;
-    if (cartesianAxes == null) {
+    if (_position == null || cartesianAxes == null) {
       return;
     }
 
@@ -484,7 +507,9 @@ class CrosshairBehavior extends ChartBehavior {
   }
 
   void _calculateTooltipLabelAndPositions(
-      RenderBehaviorArea parent, RenderCartesianAxes cartesianAxes) {
+    RenderBehaviorArea parent,
+    RenderCartesianAxes cartesianAxes,
+  ) {
     final Rect plotAreaBounds = parent.paintBounds;
     if (plotAreaBounds.contains(_position!)) {
       _resetCrosshairHolders();
@@ -503,7 +528,9 @@ class CrosshairBehavior extends ChartBehavior {
           final Offset parentDataOffset =
               (child.parentData! as BoxParentData).offset;
           final Offset axisOffset = parentDataOffset.translate(
-              -plotAreaOffset.dx, -plotAreaOffset.dy);
+            -plotAreaOffset.dx,
+            -plotAreaOffset.dy,
+          );
           final Rect axisBounds = axisOffset & child.size;
 
           if (child.isVertical) {
@@ -555,20 +582,34 @@ class CrosshairBehavior extends ChartBehavior {
 
     final String tooltipPosition = axis.opposedPosition ? 'Top' : 'Bottom';
     final Rect tooltipRect = _calculateTooltipRect(
-        tooltipPosition, position, labelSize, axisBounds, arrowLength);
+      tooltipPosition,
+      position,
+      labelSize,
+      axisBounds,
+      arrowLength,
+    );
 
     final Rect validatedRect = _validateRectBounds(tooltipRect, axisBounds);
     _validateRectXPosition(validatedRect, plotAreaBounds);
 
-    final RRect tooltipRRect =
-        RRect.fromRectAndRadius(validatedRect, Radius.circular(borderRadius));
+    final RRect tooltipRRect = RRect.fromRectAndRadius(
+      validatedRect,
+      Radius.circular(borderRadius),
+    );
 
-    final Path tooltipAndArrowPath = Path()
-      ..addRRect(tooltipRRect)
-      ..addPath(
-          _tooltipArrowHeadPath(
-              tooltipPosition, tooltipRRect, position, arrowLength, arrowWidth),
-          Offset.zero);
+    final Path tooltipAndArrowPath =
+        Path()
+          ..addRRect(tooltipRRect)
+          ..addPath(
+            _tooltipArrowHeadPath(
+              tooltipPosition,
+              tooltipRRect,
+              position,
+              arrowLength,
+              arrowWidth,
+            ),
+            Offset.zero,
+          );
 
     _horizontalPaths.add(tooltipAndArrowPath);
     _horizontalLabels.add(label);
@@ -592,20 +633,34 @@ class CrosshairBehavior extends ChartBehavior {
 
     final String tooltipPosition = axis.opposedPosition ? 'Right' : 'Left';
     final Rect tooltipRect = _calculateTooltipRect(
-        tooltipPosition, position, labelSize, axisBounds, arrowLength);
+      tooltipPosition,
+      position,
+      labelSize,
+      axisBounds,
+      arrowLength,
+    );
 
     final Rect validatedRect = _validateRectBounds(tooltipRect, axisBounds);
     _validateRectYPosition(validatedRect, plotAreaBounds);
 
-    final RRect tooltipRRect =
-        RRect.fromRectAndRadius(validatedRect, Radius.circular(borderRadius));
+    final RRect tooltipRRect = RRect.fromRectAndRadius(
+      validatedRect,
+      Radius.circular(borderRadius),
+    );
 
-    final Path tooltipAndArrowPath = Path()
-      ..addRRect(tooltipRRect)
-      ..addPath(
-          _tooltipArrowHeadPath(
-              tooltipPosition, tooltipRRect, position, arrowLength, arrowWidth),
-          Offset.zero);
+    final Path tooltipAndArrowPath =
+        Path()
+          ..addRRect(tooltipRRect)
+          ..addPath(
+            _tooltipArrowHeadPath(
+              tooltipPosition,
+              tooltipRRect,
+              position,
+              arrowLength,
+              arrowWidth,
+            ),
+            Offset.zero,
+          );
 
     _verticalPaths.add(tooltipAndArrowPath);
     _verticalLabels.add(label);
@@ -613,9 +668,15 @@ class CrosshairBehavior extends ChartBehavior {
   }
 
   num _actualXValue(
-      RenderChartAxis axis, Offset position, Rect plotAreaBounds) {
-    return axis.pixelToPoint(axis.paintBounds,
-        position.dx - plotAreaBounds.left, position.dy - plotAreaBounds.top);
+    RenderChartAxis axis,
+    Offset position,
+    Rect plotAreaBounds,
+  ) {
+    return axis.pixelToPoint(
+      axis.paintBounds,
+      position.dx - plotAreaBounds.left,
+      position.dy - plotAreaBounds.top,
+    );
   }
 
   num _actualYValue(RenderChartAxis axis, Offset position) {
@@ -623,7 +684,10 @@ class CrosshairBehavior extends ChartBehavior {
   }
 
   String _triggerCrosshairCallback(
-      RenderChartAxis axis, String label, num value) {
+    RenderChartAxis axis,
+    String label,
+    num value,
+  ) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (parent != null &&
         parent.onCrosshairPositionChanging != null &&
@@ -669,16 +733,18 @@ class CrosshairBehavior extends ChartBehavior {
   Rect _validateRectXPosition(Rect labelRect, Rect axisClipRect) {
     if (labelRect.right >= axisClipRect.right) {
       return Rect.fromLTRB(
-          labelRect.left - (labelRect.right - axisClipRect.right),
-          labelRect.top,
-          axisClipRect.right,
-          labelRect.bottom);
+        labelRect.left - (labelRect.right - axisClipRect.right),
+        labelRect.top,
+        axisClipRect.right,
+        labelRect.bottom,
+      );
     } else if (labelRect.left <= axisClipRect.left) {
       return Rect.fromLTRB(
-          axisClipRect.left,
-          labelRect.top,
-          labelRect.right + (axisClipRect.left - labelRect.left),
-          labelRect.bottom);
+        axisClipRect.left,
+        labelRect.top,
+        labelRect.right + (axisClipRect.left - labelRect.left),
+        labelRect.bottom,
+      );
     }
     return labelRect;
   }
@@ -686,55 +752,74 @@ class CrosshairBehavior extends ChartBehavior {
   Rect _validateRectYPosition(Rect labelRect, Rect axisClipRect) {
     if (labelRect.bottom >= axisClipRect.bottom) {
       return Rect.fromLTRB(
-          labelRect.left,
-          labelRect.top - (labelRect.bottom - axisClipRect.bottom),
-          labelRect.right,
-          axisClipRect.bottom);
+        labelRect.left,
+        labelRect.top - (labelRect.bottom - axisClipRect.bottom),
+        labelRect.right,
+        axisClipRect.bottom,
+      );
     } else if (labelRect.top <= axisClipRect.top) {
-      return Rect.fromLTRB(labelRect.left, axisClipRect.top, labelRect.right,
-          labelRect.bottom + (axisClipRect.top - labelRect.top));
+      return Rect.fromLTRB(
+        labelRect.left,
+        axisClipRect.top,
+        labelRect.right,
+        labelRect.bottom + (axisClipRect.top - labelRect.top),
+      );
     }
     return labelRect;
   }
 
-  Rect _calculateTooltipRect(String axis, Offset position, Size labelSize,
-      Rect axisBounds, double arrowLength) {
+  Rect _calculateTooltipRect(
+    String axis,
+    Offset position,
+    Size labelSize,
+    Rect axisBounds,
+    double arrowLength,
+  ) {
     final double labelWidthWithPadding = labelSize.width + crosshairPadding;
     final double labelHeightWithPadding = labelSize.height + crosshairPadding;
     switch (axis) {
       case 'Left':
         return Rect.fromLTWH(
-            axisBounds.right - labelWidthWithPadding - arrowLength,
-            position.dy - (labelHeightWithPadding / 2),
-            labelWidthWithPadding,
-            labelHeightWithPadding);
+          axisBounds.right - labelWidthWithPadding - arrowLength,
+          position.dy - (labelHeightWithPadding / 2),
+          labelWidthWithPadding,
+          labelHeightWithPadding,
+        );
 
       case 'Right':
         return Rect.fromLTWH(
-            axisBounds.left + arrowLength,
-            position.dy - (labelHeightWithPadding / 2),
-            labelSize.width + crosshairPadding,
-            labelHeightWithPadding);
+          axisBounds.left + arrowLength,
+          position.dy - (labelHeightWithPadding / 2),
+          labelSize.width + crosshairPadding,
+          labelHeightWithPadding,
+        );
 
       case 'Top':
         return Rect.fromLTWH(
-            position.dx - (labelWidthWithPadding / 2),
-            axisBounds.bottom - labelHeightWithPadding - arrowLength,
-            labelWidthWithPadding,
-            labelHeightWithPadding);
+          position.dx - (labelWidthWithPadding / 2),
+          axisBounds.bottom - labelHeightWithPadding - arrowLength,
+          labelWidthWithPadding,
+          labelHeightWithPadding,
+        );
 
       case 'Bottom':
         return Rect.fromLTWH(
-            position.dx - (labelWidthWithPadding / 2),
-            axisBounds.top + arrowLength,
-            labelWidthWithPadding,
-            labelSize.height + crosshairPadding);
+          position.dx - (labelWidthWithPadding / 2),
+          axisBounds.top + arrowLength,
+          labelWidthWithPadding,
+          labelSize.height + crosshairPadding,
+        );
     }
     return Rect.zero;
   }
 
-  Path _tooltipArrowHeadPath(String axis, RRect tooltipRect, Offset position,
-      double arrowLength, double arrowWidth) {
+  Path _tooltipArrowHeadPath(
+    String axis,
+    RRect tooltipRect,
+    Offset position,
+    double arrowLength,
+    double arrowWidth,
+  ) {
     final Path arrowPath = Path();
     final double tooltipLeft = tooltipRect.left;
     final double tooltipRight = tooltipRect.right;
@@ -745,9 +830,13 @@ class CrosshairBehavior extends ChartBehavior {
     switch (axis) {
       case 'Left':
         arrowPath.moveTo(
-            tooltipRight, tooltipTop + rectHalfHeight - arrowWidth);
+          tooltipRight,
+          tooltipTop + rectHalfHeight - arrowWidth,
+        );
         arrowPath.lineTo(
-            tooltipRight, tooltipBottom - rectHalfHeight + arrowWidth);
+          tooltipRight,
+          tooltipBottom - rectHalfHeight + arrowWidth,
+        );
         arrowPath.lineTo(tooltipRight + arrowLength, position.dy);
         arrowPath.close();
         return arrowPath;
@@ -755,7 +844,9 @@ class CrosshairBehavior extends ChartBehavior {
       case 'Right':
         arrowPath.moveTo(tooltipLeft, tooltipTop + rectHalfHeight - arrowWidth);
         arrowPath.lineTo(
-            tooltipLeft, tooltipBottom - rectHalfHeight + arrowWidth);
+          tooltipLeft,
+          tooltipBottom - rectHalfHeight + arrowWidth,
+        );
         arrowPath.lineTo(tooltipLeft - arrowLength, position.dy);
         arrowPath.close();
         return arrowPath;
@@ -763,18 +854,26 @@ class CrosshairBehavior extends ChartBehavior {
       case 'Top':
         arrowPath.moveTo(position.dx, tooltipBottom + arrowLength);
         arrowPath.lineTo(
-            (tooltipRight - rectHalfWidth) + arrowWidth, tooltipBottom);
+          (tooltipRight - rectHalfWidth) + arrowWidth,
+          tooltipBottom,
+        );
         arrowPath.lineTo(
-            (tooltipLeft + rectHalfWidth) - arrowWidth, tooltipBottom);
+          (tooltipLeft + rectHalfWidth) - arrowWidth,
+          tooltipBottom,
+        );
         arrowPath.close();
         return arrowPath;
 
       case 'Bottom':
         arrowPath.moveTo(position.dx, tooltipTop - arrowLength);
         arrowPath.lineTo(
-            (tooltipRight - rectHalfWidth) + arrowWidth, tooltipTop);
+          (tooltipRight - rectHalfWidth) + arrowWidth,
+          tooltipTop,
+        );
         arrowPath.lineTo(
-            (tooltipLeft + rectHalfWidth) - arrowWidth, tooltipTop);
+          (tooltipLeft + rectHalfWidth) - arrowWidth,
+          tooltipTop,
+        );
         arrowPath.close();
         return arrowPath;
     }
@@ -783,16 +882,18 @@ class CrosshairBehavior extends ChartBehavior {
 
   Offset _textPosition(RRect tooltipRect, Size labelSize) {
     return Offset(
-        (tooltipRect.left + tooltipRect.width / 2) - labelSize.width / 2,
-        (tooltipRect.top + tooltipRect.height / 2) - labelSize.height / 2);
+      (tooltipRect.left + tooltipRect.width / 2) - labelSize.width / 2,
+      (tooltipRect.top + tooltipRect.height / 2) - labelSize.height / 2,
+    );
   }
 
   String _resultantString(RenderChartAxis axis, num actualValue) {
-    final String resultantString =
-        _interactiveTooltipLabel(actualValue, axis).toString();
+    final String resultantString = _interactiveTooltipLabel(actualValue, axis);
     if (axis.interactiveTooltip.format != null) {
-      return axis.interactiveTooltip.format!
-          .replaceAll('{value}', resultantString);
+      return axis.interactiveTooltip.format!.replaceAll(
+        '{value}',
+        resultantString,
+      );
     } else {
       return resultantString;
     }
@@ -815,35 +916,55 @@ class CrosshairBehavior extends ChartBehavior {
       final num index = value < 0 ? 0 : value;
       final List<int> labels = axis.labels;
       final int labelsLength = labels.length;
-      final int milliseconds = labels[(index.round() >= labelsLength
-              ? (index.round() > labelsLength ? labelsLength - 1 : index - 1)
-              : index)
-          .round()];
+      final int milliseconds =
+          labels[(index.round() >= labelsLength
+                  ? (index.round() > labelsLength
+                      ? labelsLength - 1
+                      : index - 1)
+                  : index)
+              .round()];
       final num interval = axis.visibleRange!.minimum.ceil();
       final num previousInterval =
           labels.isNotEmpty ? labels[labelsLength - 1] : interval;
-      final DateFormat dateFormat = axis.dateFormat ??
+      final DateFormat dateFormat =
+          axis.dateFormat ??
           dateTimeCategoryAxisLabelFormat(
-              axis, interval.toInt(), previousInterval.toInt());
-      return dateFormat
-          .format(DateTime.fromMillisecondsSinceEpoch(milliseconds.toInt()));
+            axis,
+            interval.toInt(),
+            previousInterval.toInt(),
+          );
+      return dateFormat.format(
+        DateTime.fromMillisecondsSinceEpoch(milliseconds),
+      );
     } else if (axis is RenderDateTimeAxis) {
       final num interval = axis.visibleRange!.minimum.ceil();
       final List<AxisLabel> visibleLabels = axis.visibleLabels;
-      final num previousInterval = visibleLabels.isNotEmpty
-          ? visibleLabels[visibleLabels.length - 1].value
-          : interval;
-      final DateFormat dateFormat = axis.dateFormat ??
+      final num previousInterval =
+          visibleLabels.isNotEmpty
+              ? visibleLabels[visibleLabels.length - 1].value
+              : interval;
+      final DateFormat dateFormat =
+          axis.dateFormat ??
           dateTimeAxisLabelFormat(
-              axis, interval.toInt(), previousInterval.toInt());
-      return dateFormat
-          .format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
+            axis,
+            interval.toInt(),
+            previousInterval.toInt(),
+          );
+      return dateFormat.format(
+        DateTime.fromMillisecondsSinceEpoch(value.toInt()),
+      );
     } else if (axis is RenderLogarithmicAxis) {
       return logAxisLabel(
-          axis, axis.toPow(value), axis.interactiveTooltip.decimalPlaces);
+        axis,
+        axis.toPow(value),
+        axis.interactiveTooltip.decimalPlaces,
+      );
     } else if (axis is RenderNumericAxis) {
       return numericAxisLabel(
-          axis, value, axis.interactiveTooltip.decimalPlaces);
+        axis,
+        value,
+        axis.interactiveTooltip.decimalPlaces,
+      );
     } else {
       return '';
     }
@@ -854,10 +975,13 @@ class CrosshairBehavior extends ChartBehavior {
     if (axis is RenderCategoryAxis) {
       final num index = value < 0 ? 0 : value;
       final int labelsLength = axis.labels.length;
-      final String? label = axis.labels[(index.round() >= labelsLength
-              ? (index.round() > labelsLength ? labelsLength - 1 : index - 1)
-              : index)
-          .round()];
+      final String? label =
+          axis.labels[(index.round() >= labelsLength
+                  ? (index.round() > labelsLength
+                      ? labelsLength - 1
+                      : index - 1)
+                  : index)
+              .round()];
       return axis.labels.indexOf(label);
     } else if (axis is RenderDateTimeCategoryAxis) {
       final num index = value < 0 ? 0 : value;
@@ -873,8 +997,12 @@ class CrosshairBehavior extends ChartBehavior {
 
   /// Override this method to customize the crosshair tooltips & line rendering.
   @override
-  void onPaint(PaintingContext context, Offset offset,
-      SfChartThemeData chartThemeData, ThemeData themeData) {
+  void onPaint(
+    PaintingContext context,
+    Offset offset,
+    SfChartThemeData chartThemeData,
+    ThemeData themeData,
+  ) {
     final RenderBehaviorArea? parent = parentBox as RenderBehaviorArea?;
     if (_position == null || parent == null) {
       return;
@@ -886,8 +1014,12 @@ class CrosshairBehavior extends ChartBehavior {
     }
   }
 
-  void _drawCrosshairLines(PaintingContext context, Offset offset,
-      RenderBehaviorArea parent, SfChartThemeData chartThemeData) {
+  void _drawCrosshairLines(
+    PaintingContext context,
+    Offset offset,
+    RenderBehaviorArea parent,
+    SfChartThemeData chartThemeData,
+  ) {
     Color crosshairLineColor =
         (lineColor ?? chartThemeData.crosshairLineColor)!;
     if (parent.onCrosshairPositionChanging != null &&
@@ -899,11 +1031,12 @@ class CrosshairBehavior extends ChartBehavior {
       crosshairLineColor = crosshairEventArgs.lineColor;
     }
 
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..color = crosshairLineColor
-      ..strokeWidth = lineWidth
-      ..style = PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..color = crosshairLineColor
+          ..strokeWidth = lineWidth
+          ..style = PaintingStyle.stroke;
 
     switch (lineType) {
       case CrosshairLineType.both:
@@ -926,8 +1059,12 @@ class CrosshairBehavior extends ChartBehavior {
 
   /// Override this method to customize the horizontal line drawing and styling.
   @protected
-  void drawHorizontalAxisLine(PaintingContext context, Offset offset,
-      List<double>? dashArray, Paint paint) {
+  void drawHorizontalAxisLine(
+    PaintingContext context,
+    Offset offset,
+    List<double>? dashArray,
+    Paint paint,
+  ) {
     if (parentBox == null) {
       return;
     }
@@ -940,8 +1077,12 @@ class CrosshairBehavior extends ChartBehavior {
 
   /// Override this method to customize the vertical line drawing and styling.
   @protected
-  void drawVerticalAxisLine(PaintingContext context, Offset offset,
-      List<double>? dashArray, Paint paint) {
+  void drawVerticalAxisLine(
+    PaintingContext context,
+    Offset offset,
+    List<double>? dashArray,
+    Paint paint,
+  ) {
     if (parentBox == null) {
       return;
     }
@@ -953,7 +1094,9 @@ class CrosshairBehavior extends ChartBehavior {
   }
 
   void _drawCrosshairTooltip(
-      PaintingContext context, RenderBehaviorArea parent) {
+    PaintingContext context,
+    RenderBehaviorArea parent,
+  ) {
     final RenderCartesianAxes? cartesianAxes = parent.cartesianAxes;
     if (cartesianAxes == null) {
       return;
@@ -965,17 +1108,22 @@ class CrosshairBehavior extends ChartBehavior {
     _drawVerticalAxisTooltip(context, cartesianAxes, themeBackgroundColor);
   }
 
-  void _drawHorizontalAxisTooltip(PaintingContext context,
-      RenderCartesianAxes cartesianAxes, Color themeBackgroundColor) {
+  void _drawHorizontalAxisTooltip(
+    PaintingContext context,
+    RenderCartesianAxes cartesianAxes,
+    Color themeBackgroundColor,
+  ) {
     if (_horizontalPaths.isNotEmpty &&
         _horizontalLabels.isNotEmpty &&
         _horizontalLabelPositions.isNotEmpty) {
-      final Paint fillPaint = Paint()
-        ..isAntiAlias = true
-        ..style = PaintingStyle.fill;
-      final Paint strokePaint = Paint()
-        ..isAntiAlias = true
-        ..style = PaintingStyle.stroke;
+      final Paint fillPaint =
+          Paint()
+            ..isAntiAlias = true
+            ..style = PaintingStyle.fill;
+      final Paint strokePaint =
+          Paint()
+            ..isAntiAlias = true
+            ..style = PaintingStyle.stroke;
 
       RenderChartAxis? child = cartesianAxes.firstChild;
       int index = 0;
@@ -993,13 +1141,14 @@ class CrosshairBehavior extends ChartBehavior {
             ..strokeWidth = interactiveTooltip.borderWidth;
 
           drawHorizontalAxisTooltip(
-              context,
-              _horizontalLabelPositions[index],
-              _horizontalLabels[index],
-              textStyle,
-              _horizontalPaths[index],
-              fillPaint,
-              strokePaint);
+            context,
+            _horizontalLabelPositions[index],
+            _horizontalLabels[index],
+            textStyle,
+            _horizontalPaths[index],
+            fillPaint,
+            strokePaint,
+          );
 
           index++;
         }
@@ -1011,17 +1160,22 @@ class CrosshairBehavior extends ChartBehavior {
     }
   }
 
-  void _drawVerticalAxisTooltip(PaintingContext context,
-      RenderCartesianAxes cartesianAxes, Color themeBackgroundColor) {
+  void _drawVerticalAxisTooltip(
+    PaintingContext context,
+    RenderCartesianAxes cartesianAxes,
+    Color themeBackgroundColor,
+  ) {
     if (_verticalPaths.isNotEmpty &&
         _verticalLabels.isNotEmpty &&
         _verticalLabelPositions.isNotEmpty) {
-      final Paint fillPaint = Paint()
-        ..isAntiAlias = true
-        ..style = PaintingStyle.fill;
-      final Paint strokePaint = Paint()
-        ..isAntiAlias = true
-        ..style = PaintingStyle.stroke;
+      final Paint fillPaint =
+          Paint()
+            ..isAntiAlias = true
+            ..style = PaintingStyle.fill;
+      final Paint strokePaint =
+          Paint()
+            ..isAntiAlias = true
+            ..style = PaintingStyle.stroke;
 
       RenderChartAxis? child = cartesianAxes.firstChild;
       int index = 0;
@@ -1039,13 +1193,14 @@ class CrosshairBehavior extends ChartBehavior {
             ..strokeWidth = interactiveTooltip.borderWidth;
 
           drawVerticalAxisTooltip(
-              context,
-              _verticalLabelPositions[index],
-              _verticalLabels[index],
-              textStyle,
-              _verticalPaths[index],
-              fillPaint,
-              strokePaint);
+            context,
+            _verticalLabelPositions[index],
+            _verticalLabels[index],
+            textStyle,
+            _verticalPaths[index],
+            fillPaint,
+            strokePaint,
+          );
 
           index++;
         }
@@ -1061,25 +1216,57 @@ class CrosshairBehavior extends ChartBehavior {
   /// and it's position.
   @protected
   void drawHorizontalAxisTooltip(
-      PaintingContext context, Offset position, String text, TextStyle style,
-      [Path? path, Paint? fillPaint, Paint? strokePaint]) {
+    PaintingContext context,
+    Offset position,
+    String text,
+    TextStyle style, [
+    Path? path,
+    Paint? fillPaint,
+    Paint? strokePaint,
+  ]) {
     _drawTooltipAndLabel(
-        context, position, text, style, path, fillPaint, strokePaint);
+      context,
+      position,
+      text,
+      style,
+      path,
+      fillPaint,
+      strokePaint,
+    );
   }
 
   /// Override this method to customize the vertical axis tooltip with styling
   /// and it's position.
   @protected
   void drawVerticalAxisTooltip(
-      PaintingContext context, Offset position, String text, TextStyle style,
-      [Path? path, Paint? fillPaint, Paint? strokePaint]) {
+    PaintingContext context,
+    Offset position,
+    String text,
+    TextStyle style, [
+    Path? path,
+    Paint? fillPaint,
+    Paint? strokePaint,
+  ]) {
     _drawTooltipAndLabel(
-        context, position, text, style, path, fillPaint, strokePaint);
+      context,
+      position,
+      text,
+      style,
+      path,
+      fillPaint,
+      strokePaint,
+    );
   }
 
   void _drawTooltipAndLabel(
-      PaintingContext context, Offset position, String text, TextStyle style,
-      [Path? path, Paint? fillPaint, Paint? strokePaint]) {
+    PaintingContext context,
+    Offset position,
+    String text,
+    TextStyle style, [
+    Path? path,
+    Paint? fillPaint,
+    Paint? strokePaint,
+  ]) {
     if (text.isEmpty) {
       return;
     }
@@ -1092,10 +1279,11 @@ class CrosshairBehavior extends ChartBehavior {
 
     // Draw label.
     final TextPainter textPainter = TextPainter(
-        text: TextSpan(text: text, style: style),
-        textAlign: TextAlign.center,
-        maxLines: getMaxLinesContent(text),
-        textDirection: TextDirection.rtl);
+      text: TextSpan(text: text, style: style),
+      textAlign: TextAlign.center,
+      maxLines: getMaxLinesContent(text),
+      textDirection: TextDirection.ltr,
+    );
     textPainter
       ..layout()
       ..paint(context.canvas, position);

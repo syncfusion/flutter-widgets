@@ -5,7 +5,7 @@ enum TreeTableNodeColor {
   red,
 
   /// TreeTableNodeColoe.black, will represented the Black color.
-  black
+  black,
 }
 
 /// Type of scroll axis regions
@@ -22,7 +22,7 @@ enum ScrollAxisRegion {
 
   /// - ScrollAxisRegion.footer Specifies the footer region
   /// (at bottom or right side).
-  footer
+  footer,
 }
 
 /// Corner side enumeration.
@@ -37,5 +37,5 @@ enum CornerSide {
   right,
 
   /// Bottom side alone.
-  bottom
+  bottom,
 }

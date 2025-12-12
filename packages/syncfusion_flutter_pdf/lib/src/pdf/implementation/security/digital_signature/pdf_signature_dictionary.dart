@@ -120,36 +120,47 @@ class PdfSignatureDictionary implements IPdfWrapper {
     if (_sig != null) {
       if (_sig!.reason != null) {
         dictionary!.setProperty(
-            PdfDictionaryProperties.reason, PdfString(_sig!.reason!));
+          PdfDictionaryProperties.reason,
+          PdfString(_sig!.reason!),
+        );
       }
       if (_sig!.locationInfo != null) {
         dictionary!.setProperty(
-            PdfDictionaryProperties.location, PdfString(_sig!.locationInfo!));
+          PdfDictionaryProperties.location,
+          PdfString(_sig!.locationInfo!),
+        );
       }
       if (_sig!.contactInfo != null) {
         dictionary!.setProperty(
-            PdfDictionaryProperties.contactInfo, PdfString(_sig!.contactInfo!));
+          PdfDictionaryProperties.contactInfo,
+          PdfString(_sig!.contactInfo!),
+        );
       }
       if (_sig!.signedName != null) {
         dictionary!.setString(PdfDictionaryProperties.name, _sig!.signedName);
         final PdfDictionary tempDictionary = PdfDictionary();
         final PdfDictionary appDictionary = PdfDictionary();
         tempDictionary.setName(
-            PdfName(PdfDictionaryProperties.name), _sig!.signedName);
+          PdfName(PdfDictionaryProperties.name),
+          _sig!.signedName,
+        );
         appDictionary.setProperty('App', PdfReferenceHolder(tempDictionary));
         dictionary!.setProperty(
-            PdfName('Prop_Build'), PdfReferenceHolder(appDictionary));
+          PdfName('Prop_Build'),
+          PdfReferenceHolder(appDictionary),
+        );
       }
     }
   }
 
   bool _allowMDP() {
     final IPdfPrimitive? perms = PdfCrossTable.dereference(
-        PdfDocumentHelper.getHelper(_doc)
-            .catalog[PdfDictionaryProperties.perms]);
+      PdfDocumentHelper.getHelper(_doc).catalog[PdfDictionaryProperties.perms],
+    );
     if (perms != null && perms is PdfDictionary) {
-      final IPdfPrimitive? docMDP =
-          PdfCrossTable.dereference(perms[PdfDictionaryProperties.docMDP]);
+      final IPdfPrimitive? docMDP = PdfCrossTable.dereference(
+        perms[PdfDictionaryProperties.docMDP],
+      );
       final IPdfPrimitive dicSig = dictionary!;
       return dicSig == docMDP;
     }
@@ -162,8 +173,10 @@ class PdfSignatureDictionary implements IPdfWrapper {
     final PdfArray array = PdfArray();
     trans[PdfDictionaryProperties.v] = PdfName('1.2');
     trans[PdfDictionaryProperties.p] = PdfNumber(
-        PdfSignatureHelper.getHelper(_sig!)
-            .getCertificateFlagResult(_sig!.documentPermissions));
+      PdfSignatureHelper.getHelper(
+        _sig!,
+      ).getCertificateFlagResult(_sig!.documentPermissions),
+    );
     trans[PdfDictionaryProperties.type] = PdfName(_transParam);
     reference[PdfDictionaryProperties.transformMethod] = PdfName(_docMdp);
     reference[PdfDictionaryProperties.type] = PdfName('SigRef');
@@ -174,8 +187,10 @@ class PdfSignatureDictionary implements IPdfWrapper {
 
   void _addType() {
     if (_sig != null && _sig!.timestampServer != null && _cert == null) {
-      dictionary!
-          .setName(PdfName(PdfDictionaryProperties.type), 'DocTimeStamp');
+      dictionary!.setName(
+        PdfName(PdfDictionaryProperties.type),
+        'DocTimeStamp',
+      );
     } else {
       dictionary!.setName(PdfName(PdfDictionaryProperties.type), 'Sig');
     }
@@ -198,33 +213,42 @@ class PdfSignatureDictionary implements IPdfWrapper {
       offsetHours = '0$offsetHours';
     }
     dictionary!.setProperty(
-        PdfDictionaryProperties.m,
-        PdfString(
-            "D:${dateFormat.format(dateTime)}+$offsetHours'$offsetMinutes'"));
+      PdfDictionaryProperties.m,
+      PdfString(
+        "D:${dateFormat.format(dateTime)}+$offsetHours'$offsetMinutes'",
+      ),
+    );
   }
 
   void _addFilter() {
-    dictionary!
-        .setName(PdfName(PdfDictionaryProperties.filter), 'Adobe.PPKLite');
+    dictionary!.setName(
+      PdfName(PdfDictionaryProperties.filter),
+      'Adobe.PPKLite',
+    );
   }
 
   void _addSubFilter() {
     if (_sig != null && _sig!.timestampServer != null && _cert == null) {
-      dictionary!
-          .setName(PdfName(PdfDictionaryProperties.subFilter), _rfcFilterType);
+      dictionary!.setName(
+        PdfName(PdfDictionaryProperties.subFilter),
+        _rfcFilterType,
+      );
     } else {
       dictionary!.setName(
-          PdfName(PdfDictionaryProperties.subFilter),
-          _sig!.cryptographicStandard == CryptographicStandard.cades
-              ? _cadasFilterType
-              : _cmsFilterType);
+        PdfName(PdfDictionaryProperties.subFilter),
+        _sig!.cryptographicStandard == CryptographicStandard.cades
+            ? _cadasFilterType
+            : _cmsFilterType,
+      );
     }
   }
 
   void _addContents(IPdfWriter writer) {
-    writer.write(PdfOperators.slash +
-        PdfDictionaryProperties.contents +
-        PdfOperators.whiteSpace);
+    writer.write(
+      PdfOperators.slash +
+          PdfDictionaryProperties.contents +
+          PdfOperators.whiteSpace,
+    );
     _firstRangeLength = writer.position;
     int length = _estimatedSize * 2;
     if (_sig != null && _cert != null) {
@@ -233,18 +257,23 @@ class PdfSignatureDictionary implements IPdfWrapper {
         length += 4192;
       }
     }
-    final List<int> contents =
-        List<int>.filled(length * 2 + 2, 0, growable: true);
+    final List<int> contents = List<int>.filled(
+      length * 2 + 2,
+      0,
+      growable: true,
+    );
     writer.write(contents);
     _secondRangeIndex = writer.position;
     writer.write(PdfOperators.newLine);
   }
 
   void _addRange(IPdfWriter writer) {
-    writer.write(PdfOperators.slash +
-        PdfDictionaryProperties.byteRange +
-        PdfOperators.whiteSpace +
-        PdfArray.startMark);
+    writer.write(
+      PdfOperators.slash +
+          PdfDictionaryProperties.byteRange +
+          PdfOperators.whiteSpace +
+          PdfArray.startMark,
+    );
     _startPositionByteRange = writer.position;
     for (int i = 0; i < 32; i++) {
       writer.write(PdfOperators.whiteSpace);
@@ -263,8 +292,10 @@ class PdfSignatureDictionary implements IPdfWrapper {
       PdfDictionary trans = PdfDictionary();
       trans[PdfDictionaryProperties.v] = PdfName('1.2');
       trans[PdfDictionaryProperties.p] = PdfNumber(
-          PdfSignatureHelper.getHelper(_sig!)
-              .getCertificateFlagResult(_sig!.documentPermissions));
+        PdfSignatureHelper.getHelper(
+          _sig!,
+        ).getCertificateFlagResult(_sig!.documentPermissions),
+      );
       trans[PdfDictionaryProperties.type] = PdfName(_transParam);
       writer.write(trans);
       writer.write(PdfName(PdfDictionaryProperties.transformMethod));
@@ -274,8 +305,9 @@ class PdfSignatureDictionary implements IPdfWrapper {
       writer.write(PdfName('DigestValue'));
       int position = writer.position!;
       // _docDigestPosition = position;
-      writer
-          .write(PdfString.fromBytes(List<int>.filled(16, 0, growable: true)));
+      writer.write(
+        PdfString.fromBytes(List<int>.filled(16, 0, growable: true)),
+      );
       PdfArray digestLocation = PdfArray();
       digestLocation.add(PdfNumber(position));
       digestLocation.add(PdfNumber(34));
@@ -305,8 +337,9 @@ class PdfSignatureDictionary implements IPdfWrapper {
       writer.write(PdfName('DigestValue'));
       position = writer.position!;
       // _fieldsDigestPosition = position;
-      writer
-          .write(PdfString.fromBytes(List<int>.filled(16, 0, growable: true)));
+      writer.write(
+        PdfString.fromBytes(List<int>.filled(16, 0, growable: true)),
+      );
       digestLocation = PdfArray();
       digestLocation.add(PdfNumber(position));
       digestLocation.add(PdfNumber(34));
@@ -341,16 +374,26 @@ class PdfSignatureDictionary implements IPdfWrapper {
     _stream = writer.buffer;
     final String text = PdfString.bytesToHex(getPkcs7Content()!);
     _stream!.replaceRange(
-        _firstRangeLength!, _firstRangeLength! + 1, utf8.encode('<'));
+      _firstRangeLength!,
+      _firstRangeLength! + 1,
+      utf8.encode('<'),
+    );
     final int newPos = _firstRangeLength! + 1 + text.length;
     _stream!.replaceRange(_firstRangeLength! + 1, newPos, utf8.encode(text));
     final int num3 = (_secondRangeIndex! - newPos) ~/ 2;
-    final String emptyText =
-        PdfString.bytesToHex(List<int>.generate(num3, (int i) => 0));
+    final String emptyText = PdfString.bytesToHex(
+      List<int>.generate(num3, (int i) => 0),
+    );
     _stream!.replaceRange(
-        newPos, newPos + emptyText.length, utf8.encode(emptyText));
-    _stream!.replaceRange(newPos + emptyText.length,
-        newPos + emptyText.length + 1, utf8.encode('>'));
+      newPos,
+      newPos + emptyText.length,
+      utf8.encode(emptyText),
+    );
+    _stream!.replaceRange(
+      newPos + emptyText.length,
+      newPos + emptyText.length + 1,
+      utf8.encode('>'),
+    );
     PdfSecurityHelper.getHelper(_doc.security).encryptor.encrypt = enabled;
   }
 
@@ -364,19 +407,25 @@ class PdfSignatureDictionary implements IPdfWrapper {
     final String str2 = '$_firstRangeLength ';
     final String str3 = '$_secondRangeIndex ';
     final String str4 = number.toString();
-    await _saveRangeItemAsync(writer, str, _startPositionByteRange!)
-        .then((int startPosition) async {
-      await _saveRangeItemAsync(writer, str2, startPosition)
-          .then((int startPosition) async {
-        await _saveRangeItemAsync(writer, str3, startPosition)
-            .then((int startPosition) async {
-          await _saveRangeItemAsync(e.writer! as PdfWriter, str4, startPosition)
-              .then((int startPosition) async {
+    await _saveRangeItemAsync(writer, str, _startPositionByteRange!).then((
+      int startPosition,
+    ) async {
+      await _saveRangeItemAsync(writer, str2, startPosition).then((
+        int startPosition,
+      ) async {
+        await _saveRangeItemAsync(writer, str3, startPosition).then((
+          int startPosition,
+        ) async {
+          await _saveRangeItemAsync(
+            e.writer! as PdfWriter,
+            str4,
+            startPosition,
+          ).then((int startPosition) async {
             _range = <int>[
               0,
               int.parse(str2),
               int.parse(str3),
-              int.parse(str4)
+              int.parse(str4),
             ];
             _stream = writer.buffer;
             if (_cert != null ||
@@ -384,21 +433,34 @@ class PdfSignatureDictionary implements IPdfWrapper {
                     PdfSignatureHelper.getHelper(_sig!).externalSigner !=
                         null)) {
               await getPkcs7ContentAsync().then((List<int>? value) async {
-                await PdfString.bytesToHexAsync(value!)
-                    .then((String text) async {
-                  _stream!.replaceRange(_firstRangeLength!,
-                      _firstRangeLength! + 1, utf8.encode('<'));
+                await PdfString.bytesToHexAsync(value!).then((
+                  String text,
+                ) async {
+                  _stream!.replaceRange(
+                    _firstRangeLength!,
+                    _firstRangeLength! + 1,
+                    utf8.encode('<'),
+                  );
                   final int newPos = _firstRangeLength! + 1 + text.length;
                   _stream!.replaceRange(
-                      _firstRangeLength! + 1, newPos, utf8.encode(text));
+                    _firstRangeLength! + 1,
+                    newPos,
+                    utf8.encode(text),
+                  );
                   final int num3 = (_secondRangeIndex! - newPos) ~/ 2;
                   await PdfString.bytesToHexAsync(
-                          List<int>.generate(num3, (int i) => 0))
-                      .then((String emptyText) async {
-                    _stream!.replaceRange(newPos, newPos + emptyText.length,
-                        utf8.encode(emptyText));
-                    _stream!.replaceRange(newPos + emptyText.length,
-                        newPos + emptyText.length + 1, utf8.encode('>'));
+                    List<int>.generate(num3, (int i) => 0),
+                  ).then((String emptyText) async {
+                    _stream!.replaceRange(
+                      newPos,
+                      newPos + emptyText.length,
+                      utf8.encode(emptyText),
+                    );
+                    _stream!.replaceRange(
+                      newPos + emptyText.length,
+                      newPos + emptyText.length + 1,
+                      utf8.encode('>'),
+                    );
                     PdfSecurityHelper.getHelper(_doc.security)
                         .encryptor
                         .encrypt = enabled;
@@ -407,21 +469,34 @@ class PdfSignatureDictionary implements IPdfWrapper {
               });
             } else if (_sig != null && _sig!.timestampServer != null) {
               await _getPKCS7TimeStampContent().then((List<int>? value) async {
-                await PdfString.bytesToHexAsync(value!)
-                    .then((String text) async {
-                  _stream!.replaceRange(_firstRangeLength!,
-                      _firstRangeLength! + 1, utf8.encode('<'));
+                await PdfString.bytesToHexAsync(value!).then((
+                  String text,
+                ) async {
+                  _stream!.replaceRange(
+                    _firstRangeLength!,
+                    _firstRangeLength! + 1,
+                    utf8.encode('<'),
+                  );
                   final int newPos = _firstRangeLength! + 1 + text.length;
                   _stream!.replaceRange(
-                      _firstRangeLength! + 1, newPos, utf8.encode(text));
+                    _firstRangeLength! + 1,
+                    newPos,
+                    utf8.encode(text),
+                  );
                   final int num3 = (_secondRangeIndex! - newPos) ~/ 2;
                   await PdfString.bytesToHexAsync(
-                          List<int>.generate(num3, (int i) => 0))
-                      .then((String emptyText) async {
-                    _stream!.replaceRange(newPos, newPos + emptyText.length,
-                        utf8.encode(emptyText));
-                    _stream!.replaceRange(newPos + emptyText.length,
-                        newPos + emptyText.length + 1, utf8.encode('>'));
+                    List<int>.generate(num3, (int i) => 0),
+                  ).then((String emptyText) async {
+                    _stream!.replaceRange(
+                      newPos,
+                      newPos + emptyText.length,
+                      utf8.encode(emptyText),
+                    );
+                    _stream!.replaceRange(
+                      newPos + emptyText.length,
+                      newPos + emptyText.length + 1,
+                      utf8.encode('>'),
+                    );
                     PdfSecurityHelper.getHelper(_doc.security)
                         .encryptor
                         .encrypt = enabled;
@@ -437,7 +512,7 @@ class PdfSignatureDictionary implements IPdfWrapper {
 
   /// internal method
   List<int>? getPkcs7Content() {
-    String? hasalgorithm = '';
+    String? hashAlgorithm = '';
     _SignaturePrivateKey externalSignature;
     List<List<int>>? crlBytes;
     List<int>? ocspByte;
@@ -449,57 +524,70 @@ class PdfSignatureDictionary implements IPdfWrapper {
       chain = PdfSignatureHelper.getHelper(_sig!).externalChain;
       final String digest = getDigestAlgorithm(externalSigner.hashAlgorithm);
       final _SignaturePrivateKey pks = _SignaturePrivateKey(digest);
-      hasalgorithm = pks.getHashAlgorithm();
+      hashAlgorithm = pks.getHashAlgorithm();
       externalSignature = pks;
     } else {
       String certificateAlias = '';
-      final List<String> keys = PdfCertificateHelper.getPkcsCertificate(_cert!)
-          .getContentTable()
-          .keys
-          .toList();
+      final List<String> keys =
+          PdfCertificateHelper.getPkcsCertificate(
+            _cert!,
+          ).getContentTable().keys.toList();
       bool isContinue = true;
       // ignore: avoid_function_literals_in_foreach_calls
       keys.forEach((String key) {
         if (isContinue &&
             PdfCertificateHelper.getPkcsCertificate(_cert!).isKey(key) &&
-            PdfCertificateHelper.getPkcsCertificate(_cert!)
-                .getKey(key)!
-                .key!
-                .isPrivate!) {
+            PdfCertificateHelper.getPkcsCertificate(
+              _cert!,
+            ).getKey(key)!.key!.isPrivate!) {
           certificateAlias = key;
           isContinue = false;
         }
       });
-      final KeyEntry pk = PdfCertificateHelper.getPkcsCertificate(_cert!)
-          .getKey(certificateAlias)!;
+      final KeyEntry pk =
+          PdfCertificateHelper.getPkcsCertificate(
+            _cert!,
+          ).getKey(certificateAlias)!;
       final List<X509Certificates> certificates =
-          PdfCertificateHelper.getPkcsCertificate(_cert!)
-              .getCertificateChain(certificateAlias)!;
+          PdfCertificateHelper.getPkcsCertificate(
+            _cert!,
+          ).getCertificateChain(certificateAlias)!;
       // ignore: avoid_function_literals_in_foreach_calls
       certificates.forEach((X509Certificates c) {
         chain!.add(c.certificate);
       });
       final RsaPrivateKeyParam? parameters = pk.key as RsaPrivateKeyParam?;
-      final String digest = _sig != null
-          ? getDigestAlgorithm(_sig!.digestAlgorithm)
-          : MessageDigestAlgorithms.secureHash256;
+      final String digest =
+          _sig != null
+              ? getDigestAlgorithm(_sig!.digestAlgorithm)
+              : MessageDigestAlgorithms.secureHash256;
       final _SignaturePrivateKey pks = _SignaturePrivateKey(digest, parameters);
-      hasalgorithm = pks.getHashAlgorithm();
+      hashAlgorithm = pks.getHashAlgorithm();
       externalSignature = pks;
     }
-    final _PdfCmsSigner pkcs7 =
-        _PdfCmsSigner(null, chain, hasalgorithm!, false);
+    final _PdfCmsSigner pkcs7 = _PdfCmsSigner(
+      null,
+      chain,
+      hashAlgorithm!,
+      false,
+    );
     final IRandom source = getUnderlyingSource();
-    final List<IRandom?> sources =
-        List<IRandom?>.generate(_range.length ~/ 2, (int i) => null);
+    final List<IRandom?> sources = List<IRandom?>.generate(
+      _range.length ~/ 2,
+      (int i) => null,
+    );
     for (int j = 0; j < _range.length; j += 2) {
       sources[j ~/ 2] = _WindowRandom(source, _range[j], _range[j + 1]);
     }
     final PdfStreamReader data = _RandomStream(_RandomGroup(sources));
-    final List<int> hash = pkcs7._digestAlgorithm.digest(data, hasalgorithm)!;
+    final List<int> hash = pkcs7._digestAlgorithm.digest(data, hashAlgorithm)!;
     final List<int>? sh = pkcs7
         .getSequenceDataSet(
-            hash, ocspByte, crlBytes, _sig!.cryptographicStandard)
+          hash,
+          ocspByte,
+          crlBytes,
+          _sig!.cryptographicStandard,
+        )
         .getEncoded(Asn1.der);
     List<int>? extSignature;
     if (externalSigner != null) {
@@ -509,7 +597,10 @@ class PdfSignatureDictionary implements IPdfWrapper {
       }
       if (extSignature != null) {
         pkcs7.setSignedData(
-            extSignature, null, externalSignature.getEncryptionAlgorithm());
+          extSignature,
+          null,
+          externalSignature.getEncryptionAlgorithm(),
+        );
       } else {
         return List<int>.filled(_estimatedSize, 0, growable: true);
       }
@@ -517,15 +608,25 @@ class PdfSignatureDictionary implements IPdfWrapper {
       extSignature = externalSignature.sign(sh!);
     }
     pkcs7.setSignedData(
-        extSignature!, null, externalSignature.getEncryptionAlgorithm());
-    return pkcs7.sign(hash, _sig!.timestampServer, null, ocspByte, crlBytes,
-        _sig!.cryptographicStandard, hasalgorithm);
+      extSignature!,
+      null,
+      externalSignature.getEncryptionAlgorithm(),
+    );
+    return pkcs7.sign(
+      hash,
+      _sig!.timestampServer,
+      null,
+      ocspByte,
+      crlBytes,
+      _sig!.cryptographicStandard,
+      hashAlgorithm,
+    );
   }
 
   /// internal method
   Future<List<int>?> getPkcs7ContentAsync() async {
     List<int>? pkcs7Content;
-    String? hasalgorithm = '';
+    String? hashAlgorithm = '';
     _SignaturePrivateKey? externalSignature;
     List<List<int>>? crlBytes;
     List<int>? ocspByte;
@@ -537,113 +638,147 @@ class PdfSignatureDictionary implements IPdfWrapper {
       chain = PdfSignatureHelper.getHelper(_sig!).externalChain;
       final String digest = getDigestAlgorithm(externalSigner.hashAlgorithm);
       final _SignaturePrivateKey pks = _SignaturePrivateKey(digest);
-      hasalgorithm = pks.getHashAlgorithm();
+      hashAlgorithm = pks.getHashAlgorithm();
       externalSignature = pks;
     } else {
       String certificateAlias = '';
-      await PdfCertificateHelper.getPkcsCertificate(_cert!)
-          .getContentTableAsync()
-          .then((Map<String, String> contentTable) async {
+      await PdfCertificateHelper.getPkcsCertificate(
+        _cert!,
+      ).getContentTableAsync().then((Map<String, String> contentTable) async {
         final List<String> keys = contentTable.keys.toList();
         bool isContinue = true;
         // ignore: avoid_function_literals_in_foreach_calls
         keys.forEach((String key) {
           if (isContinue &&
               PdfCertificateHelper.getPkcsCertificate(_cert!).isKey(key) &&
-              PdfCertificateHelper.getPkcsCertificate(_cert!)
-                  .getKey(key)!
-                  .key!
-                  .isPrivate!) {
+              PdfCertificateHelper.getPkcsCertificate(
+                _cert!,
+              ).getKey(key)!.key!.isPrivate!) {
             certificateAlias = key;
             isContinue = false;
           }
         });
-        final KeyEntry pk = PdfCertificateHelper.getPkcsCertificate(_cert!)
-            .getKey(certificateAlias)!;
-        await PdfCertificateHelper.getPkcsCertificate(_cert!)
-            .getCertificateChainAsync(certificateAlias)
-            .then((List<X509Certificates>? certificates) {
+        final KeyEntry pk =
+            PdfCertificateHelper.getPkcsCertificate(
+              _cert!,
+            ).getKey(certificateAlias)!;
+        await PdfCertificateHelper.getPkcsCertificate(
+          _cert!,
+        ).getCertificateChainAsync(certificateAlias).then((
+          List<X509Certificates>? certificates,
+        ) {
           // ignore: avoid_function_literals_in_foreach_calls
           certificates!.forEach((X509Certificates c) {
             chain!.add(c.certificate);
           });
           final RsaPrivateKeyParam? parameters = pk.key as RsaPrivateKeyParam?;
-          final String digest = _sig != null
-              ? getDigestAlgorithm(_sig!.digestAlgorithm)
-              : MessageDigestAlgorithms.secureHash256;
-          final _SignaturePrivateKey pks =
-              _SignaturePrivateKey(digest, parameters);
-          hasalgorithm = pks.getHashAlgorithm();
+          final String digest =
+              _sig != null
+                  ? getDigestAlgorithm(_sig!.digestAlgorithm)
+                  : MessageDigestAlgorithms.secureHash256;
+          final _SignaturePrivateKey pks = _SignaturePrivateKey(
+            digest,
+            parameters,
+          );
+          hashAlgorithm = pks.getHashAlgorithm();
           externalSignature = pks;
         });
       });
     }
-    final _PdfCmsSigner pkcs7 =
-        _PdfCmsSigner(null, chain, hasalgorithm!, false);
+    final _PdfCmsSigner pkcs7 = _PdfCmsSigner(
+      null,
+      chain,
+      hashAlgorithm!,
+      false,
+    );
     final IRandom source = getUnderlyingSource();
-    final List<IRandom?> sources =
-        List<IRandom?>.generate(_range.length ~/ 2, (int i) => null);
+    final List<IRandom?> sources = List<IRandom?>.generate(
+      _range.length ~/ 2,
+      (int i) => null,
+    );
     for (int j = 0; j < _range.length; j += 2) {
       sources[j ~/ 2] = _WindowRandom(source, _range[j], _range[j + 1]);
     }
     final PdfStreamReader data = _RandomStream(_RandomGroup(sources));
-    await pkcs7._digestAlgorithm
-        .digestAsync(data, hasalgorithm)
-        .then((List<int>? hash) async {
+    await pkcs7._digestAlgorithm.digestAsync(data, hashAlgorithm).then((
+      List<int>? hash,
+    ) async {
       await pkcs7
           .getSequenceDataSetAsync(
-              hash!, ocspByte, crlBytes, _sig!.cryptographicStandard)
+            hash!,
+            ocspByte,
+            crlBytes,
+            _sig!.cryptographicStandard,
+          )
           .then((DerSet derSet) async {
-        await derSet.getEncodedAsync(Asn1.der).then((List<int>? sh) async {
-          List<int>? extSignature;
-          if (externalSigner != null) {
-            await externalSigner
-                .sign(sh!)
-                .then((SignerResult? signerResult) async {
-              signerResult ??= externalSigner.signSync(sh);
-              if (signerResult != null && signerResult.signedData.isNotEmpty) {
-                extSignature = signerResult.signedData;
-              }
-              if (extSignature != null) {
-                await pkcs7.setSignedDataAsync(extSignature!, null,
-                    externalSignature!.getEncryptionAlgorithm());
+            await derSet.getEncodedAsync(Asn1.der).then((List<int>? sh) async {
+              List<int>? extSignature;
+              if (externalSigner != null) {
+                await externalSigner.sign(sh!).then((
+                  SignerResult? signerResult,
+                ) async {
+                  signerResult ??= externalSigner.signSync(sh);
+                  if (signerResult != null &&
+                      signerResult.signedData.isNotEmpty) {
+                    extSignature = signerResult.signedData;
+                  }
+                  if (extSignature != null) {
+                    await pkcs7.setSignedDataAsync(
+                      extSignature!,
+                      null,
+                      externalSignature!.getEncryptionAlgorithm(),
+                    );
+                  } else {
+                    pkcs7Content = List<int>.filled(
+                      _estimatedSize,
+                      0,
+                      growable: true,
+                    );
+                  }
+                });
               } else {
-                pkcs7Content =
-                    List<int>.filled(_estimatedSize, 0, growable: true);
+                await externalSignature!
+                    .signAsync(sh!)
+                    .then((List<int>? value) => extSignature = value);
+              }
+              if (pkcs7Content == null) {
+                await pkcs7.setSignedDataAsync(
+                  extSignature!,
+                  null,
+                  externalSignature!.getEncryptionAlgorithm(),
+                );
+                pkcs7Content = await pkcs7.signAsync(
+                  hash,
+                  _sig!.timestampServer,
+                  null,
+                  ocspByte,
+                  crlBytes,
+                  _sig!.cryptographicStandard,
+                  hashAlgorithm,
+                );
               }
             });
-          } else {
-            await externalSignature!
-                .signAsync(sh!)
-                .then((List<int>? value) => extSignature = value);
-          }
-          if (pkcs7Content == null) {
-            await pkcs7.setSignedDataAsync(extSignature!, null,
-                externalSignature!.getEncryptionAlgorithm());
-            pkcs7Content = await pkcs7.signAsync(
-                hash,
-                _sig!.timestampServer,
-                null,
-                ocspByte,
-                crlBytes,
-                _sig!.cryptographicStandard,
-                hasalgorithm);
-          }
-        });
-      });
+          });
     });
     return pkcs7Content;
   }
 
   Future<List<int>?> _getPKCS7TimeStampContent() async {
-    final _SignaturePrivateKey externalSignature =
-        _SignaturePrivateKey(MessageDigestAlgorithms.secureHash256);
+    final _SignaturePrivateKey externalSignature = _SignaturePrivateKey(
+      MessageDigestAlgorithms.secureHash256,
+    );
     final String? hashAlgorithm = externalSignature.getHashAlgorithm();
-    final _PdfCmsSigner pkcs7 =
-        _PdfCmsSigner(null, null, hashAlgorithm!, false);
+    final _PdfCmsSigner pkcs7 = _PdfCmsSigner(
+      null,
+      null,
+      hashAlgorithm!,
+      false,
+    );
     final IRandom source = getUnderlyingSource();
-    final List<IRandom?> sources =
-        List<IRandom?>.filled(_range.length ~/ 2, null);
+    final List<IRandom?> sources = List<IRandom?>.filled(
+      _range.length ~/ 2,
+      null,
+    );
     for (int j = 0; j < _range.length; j += 2) {
       sources[j ~/ 2] = _WindowRandom(source, _range[j], _range[j + 1]);
     }
@@ -652,7 +787,10 @@ class PdfSignatureDictionary implements IPdfWrapper {
     final List<int>? hash = alg.digest(data, hashAlgorithm);
     if (hash != null) {
       pkcs7.setSignedData(
-          hash, null, externalSignature.getEncryptionAlgorithm());
+        hash,
+        null,
+        externalSignature.getEncryptionAlgorithm(),
+      );
       return pkcs7.getEncodedTimestamp(hash, _sig!.timestampServer!);
     }
     return null;
@@ -686,16 +824,25 @@ class PdfSignatureDictionary implements IPdfWrapper {
 
   int _saveRangeItem(PdfWriter writer, String str, int startPosition) {
     final List<int> date = utf8.encode(str);
-    writer.buffer!
-        .replaceRange(startPosition, startPosition + date.length, date);
+    writer.buffer!.replaceRange(
+      startPosition,
+      startPosition + date.length,
+      date,
+    );
     return startPosition + str.length;
   }
 
   Future<int> _saveRangeItemAsync(
-      PdfWriter writer, String str, int startPosition) async {
+    PdfWriter writer,
+    String str,
+    int startPosition,
+  ) async {
     final List<int> date = utf8.encode(str);
-    writer.buffer!
-        .replaceRange(startPosition, startPosition + date.length, date);
+    writer.buffer!.replaceRange(
+      startPosition,
+      startPosition + date.length,
+      date,
+    );
     return startPosition + str.length;
   }
 
@@ -832,7 +979,10 @@ class MessageDigestAlgorithms {
       result = md5;
     } else {
       throw ArgumentError.value(
-          hashAlgorithm, 'hashAlgorithm', 'Invalid message digest algorithm');
+        hashAlgorithm,
+        'hashAlgorithm',
+        'Invalid message digest algorithm',
+      );
     }
     return result;
   }
@@ -862,7 +1012,10 @@ class MessageDigestAlgorithms {
       result = md5;
     } else {
       throw ArgumentError.value(
-          hashAlgorithm, 'hashAlgorithm', 'Invalid message digest algorithm');
+        hashAlgorithm,
+        'hashAlgorithm',
+        'Invalid message digest algorithm',
+      );
     }
     return result;
   }
@@ -888,11 +1041,14 @@ class MessageDigestAlgorithms {
 
   /// internal method
   Future<List<int>?> digestAsync(
-      PdfStreamReader data, dynamic hashAlgorithm) async {
+    PdfStreamReader data,
+    dynamic hashAlgorithm,
+  ) async {
     dynamic algorithm;
-    algorithm = hashAlgorithm is String
-        ? await getMessageDigestAsync(hashAlgorithm)
-        : hashAlgorithm;
+    algorithm =
+        hashAlgorithm is String
+            ? await getMessageDigestAsync(hashAlgorithm)
+            : hashAlgorithm;
     final dynamic output = AccumulatorSink<Digest>();
     final dynamic input = algorithm.startChunkedConversion(output);
     int? count;
@@ -1064,13 +1220,20 @@ class SignerUtilities {
 }
 
 class _PdfCmsSigner {
-  _PdfCmsSigner(ICipherParameter? privateKey, List<X509Certificate?>? certChain,
-      String hashAlgorithm, bool hasRSAdata) {
+  _PdfCmsSigner(
+    ICipherParameter? privateKey,
+    List<X509Certificate?>? certChain,
+    String hashAlgorithm,
+    bool hasRSAdata,
+  ) {
     _digestAlgorithm = MessageDigestAlgorithms();
     _digestAlgorithmOid = _digestAlgorithm.getAllowedDigests(hashAlgorithm);
     if (_digestAlgorithmOid == null) {
       throw ArgumentError.value(
-          hashAlgorithm, 'hashAlgorithm', 'Unknown Hash Algorithm');
+        hashAlgorithm,
+        'hashAlgorithm',
+        'Unknown Hash Algorithm',
+      );
     }
     _version = 1;
     _signerVersion = 1;
@@ -1078,7 +1241,9 @@ class _PdfCmsSigner {
     _digestOid[_digestAlgorithmOid] = null;
     if (certChain != null) {
       _certificates = List<X509Certificate?>.generate(
-          certChain.length, (int i) => certChain[i]);
+        certChain.length,
+        (int i) => certChain[i],
+      );
       _signCert = _certificates[0];
     }
     if (privateKey != null) {
@@ -1086,7 +1251,10 @@ class _PdfCmsSigner {
         _encryptionAlgorithmOid = _DigitalIdentifiers.rsa;
       } else {
         throw ArgumentError.value(
-            privateKey, 'privateKey', 'Unknown key algorithm');
+          privateKey,
+          'privateKey',
+          'Unknown key algorithm',
+        );
       }
     }
     if (hasRSAdata) {
@@ -1116,13 +1284,18 @@ class _PdfCmsSigner {
   }
 
   //Implementation
-  DerSet getSequenceDataSet(List<int> secondDigest, List<int>? ocsp,
-      List<List<int>>? crlBytes, CryptographicStandard? sigtype) {
+  DerSet getSequenceDataSet(
+    List<int> secondDigest,
+    List<int>? ocsp,
+    List<List<int>>? crlBytes,
+    CryptographicStandard? sigtype,
+  ) {
     final Asn1EncodeCollection attribute = Asn1EncodeCollection();
     Asn1EncodeCollection v = Asn1EncodeCollection();
     v.encodableObjects.add(DerObjectID(_DigitalIdentifiers.contentType));
-    v.encodableObjects.add(DerSet(
-        array: <Asn1Encode>[DerObjectID(_DigitalIdentifiers.pkcs7Data)]));
+    v.encodableObjects.add(
+      DerSet(array: <Asn1Encode>[DerObjectID(_DigitalIdentifiers.pkcs7Data)]),
+    );
     attribute.encodableObjects.add(DerSequence(collection: v));
     v = Asn1EncodeCollection();
     v.encodableObjects.add(DerObjectID(_DigitalIdentifiers.messageDigest));
@@ -1130,24 +1303,33 @@ class _PdfCmsSigner {
     attribute.encodableObjects.add(DerSequence(collection: v));
     if (sigtype == CryptographicStandard.cades) {
       v = Asn1EncodeCollection();
-      v.encodableObjects
-          .add(DerObjectID(_DigitalIdentifiers.aaSigningCertificateV2));
+      v.encodableObjects.add(
+        DerObjectID(_DigitalIdentifiers.aaSigningCertificateV2),
+      );
       final Asn1EncodeCollection aaV2 = Asn1EncodeCollection();
       final MessageDigestAlgorithms alg = MessageDigestAlgorithms();
-      final String? sha256Oid =
-          alg.getAllowedDigests(MessageDigestAlgorithms.secureHash256);
+      final String? sha256Oid = alg.getAllowedDigests(
+        MessageDigestAlgorithms.secureHash256,
+      );
       if (sha256Oid != _digestAlgorithmOid) {
         aaV2.encodableObjects.add(Algorithms(DerObjectID(_digestAlgorithmOid)));
       }
-      final List<int> dig = alg
-          .getMessageDigest(hashAlgorithm!)
-          .convert(_signCert!.c!.getEncoded(Asn1.der))
-          .bytes as List<int>;
+      final List<int> dig =
+          alg
+                  .getMessageDigest(hashAlgorithm!)
+                  .convert(_signCert!.c!.getEncoded(Asn1.der))
+                  .bytes
+              as List<int>;
       aaV2.encodableObjects.add(DerOctet(dig));
-      v.encodableObjects.add(DerSet(array: <Asn1Encode>[
-        DerSequence.fromObject(
-            DerSequence.fromObject(DerSequence(collection: aaV2)))
-      ]));
+      v.encodableObjects.add(
+        DerSet(
+          array: <Asn1Encode>[
+            DerSequence.fromObject(
+              DerSequence.fromObject(DerSequence(collection: aaV2)),
+            ),
+          ],
+        ),
+      );
       attribute.encodableObjects.add(DerSequence(collection: v));
     }
     return DerSet(collection: attribute);
@@ -1155,15 +1337,17 @@ class _PdfCmsSigner {
 
   //Implementation
   Future<DerSet> getSequenceDataSetAsync(
-      List<int> secondDigest,
-      List<int>? ocsp,
-      List<List<int>>? crlBytes,
-      CryptographicStandard? sigtype) async {
+    List<int> secondDigest,
+    List<int>? ocsp,
+    List<List<int>>? crlBytes,
+    CryptographicStandard? sigtype,
+  ) async {
     final Asn1EncodeCollection attribute = Asn1EncodeCollection();
     Asn1EncodeCollection v = Asn1EncodeCollection();
     v.encodableObjects.add(DerObjectID(_DigitalIdentifiers.contentType));
-    v.encodableObjects.add(DerSet(
-        array: <Asn1Encode>[DerObjectID(_DigitalIdentifiers.pkcs7Data)]));
+    v.encodableObjects.add(
+      DerSet(array: <Asn1Encode>[DerObjectID(_DigitalIdentifiers.pkcs7Data)]),
+    );
     attribute.encodableObjects.add(DerSequence(collection: v));
     v = Asn1EncodeCollection();
     v.encodableObjects.add(DerObjectID(_DigitalIdentifiers.messageDigest));
@@ -1171,34 +1355,49 @@ class _PdfCmsSigner {
     attribute.encodableObjects.add(DerSequence(collection: v));
     if (sigtype == CryptographicStandard.cades) {
       v = Asn1EncodeCollection();
-      v.encodableObjects
-          .add(DerObjectID(_DigitalIdentifiers.aaSigningCertificateV2));
+      v.encodableObjects.add(
+        DerObjectID(_DigitalIdentifiers.aaSigningCertificateV2),
+      );
       final Asn1EncodeCollection aaV2 = Asn1EncodeCollection();
       final MessageDigestAlgorithms alg = MessageDigestAlgorithms();
       await alg
           .getAllowedDigestsAsync(MessageDigestAlgorithms.secureHash256)
           .then((String? sha256Oid) async {
-        if (sha256Oid != _digestAlgorithmOid) {
-          aaV2.encodableObjects
-              .add(Algorithms(DerObjectID(_digestAlgorithmOid)));
-        }
-        await alg.getMessageDigestAsync(hashAlgorithm!).then((dynamic value) {
-          aaV2.encodableObjects.add(DerOctet(value
-              .convert(_signCert!.c!.getEncoded(Asn1.der))
-              .bytes as List<int>));
-          v.encodableObjects.add(DerSet(array: <Asn1Encode>[
-            DerSequence.fromObject(
-                DerSequence.fromObject(DerSequence(collection: aaV2)))
-          ]));
-          attribute.encodableObjects.add(DerSequence(collection: v));
-        });
-      });
+            if (sha256Oid != _digestAlgorithmOid) {
+              aaV2.encodableObjects.add(
+                Algorithms(DerObjectID(_digestAlgorithmOid)),
+              );
+            }
+            await alg.getMessageDigestAsync(hashAlgorithm!).then((
+              dynamic value,
+            ) {
+              aaV2.encodableObjects.add(
+                DerOctet(
+                  value.convert(_signCert!.c!.getEncoded(Asn1.der)).bytes
+                      as List<int>,
+                ),
+              );
+              v.encodableObjects.add(
+                DerSet(
+                  array: <Asn1Encode>[
+                    DerSequence.fromObject(
+                      DerSequence.fromObject(DerSequence(collection: aaV2)),
+                    ),
+                  ],
+                ),
+              );
+              attribute.encodableObjects.add(DerSequence(collection: v));
+            });
+          });
     }
     return DerSet(collection: attribute);
   }
 
   void setSignedData(
-      List<int> digest, List<int>? rsaData, String? digestEncryptionAlgorithm) {
+    List<int> digest,
+    List<int>? rsaData,
+    String? digestEncryptionAlgorithm,
+  ) {
     _signedData = digest;
     _signedRsaData = rsaData;
     if (digestEncryptionAlgorithm != null) {
@@ -1210,13 +1409,19 @@ class _PdfCmsSigner {
         _encryptionAlgorithmOid = _DigitalIdentifiers.ecdsa;
       } else {
         throw ArgumentError.value(
-            digestEncryptionAlgorithm, 'algorithm', 'Invalid entry');
+          digestEncryptionAlgorithm,
+          'algorithm',
+          'Invalid entry',
+        );
       }
     }
   }
 
-  Future<void> setSignedDataAsync(List<int> digest, List<int>? rsaData,
-      String? digestEncryptionAlgorithm) async {
+  Future<void> setSignedDataAsync(
+    List<int> digest,
+    List<int>? rsaData,
+    String? digestEncryptionAlgorithm,
+  ) async {
     _signedData = digest;
     _signedRsaData = rsaData;
     if (digestEncryptionAlgorithm != null) {
@@ -1228,19 +1433,23 @@ class _PdfCmsSigner {
         _encryptionAlgorithmOid = _DigitalIdentifiers.ecdsa;
       } else {
         throw ArgumentError.value(
-            digestEncryptionAlgorithm, 'algorithm', 'Invalid entry');
+          digestEncryptionAlgorithm,
+          'algorithm',
+          'Invalid entry',
+        );
       }
     }
   }
 
   List<int>? sign(
-      List<int> secondDigest,
-      TimestampServer? server,
-      List<int>? timeStampResponse,
-      List<int>? ocsp,
-      List<List<int>>? crls,
-      CryptographicStandard? sigtype,
-      String? hashAlgorithm) {
+    List<int> secondDigest,
+    TimestampServer? server,
+    List<int>? timeStampResponse,
+    List<int>? ocsp,
+    List<List<int>>? crls,
+    CryptographicStandard? sigtype,
+    String? hashAlgorithm,
+  ) {
     if (_signedData != null) {
       _digest = _signedData;
       if (_rsaData != null) {
@@ -1267,25 +1476,29 @@ class _PdfCmsSigner {
     // ignore: avoid_function_literals_in_foreach_calls
     _certificates.forEach((X509Certificate? xcert) {
       v.encodableObjects.add(
-          Asn1Stream(PdfStreamReader(xcert!.c!.getEncoded(Asn1.der)))
-              .readAsn1());
+        Asn1Stream(PdfStreamReader(xcert!.c!.getEncoded(Asn1.der))).readAsn1(),
+      );
     });
     final DerSet dercertificates = DerSet(collection: v);
     final Asn1EncodeCollection signerinfo = Asn1EncodeCollection();
-    signerinfo.encodableObjects
-        .add(DerInteger(bigIntToBytes(BigInt.from(_signerVersion))));
+    signerinfo.encodableObjects.add(
+      DerInteger(bigIntToBytes(BigInt.from(_signerVersion))),
+    );
     v = Asn1EncodeCollection();
-    v.encodableObjects
-        .add(getIssuer(_signCert!.c!.tbsCertificate!.getEncoded(Asn1.der)));
-    v.encodableObjects
-        .add(DerInteger(bigIntToBytes(_signCert!.c!.serialNumber!.value)));
+    v.encodableObjects.add(
+      getIssuer(_signCert!.c!.tbsCertificate!.getEncoded(Asn1.der)),
+    );
+    v.encodableObjects.add(
+      DerInteger(bigIntToBytes(_signCert!.c!.serialNumber!.value)),
+    );
     signerinfo.encodableObjects.add(DerSequence(collection: v));
     v = Asn1EncodeCollection();
     v.encodableObjects.add(DerObjectID(_digestAlgorithmOid));
     v.encodableObjects.add(DerNull.value);
     signerinfo.encodableObjects.add(DerSequence(collection: v));
-    signerinfo.encodableObjects.add(DerTag(
-        0, getSequenceDataSet(secondDigest, ocsp, crls, sigtype), false));
+    signerinfo.encodableObjects.add(
+      DerTag(0, getSequenceDataSet(secondDigest, ocsp, crls, sigtype), false),
+    );
     v = Asn1EncodeCollection();
     v.encodableObjects.add(DerObjectID(_encryptionAlgorithmOid));
     v.encodableObjects.add(DerNull.value);
@@ -1296,11 +1509,13 @@ class _PdfCmsSigner {
     body.encodableObjects.add(DerSet(collection: digestAlgorithms));
     body.encodableObjects.add(contentinfo);
     body.encodableObjects.add(DerTag(0, dercertificates, false));
-    body.encodableObjects
-        .add(DerSet(array: <Asn1Encode>[DerSequence(collection: signerinfo)]));
+    body.encodableObjects.add(
+      DerSet(array: <Asn1Encode>[DerSequence(collection: signerinfo)]),
+    );
     final Asn1EncodeCollection whole = Asn1EncodeCollection();
-    whole.encodableObjects
-        .add(DerObjectID(_DigitalIdentifiers.pkcs7SignedData));
+    whole.encodableObjects.add(
+      DerObjectID(_DigitalIdentifiers.pkcs7SignedData),
+    );
     whole.encodableObjects.add(DerTag(0, DerSequence(collection: body)));
     final Asn1DerStream dout = Asn1DerStream(<int>[]);
     dout.writeObject(DerSequence(collection: whole));
@@ -1315,7 +1530,7 @@ class _PdfCmsSigner {
     final Asn1? seq = tempstream.readAsn1();
     if (seq != null && seq is Asn1Sequence) {
       asn1Encode.add(<dynamic>[
-        DerSet(array: <Asn1Encode>[seq])
+        DerSet(array: <Asn1Encode>[seq]),
       ]);
       attributes.add(<dynamic>[DerSequence(collection: asn1Encode)]);
     }
@@ -1323,13 +1538,14 @@ class _PdfCmsSigner {
   }
 
   Future<List<int>?> signAsync(
-      List<int> secondDigest,
-      TimestampServer? server,
-      List<int>? timeStampResponse,
-      List<int>? ocsp,
-      List<List<int>>? crls,
-      CryptographicStandard? sigtype,
-      String? hashAlgorithm) async {
+    List<int> secondDigest,
+    TimestampServer? server,
+    List<int>? timeStampResponse,
+    List<int>? ocsp,
+    List<List<int>>? crls,
+    CryptographicStandard? sigtype,
+    String? hashAlgorithm,
+  ) async {
     if (_signedData != null) {
       _digest = _signedData;
       if (_rsaData != null) {
@@ -1356,25 +1572,29 @@ class _PdfCmsSigner {
     // ignore: avoid_function_literals_in_foreach_calls
     _certificates.forEach((X509Certificate? xcert) {
       v.encodableObjects.add(
-          Asn1Stream(PdfStreamReader(xcert!.c!.getEncoded(Asn1.der)))
-              .readAsn1());
+        Asn1Stream(PdfStreamReader(xcert!.c!.getEncoded(Asn1.der))).readAsn1(),
+      );
     });
     final DerSet dercertificates = DerSet(collection: v);
     final Asn1EncodeCollection signerinfo = Asn1EncodeCollection();
-    signerinfo.encodableObjects
-        .add(DerInteger(bigIntToBytes(BigInt.from(_signerVersion))));
+    signerinfo.encodableObjects.add(
+      DerInteger(bigIntToBytes(BigInt.from(_signerVersion))),
+    );
     v = Asn1EncodeCollection();
-    v.encodableObjects
-        .add(getIssuer(_signCert!.c!.tbsCertificate!.getEncoded(Asn1.der)));
-    v.encodableObjects
-        .add(DerInteger(bigIntToBytes(_signCert!.c!.serialNumber!.value)));
+    v.encodableObjects.add(
+      getIssuer(_signCert!.c!.tbsCertificate!.getEncoded(Asn1.der)),
+    );
+    v.encodableObjects.add(
+      DerInteger(bigIntToBytes(_signCert!.c!.serialNumber!.value)),
+    );
     signerinfo.encodableObjects.add(DerSequence(collection: v));
     v = Asn1EncodeCollection();
     v.encodableObjects.add(DerObjectID(_digestAlgorithmOid));
     v.encodableObjects.add(DerNull.value);
     signerinfo.encodableObjects.add(DerSequence(collection: v));
-    signerinfo.encodableObjects.add(DerTag(
-        0, getSequenceDataSet(secondDigest, ocsp, crls, sigtype), false));
+    signerinfo.encodableObjects.add(
+      DerTag(0, getSequenceDataSet(secondDigest, ocsp, crls, sigtype), false),
+    );
     v = Asn1EncodeCollection();
     v.encodableObjects.add(DerObjectID(_encryptionAlgorithmOid));
     v.encodableObjects.add(DerNull.value);
@@ -1386,17 +1606,21 @@ class _PdfCmsSigner {
       input.add(_digest);
       input.close();
       final List<int> hash = output.events.single.bytes as List<int>;
-      final List<int> asnEncodedTimestampRequest =
-          TimeStampRequestCreator().getAsnEncodedTimestampRequest(hash);
-      timeStampResponse = await fetchData(server.uri, 'POST',
-          contentType: 'application/timestamp-query',
-          userName: server.userName,
-          password: server.password,
-          data: asnEncodedTimestampRequest,
-          timeOutDuration: server.timeOut);
+      final List<int> asnEncodedTimestampRequest = TimeStampRequestCreator()
+          .getAsnEncodedTimestampRequest(hash);
+      timeStampResponse = await fetchData(
+        server.uri,
+        'POST',
+        contentType: 'application/timestamp-query',
+        userName: server.userName,
+        password: server.password,
+        data: asnEncodedTimestampRequest,
+        timeOutDuration: server.timeOut,
+      );
       if (timeStampResponse != null) {
-        final Asn1Stream stream =
-            Asn1Stream(PdfStreamReader(timeStampResponse));
+        final Asn1Stream stream = Asn1Stream(
+          PdfStreamReader(timeStampResponse),
+        );
         final Asn1? asn1 = stream.readAsn1();
         if (asn1 != null &&
             asn1 is Asn1Sequence &&
@@ -1412,11 +1636,13 @@ class _PdfCmsSigner {
       }
     }
     if (timeStampResponse != null) {
-      final Asn1EncodeCollection? timeAsn1Encoded =
-          getAttributes(timeStampResponse);
+      final Asn1EncodeCollection? timeAsn1Encoded = getAttributes(
+        timeStampResponse,
+      );
       if (timeAsn1Encoded != null) {
-        signerinfo.add(
-            <dynamic>[DerTag(1, DerSet(collection: timeAsn1Encoded), false)]);
+        signerinfo.add(<dynamic>[
+          DerTag(1, DerSet(collection: timeAsn1Encoded), false),
+        ]);
       }
     }
     final Asn1EncodeCollection body = Asn1EncodeCollection();
@@ -1424,11 +1650,13 @@ class _PdfCmsSigner {
     body.encodableObjects.add(DerSet(collection: digestAlgorithms));
     body.encodableObjects.add(contentinfo);
     body.encodableObjects.add(DerTag(0, dercertificates, false));
-    body.encodableObjects
-        .add(DerSet(array: <Asn1Encode>[DerSequence(collection: signerinfo)]));
+    body.encodableObjects.add(
+      DerSet(array: <Asn1Encode>[DerSequence(collection: signerinfo)]),
+    );
     final Asn1EncodeCollection whole = Asn1EncodeCollection();
-    whole.encodableObjects
-        .add(DerObjectID(_DigitalIdentifiers.pkcs7SignedData));
+    whole.encodableObjects.add(
+      DerObjectID(_DigitalIdentifiers.pkcs7SignedData),
+    );
     whole.encodableObjects.add(DerTag(0, DerSequence(collection: body)));
     final Asn1DerStream dout = Asn1DerStream(<int>[]);
     dout.writeObject(DerSequence(collection: whole));
@@ -1443,16 +1671,21 @@ class _PdfCmsSigner {
 
   /// Internal method
   Future<List<int>?> getEncodedTimestamp(
-      List<int> secondDigest, TimestampServer server) async {
+    List<int> secondDigest,
+    TimestampServer server,
+  ) async {
     List<int>? encoded;
-    final List<int> asnEncodedTimestampRequest =
-        TimeStampRequestCreator().getAsnEncodedTimestampRequest(secondDigest);
-    final List<int>? respBytes = await fetchData(server.uri, 'POST',
-        contentType: 'application/timestamp-query',
-        userName: server.userName,
-        password: server.password,
-        data: asnEncodedTimestampRequest,
-        timeOutDuration: server.timeOut);
+    final List<int> asnEncodedTimestampRequest = TimeStampRequestCreator()
+        .getAsnEncodedTimestampRequest(secondDigest);
+    final List<int>? respBytes = await fetchData(
+      server.uri,
+      'POST',
+      contentType: 'application/timestamp-query',
+      userName: server.userName,
+      password: server.password,
+      data: asnEncodedTimestampRequest,
+      timeOutDuration: server.timeOut,
+    );
     if (respBytes != null) {
       final Asn1Stream stream = Asn1Stream(PdfStreamReader(respBytes));
       final Asn1? asn1 = stream.readAsn1();
@@ -1635,7 +1868,7 @@ class _SourceEntry {
 
 class _RandomStream extends PdfStreamReader {
   _RandomStream(IRandom source)
-      : super(List<int>.generate(source.length!, (int i) => 0)) {
+    : super(List<int>.generate(source.length!, (int i) => 0)) {
     _random = source;
   }
   //Fields
@@ -1818,20 +2051,22 @@ class NistObjectIds {
   // ignore: public_member_api_docs
   static DerObjectID ripeMD160 = DerObjectID('${tttAlgorithm.id!}.2.1');
   // ignore: public_member_api_docs
-  static DerObjectID tttRsaSignatureAlgorithm =
-      DerObjectID('${tttAlgorithm.id!}.3.1');
+  static DerObjectID tttRsaSignatureAlgorithm = DerObjectID(
+    '${tttAlgorithm.id!}.3.1',
+  );
   // ignore: public_member_api_docs
-  static DerObjectID rsaSignatureWithRipeMD160 =
-      DerObjectID('${tttRsaSignatureAlgorithm.id!}.2');
+  static DerObjectID rsaSignatureWithRipeMD160 = DerObjectID(
+    '${tttRsaSignatureAlgorithm.id!}.2',
+  );
 }
 
 /// internal type definition
-typedef DocumentSavedHandler = void Function(
-    Object sender, DocumentSavedArgs args);
+typedef DocumentSavedHandler =
+    void Function(Object sender, DocumentSavedArgs args);
 
 /// internal type definition
-typedef DocumentSavedHandlerAsync = Future<void> Function(
-    Object sender, DocumentSavedArgs args);
+typedef DocumentSavedHandlerAsync =
+    Future<void> Function(Object sender, DocumentSavedArgs args);
 
 /// internal class
 class DocumentSavedArgs {

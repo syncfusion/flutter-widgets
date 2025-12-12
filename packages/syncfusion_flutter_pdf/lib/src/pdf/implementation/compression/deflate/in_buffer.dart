@@ -94,11 +94,11 @@ class InBuffer {
     if (length > avail) {
       length = avail;
     }
-    for (int i = 0;
-        i < length &&
-            i + _begin < _buffer!.length &&
-            i + offset < output!.length;
-        i++) {
+    for (
+      int i = 0;
+      i < length && i + _begin < _buffer!.length && i + offset < output!.length;
+      i++
+    ) {
       output[offset + i] = _buffer![_begin + i];
     }
     _begin += length;

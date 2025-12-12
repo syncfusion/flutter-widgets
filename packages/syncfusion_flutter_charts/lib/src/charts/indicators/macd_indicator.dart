@@ -54,13 +54,15 @@ class MacdIndicator<T, D> extends TechnicalIndicator<T, D> {
     this.histogramNegativeColor = Colors.red,
     super.onRenderDetailsUpdate,
   }) : super(
-          xValueMapper: xValueMapper != null && dataSource != null
-              ? (int index) => xValueMapper(dataSource[index], index)
-              : null,
-          closeValueMapper: closeValueMapper != null && dataSource != null
-              ? (int index) => closeValueMapper(dataSource[index], index)
-              : null,
-        );
+         xValueMapper:
+             xValueMapper != null && dataSource != null
+                 ? (int index) => xValueMapper(dataSource[index], index)
+                 : null,
+         closeValueMapper:
+             closeValueMapper != null && dataSource != null
+                 ? (int index) => closeValueMapper(dataSource[index], index)
+                 : null,
+       );
 
   /// Period determines the start point for the rendering of
   /// technical indicators.
@@ -305,7 +307,7 @@ class MacdIndicator<T, D> extends TechnicalIndicator<T, D> {
       macdLineWidth,
       macdType,
       histogramPositiveColor,
-      histogramNegativeColor
+      histogramNegativeColor,
     ];
     return Object.hashAll(values);
   }
@@ -352,7 +354,9 @@ class MacdIndicatorWidget extends IndicatorWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, MacdIndicatorRenderer renderObject) {
+    BuildContext context,
+    MacdIndicatorRenderer renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     final MacdIndicator macd = indicator as MacdIndicator;
 
@@ -615,7 +619,8 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     int histogramIndex = 0;
     while (index < dataCount) {
       final double x = xValues[index].toDouble();
-      final double y = macdPoints[histogramIndex + (period - 1)] -
+      final double y =
+          macdPoints[histogramIndex + (period - 1)] -
           signalEma[histogramIndex].toDouble();
 
       _xMinimum = min(_xMinimum, x);
@@ -656,8 +661,10 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     for (int i = 0; i < dataCount; i++) {
       final num xValue = xValues[i];
-      final CartesianChartPoint<D> point =
-          CartesianChartPoint<D>(x: xRawValues[i], xValue: xValue);
+      final CartesianChartPoint<D> point = CartesianChartPoint<D>(
+        x: xRawValues[i],
+        xValue: xValue,
+      );
       for (int j = 0; j < yLength; j++) {
         point[positions[j]] = yLists[j][i];
       }
@@ -695,8 +702,10 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
     if (macdType == MacdType.both || macdType == MacdType.line) {
       final int macdPointIndex = _findNearestPoint(signalLinePoints, position);
       if (macdPointIndex != -1) {
-        final CartesianChartPoint<D> macdPoint =
-            _chartPoint(macdPointIndex, 'macd');
+        final CartesianChartPoint<D> macdPoint = _chartPoint(
+          macdPointIndex,
+          'macd',
+        );
         final String text = defaultLegendItemText();
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
@@ -716,8 +725,10 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
       final int macdLinePointIndex = _findNearestPoint(_macdPoints, position);
       if (macdLinePointIndex != -1) {
-        final CartesianChartPoint<D> macdLinePoint =
-            _chartPoint(macdLinePointIndex, 'macdLine');
+        final CartesianChartPoint<D> macdLinePoint = _chartPoint(
+          macdLinePointIndex,
+          'macdLine',
+        );
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: _macdPoints[macdLinePointIndex],
@@ -737,16 +748,23 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     if (macdType == MacdType.both || macdType == MacdType.histogram) {
       final int histogramPointIndex = _findNearestPoint(
-          List<Offset>.generate(
-              _bounds.length, (int index) => _bounds[index].center).toList(),
-          position);
+        List<Offset>.generate(
+          _bounds.length,
+          (int index) => _bounds[index].center,
+        ).toList(),
+        position,
+      );
       if (histogramPointIndex != -1) {
-        final CartesianChartPoint<D> histogramPoint =
-            _chartPoint(histogramPointIndex, 'histogram');
+        final CartesianChartPoint<D> histogramPoint = _chartPoint(
+          histogramPointIndex,
+          'histogram',
+        );
         final Offset histogramPosition = Offset(
-            xAxis!.pointToPixel(_histogramActualValues[histogramPointIndex].dx),
-            yAxis!.pointToPixel(
-                _histogramActualValues[histogramPointIndex].dy.abs()));
+          xAxis!.pointToPixel(_histogramActualValues[histogramPointIndex].dx),
+          yAxis!.pointToPixel(
+            _histogramActualValues[histogramPointIndex].dy.abs(),
+          ),
+        );
         trackballInfo.add(
           ChartTrackballInfo<T, D>(
             position: histogramPosition,
@@ -758,9 +776,10 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
             name: trackballHistogramText,
             header: tooltipHeaderText(histogramPoint),
             text: trackballText(histogramPoint, trackballHistogramText),
-            color: histogramPoint.y!.isNegative
-                ? histogramNegativeColor
-                : histogramPositiveColor,
+            color:
+                histogramPoint.y!.isNegative
+                    ? histogramNegativeColor
+                    : histogramPositiveColor,
           ),
         );
       }
@@ -809,24 +828,27 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
   CartesianChartPoint<D> _chartPoint(int pointIndex, String type) {
     return CartesianChartPoint<D>(
-      x: type == 'macd'
-          ? xRawValues[
-              pointIndex + (signalLinePoints.length - xRawValues.length).abs()]
-          : type == 'macdLine'
-              ? xRawValues[
-                  pointIndex + (_macdPoints.length - xRawValues.length).abs()]
+      x:
+          type == 'macd'
+              ? xRawValues[pointIndex +
+                  (signalLinePoints.length - xRawValues.length).abs()]
+              : type == 'macdLine'
+              ? xRawValues[pointIndex +
+                  (_macdPoints.length - xRawValues.length).abs()]
               : xRawValues[pointIndex +
                   (_histogramActualValues.length - xRawValues.length).abs()],
-      xValue: type == 'macd'
-          ? xValues[
-              pointIndex + (signalLinePoints.length - xValues.length).abs()]
-          : type == 'macdLine'
-              ? xValues[
-                  pointIndex + (_macdPoints.length - xValues.length).abs()]
+      xValue:
+          type == 'macd'
+              ? xValues[pointIndex +
+                  (signalLinePoints.length - xValues.length).abs()]
+              : type == 'macdLine'
+              ? xValues[pointIndex +
+                  (_macdPoints.length - xValues.length).abs()]
               : _histogramActualValues[pointIndex].dx,
-      y: type == 'macd'
-          ? _signalLineActualValues[pointIndex].dy
-          : type == 'macdLine'
+      y:
+          type == 'macd'
+              ? _signalLineActualValues[pointIndex].dy
+              : type == 'macdLine'
               ? _macdLineActualValues[pointIndex].dy
               : _histogramActualValues[pointIndex].dy,
     );
@@ -844,8 +866,9 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
         signalLineColor,
         dashArray,
       );
-      final TechnicalIndicatorRenderDetails details =
-          onRenderDetailsUpdate!(params);
+      final TechnicalIndicatorRenderDetails details = onRenderDetailsUpdate!(
+        params,
+      );
       strokePaint
         ..color = details.signalLineColor
         ..strokeWidth = details.signalLineWidth;
@@ -918,8 +941,12 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
   @override
   void onPaint(PaintingContext context, Offset offset) {
     context.canvas.save();
-    final Rect clip = clipRect(paintBounds, animationFactor,
-        isInversed: xAxis!.isInversed, isTransposed: isTransposed);
+    final Rect clip = clipRect(
+      paintBounds,
+      animationFactor,
+      isInversed: xAxis!.isInversed,
+      isTransposed: isTransposed,
+    );
     context.canvas.clipRect(clip);
     int length = signalLinePoints.length - 1;
     if (strokePaint.color != Colors.transparent &&
@@ -937,11 +964,12 @@ class MacdIndicatorRenderer<T, D> extends IndicatorRenderer<T, D> {
 
     if (macdType == MacdType.both || macdType == MacdType.line) {
       if (_macdPoints.isNotEmpty) {
-        final Paint paint = Paint()
-          ..isAntiAlias = true
-          ..color = macdLineColor
-          ..strokeWidth = macdLineWidth
-          ..style = PaintingStyle.stroke;
+        final Paint paint =
+            Paint()
+              ..isAntiAlias = true
+              ..color = macdLineColor
+              ..strokeWidth = macdLineWidth
+              ..style = PaintingStyle.stroke;
         if (paint.color != Colors.transparent && paint.strokeWidth > 0) {
           _macdPath.reset();
           length = _macdPoints.length;

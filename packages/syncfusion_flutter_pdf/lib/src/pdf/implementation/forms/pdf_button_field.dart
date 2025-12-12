@@ -38,29 +38,39 @@ class PdfButtonField extends PdfField {
   //Constructor
   /// Initializes an instance of the [PdfButtonField] class with the specific
   /// page, name, and bounds.
-  PdfButtonField(PdfPage page, String name, Rect bounds,
-      {String? text,
-      PdfFont? font,
-      PdfColor? borderColor,
-      PdfColor? backColor,
-      PdfColor? foreColor,
-      int? borderWidth,
-      PdfHighlightMode highlightMode = PdfHighlightMode.invert,
-      PdfBorderStyle borderStyle = PdfBorderStyle.solid,
-      PdfFieldActions? actions,
-      String? tooltip}) {
+  PdfButtonField(
+    PdfPage page,
+    String name,
+    Rect bounds, {
+    String? text,
+    PdfFont? font,
+    PdfColor? borderColor,
+    PdfColor? backColor,
+    PdfColor? foreColor,
+    int? borderWidth,
+    PdfHighlightMode highlightMode = PdfHighlightMode.invert,
+    PdfBorderStyle borderStyle = PdfBorderStyle.solid,
+    PdfFieldActions? actions,
+    String? tooltip,
+  }) {
     _helper = PdfButtonFieldHelper(this);
-    _helper.internal(page, name, bounds,
-        tooltip: tooltip,
-        font: font,
-        borderColor: borderColor,
-        backColor: backColor,
-        foreColor: foreColor,
-        borderWidth: borderWidth,
-        highlightMode: highlightMode,
-        borderStyle: borderStyle);
+    _helper.internal(
+      page,
+      name,
+      bounds,
+      tooltip: tooltip,
+      font: font,
+      borderColor: borderColor,
+      backColor: backColor,
+      foreColor: foreColor,
+      borderWidth: borderWidth,
+      highlightMode: highlightMode,
+      borderStyle: borderStyle,
+    );
     _helper.dictionary!.setProperty(
-        PdfDictionaryProperties.ft, PdfName(PdfDictionaryProperties.btn));
+      PdfDictionaryProperties.ft,
+      PdfName(PdfDictionaryProperties.btn),
+    );
     if (backColor == null) {
       _helper.backColor = PdfColor(211, 211, 211);
     }
@@ -153,23 +163,29 @@ class PdfButtonField extends PdfField {
   PdfFieldActions get actions {
     if (_helper.isLoadedField && _helper.actions == null) {
       if (_helper.dictionary!.containsKey(PdfDictionaryProperties.aa)) {
-        final PdfDictionary actionDict = _helper.crossTable!
-                .getObject(_helper.dictionary![PdfDictionaryProperties.aa])!
-            as PdfDictionary;
+        final PdfDictionary actionDict =
+            _helper.crossTable!.getObject(
+                  _helper.dictionary![PdfDictionaryProperties.aa],
+                )!
+                as PdfDictionary;
         _helper.actions = PdfFieldActionsHelper.load(actionDict);
         _helper.widget!.actions =
             PdfFieldActionsHelper.getHelper(_helper.actions!).annotationActions;
       } else {
         _helper.actions = PdfFieldActionsHelper.load(PdfDictionary());
-        _helper.dictionary!
-            .setProperty(PdfDictionaryProperties.aa, _helper.actions);
+        _helper.dictionary!.setProperty(
+          PdfDictionaryProperties.aa,
+          _helper.actions,
+        );
       }
       _helper.changed = true;
     } else {
       if (_helper.actions == null) {
         _helper.actions = PdfFieldActions(_helper.widget!.actions!);
-        _helper.dictionary!
-            .setProperty(PdfDictionaryProperties.aa, _helper.actions);
+        _helper.dictionary!.setProperty(
+          PdfDictionaryProperties.aa,
+          _helper.actions,
+        );
       }
     }
     return _helper.actions!;
@@ -214,18 +230,23 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
   void addPrintAction() {
     final PdfDictionary actionDictionary = PdfDictionary();
     actionDictionary.setProperty(
-        PdfDictionaryProperties.n, PdfName(PdfDictionaryProperties.print));
+      PdfDictionaryProperties.n,
+      PdfName(PdfDictionaryProperties.print),
+    );
     actionDictionary.setProperty(PdfDictionaryProperties.s, PdfName('Named'));
     if (isLoadedField) {
-      final PdfArray? kidsArray = crossTable!
-          .getObject(dictionary![PdfDictionaryProperties.kids]) as PdfArray?;
+      final PdfArray? kidsArray =
+          crossTable!.getObject(dictionary![PdfDictionaryProperties.kids])
+              as PdfArray?;
       if (kidsArray != null) {
         final PdfReferenceHolder buttonObject =
             kidsArray[0]! as PdfReferenceHolder;
         final PdfDictionary buttonDictionary =
             buttonObject.object! as PdfDictionary;
         buttonDictionary.setProperty(
-            PdfDictionaryProperties.a, actionDictionary);
+          PdfDictionaryProperties.a,
+          actionDictionary,
+        );
       } else {
         dictionary!.setProperty(PdfDictionaryProperties.a, actionDictionary);
       }
@@ -250,12 +271,12 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
       final PdfPage? page = buttonField.page;
       if (widget != null) {
         page!.annotations.remove(widget!);
-        PdfAnnotationCollectionHelper.getHelper(page.annotations)
-            .annotations
-            .insert(buttonField.tabIndex, PdfReferenceHolder(widget));
-        PdfObjectCollectionHelper.getHelper(page.annotations)
-            .list
-            .insert(buttonField.tabIndex, widget!);
+        PdfAnnotationCollectionHelper.getHelper(
+          page.annotations,
+        ).annotations.insert(buttonField.tabIndex, PdfReferenceHolder(widget));
+        PdfObjectCollectionHelper.getHelper(
+          page.annotations,
+        ).list.insert(buttonField.tabIndex, widget!);
       }
     }
     if (buttonField.form != null &&
@@ -281,20 +302,26 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
       buttonField.text = buttonField.name!;
     }
     final PaintParams paintParams = PaintParams(
-        bounds: Rect.fromLTWH(
-            0, 0, widget!.bounds.size.width, widget!.bounds.size.height),
-        backBrush: PdfSolidBrush(buttonField.backColor),
-        foreBrush: PdfSolidBrush(buttonField.foreColor),
-        borderPen: borderPen,
-        style: buttonField.borderStyle,
-        borderWidth: borderWidth,
-        shadowBrush: PdfSolidBrush(buttonField.backColor));
+      bounds: Rect.fromLTWH(
+        0,
+        0,
+        widget!.bounds.size.width,
+        widget!.bounds.size.height,
+      ),
+      backBrush: PdfSolidBrush(buttonField.backColor),
+      foreBrush: PdfSolidBrush(buttonField.foreColor),
+      borderPen: borderPen,
+      style: buttonField.borderStyle,
+      borderWidth: borderWidth,
+      shadowBrush: PdfSolidBrush(buttonField.backColor),
+    );
     FieldPainter().drawButton(
-        template.graphics!,
-        paintParams,
-        buttonField.text,
-        (font == null) ? PdfStandardFont(PdfFontFamily.helvetica, 8) : font!,
-        format);
+      template.graphics!,
+      paintParams,
+      buttonField.text,
+      (font == null) ? PdfStandardFont(PdfFontFamily.helvetica, 8) : font!,
+      format,
+    );
   }
 
   void _drawPressedAppearance(PdfTemplate template) {
@@ -302,40 +329,54 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
       buttonField.text = buttonField.name!;
     }
     final PaintParams paintParams = PaintParams(
-        bounds: Rect.fromLTWH(
-            0, 0, widget!.bounds.size.width, widget!.bounds.size.height),
-        backBrush: PdfSolidBrush(buttonField.backColor),
-        foreBrush: PdfSolidBrush(buttonField.foreColor),
-        borderPen: borderPen,
-        style: buttonField.borderStyle,
-        borderWidth: borderWidth,
-        shadowBrush: PdfSolidBrush(buttonField.backColor));
+      bounds: Rect.fromLTWH(
+        0,
+        0,
+        widget!.bounds.size.width,
+        widget!.bounds.size.height,
+      ),
+      backBrush: PdfSolidBrush(buttonField.backColor),
+      foreBrush: PdfSolidBrush(buttonField.foreColor),
+      borderPen: borderPen,
+      style: buttonField.borderStyle,
+      borderWidth: borderWidth,
+      shadowBrush: PdfSolidBrush(buttonField.backColor),
+    );
     FieldPainter().drawPressedButton(
-        template.graphics!,
-        paintParams,
-        buttonField.text,
-        (font == null) ? PdfStandardFont(PdfFontFamily.helvetica, 8) : font!,
-        format);
+      template.graphics!,
+      paintParams,
+      buttonField.text,
+      (font == null) ? PdfStandardFont(PdfFontFamily.helvetica, 8) : font!,
+      format,
+    );
   }
 
   String _obtainText() {
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
     String? str;
     if (widget.containsKey(PdfDictionaryProperties.mk)) {
-      final PdfDictionary appearance = crossTable!
-          .getObject(widget[PdfDictionaryProperties.mk])! as PdfDictionary;
+      final PdfDictionary appearance =
+          crossTable!.getObject(widget[PdfDictionaryProperties.mk])!
+              as PdfDictionary;
       if (appearance.containsKey(PdfDictionaryProperties.ca)) {
-        final PdfString text = crossTable!
-            .getObject(appearance[PdfDictionaryProperties.ca])! as PdfString;
+        final PdfString text =
+            crossTable!.getObject(appearance[PdfDictionaryProperties.ca])!
+                as PdfString;
         str = text.value;
       }
     }
     if (str == null) {
-      PdfString? val = crossTable!
-          .getObject(dictionary![PdfDictionaryProperties.v]) as PdfString?;
-      val ??= PdfFieldHelper.getValue(
-              dictionary!, crossTable, PdfDictionaryProperties.v, true)
-          as PdfString?;
+      PdfString? val =
+          crossTable!.getObject(dictionary![PdfDictionaryProperties.v])
+              as PdfString?;
+      val ??=
+          PdfFieldHelper.getValue(
+                dictionary!,
+                crossTable,
+                PdfDictionaryProperties.v,
+                true,
+              )
+              as PdfString?;
       if (val != null) {
         str = val.value;
       } else {
@@ -349,16 +390,21 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
     final String text = value;
     final PdfDictionary widget = getWidgetAnnotation(dictionary!, crossTable);
     if (widget.containsKey(PdfDictionaryProperties.mk)) {
-      final PdfDictionary appearance = crossTable!
-          .getObject(widget[PdfDictionaryProperties.mk])! as PdfDictionary;
+      final PdfDictionary appearance =
+          crossTable!.getObject(widget[PdfDictionaryProperties.mk])!
+              as PdfDictionary;
       appearance.setString(PdfDictionaryProperties.ca, text);
       widget.setProperty(
-          PdfDictionaryProperties.mk, PdfReferenceHolder(appearance));
+        PdfDictionaryProperties.mk,
+        PdfReferenceHolder(appearance),
+      );
     } else {
       final PdfDictionary appearance = PdfDictionary();
       appearance.setString(PdfDictionaryProperties.ca, text);
       widget.setProperty(
-          PdfDictionaryProperties.mk, PdfReferenceHolder(appearance));
+        PdfDictionaryProperties.mk,
+        PdfReferenceHolder(appearance),
+      );
     }
     if (widget.containsKey(PdfDictionaryProperties.ap)) {
       _applyAppearance(widget, null);
@@ -402,32 +448,48 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
           PdfAnnotationHelper.getHelper(widget!).appearance;
       if (appearance != null) {
         buttonField.page!.graphics.drawPdfTemplate(
-            appearance.normal, Offset(widget!.bounds.left, widget!.bounds.top));
+          appearance.normal,
+          Offset(widget!.bounds.left, widget!.bounds.top),
+        );
       } else {
         Rect rect = buttonField.bounds;
         rect = Rect.fromLTWH(
-            0, 0, buttonField.bounds.width, buttonField.bounds.height);
+          0,
+          0,
+          buttonField.bounds.width,
+          buttonField.bounds.height,
+        );
         final PdfFont tempFont =
             font ?? PdfStandardFont(PdfFontFamily.helvetica, 8);
         final PaintParams params = PaintParams(
-            bounds: rect,
-            backBrush: backBrush,
-            foreBrush: foreBrush,
-            borderPen: borderPen,
-            style: buttonField.borderStyle,
-            borderWidth: buttonField.borderWidth,
-            shadowBrush: shadowBrush);
+          bounds: rect,
+          backBrush: backBrush,
+          foreBrush: foreBrush,
+          borderPen: borderPen,
+          style: buttonField.borderStyle,
+          borderWidth: buttonField.borderWidth,
+          shadowBrush: shadowBrush,
+        );
         final PdfTemplate template = PdfTemplate(rect.width, rect.height);
-        FieldPainter().drawButton(template.graphics!, params, buttonField.text,
-            tempFont, stringFormat);
-        buttonField.page!.graphics.drawPdfTemplate(template,
-            Offset(buttonField.bounds.left, buttonField.bounds.top), rect.size);
+        FieldPainter().drawButton(
+          template.graphics!,
+          params,
+          buttonField.text,
+          tempFont,
+          stringFormat,
+        );
+        buttonField.page!.graphics.drawPdfTemplate(
+          template,
+          Offset(buttonField.bounds.left, buttonField.bounds.top),
+          rect.size,
+        );
         buttonField.page!.graphics.drawString(
-            (buttonField.text.isEmpty) ? buttonField.name! : buttonField.text,
-            tempFont,
-            brush: params.foreBrush,
-            bounds: buttonField.bounds,
-            format: stringFormat);
+          (buttonField.text.isEmpty) ? buttonField.name! : buttonField.text,
+          tempFont,
+          brush: params.foreBrush,
+          bounds: buttonField.bounds,
+          format: stringFormat,
+        );
       }
     }
   }
@@ -438,19 +500,23 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
       widget!.setProperty(PdfDictionaryProperties.aa, actions);
     }
     if ((widget != null) && (widget.containsKey(PdfDictionaryProperties.ap))) {
-      final PdfDictionary? appearance = crossTable!
-          .getObject(widget[PdfDictionaryProperties.ap]) as PdfDictionary?;
+      final PdfDictionary? appearance =
+          crossTable!.getObject(widget[PdfDictionaryProperties.ap])
+              as PdfDictionary?;
       if ((appearance != null) &&
           (appearance.containsKey(PdfDictionaryProperties.n))) {
         final Rect bounds = (item == null) ? buttonField.bounds : item.bounds;
         PdfTemplate template = PdfTemplate(bounds.width, bounds.height);
-        final PdfTemplate pressedTemplate =
-            PdfTemplate(bounds.width, bounds.height);
+        final PdfTemplate pressedTemplate = PdfTemplate(
+          bounds.width,
+          bounds.height,
+        );
         if (widget.containsKey(PdfDictionaryProperties.mk)) {
           PdfDictionary? mkDic;
           if (widget[PdfDictionaryProperties.mk] is PdfReferenceHolder) {
-            mkDic = crossTable!.getObject(widget[PdfDictionaryProperties.mk])
-                as PdfDictionary?;
+            mkDic =
+                crossTable!.getObject(widget[PdfDictionaryProperties.mk])
+                    as PdfDictionary?;
           } else {
             mkDic = widget[PdfDictionaryProperties.mk] as PdfDictionary?;
           }
@@ -462,30 +528,44 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
                 template = PdfTemplate(bounds.size.height, bounds.size.width);
                 PdfTemplateHelper.getHelper(template).writeTransformation =
                     false;
-                PdfTemplateHelper.getHelper(template)
-                        .content[PdfDictionaryProperties.matrix] =
-                    PdfArray(<double>[0, 1, -1, 0, bounds.size.width, 0]);
+                PdfTemplateHelper.getHelper(
+                  template,
+                ).content[PdfDictionaryProperties.matrix] = PdfArray(<double>[
+                  0,
+                  1,
+                  -1,
+                  0,
+                  bounds.size.width,
+                  0,
+                ]);
               } else if (angle.value == 180) {
                 template = PdfTemplate(bounds.size.width, bounds.size.height);
                 PdfTemplateHelper.getHelper(template).writeTransformation =
                     false;
-                PdfTemplateHelper.getHelper(template)
-                        .content[PdfDictionaryProperties.matrix] =
-                    PdfArray(<double>[
+                PdfTemplateHelper.getHelper(
+                  template,
+                ).content[PdfDictionaryProperties.matrix] = PdfArray(<double>[
                   -1,
                   0,
                   0,
                   -1,
                   bounds.size.width,
-                  bounds.size.height
+                  bounds.size.height,
                 ]);
               } else if (angle.value == 270) {
                 template = PdfTemplate(bounds.size.height, bounds.size.width);
                 PdfTemplateHelper.getHelper(template).writeTransformation =
                     false;
-                PdfTemplateHelper.getHelper(template)
-                        .content[PdfDictionaryProperties.matrix] =
-                    PdfArray(<double>[0, -1, 1, 0, 0, bounds.size.height]);
+                PdfTemplateHelper.getHelper(
+                  template,
+                ).content[PdfDictionaryProperties.matrix] = PdfArray(<double>[
+                  0,
+                  -1,
+                  1,
+                  0,
+                  0,
+                  bounds.size.height,
+                ]);
               }
             }
           }
@@ -493,31 +573,40 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
         _drawButton(template.graphics, item, widget);
         _drawButton(pressedTemplate.graphics, item, widget);
         appearance.setProperty(
-            PdfDictionaryProperties.n, PdfReferenceHolder(template));
+          PdfDictionaryProperties.n,
+          PdfReferenceHolder(template),
+        );
         appearance.setProperty(
-            PdfDictionaryProperties.d, PdfReferenceHolder(pressedTemplate));
+          PdfDictionaryProperties.d,
+          PdfReferenceHolder(pressedTemplate),
+        );
         widget.setProperty(PdfDictionaryProperties.ap, appearance);
       }
-    } else if (PdfFormHelper.getHelper(buttonField.form!)
-        .setAppearanceDictionary) {
+    } else if (PdfFormHelper.getHelper(
+      buttonField.form!,
+    ).setAppearanceDictionary) {
       PdfFormHelper.getHelper(buttonField.form!).needAppearances = true;
     }
   }
 
-  void _drawButton(PdfGraphics? graphics, PdfButtonField? item,
-      [PdfDictionary? widget]) {
+  void _drawButton(
+    PdfGraphics? graphics,
+    PdfButtonField? item, [
+    PdfDictionary? widget,
+  ]) {
     final GraphicsProperties gp = GraphicsProperties(buttonField);
     if (!flattenField) {
       gp.bounds = Rect.fromLTWH(0, 0, gp.bounds!.width, gp.bounds!.height);
     }
     final PaintParams prms = PaintParams(
-        bounds: gp.bounds,
-        backBrush: gp.backBrush,
-        foreBrush: gp.foreBrush,
-        borderPen: gp.borderPen,
-        style: gp.style,
-        borderWidth: gp.borderWidth,
-        shadowBrush: gp.shadowBrush);
+      bounds: gp.bounds,
+      backBrush: gp.backBrush,
+      foreBrush: gp.foreBrush,
+      borderPen: gp.borderPen,
+      style: gp.style,
+      borderWidth: gp.borderWidth,
+      shadowBrush: gp.shadowBrush,
+    );
     if (dictionary!.containsKey(PdfDictionaryProperties.ap) &&
         !(PdfGraphicsHelper.getHelper(graphics!).layer != null &&
             PdfGraphicsHelper.getHelper(graphics).page!.rotation !=
@@ -533,10 +622,13 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
         if (buttonResource != null) {
           final PdfStream? stream = buttonResource as PdfStream?;
           if (stream != null) {
-            final PdfTemplate buttonShape =
-                PdfTemplateHelper.fromPdfStream(stream);
-            buttonField.page!.graphics.drawPdfTemplate(buttonShape,
-                Offset(buttonField.bounds.left, buttonField.bounds.top));
+            final PdfTemplate buttonShape = PdfTemplateHelper.fromPdfStream(
+              stream,
+            );
+            buttonField.page!.graphics.drawPdfTemplate(
+              buttonShape,
+              Offset(buttonField.bounds.left, buttonField.bounds.top),
+            );
           }
         }
       }
@@ -557,22 +649,32 @@ class PdfButtonFieldHelper extends PdfFieldHelper {
         if (buttonResource != null) {
           final PdfStream? stream = buttonResource as PdfStream?;
           if (stream != null) {
-            final PdfTemplate buttonShape =
-                PdfTemplateHelper.fromPdfStream(stream);
-            buttonField.page!.graphics.drawPdfTemplate(buttonShape,
-                Offset(buttonField.bounds.left, buttonField.bounds.top));
+            final PdfTemplate buttonShape = PdfTemplateHelper.fromPdfStream(
+              stream,
+            );
+            buttonField.page!.graphics.drawPdfTemplate(
+              buttonShape,
+              Offset(buttonField.bounds.left, buttonField.bounds.top),
+            );
           }
         }
       }
     } else {
       FieldPainter().drawButton(
-          graphics!, prms, buttonField.text, gp.font!, gp.stringFormat);
+        graphics!,
+        prms,
+        buttonField.text,
+        gp.font!,
+        gp.stringFormat,
+      );
     }
   }
 
   /// internal method
   static PdfButtonField loadButtonField(
-      PdfDictionary dictionary, PdfCrossTable crossTable) {
+    PdfDictionary dictionary,
+    PdfCrossTable crossTable,
+  ) {
     return PdfButtonField._loaded(dictionary, crossTable);
   }
 }

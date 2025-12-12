@@ -1,6 +1,6 @@
 ﻿# Flutter PDF Viewer Web library
 
-The web implementation of [Syncfusion Flutter PDF Viewer](https://pub.dev/packages/syncfusion_flutter_pdfviewer) plugin.
+The web implementation of [Syncfusion® Flutter PDF Viewer](https://pub.dev/packages/syncfusion_flutter_pdfviewer) plugin.
 
 ## Usage
 

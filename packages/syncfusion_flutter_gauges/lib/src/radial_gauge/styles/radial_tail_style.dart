@@ -19,20 +19,21 @@ import '../../radial_gauge/utils/enum.dart';
 @immutable
 class TailStyle {
   /// Creates the tail style with default or required properties.
-  const TailStyle(
-      {this.color,
-      this.width = 0,
-      this.length = 0,
-      this.borderWidth = 0,
-      this.gradient,
-      this.lengthUnit = GaugeSizeUnit.factor,
-      this.borderColor})
-      : assert(width >= 0, 'Tail width must be a non-negative value.'),
-        assert(length >= 0, 'Tail length must be a non-negative value.'),
-        assert(
-            borderWidth >= 0,
-            'Tail border width must be a '
-            'non-negative value.');
+  const TailStyle({
+    this.color,
+    this.width = 0,
+    this.length = 0,
+    this.borderWidth = 0,
+    this.gradient,
+    this.lengthUnit = GaugeSizeUnit.factor,
+    this.borderColor,
+  }) : assert(width >= 0, 'Tail width must be a non-negative value.'),
+       assert(length >= 0, 'Tail length must be a non-negative value.'),
+       assert(
+         borderWidth >= 0,
+         'Tail border width must be a '
+         'non-negative value.',
+       );
 
   /// Specifies the color of the tail.
   ///
@@ -214,7 +215,7 @@ class TailStyle {
       length,
       gradient,
       lengthUnit,
-      borderColor
+      borderColor,
     ];
     return Object.hashAll(values);
   }

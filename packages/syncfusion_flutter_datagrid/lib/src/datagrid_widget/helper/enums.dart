@@ -35,7 +35,7 @@ enum RowType {
   tableSummaryCoveredRow,
 
   /// Specifies the SpannedDataRow that displays the caption summary value in row.
-  captionSummaryCoveredRow
+  captionSummaryCoveredRow,
 }
 
 /// Describes the possible values for cell types.
@@ -154,7 +154,7 @@ enum SelectionMode {
   singleDeselect,
 
   /// Specifies that multiple rows can be selected.
-  multiple
+  multiple,
 }
 
 /// Decides whether the navigation in the [SfDataGrid] should be cell wise
@@ -166,7 +166,7 @@ enum GridNavigationMode {
 
   /// The selection can be moved among
   /// the rows alone and current cell will not be shown.
-  row
+  row,
 }
 
 /// Specifies the direction of the sort operation.
@@ -175,7 +175,7 @@ enum DataGridSortDirection {
   ascending,
 
   /// Sorts in descending order.
-  descending
+  descending,
 }
 
 /// Specifies the different tap actions available for applying sorting.
@@ -230,7 +230,7 @@ enum EditingGestureType {
   tap,
 
   /// Editing is triggered on double tap.
-  doubleTap
+  doubleTap,
 }
 
 /// Determines how table summary row should be positioned in [SfDataGrid].
@@ -384,5 +384,5 @@ enum DataGridColumnDragAction {
   dropping,
 
   /// Specifies the dragging operation is ended for a column.
-  dropped
+  dropped,
 }

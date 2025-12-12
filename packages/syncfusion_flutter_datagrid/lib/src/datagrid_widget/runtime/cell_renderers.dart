@@ -34,12 +34,14 @@ class GridStackedHeaderCellRenderer
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
 
     Widget? label = DefaultTextStyle(
-        style: TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-            color: dataGridConfiguration.colorScheme!.onSurface[222]),
-        child: dataCell.stackedHeaderCell!.child);
+      style: TextStyle(
+        fontFamily: 'Roboto',
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+        color: dataGridConfiguration.colorScheme!.onSurface[222],
+      ),
+      child: dataCell.stackedHeaderCell!.child,
+    );
 
     dataCell.columnElement = GridCell(
       key: dataCell.key!,
@@ -70,24 +72,28 @@ class GridCellTextFieldRenderer
   }
 
   TextStyle _getCellTextStyle(
-      DataGridConfiguration dataGridConfiguration, DataCellBase dataCell) {
+    DataGridConfiguration dataGridConfiguration,
+    DataCellBase dataCell,
+  ) {
     final DataRowBase? dataRow = dataCell.dataRow;
     if (dataRow != null && dataRow.isSelectedRow) {
       return dataRow.isHoveredRow
           ? dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle!
           : TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: dataGridConfiguration.colorScheme!.onSurface[222]);
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: dataGridConfiguration.colorScheme!.onSurface[222],
+          );
     } else {
       return dataRow!.isHoveredRow
           ? dataGridConfiguration.dataGridThemeHelper!.rowHoverTextStyle!
           : TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: dataGridConfiguration.colorScheme!.onSurface[222]);
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: dataGridConfiguration.colorScheme!.onSurface[222],
+          );
     }
   }
 }
@@ -104,32 +110,36 @@ class GridHeaderCellRenderer
   void onInitializeDisplayWidget(DataCellBase dataCell) {
     final DataGridConfiguration dataGridConfiguration = _dataGridStateDetails();
     final Widget child = DefaultTextStyle(
-        key: dataCell.key,
-        style: dataCell.textStyle!,
-        child: dataCell.gridColumn!.label);
+      key: dataCell.key,
+      style: dataCell.textStyle!,
+      child: dataCell.gridColumn!.label,
+    );
     if (dataGridConfiguration.showCheckboxColumn &&
         dataCell.columnIndex ==
             dataGridConfiguration.source.groupedColumns.length) {
       dataCell.columnElement = GridCell(
-          key: dataCell.key!,
-          dataCell: dataCell,
-          backgroundColor: dataGridConfiguration.colorScheme!.transparent,
-          isDirty: dataGridConfiguration.container.isDirty ||
-              dataCell.isDirty ||
-              dataCell.dataRow!.isDirty,
-          dataGridStateDetails: _dataGridStateDetails,
-          child:
-              _getCheckboxHeaderWidget(dataGridConfiguration, dataCell, child));
+        key: dataCell.key!,
+        dataCell: dataCell,
+        backgroundColor: dataGridConfiguration.colorScheme!.transparent,
+        isDirty:
+            dataGridConfiguration.container.isDirty ||
+            dataCell.isDirty ||
+            dataCell.dataRow!.isDirty,
+        dataGridStateDetails: _dataGridStateDetails,
+        child: _getCheckboxHeaderWidget(dataGridConfiguration, dataCell, child),
+      );
     } else {
       dataCell.columnElement = GridHeaderCell(
-          key: dataCell.key!,
-          dataCell: dataCell,
-          backgroundColor: Colors.transparent,
-          isDirty: dataGridConfiguration.container.isDirty ||
-              dataCell.isDirty ||
-              dataCell.dataRow!.isDirty,
-          dataGridStateDetails: _dataGridStateDetails,
-          child: child);
+        key: dataCell.key!,
+        dataCell: dataCell,
+        backgroundColor: Colors.transparent,
+        isDirty:
+            dataGridConfiguration.container.isDirty ||
+            dataCell.isDirty ||
+            dataCell.dataRow!.isDirty,
+        dataGridStateDetails: _dataGridStateDetails,
+        child: child,
+      );
     }
   }
 
@@ -137,10 +147,11 @@ class GridHeaderCellRenderer
   void setCellStyle(DataCellBase dataCell) {
     TextStyle getDefaultHeaderTextStyle() {
       return TextStyle(
-          fontFamily: 'Roboto',
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
-          color: _dataGridStateDetails().colorScheme!.onSurface[222]);
+        fontFamily: 'Roboto',
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+        color: _dataGridStateDetails().colorScheme!.onSurface[222],
+      );
     }
 
     dataCell.textStyle = getDefaultHeaderTextStyle();
@@ -148,45 +159,60 @@ class GridHeaderCellRenderer
 
   /// Creates a widget which displays label by default. Also, it creates with Checkbox,
   /// only when the [DataGridConfiguration.showCheckboxOnHeader] is true.
-  Widget _getCheckboxHeaderWidget(DataGridConfiguration dataGridConfiguration,
-      DataCellBase dataCell, Widget child) {
+  Widget _getCheckboxHeaderWidget(
+    DataGridConfiguration dataGridConfiguration,
+    DataCellBase dataCell,
+    Widget child,
+  ) {
     final Widget label = Flexible(
-        child: DefaultTextStyle(
-            overflow: TextOverflow.ellipsis,
-            key: dataCell.key,
-            style: dataCell.textStyle!,
-            child: child));
+      child: DefaultTextStyle(
+        overflow: TextOverflow.ellipsis,
+        key: dataCell.key,
+        style: dataCell.textStyle!,
+        child: child,
+      ),
+    );
 
     return Center(
-        child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Visibility(
-            visible: dataGridConfiguration
-                .checkboxColumnSettings.showCheckboxOnHeader,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Visibility(
+            visible:
+                dataGridConfiguration
+                    .checkboxColumnSettings
+                    .showCheckboxOnHeader,
             child: Checkbox(
-                shape: dataGridConfiguration.checkboxShape,
-                tristate: true,
-                value: dataGridConfiguration.headerCheckboxState,
-                onChanged: (bool? newValue) {
-                  if (dataGridConfiguration.selectionMode ==
-                      SelectionMode.multiple) {
-                    selection_manager.handleSelectionFromCheckbox(
-                        dataGridConfiguration,
-                        dataCell,
-                        dataGridConfiguration.headerCheckboxState,
-                        newValue);
-                  }
-                })),
-        label
-      ],
-    ));
+              shape: dataGridConfiguration.checkboxShape,
+              tristate: true,
+              value: dataGridConfiguration.headerCheckboxState,
+              onChanged: (bool? newValue) {
+                if (dataGridConfiguration.selectionMode ==
+                    SelectionMode.multiple) {
+                  _requestFocus(dataGridConfiguration);
+                  selection_manager.handleSelectionFromCheckbox(
+                    dataGridConfiguration,
+                    dataCell,
+                    dataGridConfiguration.headerCheckboxState,
+                    newValue,
+                  );
+                }
+              },
+            ),
+          ),
+          label,
+        ],
+      ),
+    );
   }
 }
 
 /// A base class for cell renderer classes which displays widget in a cell.
-abstract class GridVirtualizingCellRendererBase<T1 extends Widget,
-    T2 extends Widget> extends GridCellRendererBase {
+abstract class GridVirtualizingCellRendererBase<
+  T1 extends Widget,
+  T2 extends Widget
+>
+    extends GridCellRendererBase {
   /// Creates the [GridVirtualizingCellRendererBase] for [SfDataGrid] widget.
   GridVirtualizingCellRendererBase();
 
@@ -204,7 +230,9 @@ abstract class GridVirtualizingCellRendererBase<T1 extends Widget,
     }
 
     final int index = grid_helper.resolveToDataGridRowAdapterCellIndex(
-        dataGridConfiguration, dataCell.columnIndex);
+      dataGridConfiguration,
+      dataCell.columnIndex,
+    );
 
     // Need to restrict if the index is -1. Because, the index will be -1
     // when the datacell column index is greater than the column count.
@@ -229,12 +257,16 @@ abstract class GridVirtualizingCellRendererBase<T1 extends Widget,
       key: dataCell.key!,
       dataCell: dataCell,
       backgroundColor: Colors.transparent,
-      isDirty: dataGridConfiguration.container.isDirty ||
+      isDirty:
+          dataGridConfiguration.container.isDirty ||
           dataCell.isDirty ||
           dataCell.dataRow!.isDirty,
       dataGridStateDetails: _dataGridStateDetails,
       child: DefaultTextStyle(
-          key: dataCell.key, style: dataCell.textStyle!, child: getChild()),
+        key: dataCell.key,
+        style: dataCell.textStyle!,
+        child: getChild(),
+      ),
     );
   }
 
@@ -258,22 +290,37 @@ class GridCheckboxRenderer
     final bool selectionState = dataCell.dataRow!.isSelectedRow;
 
     dataCell.columnElement = GridCell(
-        key: dataCell.key!,
-        dataCell: dataCell,
-        backgroundColor:
-            dataGridConfiguration.checkboxColumnSettings.backgroundColor ??
-                Colors.transparent,
-        isDirty: dataGridConfiguration.container.isDirty ||
-            dataCell.isDirty ||
-            dataCell.dataRow!.isDirty,
-        dataGridStateDetails: _dataGridStateDetails,
-        child: Checkbox(
-            shape: dataGridConfiguration.checkboxShape,
-            value: selectionState,
-            onChanged: (bool? newValue) {
-              selection_manager.handleSelectionFromCheckbox(
-                  dataGridConfiguration, dataCell, selectionState, newValue);
-            }));
+      key: dataCell.key!,
+      dataCell: dataCell,
+      backgroundColor:
+          dataGridConfiguration.checkboxColumnSettings.backgroundColor ??
+          Colors.transparent,
+      isDirty:
+          dataGridConfiguration.container.isDirty ||
+          dataCell.isDirty ||
+          dataCell.dataRow!.isDirty,
+      dataGridStateDetails: _dataGridStateDetails,
+      child: Checkbox(
+        shape: dataGridConfiguration.checkboxShape,
+        value: selectionState,
+        onChanged: (bool? newValue) {
+          _requestFocus(dataGridConfiguration);
+          selection_manager.handleSelectionFromCheckbox(
+            dataGridConfiguration,
+            dataCell,
+            selectionState,
+            newValue,
+          );
+        },
+      ),
+    );
+  }
+}
+
+void _requestFocus(DataGridConfiguration dataGridConfiguration) {
+  if (dataGridConfiguration.dataGridFocusNode != null &&
+      !dataGridConfiguration.dataGridFocusNode!.hasPrimaryFocus) {
+    dataGridConfiguration.dataGridFocusNode!.requestFocus();
   }
 }
 
@@ -290,21 +337,32 @@ class GridTableSummaryCellRenderer
 
       if (tableSummaryRow != null) {
         final int titleColumnSpan = grid_helper.getSummaryTitleColumnSpan(
-            dataGridConfiguration, tableSummaryRow);
+          dataGridConfiguration,
+          tableSummaryRow,
+        );
         if (dataCell.summaryColumn != null ||
             tableSummaryRow.showSummaryInRow ||
             (!tableSummaryRow.showSummaryInRow &&
                 titleColumnSpan > 0 &&
                 dataCell.columnIndex < titleColumnSpan)) {
           final GridSummaryColumn? summaryColumn = dataCell.summaryColumn;
-          final RowColumnIndex rowColumnIndex =
-              RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex);
+          final RowColumnIndex rowColumnIndex = RowColumnIndex(
+            dataCell.rowIndex,
+            dataCell.columnIndex,
+          );
           final String title = dataGridConfiguration.source
               .calculateSummaryValue(
-                  tableSummaryRow, summaryColumn, rowColumnIndex);
+                tableSummaryRow,
+                summaryColumn,
+                rowColumnIndex,
+              );
 
           cell = dataGridConfiguration.source.buildTableSummaryCellWidget(
-              tableSummaryRow, summaryColumn, rowColumnIndex, title);
+            tableSummaryRow,
+            summaryColumn,
+            rowColumnIndex,
+            title,
+          );
         }
       }
       cell ??= Container();
@@ -312,12 +370,14 @@ class GridTableSummaryCellRenderer
     }
 
     Widget? label = DefaultTextStyle(
-        style: TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-            color: dataGridConfiguration.colorScheme!.onSurface[222]),
-        child: getSummaryCell());
+      style: TextStyle(
+        fontFamily: 'Roboto',
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+        color: dataGridConfiguration.colorScheme!.onSurface[222],
+      ),
+      child: getSummaryCell(),
+    );
 
     dataCell.columnElement = GridCell(
       key: dataCell.key!,
@@ -343,12 +403,16 @@ class GridCaptionSummaryCellRenderer
       Widget? result;
 
       if (dataGridConfiguration.source.groupedColumns.isNotEmpty) {
-        final int rowIndex =
-            resolveStartRecordIndex(dataGridConfiguration, dataCell.rowIndex);
+        final int rowIndex = resolveStartRecordIndex(
+          dataGridConfiguration,
+          dataCell.rowIndex,
+        );
 
         if (rowIndex >= 0) {
-          final dynamic groupItems =
-              getGroupElement(dataGridConfiguration, rowIndex);
+          final dynamic groupItems = getGroupElement(
+            dataGridConfiguration,
+            rowIndex,
+          );
 
           if (groupItems is Group) {
             final int level = groupItems.level;
@@ -365,11 +429,15 @@ class GridCaptionSummaryCellRenderer
                   .replaceAll('{ColumnName}', groupedColumn)
                   .replaceAll('{Key}', '${groupItems.key}')
                   .replaceAll('{ItemsCount}', '${groupItems.rows.length}');
-              final RowColumnIndex rowColumnIndex =
-                  RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex);
+              final RowColumnIndex rowColumnIndex = RowColumnIndex(
+                dataCell.rowIndex,
+                dataCell.columnIndex,
+              );
               final Widget? cell = dataGridConfiguration.source
                   .buildGroupCaptionCellWidget(
-                      rowColumnIndex, groupCaptionTitleFormat);
+                    rowColumnIndex,
+                    groupCaptionTitleFormat,
+                  );
 
               result = cell;
             }
@@ -411,24 +479,36 @@ class GridIndentCellRenderer
     if (dataGridConfiguration.source.groupedColumns.isNotEmpty &&
         dataCell.dataRow!.rowType == RowType.captionSummaryCoveredRow &&
         dataGridConfiguration.allowExpandCollapseGroup) {
-      final int rowIndex =
-          resolveStartRecordIndex(dataGridConfiguration, dataCell.rowIndex);
+      final int rowIndex = resolveStartRecordIndex(
+        dataGridConfiguration,
+        dataCell.rowIndex,
+      );
       if (rowIndex >= 0) {
-        final dynamic groupItem =
-            getGroupElement(dataGridConfiguration, rowIndex);
+        final dynamic groupItem = getGroupElement(
+          dataGridConfiguration,
+          rowIndex,
+        );
 
         if (groupItem is Group) {
           final int iconIndex = groupItem.level - 1;
-          newIcon = (iconIndex == dataCell.columnIndex)
-              ? Center(
-                  child: GroupExpanderIcon(
-                    key: ObjectKey(rowIndex),
-                    isExpanded: groupItem.isExpanded,
-                    dataGridConfiguration: dataGridConfiguration,
-                    rowIndex: dataCell.rowIndex,
-                  ),
-                )
-              : const SizedBox();
+          newIcon =
+              (iconIndex == dataCell.columnIndex)
+                  ? Center(
+                    child: GroupExpanderIcon(
+                      // Issue:
+                      // When sorting or navigating through pages with grouping, the group icon's state (expanded/collapsed) was incorrect.
+                      //
+                      // Fix:
+                      // The issue occurred because the widget’s state persisted due to unchanged rowIndex during actions like sorting.
+                      // To resolve this, the key is updated to combine both the rowIndex and isExpanded state,
+                      // ensuring uniqueness and preventing old state from being reused.
+                      key: ObjectKey('${rowIndex}_${groupItem.isExpanded}'),
+                      isExpanded: groupItem.isExpanded,
+                      dataGridConfiguration: dataGridConfiguration,
+                      rowIndex: dataCell.rowIndex,
+                    ),
+                  )
+                  : const SizedBox();
         }
       }
     }
@@ -436,11 +516,13 @@ class GridIndentCellRenderer
     dataCell.columnElement = GridCell(
       key: dataCell.key!,
       dataCell: dataCell,
-      backgroundColor: dataCell.rowIndex >=
-              grid_helper
-                  .resolveStartIndexBasedOnPosition(dataGridConfiguration)
-          ? dataGridConfiguration.dataGridThemeHelper!.indentColumnColor!
-          : dataGridConfiguration.colorScheme!.transparent,
+      backgroundColor:
+          dataCell.rowIndex >=
+                  grid_helper.resolveStartIndexBasedOnPosition(
+                    dataGridConfiguration,
+                  )
+              ? dataGridConfiguration.dataGridThemeHelper!.indentColumnColor!
+              : dataGridConfiguration.colorScheme!.transparent,
       dataGridStateDetails: _dataGridStateDetails,
       isDirty: dataGridConfiguration.container.isDirty || dataCell.isDirty,
       child: newIcon,
@@ -475,7 +557,6 @@ class GroupExpanderIcon extends StatefulWidget {
 class GroupExpanderIconState extends State<GroupExpanderIcon>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _rotationAnimation;
 
   @override
   void initState() {
@@ -485,9 +566,6 @@ class GroupExpanderIconState extends State<GroupExpanderIcon>
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
-
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.5)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
     if (widget.dataGridConfiguration.groupExpandCollapseRowIndex ==
         widget.rowIndex) {
@@ -505,19 +583,14 @@ class GroupExpanderIconState extends State<GroupExpanderIcon>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (BuildContext context, Widget? child) {
-        return Transform.rotate(
-          angle: _rotationAnimation.value * 2 * 3.14159265359,
-          child: widget.dataGridConfiguration.dataGridThemeHelper
-                  ?.groupExpanderIcon ??
-              Icon(
-                Icons.expand_less,
-                color: widget.dataGridConfiguration.colorScheme!.onSurface[153],
-              ),
-        );
-      },
+    return RotationTransition(
+      turns: Tween<double>(begin: 0.0, end: 0.5).animate(_controller),
+      child:
+          widget.dataGridConfiguration.dataGridThemeHelper?.groupExpanderIcon ??
+          Icon(
+            Icons.expand_less,
+            color: widget.dataGridConfiguration.colorScheme!.onSurface[153],
+          ),
     );
   }
 
@@ -529,7 +602,9 @@ class GroupExpanderIconState extends State<GroupExpanderIcon>
 }
 
 /// Sets the `dataGridConfiguration` to the cell renderers.
-void setStateDetailsInCellRendererBase(GridCellRendererBase cellRendererBase,
-    DataGridStateDetails dataGridStateDetails) {
+void setStateDetailsInCellRendererBase(
+  GridCellRendererBase cellRendererBase,
+  DataGridStateDetails dataGridStateDetails,
+) {
   cellRendererBase._dataGridStateDetails = dataGridStateDetails;
 }

@@ -1,4 +1,5 @@
-part of officechart;
+import 'chart_enum.dart';
+import 'chart_format.dart';
 
 /// Represents chart series format class
 class ChartSerieDataFormat {
