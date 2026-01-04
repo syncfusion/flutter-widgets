@@ -1042,7 +1042,8 @@ class RenderLinearGauge extends RenderBox
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    final double currentValue = _getValueFromPosition(details.localPosition);
+    final Offset localPos = globalToLocal(details.globalPosition);
+    final double currentValue = _getValueFromPosition(localPos);
     if (_markerRenderObject.onChanged != null &&
         _markerRenderObject.value != currentValue) {
       _markerRenderObject.oldValue = currentValue;
