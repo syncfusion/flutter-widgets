@@ -342,15 +342,20 @@ class _DesktopScrollbarState extends State<DesktopScrollbar>
                 bottom: widget.horizontalScrollbarPadding.bottom,
                 width: widget.viewportSize.width,
                 height: 1.5 * _scrollbarWidth,
-                child: MouseRegion(
-                  hitTestBehavior: HitTestBehavior.translucent,
-                  cursor: SystemMouseCursors.basic,
-                  onEnter: (_) {
-                    _isHovering = true;
-                    _updateScrollbarVisibility();
-                  },
-                  onExit: (_) => _startFadeOutTimer(),
-                  child: horizontalScrollbar,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTapUp: (details) =>
+                      _jumpToHorizontalPosition(details.localPosition.dx),
+                  child: MouseRegion(
+                    hitTestBehavior: HitTestBehavior.translucent,
+                    cursor: SystemMouseCursors.basic,
+                    onEnter: (_) {
+                      _isHovering = true;
+                      _updateScrollbarVisibility();
+                    },
+                    onExit: (_) => _startFadeOutTimer(),
+                    child: horizontalScrollbar,
+                  ),
                 ),
               ),
             if (_canShowVerticalScrollbar)
@@ -360,21 +365,60 @@ class _DesktopScrollbarState extends State<DesktopScrollbar>
                 top: 0,
                 width: 1.5 * _scrollbarWidth,
                 height: widget.viewportSize.height,
-                child: MouseRegion(
-                  hitTestBehavior: HitTestBehavior.translucent,
-                  cursor: SystemMouseCursors.basic,
-                  onEnter: (_) {
-                    _isHovering = true;
-                    _updateScrollbarVisibility();
-                  },
-                  onExit: (_) => _startFadeOutTimer(),
-                  child: verticalScrollbar,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTapUp: (details) =>
+                      _jumpToVerticalPosition(details.localPosition.dy),
+                  child: MouseRegion(
+                    hitTestBehavior: HitTestBehavior.translucent,
+                    cursor: SystemMouseCursors.basic,
+                    onEnter: (_) {
+                      _isHovering = true;
+                      _updateScrollbarVisibility();
+                    },
+                    onExit: (_) => _startFadeOutTimer(),
+                    child: verticalScrollbar,
+                  ),
                 ),
               ),
           ],
         );
       },
     );
+  }
+
+  /// Jumps the vertical scroll position so the thumb centers on [tapY].
+  void _jumpToVerticalPosition(double tapY) {
+    if (!_canShowVerticalScrollbar) {
+      return;
+    }
+    final double thumbTop = (tapY - _verticalScrollbarLength / 2).clamp(
+      0.0,
+      widget.viewportSize.height - _verticalScrollbarLength,
+    );
+    final double targetOffsetDy = thumbTop / _heightRatio;
+    final double currentOffsetDy = widget.controller.toScene(Offset.zero).dy;
+    final double dy = targetOffsetDy - currentOffsetDy;
+    widget.controller.value =
+        widget.controller.value.clone()
+          ..translateByDouble(0.0, -dy, 0.0, 1.0);
+  }
+
+  /// Jumps the horizontal scroll position so the thumb centers on [tapX].
+  void _jumpToHorizontalPosition(double tapX) {
+    if (!_canShowHorizontalScrollbar) {
+      return;
+    }
+    final double thumbLeft = (tapX - _horizontalScrollbarLength / 2).clamp(
+      0.0,
+      widget.viewportSize.width - _horizontalScrollbarLength,
+    );
+    final double targetOffsetDx = thumbLeft / _widthRatio;
+    final double currentOffsetDx = widget.controller.toScene(Offset.zero).dx;
+    final double dx = targetOffsetDx - currentOffsetDx;
+    widget.controller.value =
+        widget.controller.value.clone()
+          ..translateByDouble(-dx, 0.0, 0.0, 1.0);
   }
 
   /// Updates the scrollbar visibility based on hovering and scrolling states.
