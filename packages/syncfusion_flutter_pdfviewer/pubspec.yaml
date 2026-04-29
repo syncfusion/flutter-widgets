@@ -64,7 +64,7 @@ dependencies:
   vector_math: ^2.2.0
   url_launcher: ^6.1.0
   intl: '>=0.18.1 <0.21.0'
-  device_info_plus: ^12.1.0
+  device_info_plus: ^13.1.0
   syncfusion_pdfviewer_platform_interface:
     path: ../syncfusion_flutter_pdfviewer_platform_interface
 
