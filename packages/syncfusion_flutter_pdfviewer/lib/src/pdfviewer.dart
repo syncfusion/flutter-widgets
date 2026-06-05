@@ -2313,8 +2313,17 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           _performTextExtraction();
         }
       }
+
+      Uint8List? signatureBytes;
+      if (_document != null) {
+        try {
+          signatureBytes = _renderDigitalSignatures();
+        } catch (_) {
+          // Digital-signature flattening is best-effort; fall back to raw bytes.
+        }
+      }
       final int pageCount = await _plugin.initializePdfRenderer(
-        (_document != null ? _renderDigitalSignatures() : null) ?? _pdfBytes,
+        signatureBytes ?? _pdfBytes,
         _password,
       );
       _pdfViewerController._pageCount = pageCount;
@@ -2344,9 +2353,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             ),
           );
         }
-      } else if (errorMessage.contains('Cannot open an encrypted document.') ||
-          errorMessage.contains('PASSWORD_ERROR') ||
-          errorMessage.contains('PDF_UNLOCK_FAILED')) {
+      } else if (errorMessage.contains('Cannot open an encrypted document.')) {
         if (!_isPasswordUsed) {
           try {
             _decryptedProtectedDocument(_pdfBytes, widget.password);
@@ -2354,12 +2361,17 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           } catch (e) {
             if (widget.onDocumentLoadFailed != null) {
               if (widget.password == '' || widget.password == null) {
-                widget.onDocumentLoadFailed!(
-                  PdfDocumentLoadFailedDetails(
-                    'Empty Password Error',
-                    'The provided `password` property is empty so unable to load the encrypted document.',
-                  ),
-                );
+                // Only report "no password" when the dialog won't be shown.
+                // When canShowPasswordDialog is true the UI handles it,
+                // so firing onDocumentLoadFailed here is confusing noise.
+                if (!widget.canShowPasswordDialog) {
+                  widget.onDocumentLoadFailed!(
+                    PdfDocumentLoadFailedDetails(
+                      'Empty Password Error',
+                      'The provided `password` property is empty so unable to load the encrypted document.',
+                    ),
+                  );
+                }
               } else {
                 widget.onDocumentLoadFailed!(
                   PdfDocumentLoadFailedDetails(
@@ -2394,6 +2406,8 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           );
         }
       } else {
+        // ignore: avoid_print
+        print('[SfPdfViewer] unhandled error: $e');
         if (widget.onDocumentLoadFailed != null) {
           widget.onDocumentLoadFailed!(
             PdfDocumentLoadFailedDetails(
@@ -2411,7 +2425,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   /// Render and flatten digital signatures in the PDF document.
   Uint8List? _renderDigitalSignatures() {
     if (_document!.form.fields.count != 0) {
-      final PdfDocument pdfDocument = PdfDocument(inputBytes: _pdfBytes);
+      final PdfDocument pdfDocument = PdfDocument(
+        inputBytes: _pdfBytes,
+        password: _password,
+      );
       bool isDigitalSignature = false;
       Uint8List? digitalSignatureBytes;
 
@@ -3446,20 +3463,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   /// Get the file of the Pdf.
   Future<PdfDocument?> _getPdfFile(Uint8List? value) async {
     if (value != null) {
-      try {
-        return PdfDocument(inputBytes: value, password: _password);
-      } on ArgumentError catch (e) {
-        // When no password is provided and the Dart PDF auth fails (false positive —
-        // the PDF has an Encrypt dict with empty user password but our authentication
-        // algorithm can't verify it), return null so the native renderer can handle it.
-        // Truly password-protected PDFs will fail in the native renderer instead and
-        // show the password dialog via the PASSWORD_ERROR / PDF_UNLOCK_FAILED path.
-        if ((_password == null || _password!.isEmpty) &&
-            e.toString().contains('Cannot open an encrypted document.')) {
-          return null;
-        }
-        rethrow;
-      }
+      return PdfDocument(inputBytes: value, password: _password);
     }
     return null;
   }

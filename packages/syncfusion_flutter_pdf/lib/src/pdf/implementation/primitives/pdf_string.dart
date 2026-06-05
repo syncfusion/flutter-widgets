@@ -21,10 +21,9 @@ class PdfString implements IPdfPrimitive {
           if (data![0] == 0xfe && data![1] == 0xff) {
             this.value = decodeBigEndian(data, 2, data!.length - 2);
             isHex = false;
-            // data keeps the original hex-decoded bytes — hex strings are binary,
-            // not text, even when they happen to start with the UTF-16 BOM bytes.
-            // Overwriting data with low-bytes of the decoded chars corrupts binary
-            // fields like /ID (used in encryption key derivation).
+            for (int i = 0; i < this.value!.length; i++) {
+              data!.add(this.value!.codeUnitAt(i).toUnsigned(8));
+            }
           } else {
             this.value = byteToString(data!);
           }
