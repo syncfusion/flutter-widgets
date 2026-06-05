@@ -2406,8 +2406,6 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
           );
         }
       } else {
-        // ignore: avoid_print
-        print('[SfPdfViewer] unhandled error: $e');
         if (widget.onDocumentLoadFailed != null) {
           widget.onDocumentLoadFailed!(
             PdfDocumentLoadFailedDetails(
