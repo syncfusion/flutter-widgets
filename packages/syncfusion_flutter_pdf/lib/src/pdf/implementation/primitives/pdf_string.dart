@@ -21,8 +21,12 @@ class PdfString implements IPdfPrimitive {
           if (data![0] == 0xfe && data![1] == 0xff) {
             this.value = decodeBigEndian(data, 2, data!.length - 2);
             isHex = false;
-            for (int i = 0; i < this.value!.length; i++) {
-              data!.add(this.value!.codeUnitAt(i).toUnsigned(8));
+            // 16-byte fields (e.g. /ID) are raw binary identifiers — never
+            // append decoded character bytes to them.
+            if (data!.length != 16) {
+              for (int i = 0; i < this.value!.length; i++) {
+                data!.add(this.value!.codeUnitAt(i).toUnsigned(8));
+              }
             }
           } else {
             this.value = byteToString(data!);
