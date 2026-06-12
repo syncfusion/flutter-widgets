@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   intl: '>=0.18.0 <0.21.0'
-  xml: ">=6.5.0 <7.0.0"
+  xml: ">=6.5.0 <8.0.0"
   crypto: ">=3.0.0 <4.0.0"
   convert: ">=3.0.0 <4.0.0"
   http: ^1.2.1
