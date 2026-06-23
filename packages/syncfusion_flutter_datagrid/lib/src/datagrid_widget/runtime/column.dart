@@ -2271,6 +2271,30 @@ class FilterCondition {
   }
 }
 
+/// A mixin that allows a [DataGridSource] to supply static values for the
+/// checkbox filter popup, rather than deriving them from the currently-loaded
+/// rows.
+///
+/// This is useful for server-side [SfDataGrid]s where only one page of data is
+/// loaded at a time, and the checkbox filter would otherwise show only the
+/// values present in the current page.
+///
+/// ```dart
+/// class MyDataSource extends DataGridSource with CheckboxFilterValueProvider {
+///   @override
+///   List<Object>? getCheckboxFilterValues(String columnName) {
+///     if (columnName == 'status') return <Object>['Active', 'Inactive'];
+///     return null; // fall back to default row-derived values
+///   }
+/// }
+/// ```
+mixin CheckboxFilterValueProvider {
+  /// Return the list of values to display in the checkbox filter popup for
+  /// [columnName], or `null` to fall back to the default behaviour of
+  /// deriving values from the currently-loaded rows.
+  List<Object>? getCheckboxFilterValues(String columnName);
+}
+
 /// Provides the base functionalities to process the filtering in [SfDataGrid].
 class DataGridFilterHelper {
   /// Creates the [DataGridFilterHelper] for [SfDataGrid].
@@ -2533,7 +2557,8 @@ class DataGridFilterHelper {
                       condition.type == FilterType.lessThanOrEqual)) {
                 return true;
               } else {
-                if (cellValue?.runtimeType != condition.value?.runtimeType &&
+                if (condition.value != null &&
+                    cellValue?.runtimeType != condition.value?.runtimeType &&
                     (cellValue is! num && condition.value is! num)) {
                   throwAssertFailure(
                     '${condition.value?.runtimeType} and ${cellValue.runtimeType} are not the same data type',
@@ -2745,10 +2770,22 @@ class DataGridFilterHelper {
   /// Sets all the cell values to the check box filter.
   void setDataGridSource(GridColumn column) {
     final List<DataGridRow> items = _getPreviousFilteredRows(column.columnName);
-    final List<FilterElement> distinctCollection = _getCellValues(
-      column,
-      items,
-    );
+    final DataGridSource source = _dataGridStateDetails().source;
+    List<FilterElement> distinctCollection;
+
+    if (source is CheckboxFilterValueProvider) {
+      final List<Object>? customValues =
+          (source as CheckboxFilterValueProvider)
+              .getCheckboxFilterValues(column.columnName);
+      if (customValues != null) {
+        distinctCollection =
+            _getCustomFilterElements(column, customValues, source);
+      } else {
+        distinctCollection = _getCellValues(column, items);
+      }
+    } else {
+      distinctCollection = _getCellValues(column, items);
+    }
 
     checkboxFilterHelper._previousDataGridSource = <FilterElement>[];
 
@@ -2773,6 +2810,41 @@ class DataGridFilterHelper {
     }
 
     checkboxFilterHelper.ensureSelectAllCheckboxState();
+  }
+
+  /// Builds [FilterElement]s from a static [customValues] list.
+  ///
+  /// Uses the same selection-state logic as [_getCellValues]: all values are
+  /// selected when no filter is active; when a filter is active, a value is
+  /// selected if it appears in the current [DataGridSource.effectiveRows].
+  List<FilterElement> _getCustomFilterElements(
+    GridColumn column,
+    List<Object> customValues,
+    DataGridSource source,
+  ) {
+    final List<FilterCondition> conditions =
+        source.filterConditions[column.columnName] ?? <FilterCondition>[];
+
+    bool isSelected(Object value) {
+      if (conditions.isNotEmpty) {
+        for (final DataGridRow row in source.effectiveRows) {
+          final DataGridCell? cell = row.getCells().firstWhereOrNull(
+            (DataGridCell element) => element.columnName == column.columnName,
+          );
+          if (cell?.value?.toString() == value.toString()) {
+            return true;
+          }
+        }
+        return false;
+      }
+      return true;
+    }
+
+    return customValues
+        .map<FilterElement>(
+          (Object v) => FilterElement(value: v, isSelected: isSelected(v)),
+        )
+        .toList();
   }
 
   List<DataGridRow> _getFilterRows(
@@ -3261,6 +3333,8 @@ class DataGridAdvancedFilterHelper {
     ];
 
     textFieldFilterTypes = <String>[
+      localizations.equalsDataGridFilteringLabel,
+      localizations.doesNotEqualDataGridFilteringLabel,
       localizations.beginsWithDataGridFilteringLabel,
       localizations.endsWithDataGridFilteringLabel,
       localizations.doesNotBeginWithDataGridFilteringLabel,
@@ -3331,6 +3405,15 @@ class DataGridAdvancedFilterHelper {
     DataGridConfiguration dataGridConfiguration,
     GridColumn column,
   ) {
+    // If the column explicitly declares its advanced filter type (e.g. for
+    // server-side grids where source.rows may be empty), honour that directly.
+    final AdvancedFilterType? explicit =
+        column.filterPopupMenuOptions?.advancedFilterType;
+    if (explicit != null) {
+      advancedFilterType = explicit;
+      return;
+    }
+
     Object? value;
     for (final DataGridRow row in dataGridConfiguration.source.rows) {
       final DataGridCell? cellValue = row.getCells().firstWhereOrNull(
@@ -3435,6 +3518,7 @@ class FilterPopupMenuOptions {
     this.canShowClearFilterOption = true,
     this.canShowSortingOptions = true,
     this.showColumnName = true,
+    this.advancedFilterType,
   });
 
   /// Decides how the checked listbox and advanced filter options should be shown in filter popup.
@@ -3448,6 +3532,11 @@ class FilterPopupMenuOptions {
 
   /// Decides whether the column name should be displayed along with the content of `Clear Filter` option .
   final bool showColumnName;
+
+  /// Explicitly sets the advanced filter type for the column, bypassing the
+  /// automatic detection from [DataGridSource.rows]. Use this for server-side
+  /// grids where rows may be empty or partial when the filter dialog opens.
+  final AdvancedFilterType? advancedFilterType;
 }
 
 /// Process column resizing operation in [SfDataGrid].
