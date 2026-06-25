@@ -110,8 +110,8 @@ class PdfLayoutFormat {
   late PdfRectangle _paginateBounds;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfLayoutFormat] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfLayoutFormatHelper {
   /// internal method
   static bool isBoundsSet(PdfLayoutFormat format, [bool? value]) {

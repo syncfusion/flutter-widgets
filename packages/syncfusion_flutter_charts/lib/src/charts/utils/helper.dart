@@ -685,7 +685,6 @@ Widget? buildTooltipWidget(
             info.markerColors.isNotEmpty &&
             info.markerColors.any((Color? color) => color != null);
 
-        final TextStyle textStyle = chartThemeData.tooltipTextStyle!;
         final TextStyle headerStyle = textStyle.copyWith(
           fontWeight: FontWeight.bold,
         );
@@ -707,6 +706,7 @@ Widget? buildTooltipWidget(
 
         final bool isLtr = Directionality.of(context) == TextDirection.ltr;
         final bool hasHeader = header.isNotEmpty;
+        final List<String> textSplit = info.text?.split('\n') ?? [];
         tooltip = Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -730,40 +730,89 @@ Widget? buildTooltipWidget(
                     ),
                   ),
                 if (info.text != null && info.text!.isNotEmpty)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      if (hasMarker)
-                        Padding(
-                          padding: tooltipItemSpacing,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: List<Widget>.generate(
-                              info.markerColors.length,
-                              (int index) {
-                                return Padding(
-                                  padding: tooltipMarkerPadding,
-                                  child: TooltipMarkerShapeRenderObject(
-                                    index: index,
-                                    colors: info.markerColors,
-                                    themeData: themeData,
-                                    image: info.renderer.markerSettings.image,
-                                    markerType: info.markerType,
-                                    series: info.renderer,
+                  (hasMarker &&
+                          info.markerColors.length > 1 &&
+                          textSplit.length > 1)
+                      ? Padding(
+                        padding: tooltipItemSpacing,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: List<Widget>.generate(
+                            info.markerColors.length,
+                            (int index) {
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: tooltipMarkerPadding,
+                                    child: TooltipMarkerShapeRenderObject(
+                                      index: index,
+                                      colors: info.markerColors,
+                                      themeData: themeData,
+                                      image: info.renderer.markerSettings.image,
+                                      markerType: info.markerType,
+                                      series: info.renderer,
+                                    ),
                                   ),
-                                );
-                              },
-                            ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      index < textSplit.length
+                                          ? textSplit[index]
+                                          : '',
+                                      style: textStyle,
+                                      textAlign:
+                                          isLtr
+                                              ? TextAlign.left
+                                              : TextAlign.right,
+                                      textDirection: TextDirection.ltr,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ),
-                      Text(
-                        info.text!,
-                        style: textStyle,
-                        textAlign: isLtr ? TextAlign.left : TextAlign.right,
-                        textDirection: TextDirection.ltr,
+                      )
+                      : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          if (hasMarker)
+                            Padding(
+                              padding: tooltipItemSpacing,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: List<Widget>.generate(
+                                  info.markerColors.length,
+                                  (int index) {
+                                    return Padding(
+                                      padding: tooltipMarkerPadding,
+                                      child: TooltipMarkerShapeRenderObject(
+                                        index: index,
+                                        colors: info.markerColors,
+                                        themeData: themeData,
+                                        image:
+                                            info.renderer.markerSettings.image,
+                                        markerType: info.markerType,
+                                        series: info.renderer,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          Flexible(
+                            child: Text(
+                              info.text!,
+                              style: textStyle,
+                              textAlign:
+                                  isLtr ? TextAlign.left : TextAlign.right,
+                              textDirection: TextDirection.ltr,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
               ],
             ),
           ],

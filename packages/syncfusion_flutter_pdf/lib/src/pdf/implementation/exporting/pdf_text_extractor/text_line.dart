@@ -39,8 +39,8 @@ class TextLine {
   late String text;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [TextLine] helper
+// ignore: avoid_classes_with_only_static_members
 class TextLineHelper {
   /// internal method
   static TextLine initialize() {

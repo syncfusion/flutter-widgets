@@ -2452,11 +2452,14 @@ class TrackballBehavior extends ChartBehavior {
       double dx = x;
       final double dy = y + eachTextHeight;
       if (label.contains(':')) {
-        final List<String> parts = label.split(':');
-        if (parts.length == 2) {
-          final String leftText = '${parts[0]}:';
+        final int lastColonIndex = label.lastIndexOf(':');
+        if (lastColonIndex != -1) {
+          final String leftText = '${label.substring(0, lastColonIndex)}:';
           final Size leftSize = measureText(leftText, textStyle);
-          final String rightText = isRtl ? ' ${parts[1]}' : parts[1];
+          final String rightText =
+              isRtl
+                  ? ' ${label.substring(lastColonIndex + 1)}'
+                  : label.substring(lastColonIndex + 1);
           final Size rightSize = measureText(rightText, textStyle);
           eachTextHeight += isRtl ? rightSize.height : leftSize.height;
           if (isRtl) {

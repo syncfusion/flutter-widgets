@@ -81,8 +81,8 @@ abstract class PdfBrush {
   );
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfBrush] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfBrushHelper {
   /// internal method
   static bool monitorChanges(

@@ -474,9 +474,14 @@ abstract class PdfField implements IPdfWrapper {
       IPdfPrimitive? dic = _fieldHelper.crossTable!.getObject(
         _fieldHelper.dictionary![PdfDictionaryProperties.parent],
       );
+      final Set<PdfDictionary> visitedParents = <PdfDictionary>{};
       while (dic != null &&
           dic is PdfDictionary &&
           dic.containsKey(PdfDictionaryProperties.parent)) {
+        if (visitedParents.contains(dic)) {
+          break;
+        }
+        visitedParents.add(dic);
         if (dic.containsKey(PdfDictionaryProperties.t)) {
           name =
               name == null
@@ -2816,7 +2821,7 @@ class PdfFieldHelper {
             true,
           );
           if ((str != null && str is PdfString) || exportEmptyField) {
-            element = XmlElement(XmlName(fieldName));
+            element = XmlElement(XmlName.parts(fieldName));
             if (str != null && str is PdfString) {
               element.innerText = str.value!;
             } else if (exportEmptyField) {
@@ -2832,10 +2837,10 @@ class PdfFieldHelper {
             true,
           );
           if (str != null && str is PdfName) {
-            final XmlElement element = XmlElement(XmlName(fieldName));
+            final XmlElement element = XmlElement(XmlName.parts(fieldName));
             element.innerText = str.name!;
           } else if ((str != null && str is PdfString) || exportEmptyField) {
-            element = XmlElement(XmlName(fieldName));
+            element = XmlElement(XmlName.parts(fieldName));
             if (str != null && str is PdfString) {
               element.innerText = str.value!;
             } else if (exportEmptyField) {
@@ -2853,7 +2858,7 @@ class PdfFieldHelper {
           if (buttonFieldPrimitive != null) {
             final String? value = getExportValue(field, buttonFieldPrimitive);
             if ((value != null && value.isNotEmpty) || exportEmptyField) {
-              element = XmlElement(XmlName(fieldName));
+              element = XmlElement(XmlName.parts(fieldName));
               if (value != null) {
                 element.innerText = value;
               } else if (exportEmptyField) {
@@ -2861,7 +2866,7 @@ class PdfFieldHelper {
               }
             } else if (field is PdfRadioButtonListField ||
                 field is PdfCheckBoxField) {
-              element = XmlElement(XmlName(fieldName));
+              element = XmlElement(XmlName.parts(fieldName));
               if (exportEmptyField) {
                 element.innerText = '';
               } else {
@@ -2870,7 +2875,7 @@ class PdfFieldHelper {
             }
           } else {
             if (field is PdfRadioButtonListField) {
-              element = XmlElement(XmlName(fieldName));
+              element = XmlElement(XmlName.parts(fieldName));
               element.innerText = getAppearanceStateValue(
                 field as PdfRadioButtonListField,
               );
@@ -2884,7 +2889,7 @@ class PdfFieldHelper {
                   exportEmptyField) {
                 final IPdfPrimitive? holderName =
                     holder[PdfDictionaryProperties.usageApplication];
-                element = XmlElement(XmlName(fieldName));
+                element = XmlElement(XmlName.parts(fieldName));
                 if (holderName != null && holderName is PdfName) {
                   element.innerText = holderName.name!;
                 } else if (exportEmptyField) {
@@ -3446,7 +3451,9 @@ class PdfFieldHelper {
   ) {
     IPdfPrimitive? primitive;
     PdfDictionary? dic = dictionary;
-    while (primitive == null && dic != null) {
+    final Set<PdfDictionary> visitedParents = <PdfDictionary>{};
+    while (primitive == null && dic != null && !visitedParents.contains(dic)) {
+      visitedParents.add(dic);
       if (dic.containsKey(value)) {
         primitive = crossTable!.getObject(dic[value]);
       } else {

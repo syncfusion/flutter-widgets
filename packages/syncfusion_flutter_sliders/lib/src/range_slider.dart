@@ -1620,18 +1620,18 @@ class _SfRangeSliderState extends State<SfRangeSlider>
     ThemeData themeData,
     bool isActive,
   ) {
-    SfRangeSliderThemeData rangeSliderThemeData = SfRangeSliderTheme.of(
-      context,
-    )!;
+    SfRangeSliderThemeData rangeSliderThemeData =
+        SfRangeSliderTheme.of(context)!;
     final bool isMaterial3 = themeData.useMaterial3;
     final SfRangeSliderThemeData effectiveThemeData = RangeSliderThemeData(
       context,
     );
-    final Color labelColor = isMaterial3
-        ? themeData.colorScheme.onSurfaceVariant
-        : isActive
-        ? themeData.textTheme.bodyLarge!.color!.withValues(alpha: 0.87)
-        : themeData.colorScheme.onSurface.withValues(alpha: 0.32);
+    final Color labelColor =
+        isMaterial3
+            ? themeData.colorScheme.onSurfaceVariant
+            : isActive
+            ? themeData.textTheme.bodyLarge!.color!.withValues(alpha: 0.87)
+            : themeData.colorScheme.onSurface.withValues(alpha: 0.32);
     final double minTrackHeight = math.min(
       rangeSliderThemeData.activeTrackHeight,
       rangeSliderThemeData.inactiveTrackHeight,
@@ -1653,9 +1653,10 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       tooltipTextStyle: themeData.textTheme.bodyLarge!
           .copyWith(
             fontSize: isMaterial3 ? 12 : 14,
-            color: isMaterial3
-                ? themeData.colorScheme.onPrimary
-                : themeData.colorScheme.surface,
+            color:
+                isMaterial3
+                    ? themeData.colorScheme.onPrimary
+                    : themeData.colorScheme.surface,
           )
           .merge(rangeSliderThemeData.tooltipTextStyle),
       inactiveTrackColor:
@@ -2496,21 +2497,22 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final Offset actualTrackOffset = sliderType == SliderType.horizontal
-        ? Offset(
-            offset.dx,
-            offset.dy +
-                (size.height - actualHeight) / 2 +
-                trackOffset.dy -
-                maxTrackHeight / 2,
-          )
-        : Offset(
-            offset.dx +
-                (size.width - actualHeight) / 2 +
-                trackOffset.dx -
-                maxTrackHeight / 2,
-            offset.dy,
-          );
+    final Offset actualTrackOffset =
+        sliderType == SliderType.horizontal
+            ? Offset(
+              offset.dx,
+              offset.dy +
+                  (size.height - actualHeight) / 2 +
+                  trackOffset.dy -
+                  maxTrackHeight / 2,
+            )
+            : Offset(
+              offset.dx +
+                  (size.width - actualHeight) / 2 +
+                  trackOffset.dx -
+                  maxTrackHeight / 2,
+              offset.dy,
+            );
 
     drawRangeSliderElements(context, offset, actualTrackOffset);
   }
@@ -2571,12 +2573,14 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
           _decreaseEndAction,
         );
     // Split the semantics node area between the start and end nodes.
-    final Rect startRect = sliderType == SliderType.horizontal
-        ? Rect.fromPoints(node.rect.topLeft, node.rect.bottomCenter)
-        : Rect.fromPoints(node.rect.bottomRight, node.rect.centerLeft);
-    final Rect endRect = sliderType == SliderType.horizontal
-        ? Rect.fromPoints(node.rect.topCenter, node.rect.bottomRight)
-        : Rect.fromPoints(node.rect.centerLeft, node.rect.topRight);
+    final Rect startRect =
+        sliderType == SliderType.horizontal
+            ? Rect.fromPoints(node.rect.topLeft, node.rect.bottomCenter)
+            : Rect.fromPoints(node.rect.bottomRight, node.rect.centerLeft);
+    final Rect endRect =
+        sliderType == SliderType.horizontal
+            ? Rect.fromPoints(node.rect.topCenter, node.rect.bottomRight)
+            : Rect.fromPoints(node.rect.centerLeft, node.rect.topRight);
     startSemanticsNode ??= SemanticsNode();
     endSemanticsNode ??= SemanticsNode();
     if (sliderType == SliderType.vertical ||

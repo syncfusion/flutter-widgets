@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// the [SfCalendar].
 ///
 /// Allows to customize the [visibleResourceCount],[showAvatar],
-/// [size], and [displayNameTextStyle] in resource view of calendar.
+/// size, and [displayNameTextStyle] in resource view of calendar.
 ///
 /// See also:
 /// * [CalendarResource], which holds the data for the resource in the
@@ -317,6 +317,7 @@ class ResourceViewSettings with Diagnosticable {
     if (other is ResourceViewSettings) {
       otherStyle = other;
     }
+    // ignore: deprecated_member_use_from_same_package
     return otherStyle.size == size &&
         otherStyle.height == height &&
         otherStyle.width == width &&
@@ -334,6 +335,7 @@ class ResourceViewSettings with Diagnosticable {
         displayNameTextStyle,
       ),
     );
+    // ignore: deprecated_member_use_from_same_package
     properties.add(DoubleProperty('size', size));
     properties.add(DoubleProperty('height', height));
     properties.add(DoubleProperty('width', width));
@@ -344,6 +346,7 @@ class ResourceViewSettings with Diagnosticable {
   @override
   int get hashCode {
     return Object.hash(
+      // ignore: deprecated_member_use_from_same_package
       size,
       height,
       width,

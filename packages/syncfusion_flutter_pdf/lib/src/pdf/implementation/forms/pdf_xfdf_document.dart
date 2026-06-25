@@ -77,11 +77,11 @@ class XFdfDocument {
     final List<XmlElement> elements = <XmlElement>[];
     _table.forEach((Object key, Object value) {
       final XmlElement xmlElement = XmlElement(
-        XmlName(PdfDictionaryProperties.field.toLowerCase()),
+        XmlName.parts(PdfDictionaryProperties.field.toLowerCase()),
       );
       xmlElement.attributes.add(
         XmlAttribute(
-          XmlName(PdfDictionaryProperties.name.toLowerCase()),
+          XmlName.parts(PdfDictionaryProperties.name.toLowerCase()),
           key.toString(),
         ),
       );
@@ -90,7 +90,7 @@ class XFdfDocument {
           if (str is PdfString) {
             xmlElement.children.add(
               XmlElement(
-                XmlName(PdfDictionaryProperties.value.toLowerCase()),
+                XmlName.parts(PdfDictionaryProperties.value.toLowerCase()),
                 <XmlAttribute>[],
                 <XmlNode>[XmlText(str.value.toString())],
               ),
@@ -100,7 +100,7 @@ class XFdfDocument {
       } else {
         xmlElement.children.add(
           XmlElement(
-            XmlName(PdfDictionaryProperties.value.toLowerCase()),
+            XmlName.parts(PdfDictionaryProperties.value.toLowerCase()),
             <XmlAttribute>[],
             <XmlNode>[XmlText(value.toString())],
           ),
@@ -139,9 +139,9 @@ class XFdfDocument {
     _skipBorderStyle = false;
     if (type != null && type.isNotEmpty) {
       _annotationAttributes ??= <String>[];
-      element = XmlElement(XmlName(type.toLowerCase()));
+      element = XmlElement(XmlName.parts(type.toLowerCase()));
       element.attributes.add(
-        XmlAttribute(XmlName('page'), pageIndex.toString()),
+        XmlAttribute(const XmlName.parts('page'), pageIndex.toString()),
       );
       switch (type) {
         case PdfDictionaryProperties.line:
@@ -162,13 +162,13 @@ class XFdfDocument {
                 linePoints[3] is PdfNumber) {
               element.attributes.add(
                 XmlAttribute(
-                  XmlName('start'),
+                  const XmlName.parts('start'),
                   '${(linePoints[0]! as PdfNumber).value},${(linePoints[1]! as PdfNumber).value}',
                 ),
               );
               element.attributes.add(
                 XmlAttribute(
-                  XmlName('end'),
+                  const XmlName.parts('end'),
                   '${(linePoints[2]! as PdfNumber).value},${(linePoints[3]! as PdfNumber).value}',
                 ),
               );
@@ -252,7 +252,10 @@ class XFdfDocument {
               case PdfDictionaryProperties.irt:
                 if (obj.containsKey('NM')) {
                   element.attributes.add(
-                    XmlAttribute(XmlName('inreplyto'), _getValue(obj['NM'])),
+                    XmlAttribute(
+                      const XmlName.parts('inreplyto'),
+                      _getValue(obj['NM']),
+                    ),
                   );
                 }
                 break;
@@ -275,9 +278,11 @@ class XFdfDocument {
         final List<int> elements = _getAppearanceString(appearance);
         if (elements.isNotEmpty) {
           element.children.add(
-            XmlElement(XmlName('appearance'), <XmlAttribute>[], <XmlNode>[
-              XmlText(base64.encode(elements)),
-            ]),
+            XmlElement(
+              const XmlName.parts('appearance'),
+              <XmlAttribute>[],
+              <XmlNode>[XmlText(base64.encode(elements))],
+            ),
           );
         }
       }
@@ -292,13 +297,13 @@ class XFdfDocument {
       if (sound != null && sound is PdfStream) {
         if (sound.containsKey('B')) {
           element.attributes.add(
-            XmlAttribute(XmlName('bits'), _getValue(sound['B'])),
+            XmlAttribute(const XmlName.parts('bits'), _getValue(sound['B'])),
           );
         }
         if (sound.containsKey(PdfDictionaryProperties.c)) {
           element.attributes.add(
             XmlAttribute(
-              XmlName('channels'),
+              const XmlName.parts('channels'),
               _getValue(sound[PdfDictionaryProperties.c]),
             ),
           );
@@ -306,7 +311,7 @@ class XFdfDocument {
         if (sound.containsKey(PdfDictionaryProperties.e)) {
           element.attributes.add(
             XmlAttribute(
-              XmlName('encoding'),
+              const XmlName.parts('encoding'),
               _getValue(sound[PdfDictionaryProperties.e]),
             ),
           );
@@ -314,7 +319,7 @@ class XFdfDocument {
         if (sound.containsKey(PdfDictionaryProperties.r)) {
           element.attributes.add(
             XmlAttribute(
-              XmlName('rate'),
+              const XmlName.parts('rate'),
               _getValue(sound[PdfDictionaryProperties.r]),
             ),
           );
@@ -324,21 +329,25 @@ class XFdfDocument {
           if (!isNullOrEmpty(data)) {
             element.children.add(
               XmlElement(
-                XmlName(XfdfProperties.data.toLowerCase()),
+                XmlName.parts(XfdfProperties.data.toLowerCase()),
                 <XmlAttribute>[
-                  XmlAttribute(XmlName(XfdfProperties.mode), 'raw'),
+                  XmlAttribute(const XmlName.parts(XfdfProperties.mode), 'raw'),
                   XmlAttribute(
-                    XmlName(PdfDictionaryProperties.encoding.toLowerCase()),
+                    XmlName.parts(
+                      PdfDictionaryProperties.encoding.toLowerCase(),
+                    ),
                     'hex',
                   ),
                   if (sound.containsKey(PdfDictionaryProperties.length))
                     XmlAttribute(
-                      XmlName(PdfDictionaryProperties.length.toLowerCase()),
+                      XmlName.parts(
+                        PdfDictionaryProperties.length.toLowerCase(),
+                      ),
                       _getValue(sound[PdfDictionaryProperties.length]),
                     ),
                   if (sound.containsKey(PdfDictionaryProperties.filter))
                     XmlAttribute(
-                      XmlName(PdfDictionaryProperties.filter),
+                      const XmlName.parts(PdfDictionaryProperties.filter),
                       _getValue(sound[PdfDictionaryProperties.filter]),
                     ),
                 ],
@@ -356,7 +365,7 @@ class XFdfDocument {
         if (fsDictionary.containsKey(PdfDictionaryProperties.f)) {
           element.attributes.add(
             XmlAttribute(
-              XmlName('file'),
+              const XmlName.parts('file'),
               _getValue(fsDictionary[PdfDictionaryProperties.f]),
             ),
           );
@@ -384,7 +393,7 @@ class XFdfDocument {
                   )) {
                     element.attributes.add(
                       XmlAttribute(
-                        XmlName('creation'),
+                        const XmlName.parts('creation'),
                         _getValue(
                           paramsDictionary[PdfDictionaryProperties
                               .creationDate],
@@ -397,7 +406,7 @@ class XFdfDocument {
                   )) {
                     element.attributes.add(
                       XmlAttribute(
-                        XmlName('modification'),
+                        const XmlName.parts('modification'),
                         _getValue(
                           paramsDictionary[PdfDictionaryProperties
                               .modificationDate],
@@ -410,7 +419,9 @@ class XFdfDocument {
                   )) {
                     element.attributes.add(
                       XmlAttribute(
-                        XmlName(PdfDictionaryProperties.size.toLowerCase()),
+                        XmlName.parts(
+                          PdfDictionaryProperties.size.toLowerCase(),
+                        ),
                         _getValue(
                           paramsDictionary[PdfDictionaryProperties.size],
                         ),
@@ -423,7 +434,7 @@ class XFdfDocument {
                     );
                     final String hexString = PdfString.bytesToHex(checksum);
                     element.attributes.add(
-                      XmlAttribute(XmlName('checksum'), hexString),
+                      XmlAttribute(const XmlName.parts('checksum'), hexString),
                     );
                   }
                 }
@@ -432,24 +443,28 @@ class XFdfDocument {
               if (!isNullOrEmpty(data)) {
                 element.children.add(
                   XmlElement(
-                    XmlName(XfdfProperties.data.toLowerCase()),
+                    XmlName.parts(XfdfProperties.data.toLowerCase()),
                     <XmlAttribute>[
                       XmlAttribute(
-                        XmlName(XfdfProperties.mode),
+                        const XmlName.parts(XfdfProperties.mode),
                         XfdfProperties.raw.toLowerCase(),
                       ),
                       XmlAttribute(
-                        XmlName(PdfDictionaryProperties.encoding.toLowerCase()),
+                        XmlName.parts(
+                          PdfDictionaryProperties.encoding.toLowerCase(),
+                        ),
                         XfdfProperties.hex.toLowerCase(),
                       ),
                       if (fStream.containsKey(PdfDictionaryProperties.length))
                         XmlAttribute(
-                          XmlName(PdfDictionaryProperties.length.toLowerCase()),
+                          XmlName.parts(
+                            PdfDictionaryProperties.length.toLowerCase(),
+                          ),
                           _getValue(fStream[PdfDictionaryProperties.length]),
                         ),
                       if (fStream.containsKey(PdfDictionaryProperties.filter))
                         XmlAttribute(
-                          XmlName(PdfDictionaryProperties.filter),
+                          const XmlName.parts(PdfDictionaryProperties.filter),
                           _getValue(fStream[PdfDictionaryProperties.filter]),
                         ),
                     ],
@@ -464,7 +479,7 @@ class XFdfDocument {
     }
     if (dictionary.containsKey(PdfDictionaryProperties.vertices)) {
       final XmlElement verticesElement = XmlElement(
-        XmlName(PdfDictionaryProperties.vertices.toLowerCase()),
+        XmlName.parts(PdfDictionaryProperties.vertices.toLowerCase()),
       );
       final IPdfPrimitive? vertices = PdfCrossTable.dereference(
         dictionary[PdfDictionaryProperties.vertices],
@@ -514,7 +529,7 @@ class XFdfDocument {
         if (!isNullOrEmpty(defaultAppearance.value)) {
           element.children.add(
             XmlElement(
-              XmlName('defaultappearance'),
+              const XmlName.parts('defaultappearance'),
               <XmlAttribute>[],
               <XmlNode>[XmlText(defaultAppearance.value!)],
             ),
@@ -529,9 +544,11 @@ class XFdfDocument {
       if (defaultStyle != null && defaultStyle is PdfString) {
         if (!isNullOrEmpty(defaultStyle.value)) {
           element.children.add(
-            XmlElement(XmlName('defaultstyle'), <XmlAttribute>[], <XmlNode>[
-              XmlText(defaultStyle.value!),
-            ]),
+            XmlElement(
+              const XmlName.parts('defaultstyle'),
+              <XmlAttribute>[],
+              <XmlNode>[XmlText(defaultStyle.value!)],
+            ),
           );
         }
       }
@@ -541,14 +558,18 @@ class XFdfDocument {
         dictionary['InkList'],
       );
       if (inkList != null && inkList is PdfArray && inkList.count > 0) {
-        final XmlElement inkListElement = XmlElement(XmlName('inkList'));
+        final XmlElement inkListElement = XmlElement(
+          const XmlName.parts('inkList'),
+        );
         for (int j = 0; j < inkList.count; j++) {
           final IPdfPrimitive? list = PdfCrossTable.dereference(inkList[j]);
           if (list != null && list is PdfArray) {
             inkListElement.children.add(
-              XmlElement(XmlName('gesture'), <XmlAttribute>[], <XmlNode>[
-                XmlText(_getValue(list)),
-              ]),
+              XmlElement(
+                const XmlName.parts('gesture'),
+                <XmlAttribute>[],
+                <XmlNode>[XmlText(_getValue(list))],
+              ),
             );
           }
         }
@@ -568,7 +589,7 @@ class XFdfDocument {
           }
           element.children.add(
             XmlElement(
-              XmlName('contents-richtext'),
+              const XmlName.parts('contents-richtext'),
               <XmlAttribute>[],
               <XmlNode>[XmlText(value)],
             ),
@@ -583,9 +604,11 @@ class XFdfDocument {
       if (contents != null && contents is PdfString) {
         if (!isNullOrEmpty(contents.value)) {
           element.children.add(
-            XmlElement(XmlName('contents'), <XmlAttribute>[], <XmlNode>[
-              XmlText(contents.value!),
-            ]),
+            XmlElement(
+              const XmlName.parts('contents'),
+              <XmlAttribute>[],
+              <XmlNode>[XmlText(contents.value!)],
+            ),
           );
         }
       }
@@ -626,13 +649,15 @@ class XFdfDocument {
           if (primitive is PdfNumber) {
             final String c = _getValue(primitive);
             if (!isNullOrEmpty(c) && !_annotationAttributes!.contains('c')) {
-              element.attributes.add(XmlAttribute(XmlName('c'), c));
+              element.attributes.add(XmlAttribute(const XmlName.parts('c'), c));
               _annotationAttributes!.add('c');
             }
           }
           if (!isNullOrEmpty(color) &&
               !_annotationAttributes!.contains('color')) {
-            element.attributes.add(XmlAttribute(XmlName('color'), color));
+            element.attributes.add(
+              XmlAttribute(const XmlName.parts('color'), color),
+            );
             _annotationAttributes!.add('color');
           }
           break;
@@ -641,7 +666,10 @@ class XFdfDocument {
           if (!isNullOrEmpty(interiorColor) &&
               !_annotationAttributes!.contains('interior-color')) {
             element.attributes.add(
-              XmlAttribute(XmlName('interior-color'), interiorColor),
+              XmlAttribute(
+                const XmlName.parts('interior-color'),
+                interiorColor,
+              ),
             );
             _annotationAttributes!.add('interior-color');
           }
@@ -649,7 +677,7 @@ class XFdfDocument {
         case PdfDictionaryProperties.m:
           if (!_annotationAttributes!.contains('date')) {
             element.attributes.add(
-              XmlAttribute(XmlName('date'), _getValue(primitive)),
+              XmlAttribute(const XmlName.parts('date'), _getValue(primitive)),
             );
             _annotationAttributes!.add('date');
           }
@@ -660,7 +688,7 @@ class XFdfDocument {
           )) {
             element.attributes.add(
               XmlAttribute(
-                XmlName(PdfDictionaryProperties.name.toLowerCase()),
+                XmlName.parts(PdfDictionaryProperties.name.toLowerCase()),
                 _getValue(primitive),
               ),
             );
@@ -672,7 +700,7 @@ class XFdfDocument {
         case PdfDictionaryProperties.name:
           if (!_annotationAttributes!.contains('icon')) {
             element.attributes.add(
-              XmlAttribute(XmlName('icon'), _getValue(primitive)),
+              XmlAttribute(const XmlName.parts('icon'), _getValue(primitive)),
             );
             _annotationAttributes!.add('icon');
           }
@@ -683,7 +711,7 @@ class XFdfDocument {
           )) {
             element.attributes.add(
               XmlAttribute(
-                XmlName(PdfDictionaryProperties.subject.toLowerCase()),
+                XmlName.parts(PdfDictionaryProperties.subject.toLowerCase()),
                 _getValue(primitive),
               ),
             );
@@ -698,7 +726,7 @@ class XFdfDocument {
           )) {
             element.attributes.add(
               XmlAttribute(
-                XmlName(PdfDictionaryProperties.title.toLowerCase()),
+                XmlName.parts(PdfDictionaryProperties.title.toLowerCase()),
                 _getValue(primitive),
               ),
             );
@@ -711,7 +739,10 @@ class XFdfDocument {
         case PdfDictionaryProperties.creationDate:
           if (!_annotationAttributes!.contains(key.toLowerCase())) {
             element.attributes.add(
-              XmlAttribute(XmlName(key.toLowerCase()), _getValue(primitive)),
+              XmlAttribute(
+                XmlName.parts(key.toLowerCase()),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add(key.toLowerCase());
           }
@@ -719,7 +750,10 @@ class XFdfDocument {
         case PdfDictionaryProperties.rotate:
           if (!_annotationAttributes!.contains('rotation')) {
             element.attributes.add(
-              XmlAttribute(XmlName('rotation'), _getValue(primitive)),
+              XmlAttribute(
+                const XmlName.parts('rotation'),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add('rotation');
           }
@@ -730,7 +764,7 @@ class XFdfDocument {
           )) {
             element.attributes.add(
               XmlAttribute(
-                XmlName(PdfDictionaryProperties.width.toLowerCase()),
+                XmlName.parts(PdfDictionaryProperties.width.toLowerCase()),
                 _getValue(primitive),
               ),
             );
@@ -743,16 +777,22 @@ class XFdfDocument {
           if (primitive is PdfArray) {
             if (primitive.count == 2) {
               element.attributes.add(
-                XmlAttribute(XmlName('head'), _getValue(primitive.elements[0])),
+                XmlAttribute(
+                  const XmlName.parts('head'),
+                  _getValue(primitive.elements[0]),
+                ),
               );
               element.attributes.add(
-                XmlAttribute(XmlName('tail'), _getValue(primitive.elements[1])),
+                XmlAttribute(
+                  const XmlName.parts('tail'),
+                  _getValue(primitive.elements[1]),
+                ),
               );
             }
           } else if (primitive is PdfName &&
               !_annotationAttributes!.contains('head')) {
             element.attributes.add(
-              XmlAttribute(XmlName('head'), _getValue(primitive)),
+              XmlAttribute(const XmlName.parts('head'), _getValue(primitive)),
             );
             _annotationAttributes!.add('head');
           }
@@ -761,27 +801,33 @@ class XFdfDocument {
           if (!_annotationAttributes!.contains('style')) {
             switch (_getValue(primitive)) {
               case PdfDictionaryProperties.d:
-                element.attributes.add(XmlAttribute(XmlName('style'), 'dash'));
+                element.attributes.add(
+                  XmlAttribute(const XmlName.parts('style'), 'dash'),
+                );
                 break;
               case PdfDictionaryProperties.c:
                 element.attributes.add(
-                  XmlAttribute(XmlName('style'), 'cloudy'),
+                  XmlAttribute(const XmlName.parts('style'), 'cloudy'),
                 );
                 break;
               case PdfDictionaryProperties.s:
-                element.attributes.add(XmlAttribute(XmlName('style'), 'solid'));
+                element.attributes.add(
+                  XmlAttribute(const XmlName.parts('style'), 'solid'),
+                );
                 break;
               case 'B':
                 element.attributes.add(
-                  XmlAttribute(XmlName('style'), 'bevelled'),
+                  XmlAttribute(const XmlName.parts('style'), 'bevelled'),
                 );
                 break;
               case PdfDictionaryProperties.i:
-                element.attributes.add(XmlAttribute(XmlName('style'), 'inset'));
+                element.attributes.add(
+                  XmlAttribute(const XmlName.parts('style'), 'inset'),
+                );
                 break;
               case PdfDictionaryProperties.u:
                 element.attributes.add(
-                  XmlAttribute(XmlName('style'), 'underline'),
+                  XmlAttribute(const XmlName.parts('style'), 'underline'),
                 );
                 break;
             }
@@ -791,7 +837,7 @@ class XFdfDocument {
         case PdfDictionaryProperties.d:
           if (!_annotationAttributes!.contains('dashes')) {
             element.attributes.add(
-              XmlAttribute(XmlName('dashes'), _getValue(primitive)),
+              XmlAttribute(const XmlName.parts('dashes'), _getValue(primitive)),
             );
             _annotationAttributes!.add('dashes');
           }
@@ -799,7 +845,10 @@ class XFdfDocument {
         case PdfDictionaryProperties.i:
           if (!_annotationAttributes!.contains('intensity')) {
             element.attributes.add(
-              XmlAttribute(XmlName('intensity'), _getValue(primitive)),
+              XmlAttribute(
+                const XmlName.parts('intensity'),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add('intensity');
           }
@@ -807,7 +856,7 @@ class XFdfDocument {
         case PdfDictionaryProperties.rd:
           if (!_annotationAttributes!.contains('fringe')) {
             element.attributes.add(
-              XmlAttribute(XmlName('fringe'), _getValue(primitive)),
+              XmlAttribute(const XmlName.parts('fringe'), _getValue(primitive)),
             );
             _annotationAttributes!.add('fringe');
           }
@@ -815,7 +864,7 @@ class XFdfDocument {
         case PdfDictionaryProperties.it:
           if (!_annotationAttributes!.contains(key)) {
             element.attributes.add(
-              XmlAttribute(XmlName(key), _getValue(primitive)),
+              XmlAttribute(XmlName.parts(key), _getValue(primitive)),
             );
             _annotationAttributes!.add(key);
           }
@@ -824,7 +873,7 @@ class XFdfDocument {
           if (!_annotationAttributes!.contains('replyType')) {
             element.attributes.add(
               XmlAttribute(
-                XmlName('replyType'),
+                const XmlName.parts('replyType'),
                 _getValue(primitive).toLowerCase(),
               ),
             );
@@ -834,7 +883,10 @@ class XFdfDocument {
         case PdfDictionaryProperties.ll:
           if (!_annotationAttributes!.contains('leaderLength')) {
             element.attributes.add(
-              XmlAttribute(XmlName('leaderLength'), _getValue(primitive)),
+              XmlAttribute(
+                const XmlName.parts('leaderLength'),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add('leaderLength');
           }
@@ -842,7 +894,10 @@ class XFdfDocument {
         case PdfDictionaryProperties.lle:
           if (!_annotationAttributes!.contains('leaderExtend')) {
             element.attributes.add(
-              XmlAttribute(XmlName('leaderExtend'), _getValue(primitive)),
+              XmlAttribute(
+                const XmlName.parts('leaderExtend'),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add('leaderExtend');
           }
@@ -850,7 +905,10 @@ class XFdfDocument {
         case PdfDictionaryProperties.cap:
           if (!_annotationAttributes!.contains('caption')) {
             element.attributes.add(
-              XmlAttribute(XmlName('caption'), _getValue(primitive)),
+              XmlAttribute(
+                const XmlName.parts('caption'),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add('caption');
           }
@@ -858,7 +916,10 @@ class XFdfDocument {
         case PdfDictionaryProperties.q:
           if (!_annotationAttributes!.contains('justification')) {
             element.attributes.add(
-              XmlAttribute(XmlName('justification'), _getValue(primitive)),
+              XmlAttribute(
+                const XmlName.parts('justification'),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add('justification');
           }
@@ -866,7 +927,10 @@ class XFdfDocument {
         case PdfDictionaryProperties.cp:
           if (!_annotationAttributes!.contains('caption-style')) {
             element.attributes.add(
-              XmlAttribute(XmlName('caption-style'), _getValue(primitive)),
+              XmlAttribute(
+                const XmlName.parts('caption-style'),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add('caption-style');
           }
@@ -874,7 +938,10 @@ class XFdfDocument {
         case 'CL':
           if (!_annotationAttributes!.contains('callout')) {
             element.attributes.add(
-              XmlAttribute(XmlName('callout'), _getValue(primitive)),
+              XmlAttribute(
+                const XmlName.parts('callout'),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add('callout');
           }
@@ -882,7 +949,10 @@ class XFdfDocument {
         case 'FD':
           if (!_annotationAttributes!.contains(key.toLowerCase())) {
             element.attributes.add(
-              XmlAttribute(XmlName(key.toLowerCase()), _getValue(primitive)),
+              XmlAttribute(
+                XmlName.parts(key.toLowerCase()),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add(key.toLowerCase());
           }
@@ -890,7 +960,7 @@ class XFdfDocument {
         case PdfDictionaryProperties.quadPoints:
           if (!_annotationAttributes!.contains('Coords')) {
             element.attributes.add(
-              XmlAttribute(XmlName('coords'), _getValue(primitive)),
+              XmlAttribute(const XmlName.parts('coords'), _getValue(primitive)),
             );
             _annotationAttributes!.add('coords');
           }
@@ -898,7 +968,10 @@ class XFdfDocument {
         case PdfDictionaryProperties.ca:
           if (!_annotationAttributes!.contains('opacity')) {
             element.attributes.add(
-              XmlAttribute(XmlName('opacity'), _getValue(primitive)),
+              XmlAttribute(
+                const XmlName.parts('opacity'),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add('opacity');
           }
@@ -920,7 +993,7 @@ class XFdfDocument {
                 .replaceAll(' ', '');
             element.attributes.add(
               XmlAttribute(
-                XmlName(PdfDictionaryProperties.flags.toLowerCase()),
+                XmlName.parts(PdfDictionaryProperties.flags.toLowerCase()),
                 flag.substring(1, flag.length - 1),
               ),
             );
@@ -954,7 +1027,10 @@ class XFdfDocument {
         case 'Repeat':
           if (!_annotationAttributes!.contains(key)) {
             element.attributes.add(
-              XmlAttribute(XmlName(key.toLowerCase()), _getValue(primitive)),
+              XmlAttribute(
+                XmlName.parts(key.toLowerCase()),
+                _getValue(primitive),
+              ),
             );
             _annotationAttributes!.add(key.toLowerCase());
           }
@@ -971,13 +1047,13 @@ class XFdfDocument {
               primitive.elements[2] is PdfNumber) {
             element.attributes.add(
               XmlAttribute(
-                XmlName(PdfDictionaryProperties.width.toLowerCase()),
+                XmlName.parts(PdfDictionaryProperties.width.toLowerCase()),
                 _getValue(primitive.elements[2]),
               ),
             );
             element.attributes.add(
               XmlAttribute(
-                XmlName(PdfDictionaryProperties.border.toLowerCase()),
+                XmlName.parts(PdfDictionaryProperties.border.toLowerCase()),
                 _getValue(primitive),
               ),
             );
@@ -988,7 +1064,7 @@ class XFdfDocument {
         default:
           if (!_annotationAttributes!.contains(key)) {
             element.attributes.add(
-              XmlAttribute(XmlName(key), _getValue(primitive)),
+              XmlAttribute(XmlName.parts(key), _getValue(primitive)),
             );
             _annotationAttributes!.add(key);
           }
@@ -1072,9 +1148,9 @@ class XFdfDocument {
           element = _writeObject(key, (primitive as PdfReferenceHolder).object);
           break;
         case 'PdfDictionary':
-          element = XmlElement(XmlName(XfdfProperties.dict));
+          element = XmlElement(const XmlName.parts(XfdfProperties.dict));
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.key), key),
+            XmlAttribute(const XmlName.parts(XfdfProperties.key), key),
           );
           element.children.addAll(
             _writeAppearanceDictionary(primitive as PdfDictionary),
@@ -1084,19 +1160,19 @@ class XFdfDocument {
           final PdfStream streamElement = primitive as PdfStream;
           if (streamElement.dataStream != null &&
               streamElement.dataStream!.isNotEmpty) {
-            element = XmlElement(XmlName(XfdfProperties.stream));
+            element = XmlElement(const XmlName.parts(XfdfProperties.stream));
             element.attributes.add(
-              XmlAttribute(XmlName(XfdfProperties.key), key),
+              XmlAttribute(const XmlName.parts(XfdfProperties.key), key),
             );
             element.attributes.add(
-              XmlAttribute(XmlName(XfdfProperties.define), ''),
+              XmlAttribute(const XmlName.parts(XfdfProperties.define), ''),
             );
             element.children.addAll(_writeAppearanceDictionary(streamElement));
             final String type = _getValue(
               streamElement[PdfDictionaryProperties.subtype],
             );
             final XmlElement dataElement = XmlElement(
-              XmlName(XfdfProperties.data),
+              const XmlName.parts(XfdfProperties.data),
             );
             if ((streamElement.containsKey(PdfDictionaryProperties.subtype) &&
                     PdfDictionaryProperties.image == type) ||
@@ -1105,11 +1181,14 @@ class XFdfDocument {
                       PdfDictionaryProperties.subtype,
                     ))) {
               dataElement.attributes.add(
-                XmlAttribute(XmlName(XfdfProperties.mode), XfdfProperties.raw),
+                XmlAttribute(
+                  const XmlName.parts(XfdfProperties.mode),
+                  XfdfProperties.raw,
+                ),
               );
               dataElement.attributes.add(
                 XmlAttribute(
-                  XmlName(PdfDictionaryProperties.encoding.toUpperCase()),
+                  XmlName.parts(PdfDictionaryProperties.encoding.toUpperCase()),
                   XfdfProperties.hex,
                 ),
               );
@@ -1126,11 +1205,14 @@ class XFdfDocument {
                 PdfDictionaryProperties.form == type &&
                 !_isStampAnnotation) {
               dataElement.attributes.add(
-                XmlAttribute(XmlName(XfdfProperties.mode), XfdfProperties.raw),
+                XmlAttribute(
+                  const XmlName.parts(XfdfProperties.mode),
+                  XfdfProperties.raw,
+                ),
               );
               dataElement.attributes.add(
                 XmlAttribute(
-                  XmlName(PdfDictionaryProperties.encoding.toUpperCase()),
+                  XmlName.parts(PdfDictionaryProperties.encoding.toUpperCase()),
                   XfdfProperties.hex,
                 ),
               );
@@ -1149,13 +1231,15 @@ class XFdfDocument {
                 if (_isStampAnnotation && !ascii.contains('TJ')) {
                   dataElement.attributes.add(
                     XmlAttribute(
-                      XmlName(XfdfProperties.mode),
+                      const XmlName.parts(XfdfProperties.mode),
                       XfdfProperties.filtered,
                     ),
                   );
                   dataElement.attributes.add(
                     XmlAttribute(
-                      XmlName(PdfDictionaryProperties.encoding.toUpperCase()),
+                      XmlName.parts(
+                        PdfDictionaryProperties.encoding.toUpperCase(),
+                      ),
                       XfdfProperties.ascii,
                     ),
                   );
@@ -1168,13 +1252,15 @@ class XFdfDocument {
               } else {
                 dataElement.attributes.add(
                   XmlAttribute(
-                    XmlName(XfdfProperties.mode),
+                    const XmlName.parts(XfdfProperties.mode),
                     XfdfProperties.raw,
                   ),
                 );
                 dataElement.attributes.add(
                   XmlAttribute(
-                    XmlName(PdfDictionaryProperties.encoding.toUpperCase()),
+                    XmlName.parts(
+                      PdfDictionaryProperties.encoding.toUpperCase(),
+                    ),
                     XfdfProperties.hex,
                   ),
                 );
@@ -1192,13 +1278,13 @@ class XFdfDocument {
           }
           break;
         case 'PdfBoolean':
-          element = XmlElement(XmlName(XfdfProperties.bool));
+          element = XmlElement(const XmlName.parts(XfdfProperties.bool));
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.key), key),
+            XmlAttribute(const XmlName.parts(XfdfProperties.key), key),
           );
           element.attributes.add(
             XmlAttribute(
-              XmlName(XfdfProperties.val),
+              const XmlName.parts(XfdfProperties.val),
               primitive is PdfBoolean &&
                       primitive.value != null &&
                       primitive.value!
@@ -1208,51 +1294,51 @@ class XFdfDocument {
           );
           break;
         case 'PdfName':
-          element = XmlElement(XmlName(XfdfProperties.name));
+          element = XmlElement(const XmlName.parts(XfdfProperties.name));
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.key), key),
+            XmlAttribute(const XmlName.parts(XfdfProperties.key), key),
           );
           element.attributes.add(
             XmlAttribute(
-              XmlName(XfdfProperties.val),
+              const XmlName.parts(XfdfProperties.val),
               (primitive as PdfName).name ?? '',
             ),
           );
           break;
         case 'PdfString':
-          element = XmlElement(XmlName(XfdfProperties.string));
+          element = XmlElement(const XmlName.parts(XfdfProperties.string));
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.key), key),
+            XmlAttribute(const XmlName.parts(XfdfProperties.key), key),
           );
           element.attributes.add(
             XmlAttribute(
-              XmlName(XfdfProperties.val),
+              const XmlName.parts(XfdfProperties.val),
               (primitive as PdfString).value ?? '',
             ),
           );
           break;
         case 'PdfNumber':
-          element = XmlElement(XmlName(XfdfProperties.fixed));
+          element = XmlElement(const XmlName.parts(XfdfProperties.fixed));
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.key), key),
+            XmlAttribute(const XmlName.parts(XfdfProperties.key), key),
           );
           final String value = (primitive as PdfNumber).value!
               .toDouble()
               .toStringAsFixed(6);
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.val), value),
+            XmlAttribute(const XmlName.parts(XfdfProperties.val), value),
           );
           break;
         case 'PdfNull':
-          element = XmlElement(XmlName(XfdfProperties.nullVal));
+          element = XmlElement(const XmlName.parts(XfdfProperties.nullVal));
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.key), key),
+            XmlAttribute(const XmlName.parts(XfdfProperties.key), key),
           );
           break;
         case 'PdfArray':
-          element = XmlElement(XmlName(XfdfProperties.array));
+          element = XmlElement(const XmlName.parts(XfdfProperties.array));
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.key), key),
+            XmlAttribute(const XmlName.parts(XfdfProperties.key), key),
           );
           element.children.addAll(_writeArray(primitive as PdfArray));
           break;
@@ -1277,20 +1363,20 @@ class XFdfDocument {
     final String type = primitive.runtimeType.toString();
     switch (type) {
       case 'PdfArray':
-        element = XmlElement(XmlName(XfdfProperties.array));
+        element = XmlElement(const XmlName.parts(XfdfProperties.array));
         element.children.addAll(_writeArray(primitive as PdfArray));
         break;
       case 'PdfName':
-        element = XmlElement(XmlName(XfdfProperties.name));
+        element = XmlElement(const XmlName.parts(XfdfProperties.name));
         element.attributes.add(
           XmlAttribute(
-            XmlName(XfdfProperties.val),
+            const XmlName.parts(XfdfProperties.val),
             (primitive as PdfName).name ?? '',
           ),
         );
         break;
       case 'PdfString':
-        element = XmlElement(XmlName(XfdfProperties.string));
+        element = XmlElement(const XmlName.parts(XfdfProperties.string));
         final RegExp regex = RegExp(r'[\u0085-\u00FF]');
         if ((primitive as PdfString).value != null &&
             regex.hasMatch(primitive.value!) &&
@@ -1300,7 +1386,7 @@ class XFdfDocument {
           primitive.value = PdfString.byteToString(bytes);
           element.attributes.add(
             XmlAttribute(
-              XmlName(PdfDictionaryProperties.encoding.toUpperCase()),
+              XmlName.parts(PdfDictionaryProperties.encoding.toUpperCase()),
               XfdfProperties.hex,
             ),
           );
@@ -1309,24 +1395,27 @@ class XFdfDocument {
           }
         } else {
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.val), primitive.value ?? ''),
+            XmlAttribute(
+              const XmlName.parts(XfdfProperties.val),
+              primitive.value ?? '',
+            ),
           );
         }
         break;
       case 'PdfNumber':
-        element = XmlElement(XmlName(XfdfProperties.fixed));
+        element = XmlElement(const XmlName.parts(XfdfProperties.fixed));
         final String value = (primitive as PdfNumber).value!
             .toDouble()
             .toStringAsFixed(6);
         element.attributes.add(
-          XmlAttribute(XmlName(XfdfProperties.val), value),
+          XmlAttribute(const XmlName.parts(XfdfProperties.val), value),
         );
         break;
       case 'PdfBoolean':
-        element = XmlElement(XmlName(XfdfProperties.bool));
+        element = XmlElement(const XmlName.parts(XfdfProperties.bool));
         element.attributes.add(
           XmlAttribute(
-            XmlName(XfdfProperties.val),
+            const XmlName.parts(XfdfProperties.val),
             (primitive as PdfBoolean).value != null && primitive.value!
                 ? 'true'
                 : 'false',
@@ -1334,7 +1423,7 @@ class XFdfDocument {
         );
         break;
       case 'PdfDictionary':
-        element = XmlElement(XmlName(XfdfProperties.dict));
+        element = XmlElement(const XmlName.parts(XfdfProperties.dict));
         element.children.addAll(
           _writeAppearanceDictionary(primitive as PdfDictionary),
         );
@@ -1343,13 +1432,13 @@ class XFdfDocument {
         final PdfStream streamElement = primitive as PdfStream;
         if (streamElement.dataStream != null &&
             streamElement.dataStream!.isNotEmpty) {
-          element = XmlElement(XmlName(XfdfProperties.stream));
+          element = XmlElement(const XmlName.parts(XfdfProperties.stream));
           element.attributes.add(
-            XmlAttribute(XmlName(XfdfProperties.define), ''),
+            XmlAttribute(const XmlName.parts(XfdfProperties.define), ''),
           );
           element.children.addAll(_writeAppearanceDictionary(streamElement));
           final XmlElement dataElement = XmlElement(
-            XmlName(XfdfProperties.data),
+            const XmlName.parts(XfdfProperties.data),
           );
           final String type = _getValue(
             streamElement[PdfDictionaryProperties.subtype],
@@ -1357,11 +1446,14 @@ class XFdfDocument {
           if (streamElement.containsKey(PdfDictionaryProperties.subtype) &&
               PdfDictionaryProperties.image == type) {
             dataElement.attributes.add(
-              XmlAttribute(XmlName(XfdfProperties.mode), XfdfProperties.raw),
+              XmlAttribute(
+                const XmlName.parts(XfdfProperties.mode),
+                XfdfProperties.raw,
+              ),
             );
             dataElement.attributes.add(
               XmlAttribute(
-                XmlName(PdfDictionaryProperties.encoding.toUpperCase()),
+                XmlName.parts(PdfDictionaryProperties.encoding.toUpperCase()),
                 XfdfProperties.hex,
               ),
             );
@@ -1376,13 +1468,13 @@ class XFdfDocument {
           } else {
             dataElement.attributes.add(
               XmlAttribute(
-                XmlName(XfdfProperties.mode),
+                const XmlName.parts(XfdfProperties.mode),
                 XfdfProperties.filtered,
               ),
             );
             dataElement.attributes.add(
               XmlAttribute(
-                XmlName(PdfDictionaryProperties.encoding.toUpperCase()),
+                XmlName.parts(PdfDictionaryProperties.encoding.toUpperCase()),
                 XfdfProperties.ascii,
               ),
             );
@@ -1408,7 +1500,9 @@ class XFdfDocument {
   }
 
   XmlElement _exportMeasureDictionary(PdfDictionary dictionary) {
-    final XmlElement measureXmlElement = XmlElement(XmlName('measure'));
+    final XmlElement measureXmlElement = XmlElement(
+      const XmlName.parts('measure'),
+    );
     final IPdfPrimitive? mdictionary = PdfCrossTable.dereference(
       dictionary[PdfDictionaryProperties.measure],
     );
@@ -1416,7 +1510,7 @@ class XFdfDocument {
       if (mdictionary.containsKey(PdfDictionaryProperties.r)) {
         measureXmlElement.attributes.add(
           XmlAttribute(
-            XmlName('rateValue'),
+            const XmlName.parts('rateValue'),
             _getValue(mdictionary[PdfDictionaryProperties.r]),
           ),
         );
@@ -1428,7 +1522,9 @@ class XFdfDocument {
         if (aprimitive != null && aprimitive is PdfArray) {
           aprimitive = PdfCrossTable.dereference(aprimitive.elements[0]);
           if (aprimitive != null && aprimitive is PdfDictionary) {
-            final XmlElement areaXmlElement = XmlElement(XmlName('area'));
+            final XmlElement areaXmlElement = XmlElement(
+              const XmlName.parts('area'),
+            );
             _exportMeasureFormatDetails(aprimitive, areaXmlElement);
             measureXmlElement.children.add(areaXmlElement);
           }
@@ -1442,7 +1538,7 @@ class XFdfDocument {
           dprimitive = PdfCrossTable.dereference(dprimitive.elements[0]);
           if (dprimitive != null && dprimitive is PdfDictionary) {
             final XmlElement distanceXmlElement = XmlElement(
-              XmlName('distance'),
+              const XmlName.parts('distance'),
             );
             _exportMeasureFormatDetails(dprimitive, distanceXmlElement);
             measureXmlElement.children.add(distanceXmlElement);
@@ -1456,7 +1552,9 @@ class XFdfDocument {
         if (xprimitive != null && xprimitive is PdfArray) {
           xprimitive = PdfCrossTable.dereference(xprimitive.elements[0]);
           if (xprimitive != null && xprimitive is PdfDictionary) {
-            final XmlElement xformatXmlElement = XmlElement(XmlName('xformat'));
+            final XmlElement xformatXmlElement = XmlElement(
+              const XmlName.parts('xformat'),
+            );
             _exportMeasureFormatDetails(xprimitive, xformatXmlElement);
             measureXmlElement.children.add(xformatXmlElement);
           }
@@ -1473,7 +1571,7 @@ class XFdfDocument {
     if (measurementDetails.containsKey(PdfDictionaryProperties.c)) {
       element.attributes.add(
         XmlAttribute(
-          XmlName('c'),
+          const XmlName.parts('c'),
           _getValue(measurementDetails[PdfDictionaryProperties.c]),
         ),
       );
@@ -1481,7 +1579,7 @@ class XFdfDocument {
     if (measurementDetails.containsKey(PdfDictionaryProperties.f)) {
       element.attributes.add(
         XmlAttribute(
-          XmlName('f'),
+          const XmlName.parts('f'),
           _getValue(measurementDetails[PdfDictionaryProperties.f]),
         ),
       );
@@ -1489,7 +1587,7 @@ class XFdfDocument {
     if (measurementDetails.containsKey(PdfDictionaryProperties.d)) {
       element.attributes.add(
         XmlAttribute(
-          XmlName('d'),
+          const XmlName.parts('d'),
           _getValue(measurementDetails[PdfDictionaryProperties.d]),
         ),
       );
@@ -1497,7 +1595,7 @@ class XFdfDocument {
     if (measurementDetails.containsKey(PdfDictionaryProperties.rd)) {
       element.attributes.add(
         XmlAttribute(
-          XmlName('rd'),
+          const XmlName.parts('rd'),
           _getValue(measurementDetails[PdfDictionaryProperties.rd]),
         ),
       );
@@ -1505,24 +1603,33 @@ class XFdfDocument {
     if (measurementDetails.containsKey(PdfDictionaryProperties.u)) {
       element.attributes.add(
         XmlAttribute(
-          XmlName('u'),
+          const XmlName.parts('u'),
           _getValue(measurementDetails[PdfDictionaryProperties.u]),
         ),
       );
     }
     if (measurementDetails.containsKey('RT')) {
       element.attributes.add(
-        XmlAttribute(XmlName('rt'), _getValue(measurementDetails['RT'])),
+        XmlAttribute(
+          const XmlName.parts('rt'),
+          _getValue(measurementDetails['RT']),
+        ),
       );
     }
     if (measurementDetails.containsKey('SS')) {
       element.attributes.add(
-        XmlAttribute(XmlName('ss'), _getValue(measurementDetails['SS'])),
+        XmlAttribute(
+          const XmlName.parts('ss'),
+          _getValue(measurementDetails['SS']),
+        ),
       );
     }
     if (measurementDetails.containsKey('FD')) {
       element.attributes.add(
-        XmlAttribute(XmlName('fd'), _getValue(measurementDetails['FD'])),
+        XmlAttribute(
+          const XmlName.parts('fd'),
+          _getValue(measurementDetails['FD']),
+        ),
       );
     }
   }

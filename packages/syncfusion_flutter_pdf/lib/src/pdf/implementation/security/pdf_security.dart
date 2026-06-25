@@ -521,8 +521,8 @@ class PdfPermissions {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfPermissions] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfPermissionsHelper {
   /// internal method
   static PdfEncryptor getEncryptor(PdfPermissions permissions) {

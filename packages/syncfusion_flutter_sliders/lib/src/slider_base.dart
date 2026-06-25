@@ -535,20 +535,22 @@ class RenderBaseSlider extends RenderProxyBox
   Size get actualOverlaySize =>
       _overlayShape.getPreferredSize(_sliderThemeData);
 
-  double get actualTickHeight => _showTicks
-      ? _sliderThemeData.tickSize!.height +
-            (_sliderThemeData.tickOffset != null
-                ? _sliderThemeData.tickOffset!.dy
-                : 0)
-      : 0;
+  double get actualTickHeight =>
+      _showTicks
+          ? _sliderThemeData.tickSize!.height +
+              (_sliderThemeData.tickOffset != null
+                  ? _sliderThemeData.tickOffset!.dy
+                  : 0)
+          : 0;
 
   // actualTickWidth is applicable only for vertical sliders
-  double get actualTickWidth => _showTicks
-      ? _sliderThemeData.tickSize!.width +
-            (_sliderThemeData.tickOffset != null
-                ? _sliderThemeData.tickOffset!.dx
-                : 0)
-      : 0;
+  double get actualTickWidth =>
+      _showTicks
+          ? _sliderThemeData.tickSize!.width +
+              (_sliderThemeData.tickOffset != null
+                  ? _sliderThemeData.tickOffset!.dx
+                  : 0)
+          : 0;
 
   double get actualMinorTickHeight =>
       _minorTicksPerInterval > 0 ? actualMinorTickSize.height : 0;
@@ -557,32 +559,37 @@ class RenderBaseSlider extends RenderProxyBox
   double get actualMinorTickWidth =>
       _minorTicksPerInterval > 0 ? actualMinorTickSize.width : 0;
 
-  double get actualLabelHeight => _showLabels
-      ? textPainter.textScaler.scale(actualLabelSize.height) +
-            (_sliderThemeData.labelOffset != null
-                ? _sliderThemeData.labelOffset!.dy
-                : 0)
-      : 0;
+  double get actualLabelHeight =>
+      _showLabels
+          ? textPainter.textScaler.scale(actualLabelSize.height) +
+              (_sliderThemeData.labelOffset != null
+                  ? _sliderThemeData.labelOffset!.dy
+                  : 0)
+          : 0;
 
   // actualLabelOffset is applicable only for vertical sliders
-  double get actualLabelOffset => _showLabels
-      ? _sliderThemeData.labelOffset != null
-            ? (_sliderThemeData.labelOffset!.dx)
-            : 0
-      : 0;
+  double get actualLabelOffset =>
+      _showLabels
+          ? _sliderThemeData.labelOffset != null
+              ? (_sliderThemeData.labelOffset!.dx)
+              : 0
+          : 0;
 
   // Here 10 is a gap between tooltip nose and thumb.
-  double get tooltipStartY => (sliderType == SliderType.horizontal)
-      ? _tooltipShape is SfPaddleTooltipShape
-            ? math.max(actualThumbSize.height, actualTrackRect.height) / 2
-            : math.max(actualThumbSize.height, actualTrackRect.height) / 2 + 10
-      : math.max(actualThumbSize.width, actualTrackRect.width) / 2 + 10;
+  double get tooltipStartY =>
+      (sliderType == SliderType.horizontal)
+          ? _tooltipShape is SfPaddleTooltipShape
+              ? math.max(actualThumbSize.height, actualTrackRect.height) / 2
+              : math.max(actualThumbSize.height, actualTrackRect.height) / 2 +
+                  10
+          : math.max(actualThumbSize.width, actualTrackRect.width) / 2 + 10;
 
   double get adjustmentUnit => (actualMax - actualMin) / 10;
 
-  dynamic get semanticActionUnit => isDateTime
-      ? _stepDuration ?? adjustmentUnit
-      : _stepSize ?? adjustmentUnit;
+  dynamic get semanticActionUnit =>
+      isDateTime
+          ? _stepDuration ?? adjustmentUnit
+          : _stepSize ?? adjustmentUnit;
 
   void updateTextPainter() {
     textPainter
@@ -632,10 +639,11 @@ class RenderBaseSlider extends RenderProxyBox
     // If min and max are equal, the result will be NAN. This creates exception
     // and widget will not rendered.
     // So we have checked a condition (actualMax <= actualMin).
-    final double factor = (value == null || actualMax <= actualMin)
-        ? 0.0
-        // ignore: avoid_as
-        : (value - actualMin) / (actualMax - actualMin) as double;
+    final double factor =
+        (value == null || actualMax <= actualMin)
+            ? 0.0
+            // ignore: avoid_as
+            : (value - actualMin) / (actualMax - actualMin) as double;
     if (_isInversed) {
       return 1.0 - factor;
     } else {
@@ -646,9 +654,9 @@ class RenderBaseSlider extends RenderProxyBox
   double getPositionFromValue(double value) {
     return sliderType == SliderType.horizontal
         ? getFactorFromValue(value) * actualTrackRect.width +
-              actualTrackRect.left
+            actualTrackRect.left
         : actualTrackRect.bottom -
-              getFactorFromValue(value) * actualTrackRect.height;
+            getFactorFromValue(value) * actualTrackRect.height;
   }
 
   void generateLabelsAndMajorTicks() {
@@ -686,9 +694,10 @@ class RenderBaseSlider extends RenderProxyBox
         getFormattedText(currentValue),
       );
 
-      final TextStyle themeTextStyle = isActiveLabelValue(currentValue)
-          ? _sliderThemeData.activeLabelStyle!
-          : _sliderThemeData.inactiveLabelStyle!;
+      final TextStyle themeTextStyle =
+          isActiveLabelValue(currentValue)
+              ? _sliderThemeData.activeLabelStyle!
+              : _sliderThemeData.inactiveLabelStyle!;
       labelStyle = _onLabelCreated(currentValue, label, themeTextStyle);
 
       if (isDateTime) {
@@ -722,9 +731,10 @@ class RenderBaseSlider extends RenderProxyBox
       if (!_majorTickPositions.contains(labelPosition)) {
         _majorTickPositions.add(labelPosition);
       }
-      currentValue = isDateTime
-          ? _getNextDate(currentValue, _dateIntervalType, _interval!)
-          : currentValue + _interval;
+      currentValue =
+          isDateTime
+              ? _getNextDate(currentValue, _dateIntervalType, _interval!)
+              : currentValue + _interval;
     }
   }
 
@@ -733,9 +743,10 @@ class RenderBaseSlider extends RenderProxyBox
     SliderLabel labelStyle;
     divisions = 1.0;
     label = _labelFormatterCallback(_min, getFormattedText(_min));
-    TextStyle themeTextStyle = isActiveLabelValue(_min)
-        ? _sliderThemeData.activeLabelStyle!
-        : _sliderThemeData.inactiveLabelStyle!;
+    TextStyle themeTextStyle =
+        isActiveLabelValue(_min)
+            ? _sliderThemeData.activeLabelStyle!
+            : _sliderThemeData.inactiveLabelStyle!;
     labelStyle = _onLabelCreated(_min, label, themeTextStyle);
     _visibleLabels.add(
       SliderLabel(
@@ -748,9 +759,10 @@ class RenderBaseSlider extends RenderProxyBox
       isDateTime ? _min.millisecondsSinceEpoch.toDouble() : _min.toDouble(),
     );
     label = _labelFormatterCallback(_max, getFormattedText(_max));
-    themeTextStyle = isActiveLabelValue(_max)
-        ? _sliderThemeData.activeLabelStyle!
-        : _sliderThemeData.inactiveLabelStyle!;
+    themeTextStyle =
+        isActiveLabelValue(_max)
+            ? _sliderThemeData.activeLabelStyle!
+            : _sliderThemeData.inactiveLabelStyle!;
     labelStyle = _onLabelCreated(_max, label, themeTextStyle);
     _visibleLabels.add(
       SliderLabel(
@@ -859,11 +871,11 @@ class RenderBaseSlider extends RenderProxyBox
           (i + 1 < majorTicksCount
               ? _majorTickPositions[i + 1] - _majorTickPositions[i]
               : ((sliderType == SliderType.horizontal
-                        ? actualTrackRect.width
-                        : actualTrackRect.height) -
-                    (isInversed
-                        ? _majorTickPositions[0]
-                        : _majorTickPositions[majorTicksCount - 1]))) /
+                      ? actualTrackRect.width
+                      : actualTrackRect.height) -
+                  (isInversed
+                      ? _majorTickPositions[0]
+                      : _majorTickPositions[majorTicksCount - 1]))) /
           (_minorTicksPerInterval + 1);
       for (int j = 1; j <= _minorTicksPerInterval; j++) {
         _minorTickPositions.add(_majorTickPositions[i] + j * minorPositionDiff);
@@ -985,10 +997,10 @@ class RenderBaseSlider extends RenderProxyBox
             currentDate.second + _stepDuration!.seconds,
           );
 
-          final double currentDateInms = currentDate.millisecondsSinceEpoch
-              .toDouble();
-          final double nextDateInms = nextDate.millisecondsSinceEpoch
-              .toDouble();
+          final double currentDateInms =
+              currentDate.millisecondsSinceEpoch.toDouble();
+          final double nextDateInms =
+              nextDate.millisecondsSinceEpoch.toDouble();
 
           if (clampedValue >= currentDateInms && clampedValue <= nextDateInms) {
             final double dateDiff = (nextDateInms - currentDateInms).abs();
@@ -1014,11 +1026,13 @@ class RenderBaseSlider extends RenderProxyBox
   }
 
   double getFactorFromCurrentPosition() {
-    final double factor = (sliderType == SliderType.horizontal)
-        ? ((mainAxisOffset - actualTrackRect.left) / actualTrackRect.width)
-              .clamp(0.0, 1.0)
-        : ((actualTrackRect.bottom - mainAxisOffset) / actualTrackRect.height)
-              .clamp(0.0, 1.0);
+    final double factor =
+        (sliderType == SliderType.horizontal)
+            ? ((mainAxisOffset - actualTrackRect.left) / actualTrackRect.width)
+                .clamp(0.0, 1.0)
+            : ((actualTrackRect.bottom - mainAxisOffset) /
+                    actualTrackRect.height)
+                .clamp(0.0, 1.0);
     if (_isInversed) {
       return 1.0 - factor;
     } else {
@@ -1035,22 +1049,25 @@ class RenderBaseSlider extends RenderProxyBox
   ) {
     final double rectangularTooltipHeight =
         textPainter.height + tooltipTextPadding.dy > minTooltipHeight
-        ? textPainter.height + tooltipTextPadding.dy
-        : minTooltipHeight;
+            ? textPainter.height + tooltipTextPadding.dy
+            : minTooltipHeight;
     final double halfTextWidth =
         textPainter.width + tooltipTextPadding.dx > minTooltipWidth
-        ? (textPainter.width + tooltipTextPadding.dx) / 2
-        : minTooltipWidth / 2;
+            ? (textPainter.width + tooltipTextPadding.dx) / 2
+            : minTooltipWidth / 2;
 
-    double rightLineWidth = thumbCenter.dx + halfTextWidth > trackRect.right
-        ? trackRect.right - thumbCenter.dx
-        : halfTextWidth;
-    final double leftLineWidth = thumbCenter.dx - halfTextWidth < trackRect.left
-        ? thumbCenter.dx - trackRect.left
-        : (halfTextWidth * 2) - rightLineWidth;
-    rightLineWidth = leftLineWidth < halfTextWidth
-        ? halfTextWidth - leftLineWidth + rightLineWidth
-        : rightLineWidth;
+    double rightLineWidth =
+        thumbCenter.dx + halfTextWidth > trackRect.right
+            ? trackRect.right - thumbCenter.dx
+            : halfTextWidth;
+    final double leftLineWidth =
+        thumbCenter.dx - halfTextWidth < trackRect.left
+            ? thumbCenter.dx - trackRect.left
+            : (halfTextWidth * 2) - rightLineWidth;
+    rightLineWidth =
+        leftLineWidth < halfTextWidth
+            ? halfTextWidth - leftLineWidth + rightLineWidth
+            : rightLineWidth;
 
     final double left = thumbCenter.dx - leftLineWidth;
     final double right = thumbCenter.dx + rightLineWidth;
@@ -1074,17 +1091,18 @@ class RenderBaseSlider extends RenderProxyBox
   ) {
     final double paddleTooltipRadius =
         textPainter.height > minPaddleTopCircleRadius
-        ? textPainter.height
-        : minPaddleTopCircleRadius;
+            ? textPainter.height
+            : minPaddleTopCircleRadius;
     final double topNeckRadius = paddleTooltipRadius - neckDifference;
     final double bottomNeckRadius =
         thumbRadius > minPaddleTopCircleRadius * moveNeckValue
-        ? thumbRadius - neckDifference
-        : 4.0;
+            ? thumbRadius - neckDifference
+            : 4.0;
     final double halfTextWidth = textPainter.width / 2 + textPadding;
-    final double halfPaddleWidth = halfTextWidth > paddleTooltipRadius
-        ? halfTextWidth
-        : paddleTooltipRadius;
+    final double halfPaddleWidth =
+        halfTextWidth > paddleTooltipRadius
+            ? halfTextWidth
+            : paddleTooltipRadius;
     final double shift = _getAdjustPaddleWidth(
       thumbCenter,
       offset,
@@ -1123,12 +1141,12 @@ class RenderBaseSlider extends RenderProxyBox
     // When the tooltip leaves to the render box.
     shiftPaddleWidth =
         thumbCenter.dx + halfTextWidth + paddleTopCircleRadius >
-            rightEndPosition
-        ? thumbCenter.dx +
-              halfTextWidth +
-              paddleTopCircleRadius -
-              rightEndPosition
-        : shiftPaddleWidth;
+                rightEndPosition
+            ? thumbCenter.dx +
+                halfTextWidth +
+                paddleTopCircleRadius -
+                rightEndPosition
+            : shiftPaddleWidth;
     return shiftPaddleWidth;
   }
 
@@ -1145,15 +1163,14 @@ class RenderBaseSlider extends RenderProxyBox
   ) {
     int dateTimePos = 0;
     bool isActive;
-    final double dx = sliderType == SliderType.horizontal
-        ? trackRect.left
-        : trackRect.bottom;
-    final double dy = sliderType == SliderType.horizontal
-        ? trackRect.top
-        : trackRect.left;
-    final double halfTrackHeight = sliderType == SliderType.horizontal
-        ? trackRect.height / 2
-        : trackRect.width / 2;
+    final double dx =
+        sliderType == SliderType.horizontal ? trackRect.left : trackRect.bottom;
+    final double dy =
+        sliderType == SliderType.horizontal ? trackRect.top : trackRect.left;
+    final double halfTrackHeight =
+        sliderType == SliderType.horizontal
+            ? trackRect.height / 2
+            : trackRect.width / 2;
     if (startThumbCenter != null) {
       if (sliderType == SliderType.horizontal) {
         isActive =
@@ -1176,9 +1193,10 @@ class RenderBaseSlider extends RenderProxyBox
             .width /
         2;
 
-    final double tickRadius = sliderType == SliderType.horizontal
-        ? _tickShape.getPreferredSize(_sliderThemeData).width / 2
-        : _tickShape.getPreferredSize(_sliderThemeData).height / 2;
+    final double tickRadius =
+        sliderType == SliderType.horizontal
+            ? _tickShape.getPreferredSize(_sliderThemeData).width / 2
+            : _tickShape.getPreferredSize(_sliderThemeData).height / 2;
 
     // ignore: avoid_as
     double textValue = isDateTime ? 0.0 : _min.toDouble() as double;
@@ -1256,13 +1274,15 @@ class RenderBaseSlider extends RenderProxyBox
 
         // Drawing labels.
         if (_showLabels) {
-          final double dx = sliderType == SliderType.horizontal
-              ? trackRect.left
-              : trackRect.bottom;
+          final double dx =
+              sliderType == SliderType.horizontal
+                  ? trackRect.left
+                  : trackRect.bottom;
 
-          double offsetX = sliderType == SliderType.horizontal
-              ? dx + tickPosition
-              : dx - tickPosition;
+          double offsetX =
+              sliderType == SliderType.horizontal
+                  ? dx + tickPosition
+                  : dx - tickPosition;
 
           if (_labelPlacement == LabelPlacement.betweenTicks) {
             if (sliderType == SliderType.horizontal) {
@@ -1287,11 +1307,12 @@ class RenderBaseSlider extends RenderProxyBox
             }
           }
 
-          final TextStyle textStyle = hasLabelCreated
-              ? _visibleLabels[dateTimePos].textStyle
-              : isInactive
-              ? _sliderThemeData.inactiveLabelStyle!
-              : _sliderThemeData.activeLabelStyle!;
+          final TextStyle textStyle =
+              hasLabelCreated
+                  ? _visibleLabels[dateTimePos].textStyle
+                  : isInactive
+                  ? _sliderThemeData.inactiveLabelStyle!
+                  : _sliderThemeData.activeLabelStyle!;
 
           if (_edgeLabelPlacement == EdgeLabelPlacement.inside &&
               _labelPlacement == LabelPlacement.onTicks) {
@@ -1442,11 +1463,12 @@ class RenderBaseSlider extends RenderProxyBox
                 ? trackRect.width
                 : trackRect.height) &&
         currentMinorTickPosition > 0) {
-      final Offset actualTickOffset = sliderType == SliderType.horizontal
-          ? Offset(dx + currentMinorTickPosition, dy + trackRect.height) +
-                (_sliderThemeData.tickOffset ?? Offset.zero)
-          : Offset(dy + trackRect.width, dx - currentMinorTickPosition) +
-                (_sliderThemeData.tickOffset ?? Offset.zero);
+      final Offset actualTickOffset =
+          sliderType == SliderType.horizontal
+              ? Offset(dx + currentMinorTickPosition, dy + trackRect.height) +
+                  (_sliderThemeData.tickOffset ?? Offset.zero)
+              : Offset(dy + trackRect.width, dx - currentMinorTickPosition) +
+                  (_sliderThemeData.tickOffset ?? Offset.zero);
       _minorTickShape.paint(
         context,
         actualTickOffset,
@@ -1559,15 +1581,15 @@ class RenderBaseSlider extends RenderProxyBox
     double offsetX,
     TextStyle labelStyle,
   ) {
-    final double dy = sliderType == SliderType.horizontal
-        ? trackRect.top
-        : trackRect.left;
+    final double dy =
+        sliderType == SliderType.horizontal ? trackRect.top : trackRect.left;
     final String labelText = _visibleLabels[_dateTimePos].text;
-    final Offset actualLabelOffset = sliderType == SliderType.horizontal
-        ? Offset(offsetX, dy + trackRect.height + actualTickHeight) +
-              (_sliderThemeData.labelOffset ?? Offset.zero)
-        : Offset(dy + trackRect.width + actualTickWidth, offsetX) +
-              (_sliderThemeData.labelOffset ?? Offset.zero);
+    final Offset actualLabelOffset =
+        sliderType == SliderType.horizontal
+            ? Offset(offsetX, dy + trackRect.height + actualTickHeight) +
+                (_sliderThemeData.labelOffset ?? Offset.zero)
+            : Offset(dy + trackRect.width + actualTickWidth, offsetX) +
+                (_sliderThemeData.labelOffset ?? Offset.zero);
 
     _drawText(
       context,
@@ -1641,11 +1663,12 @@ class RenderBaseSlider extends RenderProxyBox
       }
     }
 
-    final TextStyle labelTextStyle = hasLabelCreated
-        ? textStyle
-        : isInactive
-        ? themeData.inactiveLabelStyle!
-        : themeData.activeLabelStyle!;
+    final TextStyle labelTextStyle =
+        hasLabelCreated
+            ? textStyle
+            : isInactive
+            ? themeData.inactiveLabelStyle!
+            : themeData.activeLabelStyle!;
 
     final TextSpan textSpan = TextSpan(text: text, style: labelTextStyle);
 
@@ -1736,10 +1759,7 @@ class RenderBaseSlider extends RenderProxyBox
   // This method is only applicable for vertical sliders
   Size _textSize(String text, double fontSize) {
     final TextPainter textPainter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(fontSize: fontSize),
-      ),
+      text: TextSpan(text: text, style: TextStyle(fontSize: fontSize)),
       maxLines: 1,
       textDirection: TextDirection.ltr,
     )..layout();
@@ -1757,10 +1777,10 @@ class RenderBaseSlider extends RenderProxyBox
       divisions =
           (isDateTime
                           ? _getDateTimeDifference(
-                              _min,
-                              _max,
-                              _dateIntervalType,
-                            )
+                            _min,
+                            _max,
+                            _dateIntervalType,
+                          )
                           : _max - _min)
                       .toDouble() /
                   // ignore: avoid_as
@@ -1771,9 +1791,10 @@ class RenderBaseSlider extends RenderProxyBox
           currentValue,
           getFormattedText(currentValue),
         );
-        final TextStyle themeTextStyle = isActiveLabelValue(currentValue)
-            ? _sliderThemeData.activeLabelStyle!
-            : _sliderThemeData.inactiveLabelStyle!;
+        final TextStyle themeTextStyle =
+            isActiveLabelValue(currentValue)
+                ? _sliderThemeData.activeLabelStyle!
+                : _sliderThemeData.inactiveLabelStyle!;
         labelStyle = _onLabelCreated(currentValue, label, themeTextStyle);
 
         final double maximumLabelFontSize = math.max(
@@ -1785,9 +1806,10 @@ class RenderBaseSlider extends RenderProxyBox
         if (maxLabelWidth < labelLength) {
           maxLabelWidth = labelLength;
         }
-        currentValue = isDateTime
-            ? _getNextDate(currentValue, _dateIntervalType, _interval!)
-            : currentValue + _interval;
+        currentValue =
+            isDateTime
+                ? _getNextDate(currentValue, _dateIntervalType, _interval!)
+                : currentValue + _interval;
       }
     } else if (_showLabels) {
       maxLabelWidth = _edgeLabelWidth();
@@ -1803,32 +1825,30 @@ class RenderBaseSlider extends RenderProxyBox
     SliderLabel maxLabelStyle;
     double maxLabelWidth;
     minLabel = _labelFormatterCallback(_min, getFormattedText(_min));
-    TextStyle themeTextStyle = isActiveLabelValue(_min)
-        ? _sliderThemeData.activeLabelStyle!
-        : _sliderThemeData.inactiveLabelStyle!;
+    TextStyle themeTextStyle =
+        isActiveLabelValue(_min)
+            ? _sliderThemeData.activeLabelStyle!
+            : _sliderThemeData.inactiveLabelStyle!;
     minLabelStyle = _onLabelCreated(_min, minLabel, themeTextStyle);
     maxLabel = _labelFormatterCallback(_max, getFormattedText(_max));
-    themeTextStyle = isActiveLabelValue(_max)
-        ? _sliderThemeData.activeLabelStyle!
-        : _sliderThemeData.inactiveLabelStyle!;
+    themeTextStyle =
+        isActiveLabelValue(_max)
+            ? _sliderThemeData.activeLabelStyle!
+            : _sliderThemeData.inactiveLabelStyle!;
     maxLabelStyle = _onLabelCreated(_max, maxLabel, themeTextStyle);
 
     double maxFontFize = math.max(
       maximumFontSize,
       maxLabelStyle.textStyle.fontSize ?? 0,
     );
-    final double minLabelLength = _textSize(
-      minLabelStyle.text,
-      maxFontFize,
-    ).width;
+    final double minLabelLength =
+        _textSize(minLabelStyle.text, maxFontFize).width;
     maxFontFize = math.max(
       maximumFontSize,
       minLabelStyle.textStyle.fontSize ?? 0,
     );
-    final double maxLabelLength = _textSize(
-      maxLabelStyle.text,
-      maxFontFize,
-    ).width;
+    final double maxLabelLength =
+        _textSize(maxLabelStyle.text, maxFontFize).width;
     maxLabelWidth = math.max(minLabelLength, maxLabelLength);
     return maxLabelWidth;
   }

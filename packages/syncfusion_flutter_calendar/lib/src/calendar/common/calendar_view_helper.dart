@@ -39,9 +39,9 @@ typedef UpdateCalendarState =
 //// the given width agenda view will render the web UI.
 const double _kMobileViewWidth = 767;
 
-// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods used for calendar views rendering
 /// in calendar.
+// ignore: avoid_classes_with_only_static_members
 class CalendarViewHelper {
   /// Return the current context direction is RTL or not.
   static bool isRTLLayout(BuildContext context) {
@@ -328,6 +328,7 @@ class CalendarViewHelper {
 
     // Fallback: use resourceItemHeight (height ?? size) for sizing calculations.
     final double effectiveResourceViewSize =
+        // ignore: deprecated_member_use_from_same_package
         resourceViewSettings.height ?? resourceViewSettings.size;
 
     double itemHeight = timelineViewHeight + textPadding;

@@ -91,8 +91,8 @@ class PdfFileStructure {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfFileStructure] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfFileStructureHelper {
   /// internal method
   static bool fileID(PdfFileStructure fileStructure, [bool? value]) {

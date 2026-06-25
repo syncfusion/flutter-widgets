@@ -1427,11 +1427,12 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
     /// An instance for SlidersThemeData class
     final SfSliderThemeData effectiveThemeData = SlidersThemeData(context);
     final bool isMaterial3 = themeData.useMaterial3;
-    final Color labelColor = isMaterial3
-        ? themeData.colorScheme.onSurfaceVariant
-        : isActive
-        ? themeData.textTheme.bodyLarge!.color!.withValues(alpha: 0.87)
-        : themeData.colorScheme.onSurface.withValues(alpha: 0.32);
+    final Color labelColor =
+        isMaterial3
+            ? themeData.colorScheme.onSurfaceVariant
+            : isActive
+            ? themeData.textTheme.bodyLarge!.color!.withValues(alpha: 0.87)
+            : themeData.colorScheme.onSurface.withValues(alpha: 0.32);
     final double minTrackHeight = math.min(
       sliderThemeData.activeTrackHeight,
       sliderThemeData.inactiveTrackHeight,
@@ -1453,9 +1454,10 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
       tooltipTextStyle: themeData.textTheme.bodyLarge!
           .copyWith(
             fontSize: isMaterial3 ? 12 : 14,
-            color: isMaterial3
-                ? themeData.colorScheme.onPrimary
-                : themeData.colorScheme.surface,
+            color:
+                isMaterial3
+                    ? themeData.colorScheme.onPrimary
+                    : themeData.colorScheme.surface,
           )
           .merge(sliderThemeData.tooltipTextStyle),
       inactiveTrackColor:
@@ -2051,29 +2053,32 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
        ) {
     final GestureArenaTeam team = GestureArenaTeam();
     if (sliderType == SliderType.horizontal) {
-      horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
-        ..team = team
-        ..onStart = _onDragStart
-        ..onUpdate = _onDragUpdate
-        ..onEnd = _onDragEnd
-        ..onCancel = _onDragCancel
-        ..gestureSettings = gestureSettings;
+      horizontalDragGestureRecognizer =
+          HorizontalDragGestureRecognizer()
+            ..team = team
+            ..onStart = _onDragStart
+            ..onUpdate = _onDragUpdate
+            ..onEnd = _onDragEnd
+            ..onCancel = _onDragCancel
+            ..gestureSettings = gestureSettings;
     }
 
     if (sliderType == SliderType.vertical) {
-      verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
-        ..team = team
-        ..onStart = _onVerticalDragStart
-        ..onUpdate = _onVerticalDragUpdate
-        ..onEnd = _onVerticalDragEnd
-        ..onCancel = _onVerticalDragCancel
-        ..gestureSettings = gestureSettings;
+      verticalDragGestureRecognizer =
+          VerticalDragGestureRecognizer()
+            ..team = team
+            ..onStart = _onVerticalDragStart
+            ..onUpdate = _onVerticalDragUpdate
+            ..onEnd = _onVerticalDragEnd
+            ..onCancel = _onVerticalDragCancel
+            ..gestureSettings = gestureSettings;
     }
 
-    tapGestureRecognizer = TapGestureRecognizer()
-      ..team = team
-      ..onTapDown = _onTapDown
-      ..onTapUp = _onTapUp;
+    tapGestureRecognizer =
+        TapGestureRecognizer()
+          ..team = team
+          ..onTapDown = _onTapDown
+          ..onTapUp = _onTapUp;
 
     _overlayAnimation = CurvedAnimation(
       parent: _state.overlayController,
@@ -2265,9 +2270,10 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
   void _onTapDown(TapDownDetails details) {
     currentPointerType = PointerType.down;
-    mainAxisOffset = sliderType == SliderType.horizontal
-        ? globalToLocal(details.globalPosition).dx
-        : globalToLocal(details.globalPosition).dy;
+    mainAxisOffset =
+        sliderType == SliderType.horizontal
+            ? globalToLocal(details.globalPosition).dx
+            : globalToLocal(details.globalPosition).dy;
     _beginInteraction();
   }
 
@@ -2419,10 +2425,11 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
     final dynamic actualText = getValueFromPosition(positionForValue);
 
-    final Paint paint = Paint()
-      ..color = sliderThemeData.tooltipBackgroundColor!
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 0;
+    final Paint paint =
+        Paint()
+          ..color = sliderThemeData.tooltipBackgroundColor!
+          ..style = PaintingStyle.fill
+          ..strokeWidth = 0;
 
     final String tooltipText = tooltipTextFormatterCallback(
       actualText,
@@ -2573,21 +2580,22 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final Offset actualTrackOffset = sliderType == SliderType.horizontal
-        ? Offset(
-            offset.dx,
-            offset.dy +
-                (size.height - actualHeight) / 2 +
-                trackOffset.dy -
-                maxTrackHeight / 2,
-          )
-        : Offset(
-            offset.dx +
-                (size.width - actualHeight) / 2 +
-                trackOffset.dx -
-                maxTrackHeight / 2,
-            offset.dy,
-          );
+    final Offset actualTrackOffset =
+        sliderType == SliderType.horizontal
+            ? Offset(
+              offset.dx,
+              offset.dy +
+                  (size.height - actualHeight) / 2 +
+                  trackOffset.dy -
+                  maxTrackHeight / 2,
+            )
+            : Offset(
+              offset.dx +
+                  (size.width - actualHeight) / 2 +
+                  trackOffset.dx -
+                  maxTrackHeight / 2,
+              offset.dy,
+            );
 
     // Drawing track.
     final Rect trackRect = trackShape.getPreferredRect(
@@ -2600,9 +2608,10 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         (sliderType == SliderType.horizontal
             ? trackRect.width
             : trackRect.height);
-    final Offset thumbCenter = sliderType == SliderType.horizontal
-        ? Offset(trackRect.left + thumbPosition, trackRect.center.dy)
-        : Offset(trackRect.center.dx, trackRect.bottom - thumbPosition);
+    final Offset thumbCenter =
+        sliderType == SliderType.horizontal
+            ? Offset(trackRect.left + thumbPosition, trackRect.center.dy)
+            : Offset(trackRect.center.dx, trackRect.bottom - thumbPosition);
 
     trackShape.paint(
       context,

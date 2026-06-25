@@ -1,6 +1,88 @@
 ## Unreleased
 
+**General**
+
+* Upgraded the [`device_info_plus`](https://pub.dev/packages/device_info_plus) package to the latest version `13.1.0`.
+
+**Bugs**
+
+* Now, the `SfPdfViewer` widget prevents duplication of read-only form fields when reopening a saved PDF without flattening.
+
+## [33.2.10] - 06/02/2026
+
+**Bugs**
+
+* Now, the `SfPdfViewer` widget resolved an issue caused by null page references in document-level form fields.
+
+## [33.2.8] - 05/26/2026
+
+* No changes.
+
+## [33.2.7] - 05/19/2026
+
+* No changes.
+
+## [33.2.6] - 05/13/2026
+
+* No changes.
+
+## [33.2.5] - 05/05/2026
+
+* No changes.
+
+## [33.2.4] - 04/28/2026
+
+* No changes.
+
+## [33.2.3] - 04/21/2026
+
+* No changes.
+
+## [33.1.49] - 04/14/2026
+
+* No changes.
+
+## [33.1.47] - 04/07/2026
+
+* No changes.
+
+## [33.1.46] - 03/31/2026
+
+**Bugs**
+
+* Now, the `SfPdfViewer` widget resolved an issue where form fields were accidentally focused while scrolling
+
+## [33.1.45] - 03/24/2026
+
+* No changes.
+
+## [33.1.44] - 03/16/2026
+
+**Bugs**
+
+* Now, the `SfPdfViewer` widget resolved an out-of-memory issue when opening large PDF documents.
+
+## [32.2.9] - 03/10/2026
+
+* No changes.
+
+## [32.2.8] - 03/03/2026
+
+* No changes.
+
+## [32.2.7] - 02/24/2026
+
+* No changes.
+
+## [32.2.5] - 02/17/2026
+
+**Feature**
+
 * Now, SfPdfViewer prerenders nearby pages to reduce loading delays when scrolling.
+
+## [32.2.4] - 02/11/2026
+
+* No changes.
 
 ## [32.2.3] - 02/05/2026
 

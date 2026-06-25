@@ -143,7 +143,8 @@ class TableSerialization {
             0,
           );
         }
-        builder.namespace(
+        builder.attribute(
+          'xmlns',
           'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
         );
 
@@ -643,7 +644,8 @@ class TableSerialization {
             0,
           );
         }
-        builder.namespace(
+        builder.attribute(
+          'xmlns',
           'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
         );
 

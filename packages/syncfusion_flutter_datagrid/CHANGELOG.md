@@ -1,6 +1,8 @@
 ## Unreleased
 
-No changes.
+**Bugs**
+
+* The `SfDataGrid` now properly handles the horizontal scrollbar gesture only when the `showHorizontalScrollbar` property is enabled.
 
 ## [32.1.22] - 01/06/2026
 

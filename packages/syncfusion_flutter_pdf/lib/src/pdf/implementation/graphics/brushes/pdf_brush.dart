@@ -3022,8 +3022,8 @@ class PdfBrushes {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfBrushes] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfBrushesHelper {
   /// internal method
   static void dispose() {

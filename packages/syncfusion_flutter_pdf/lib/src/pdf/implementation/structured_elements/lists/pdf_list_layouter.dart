@@ -1059,8 +1059,8 @@ class ListBeginPageLayoutArgs extends BeginPageLayoutArgs {
   late PdfList list;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [ListBeginPageLayoutArgs] helper
+// ignore: avoid_classes_with_only_static_members
 class ListBeginPageLayoutArgsHelper {
   /// internal method
   static ListBeginPageLayoutArgs internal(
@@ -1081,8 +1081,8 @@ class ListEndPageLayoutArgs extends EndPageLayoutArgs {
   PdfList list;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [ListEndPageLayoutArgs] helper
+// ignore: avoid_classes_with_only_static_members
 class ListEndPageLayoutArgsHelper {
   /// internal method
   static ListEndPageLayoutArgs internal(PdfLayoutResult result, PdfList list) {

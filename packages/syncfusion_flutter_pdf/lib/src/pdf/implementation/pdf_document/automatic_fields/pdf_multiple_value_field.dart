@@ -73,8 +73,8 @@ abstract class PdfMultipleValueField extends PdfDynamicField {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfMultipleValueField] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfMultipleValueFieldHelper {
   /// internal method
   static void performDraw(

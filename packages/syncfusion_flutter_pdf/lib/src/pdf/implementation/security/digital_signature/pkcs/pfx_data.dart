@@ -111,8 +111,8 @@ class DigestInformation extends Asn1Encode {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// internal class
+// ignore: avoid_classes_with_only_static_members
 class PkcsObjectId {
   /// internal field
   static const String pkcs1 = '1.2.840.113549.1.1';
@@ -229,8 +229,8 @@ class PkcsObjectId {
   static DerObjectID md5 = DerObjectID('${messageDigestAlgorithm}5');
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// internal class
+// ignore: avoid_classes_with_only_static_members
 class X509Objects {
   /// internal field
   static const String id = '2.5.4';

@@ -175,9 +175,12 @@ class XmpMetadata implements IPdfWrapper {
       if (!_isNullOrEmpty(info.producer)) {
         rdfDescription.children.add(
           XmlElement(
-            XmlName('Producer', 'pdf'),
+            const XmlName.parts('Producer', prefix: 'pdf'),
             <XmlAttribute>[
-              XmlAttribute(XmlName('pdf', 'xmlns'), pdfNamespace!),
+              XmlAttribute(
+                const XmlName.parts('pdf', prefix: 'xmlns'),
+                pdfNamespace!,
+              ),
             ],
             <XmlNode>[XmlText(info.producer)],
           ),
@@ -186,9 +189,12 @@ class XmpMetadata implements IPdfWrapper {
       if (!_isNullOrEmpty(info.keywords)) {
         rdfDescription.children.add(
           XmlElement(
-            XmlName('Keywords', 'pdf'),
+            const XmlName.parts('Keywords', prefix: 'pdf'),
             <XmlAttribute>[
-              XmlAttribute(XmlName('pdf', 'xmlns'), pdfNamespace!),
+              XmlAttribute(
+                const XmlName.parts('pdf', prefix: 'xmlns'),
+                pdfNamespace!,
+              ),
             ],
             <XmlNode>[XmlText(info.keywords)],
           ),
@@ -207,27 +213,33 @@ class XmpMetadata implements IPdfWrapper {
       xmpDescription.setAttribute('xmlns:xmp', xmpNamespace);
       if (!_isNullOrEmpty(info.creator)) {
         xmpDescription.children.add(
-          XmlElement(XmlName('CreatorTool', 'xmp'), <XmlAttribute>[], <XmlNode>[
-            XmlText(info.creator),
-          ]),
+          XmlElement(
+            const XmlName.parts('CreatorTool', prefix: 'xmp'),
+            <XmlAttribute>[],
+            <XmlNode>[XmlText(info.creator)],
+          ),
         );
       }
       final String createDate = _getDateTime(
         PdfDocumentInformationHelper.getHelper(info).creationDate,
       );
       xmpDescription.children.add(
-        XmlElement(XmlName('CreateDate', 'xmp'), <XmlAttribute>[], <XmlNode>[
-          XmlText(createDate),
-        ]),
+        XmlElement(
+          const XmlName.parts('CreateDate', prefix: 'xmp'),
+          <XmlAttribute>[],
+          <XmlNode>[XmlText(createDate)],
+        ),
       );
       if (!PdfDocumentInformationHelper.getHelper(info).isRemoveModifyDate) {
         final String modificationDate = _getDateTime(
           PdfDocumentInformationHelper.getHelper(info).modificationDate,
         );
         xmpDescription.children.add(
-          XmlElement(XmlName('ModifyDate', 'xmp'), <XmlAttribute>[], <XmlNode>[
-            XmlText(modificationDate),
-          ]),
+          XmlElement(
+            const XmlName.parts('ModifyDate', prefix: 'xmp'),
+            <XmlAttribute>[],
+            <XmlNode>[XmlText(modificationDate)],
+          ),
         );
       }
       rdf.children.add(xmpDescription);
@@ -242,9 +254,11 @@ class XmpMetadata implements IPdfWrapper {
     dublinDescription.setAttribute('rdf:about', ' ');
     dublinDescription.setAttribute('xmlns:dc', dublinNamespace);
     dublinDescription.children.add(
-      XmlElement(XmlName('format', 'dc'), <XmlAttribute>[], <XmlNode>[
-        XmlText('application/pdf'),
-      ]),
+      XmlElement(
+        const XmlName.parts('format', prefix: 'dc'),
+        <XmlAttribute>[],
+        <XmlNode>[XmlText('application/pdf')],
+      ),
     );
     _createDublinCoreContainer(
       dublinDescription,
@@ -321,14 +335,16 @@ class XmpMetadata implements IPdfWrapper {
         prefix != 'xml' &&
         prefix != 'xmlns') {
       element = XmlElement(
-        XmlName(localName, prefix),
-        <XmlAttribute>[XmlAttribute(XmlName(prefix, 'xmlns'), namespaceURI)],
+        XmlName.parts(localName, prefix: prefix),
+        <XmlAttribute>[
+          XmlAttribute(XmlName.parts(prefix, prefix: 'xmlns'), namespaceURI),
+        ],
         <XmlNode>[],
         false,
       );
     } else {
       element = XmlElement(
-        XmlName(localName, prefix == 'xap' ? 'xmp' : prefix),
+        XmlName.parts(localName, prefix: prefix == 'xap' ? 'xmp' : prefix),
       );
     }
     _addNamespace(prefix, namespaceURI);

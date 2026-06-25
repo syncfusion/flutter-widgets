@@ -1354,6 +1354,9 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   Uint8List? _originalSourceBytes;
   bool _isDecrypting = false;
 
+  // Holds the field that may receive focus on a confirmed tap.
+  FocusNode? _formFieldFocus;
+
   @override
   void initState() {
     super.initState();
@@ -1665,9 +1668,15 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   void _retrieveFormFieldsDetails() {
     for (int i = 0; i < _document!.form.fields.count; i++) {
       final PdfField field = _document!.form.fields[i];
+      if (_isAndroid && _isTablet && field.readOnly) {
+        continue;
+      }
 
       final PdfPage? page = _document!.form.fields[i].page;
-      final int pageIndex = _document!.pages.indexOf(page!);
+      if (page == null) {
+        continue;
+      }
+      final int pageIndex = _document!.pages.indexOf(page);
 
       // Retrieve the text box field details
       if (field is PdfTextBoxField) {
@@ -4369,11 +4378,12 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     bool isTextFormFieldFocused = false;
 
     /// Requesting focus to the text form fields in mobile platforms
+    _formFieldFocus = null;
     if (_textBoxFocusNodes.isNotEmpty) {
       for (final MapEntry<PdfTextFormFieldHelper, FocusNode> entry
           in _textBoxFocusNodes.entries) {
         if (entry.key.globalRect.contains(event.position)) {
-          entry.value.requestFocus();
+          _formFieldFocus = entry.value;
           isTextFormFieldFocused = true;
         }
       }
@@ -4426,6 +4436,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   }
 
   void _handlePointerUp(PointerUpEvent details) {
+    if (_canInvokeOnTap && _formFieldFocus != null) {
+      _formFieldFocus!.requestFocus();
+    }
+    _formFieldFocus = null;
     final Offset localPosition =
         _globalToLocal(details.position) ?? details.localPosition;
     _canInvokeOnTap &=

@@ -131,6 +131,8 @@ class RenderMarkerPointer extends RenderBox {
       _pointerAnimationController;
   AnimationController? _pointerAnimationController;
 
+  Object? _loadToken;
+
   /// Gets the animation controller for [RenderMarkerPointer].
   set pointerAnimationController(AnimationController? value) {
     if (value == _pointerAnimationController) {
@@ -548,6 +550,7 @@ class RenderMarkerPointer extends RenderBox {
 
   @override
   void detach() {
+    _loadToken = null;
     _removeListeners();
     super.detach();
   }
@@ -638,22 +641,32 @@ class RenderMarkerPointer extends RenderBox {
 
   /// To load the image from the image url
   // ignore: avoid_void_async
-  void _loadImage() async {
-    await _renderImage().then((void value) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (Duration duration) => markNeedsPaint(),
-      );
+  Future<void> _loadImage() async {
+    final Object token = Object();
+    _loadToken = token;
+
+    final dart_ui.Image image = await _renderImage();
+    if (!attached || _loadToken != token) {
+      image.dispose();
+      return;
+    }
+
+    _image = image;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (attached) {
+        markNeedsPaint();
+      }
     });
   }
 
   /// Renders the image from the image url
-  Future<void> _renderImage() async {
-    final ByteData imageData = await rootBundle.load(imageUrl!);
-    final dart_ui.Codec imageCodec = await dart_ui.instantiateImageCodec(
-      imageData.buffer.asUint8List(),
+  Future<dart_ui.Image> _renderImage() async {
+    final ByteData data = await rootBundle.load(imageUrl!);
+    final dart_ui.Codec codec = await dart_ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
     );
-    final dart_ui.FrameInfo frameInfo = await imageCodec.getNextFrame();
-    _image = frameInfo.image;
+    final dart_ui.FrameInfo frame = await codec.getNextFrame();
+    return frame.image;
   }
 
   /// Method to draw pointer the marker pointer.

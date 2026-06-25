@@ -32,8 +32,8 @@ class TextGlyph {
   late bool isRotated;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [TextGlyph] helper
+// ignore: avoid_classes_with_only_static_members
 class TextGlyphHelper {
   /// internal method
   static TextGlyph initialize(

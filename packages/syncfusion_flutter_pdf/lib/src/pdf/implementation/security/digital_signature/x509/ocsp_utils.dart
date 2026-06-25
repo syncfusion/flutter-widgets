@@ -797,8 +797,8 @@ class TimeStampRequestCreator extends Asn1 {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// internal class
+// ignore: avoid_classes_with_only_static_members
 class OcspConstants {
   /// internal field
   static DerObjectID ocsp = DerObjectID('1.3.6.1.5.5.7.48.1');

@@ -12,8 +12,8 @@ import 'appointment.dart';
 import 'calendar_datasource.dart';
 import 'recurrence_helper.dart';
 
-// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods used for appointment rendering in calendar.
+// ignore: avoid_classes_with_only_static_members
 class AppointmentHelper {
   /// Return the date with start time value for the date value.
   static DateTime convertToStartTime(DateTime date) {

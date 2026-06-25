@@ -53,17 +53,18 @@ class SfTrackShape {
     if (_isVertical(parentBox)) {
       double left = offset.dx;
       if (isActive != null) {
-        left += isActive
-            ? (maxTrackHeight - themeData.activeTrackHeight) / 2
-            : (maxTrackHeight - themeData.inactiveTrackHeight) / 2;
+        left +=
+            isActive
+                ? (maxTrackHeight - themeData.activeTrackHeight) / 2
+                : (maxTrackHeight - themeData.inactiveTrackHeight) / 2;
       }
       final double right =
           left +
           (isActive == null
               ? maxTrackHeight
               : (isActive
-                    ? themeData.activeTrackHeight
-                    : themeData.inactiveTrackHeight));
+                  ? themeData.activeTrackHeight
+                  : themeData.inactiveTrackHeight));
       final double top = offset.dy + maxRadius;
       final double bottom = top + parentBox.size.height - (2 * maxRadius);
       return Rect.fromLTRB(
@@ -76,9 +77,10 @@ class SfTrackShape {
       final double left = offset.dx + maxRadius;
       double top = offset.dy;
       if (isActive != null) {
-        top += isActive
-            ? (maxTrackHeight - themeData.activeTrackHeight) / 2
-            : (maxTrackHeight - themeData.inactiveTrackHeight) / 2;
+        top +=
+            isActive
+                ? (maxTrackHeight - themeData.activeTrackHeight) / 2
+                : (maxTrackHeight - themeData.inactiveTrackHeight) / 2;
       }
       final double right = left + parentBox.size.width - (2 * maxRadius);
       final double bottom =
@@ -86,8 +88,8 @@ class SfTrackShape {
           (isActive == null
               ? maxTrackHeight
               : (isActive
-                    ? themeData.activeTrackHeight
-                    : themeData.inactiveTrackHeight));
+                  ? themeData.activeTrackHeight
+                  : themeData.inactiveTrackHeight));
       return Rect.fromLTRB(
         math.min(left, right),
         top,
@@ -442,9 +444,10 @@ class SfThumbShape {
           parentRenderBox.currentPointerType != null &&
           parentRenderBox.currentPointerType != PointerType.up;
       path.addOval(Rect.fromCircle(center: center, radius: radius));
-      final double thumbElevation = isThumbActive
-          ? parentRenderBox.thumbElevationTween.evaluate(enableAnimation)
-          : defaultElevation;
+      final double thumbElevation =
+          isThumbActive
+              ? parentRenderBox.thumbElevationTween.evaluate(enableAnimation)
+              : defaultElevation;
 
       context.canvas.drawShadow(path, shadowColor, thumbElevation, true);
     }
@@ -468,10 +471,11 @@ class SfThumbShape {
     if (paint == null) {
       paint = Paint();
       paint.isAntiAlias = true;
-      paint.color = ColorTween(
-        begin: themeData.disabledThumbColor,
-        end: themeData.thumbColor,
-      ).evaluate(enableAnimation)!;
+      paint.color =
+          ColorTween(
+            begin: themeData.disabledThumbColor,
+            end: themeData.thumbColor,
+          ).evaluate(enableAnimation)!;
     }
 
     context.canvas.drawCircle(center, radius, paint);
@@ -488,12 +492,14 @@ class SfThumbShape {
     if (themeData.thumbStrokeColor != null &&
         themeData.thumbStrokeWidth != null &&
         themeData.thumbStrokeWidth! > 0) {
-      final Paint strokePaint = Paint()
-        ..color = themeData.thumbStrokeColor!
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = themeData.thumbStrokeWidth! > radius
-            ? radius
-            : themeData.thumbStrokeWidth!;
+      final Paint strokePaint =
+          Paint()
+            ..color = themeData.thumbStrokeColor!
+            ..style = PaintingStyle.stroke
+            ..strokeWidth =
+                themeData.thumbStrokeWidth! > radius
+                    ? radius
+                    : themeData.thumbStrokeWidth!;
       context.canvas.drawCircle(
         center,
         themeData.thumbStrokeWidth! > radius
@@ -520,8 +526,8 @@ class SfDividerShape {
     return Size.fromRadius(
       isActive != null
           ? (isActive
-                ? themeData.activeDividerRadius!
-                : themeData.inactiveDividerRadius!)
+              ? themeData.activeDividerRadius!
+              : themeData.inactiveDividerRadius!)
           : 0,
     );
   }
@@ -588,29 +594,31 @@ class SfDividerShape {
 
     if (paint == null) {
       paint = Paint();
-      final Color begin = isActive
-          ? themeData.disabledActiveDividerColor!
-          : themeData.disabledInactiveDividerColor!;
-      final Color end = isActive
-          ? themeData.activeDividerColor!
-          : themeData.inactiveDividerColor!;
+      final Color begin =
+          isActive
+              ? themeData.disabledActiveDividerColor!
+              : themeData.disabledInactiveDividerColor!;
+      final Color end =
+          isActive
+              ? themeData.activeDividerColor!
+              : themeData.inactiveDividerColor!;
 
-      paint.color = ColorTween(
-        begin: begin,
-        end: end,
-      ).evaluate(enableAnimation)!;
+      paint.color =
+          ColorTween(begin: begin, end: end).evaluate(enableAnimation)!;
     }
 
     final double dividerRadius =
         getPreferredSize(themeData, isActive: isActive).width / 2;
     context.canvas.drawCircle(center, dividerRadius, paint);
 
-    final double? dividerStrokeWidth = isActive
-        ? themeData.activeDividerStrokeWidth
-        : themeData.inactiveDividerStrokeWidth;
-    final Color? dividerStrokeColor = isActive
-        ? themeData.activeDividerStrokeColor
-        : themeData.inactiveDividerStrokeColor;
+    final double? dividerStrokeWidth =
+        isActive
+            ? themeData.activeDividerStrokeWidth
+            : themeData.inactiveDividerStrokeWidth;
+    final Color? dividerStrokeColor =
+        isActive
+            ? themeData.activeDividerStrokeColor
+            : themeData.inactiveDividerStrokeColor;
 
     if (dividerStrokeColor != null &&
         dividerStrokeWidth != null &&
@@ -624,9 +632,10 @@ class SfDividerShape {
         paint
           ..color = dividerStrokeColor
           ..style = PaintingStyle.stroke
-          ..strokeWidth = dividerStrokeWidth > dividerRadius
-              ? dividerRadius
-              : dividerStrokeWidth,
+          ..strokeWidth =
+              dividerStrokeWidth > dividerRadius
+                  ? dividerRadius
+                  : dividerStrokeWidth,
       );
     }
   }
@@ -737,16 +746,19 @@ class SfTickShape {
       }
     }
 
-    final Color begin = isInactive
-        ? themeData.disabledInactiveTickColor!
-        : themeData.disabledActiveTickColor!;
-    final Color end = isInactive
-        ? themeData.inactiveTickColor!
-        : themeData.activeTickColor!;
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..strokeWidth = _isVertical(parentBox) ? tickSize.height : tickSize.width
-      ..color = ColorTween(begin: begin, end: end).evaluate(enableAnimation)!;
+    final Color begin =
+        isInactive
+            ? themeData.disabledInactiveTickColor!
+            : themeData.disabledActiveTickColor!;
+    final Color end =
+        isInactive ? themeData.inactiveTickColor! : themeData.activeTickColor!;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..strokeWidth =
+              _isVertical(parentBox) ? tickSize.height : tickSize.width
+          ..color =
+              ColorTween(begin: begin, end: end).evaluate(enableAnimation)!;
     if (_isVertical(parentBox)) {
       context.canvas.drawLine(
         offset,
@@ -848,18 +860,23 @@ class SfMinorTickShape extends SfTickShape {
       }
     }
 
-    final Color begin = isInactive
-        ? themeData.disabledInactiveMinorTickColor!
-        : themeData.disabledActiveMinorTickColor!;
-    final Color end = isInactive
-        ? themeData.inactiveMinorTickColor!
-        : themeData.activeMinorTickColor!;
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..strokeWidth = _isVertical(parentBox)
-          ? minorTickSize.height
-          : minorTickSize.width
-      ..color = ColorTween(begin: begin, end: end).evaluate(enableAnimation)!;
+    final Color begin =
+        isInactive
+            ? themeData.disabledInactiveMinorTickColor!
+            : themeData.disabledActiveMinorTickColor!;
+    final Color end =
+        isInactive
+            ? themeData.inactiveMinorTickColor!
+            : themeData.activeMinorTickColor!;
+    final Paint paint =
+        Paint()
+          ..isAntiAlias = true
+          ..strokeWidth =
+              _isVertical(parentBox)
+                  ? minorTickSize.height
+                  : minorTickSize.width
+          ..color =
+              ColorTween(begin: begin, end: end).evaluate(enableAnimation)!;
     if (_isVertical(parentBox)) {
       context.canvas.drawLine(
         offset,
@@ -910,16 +927,18 @@ class SfPaddleTooltipShape extends SfTooltipShape {
         2;
     final double paddleTopCircleRadius =
         textPainter.height > minPaddleTopCircleRadius
-        ? textPainter.height
-        : minPaddleTopCircleRadius;
+            ? textPainter.height
+            : minPaddleTopCircleRadius;
     final double topNeckRadius = paddleTopCircleRadius - neckDifference;
-    final double bottomNeckRadius = thumbRadius > defaultThumbRadius
-        ? thumbRadius - neckDifference * 2
-        : minBottomNeckRadius;
+    final double bottomNeckRadius =
+        thumbRadius > defaultThumbRadius
+            ? thumbRadius - neckDifference * 2
+            : minBottomNeckRadius;
     final double halfTextWidth = textPainter.width / 2 + textPadding;
-    final double paddleTopCircleX = halfTextWidth > paddleTopCircleRadius
-        ? halfTextWidth - paddleTopCircleRadius
-        : 0;
+    final double paddleTopCircleX =
+        halfTextWidth > paddleTopCircleRadius
+            ? halfTextWidth - paddleTopCircleRadius
+            : 0;
     final double minPaddleWidth =
         paddleTopCircleRadius + topNeckRadius + neckDifference / 2;
     final Offset topNeckCenter = Offset(
@@ -938,52 +957,57 @@ class SfPaddleTooltipShape extends SfTooltipShape {
       -thumbRadius - bottomNeckRadius * (1.0 - moveNeckValue),
     );
     final double leftShiftWidth = thumbCenter.dx - halfTextWidth;
-    double shiftPaddleWidth = leftShiftWidth < trackRect.left
-        ? leftShiftWidth
-        : 0;
+    double shiftPaddleWidth =
+        leftShiftWidth < trackRect.left ? leftShiftWidth : 0;
     final double rightShiftWidth = thumbCenter.dx + halfTextWidth;
-    shiftPaddleWidth = rightShiftWidth > trackRect.right
-        ? rightShiftWidth - trackRect.right
-        : shiftPaddleWidth;
+    shiftPaddleWidth =
+        rightShiftWidth > trackRect.right
+            ? rightShiftWidth - trackRect.right
+            : shiftPaddleWidth;
     final double leftPaddleWidth =
         paddleTopCircleRadius + paddleTopCircleCenter.dx + shiftPaddleWidth;
     final double rightPaddleWidth =
         paddleTopCircleRadius + paddleTopCircleCenter.dx - shiftPaddleWidth;
-    final double moveLeftTopNeckY = leftPaddleWidth > paddleTopCircleRadius
-        ? leftPaddleWidth < minPaddleWidth
-              ? (leftPaddleWidth - topNeckRadius) * moveNeckValue
-              : paddleTopCircleRadius * moveNeckValue
-        : 0;
-    final double moveLeftTopNeckAngle = leftPaddleWidth > paddleTopCircleRadius
-        ? leftPaddleWidth < minPaddleWidth
-              ? moveLeftTopNeckY * math.pi / 180
-              : 30 * math.pi / 180
-        : 0;
-    final double moveRightTopNeckY = rightPaddleWidth > paddleTopCircleRadius
-        ? rightPaddleWidth < minPaddleWidth
-              ? (rightPaddleWidth - topNeckRadius) * moveNeckValue
-              : paddleTopCircleRadius * moveNeckValue
-        : 0;
+    final double moveLeftTopNeckY =
+        leftPaddleWidth > paddleTopCircleRadius
+            ? leftPaddleWidth < minPaddleWidth
+                ? (leftPaddleWidth - topNeckRadius) * moveNeckValue
+                : paddleTopCircleRadius * moveNeckValue
+            : 0;
+    final double moveLeftTopNeckAngle =
+        leftPaddleWidth > paddleTopCircleRadius
+            ? leftPaddleWidth < minPaddleWidth
+                ? moveLeftTopNeckY * math.pi / 180
+                : 30 * math.pi / 180
+            : 0;
+    final double moveRightTopNeckY =
+        rightPaddleWidth > paddleTopCircleRadius
+            ? rightPaddleWidth < minPaddleWidth
+                ? (rightPaddleWidth - topNeckRadius) * moveNeckValue
+                : paddleTopCircleRadius * moveNeckValue
+            : 0;
     final double moveRightTopNeckAngle =
         rightPaddleWidth > paddleTopCircleRadius
-        ? rightPaddleWidth < minPaddleWidth
-              ? moveRightTopNeckY * math.pi / 180
-              : 30 * math.pi / 180
-        : 0;
-    final double leftNeckStretchValue = leftPaddleWidth < minPaddleWidth
-        ? (1.0 - (leftPaddleWidth / minPaddleWidth))
-        : 0;
-    final double rightNeckStretchValue = rightPaddleWidth < minPaddleWidth
-        ? (1.0 - (rightPaddleWidth / minPaddleWidth))
-        : 0;
+            ? rightPaddleWidth < minPaddleWidth
+                ? moveRightTopNeckY * math.pi / 180
+                : 30 * math.pi / 180
+            : 0;
+    final double leftNeckStretchValue =
+        leftPaddleWidth < minPaddleWidth
+            ? (1.0 - (leftPaddleWidth / minPaddleWidth))
+            : 0;
+    final double rightNeckStretchValue =
+        rightPaddleWidth < minPaddleWidth
+            ? (1.0 - (rightPaddleWidth / minPaddleWidth))
+            : 0;
     final double adjustPaddleCircleLeftArcAngle =
         shiftPaddleWidth < 0 && leftPaddleWidth < minPaddleWidth
-        ? (leftNeckStretchValue * (math.pi / 2 + moveLeftTopNeckAngle))
-        : 0;
+            ? (leftNeckStretchValue * (math.pi / 2 + moveLeftTopNeckAngle))
+            : 0;
     final double adjustPaddleCircleRightArcAngle =
         shiftPaddleWidth > 0 && rightPaddleWidth < minPaddleWidth
-        ? (rightNeckStretchValue * (math.pi / 2 + moveRightTopNeckAngle))
-        : 0.0;
+            ? (rightNeckStretchValue * (math.pi / 2 + moveRightTopNeckAngle))
+            : 0.0;
     final double adjustLeftNeckArcAngle =
         adjustPaddleCircleLeftArcAngle * (1.0 - moveNeckValue);
     final double adjustRightNeckArcAngle =
@@ -1201,27 +1225,27 @@ class SfRectangularTooltipShape extends SfTooltipShape {
     bool? isLeftTooltip,
   }) {
     final double dy = tooltipStartY + tooltipTriangleHeight;
-    final double tooltipWidth = textSize.width < minTooltipWidth
-        ? minTooltipWidth
-        : textSize.width;
-    final double tooltipHeight = textSize.height < minTooltipHeight
-        ? minTooltipHeight
-        : textSize.height;
+    final double tooltipWidth =
+        textSize.width < minTooltipWidth ? minTooltipWidth : textSize.width;
+    final double tooltipHeight =
+        textSize.height < minTooltipHeight ? minTooltipHeight : textSize.height;
     final double halfTooltipWidth = tooltipWidth / 2;
     final double halfTooltipHeight = tooltipHeight / 2;
     const double halfTooltipTriangleWidth = tooltipTriangleWidth / 2;
     if (isVertical) {
       if (isLeftTooltip!) {
-        double topLineHeight = dx - halfTooltipHeight < trackRect.top
-            ? dx - trackRect.top
-            : halfTooltipHeight;
+        double topLineHeight =
+            dx - halfTooltipHeight < trackRect.top
+                ? dx - trackRect.top
+                : halfTooltipHeight;
         final double bottomLineHeight =
             dx + halfTooltipHeight > trackRect.bottom
-            ? trackRect.bottom - dx
-            : tooltipHeight - topLineHeight;
-        topLineHeight = bottomLineHeight < halfTooltipHeight
-            ? halfTooltipHeight - bottomLineHeight + topLineHeight
-            : topLineHeight;
+                ? trackRect.bottom - dx
+                : tooltipHeight - topLineHeight;
+        topLineHeight =
+            bottomLineHeight < halfTooltipHeight
+                ? halfTooltipHeight - bottomLineHeight + topLineHeight
+                : topLineHeight;
         return _getRectangularPath(
           tooltipStartY,
           topLineHeight,
@@ -1234,16 +1258,18 @@ class SfRectangularTooltipShape extends SfTooltipShape {
           isLeftTooltip: isLeftTooltip,
         );
       } else {
-        double topLineHeight = dx - halfTooltipHeight < trackRect.top
-            ? dx - trackRect.top
-            : halfTooltipHeight;
+        double topLineHeight =
+            dx - halfTooltipHeight < trackRect.top
+                ? dx - trackRect.top
+                : halfTooltipHeight;
         final double bottomLineHeight =
             dx + halfTooltipHeight > trackRect.bottom
-            ? trackRect.bottom - dx
-            : tooltipHeight - topLineHeight;
-        topLineHeight = bottomLineHeight < halfTooltipHeight
-            ? halfTooltipHeight - bottomLineHeight + topLineHeight
-            : topLineHeight;
+                ? trackRect.bottom - dx
+                : tooltipHeight - topLineHeight;
+        topLineHeight =
+            bottomLineHeight < halfTooltipHeight
+                ? halfTooltipHeight - bottomLineHeight + topLineHeight
+                : topLineHeight;
         return _getRectangularPath(
           tooltipStartY,
           topLineHeight,
@@ -1257,18 +1283,21 @@ class SfRectangularTooltipShape extends SfTooltipShape {
         );
       }
     } else {
-      double rightLineWidth = dx + halfTooltipWidth > trackRect.right
-          ? trackRect.right - dx
-          : halfTooltipWidth;
-      final double leftLineWidth = isVertical
-          ? tooltipWidth - rightLineWidth
-          : dx - halfTooltipWidth < trackRect.left
-          ? dx - trackRect.left
-          : tooltipWidth - rightLineWidth;
+      double rightLineWidth =
+          dx + halfTooltipWidth > trackRect.right
+              ? trackRect.right - dx
+              : halfTooltipWidth;
+      final double leftLineWidth =
+          isVertical
+              ? tooltipWidth - rightLineWidth
+              : dx - halfTooltipWidth < trackRect.left
+              ? dx - trackRect.left
+              : tooltipWidth - rightLineWidth;
       if (!isVertical) {
-        rightLineWidth = leftLineWidth < halfTooltipWidth
-            ? halfTooltipWidth - leftLineWidth + rightLineWidth
-            : rightLineWidth;
+        rightLineWidth =
+            leftLineWidth < halfTooltipWidth
+                ? halfTooltipWidth - leftLineWidth + rightLineWidth
+                : rightLineWidth;
       }
       return _getRectangularPath(
         tooltipStartY,
@@ -1509,22 +1538,23 @@ class SfRectangularTooltipShape extends SfTooltipShape {
     final double leftPadding = tooltipTextPadding.dx / 2;
     final double minLeftX = trackRect.left;
     // ignore: avoid_as
-    final Path path = (_isVertical(parentBox as RenderBaseSlider))
-        ? _updateRectangularTooltipWidth(
-            textPainter.size + tooltipTextPadding,
-            offset.dy,
-            trackRect,
-            thumbCenter.dy,
-            isVertical: _isVertical(parentBox),
-            isLeftTooltip: _isLeftTooltip(parentBox),
-          )
-        : _updateRectangularTooltipWidth(
-            textPainter.size + tooltipTextPadding,
-            offset.dy,
-            trackRect,
-            thumbCenter.dx,
-            isVertical: _isVertical(parentBox),
-          );
+    final Path path =
+        (_isVertical(parentBox as RenderBaseSlider))
+            ? _updateRectangularTooltipWidth(
+              textPainter.size + tooltipTextPadding,
+              offset.dy,
+              trackRect,
+              thumbCenter.dy,
+              isVertical: _isVertical(parentBox),
+              isLeftTooltip: _isLeftTooltip(parentBox),
+            )
+            : _updateRectangularTooltipWidth(
+              textPainter.size + tooltipTextPadding,
+              offset.dy,
+              trackRect,
+              thumbCenter.dx,
+              isVertical: _isVertical(parentBox),
+            );
 
     context.canvas.save();
     context.canvas.translate(thumbCenter.dx, thumbCenter.dy);
@@ -1566,17 +1596,18 @@ class SfRectangularTooltipShape extends SfTooltipShape {
             tooltipTriangleHeight -
             (pathRect.size.width - tooltipTriangleHeight) / 2 -
             textPainter.width / 2;
-        final double dy = rectTopPosition >= trackRect.top
-            ? thumbCenter.dy + halfPathHeight >= trackRect.bottom
-                  ? -halfTextPainterHeight -
+        final double dy =
+            rectTopPosition >= trackRect.top
+                ? thumbCenter.dy + halfPathHeight >= trackRect.bottom
+                    ? -halfTextPainterHeight -
                         halfPathHeight -
                         thumbCenter.dy +
                         trackRect.bottom
-                  : -halfTextPainterHeight
-            : -halfTextPainterHeight +
-                  halfPathHeight -
-                  thumbCenter.dy +
-                  trackRect.top;
+                    : -halfTextPainterHeight
+                : -halfTextPainterHeight +
+                    halfPathHeight -
+                    thumbCenter.dy +
+                    trackRect.top;
         textPainter.paint(context.canvas, Offset(dx, dy));
       } else {
         final double dx =
@@ -1584,32 +1615,34 @@ class SfRectangularTooltipShape extends SfTooltipShape {
             tooltipTriangleHeight +
             (pathRect.size.width - tooltipTriangleHeight) / 2 -
             textPainter.width / 2;
-        final double dy = rectTopPosition >= trackRect.top
-            ? thumbCenter.dy + halfPathHeight >= trackRect.bottom
-                  ? -halfTextPainterHeight -
+        final double dy =
+            rectTopPosition >= trackRect.top
+                ? thumbCenter.dy + halfPathHeight >= trackRect.bottom
+                    ? -halfTextPainterHeight -
                         halfPathHeight -
                         thumbCenter.dy +
                         trackRect.bottom
-                  : -halfTextPainterHeight
-            : -halfTextPainterHeight +
-                  halfPathHeight -
-                  thumbCenter.dy +
-                  trackRect.top;
+                    : -halfTextPainterHeight
+                : -halfTextPainterHeight +
+                    halfPathHeight -
+                    thumbCenter.dy +
+                    trackRect.top;
         textPainter.paint(context.canvas, Offset(dx, dy));
       }
     } else {
-      final double dx = rectLeftPosition >= minLeftX
-          ? thumbCenter.dx + halfTextPainterWidth + leftPadding >
-                    trackRect.right
-                ? -halfTextPainterWidth -
+      final double dx =
+          rectLeftPosition >= minLeftX
+              ? thumbCenter.dx + halfTextPainterWidth + leftPadding >
+                      trackRect.right
+                  ? -halfTextPainterWidth -
                       halfPathWidth +
                       trackRect.right -
                       thumbCenter.dx
-                : -halfTextPainterWidth
-          : -halfTextPainterWidth +
-                halfPathWidth +
-                trackRect.left -
-                thumbCenter.dx;
+                  : -halfTextPainterWidth
+              : -halfTextPainterWidth +
+                  halfPathWidth +
+                  trackRect.left -
+                  thumbCenter.dx;
       final double dy =
           offset.dy +
           tooltipTriangleHeight +

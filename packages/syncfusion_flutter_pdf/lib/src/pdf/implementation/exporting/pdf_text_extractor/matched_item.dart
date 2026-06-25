@@ -20,8 +20,8 @@ class MatchedItem {
   final List<Rect> _boundsCollection;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [MatchedItem] helper
+// ignore: avoid_classes_with_only_static_members
 class MatchedItemHelper {
   /// internal method
   static MatchedItem initialize(String text, List<Rect> bounds, int pageIndex) {

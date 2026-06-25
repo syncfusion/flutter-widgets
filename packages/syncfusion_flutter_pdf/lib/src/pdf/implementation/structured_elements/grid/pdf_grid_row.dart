@@ -795,8 +795,8 @@ class PdfGridRowCollection {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfGridRowCollection] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfGridRowCollectionHelper {
   /// internal method
   static PdfGrid getGrid(PdfGridRowCollection collection) {

@@ -994,6 +994,27 @@ class PdfPageHelper {
                   }
                 }
               }
+              bool isSignature = false;
+              if (annotDictionary.containsKey(PdfDictionaryProperties.ft)) {
+                final PdfName? ftName =
+                    crossTable!.getObject(
+                          annotDictionary[PdfDictionaryProperties.ft],
+                        )
+                        as PdfName?;
+                if (ftName != null && ftName.name == 'Sig') {
+                  isSignature = true;
+                }
+              }
+              if (annotDictionary.containsKey(PdfDictionaryProperties.p) &&
+                  annotDictionary.containsKey(PdfDictionaryProperties.ap) &&
+                  isSignature) {
+                annotDictionary.remove(PdfDictionaryProperties.p);
+                annotDictionary.setProperty(
+                  PdfDictionaryProperties.p,
+                  PdfReferenceHolder(dictionary),
+                );
+                annotDictionary.modify();
+              }
             }
           }
           if (annotReference != null && annotReference.reference != null) {

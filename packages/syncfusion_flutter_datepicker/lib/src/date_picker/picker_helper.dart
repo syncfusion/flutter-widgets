@@ -6,8 +6,8 @@ import 'package:syncfusion_flutter_core/localizations.dart';
 import 'date_picker_manager.dart';
 import 'hijri_date_picker_manager.dart';
 
-// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods of the date picker.
+// ignore: avoid_classes_with_only_static_members
 class DateRangePickerHelper {
   /// Return the index value based on RTL.
   static int getRtlIndex(int count, int index) {
