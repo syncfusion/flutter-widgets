@@ -106,8 +106,8 @@ abstract class PdfSingleValueField extends PdfDynamicField {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfSingleValueField] value
+// ignore: avoid_classes_with_only_static_members
 class PdfSingleValueFieldHelper {
   /// internal method
   static void performDraw(

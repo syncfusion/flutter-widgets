@@ -170,8 +170,8 @@ class PdfPageCountField extends PdfSingleValueField {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfPageCountField] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfPageCountFieldHelper {
   /// internal method
   static String? getValue(PdfPageCountField field, PdfGraphics graphics) {

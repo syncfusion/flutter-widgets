@@ -1736,18 +1736,18 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
   }
 
   SfRangeSelectorThemeData _getRangeSelectorThemeData(ThemeData themeData) {
-    SfRangeSelectorThemeData rangeSelectorThemeData = SfRangeSelectorTheme.of(
-      context,
-    )!;
+    SfRangeSelectorThemeData rangeSelectorThemeData =
+        SfRangeSelectorTheme.of(context)!;
     final bool isMaterial3 = themeData.useMaterial3;
     final SfRangeSelectorThemeData effectiveThemeData = RangeSelectorThemeData(
       context,
     );
-    final Color labelColor = isMaterial3
-        ? themeData.colorScheme.onSurfaceVariant
-        : widget.enabled
-        ? themeData.textTheme.bodyLarge!.color!.withValues(alpha: 0.87)
-        : themeData.colorScheme.onSurface.withValues(alpha: 0.32);
+    final Color labelColor =
+        isMaterial3
+            ? themeData.colorScheme.onSurfaceVariant
+            : widget.enabled
+            ? themeData.textTheme.bodyLarge!.color!.withValues(alpha: 0.87)
+            : themeData.colorScheme.onSurface.withValues(alpha: 0.32);
     final double minTrackHeight = math.min(
       rangeSelectorThemeData.activeTrackHeight,
       rangeSelectorThemeData.inactiveTrackHeight,
@@ -1774,9 +1774,10 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       tooltipTextStyle: themeData.textTheme.bodyLarge!
           .copyWith(
             fontSize: isMaterial3 ? 12 : 14,
-            color: isMaterial3
-                ? themeData.colorScheme.onPrimary
-                : themeData.colorScheme.surface,
+            color:
+                isMaterial3
+                    ? themeData.colorScheme.onPrimary
+                    : themeData.colorScheme.surface,
           )
           .merge(rangeSelectorThemeData.tooltipTextStyle),
       inactiveTrackColor:
@@ -1922,9 +1923,8 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       vsync: this,
       duration: duration,
     );
-    stateController.value = widget.enabled && (widget.min != widget.max)
-        ? 1.0
-        : 0.0;
+    stateController.value =
+        widget.enabled && (widget.min != widget.max) ? 1.0 : 0.0;
 
     _keyboardActionMap = <Type, Action<Intent>>{
       SliderKeyIntent: CallbackAction<SliderKeyIntent>(
@@ -2599,8 +2599,10 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
   // So we adjust track offset to ignore that gap.
   double get adjustTrackY =>
       sliderThemeData.activeTrackHeight > sliderThemeData.inactiveTrackHeight
-      ? sliderThemeData.activeTrackHeight - sliderThemeData.inactiveTrackHeight
-      : sliderThemeData.inactiveTrackHeight - sliderThemeData.activeTrackHeight;
+          ? sliderThemeData.activeTrackHeight -
+              sliderThemeData.inactiveTrackHeight
+          : sliderThemeData.inactiveTrackHeight -
+              sliderThemeData.activeTrackHeight;
 
   void _updateNewValues(SfRangeValues newValues) {
     if (_state.widget.onChanged != null) {
@@ -2681,9 +2683,10 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     Offset startThumbCenter,
     Offset endThumbCenter,
   ) {
-    final Paint inactivePaint = Paint()
-      ..isAntiAlias = true
-      ..color = _inactiveRegionColor;
+    final Paint inactivePaint =
+        Paint()
+          ..isAntiAlias = true
+          ..color = _inactiveRegionColor;
     if (child != null && child!.size.height > 1 && child!.size.width > 1) {
       final double halfActiveTrackHeight =
           sliderThemeData.activeTrackHeight / 2;
@@ -2703,12 +2706,10 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
       }
 
       //Below values are used to fit active and inactive region into the track.
-      final double inactiveRegionAdj = isMaxActive
-          ? halfActiveTrackHeight - halfInactiveTrackHeight
-          : 0;
-      final double activeRegionAdj = !isMaxActive
-          ? halfInactiveTrackHeight - halfActiveTrackHeight
-          : 0;
+      final double inactiveRegionAdj =
+          isMaxActive ? halfActiveTrackHeight - halfInactiveTrackHeight : 0;
+      final double activeRegionAdj =
+          !isMaxActive ? halfInactiveTrackHeight - halfActiveTrackHeight : 0;
       context.canvas.drawRect(
         Rect.fromLTRB(
           trackRect.left,
@@ -2718,9 +2719,10 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
         ),
         inactivePaint,
       );
-      final Paint activePaint = Paint()
-        ..isAntiAlias = true
-        ..color = _activeRegionColor;
+      final Paint activePaint =
+          Paint()
+            ..isAntiAlias = true
+            ..color = _activeRegionColor;
       context.canvas.drawRect(
         Rect.fromLTRB(
           leftThumbCenter.dx,
@@ -2865,9 +2867,10 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     startThumbIcon?.layout(contentConstraints, parentUsesSize: true);
     endThumbIcon?.layout(contentConstraints, parentUsesSize: true);
 
-    final double actualWidth = childWidth > 0.0
-        ? (childWidth + 2 * trackOffset.dx)
-        : minTrackWidth + 2 * trackOffset.dx;
+    final double actualWidth =
+        childWidth > 0.0
+            ? (childWidth + 2 * trackOffset.dx)
+            : minTrackWidth + 2 * trackOffset.dx;
 
     final double actualHeight = childHeight + elementsHeightAfterRenderedChild;
     size = Size(

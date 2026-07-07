@@ -78,8 +78,8 @@ abstract class PdfStaticField extends PdfAutomaticField {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfStaticField] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfStaticFieldHelper {
   /// internal method
   static void performDraw(

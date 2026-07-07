@@ -68,8 +68,8 @@ class PdfBorders {
   bool get _isAll => left == right && right == bottom && bottom == top;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfBorders] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfBordersHelper {
   /// internal method
   static bool isAll(PdfBorders borders) {

@@ -169,8 +169,8 @@ class PdfCertificate {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfCertificate] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfCertificateHelper {
   /// internal method
   static PdfPKCSCertificate getPkcsCertificate(PdfCertificate certificate) {

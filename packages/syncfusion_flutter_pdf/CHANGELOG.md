@@ -1,18 +1,110 @@
 ## Unreleased
 
+**General**
+
+- Upgraded the `xml` package to the latest version 7.0.1.
+
+**Bugs**
+
+- Resolved an issue where adding a timestamp during external PDF signing caused Adobe validation errors.
+
+## [33.2.12] - 06/09/2026
+
+- No changes
+
+## [33.2.10] - 06/02/2026
+
+**General**
+
+- The compatible version of our Flutter PDF library has been updated to Flutter SDK 3.44.0.
+
+## [33.2.8] - 05/26/2026
+
+- No changes
+
+## [33.2.7] - 05/19/2026
+
+- No changes
+
+## [33.2.6] - 05/12/2026
+
+- No changes.
+
+## [33.2.5] - 05/05/2026
+
+- No changes.
+
+## [33.2.4] - 04/28/2026
+
+- No changes.
+
+## [33.2.3] - 04/21/2026
+
+- No changes.
+
+## [33.1.49] - 04/14/2026
+
+- No changes.
+
+## [33.1.47] - 04/07/2026
+
+- No changes.
+
+## [33.1.46] - 03/31/2026
+
+- No changes.
+
+## [33.1.45] - 03/24/2026
+
+**Bugs**
+
+- Resolved an issue that caused the UI to freeze when reopening a PDF after saving edited form fields.
+
+- Resolved an issue where digital signature fields were not flattened when saving PDF files.
+
+## [33.1.44] - 03/16/2026
+
+- No changes.
+
+## [32.2.9] - 03/10/2026
+
+- No changes.
+
+## [32.2.8] - 03/03/2026
+
+- No changes
+
+## [32.2.7] - 02/24/2026
+
+- No changes.
+
+## [32.2.5] - 02/17/2026
+
+- No changes.
+
+## [32.2.4] - 02/11/2026
+
+- No changes.
+
+## [32.2.3] - 02/05/2026
+
+- No changes.
+
+## [32.1.25] - 01/27/2026
+
 **Bugs**
 
 - Resolved a type-cast issue when accessing PDF bookmarks with a null destination
 
-## [32.1.24] - 01/20/2025
+## [32.1.24] - 01/20/2026
 
 - No changes.
 
-## [32.1.23] - 01/13/2025
+## [32.1.23] - 01/13/2026
 
 - No changes.
 
-## [32.1.22] - 01/06/2025
+## [32.1.22] - 01/06/2026
 
 - No changes.
 

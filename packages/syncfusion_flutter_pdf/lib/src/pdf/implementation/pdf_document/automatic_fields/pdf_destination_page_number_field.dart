@@ -31,8 +31,8 @@ class PdfDestinationPageNumberField extends PdfPageNumberField {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfDestinationPageNumberField] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfDestinationPageNumberFieldHelper {
   /// internal method
   static String getValue(

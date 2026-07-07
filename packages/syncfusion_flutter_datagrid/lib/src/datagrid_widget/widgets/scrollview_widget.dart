@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide DataCell, DataRow;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -193,6 +194,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
   }
 
   Widget _buildScrollView(
+    BuildContext context,
     double extentWidth,
     double scrollViewHeight,
     double extentHeight,
@@ -228,6 +230,30 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     }
 
     // Issue:
+    // FLUT-1023498 - When the scrollbar thickness is set to 0 while showHorizontalScrollbar is false,
+    // the scrollbar still listens to gestures even though it is not visible in the UI.
+    // To avoid this, the scrollbar has been added conditionally.
+    Widget buildScrollbar({
+      required Axis axis,
+      required Widget child,
+      required ScrollController? controller,
+      required bool showScrollbar,
+    }) {
+      if (!showScrollbar) {
+        return child;
+      }
+
+      return Scrollbar(
+        controller: controller,
+        thumbVisibility: dataGridConfiguration.isScrollbarAlwaysShown,
+        notificationPredicate:
+            (ScrollNotification notification) =>
+                handleNotificationPredicate(notification, axis),
+        child: child,
+      );
+    }
+
+    // Issue:
     // FLUT-5857 - The exception is thrown when scrolling through the horizontal
     // scrollbar in web and desktop platforms.
     //
@@ -239,20 +265,14 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     // So, We have fixed the issue by moving both scrollbars to the parent of
     // both scroll views.
     // For more info: https://github.com/flutter/flutter/issues/70380#issuecomment-841502797
-    Widget scrollView = Scrollbar(
-      thickness: dataGridConfiguration.showVerticalScrollbar ? null : 0,
+    Widget scrollView = buildScrollbar(
+      axis: Axis.vertical,
       controller: _verticalController,
-      thumbVisibility: dataGridConfiguration.isScrollbarAlwaysShown,
-      notificationPredicate:
-          (ScrollNotification notification) =>
-              handleNotificationPredicate(notification, Axis.vertical),
-      child: Scrollbar(
-        thickness: dataGridConfiguration.showHorizontalScrollbar ? null : 0,
+      showScrollbar: dataGridConfiguration.showVerticalScrollbar,
+      child: buildScrollbar(
+        axis: Axis.horizontal,
         controller: _horizontalController,
-        thumbVisibility: dataGridConfiguration.isScrollbarAlwaysShown,
-        notificationPredicate:
-            (ScrollNotification notification) =>
-                handleNotificationPredicate(notification, Axis.horizontal),
+        showScrollbar: dataGridConfiguration.showHorizontalScrollbar,
         child: SingleChildScrollView(
           controller: _verticalController,
           physics:
@@ -311,19 +331,29 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     );
 
     if (_dataGridConfiguration.allowPullToRefresh) {
-      scrollView = RefreshIndicator(
-        key: dataGridConfiguration.refreshIndicatorKey,
-        onRefresh: () => handleRefresh(dataGridConfiguration.source),
-        strokeWidth: dataGridConfiguration.refreshIndicatorStrokeWidth,
-        displacement: dataGridConfiguration.refreshIndicatorDisplacement,
-        child: scrollView,
+      // ScrollConfiguration was added to allow the pull to refresh callback on both touch and mouse drag in web and desktop platforms.
+      scrollView = ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+            PointerDeviceKind.trackpad,
+          },
+        ),
+        child: RefreshIndicator(
+          key: dataGridConfiguration.refreshIndicatorKey,
+          onRefresh: () => handleRefresh(dataGridConfiguration.source),
+          strokeWidth: dataGridConfiguration.refreshIndicatorStrokeWidth,
+          displacement: dataGridConfiguration.refreshIndicatorDisplacement,
+          child: scrollView,
+        ),
       );
     }
 
     return scrollView;
   }
 
-  void _addScrollView(List<Widget> children) {
+  void _addScrollView(BuildContext context, List<Widget> children) {
     final DataGridConfiguration dataGridConfiguration = _dataGridConfiguration;
     final double extentWidth = _container.extentWidth;
     final double headerRowsHeight =
@@ -347,6 +377,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
     );
 
     final Widget scrollView = _buildScrollView(
+      context,
       extentWidth,
       scrollViewHeight,
       extentHeight,
@@ -1254,7 +1285,7 @@ class _ScrollViewWidgetState extends State<ScrollViewWidget> {
 
     _addHeaderRows(children);
 
-    _addScrollView(children);
+    _addScrollView(context, children);
 
     _addFreezePaneLinesElevation(children);
 

@@ -4,9 +4,9 @@ import '../common/calendar_view_helper.dart';
 import '../common/date_time_engine.dart';
 import 'appointment_helper.dart';
 
-// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods used for appointment rendering in calendar
 /// month view.
+// ignore: avoid_classes_with_only_static_members
 class MonthAppointmentHelper {
   static void _createVisibleAppointments(
     List<AppointmentView> appointmentCollection,
@@ -315,7 +315,11 @@ class MonthAppointmentHelper {
         final List<AppointmentView>? existingAppointments =
             indexAppointments[i];
         if (existingAppointments != null) {
-          existingAppointments.add(appointmentView);
+          if (!existingAppointments.any(
+            (AppointmentView view) => identical(view, appointmentView),
+          )) {
+            existingAppointments.add(appointmentView);
+          }
           indexAppointments[i] = existingAppointments;
         } else {
           indexAppointments[i] = <AppointmentView>[appointmentView];

@@ -134,8 +134,8 @@ abstract class PdfImage extends PdfShapeElement implements IPdfWrapper {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfImage] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfImageHelper {
   /// internal method
   static IPdfPrimitive? getElement(PdfImage image) {

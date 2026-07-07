@@ -260,6 +260,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         /// appointment needed cell index and it bound)
         for (int i = 0; i < keys.length; i++) {
           final int index = keys[i];
+          final int maximumDisplayCount =
+              widget.calendar.monthViewSettings.appointmentDisplayCount;
           final List<CalendarAppointment> moreAppointments =
               <CalendarAppointment>[];
           final List<AppointmentView> moreAppointmentViews =
@@ -269,11 +271,104 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
           /// appointment views.
           for (int j = 0; j < moreAppointmentViews.length; j++) {
             final AppointmentView currentAppointment = moreAppointmentViews[j];
-            moreAppointments.add(currentAppointment.appointment!);
+            final CalendarAppointment? appointment =
+                currentAppointment.appointment;
+
+            /// In month appointment mode, when there are more appointments than
+            /// appointmentDisplayCount, the last slot is reserved for the
+            /// "more" region. So this callback should receive only hidden
+            /// appointments (position >= appointmentDisplayCount) and not the
+            /// already visible appointment slots.
+            if (currentAppointment.position < maximumDisplayCount) {
+              continue;
+            }
+
+            /// For spanned appointments the same AppointmentView is registered
+            /// in every day index it covers (e.g. Apr 19, 20, 21 all reference
+            /// the same view). Only collect hidden appointments that START at
+            /// the current index so the builder is invoked once at the span's
+            /// first day (Apr 19) and skipped for continuation days (Apr 20, 21).
+            if (currentAppointment.startIndex != index) {
+              continue;
+            }
+
+            if (appointment == null ||
+                moreAppointments.any(
+                  (CalendarAppointment existingAppointment) =>
+                      identical(existingAppointment, appointment),
+                )) {
+              continue;
+            }
+
+            moreAppointments.add(appointment);
+          }
+
+          /// If no hidden appointments start at this index (all are span
+          /// continuations from an earlier day, e.g. Apr 20 and Apr 21 are
+          /// continuations of a span starting Apr 19), skip the builder call
+          /// entirely so those continuation days produce no extra widgets.
+          if (moreAppointments.isEmpty) {
+            continue;
+          }
+
+          /// For hidden spanned appointments, find the furthest end index
+          /// among all hidden appointments that start at this index so the
+          /// builder receives a span-wide rect instead of a 1-cell rect.
+          int maxEndIndex = index;
+          for (int j = 0; j < moreAppointmentViews.length; j++) {
+            final AppointmentView appointmentView = moreAppointmentViews[j];
+            if (appointmentView.appointment != null &&
+                appointmentView.position >= maximumDisplayCount &&
+                appointmentView.startIndex == index &&
+                appointmentView.endIndex > maxEndIndex) {
+              maxEndIndex = appointmentView.endIndex;
+            }
+          }
+
+          final RRect moreRegionRect = _monthAppointmentCountViews[index]!;
+
+          /// When the hidden appointments span multiple days within the same
+          /// week row, expand the bounds to cover the full span width so the
+          /// builder widget matches a normal spanning appointment layout.
+          Rect moreAppointmentBounds = Rect.fromLTWH(
+            moreRegionRect.left,
+            moreRegionRect.top,
+            moreRegionRect.width,
+            moreRegionRect.height,
+          );
+          if (maxEndIndex > index) {
+            final double cellWidth =
+                (widget.width - _weekNumberPanelWidth) / DateTime.daysPerWeek;
+            final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+              widget.calendar.cellEndPadding,
+              widget.isMobilePlatform,
+            );
+            final double spanWidth =
+                (maxEndIndex - index + 1) * cellWidth - cellEndPadding;
+
+            /// In RTL mode the cells are laid out right-to-left, so the left
+            /// edge of the span must be shifted left by the extra cells.
+            final double spanLeft =
+                widget.isRTL
+                    ? moreRegionRect.left - (maxEndIndex - index) * cellWidth
+                    : moreRegionRect.left;
+            moreAppointmentBounds = Rect.fromLTWH(
+              spanLeft,
+              moreRegionRect.top,
+              spanWidth > 0 ? spanWidth : 0,
+              moreRegionRect.height,
+            );
+
+            /// Also update the stored rect so the render object's
+            /// performLayout and paint use the span-wide rect to correctly
+            /// constrain and position the builder child widget on screen.
+            _monthAppointmentCountViews[index] = RRect.fromRectAndRadius(
+              moreAppointmentBounds,
+              Radius.zero,
+            );
           }
 
           final DateTime date = widget.visibleDates[index];
-          final RRect moreRegionRect = _monthAppointmentCountViews[index]!;
           final Widget child = widget.calendar.appointmentBuilder!(
             context,
             CalendarAppointmentDetails(
@@ -284,12 +379,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
                   widget.calendar.dataSource,
                 ),
               ),
-              Rect.fromLTWH(
-                moreRegionRect.left,
-                moreRegionRect.top,
-                moreRegionRect.width,
-                moreRegionRect.height,
-              ),
+              moreAppointmentBounds,
               isMoreAppointmentRegion: true,
             ),
           );

@@ -295,8 +295,8 @@ class PdfLayoutResult {
   Rect get bounds => _bounds;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfLayoutResult] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfLayoutResultHelper {
   /// internal method
   static PdfLayoutResult load(PdfPage page, Rect bounds) {

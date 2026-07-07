@@ -1,5 +1,23 @@
 ## Unreleased
 
+**Bugs**
+
+* Fixed a crash that occurred during fast navigation and exit, caused by animations continuing after the calendar view was disposed. Added safeguards to ensure that animations are safely stopped, preventing errors.
+
+## [33.2.6] - 5/12/2026
+
+**Bugs**
+
+* Fixed duplicate appointments appearing in Month view when the appointment count exceeds the [appointmentDisplayCount](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/MonthViewSettings/appointmentDisplayCount.html) limit with a [appointmentBuilder](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/appointmentBuilder.html). This fix applies to both single-day and multi-day appointments.
+
+## [33.1.47] - 04/07/2026
+
+**Breaking changes**
+
+* The size property in [ResourceViewSettings](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/resourceViewSettings.html) is now deprecated. Use the new explicit height and width properties instead to control each resource item's height and the resource panel’s width, respectively.
+
+## [33.1.44] - 03/16/2026
+
 **Features**
 
 * #FR29362 - Added explicit `height` and `width` support to [ResourceViewSettings](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/resourceViewSettings.html). When provided, `height` adjusts each resource item's height and `width` adjusts the resource panel width. These explicit values take precedence over `size`.

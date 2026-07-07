@@ -39,8 +39,8 @@ class TextWord {
   List<TextGlyph> get glyphs => _glyphs;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [TextWord] helper
+// ignore: avoid_classes_with_only_static_members
 class TextWordHelper {
   /// internal method
   static TextWord initialize(

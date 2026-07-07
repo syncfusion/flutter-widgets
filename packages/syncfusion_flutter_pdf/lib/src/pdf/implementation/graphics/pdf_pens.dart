@@ -3220,8 +3220,8 @@ class PdfPens {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfPens] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfPensHelper {
   /// internal method
   static void dispose() {

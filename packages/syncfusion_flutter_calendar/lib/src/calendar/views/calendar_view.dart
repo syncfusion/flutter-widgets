@@ -3972,6 +3972,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   void _moveToNextViewWithAnimation() {
+    if (!mounted) {
+      return;
+    }
+
     if (!widget.isMobilePlatform) {
       _moveToNextWebViewWithAnimation();
       return;
@@ -4025,6 +4029,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   void _moveToPreviousViewWithAnimation({bool isScrollToEnd = false}) {
+    if (!mounted) {
+      return;
+    }
+
     if (!widget.isMobilePlatform) {
       _moveToPreviousWebViewWithAnimation(isScrollToEnd: isScrollToEnd);
       return;
@@ -4078,6 +4086,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   void _moveToPreviousWebViewWithAnimation({bool isScrollToEnd = false}) {
+    if (!mounted) {
+      return;
+    }
+
     if (!DateTimeHelper.canMoveToPreviousView(
       widget.view,
       widget.calendar.monthViewSettings.numberOfWeeksInView,
@@ -4132,6 +4144,10 @@ class _CustomCalendarScrollViewState extends State<CustomCalendarScrollView>
   }
 
   void _moveToNextWebViewWithAnimation() {
+    if (!mounted) {
+      return;
+    }
+
     if (!DateTimeHelper.canMoveToNextView(
       widget.view,
       widget.calendar.monthViewSettings.numberOfWeeksInView,

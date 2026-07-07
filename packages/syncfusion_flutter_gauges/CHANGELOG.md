@@ -1,5 +1,21 @@
 ## Unreleased
 
+## Radial Gauge
+
+**Bugs**
+
+* Now, the [MarkerPointer](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/MarkerPointer-class.html) no longer throws a RenderObject.markNeedsPaint assertion when its image finishes decoding after the gauge has been disposed, such as during rapid layout rebuilds.
+
+## [32.2.7] - 02/24/2026
+
+## Linear Gauge
+
+**Bugs**
+
+*  Now, the [MarkerPointer](https://pub.dev/documentation/syncfusion_flutter_gauges/latest/gauges/MarkerPointer-class.html) drag position updates correctly when the gauge is placed inside a custom RenderObject that applies paint offsets. The drag logic uses globalToLocal to ensure accurate tracking in all layout scenarios.
+
+## [32.1.22] - 01/06/2026
+
 * No changes.
 
 ## [31.2.15] - 11/25/2025

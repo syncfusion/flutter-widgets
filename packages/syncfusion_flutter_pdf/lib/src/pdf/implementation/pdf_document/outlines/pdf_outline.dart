@@ -1446,8 +1446,8 @@ class PdfBookmarkBase implements IPdfWrapper {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfBookmark] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfBookmarkHelper {
   /// internal method
   static PdfBookmark internal(

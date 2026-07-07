@@ -1391,8 +1391,8 @@ class PdfPasswordArgs {
   String? attachmentOpenPassword;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfPasswordArgs] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfPasswordArgsHelper {
   /// internal method
   static PdfPasswordArgs load() {

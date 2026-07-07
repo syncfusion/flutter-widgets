@@ -1,6 +1,6 @@
 name: syncfusion_flutter_datagrid
 description: The Syncfusion Flutter DataGrid is used to display and manipulate data in a tabular view. Its rich feature set includes different types of columns, selections, column sizing, etc.
-version: 33.1.44
+version: 34.1.29
 homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_datagrid
 
 environment:
@@ -16,6 +16,28 @@ flutter:
       - family: FilterIcon
         fonts:
           - asset: assets/font/FilterIcon.ttf
+
+screenshots:
+  - description: 'This screenshot shows the different column types in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-column-types.jpg
+  - description: 'This screenshot shows the selection of rows in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-selection.jpg
+  - description: 'This screenshot shows the sorting in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-sorting.gif
+  - description: 'This screenshot shows the editing in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-editing.gif
+  - description: 'This screenshot shows the paging is applied in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-paging.jpg
+  - description: 'This screenshot shows the summary calculation for specific columns in DataGrid widget.'
+    path: screenshots/flutter-datagrid-summaries.jpg
+  - description: 'This screenshot shows the stacked headers in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-stacked-headers.jpg
+  - description: 'This screenshot shows the columns drag and drop in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-column-drag-and-drop.gif
+  - description: 'This screenshot shows the freeze panes in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-freeze-panes.jpg
+  - description: 'This screenshot shows the grouping of rows in the DataGrid widget.'
+    path: screenshots/flutter-datagrid-grouping.jpg
 
 dependencies:
   flutter:

@@ -1,6 +1,14 @@
 ## Unreleased
 
-* No changes.
+**Bugs**
+
+* \#GH2538 - Fixed series name not visible in trackball tooltip when the legend name contains a colon (:).
+
+## [33.1.46] - 31/03/2026
+
+**Bugs**
+
+* \#GH2508 - Fixed misalignment between tooltip markers and their labels in shared tooltips in chart.
 
 ## [32.1.21] - 30/12/2025
 

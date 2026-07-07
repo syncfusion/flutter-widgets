@@ -405,8 +405,8 @@ class PdfCheckBoxItem extends PdfFieldItem {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfCheckBoxItem] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfCheckBoxItemHelper {
   /// internal method
   static void setStyle(PdfCheckBoxItem checkBoxItem, PdfCheckBoxStyle value) {
@@ -428,8 +428,8 @@ class PdfTextBoxItem extends PdfFieldItem {
   PdfTextBoxItem._(super.field, super.index, super.dictionary) : super._();
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfTextBoxItem] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfTextBoxItemHelper {
   /// internal method
   static PdfTextBoxItem getItem(

@@ -5065,8 +5065,8 @@ class PdfGridBeginCellLayoutArgs extends GridCellLayoutArgs {
   late bool skip;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfGridBeginCellLayoutArgs] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfGridBeginCellLayoutArgsHelper {
   /// internal method
   static PdfGridBeginCellLayoutArgs load(
@@ -5111,8 +5111,8 @@ class PdfGridEndCellLayoutArgs extends GridCellLayoutArgs {
   PdfGridCellStyle? style;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfGridEndCellLayoutArgs] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfGridEndCellLayoutArgsHelper {
   /// internal method
   static PdfGridEndCellLayoutArgs load(
@@ -5484,8 +5484,8 @@ class PdfGridBeginPageLayoutArgs extends BeginPageLayoutArgs {
   late int startRowIndex;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfGridBeginPageLayoutArgs] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfGridBeginPageLayoutArgsHelper {
   /// internal method
   static PdfGridBeginPageLayoutArgs load(
@@ -5503,8 +5503,8 @@ class PdfGridEndPageLayoutArgs extends EndPageLayoutArgs {
   PdfGridEndPageLayoutArgs._(super.result);
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfGridEndPageLayoutArgs] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfGridEndPageLayoutArgsHelper {
   /// internal method
   static PdfGridEndPageLayoutArgs load(PdfLayoutResult result) {

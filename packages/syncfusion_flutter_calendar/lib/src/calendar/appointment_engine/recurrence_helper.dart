@@ -6,8 +6,8 @@ import '../common/enums.dart' show RecurrenceType, RecurrenceRange, WeekDays;
 import 'appointment_helper.dart';
 import 'recurrence_properties.dart';
 
-// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods used for handling recurrence in calendar.
+// ignore: avoid_classes_with_only_static_members
 class RecurrenceHelper {
   /// Check the recurrence appointment in between the visible date range.
   static bool _isRecurrenceInBetweenSpecificRange(

@@ -149,7 +149,8 @@ class SerializeWorkbook {
     builder.element(
       'workbook',
       nest: () {
-        builder.namespace(
+        builder.attribute(
+          'xmlns',
           'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
         );
         builder.attribute(
@@ -250,7 +251,8 @@ class SerializeWorkbook {
     builder.element(
       'workbook',
       nest: () async {
-        builder.namespace(
+        builder.attribute(
+          'xmlns',
           'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
         );
         builder.attribute(
@@ -556,7 +558,8 @@ class SerializeWorkbook {
     builder.element(
       'worksheet',
       nest: () {
-        builder.namespace(
+        builder.attribute(
+          'xmlns',
           'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
         );
         builder.attribute(
@@ -947,7 +950,8 @@ class SerializeWorkbook {
     builder.element(
       'worksheet',
       nest: () async {
-        builder.namespace(
+        builder.attribute(
+          'xmlns',
           'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
         );
         builder.attribute(
@@ -2673,7 +2677,8 @@ class SerializeWorkbook {
     builder.element(
       'Relationships',
       nest: () {
-        builder.namespace(
+        builder.attribute(
+          'xmlns',
           'http://schemas.openxmlformats.org/package/2006/relationships',
         );
         if (sheet.chartCount != 0) {
@@ -2779,7 +2784,8 @@ class SerializeWorkbook {
     builder.element(
       'Relationships',
       nest: () async {
-        builder.namespace(
+        builder.attribute(
+          'xmlns',
           'http://schemas.openxmlformats.org/package/2006/relationships',
         );
         if (sheet.chartCount != 0) {
@@ -3108,7 +3114,8 @@ class SerializeWorkbook {
     builder.element(
       'Relationships',
       nest: () {
-        builder.namespace(
+        builder.attribute(
+          'xmlns',
           'http://schemas.openxmlformats.org/package/2006/relationships',
         );
 
@@ -6333,13 +6340,15 @@ class SerializeWorkbook {
           builder.element(
             'extLst',
             nest: () {
-              builder.namespace(
+              builder.attribute(
+                'xmlns',
                 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
               );
               builder.element(
                 'ext',
                 nest: () {
-                  builder.namespace(
+                  builder.attribute(
+                    'xmlns',
                     'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
                   );
 
@@ -7300,7 +7309,8 @@ class SerializeWorkbook {
       builder.element(
         'ext',
         nest: () {
-          builder.namespace(
+          builder.attribute(
+            'xmlns',
             'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
           );
           builder.attribute('uri', '{78C0D931-6437-407d-A8EE-F0AAD7539E65}');
@@ -7609,7 +7619,8 @@ class SerializeWorkbook {
       builder.element(
         'ext',
         nest: () async {
-          builder.namespace(
+          builder.attribute(
+            'xmlns',
             'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
           );
           builder.attribute('uri', '{78C0D931-6437-407d-A8EE-F0AAD7539E65}');

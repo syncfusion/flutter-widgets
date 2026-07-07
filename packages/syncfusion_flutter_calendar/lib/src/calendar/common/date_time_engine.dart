@@ -2,8 +2,8 @@ import 'package:syncfusion_flutter_core/core.dart';
 import '../appointment_engine/appointment_helper.dart';
 import 'enums.dart';
 
-// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods used for date calculation in calendar.
+// ignore: avoid_classes_with_only_static_members
 class DateTimeHelper {
   /// Calculate the visible dates count based on calendar view
   static int getViewDatesCount(

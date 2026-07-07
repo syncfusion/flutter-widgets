@@ -437,8 +437,8 @@ class BeginItemLayoutArgs {
   PdfPage get page => _page;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [BeginItemLayoutArgs] helper
+// ignore: avoid_classes_with_only_static_members
 class BeginItemLayoutArgsHelper {
   /// internal method
   static BeginItemLayoutArgs internal(PdfListItem item, PdfPage page) {
@@ -546,8 +546,8 @@ class EndItemLayoutArgs {
   PdfPage get page => _page;
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [EndItemLayoutArgs] helper
+// ignore: avoid_classes_with_only_static_members
 class EndItemLayoutArgsHelper {
   /// internal method
   static EndItemLayoutArgs internal(PdfListItem item, PdfPage page) {

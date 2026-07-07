@@ -200,8 +200,8 @@ class PdfCompositeField extends PdfMultipleValueField {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfCompositeField] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfCompositeFieldHelper {
   /// internal method
   static String getValue(PdfCompositeField field, PdfGraphics graphics) {

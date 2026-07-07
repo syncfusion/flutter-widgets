@@ -215,8 +215,8 @@ class PdfDateTimeField extends PdfStaticField {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfDateTimeField] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfDateTimeFieldHelper {
   /// internal method
   static String getValue(PdfDateTimeField field, PdfGraphics? graphics) {

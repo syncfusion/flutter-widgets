@@ -103,8 +103,8 @@ class PdfGridCellStyle extends PdfGridRowStyle {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfGridCellStyle] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfGridCellStyleHelper {
   /// internal method
   static PdfPaddings? getPadding(PdfGridCellStyle style) {
@@ -193,8 +193,8 @@ class PdfGridStyle extends PdfGridStyleBase {
   }
 }
 
-// ignore: avoid_classes_with_only_static_members
 /// [PdfGridStyle] helper
+// ignore: avoid_classes_with_only_static_members
 class PdfGridStyleHelper {
   /// internal method
   static PdfPaddings? getPadding(PdfGridStyle style) {
