@@ -476,7 +476,7 @@ class SinglePageViewState extends State<SinglePageView> {
             boundaryMargin: const EdgeInsets.all(double.infinity),
             constrained: false,
             onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
-            scaleEnabled: !kIsDesktop || (kIsDesktop && widget.scaleEnabled),
+            scaleEnabled: widget.scaleEnabled,
             enableDoubleTapZooming: enableDoubleTapZoom,
             transformationController: _getController(pageIndex + 1),
             onInteractionStart: (ScaleStartDetails details) {
@@ -484,9 +484,7 @@ class SinglePageViewState extends State<SinglePageView> {
                   widget.scrollDirection == PdfScrollDirection.horizontal
                       ? details.localFocalPoint.dx
                       : details.localFocalPoint.dy;
-              if (!kIsDesktop ||
-                  (kIsDesktop && widget.isMobileWebView) ||
-                  (kIsDesktop && widget.scaleEnabled)) {
+              if (widget.isMobileWebView || widget.scaleEnabled) {
                 if (previousZoomLevel != _oldPreviousZoomLevel) {
                   _oldPreviousZoomLevel = previousZoomLevel;
                 }
@@ -507,9 +505,7 @@ class SinglePageViewState extends State<SinglePageView> {
                   _canJumpNext = true;
                 }
               }
-              if (!kIsDesktop ||
-                  (kIsDesktop && widget.isMobileWebView) ||
-                  (kIsDesktop && widget.scaleEnabled)) {
+              if (widget.isMobileWebView || widget.scaleEnabled) {
                 widget.interactionUpdate(
                   _currentPageTransformationController.value
                       .getMaxScaleOnAxis(),
@@ -546,9 +542,7 @@ class SinglePageViewState extends State<SinglePageView> {
                   _canJumpNext = false;
                 }
               }
-              if (!kIsDesktop ||
-                  (kIsDesktop && widget.isMobileWebView) ||
-                  (kIsDesktop && widget.scaleEnabled)) {
+              if (widget.isMobileWebView || widget.scaleEnabled) {
                 widget.onZoomLevelChanged(
                   _currentPageTransformationController.value
                       .getMaxScaleOnAxis(),

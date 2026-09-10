@@ -1210,7 +1210,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   double? _otherContextHeight;
   double _maxPdfPageWidth = 0.0;
   final double _minScale = 1;
-  bool _isScaleEnabled = !kIsDesktop;
+  bool _isScaleEnabled = false;
   bool _isPdfPageTapped = false;
   bool _isDocumentLoadInitiated = false;
   Orientation? _deviceOrientation;
@@ -4316,25 +4316,28 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
   void _handlePdfPagePointerDown(PointerDownEvent details) {
     _isPdfPageTapped = true;
+    _updateScaleEnabled(details.kind == PointerDeviceKind.touch);
   }
 
   void _handlePdfPagePointerMove(PointerMoveEvent details) {
-    if (details.kind == PointerDeviceKind.touch && kIsDesktop) {
-      if (!_isScaleEnabled) {
-        setState(() {
-          _isScaleEnabled = true;
-        });
-      }
-    }
+    _updateScaleEnabled(details.kind == PointerDeviceKind.touch);
   }
 
   void _handlePdfPagePointerUp(PointerUpEvent details) {
-    if (details.kind == PointerDeviceKind.touch && kIsDesktop) {
-      if (_isScaleEnabled) {
-        setState(() {
-          _isScaleEnabled = false;
-        });
-      }
+    _updateScaleEnabled(false);
+  }
+
+  /// Enables scaling only while a touch pointer is interacting with the viewer.
+  ///
+  /// Pinch-to-zoom is the only gesture that must scale the [InteractiveViewer].
+  /// Keeping scaling enabled for precise pointers makes the [InteractiveViewer]
+  /// zoom on every mouse wheel [PointerScrollEvent], which conflicts with the
+  /// scrolling already performed by [_handlePointerSignal].
+  void _updateScaleEnabled(bool isScaleEnabled) {
+    if (_isScaleEnabled != isScaleEnabled) {
+      setState(() {
+        _isScaleEnabled = isScaleEnabled;
+      });
     }
   }
 
@@ -4352,6 +4355,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
   void _handlePointerDown(PointerDownEvent event) {
     _canInvokeOnTap = true;
+    _updateScaleEnabled(event.kind == PointerDeviceKind.touch);
     final Offset localPosition =
         _globalToLocal(event.position) ?? event.localPosition;
     if (_pagePointerDownTimeStamp != Duration.zero &&
@@ -4420,13 +4424,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         });
       }
     }
-    if (!_isScaleEnabled &&
-        event.kind == PointerDeviceKind.touch &&
-        (!kIsDesktop)) {
-      setState(() {
-        _isScaleEnabled = true;
-      });
-    }
+    _updateScaleEnabled(event.kind == PointerDeviceKind.touch);
     if (!_canInvokeOnTap) {
       _pdfPagesKey[_pdfViewerController.pageNumber]
           ?.currentState
@@ -4436,6 +4434,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   }
 
   void _handlePointerUp(PointerUpEvent details) {
+    _updateScaleEnabled(false);
     if (_canInvokeOnTap && _formFieldFocus != null) {
       _formFieldFocus!.requestFocus();
     }

@@ -243,9 +243,7 @@ class PdfScrollableState extends State<PdfScrollable> {
   /// Handles interaction start and updates the UI
   void _handleInteractionStart(ScaleStartDetails details) {
     _previousScale = _transformationController.value.getMaxScaleOnAxis();
-    if (!kIsDesktop ||
-        (kIsDesktop && widget.isMobileWebView) ||
-        (kIsDesktop && widget.scaleEnabled)) {
+    if (widget.isMobileWebView || widget.scaleEnabled) {
       previousZoomLevel = widget.pdfViewerController.zoomLevel;
     }
     paddingWidthScale = 0;
@@ -312,9 +310,7 @@ class PdfScrollableState extends State<PdfScrollable> {
     if (_currentScale != widget.pdfViewerController.zoomLevel &&
         _currentScale != null &&
         _currentScale != 0.0 &&
-        (!kIsDesktop ||
-            (kIsDesktop && widget.isMobileWebView) ||
-            (kIsDesktop && widget.scaleEnabled))) {
+        (widget.isMobileWebView || widget.scaleEnabled)) {
       widget.pdfViewerController.zoomLevel = _currentScale!;
     }
     if (widget.scrollDirection == PdfScrollDirection.horizontal &&

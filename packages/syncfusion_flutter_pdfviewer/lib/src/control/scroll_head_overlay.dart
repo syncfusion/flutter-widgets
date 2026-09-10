@@ -315,7 +315,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
         key: _childKey,
         boundaryMargin: _boundaryMargin,
         enableDoubleTapZooming: enableDoubleTapZoom,
-        scaleEnabled: !kIsDesktop || (kIsDesktop && widget.scaleEnabled),
+        scaleEnabled: widget.scaleEnabled,
         panEnabled: widget.isPanEnabled,
         onInteractionStart: _handleInteractionStart,
         onInteractionUpdate: _handleInteractionChanged,
