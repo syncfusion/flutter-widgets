@@ -155,10 +155,9 @@ class _StickyNoteEditTextState extends State<StickyNoteEditText> {
                             });
                           }
                         },
-                        icon:
-                            _isEditing
-                                ? const Icon(Icons.check_outlined)
-                                : const Icon(Icons.edit_outlined),
+                        icon: _isEditing
+                            ? const Icon(Icons.check_outlined)
+                            : const Icon(Icons.edit_outlined),
                       ),
                     ),
                     IconButton(

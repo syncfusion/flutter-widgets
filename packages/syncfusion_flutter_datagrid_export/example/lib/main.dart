@@ -209,21 +209,7 @@ class Employee {
 class EmployeeDataSource extends DataGridSource {
   /// Creates the employee data source class with required details.
   EmployeeDataSource({required List<Employee> employeeData}) {
-    _employeeData = employeeData
-        .map<DataGridRow>(
-          (Employee e) => DataGridRow(
-            cells: <DataGridCell>[
-              DataGridCell<int>(columnName: 'ID', value: e.id),
-              DataGridCell<String>(columnName: 'Name', value: e.name),
-              DataGridCell<String>(
-                columnName: 'Designation',
-                value: e.designation,
-              ),
-              DataGridCell<int>(columnName: 'Salary', value: e.salary),
-            ],
-          ),
-        )
-        .toList();
+    _employeeData = employeeData.map<DataGridRow>(buildDataGridRow).toList();
   }
 
   List<DataGridRow> _employeeData = <DataGridRow>[];
@@ -234,13 +220,29 @@ class EmployeeDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-      cells: row.getCells().map<Widget>((DataGridCell cell) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(8.0),
-          child: Text(cell.value.toString()),
-        );
-      }).toList(),
+      cells: row.getCells().map<Widget>(buildDataGridCell).toList(),
+    );
+  }
+
+  DataGridRow buildDataGridRow(Employee employee) {
+    return DataGridRow(
+      cells: <DataGridCell>[
+        DataGridCell<int>(columnName: 'ID', value: employee.id),
+        DataGridCell<String>(columnName: 'Name', value: employee.name),
+        DataGridCell<String>(
+          columnName: 'Designation',
+          value: employee.designation,
+        ),
+        DataGridCell<int>(columnName: 'Salary', value: employee.salary),
+      ],
+    );
+  }
+
+  Widget buildDataGridCell(DataGridCell cell) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(8.0),
+      child: Text(cell.value.toString()),
     );
   }
 }

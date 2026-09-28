@@ -22,12 +22,11 @@ class SfCalendarThemeColors extends SfCalendarThemeData {
   Color? get backgroundColor => Colors.transparent;
 
   @override
-  Color? get headerBackgroundColor =>
-      Theme.of(context).useMaterial3
-          ? (Theme.of(context).brightness == Brightness.light
-              ? const Color.fromRGBO(247, 242, 251, 1)
-              : const Color.fromRGBO(37, 35, 42, 1))
-          : Colors.transparent;
+  Color? get headerBackgroundColor => Theme.of(context).useMaterial3
+      ? (Theme.of(context).brightness == Brightness.light
+            ? const Color.fromRGBO(247, 242, 251, 1)
+            : const Color.fromRGBO(37, 35, 42, 1))
+      : Colors.transparent;
 
   @override
   Color? get agendaBackgroundColor => Colors.transparent;

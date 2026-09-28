@@ -28,85 +28,84 @@ class RangeSelectorLabel extends RangeSliderLabel {
 }
 
 /// Signature for formatting or changing the whole numeric or date label text.
-typedef LabelFormatterCallback =
-    String Function(
-      /// The actual value, which will be either a [DateTime] or [double]
-      /// based on given [values].
-      dynamic actualValue,
+typedef LabelFormatterCallback = String Function(
+  /// The actual value, which will be either a [DateTime] or [double]
+  /// based on given [values].
+  dynamic actualValue,
 
-      /// If the actual value is [double], it is formatted by [numberFormat] and
-      /// if the actual value is [DateTime], it is formatted by [dateFormat].
-      String formattedText,
-    );
+  /// If the actual value is [double], it is formatted by [numberFormat] and
+  /// if the actual value is [DateTime], it is formatted by [dateFormat].
+  String formattedText,
+);
 
 /// Signature for customizing the appearance of the label by returning a
 /// [SliderLabel] widget with the provided text and text style.
-typedef SliderLabelCreatedCallback =
-    SliderLabel Function(
-      /// The actual value, which will be either a [DateTime] or [double]
-      /// based on given [values].
-      dynamic actualValue,
+typedef SliderLabelCreatedCallback = SliderLabel Function(
+  /// The actual value, which will be either a [DateTime] or [double]
+  /// based on given [values].
+  dynamic actualValue,
 
-      /// If the actual value is [double], it is formatted by [numberFormat] and
-      /// if the actual value is [DateTime], it is formatted by [dateFormat].
-      String formattedText,
+  /// If the actual value is [double], it is formatted by [numberFormat] and
+  /// if the actual value is [DateTime], it is formatted by [dateFormat].
+  String formattedText,
 
-      /// Customizes the text style of the slider label.
-      TextStyle textStyle,
-    );
+  /// Customizes the text style of the slider label.
+  TextStyle textStyle,
+);
 
 /// Signature for customizing the appearance of the label by returning a
 /// [RangeSliderLabel] widget with the provided text and text style.
-typedef RangeSliderLabelCreatedCallback =
-    RangeSliderLabel Function(
-      /// The actual value, which will be either a [DateTime] or [double]
-      /// based on given [values].
-      dynamic actualValue,
+typedef RangeSliderLabelCreatedCallback = RangeSliderLabel Function(
+  /// The actual value, which will be either a [DateTime] or [double]
+  /// based on given [values].
+  dynamic actualValue,
 
-      /// If the actual value is [double], it is formatted by [numberFormat] and
-      /// if the actual value is [DateTime], it is formatted by [dateFormat].
-      String formattedText,
+  /// If the actual value is [double], it is formatted by [numberFormat] and
+  /// if the actual value is [DateTime], it is formatted by [dateFormat].
+  String formattedText,
 
-      /// Customizes the text style of the range slider label.
-      TextStyle textStyle,
-    );
+  /// Customizes the text style of the range slider label.
+  TextStyle textStyle,
+);
 
 /// Signature for customizing the appearance of the label by returning a
 /// [RangeSelectorLabel] widget with the provided text and text style.
-typedef RangeSelectorLabelCreatedCallback =
-    RangeSelectorLabel Function(
-      /// The actual value, which will be either a [DateTime] or [double]
-      /// based on given [values].
-      dynamic actualValue,
+typedef RangeSelectorLabelCreatedCallback = RangeSelectorLabel Function(
+  /// The actual value, which will be either a [DateTime] or [double]
+  /// based on given [values].
+  dynamic actualValue,
 
-      /// If the actual value is [double], it is formatted by [numberFormat] and
-      /// if the actual value is [DateTime], it is formatted by [dateFormat].
-      String formattedText,
+  /// If the actual value is [double], it is formatted by [numberFormat] and
+  /// if the actual value is [DateTime], it is formatted by [dateFormat].
+  String formattedText,
 
-      /// Customizes the text style of the range selector label.
-      TextStyle textStyle,
-    );
+  /// Customizes the text style of the range selector label.
+  TextStyle textStyle,
+);
 
 /// Signature for formatting or changing the whole tooltip label text.
-typedef TooltipTextFormatterCallback =
-    String Function(
-      /// actualValue will be either [DateTime] or [double]
-      /// based on given [values].
-      dynamic actualValue,
+typedef TooltipTextFormatterCallback = String Function(
+  /// actualValue will be either [DateTime] or [double]
+  /// based on given [values].
+  dynamic actualValue,
 
-      /// If the actual value is [double], it is formatted by [numberFormat] and
-      /// if the actual value is [DateTime], it is formatted by [dateFormat].
-      String formattedText,
-    );
+  /// If the actual value is [double], it is formatted by [numberFormat] and
+  /// if the actual value is [DateTime], it is formatted by [dateFormat].
+  String formattedText,
+);
 
 /// The value will be either [double] or [DateTime] based on the `values`.
 typedef SfSliderSemanticFormatterCallback = String Function(dynamic value);
 
-typedef RangeSliderSemanticFormatterCallback =
-    String Function(dynamic value, SfThumb thumb);
+typedef RangeSliderSemanticFormatterCallback = String Function(
+  dynamic value,
+  SfThumb thumb,
+);
 
-typedef RangeSelectorSemanticFormatterCallback =
-    String Function(dynamic value, SfThumb thumb);
+typedef RangeSelectorSemanticFormatterCallback = String Function(
+  dynamic value,
+  SfThumb thumb,
+);
 
 /// Option to place the labels either between the major ticks
 /// or on the major ticks.

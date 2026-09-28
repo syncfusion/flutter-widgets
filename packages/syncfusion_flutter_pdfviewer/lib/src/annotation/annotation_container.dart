@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'annotation.dart';
 import 'annotation_settings.dart';
 import 'annotation_view.dart' show selectionBorderThickness;
@@ -195,10 +196,9 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
         annotation: annotation,
         isSelected: annotation == _selectedAnnotation,
         heightPercentage: widget.heightPercentage,
-        selectorColor:
-            _isLocked(annotation)
-                ? widget.annotationSettings.selector.lockedColor
-                : widget.annotationSettings.selector.color,
+        selectorColor: _isLocked(annotation)
+            ? widget.annotationSettings.selector.lockedColor
+            : widget.annotationSettings.selector.color,
       );
     } else if (annotation is StickyNoteAnnotation) {
       final bool isLocked = _isLocked(annotation);
@@ -209,10 +209,9 @@ class _AnnotationContainerState extends State<AnnotationContainer> {
         zoomLevel: widget.zoomLevel,
         scaleFactor: scaleFactor,
         canEdit: !isLocked,
-        selectorColor:
-            isLocked
-                ? widget.annotationSettings.selector.lockedColor
-                : widget.annotationSettings.selector.color,
+        selectorColor: isLocked
+            ? widget.annotationSettings.selector.lockedColor
+            : widget.annotationSettings.selector.color,
         selectorStorkeWidth: selectionBorderThickness / widget.zoomLevel,
         onAnnotationMoved: annotation.isSelected ? onAnnotationMoved : null,
         onAnnotationMoving: annotation.isSelected ? onAnnotationMoving : null,

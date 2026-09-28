@@ -1,5 +1,17 @@
 ## Unreleased
 
+**General**
+
+*  The compatible version of our Flutter datepicker widget has been updated to Flutter SDK 3.47.
+
+## [34.1.30] - 09/07/2026
+
+**Bugs**
+
+* Improved [cellBuilder](https://pub.dev/documentation/syncfusion_flutter_datepicker/latest/datepicker/SfDateRangePicker/cellBuilder.html) rendering to correctly reflect theme changes across both month and year views in vertical scroll navigation.
+
+## [32.2.13+1] - 06/18/2026
+
 ## Date Picker
 
 **Bugs**

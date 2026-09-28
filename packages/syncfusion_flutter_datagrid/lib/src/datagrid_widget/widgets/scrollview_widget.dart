@@ -1687,7 +1687,13 @@ class _VirtualizingCellsWidgetState extends State<_VirtualizingCellsWidget> {
     } else {
       // Need to allow only the visible columns to the layout.
       final List<Widget> visibleColumns = widget.dataRow.visibleColumns
-          .where((DataCellBase cell) => cell.isVisible && cell.columnIndex >= 0)
+          .where(
+            (DataCellBase cell) =>
+                cell.isVisible &&
+                cell.columnIndex >= 0 &&
+                cell.rowIndex >= 0 &&
+                cell.columnElement != null,
+          )
           .map<Widget>((DataCellBase cell) => cell.columnElement!)
           .toList(growable: false);
       children.addAll(visibleColumns);
@@ -1972,6 +1978,11 @@ class VisualContainerHelper {
     rowHeightHelper(footerStart, footerEnd, RowRegion.footer);
 
     rowHeightManager.updateRegion(footerStart, footerEnd, RowRegion.footer);
+
+    // Recheck body visibility before processing body rows.
+    if (visibleRows.length <= visibleRows.firstBodyVisibleIndex) {
+      return;
+    }
 
     final double bodyStart =
         visibleRows[visibleRows.firstBodyVisibleIndex].origin;

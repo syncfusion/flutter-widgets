@@ -1,4 +1,5 @@
 import 'package:syncfusion_flutter_core/core.dart';
+
 import '../appointment_engine/appointment_helper.dart';
 import 'enums.dart';
 
@@ -69,8 +70,8 @@ class DateTimeHelper {
           return numberOfWeeksInView == 6
               ? DateTimeHelper.getDateTimeValue(getNextMonthDate(date))
               : DateTimeHelper.getDateTimeValue(
-                addDays(date, numberOfWeeksInView * DateTime.daysPerWeek),
-              );
+                  addDays(date, numberOfWeeksInView * DateTime.daysPerWeek),
+                );
         }
       case CalendarView.timelineMonth:
         return DateTimeHelper.getDateTimeValue(getNextMonthDate(date));
@@ -82,8 +83,9 @@ class DateTimeHelper {
       case CalendarView.workWeek:
       case CalendarView.timelineWorkWeek:
         {
-          final int nonWorkingDaysCount =
-              nonWorkingDays == null ? 0 : nonWorkingDays.length;
+          final int nonWorkingDaysCount = nonWorkingDays == null
+              ? 0
+              : nonWorkingDays.length;
           if (visibleDatesCount + nonWorkingDaysCount == 7) {
             return DateTimeHelper.getDateTimeValue(
               addDays(date, visibleDatesCount + nonWorkingDaysCount),
@@ -125,8 +127,8 @@ class DateTimeHelper {
           return numberOfWeeksInView == 6
               ? DateTimeHelper.getDateTimeValue(getPreviousMonthDate(date))
               : DateTimeHelper.getDateTimeValue(
-                addDays(date, -numberOfWeeksInView * DateTime.daysPerWeek),
-              );
+                  addDays(date, -numberOfWeeksInView * DateTime.daysPerWeek),
+                );
         }
       case CalendarView.timelineMonth:
         return DateTimeHelper.getDateTimeValue(getPreviousMonthDate(date));
@@ -138,8 +140,9 @@ class DateTimeHelper {
       case CalendarView.workWeek:
       case CalendarView.timelineWorkWeek:
         {
-          final int nonWorkingDaysCount =
-              nonWorkingDays == null ? 0 : nonWorkingDays.length;
+          final int nonWorkingDaysCount = nonWorkingDays == null
+              ? 0
+              : nonWorkingDays.length;
           if (visibleDatesCount + nonWorkingDaysCount == 7) {
             return DateTimeHelper.getDateTimeValue(
               addDays(date, -visibleDatesCount - nonWorkingDaysCount),
@@ -420,8 +423,10 @@ class DateTimeHelper {
   /// Returns week number for the given date.
   static int getWeekNumberOfYear(DateTime date) {
     final DateTime yearEndDate = DateTime(date.year - 1, 12, 31);
-    final int dayOfYear =
-        AppointmentHelper.getDifference(yearEndDate, date).inDays;
+    final int dayOfYear = AppointmentHelper.getDifference(
+      yearEndDate,
+      date,
+    ).inDays;
     int weekNumber = (dayOfYear - date.weekday + 10) ~/ 7;
     if (weekNumber < 1) {
       weekNumber = getWeeksInYear(date.year - 1);

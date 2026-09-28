@@ -263,6 +263,14 @@ class PdfScrollableState extends State<PdfScrollable> {
     currentOffset = _transformationController.toScene(Offset.zero);
     _currentScale = _transformationController.value.getMaxScaleOnAxis();
     widget.onPdfOffsetChanged!.call(currentOffset);
+    if (_currentScale != widget.pdfViewerController.zoomLevel &&
+        _currentScale != null &&
+        _currentScale != 0.0 &&
+        (!kIsDesktop ||
+            (kIsDesktop && widget.isMobileWebView) ||
+            (kIsDesktop && widget.scaleEnabled))) {
+      widget.pdfViewerController.zoomLevel = _currentScale!;
+    }
     setState(() {});
     if (details.scale <= 1) {
       if (kIsDesktop && !widget.isMobileWebView) {
@@ -298,17 +306,14 @@ class PdfScrollableState extends State<PdfScrollable> {
     paddingHeightScale = 0;
     final double totalPdfPageWidth =
         (widget.textDirection == TextDirection.rtl &&
-                widget.scrollDirection == PdfScrollDirection.horizontal)
-            // In RTL direction, the last page is rendered at Offset.zero and the first page is rendered at the end.
-            ? widget.pdfPages[1]!.pageOffset +
-                widget.pdfPages[1]!.pageSize.width
-            : widget
-                    .pdfPages[widget.pdfViewerController.pageCount]!
-                    .pageOffset +
-                widget
-                    .pdfPages[widget.pdfViewerController.pageCount]!
-                    .pageSize
-                    .width;
+            widget.scrollDirection == PdfScrollDirection.horizontal)
+        // In RTL direction, the last page is rendered at Offset.zero and the first page is rendered at the end.
+        ? widget.pdfPages[1]!.pageOffset + widget.pdfPages[1]!.pageSize.width
+        : widget.pdfPages[widget.pdfViewerController.pageCount]!.pageOffset +
+              widget
+                  .pdfPages[widget.pdfViewerController.pageCount]!
+                  .pageSize
+                  .width;
     if (_currentScale != widget.pdfViewerController.zoomLevel &&
         _currentScale != null &&
         _currentScale != 0.0 &&

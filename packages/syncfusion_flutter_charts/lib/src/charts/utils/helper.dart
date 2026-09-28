@@ -730,21 +730,64 @@ Widget? buildTooltipWidget(
                     ),
                   ),
                 if (info.text != null && info.text!.isNotEmpty)
-                  (hasMarker &&
-                          info.markerColors.length > 1 &&
-                          textSplit.length > 1)
-                      ? Padding(
-                        padding: tooltipItemSpacing,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: List<Widget>.generate(
-                            info.markerColors.length,
-                            (int index) {
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  Padding(
+                  if (hasMarker &&
+                      info.markerColors.length > 1 &&
+                      textSplit.length > 1)
+                    Padding(
+                      padding: tooltipItemSpacing,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List<Widget>.generate(
+                          info.markerColors.length,
+                          (int index) {
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Padding(
+                                  padding: tooltipMarkerPadding,
+                                  child: TooltipMarkerShapeRenderObject(
+                                    index: index,
+                                    colors: info.markerColors,
+                                    themeData: themeData,
+                                    image: info.renderer.markerSettings.image,
+                                    markerType: info.markerType,
+                                    series: info.renderer,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    index < textSplit.length
+                                        ? textSplit[index]
+                                        : '',
+                                    style: textStyle,
+                                    textAlign:
+                                        isLtr
+                                            ? TextAlign.left
+                                            : TextAlign.right,
+                                    textDirection: TextDirection.ltr,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    )
+                  else
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        if (hasMarker)
+                          Padding(
+                            padding: tooltipItemSpacing,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: List<Widget>.generate(
+                                info.markerColors.length,
+                                (int index) {
+                                  return Padding(
                                     padding: tooltipMarkerPadding,
                                     child: TooltipMarkerShapeRenderObject(
                                       index: index,
@@ -754,65 +797,21 @@ Widget? buildTooltipWidget(
                                       markerType: info.markerType,
                                       series: info.renderer,
                                     ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      index < textSplit.length
-                                          ? textSplit[index]
-                                          : '',
-                                      style: textStyle,
-                                      textAlign:
-                                          isLtr
-                                              ? TextAlign.left
-                                              : TextAlign.right,
-                                      textDirection: TextDirection.ltr,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      )
-                      : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          if (hasMarker)
-                            Padding(
-                              padding: tooltipItemSpacing,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: List<Widget>.generate(
-                                  info.markerColors.length,
-                                  (int index) {
-                                    return Padding(
-                                      padding: tooltipMarkerPadding,
-                                      child: TooltipMarkerShapeRenderObject(
-                                        index: index,
-                                        colors: info.markerColors,
-                                        themeData: themeData,
-                                        image:
-                                            info.renderer.markerSettings.image,
-                                        markerType: info.markerType,
-                                        series: info.renderer,
-                                      ),
-                                    );
-                                  },
-                                ),
+                                  );
+                                },
                               ),
                             ),
-                          Flexible(
-                            child: Text(
-                              info.text!,
-                              style: textStyle,
-                              textAlign:
-                                  isLtr ? TextAlign.left : TextAlign.right,
-                              textDirection: TextDirection.ltr,
-                            ),
                           ),
-                        ],
-                      ),
+                        Flexible(
+                          child: Text(
+                            info.text!,
+                            style: textStyle,
+                            textAlign: isLtr ? TextAlign.left : TextAlign.right,
+                            textDirection: TextDirection.ltr,
+                          ),
+                        ),
+                      ],
+                    ),
               ],
             ),
           ],

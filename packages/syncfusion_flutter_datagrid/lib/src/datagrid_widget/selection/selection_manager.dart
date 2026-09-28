@@ -397,7 +397,10 @@ class RowSelectionManager extends SelectionManagerBase {
       endIndex = tempIndex;
     }
     for (int i = startIndex; i <= endIndex; i++) {
-      addedItems.add(selection_helper.getRecord(configuration, i)!);
+      final record = selection_helper.getRecord(configuration, i);
+      if (record != null) {
+        addedItems.add(record);
+      }
     }
     return addedItems;
   }

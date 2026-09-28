@@ -220,30 +220,42 @@ class SinglePageViewState extends State<SinglePageView> {
   @override
   void didUpdateWidget(covariant SinglePageView oldWidget) {
     if (oldWidget.viewportDimension != widget.viewportDimension) {
-      _previousPageTransformationController.viewSize =
-          _currentPageTransformationController.viewSize =
-              _nextPageTransformationController.viewSize =
-                  widget.viewportDimension;
+      _previousPageTransformationController
+          .viewSize = _currentPageTransformationController.viewSize =
+          _nextPageTransformationController.viewSize = widget.viewportDimension;
+    }
+    if (widget.pdfPages[widget.pdfViewerController.pageNumber - 1] != null) {
+      _previousPageTransformationController.contentSize =
+          widget.pdfPages[widget.pdfViewerController.pageNumber - 1]!.pageSize;
     }
     if (widget.pdfPages[widget.pdfViewerController.pageNumber] != null) {
       _currentPageTransformationController.contentSize =
           widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize;
     }
+    if (widget.pdfPages[widget.pdfViewerController.pageNumber + 1] != null) {
+      _nextPageTransformationController.contentSize =
+          widget.pdfPages[widget.pdfViewerController.pageNumber + 1]!.pageSize;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        widget.pageController.jumpToPage(
+          widget.pdfViewerController.pageNumber - 1,
+        );
+      }
+    });
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void didChangeDependencies() {
     _pdfViewerThemeData = SfPdfViewerTheme.of(context);
-    _effectiveThemeData =
-        Theme.of(context).useMaterial3
-            ? SfPdfViewerThemeDataM3(context)
-            : SfPdfViewerThemeDataM2(context);
+    _effectiveThemeData = Theme.of(context).useMaterial3
+        ? SfPdfViewerThemeDataM3(context)
+        : SfPdfViewerThemeDataM2(context);
     _localizations = SfLocalizations.of(context);
-    _previousPageTransformationController.viewSize =
-        _currentPageTransformationController.viewSize =
-            _nextPageTransformationController.viewSize =
-                widget.viewportDimension;
+    _previousPageTransformationController
+        .viewSize = _currentPageTransformationController.viewSize =
+        _nextPageTransformationController.viewSize = widget.viewportDimension;
     if (widget.pdfPages[widget.pdfViewerController.pageNumber] != null) {
       _currentPageTransformationController.contentSize =
           widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize;
@@ -265,8 +277,9 @@ class SinglePageViewState extends State<SinglePageView> {
 
   /// Callback to assign the value to the transformation controller
   void _onTransformationChanged() {
-    widget.transformationController.value =
-        _currentPageTransformationController.value.clone();
+    widget.transformationController.value = _currentPageTransformationController
+        .value
+        .clone();
   }
 
   ///Jump to the desired offset.
@@ -302,11 +315,10 @@ class SinglePageViewState extends State<SinglePageView> {
       if (isJumpOnZoomedDocument) {
         final double actualMargin = greyAreaSize / 2;
         bool skipY = false;
-        final double pageHeight =
-            widget
-                .pdfPages[widget.pdfViewerController.pageNumber]!
-                .pageSize
-                .height;
+        final double pageHeight = widget
+            .pdfPages[widget.pdfViewerController.pageNumber]!
+            .pageSize
+            .height;
         if (widget.pdfViewerController.zoomLevel > 1 &&
             pageHeight * widget.pdfViewerController.zoomLevel <
                 widget.viewportDimension.height) {
@@ -320,13 +332,13 @@ class SinglePageViewState extends State<SinglePageView> {
           skipY
               ? 0
               : offset.dy.clamp(
-                actualMargin,
-                ((pdfDimension.height -
-                            (widget.viewportDimension.height /
-                                widget.pdfViewerController.zoomLevel)) +
-                        actualMargin)
-                    .abs(),
-              ),
+                  actualMargin,
+                  ((pdfDimension.height -
+                              (widget.viewportDimension.height /
+                                  widget.pdfViewerController.zoomLevel)) +
+                          actualMargin)
+                      .abs(),
+                ),
         );
       } else {
         offset = Offset(
@@ -419,10 +431,9 @@ class SinglePageViewState extends State<SinglePageView> {
 
       // Prepare the transformation controller for the new next page
       if (widget.pdfPages[newPageNumber + 1] != null) {
-        _nextPageTransformationController =
-            TransformationControllerExt()
-              ..viewSize = _oldLayoutSize
-              ..contentSize = widget.pdfPages[newPageNumber + 1]!.pageSize;
+        _nextPageTransformationController = TransformationControllerExt()
+          ..viewSize = _oldLayoutSize
+          ..contentSize = widget.pdfPages[newPageNumber + 1]!.pageSize;
       }
     } else if (newPageNumber < _currentPageNumber) {
       // User navigated to the previous page
@@ -440,10 +451,9 @@ class SinglePageViewState extends State<SinglePageView> {
 
       // Prepare the transformation controller for the new previous page
       if (widget.pdfPages[newPageNumber - 1] != null) {
-        _previousPageTransformationController =
-            TransformationControllerExt()
-              ..viewSize = _oldLayoutSize
-              ..contentSize = widget.pdfPages[newPageNumber - 1]!.pageSize;
+        _previousPageTransformationController = TransformationControllerExt()
+          ..viewSize = _oldLayoutSize
+          ..contentSize = widget.pdfPages[newPageNumber - 1]!.pageSize;
       }
     }
 
@@ -482,8 +492,8 @@ class SinglePageViewState extends State<SinglePageView> {
             onInteractionStart: (ScaleStartDetails details) {
               _panStartOffset =
                   widget.scrollDirection == PdfScrollDirection.horizontal
-                      ? details.localFocalPoint.dx
-                      : details.localFocalPoint.dy;
+                  ? details.localFocalPoint.dx
+                  : details.localFocalPoint.dy;
               if (!kIsDesktop ||
                   (kIsDesktop && widget.isMobileWebView) ||
                   (kIsDesktop && widget.scaleEnabled)) {
@@ -498,8 +508,8 @@ class SinglePageViewState extends State<SinglePageView> {
             onInteractionUpdate: (ScaleUpdateDetails details) {
               _panUpdateOffset =
                   widget.scrollDirection == PdfScrollDirection.horizontal
-                      ? details.localFocalPoint.dx
-                      : details.localFocalPoint.dy;
+                  ? details.localFocalPoint.dx
+                  : details.localFocalPoint.dy;
               if (_panStartOffset != _panUpdateOffset) {
                 if (_panStartOffset < _panUpdateOffset) {
                   _canJumpPrevious = true;
@@ -568,16 +578,15 @@ class SinglePageViewState extends State<SinglePageView> {
         );
       }
     }
-    _scrollHeadPosition =
-        widget.pdfViewerController.pageNumber == 1
-            ? 0
-            : widget.scrollDirection == PdfScrollDirection.horizontal
-            ? (widget.pdfViewerController.pageNumber /
-                    widget.pdfViewerController.pageCount) *
-                (widget.viewportDimension.width - _kPdfScrollHeadSize)
-            : (widget.pdfViewerController.pageNumber /
-                    widget.pdfViewerController.pageCount) *
-                (widget.viewportDimension.height - _kPdfScrollHeadSize);
+    _scrollHeadPosition = widget.pdfViewerController.pageNumber == 1
+        ? 0
+        : widget.scrollDirection == PdfScrollDirection.horizontal
+        ? (widget.pdfViewerController.pageNumber /
+                  widget.pdfViewerController.pageCount) *
+              (widget.viewportDimension.width - _kPdfScrollHeadSize)
+        : (widget.pdfViewerController.pageNumber /
+                  widget.pdfViewerController.pageCount) *
+              (widget.viewportDimension.height - _kPdfScrollHeadSize);
 
     if (widget.scrollDirection == PdfScrollDirection.horizontal) {
       _canShowHorizontalScrollBar = true;
@@ -618,10 +627,9 @@ class SinglePageViewState extends State<SinglePageView> {
                 widget.pdfPages.isNotEmpty) {
               final Offset previousOffset = _currentPageTransformationController
                   .toScene(Offset.zero);
-              double yPosition =
-                  !_oldLayoutSize.isEmpty
-                      ? previousOffset.dy / _oldLayoutSize.height
-                      : 0;
+              double yPosition = !_oldLayoutSize.isEmpty
+                  ? previousOffset.dy / _oldLayoutSize.height
+                  : 0;
               final double greyArea =
                   widget
                       .pdfPages[widget.pdfViewerController.pageNumber]!
@@ -638,14 +646,13 @@ class SinglePageViewState extends State<SinglePageView> {
                   (constraints.biggest.height) - greyArea,
                 );
               }
-              double xPosition =
-                  !_oldLayoutSize.isEmpty
-                      ? previousOffset.dx / _oldLayoutSize.width
-                      : 0;
+              double xPosition = !_oldLayoutSize.isEmpty
+                  ? previousOffset.dx / _oldLayoutSize.width
+                  : 0;
               xPosition =
                   MediaQuery.of(context).orientation == Orientation.landscape
-                      ? 0
-                      : xPosition * constraints.biggest.width;
+                  ? 0
+                  : xPosition * constraints.biggest.width;
               if (kIsDesktop && !widget.isMobileWebView) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   _currentPageTransformationController.value =
@@ -699,8 +706,8 @@ class SinglePageViewState extends State<SinglePageView> {
                 controller: widget.pageController,
                 scrollDirection:
                     widget.scrollDirection == PdfScrollDirection.horizontal
-                        ? Axis.horizontal
-                        : Axis.vertical,
+                    ? Axis.horizontal
+                    : Axis.vertical,
                 reverse: widget.textDirection != TextDirection.ltr,
                 onPageChanged: (int newPageIndex) {
                   // Reset the zoom level on page change
@@ -718,11 +725,11 @@ class SinglePageViewState extends State<SinglePageView> {
                 },
                 physics:
                     _currentPageTransformationController.value
-                                    .getMaxScaleOnAxis() ==
-                                1 &&
-                            _fingersInteracting <= 1
-                        ? const BouncingScrollPhysics()
-                        : const NeverScrollableScrollPhysics(),
+                                .getMaxScaleOnAxis() ==
+                            1 &&
+                        _fingersInteracting <= 1
+                    ? const BouncingScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
                 children: pages,
               ),
             );
@@ -777,18 +784,18 @@ class SinglePageViewState extends State<SinglePageView> {
             },
             verticalScrollbarPadding:
                 widget.scrollDirection == PdfScrollDirection.vertical &&
-                        widget.pdfViewerController.pageCount > 1
-                    ? const EdgeInsets.only(
-                      right: _defaultDesktopScrollbarWidth + _scrollbarPadding,
-                    )
-                    : const EdgeInsets.only(right: _scrollbarPadding),
+                    widget.pdfViewerController.pageCount > 1
+                ? const EdgeInsets.only(
+                    right: _defaultDesktopScrollbarWidth + _scrollbarPadding,
+                  )
+                : const EdgeInsets.only(right: _scrollbarPadding),
             horizontalScrollbarPadding:
                 widget.scrollDirection == PdfScrollDirection.horizontal &&
-                        widget.pdfViewerController.pageCount > 1
-                    ? const EdgeInsets.only(
-                      bottom: _defaultDesktopScrollbarWidth + _scrollbarPadding,
-                    )
-                    : const EdgeInsets.only(bottom: _scrollbarPadding),
+                    widget.pdfViewerController.pageCount > 1
+                ? const EdgeInsets.only(
+                    bottom: _defaultDesktopScrollbarWidth + _scrollbarPadding,
+                  )
+                : const EdgeInsets.only(bottom: _scrollbarPadding),
           ),
         Visibility(
           visible: isScrollHeadDragged && widget.canShowScrollStatus,
@@ -802,8 +809,8 @@ class SinglePageViewState extends State<SinglePageView> {
     required bool isMouseWheel,
     Velocity velocity = Velocity.zero,
   }) {
-    final double currentScale =
-        _currentPageTransformationController.value.getMaxScaleOnAxis();
+    final double currentScale = _currentPageTransformationController.value
+        .getMaxScaleOnAxis();
     if (currentScale <= 1) {
       return;
     }
@@ -886,8 +893,9 @@ class SinglePageViewState extends State<SinglePageView> {
     widget.onDoubleTap?.call();
     previousZoomLevel = widget.pdfViewerController.zoomLevel;
     _oldPreviousZoomLevel = previousZoomLevel;
-    widget.pdfViewerController.zoomLevel =
-        _currentPageTransformationController.value.getMaxScaleOnAxis();
+    widget.pdfViewerController.zoomLevel = _currentPageTransformationController
+        .value
+        .getMaxScaleOnAxis();
 
     final double pdfPageWidth =
         widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize.width;
@@ -961,8 +969,8 @@ class SinglePageViewState extends State<SinglePageView> {
 
   /// Scale to PDF
   double scaleTo(double zoomLevel) {
-    currentZoomLevel =
-        _currentPageTransformationController.value.getMaxScaleOnAxis();
+    currentZoomLevel = _currentPageTransformationController.value
+        .getMaxScaleOnAxis();
     if (currentZoomLevel != zoomLevel) {
       previousZoomLevel = currentZoomLevel;
       _oldPreviousZoomLevel = previousZoomLevel;
@@ -1136,28 +1144,25 @@ class SinglePageViewState extends State<SinglePageView> {
         return AlertDialog(
           scrollable: true,
           insetPadding: EdgeInsets.zero,
-          contentPadding:
-              isMaterial3
-                  ? const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0)
-                  : orientation == Orientation.portrait
-                  ? const EdgeInsets.all(24)
-                  : const EdgeInsets.only(right: 24, left: 24),
-          buttonPadding:
-              orientation == Orientation.portrait
-                  ? const EdgeInsets.all(8)
-                  : const EdgeInsets.all(4),
+          contentPadding: isMaterial3
+              ? const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0)
+              : orientation == Orientation.portrait
+              ? const EdgeInsets.all(24)
+              : const EdgeInsets.only(right: 24, left: 24),
+          buttonPadding: orientation == Orientation.portrait
+              ? const EdgeInsets.all(8)
+              : const EdgeInsets.all(4),
           backgroundColor:
               _pdfViewerThemeData!.paginationDialogStyle?.backgroundColor ??
               _effectiveThemeData!.paginationDialogStyle?.backgroundColor ??
               (Theme.of(context).colorScheme.brightness == Brightness.light
                   ? Colors.white
                   : const Color(0xFF424242)),
-          shape:
-              isMaterial3
-                  ? null
-                  : const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                  ),
+          shape: isMaterial3
+              ? null
+              : const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1166,12 +1171,11 @@ class SinglePageViewState extends State<SinglePageView> {
                 style: Theme.of(context).textTheme.headlineMedium!
                     .copyWith(
                       fontSize: isMaterial3 ? 24 : 20,
-                      color:
-                          isMaterial3
-                              ? Theme.of(context).colorScheme.onSurface
-                              : Theme.of(context).brightness == Brightness.light
-                              ? Colors.black.withValues(alpha: 0.87)
-                              : Colors.white.withValues(alpha: 0.87),
+                      color: isMaterial3
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).brightness == Brightness.light
+                          ? Colors.black.withValues(alpha: 0.87)
+                          : Colors.white.withValues(alpha: 0.87),
                     )
                     .merge(
                       _pdfViewerThemeData!
@@ -1219,16 +1223,15 @@ class SinglePageViewState extends State<SinglePageView> {
                 _textFieldController.clear();
                 Navigator.of(context).pop();
               },
-              style:
-                  isMaterial3
-                      ? TextButton.styleFrom(
-                        fixedSize: const Size(double.infinity, 40),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 20,
-                        ),
-                      )
-                      : null,
+              style: isMaterial3
+                  ? TextButton.styleFrom(
+                      fixedSize: const Size(double.infinity, 40),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 20,
+                      ),
+                    )
+                  : null,
               child: Text(
                 _localizations!.pdfPaginationDialogCancelLabel,
                 style: Theme.of(context).textTheme.bodyMedium!
@@ -1248,16 +1251,15 @@ class SinglePageViewState extends State<SinglePageView> {
               onPressed: () {
                 _handlePageNumberValidation(context);
               },
-              style:
-                  isMaterial3
-                      ? TextButton.styleFrom(
-                        fixedSize: const Size(double.infinity, 40),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 20,
-                        ),
-                      )
-                      : null,
+              style: isMaterial3
+                  ? TextButton.styleFrom(
+                      fixedSize: const Size(double.infinity, 40),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 20,
+                      ),
+                    )
+                  : null,
               child: Text(
                 _localizations!.pdfPaginationDialogOkLabel,
                 style: Theme.of(context).textTheme.bodyMedium!
@@ -1288,10 +1290,9 @@ class SinglePageViewState extends State<SinglePageView> {
           style: Theme.of(context).textTheme.titleMedium!
               .copyWith(
                 fontSize: 16,
-                color:
-                    Theme.of(context).brightness == Brightness.light
-                        ? Colors.black.withValues(alpha: 0.87)
-                        : Colors.white.withValues(alpha: 0.87),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.black.withValues(alpha: 0.87)
+                    : Colors.white.withValues(alpha: 0.87),
               )
               .merge(
                 _pdfViewerThemeData!.paginationDialogStyle?.inputFieldTextStyle,
@@ -1299,84 +1300,77 @@ class SinglePageViewState extends State<SinglePageView> {
           focusNode: _focusNode,
           decoration: InputDecoration(
             isDense: true,
-            border:
-                isMaterial3
-                    ? OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color:
-                            _pdfViewerThemeData!
-                                .passwordDialogStyle
-                                ?.inputFieldBorderColor ??
-                            _effectiveThemeData!
-                                .passwordDialogStyle
-                                ?.inputFieldBorderColor ??
-                            Theme.of(context).colorScheme.primary,
-                      ),
-                    )
-                    : null,
-            errorBorder:
-                isMaterial3
-                    ? OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(3.5),
-                      borderSide: BorderSide(
-                        color:
-                            _pdfViewerThemeData!
-                                .passwordDialogStyle
-                                ?.errorBorderColor ??
-                            _effectiveThemeData!
-                                .passwordDialogStyle
-                                ?.errorBorderColor ??
-                            Theme.of(context).colorScheme.error,
-                      ),
-                    )
-                    : null,
-            focusedBorder:
-                isMaterial3
-                    ? OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color:
-                            _pdfViewerThemeData!
-                                .passwordDialogStyle
-                                ?.inputFieldBorderColor ??
-                            _effectiveThemeData!
-                                .passwordDialogStyle
-                                ?.inputFieldBorderColor ??
-                            Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      ),
-                    )
-                    : UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+            border: isMaterial3
+                ? OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color:
+                          _pdfViewerThemeData!
+                              .passwordDialogStyle
+                              ?.inputFieldBorderColor ??
+                          _effectiveThemeData!
+                              .passwordDialogStyle
+                              ?.inputFieldBorderColor ??
+                          Theme.of(context).colorScheme.primary,
                     ),
-            contentPadding:
-                isMaterial3
-                    ? const EdgeInsets.all(16)
-                    : const EdgeInsets.symmetric(vertical: 6),
+                  )
+                : null,
+            errorBorder: isMaterial3
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(3.5),
+                    borderSide: BorderSide(
+                      color:
+                          _pdfViewerThemeData!
+                              .passwordDialogStyle
+                              ?.errorBorderColor ??
+                          _effectiveThemeData!
+                              .passwordDialogStyle
+                              ?.errorBorderColor ??
+                          Theme.of(context).colorScheme.error,
+                    ),
+                  )
+                : null,
+            focusedBorder: isMaterial3
+                ? OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color:
+                          _pdfViewerThemeData!
+                              .passwordDialogStyle
+                              ?.inputFieldBorderColor ??
+                          _effectiveThemeData!
+                              .passwordDialogStyle
+                              ?.inputFieldBorderColor ??
+                          Theme.of(context).colorScheme.primary,
+                      width: 2,
+                    ),
+                  )
+                : UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+            contentPadding: isMaterial3
+                ? const EdgeInsets.all(16)
+                : const EdgeInsets.symmetric(vertical: 6),
             hintText: _localizations!.pdfEnterPageNumberLabel,
             hintStyle: Theme.of(context).textTheme.titleMedium!
                 .copyWith(
                   fontSize: 16,
-                  color:
-                      Theme.of(context).brightness == Brightness.light
-                          ? Colors.black.withValues(alpha: 0.6)
-                          : Colors.white.withValues(alpha: 0.6),
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.black.withValues(alpha: 0.6)
+                      : Colors.white.withValues(alpha: 0.6),
                 )
                 .merge(
                   _pdfViewerThemeData!.paginationDialogStyle?.hintTextStyle,
                 ),
-            counterText:
-                isMaterial3
-                    ? null
-                    : '${widget.pdfViewerController.pageNumber}/${widget.pdfViewerController.pageCount}',
+            counterText: isMaterial3
+                ? null
+                : '${widget.pdfViewerController.pageNumber}/${widget.pdfViewerController.pageCount}',
             counterStyle: Theme.of(context).textTheme.bodySmall!
                 .copyWith(
                   fontSize: 12,
-                  color:
-                      Theme.of(context).brightness == Brightness.light
-                          ? Colors.black.withValues(alpha: 0.6)
-                          : Colors.white.withValues(alpha: 0.6),
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.black.withValues(alpha: 0.6)
+                      : Colors.white.withValues(alpha: 0.6),
                 )
                 .merge(
                   _pdfViewerThemeData!.paginationDialogStyle?.pageInfoTextStyle,

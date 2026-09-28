@@ -1672,13 +1672,13 @@ class SfDataPagerState extends State<SfDataPager> {
 
     if ((!_isDesktop && widget.direction != Axis.vertical) &&
         widget.onRowsPerPageChanged != null) {
-      children.add(Row(children: _buildRowsPerPageLabel()!));
+      children.add(Row(children: _buildRowsPerPageLabel()));
     }
     return _getChildrenBasedOnDirection(children);
   }
 
   // DataPager with rows per page label
-  List<Widget>? _buildRowsPerPageLabel() {
+  List<Widget> _buildRowsPerPageLabel() {
     final List<Widget> children = <Widget>[];
 
     final Widget dropDown = _buildDropDownWidget()!;
@@ -1795,7 +1795,7 @@ class SfDataPagerState extends State<SfDataPager> {
     children.add(dataPager);
 
     if (isDropDown) {
-      children.add(Row(children: _buildRowsPerPageLabel()!));
+      children.add(Row(children: _buildRowsPerPageLabel()));
     }
     if ((canEnablePagerLabel && dataPagerLabel != null) && !isDropDown) {
       children.add(dataPagerLabel);

@@ -1,4 +1,5 @@
 import 'dart:math' show Point, sqrt;
+
 import 'package:flutter/material.dart';
 
 import '../../pdfviewer.dart';
@@ -148,14 +149,13 @@ class TextMarkupAnnotationView extends InteractiveGraphicsView
          canMove: false,
          selectorColor: selectorColor,
        ) {
-    _textMarkupType =
-        annotation is HighlightAnnotation
-            ? TextMarkupType.highlight
-            : annotation is StrikethroughAnnotation
-            ? TextMarkupType.strikethrough
-            : annotation is UnderlineAnnotation
-            ? TextMarkupType.underline
-            : TextMarkupType.squiggly;
+    _textMarkupType = annotation is HighlightAnnotation
+        ? TextMarkupType.highlight
+        : annotation is StrikethroughAnnotation
+        ? TextMarkupType.strikethrough
+        : annotation is UnderlineAnnotation
+        ? TextMarkupType.underline
+        : TextMarkupType.squiggly;
     _heightPercentage = heightPercentage;
   }
 

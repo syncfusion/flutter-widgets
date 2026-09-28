@@ -32,6 +32,8 @@ class XObjectElement {
   String? _objectName;
   String? _objectType;
 
+  String? get objectType => _objectType;
+
   /// internal field
   PdfDictionary? dictionary;
 

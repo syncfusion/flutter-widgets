@@ -1,14 +1,14 @@
 import 'dart:js_interop';
+
 import 'package:web/web.dart' as web;
 
 /// Checks whether focus node of pdf page view has primary focus.
 bool hasPrimaryFocus = false;
 
 /// Context Menu Event Listener variable.
-JSFunction _contextMenuListener =
-    (web.MouseEvent e) {
-      e.preventDefault();
-    }.toJS;
+JSFunction _contextMenuListener = (web.MouseEvent e) {
+  e.preventDefault();
+}.toJS;
 
 /// Keyboard Event Listener variable.
 JSFunction _keyDownListener = _preventSpecificDefaultMenu.toJS;

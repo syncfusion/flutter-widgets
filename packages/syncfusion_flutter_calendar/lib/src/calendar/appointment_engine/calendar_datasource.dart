@@ -1065,14 +1065,12 @@ abstract class CalendarDataSource<T extends Object?>
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(
-      IterableDiagnostics<dynamic>(
-        appointments,
-      ).toDiagnosticsNode(name: 'appointments'),
+      IterableDiagnostics<dynamic>(appointments)
+          .toDiagnosticsNode(name: 'appointments'),
     );
     properties.add(
-      IterableDiagnostics<CalendarResource>(
-        resources,
-      ).toDiagnosticsNode(name: 'resources'),
+      IterableDiagnostics<CalendarResource>(resources)
+          .toDiagnosticsNode(name: 'resources'),
     );
   }
 }
@@ -1083,8 +1081,10 @@ abstract class CalendarDataSource<T extends Object?>
 /// See also:
 /// [CalendarDataSourceAction], the actions which can be performed using the
 /// calendar.
-typedef CalendarDataSourceCallback =
-    void Function(CalendarDataSourceAction, List<dynamic>);
+typedef CalendarDataSourceCallback = void Function(
+  CalendarDataSourceAction,
+  List<dynamic>,
+);
 
 /// Notifier used to notify the action performed in the [CalendarDataSource]
 class CalendarDataSourceChangeNotifier with Diagnosticable {

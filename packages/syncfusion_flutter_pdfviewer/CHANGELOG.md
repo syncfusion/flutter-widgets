@@ -1,5 +1,42 @@
 ## Unreleased
 
+**Bugs**
+
+* Now, the `SfPdfViewer` widget provides live zoomLevel updates during pinch gestures, ensuring overlay alignment.
+
+## [34.2.2] - 08/05/2026
+
+* No changes.
+
+## [34.1.33] - 07/28/2026
+
+* No changes.
+
+## [34.1.32] - 07/21/2026
+
+* No changes.
+
+## [34.1.31] - 07/14/2026
+
+* No changes.
+
+## [34.1.30] - 07/09/2026
+
+**Bugs**
+
+* Now, the `SfPdfViewer` widget correctly aligns pages in Single-Page Layout mode when switching documents and navigating between pages.
+* Now, the `SfPdfViewer` widget correctly applies directionality in the hyperlink dialog, ensuring proper alignment.
+
+## [34.1.29] - 07/06/2026
+
+* No changes.
+
+## [33.2.15] - 06/24/2026
+
+* No changes.
+
+## [33.2.13+1] - 06/18/2026
+
 **General**
 
 * Upgraded the [`device_info_plus`](https://pub.dev/packages/device_info_plus) package to the latest version `13.1.0`.
@@ -7,6 +44,14 @@
 **Bugs**
 
 * Now, the `SfPdfViewer` widget prevents duplication of read-only form fields when reopening a saved PDF without flattening.
+
+## [33.2.13] - 06/16/2026
+
+* No changes.
+
+## [33.2.12] - 06/09/2026
+
+* No changes.
 
 ## [33.2.10] - 06/02/2026
 

@@ -2515,14 +2515,20 @@ class _TileDecorState extends State<_TileDecor> with TickerProviderStateMixin {
       // Added descendant tiles to the siblings of the parent tile instead of
       // adding it as child, in order to get the respective touch pointer when
       // hovered or tapped on the parent tile or descendant tiles.
+      Widget? childWidget;
+      if (widget.child != null) {
+        if (_ancestor.enableDrilldown) {
+          childWidget = widget.child!;
+        } else {
+          childWidget = Padding(padding: dimensions, child: widget.child);
+        }
+      }
+
       return Stack(
         fit: StackFit.expand,
         children: <Widget>[
           _buildTileDecor(current, context),
-          if (widget.child != null)
-            _ancestor.enableDrilldown
-                ? widget.child!
-                : Padding(padding: dimensions, child: widget.child),
+          if (childWidget != null) childWidget,
         ],
       );
     }

@@ -1,5 +1,11 @@
 ## Unreleased
 
+**General**
+
+*  The compatible version of our Flutter gauges widget has been updated to Flutter SDK 3.47.
+
+## [32.2.9] - 03/10/2026
+
 ## Radial Gauge
 
 **Bugs**

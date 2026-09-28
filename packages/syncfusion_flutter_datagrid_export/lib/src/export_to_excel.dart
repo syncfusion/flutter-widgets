@@ -274,9 +274,12 @@ class DataGridToExcelConverter {
       return;
     }
 
-    final List<GridTableSummaryRow> summaryRows = dataGrid.tableSummaryRows
-        .where((GridTableSummaryRow row) => row.position == position)
-        .toList();
+    bool isEqualPosition(GridTableSummaryRow row) {
+      return row.position == position;
+    }
+
+    final List<GridTableSummaryRow> summaryRows =
+        dataGrid.tableSummaryRows.where(isEqualPosition).toList();
 
     if (summaryRows.isEmpty) {
       return;
@@ -362,10 +365,17 @@ class DataGridToExcelConverter {
   /// Gets the cell value required for data rows.
   @protected
   Object? getCellValue(DataGridRow row, GridColumn column) {
-    final DataGridCell cellValue = row.getCells().firstWhereOrNull(
-      (DataGridCell cell) => cell.columnName == column.columnName,
-    )!;
-    return cellValue.value;
+    // Replaced the null assertion operator (`!`) with the null-aware operator (`?.`).
+    // Previously, if no matching cell was found, `firstWhereOrNull()` returned null
+    // and the `!` operator caused a runtime exception.
+    // The updated implementation safely returns null when a matching cell does not
+    // exist, avoiding runtime exception and making the method null-safe.
+    return row
+        .getCells()
+        .firstWhereOrNull(
+          (DataGridCell cell) => cell.columnName == column.columnName,
+        )
+        ?.value;
   }
 
   /// Exports the [SfDataGrid] to Excel [Worksheet].
@@ -374,11 +384,11 @@ class DataGridToExcelConverter {
     List<DataGridRow>? rows,
     Worksheet worksheet,
   ) {
-    _columns = dataGrid.columns
-        .where(
-          (GridColumn column) => !excludeColumns.contains(column.columnName),
-        )
-        .toList();
+    bool isExportableColumn(GridColumn column) {
+      return !excludeColumns.contains(column.columnName);
+    }
+
+    _columns = dataGrid.columns.where(isExportableColumn).toList();
 
     // Return if all the columns are `excludeColumns`.
     if (columns.isEmpty) {
@@ -569,20 +579,24 @@ class DataGridToExcelConverter {
     DataGridExportCellType cellType,
     Worksheet sheet,
   ) {
+    double getHeaderRowHeight(double height) {
+      return height.isNaN ? 56.0 : height;
+    }
+
+    double getRowHeight(double height) {
+      return height.isNaN ? 49.0 : height;
+    }
+
     if (exportRowHeight) {
       switch (cellType) {
         case DataGridExportCellType.columnHeader:
         case DataGridExportCellType.stackedHeader:
-          final double height = dataGrid.headerRowHeight.isNaN
-              ? 56.0
-              : dataGrid.headerRowHeight;
+          final double height = getHeaderRowHeight(dataGrid.headerRowHeight);
           sheet.setRowHeightInPixels(excelRowIndex, height);
           break;
         case DataGridExportCellType.row:
         case DataGridExportCellType.tableSummaryRow:
-          final double height = dataGrid.rowHeight.isNaN
-              ? 49.0
-              : dataGrid.rowHeight;
+          final double height = getRowHeight(dataGrid.rowHeight);
           sheet.setRowHeightInPixels(excelRowIndex, height);
           break;
       }

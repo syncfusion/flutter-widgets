@@ -77,12 +77,11 @@ void _extractText(SendPort sendPort) {
       }
       final Map<int, String> textMap = <int, String>{};
       for (int i = startIndex; i <= endIndex; i++) {
-        final String text =
-            textExtractor!
-                .extractText(startPageIndex: i)
-                // Remove the new line characters.
-                .replaceAll(RegExp(r'\r?\n'), '')
-                .toLowerCase();
+        final String text = textExtractor!
+            .extractText(startPageIndex: i)
+            // Remove the new line characters.
+            .replaceAll(RegExp(r'\r?\n'), '')
+            .toLowerCase();
         textMap[i] = text;
       }
       sendPort.send(textMap);

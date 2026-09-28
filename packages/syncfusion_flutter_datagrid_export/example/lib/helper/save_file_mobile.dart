@@ -9,29 +9,44 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 ///To save the Excel file in the Mobile and Desktop platforms.
 Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
   String? path;
+  Future<Directory?>? getExternalStorageDirectory() {
+    return path_provider.getExternalStorageDirectory();
+  }
+
+  Future<Directory?>? getApplicationSupportDirectory() {
+    return path_provider.getApplicationSupportDirectory();
+  }
+
+  Future<String?>? getApplicationSupportPath() {
+    final path_provider_interface.PathProviderPlatform platform =
+        path_provider_interface.PathProviderPlatform.instance;
+    return platform.getApplicationSupportPath();
+  }
+
+  String getFileLocation(String? path, String fileName) {
+    return Platform.isWindows ? '$path\\$fileName' : '$path/$fileName';
+  }
+
   if (Platform.isAndroid ||
       Platform.isIOS ||
       Platform.isLinux ||
       Platform.isWindows) {
     if (Platform.isAndroid) {
-      final Directory? directory = await path_provider
-          .getExternalStorageDirectory();
+      final Directory? directory = await getExternalStorageDirectory();
       if (directory != null) {
         path = directory.path;
       }
     } else {
-      final Directory directory = await path_provider
-          .getApplicationSupportDirectory();
-      path = directory.path;
+      final Directory? directory = await getApplicationSupportDirectory();
+      if (directory != null) {
+        path = directory.path;
+      }
     }
   } else {
-    path = await path_provider_interface.PathProviderPlatform.instance
-        .getApplicationSupportPath();
+    path = await getApplicationSupportPath();
   }
 
-  final String fileLocation = Platform.isWindows
-      ? '$path\\$fileName'
-      : '$path/$fileName';
+  final String fileLocation = getFileLocation(path, fileName);
   final File file = File(fileLocation);
   await file.writeAsBytes(bytes, flush: true);
 

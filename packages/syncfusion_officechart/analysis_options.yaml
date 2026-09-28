@@ -7,4 +7,12 @@ analyzer:
     lines_longer_than_80_chars: ignore
     avoid_as: ignore
     avoid_dynamic_calls: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
   

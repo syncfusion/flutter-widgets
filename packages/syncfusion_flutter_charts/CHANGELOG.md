@@ -1,5 +1,11 @@
 ## Unreleased
 
+**General**
+
+* The compatible version of our Flutter charts widget has been updated to Flutter SDK 3.47.
+
+## [34.1.29] - 06/07/2026
+
 **Bugs**
 
 * \#GH2538 - Fixed series name not visible in trackball tooltip when the legend name contains a colon (:).

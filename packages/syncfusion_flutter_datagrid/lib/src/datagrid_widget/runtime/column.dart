@@ -2369,7 +2369,10 @@ class DataGridFilterHelper {
     } else {
       final bool useSelected =
           !(_checkedItemsCount > _unCheckedItemsCount &&
-              _unCheckedItemsCount > 0);
+              (_unCheckedItemsCount > 0 &&
+                  checkboxFilterHelper
+                      ._searchedItems
+                      .isEmpty)); // Consider searched items while determining whether selected or unselected values should be used for filter condition generation.
       final List<FilterCondition> conditions = <FilterCondition>[];
       for (final FilterElement value in checkboxFilterHelper.items) {
         if (value.isSelected == useSelected) {

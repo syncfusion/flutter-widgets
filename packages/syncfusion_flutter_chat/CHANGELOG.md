@@ -1,5 +1,11 @@
 ## Unreleased
 
+**General**
+
+*  The compatible version of our Flutter chat and AI assistView widgets has been updated to Flutter SDK 3.47.
+
+## [34.2.4] - 02/10/2026
+
 ## SfChat
 
 **Bugs**

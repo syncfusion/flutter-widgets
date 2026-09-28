@@ -6,3 +6,11 @@ analyzer:
     include_file_not_found: ignore
     uri_does_not_exist: ignore
     library_private_types_in_public_api: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

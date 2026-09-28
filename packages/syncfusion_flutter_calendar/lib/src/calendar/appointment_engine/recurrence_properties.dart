@@ -754,9 +754,8 @@ class RecurrenceProperties with Diagnosticable {
       EnumProperty<RecurrenceRange>('recurrenceRange', recurrenceRange),
     );
     properties.add(
-      IterableDiagnostics<WeekDays>(
-        weekDays,
-      ).toDiagnosticsNode(name: 'weekDays'),
+      IterableDiagnostics<WeekDays>(weekDays)
+          .toDiagnosticsNode(name: 'weekDays'),
     );
   }
 }
