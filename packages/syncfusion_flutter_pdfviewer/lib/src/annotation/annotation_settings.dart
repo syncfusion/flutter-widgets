@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../control/enums.dart';
 import 'annotation.dart';
 import 'annotation_view.dart';
@@ -52,26 +53,25 @@ class PdfAnnotationSettings extends PdfBaseAnnotationSettings {
   String author = '';
 
   /// Gets or sets the default settings for highlight annotations. The default color is yellow
-  PdfTextMarkupAnnotationSettings highlight =
-      PdfTextMarkupAnnotationSettings()..color = Colors.yellow;
+  PdfTextMarkupAnnotationSettings highlight = PdfTextMarkupAnnotationSettings()
+    ..color = Colors.yellow;
 
   /// Gets or sets the default settings for underline annotations. The default color is green.
-  PdfTextMarkupAnnotationSettings underline =
-      PdfTextMarkupAnnotationSettings()..color = Colors.green;
+  PdfTextMarkupAnnotationSettings underline = PdfTextMarkupAnnotationSettings()
+    ..color = Colors.green;
 
   /// Gets or sets the default settings for strikethrough annotations. The default color is red.
   PdfTextMarkupAnnotationSettings strikethrough =
       PdfTextMarkupAnnotationSettings()..color = Colors.red;
 
   /// Gets or sets the default settings for squiggly annotations. The default color is green.
-  PdfTextMarkupAnnotationSettings squiggly =
-      PdfTextMarkupAnnotationSettings()..color = Colors.green;
+  PdfTextMarkupAnnotationSettings squiggly = PdfTextMarkupAnnotationSettings()
+    ..color = Colors.green;
 
   /// Gets or sets the default settings for sticky note annotations. The default color is yellow. Default icon is Comment
-  PdfStickyNoteAnnotationSettings stickyNote =
-      PdfStickyNoteAnnotationSettings()
-        ..color = Colors.yellow
-        ..icon = PdfStickyNoteIcon.comment;
+  PdfStickyNoteAnnotationSettings stickyNote = PdfStickyNoteAnnotationSettings()
+    ..color = Colors.yellow
+    ..icon = PdfStickyNoteIcon.comment;
 
   /// Gets or sets the default settings for the annotation selector.
   PdfAnnotationSelectorSettings selector = PdfAnnotationSelectorSettings();

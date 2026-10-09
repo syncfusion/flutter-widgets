@@ -1,6 +1,14 @@
 ## Unreleased
 
-No changes.
+**General**
+
+* The compatible version of our Flutter DataGrid Export widget has been updated to Flutter SDK 3.47.
+
+## [34.1.31] - 07/14/2026
+
+**Bugs**
+
+* The null exception will no longer be thrown when exporting `PDF Document` with invalid column names.
 
 ## [31.1.20] - 09/17/2025
 

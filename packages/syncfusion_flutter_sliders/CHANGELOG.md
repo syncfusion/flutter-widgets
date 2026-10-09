@@ -1,5 +1,11 @@
 ## Unreleased
 
+**General**
+
+*  The compatible version of our Flutter sliders widget has been updated to Flutter SDK 3.47.
+
+## [32.2.8] - 03/03/2026
+
 ## SfSlider
 
 **Bugs**

@@ -1516,8 +1516,21 @@ class RenderVirtualizingCellsWidget extends RenderBox
     // summary rows. Now, We have fixed it by allowing long-press events for all
     // the row types except for the `footer` row type since it's not required.
     if (dataRow.rowType != RowType.footerRow) {
+      // Issue:
+      // Incorrect column detection after horizontal scrolling when long pressing,
+      // particularly observed on Android.
+      //
+      // Fix:
+      // The local touch position (`localPosition.dx`) did not account for the
+      // horizontal scroll offset, causing mismatch with visible columns.
+      // Adjusted the position by subtracting the scroll offset to ensure accurate
+      // mapping to the scrolled content.
       final double position = dataGridConfiguration.columnResizeController
-          .getXPosition(dataGridConfiguration, details.localPosition.dx);
+          .getXPosition(
+            dataGridConfiguration,
+            details.localPosition.dx -
+                dataGridConfiguration.container.horizontalOffset,
+          );
       final VisibleLineInfo? resizingLine = dataGridConfiguration
           .container
           .scrollColumns

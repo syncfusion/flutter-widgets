@@ -1872,6 +1872,7 @@ abstract class _IMonthView extends RenderBox
 
     _datePickerTheme = value;
     if (childCount != 0) {
+      markNeedsPaint();
       return;
     }
 

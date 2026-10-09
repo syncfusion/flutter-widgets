@@ -4,3 +4,11 @@ analyzer:
   errors:
     include_file_not_found: ignore
     lines_longer_than_80_chars: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

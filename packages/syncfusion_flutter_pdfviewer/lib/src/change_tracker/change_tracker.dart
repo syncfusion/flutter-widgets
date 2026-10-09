@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'change_command.dart';
 
 /// Class that tracks changes in the annotation.

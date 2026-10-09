@@ -625,14 +625,12 @@ class TimeRegion with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(
-      IterableDiagnostics<DateTime>(
-        recurrenceExceptionDates,
-      ).toDiagnosticsNode(name: 'recurrenceExceptionDates'),
+      IterableDiagnostics<DateTime>(recurrenceExceptionDates)
+          .toDiagnosticsNode(name: 'recurrenceExceptionDates'),
     );
     properties.add(
-      IterableDiagnostics<Object>(
-        resourceIds,
-      ).toDiagnosticsNode(name: 'resourceIds'),
+      IterableDiagnostics<Object>(resourceIds)
+          .toDiagnosticsNode(name: 'resourceIds'),
     );
     properties.add(StringProperty('timeZone', timeZone));
     properties.add(StringProperty('recurrenceRule', recurrenceRule));

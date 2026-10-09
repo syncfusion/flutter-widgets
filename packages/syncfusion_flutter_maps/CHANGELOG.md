@@ -1,5 +1,11 @@
 ## Unreleased
 
+**General**
+
+*  The compatible version of our Flutter maps widget has been updated to Flutter SDK 3.47.
+
+## [32.2.8] - 03/03/2026
+
 **Bugs**
 
 * Fixed interaction and tooltip positioning issues that occurred when the map was shifted from its normal position using an offset. Tooltips and zoom gestures now align correctly.

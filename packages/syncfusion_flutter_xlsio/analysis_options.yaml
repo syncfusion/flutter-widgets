@@ -7,3 +7,11 @@ analyzer:
     include_file_not_found: ignore
     avoid_as: ignore
     avoid_dynamic_calls: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

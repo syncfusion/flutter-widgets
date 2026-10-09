@@ -1,5 +1,17 @@
 ## Unreleased
 
+**General**
+
+* The compatible version of our Flutter DataGrid widget has been updated to Flutter SDK 3.47.
+
+## [34.2.2] - 08/05/2026
+
+**Bugs**
+
+* A `RangeError` will no longer occur when initially displaying only the header row with a customized header row height.
+
+## [33.2.6] - 05/12/2026
+
 **Bugs**
 
 * The `SfDataGrid` now properly handles the horizontal scrollbar gesture only when the `showHorizontalScrollbar` property is enabled.

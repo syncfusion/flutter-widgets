@@ -6,3 +6,11 @@ analyzer:
     lines_longer_than_80_chars: ignore
     unnecessary_null_comparison: ignore
     missing_whitespace_between_adjacent_strings: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

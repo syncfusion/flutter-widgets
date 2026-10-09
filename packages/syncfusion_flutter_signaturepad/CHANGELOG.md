@@ -1,5 +1,11 @@
 ## Unreleased
 
+**General**
+
+* The compatible version of our Flutter signaturepad widget has been updated to Flutter SDK 3.47.
+
+## [32.2.3] - 02/05/2026
+
 ## SignaturePad
 
 **Bugs**

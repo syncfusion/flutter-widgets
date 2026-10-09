@@ -734,30 +734,9 @@ class _SfLegendState extends State<SfLegend> {
           children: <Widget>[
             widget.title!,
             if (widget.overflowMode == LegendOverflowMode.scroll)
-              (widget.width != null || widget.height != null)
-                  ? Expanded(
-                    child: Scrollbar(
-                      thickness: scrollbarThickness,
-                      controller: _scrollController,
-                      thumbVisibility: widget.shouldAlwaysShowScrollbar,
-                      child: ScrollConfiguration(
-                        behavior: ScrollConfiguration.of(
-                          context,
-                        ).copyWith(scrollbars: false),
-                        child: SingleChildScrollView(
-                          controller: _scrollController,
-                          scrollDirection:
-                              widget.scrollDirection ??
-                              (widget.position == LegendPosition.top ||
-                                      widget.position == LegendPosition.bottom
-                                  ? Axis.horizontal
-                                  : Axis.vertical),
-                          child: current,
-                        ),
-                      ),
-                    ),
-                  )
-                  : Scrollbar(
+              if (widget.width != null || widget.height != null)
+                Expanded(
+                  child: Scrollbar(
                     thickness: scrollbarThickness,
                     controller: _scrollController,
                     thumbVisibility: widget.shouldAlwaysShowScrollbar,
@@ -776,7 +755,29 @@ class _SfLegendState extends State<SfLegend> {
                         child: current,
                       ),
                     ),
-                  )
+                  ),
+                )
+              else
+                Scrollbar(
+                  thickness: scrollbarThickness,
+                  controller: _scrollController,
+                  thumbVisibility: widget.shouldAlwaysShowScrollbar,
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(
+                      context,
+                    ).copyWith(scrollbars: false),
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      scrollDirection:
+                          widget.scrollDirection ??
+                          (widget.position == LegendPosition.top ||
+                                  widget.position == LegendPosition.bottom
+                              ? Axis.horizontal
+                              : Axis.vertical),
+                      child: current,
+                    ),
+                  ),
+                )
             else if (widget.overflowMode == LegendOverflowMode.wrapScroll)
               Expanded(
                 child: Scrollbar(
@@ -815,10 +816,10 @@ class _SfLegendState extends State<SfLegend> {
                   child: current,
                 ),
               )
+            else if (widget.width != null || widget.height != null)
+              Expanded(child: current)
             else
-              (widget.width != null || widget.height != null)
-                  ? Expanded(child: current)
-                  : current,
+              current,
           ],
         );
       } else {

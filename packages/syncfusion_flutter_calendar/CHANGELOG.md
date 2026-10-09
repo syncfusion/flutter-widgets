@@ -1,6 +1,33 @@
 ## Unreleased
 
+**General**
+
+*  The compatible version of our Flutter calendar widget has been updated to Flutter SDK 3.47.
+
+## [34.2.5] - 8/25/2026
+
+**Bug**
+
+* Fixed an issue where appointment start times were incorrectly shifted when appointments were dragged from the center or bottom in day, week, work week, and timeline views.
+
+## [34.2.4] - 8/18/2026
+
+**Bug**
+
+* Fixed an issue where appointments could not be dragged to late-hour time slots or across day boundaries in day and week views.
+
+## [34.1.32] - 7/20/2026
+
 **Bugs**
+
+* Resolved a crash that could occur when switching the [viewNavigationMode](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/SfCalendar/viewNavigationMode.html) from [none](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/ViewNavigationMode.html) to [snap](https://pub.dev/documentation/syncfusion_flutter_calendar/latest/calendar/ViewNavigationMode.html) while a swipe gesture was in progress.
+
+* Standardized gesture coordinate handling by converting global touch positions to local coordinates for reliable interaction behavior.
+
+## [33.2.12] - 6/09/2026
+
+**Bugs**
+
 
 * Fixed a crash that occurred during fast navigation and exit, caused by animations continuing after the calendar view was disposed. Added safeguards to ensure that animations are safely stopped, preventing errors.
 

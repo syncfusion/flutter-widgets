@@ -2288,36 +2288,38 @@ class PdfTextExtractor {
     if (pageResources.containsKey(key)) {
       final dynamic element = pageResources[key];
       if (element is XObjectElement) {
-        final PdfRecordCollection collection = element.render(pageResources)!;
-        final PdfDictionary xobjects = element.dictionary!;
-        PdfPageResources childResource = PdfPageResources();
-        if (xobjects.containsKey(PdfDictionaryProperties.resources)) {
-          PdfDictionary? pageDictionary = PdfDictionary();
-          final IPdfPrimitive? resource =
-              xobjects[PdfDictionaryProperties.resources];
-          if (resource is PdfReferenceHolder &&
-              resource.object is PdfDictionary) {
-            pageDictionary = resource.object as PdfDictionary?;
-          } else if (resource is PdfDictionary) {
-            pageDictionary = resource;
+        if (element.objectType == 'Form') {
+          final PdfRecordCollection collection = element.render(pageResources)!;
+          final PdfDictionary xobjects = element.dictionary!;
+          PdfPageResources childResource = PdfPageResources();
+          if (xobjects.containsKey(PdfDictionaryProperties.resources)) {
+            PdfDictionary? pageDictionary = PdfDictionary();
+            final IPdfPrimitive? resource =
+                xobjects[PdfDictionaryProperties.resources];
+            if (resource is PdfReferenceHolder &&
+                resource.object is PdfDictionary) {
+              pageDictionary = resource.object as PdfDictionary?;
+            } else if (resource is PdfDictionary) {
+              pageDictionary = resource;
+            }
+            childResource = _resourceLoader.updatePageResources(
+              childResource,
+              _resourceLoader.getFormResources(pageDictionary),
+            );
+            childResource = _resourceLoader.updatePageResources(
+              childResource,
+              _resourceLoader.getFontResources(pageDictionary, _currentPage),
+            );
+          } else {
+            childResource = _updateFontResources(pageResources);
           }
-          childResource = _resourceLoader.updatePageResources(
-            childResource,
-            _resourceLoader.getFormResources(pageDictionary),
-          );
-          childResource = _resourceLoader.updatePageResources(
-            childResource,
-            _resourceLoader.getFontResources(pageDictionary, _currentPage),
-          );
-        } else {
-          childResource = _updateFontResources(pageResources);
+          if (_isLayout) {
+            result = '${_renderTextAsLayout(collection, childResource)}\r\n';
+          } else {
+            result = _renderText(collection, childResource);
+          }
+          collection.recordCollection.clear();
         }
-        if (_isLayout) {
-          result = '${_renderTextAsLayout(collection, childResource)}\r\n';
-        } else {
-          result = _renderText(collection, childResource);
-        }
-        collection.recordCollection.clear();
       }
     }
     return result;

@@ -130,12 +130,14 @@ List<int> getSpannedCellStartAndEndIndex({
     }
   }
 
+  bool hasExcludeColumn(int index) {
+    return index < columnIndex;
+  }
+
   if (firstColumnIndex > startColumnIndex) {
     // Updates the first and last column index if any exclude column exists
     // before the `firstColumnIndex`.
-    excludeColumnsCount = excludeColumnIndexes
-        .where((int index) => index < columnIndex)
-        .length;
+    excludeColumnsCount = excludeColumnIndexes.where(hasExcludeColumn).length;
 
     firstColumnIndex = max(
       startColumnIndex,
@@ -147,13 +149,13 @@ List<int> getSpannedCellStartAndEndIndex({
     );
   }
 
+  bool hasExcludeColumnInSpannedCell(int index) {
+    return index >= columnIndex && index <= columnIndex + columnSpan;
+  }
+
   // To remove the in-between excluded columns from the `lastColumnIndex`.
-  excludeColumnsCount = excludeColumnIndexes
-      .where(
-        (int index) =>
-            index >= columnIndex && index <= columnIndex + columnSpan,
-      )
-      .length;
+  excludeColumnsCount =
+      excludeColumnIndexes.where(hasExcludeColumnInSpannedCell).length;
   lastColumnIndex -= excludeColumnsCount;
 
   return <int>[firstColumnIndex, lastColumnIndex];
@@ -188,9 +190,12 @@ int getSummaryColumnIndex(
     return -1;
   }
 
-  final List<GridColumn> visibleColumns = columns
-      .where((GridColumn column) => !excludeColumns.contains(column.columnName))
-      .toList();
+  bool hasExportableColumn(GridColumn column) {
+    return !excludeColumns.contains(column.columnName);
+  }
+
+  final List<GridColumn> visibleColumns =
+      columns.where(hasExportableColumn).toList();
   final GridColumn? column = visibleColumns.firstWhereOrNull(
     (GridColumn element) => element.columnName == columnName,
   );

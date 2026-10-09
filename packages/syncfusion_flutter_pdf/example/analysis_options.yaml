@@ -8,3 +8,11 @@ analyzer:
     avoid_as: ignore
     uri_does_not_exist: ignore
     invalid_dependency: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

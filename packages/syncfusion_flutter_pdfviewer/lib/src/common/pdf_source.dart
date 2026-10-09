@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+
 import '../../pdfviewer.dart';
 
 /// Represents a base class of PDF document source.
@@ -115,10 +116,9 @@ class AssetPDFSource extends PDFSource {
   /// Retrieves the bytes of the PDF document from the asset.
   @override
   Future<Uint8List> getBytes(BuildContext context) async {
-    final ByteData bytes =
-        await ((_bundle != null)
-            ? _bundle.load(_pdfPath)
-            : DefaultAssetBundle.of(context).load(_pdfPath));
+    final ByteData bytes = await ((_bundle != null)
+        ? _bundle.load(_pdfPath)
+        : DefaultAssetBundle.of(context).load(_pdfPath));
     return bytes.buffer.asUint8List();
   }
 

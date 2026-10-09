@@ -817,8 +817,9 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor!;
 
     final double startXPosition = isRTL ? 0 : timeLabelWidth;
-    final double endXPosition =
-        isRTL ? size.width - timeLabelWidth : size.width;
+    final double endXPosition = isRTL
+        ? size.width - timeLabelWidth
+        : size.width;
     for (int i = 1; i <= horizontalLinesCount; i++) {
       canvas.drawLine(
         Offset(startXPosition, y),
@@ -889,10 +890,9 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     _linePainter.style = PaintingStyle.fill;
     final int count = specialRegionBounds.length;
     final TextStyle defaultTextStyle = TextStyle(
-      color:
-          themeData.brightness == Brightness.dark
-              ? Colors.white54
-              : Colors.black45,
+      color: themeData.brightness == Brightness.dark
+          ? Colors.white54
+          : Colors.black45,
     );
     for (int i = 0; i < count; i++) {
       final TimeRegionView view = specialRegionBounds[i];
@@ -938,8 +938,8 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
     left = isRTL ? (size.width - timeLabelWidth) - cellWidth : timeLabelWidth;
     final double cellHeight = timeIntervalHeight;
     final int startHour = timeSlotViewSettings.startHour.toInt();
-    final int hour =
-        ((timeSlotViewSettings.startHour - startHour) * 60).toInt();
+    final int hour = ((timeSlotViewSettings.startHour - startHour) * 60)
+        .toInt();
     final int timeInterval = CalendarViewHelper.getTimeInterval(
       timeSlotViewSettings,
     );

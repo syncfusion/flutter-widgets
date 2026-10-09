@@ -1848,6 +1848,7 @@ abstract class _IYearViewRenderObject extends RenderBox
 
     _datePickerTheme = value;
     if (childCount != 0) {
+      markNeedsPaint();
       return;
     }
 

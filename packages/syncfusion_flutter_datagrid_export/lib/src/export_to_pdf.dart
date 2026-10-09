@@ -465,12 +465,12 @@ class DataGridToPdfConverter {
       bottom: 2,
     );
 
+    bool isExportableColumn(GridColumn column) {
+      return !excludeColumns.contains(column.columnName);
+    }
+
     //final List<GridColumn> columns = dataGrid.columns;
-    _columns = dataGrid.columns
-        .where(
-          (GridColumn column) => !excludeColumns.contains(column.columnName),
-        )
-        .toList();
+    _columns = dataGrid.columns.where(isExportableColumn).toList();
 
     //if fit all columns in one page is false then horizontal overflow is true and type is next page
     if (!fitAllColumnsInOnePage) {
@@ -638,10 +638,17 @@ class DataGridToPdfConverter {
   /// Gets the cell value required for data rows.
   @protected
   Object? getCellValue(GridColumn column, DataGridRow row) {
-    final DataGridCell cellValue = row.getCells().firstWhereOrNull(
-      (DataGridCell element) => element.columnName == column.columnName,
-    )!;
-    return cellValue.value;
+    // Replaced the null assertion operator (`!`) with the null-aware operator (`?.`).
+    // Previously, if no matching cell was found, `firstWhereOrNull()` returned null
+    // and the `!` operator caused a runtime exception.
+    // The updated implementation safely returns null when a matching cell does not
+    // exist, avoiding runtime exception and making the method null-safe.
+    return row
+        .getCells()
+        .firstWhereOrNull(
+          (DataGridCell element) => element.columnName == column.columnName,
+        )
+        ?.value;
   }
 
   void _exportCellToPdf(
@@ -683,9 +690,12 @@ class DataGridToPdfConverter {
       return;
     }
 
-    final List<GridTableSummaryRow> summaryRows = dataGrid.tableSummaryRows
-        .where((GridTableSummaryRow row) => row.position == position)
-        .toList();
+    bool isEqualPosition(GridTableSummaryRow row) {
+      return row.position == position;
+    }
+
+    final List<GridTableSummaryRow> summaryRows =
+        dataGrid.tableSummaryRows.where(isEqualPosition).toList();
 
     if (summaryRows.isEmpty) {
       return;
@@ -792,7 +802,12 @@ class DataGridToPdfConverter {
       rowColumnIndex,
     );
 
-    PdfGridCell pdfCell = tableSummaryRow!.cells[startColumnIndex];
+    // Null check for `tableSummaryRow` to avoid potential runtime exceptions when it is not provided.
+    if (tableSummaryRow == null) {
+      return;
+    }
+
+    PdfGridCell pdfCell = tableSummaryRow.cells[startColumnIndex];
     if (columnSpan > 0) {
       pdfCell = tableSummaryRow.cells[startColumnIndex];
       pdfCell.columnSpan = columnSpan;

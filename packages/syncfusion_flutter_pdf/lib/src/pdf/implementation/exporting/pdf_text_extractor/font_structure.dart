@@ -166,6 +166,7 @@ class FontStructure {
   PdfFont? font;
   String? _standardFontName = '';
   String? _standardCJKFontName = '';
+  bool _skipEscapeSequence = false;
 
   /// internal field
   late List<String> standardFontNames;
@@ -2494,6 +2495,7 @@ class FontStructure {
 
   /// internal method
   String skipEscapeSequence(String text) {
+    final int len = text.length;
     if (text.contains(r'\')) {
       final int i = text.indexOf(r'\');
       if (i + 1 != text.length) {
@@ -2529,6 +2531,7 @@ class FontStructure {
             break;
           default:
             {
+              _skipEscapeSequence = true;
               if (escapeSequence.codeUnitAt(0) == 3) {
                 text = text.replaceAll(r'\', r'\"');
               } else if (escapeSequence.codeUnitAt(0) >= 127) {
@@ -2548,6 +2551,9 @@ class FontStructure {
             }
         }
       }
+    }
+    if (len == text.length) {
+      _skipEscapeSequence = true;
     }
     return text;
   }
@@ -2634,7 +2640,8 @@ class FontStructure {
                 if (!hasEscapeChar) {
                   do {
                     text = skipEscapeSequence(text);
-                  } while (hasEscapeCharacter(text));
+                  } while (!_skipEscapeSequence && hasEscapeCharacter(text));
+                  _skipEscapeSequence = false;
                 }
                 final List<int> bytes = <int>[];
                 for (int i = 0; i < text.length; i++) {
@@ -4944,11 +4951,11 @@ class FontStructure {
   String mapIdentityCharacters(String hexChar) {
     if (hexChar.substring(0, 2) == '00') {
       if (hexChar.substring(2, 3) != '0' || hexChar.substring(2, 3) != '1') {
-        int i = int.parse(hexChar);
+        int i = int.parse(hexChar, radix: 16);
         i += 29;
         hexChar = i.toRadixString(16);
       } else {
-        int i = int.parse(hexChar);
+        int i = int.parse(hexChar, radix: 16);
         i += 1335;
         hexChar = i.toRadixString(16);
       }

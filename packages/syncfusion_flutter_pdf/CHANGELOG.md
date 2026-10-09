@@ -1,5 +1,46 @@
 ## Unreleased
 
+**Bugs**
+
+- Resolved an issue where text extraction could fail for certain PDF XObjects, causing PdfTextExtractor to crash.
+
+## [34.2.3] - 08/11/2026
+
+- No changes
+
+## [34.2.2] - 08/05/2026
+
+- No changes
+
+## [34.1.33] - 07/28/2026
+
+- No changes
+
+## [34.1.32] - 07/21/2026
+
+- No changes
+
+## [34.1.31] - 07/14/2026
+
+- No changes
+
+## [34.1.30] - 07/09/2026
+
+**Bugs**
+
+- Resolved an issue where escape sequence handling in PDF text extraction caused an infinite loop and application to freeze.
+- Resolved an issue where PdfTextExtractor throw a FormatException for certain Type0 (Identity‑H) fonts without a /ToUnicode map.
+
+## [34.1.29] - 07/06/2026
+
+- No changes
+
+## [33.2.15] - 06/24/2026
+
+- No changes
+
+## [33.2.13+1] - 06/18/2026
+
 **General**
 
 - Upgraded the `xml` package to the latest version 7.0.1.
@@ -7,6 +48,10 @@
 **Bugs**
 
 - Resolved an issue where adding a timestamp during external PDF signing caused Adobe validation errors.
+
+## [33.2.13] - 06/16/2026
+
+- No changes
 
 ## [33.2.12] - 06/09/2026
 
