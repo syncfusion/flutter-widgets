@@ -28,7 +28,7 @@ Also, you can view the samples code from [this repository](https://github.com/sy
 
 ## Packages
 
-| Package/Plugin | Available widgets/libraries | Pub | Points | Popularity | Likes |
+| Package/Plugin | Available widgets/libraries | Pub | Points | Downloads | Likes |
 |----------------|-----------------------------|-----|--------|------------|-------|
 | [syncfusion_flutter_chat](./packages/syncfusion_flutter_chat/) | <ul><li>SfChat</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_chat.svg)](https://pub.dev/packages/syncfusion_flutter_chat) | [![pub points](https://img.shields.io/pub/points/syncfusion_flutter_chat)](https://pub.dev/packages/syncfusion_flutter_chat/score) |  [![downloads](https://img.shields.io/pub/dm/syncfusion_flutter_chat)](https://pub.dev/packages/syncfusion_flutter_chat/score) | [![likes](https://img.shields.io/pub/likes/syncfusion_flutter_chat)](https://pub.dev/packages/syncfusion_flutter_chat/score)  |
 | [syncfusion_flutter_charts](./packages/syncfusion_flutter_charts/) | <ul><li>SfCartesianChart</li><li>SfCircularChart</li><li>SfPyramidChart</li><li>SfFunnelChart</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_charts.svg)](https://pub.dev/packages/syncfusion_flutter_charts) | [![pub points](https://img.shields.io/pub/points/syncfusion_flutter_charts)](https://pub.dev/packages/syncfusion_flutter_charts/score) |  [![downloads](https://img.shields.io/pub/dm/syncfusion_flutter_charts)](https://pub.dev/packages/syncfusion_flutter_charts/score) | [![likes](https://img.shields.io/pub/likes/syncfusion_flutter_charts)](https://pub.dev/packages/syncfusion_flutter_charts/score)  |
